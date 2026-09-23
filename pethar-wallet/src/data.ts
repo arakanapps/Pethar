@@ -150,6 +150,7 @@ export interface UserProfile {
   petharId: string
   location: string
   accountTier: string
+  avatarUrl?: string
 }
 
 export const initialUserProfile: UserProfile = {
@@ -159,6 +160,7 @@ export const initialUserProfile: UserProfile = {
   petharId: 'ARAK-8891-JACK',
   location: 'Sittwe · စစ်တွေ',
   accountTier: 'Normal',
+  avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
 }
 
 export interface Agent {

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { colors, initialUserProfile, type UserProfile } from './data'
 import {
-  Home, Send, Receive, Scan, CashOut, AccountScreen, ServicesScreen, SettingsScreen, type Screen
+  Home, Send, Receive, Scan, CashOut, AccountScreen, ServicesScreen, SettingsScreen, NotificationsScreen, type Screen
 } from './screens'
 import { InternationalBanking } from './components/InternationalBanking'
 import { CryptoGateway } from './components/CryptoGateway'
@@ -11,7 +11,7 @@ import { WebPortal } from './components/WebPortal'
 import { ArakanEmblem, FlagArakan, FlagInternational } from './components/ArakanEmblem'
 import { type Language, translations } from './i18n'
 import {
-  Wifi, Battery, Signal, Smartphone, Monitor, Terminal,
+  Wifi, Battery, Signal, Monitor, Terminal,
   FileText, QrCode, Sun, Moon,
   CreditCard, LayoutGrid, Settings as SettingsIcon, Home as HomeIcon
 } from 'lucide-react'
@@ -80,7 +80,7 @@ export default function App() {
             }`}
             title="Mobile Wallet (Android/iOS)"
           >
-            <Smartphone size={14} />
+            <HomeIcon size={14} />
             <span className="hidden md:inline">Mobile (iOS/Android)</span>
           </button>
 
@@ -200,7 +200,7 @@ export default function App() {
               {/* Mobile Screen Router */}
               <div className="h-[calc(100%-88px)] overflow-hidden">
                 {screen === 'home' && (
-                  <Home go={handleMobileNav} lang={lang} onOpenLegal={openLegal} />
+                  <Home go={handleMobileNav} lang={lang} profile={profile} />
                 )}
                 {screen === 'account' && (
                   <AccountScreen go={handleMobileNav} lang={lang} />
@@ -240,6 +240,9 @@ export default function App() {
                 )}
                 {screen === 'pos' && (
                   <POSTerminal lang={lang} />
+                )}
+                {screen === 'notifications' && (
+                  <NotificationsScreen go={handleMobileNav} lang={lang} />
                 )}
               </div>
 
