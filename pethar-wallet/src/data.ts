@@ -250,8 +250,12 @@ export interface WalletBalance {
   code: string
   symbol: string
   balance: number
+  totalBalance: number
+  pendingBalance: number
   labelEn: string
   labelMm: string
+  totalLabelEn: string
+  totalLabelMm: string
   isSovereign?: boolean
   usdEquivalent: number
 }
@@ -262,8 +266,12 @@ export const wallets: WalletBalance[] = [
     code: 'AKD',
     symbol: '₳',
     balance: 14850.0,
-    labelEn: 'Sovereign Arakan Dollar Vault (AKD Only)',
-    labelMm: 'အာရက္ခဒေါ်လာ အချုပ်အခြာငွေစာရင်း (AKD သီးသန့်)',
+    totalBalance: 15200.0,
+    pendingBalance: 350.0,
+    labelEn: 'Available Balance',
+    labelMm: 'ရရှိနိုင်သော လက်ကျန်ငွေ',
+    totalLabelEn: 'Total Balance',
+    totalLabelMm: 'စုစုပေါင်း လက်ကျန်ငွေ',
     isSovereign: true,
     usdEquivalent: 14850.0,
   },
