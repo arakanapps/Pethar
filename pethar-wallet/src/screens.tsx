@@ -1,15 +1,16 @@
 import {
-  transactions, wallets, contacts, agents, inboundConversionRails,
+  wallets, contacts, agents, inboundConversionRails,
   initialUserProfile, type UserProfile
 } from './data'
 import {
   ArrowUpRight, ArrowDownLeft, QrCode, Store, Eye, EyeOff,
   ChevronLeft, ChevronRight, Copy, Check,
-  Fingerprint, ScanLine, Globe, Coins, Settings as SettingsIcon,
+  Fingerprint, ScanLine, Globe, Coins,
   Clock, Sparkles, Terminal, CreditCard, Lock,
   Plus, X, LogOut, Shield, HelpCircle,
   TrendingUp, FileText, RefreshCw, Download,
-  Receipt, Wallet, User, Sun, Moon, KeyRound, ShieldCheck
+  Receipt, Wallet, User, Sun, Moon, KeyRound, ShieldCheck,
+  Bell, ArrowLeft, AlarmClock, Megaphone, Link2, ArrowLeftRight
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { FakeQR } from './components/FakeQR'
@@ -30,6 +31,7 @@ export type Screen =
   | 'intl'
   | 'crypto'
   | 'pos'
+  | 'notifications'
 
 // ── Shared Header ───────────────────────────────────────────────────────
 export function ScreenHeader({
@@ -114,21 +116,21 @@ export function OtpDots({ len }: { len: number }) {
   )
 }
 
-const fmtAkd = (n: number) => `₳ ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-
 // ── HOME SCREEN (Inspired by Krungthai NEXT modern layout) ─────────────────
 export function Home({
   go,
   lang,
-  onOpenLegal,
+  profile,
 }: {
   go: (s: Screen) => void
   lang: Language
-  onOpenLegal: (doc: 'terms' | 'privacy' | 'guidelines' | 'fx') => void
+  _onOpenLegal?: (doc: 'terms' | 'privacy' | 'guidelines' | 'fx') => void
+  profile?: UserProfile
 }) {
-  const t = translations[lang]
   const [hidden, setHidden] = useState(false)
   const [bannerVisible, setBannerVisible] = useState(true)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [loggedOutToast, setLoggedOutToast] = useState(false)
   const w = wallets[0]
 
   // 8 Quick Service items (mirroring Krungthai NEXT 8-service layout)
@@ -155,26 +157,50 @@ export function Home({
     <div className="flex h-full flex-col overflow-y-auto bg-[#090D14] text-white">
       {/* Top Header Card */}
       <div className="px-5 pb-5 pt-3 bg-gradient-to-b from-[#2A080C] via-[#1A0A10] to-[#0E1522] rounded-b-[32px] border-b border-red-950/60 shadow-xl">
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2.5">
-            <ArakanEmblem size={34} variant="badge" />
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm font-black text-white tracking-wider">{t.appName}</span>
-                <span className="rounded-full px-2 py-0.5 text-[8px] font-bold tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  {t.tierVerified}
-                </span>
-              </div>
-              <div className="text-[10px] text-red-200/70">{t.appSubtitle}</div>
+        <div className="relative flex items-center justify-between pt-1">
+          {/* User Photo (Left) */}
+          <button
+            onClick={() => go('settings')}
+            className="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-400/60 shadow-lg hover:ring-2 hover:ring-amber-400/50 transition active:scale-95 flex items-center justify-center bg-[#1A1224] shrink-0 z-10"
+            title={profile?.name || 'Profile'}
+          >
+            {profile?.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name || 'User'}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <User size={20} className="text-amber-400" />
+            )}
+          </button>
+
+          {/* App Logo in Middle */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="pointer-events-auto">
+              <ArakanEmblem size={38} variant="badge" />
             </div>
           </div>
-          <div className="flex items-center gap-2">
+
+          {/* Noti Bell & Logout (Right) */}
+          <div className="flex items-center gap-2 shrink-0 z-10">
+            {/* Notification Bell */}
             <button
-              onClick={() => go('settings')}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-gray-300 transition"
-              title="Settings"
+              onClick={() => go('notifications')}
+              className="relative w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-gray-300 hover:text-white transition active:scale-95"
+              title={lang === 'arak' ? 'အသိပေးချက်များ' : 'Notifications'}
             >
-              <SettingsIcon size={16} />
+              <Bell size={16} />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            </button>
+
+            {/* Logout Button */}
+            <button
+              onClick={() => setShowLogoutModal(true)}
+              className="w-8 h-8 rounded-full bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 border border-red-500/20 flex items-center justify-center transition active:scale-95"
+              title={lang === 'arak' ? 'အကောင့်ထွက်ရန်' : 'Log Out'}
+            >
+              <LogOut size={15} />
             </button>
           </div>
         </div>
@@ -199,23 +225,6 @@ export function Home({
               </>
             )}
           </div>
-
-          {/* AKD Only Sovereign Vault Badge */}
-          <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] text-amber-300 font-semibold">
-            <Sparkles size={12} className="text-amber-400" />
-            <span>{t.autoConvertBadge}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Auto-Convert Notice Banner */}
-      <div className="mx-4 mt-3 p-3 rounded-2xl bg-[#121A28] border border-amber-500/30 flex items-start gap-2.5 text-xs text-amber-200">
-        <Sparkles size={16} className="text-amber-400 shrink-0 mt-0.5" />
-        <div className="flex-1 text-[11px] leading-relaxed">
-          <strong className="text-amber-300 font-bold block mb-0.5">
-            {lang === 'arak' ? 'အာရက္ခဒေါ်လာ (AKD) သီးသန့် သိုလှောင်ခြင်း' : 'AKD Sovereign Single-Currency Vault'}
-          </strong>
-          {t.autoConvertNotice}
         </div>
       </div>
 
@@ -297,70 +306,52 @@ export function Home({
         </div>
       </div>
 
-      {/* Recent Ledger Postings */}
-      <div className="px-4 pt-4 pb-6">
-        <div className="flex items-center justify-between pb-2">
-          <span className="text-xs font-bold text-gray-400">{t.recentTransactions}</span>
-          <button
-            onClick={() => onOpenLegal('fx')}
-            className="text-[11px] font-bold text-amber-400 hover:underline flex items-center gap-1"
-          >
-            {lang === 'arak' ? 'ငွေလဲနှုန်းဘုတ်' : 'FX Board'}
-          </button>
-        </div>
-
-        <div className="rounded-2xl bg-[#131B26] border border-white/5 overflow-hidden divide-y divide-white/5">
-          {transactions.map((txn) => (
-            <div key={txn.id} className="p-3 flex items-center justify-between hover:bg-white/[0.02] transition">
-              <div className="flex items-center gap-2.5">
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs ${
-                    txn.amount > 0
-                      ? 'bg-emerald-500/20 text-emerald-400'
-                      : txn.category === 'cashout'
-                      ? 'bg-amber-500/20 text-amber-400'
-                      : txn.category === 'crypto'
-                      ? 'bg-purple-500/20 text-purple-400'
-                      : 'bg-red-500/20 text-red-400'
-                  }`}
-                >
-                  {txn.amount > 0 ? (
-                    <ArrowDownLeft size={16} />
-                  ) : txn.category === 'cashout' ? (
-                    <Store size={16} />
-                  ) : txn.category === 'crypto' ? (
-                    <Coins size={16} />
-                  ) : (
-                    <ArrowUpRight size={16} />
-                  )}
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-white line-clamp-1">
-                    {lang === 'arak' ? txn.titleMm : txn.title}
-                  </div>
-                  <div className="text-[10px] text-gray-400 flex items-center gap-1.5 mt-0.5">
-                    <span>{txn.time}</span>
-                    <span>•</span>
-                    <span className="text-emerald-400 font-mono text-[9px]">{txn.status}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-right">
-                <div
-                  className={`text-xs font-bold font-mono ${
-                    txn.amount > 0 ? 'text-emerald-400' : 'text-white'
-                  }`}
-                >
-                  {txn.amount > 0 ? '+' : ''}
-                  {fmtAkd(txn.amount)}
-                </div>
-                <div className="text-[9px] text-gray-500 font-mono">{txn.hash}</div>
-              </div>
+      {/* ── LOGOUT CONFIRMATION MODAL ─────────────────────────────────── */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-xs rounded-3xl p-5 shadow-2xl border bg-[#101724] border-red-500/30 text-white text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-red-600/20 text-red-400 mx-auto flex items-center justify-center border border-red-500/30">
+              <LogOut size={22} />
             </div>
-          ))}
+            <div>
+              <h3 className="font-bold text-base text-white">
+                {lang === 'arak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of PeThar?'}
+              </h3>
+              <p className="text-xs text-gray-400 mt-1">
+                {lang === 'arak'
+                  ? 'လုံခြုံရေးအရ သင်၏ စက်တွင်း session အား ပိတ်သိမ်းပါမည်။'
+                  : 'Your active session will be ended securely.'}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-gray-300 transition"
+              >
+                {lang === 'arak' ? 'မထွက်ပါ' : 'Cancel'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowLogoutModal(false)
+                  setLoggedOutToast(true)
+                  setTimeout(() => setLoggedOutToast(false), 3000)
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-xs font-bold text-white shadow-lg transition"
+              >
+                {lang === 'arak' ? 'ထွက်မည်' : 'Log Out'}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Logged Out Toast */}
+      {loggedOutToast && (
+        <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-red-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-red-400">
+          <Check size={14} />
+          <span>{lang === 'arak' ? 'အကောင့်ထွက်ပြီးပါပြီ' : 'Logged out securely'}</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -375,7 +366,6 @@ export function AccountScreen({
 }) {
   const [cardFrozen, setCardFrozen] = useState(false)
   const [showCvv, setShowCvv] = useState(false)
-  const t = translations[lang]
 
   return (
     <div className="flex h-full flex-col overflow-y-auto bg-[#090D14] text-white">
@@ -505,10 +495,6 @@ export function AccountScreen({
             <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
               0% Fee
             </span>
-          </div>
-
-          <div className="p-3 mb-2 rounded-2xl bg-[#131B26] border border-amber-500/30 text-[11px] text-amber-200/90 leading-relaxed">
-            {t.autoConvertNotice}
           </div>
 
           <div className="space-y-2">
@@ -1621,6 +1607,278 @@ export function CashOut({ go, lang }: { go: (s: Screen) => void; lang: Language 
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+// ── NOTIFICATIONS SCREEN (Matches user reference design) ─────────────────
+export function NotificationsScreen({
+  go,
+  lang = 'arak',
+}: {
+  go: (s: Screen) => void
+  lang?: Language
+}) {
+  const [filter, setFilter] = useState<'all' | 'transaction' | 'system' | 'promotion'>('all')
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [claimedToast, setClaimedToast] = useState(false)
+
+  const handleMarkAllRead = () => {
+    setUnreadCount(0)
+  }
+
+  const handleClaim = () => {
+    setClaimedToast(true)
+    setTimeout(() => setClaimedToast(false), 3000)
+  }
+
+  return (
+    <div className="flex h-full flex-col overflow-y-auto bg-white text-gray-900 select-none">
+      {/* ── GRADIENT HEADER (Deep Navy/Blue -> Purple/Magenta -> Orange/Red) ── */}
+      <div className="sticky top-0 z-30 px-4 py-3 bg-gradient-to-r from-[#17208E] via-[#63187A] to-[#FF4500] text-white flex items-center justify-between shadow-md">
+        <button
+          onClick={() => go('home')}
+          className="p-1 hover:bg-white/10 rounded-full transition active:scale-95"
+          title="Back"
+        >
+          <ArrowLeft size={20} className="text-white" />
+        </button>
+
+        <h2 className="text-base font-bold text-white tracking-wide">
+          Notifications
+        </h2>
+
+        {/* Inbox count icon (rounded square badge with counter 0) */}
+        <div className="w-6 h-6 rounded-lg border-2 border-white/80 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+          {unreadCount}
+        </div>
+      </div>
+
+      {/* ── FILTER PILLS BAR ── */}
+      <div className="px-4 pt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
+        {/* All */}
+        <button
+          onClick={() => setFilter('all')}
+          className={`relative px-4 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
+            filter === 'all'
+              ? 'bg-[#0B5CFF] text-white shadow-sm'
+              : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          <span>All</span>
+          {unreadCount > 0 && (
+            <span className="w-2 h-2 rounded-full bg-[#FF4500]" />
+          )}
+        </button>
+
+        {/* Transaction */}
+        <button
+          onClick={() => setFilter('transaction')}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
+            filter === 'transaction'
+              ? 'bg-[#0B5CFF] text-white shadow-sm'
+              : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          <ArrowLeftRight size={13} className={filter === 'transaction' ? 'text-white' : 'text-[#0B5CFF]'} />
+          <span>Transaction</span>
+        </button>
+
+        {/* System */}
+        <button
+          onClick={() => setFilter('system')}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
+            filter === 'system'
+              ? 'bg-[#0B5CFF] text-white shadow-sm'
+              : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          <AlarmClock size={13} className={filter === 'system' ? 'text-white' : 'text-[#0B5CFF]'} />
+          <span>System</span>
+        </button>
+
+        {/* Promotion */}
+        <button
+          onClick={() => setFilter('promotion')}
+          className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
+            filter === 'promotion'
+              ? 'bg-[#0B5CFF] text-white shadow-sm'
+              : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          <Megaphone size={13} className={filter === 'promotion' ? 'text-white' : 'text-[#0B5CFF]'} />
+          <span>Promotion</span>
+          {unreadCount > 0 && (
+            <span className="w-2 h-2 rounded-full bg-[#FF4500]" />
+          )}
+        </button>
+      </div>
+
+      {/* ── MARK ALL AS READ ── */}
+      <div className="px-4 pt-2.5 text-right">
+        <button
+          onClick={handleMarkAllRead}
+          className="text-xs font-semibold text-[#FF4500] hover:underline transition"
+        >
+          Mark all as read
+        </button>
+      </div>
+
+      {/* ── DATE GROUP HEADER ── */}
+      <div className="px-4 pt-4 pb-2 text-sm font-bold text-gray-900 tracking-tight">
+        23 Sep 2026
+      </div>
+
+      {/* ── NOTIFICATIONS FEED ── */}
+      <div className="divide-y divide-gray-100 pb-8">
+        {/* ITEM 1: PROMOTION (Faithful replica of user screenshot) */}
+        {(filter === 'all' || filter === 'promotion') && (
+          <div className="px-4 py-3">
+            <div className="flex items-start gap-3">
+              {/* Circular Link Icon with orange dot */}
+              <div className="relative w-8 h-8 rounded-full bg-[#EBF3FF] border border-[#D5E5FF] flex items-center justify-center shrink-0 mt-0.5">
+                <Link2 size={16} className="text-[#0B5CFF]" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#FF4500]" />
+                )}
+              </div>
+
+              {/* Body */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-gray-900 leading-snug">
+                  Sign Up on SCF and Donate. Welcome Gift 500 SDB Tokens Awaits!
+                </h3>
+                <p className="text-xs text-gray-600 leading-relaxed mt-1.5">
+                  Have not joined SCF yet? Now is the perfect time! Sign up on SCF between 22-26 Sep, make your very first donation, and submit the form to receive your 500 SDB Tokens welcome gift. Exclusive to the first 300 new heroes!
+                </p>
+                <div className="text-[11px] text-gray-400 mt-2 font-mono">
+                  2:14:04 PM
+                </div>
+
+                {/* Claim CTA Button */}
+                <button
+                  onClick={handleClaim}
+                  className="mt-3 px-6 py-2 rounded-full bg-gradient-to-r from-[#FF5722] to-[#E91E63] text-white font-bold text-xs shadow-md hover:brightness-105 active:scale-95 transition"
+                >
+                  Claim Your 500 Tokens
+                </button>
+
+                {/* Promo Banner Graphic (Faithful replica of screenshot banner) */}
+                <div className="mt-3.5 rounded-2xl overflow-hidden border border-[#D7E6FF] bg-gradient-to-b from-[#EBF5FF] via-[#F4F9FF] to-[#D5E9FF] p-4 text-center relative shadow-sm">
+                  {/* Decorative background curves */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-xl pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-400/10 rounded-full blur-xl pointer-events-none" />
+
+                  {/* Top Bar inside banner */}
+                  <div className="flex items-center justify-between text-[10px] pb-2 border-b border-blue-200/50">
+                    <div className="flex items-center gap-1.5 font-bold text-[#0B5CFF]">
+                      <div className="w-4 h-4 rounded-full bg-[#0B5CFF] text-white flex items-center justify-center text-[8px] font-black">S</div>
+                      <span className="text-[9px] tracking-wide font-black">SCF SPRING CROWDFUND</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white font-mono font-bold text-[8px]">
+                      1 + 1 = 500
+                    </span>
+                  </div>
+
+                  {/* Center Text */}
+                  <div className="py-2">
+                    <div className="text-[10px] text-gray-600 font-medium">တစ်ကောင့်လျှင် တစ်ခါလှူ</div>
+                    <div className="text-base font-black text-[#0B3A82] tracking-wide mt-0.5">
+                      “500 Tokens လက်ဆောင်ယူ”
+                    </div>
+                  </div>
+
+                  {/* Visual Phone Mockups & Arrows Illustration */}
+                  <div className="my-2 p-3 bg-white/80 backdrop-blur-sm rounded-xl border border-blue-100 flex items-center justify-center gap-4">
+                    <div className="w-16 h-24 rounded-lg bg-gray-900 border-2 border-gray-700 p-1 flex flex-col justify-between shadow-md">
+                      <div className="w-4 h-1 bg-gray-700 rounded-full mx-auto" />
+                      <div className="text-[7px] text-amber-400 font-mono text-center font-bold">PeThar ₳</div>
+                      <div className="w-full h-8 bg-blue-900/60 rounded flex items-center justify-center text-[7px] text-white font-bold">500 SDB</div>
+                      <div className="w-full h-1 bg-gray-800 rounded" />
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                      <RefreshCw size={18} className="text-[#0B5CFF] animate-spin" />
+                      <span className="text-[8px] font-bold text-blue-700 mt-1">GIFT 500</span>
+                    </div>
+
+                    <div className="w-16 h-24 rounded-lg bg-gray-900 border-2 border-gray-700 p-1 flex flex-col justify-between shadow-md">
+                      <div className="w-4 h-1 bg-gray-700 rounded-full mx-auto" />
+                      <div className="text-[7px] text-emerald-400 font-mono text-center font-bold">SCF WALLET</div>
+                      <div className="w-full h-8 bg-emerald-900/60 rounded flex items-center justify-center text-[7px] text-white font-bold">DONATED</div>
+                      <div className="w-full h-1 bg-gray-800 rounded" />
+                    </div>
+                  </div>
+
+                  {/* Bottom Footer Info */}
+                  <div className="flex items-center justify-between text-[9px] text-gray-500 pt-1">
+                    <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-semibold text-[8px]">
+                      22nd Sep - 26th Sep
+                    </span>
+                    <span className="font-mono text-gray-400 text-[8px]">@springcrowdfund</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ITEM 2: TRANSACTION NOTIFICATION */}
+        {(filter === 'all' || filter === 'transaction') && (
+          <div className="px-4 py-3">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5">
+                <ArrowLeftRight size={15} className="text-emerald-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-gray-900">
+                  {lang === 'arak' ? 'ငွေလွှဲလက်ခံရရှိပါသည်: +350.00 AKD' : 'Payment Received: +350.00 AKD'}
+                </h3>
+                <p className="text-xs text-gray-600 leading-relaxed mt-1">
+                  {lang === 'arak'
+                    ? 'ကိုမင်းအောင် (ARAK-8891) ထံမှ ၃၅၀.၀၀ AKD အောင်မြင်စွာ လက်ခံရရှိပါပြီ။ ဝန်ဆောင်ခ ၀% ဖြစ်ပါသည်။'
+                    : 'You received 350.00 AKD from Ko Min Aung (ARAK-8891). 0% transfer fee was applied to this sovereign transaction.'}
+                </p>
+                <div className="text-[11px] text-gray-400 mt-1.5 font-mono">
+                  12:15:30 PM
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ITEM 3: SYSTEM NOTIFICATION */}
+        {(filter === 'all' || filter === 'system') && (
+          <div className="px-4 py-3">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 mt-0.5">
+                <AlarmClock size={15} className="text-amber-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-gray-900">
+                  {lang === 'arak' ? 'အာရက္ခဗဟိုဘဏ် စာရင်းစနစ် အဆင့်မြှင့်တင်မှု' : 'Bank of Arakan Sovereign Ledger Upgrade'}
+                </h3>
+                <p className="text-xs text-gray-600 leading-relaxed mt-1">
+                  {lang === 'arak'
+                    ? 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀-၀၆:၀၀ တွင် PeThar ဗဟိုစာရင်းစနစ်အား အဆင့်မြှင့်ပါမည်။ အော့ဖ်လိုင်း QR ဘောက်ချာများ ပုံမှန်အသုံးပြုနိုင်ပါသည်။'
+                    : 'PeThar will undergo sovereign ledger maintenance on 24 Sep 2026 from 01:00-06:00 AM. Offline vouchers and QR payments remain fully functional during the window.'}
+                </p>
+                <div className="text-[11px] text-gray-400 mt-1.5 font-mono">
+                  09:00:00 AM
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Claimed Toast */}
+      {claimedToast && (
+        <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-emerald-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-emerald-400 animate-in fade-in slide-in-from-top-3">
+          <Check size={14} />
+          <span>500 SDB Welcome Gift Claimed Successfully!</span>
+        </div>
+      )}
     </div>
   )
 }

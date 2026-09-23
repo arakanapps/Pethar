@@ -204,21 +204,13 @@ export const WebPortal: React.FC<WebPortalProps> = ({
           </div>
         </div>
 
-        {/* Inbound Auto-Conversion Engine & Sovereign AKD Vault */}
+        {/* Inbound Multi-Currency Rails */}
         <div className="p-5 rounded-3xl bg-[#131B26] border border-[#283852] shadow-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-sm text-white">
-                  {lang === 'arak' ? 'အာရက္ခဒေါ်လာ (AKD) သီးသန့် သိုလှောင်မှုနှင့် အလိုအလျောက်ငွေလဲလှယ်စနစ်' : 'AKD Sovereign Single Vault & Inbound Auto-Conversion Engine'}
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  {t.autoConvertBadge}
-                </span>
-              </div>
-              <p className="text-xs text-gray-400 mt-1">
-                {t.autoConvertNotice}
-              </p>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-sm text-white">
+                {lang === 'arak' ? 'နိုင်ငံခြားငွေနှင့် ဒစ်ဂျစ်တယ်ဒင်္ဂါး လဲလှယ်စနစ်' : 'Inbound Currency & Crypto Rails'}
+              </span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
               <RefreshCw size={14} className="animate-spin" />

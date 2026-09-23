@@ -93,12 +93,10 @@ export interface TranslationStrings {
   posDailySummary: string
   posQuickItems: string
 
-  // Auto Save Slip & Auto-Convert
+  // Auto Save Slip
   autoSaveSlipSetting: string
   autoSaveSlipDesc: string
   slipSavedNotice: string
-  autoConvertNotice: string
-  autoConvertBadge: string
 
   // Account Settings & Profile
   accountSetting: string
@@ -223,12 +221,10 @@ export const translations: Record<Language, TranslationStrings> = {
     posDailySummary: 'ယနေ့ အရောင်းစာရင်းနှင့် စာရင်းချုပ်',
     posQuickItems: 'အမြန်ရွေးချယ်စရာ ပစ္စည်းများ',
 
-    // Auto Save Slip & Auto-Convert
+    // Auto Save Slip
     autoSaveSlipSetting: 'ငွေလွှဲဖြတ်ပိုင်းများကို ဖုန်းထဲသို့ အလိုအလျောက်သိမ်းဆည်းရန်',
     autoSaveSlipDesc: 'ငွေလွှဲအောင်မြင်တိုင်း e-Slip ဖြတ်ပိုင်းကို Photos / Gallery သို့ အလိုအလျောက် သိမ်းပေးပါမည်',
     slipSavedNotice: 'ဖြတ်ပိုင်းကို Photos သို့ သိမ်းဆည်းပြီးပါပြီ',
-    autoConvertNotice: 'နိုင်ငံခြားငွေနှင့် ဒစ်ဂျစ်တယ်ဒင်္ဂါး (USDT, USDC, USD, THB, MYR) များသည် အကောင့်အတွင်းသို့ ရောက်ရှိသည်နှင့် အာရက္ခဒေါ်လာ (AKD) သို့ ဝန်ဆောင်ခမဲ့ အလိုအလျောက် တိုက်ရိုက်ပြောင်းလဲသိမ်းဆည်းပေးပါသည်',
-    autoConvertBadge: 'AKD သို့ အလိုအလျောက် တိုက်ရိုက်ပြောင်းလဲပေးသည်',
 
     // Account Settings & Profile
     accountSetting: 'အကောင့်ဆက်တင်များ',
@@ -352,12 +348,10 @@ export const translations: Record<Language, TranslationStrings> = {
     posDailySummary: 'Daily End-of-Day Cashier Reconciliation',
     posQuickItems: 'Fast Inventory Presets',
 
-    // Auto Save Slip & Auto-Convert
+    // Auto Save Slip
     autoSaveSlipSetting: 'Auto Save Receipt',
     autoSaveSlipDesc: 'Automatically saves e-Slip to device gallery upon successful transfer',
     slipSavedNotice: 'Slip auto-saved to Photos',
-    autoConvertNotice: 'All incoming foreign currencies and crypto (USDT, USDC, USD, THB, MYR) auto-convert to Arakan Dollars (AKD) instantly with 0% fee on arrival',
-    autoConvertBadge: 'Auto-Converts to AKD',
 
     // Account Settings & Profile
     accountSetting: 'Account Setting',
