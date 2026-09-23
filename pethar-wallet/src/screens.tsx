@@ -16,8 +16,26 @@ import { useState, useEffect } from 'react'
 import { FakeQR } from './components/FakeQR'
 import { ArakanEmblem } from './components/ArakanEmblem'
 import { TransactionSlip } from './components/TransactionSlip'
+import { useNotifications, markAllRead, markRead, type NotiItem } from './notifications'
 import type { Language } from './i18n'
 import { translations } from './i18n'
+
+export type ThemeMode = 'dark' | 'light'
+
+// Shared theme-aware surface helpers
+export const th = {
+  root: (theme: ThemeMode) =>
+    theme === 'light' ? 'bg-[#F4F5F8] text-gray-900' : 'bg-[#090D14] text-white',
+  card: (theme: ThemeMode) =>
+    theme === 'light'
+      ? 'bg-white border-gray-200 text-gray-900'
+      : 'bg-[#131B26] border-white/5 text-white',
+  cardHover: (theme: ThemeMode) =>
+    theme === 'light' ? 'hover:bg-gray-50' : 'hover:bg-[#1A2536]',
+  textMain: (theme: ThemeMode) => (theme === 'light' ? 'text-gray-900' : 'text-white'),
+  textSub: (theme: ThemeMode) => (theme === 'light' ? 'text-gray-500' : 'text-gray-400'),
+  divide: (theme: ThemeMode) => (theme === 'light' ? 'divide-gray-100' : 'divide-white/5'),
+}
 
 export type Screen =
   | 'home'
@@ -38,22 +56,29 @@ export function ScreenHeader({
   title,
   subtitle,
   onBack,
+  theme = 'dark',
 }: {
   title: string
   subtitle?: string
   onBack: () => void
+  theme?: ThemeMode
 }) {
+  const isLight = theme === 'light'
   return (
-    <div className="flex items-center gap-3 px-5 pt-4 pb-3 border-b border-white/10 bg-[#090D14]/80 backdrop-blur-md">
+    <div className={`flex items-center gap-3 px-5 pt-4 pb-3 border-b backdrop-blur-md ${
+      isLight ? 'border-gray-200 bg-white/85' : 'border-white/10 bg-[#090D14]/80'
+    }`}>
       <button
         onClick={onBack}
-        className="flex h-9 w-9 items-center justify-center rounded-xl transition active:scale-95 bg-white/10 hover:bg-white/15 text-white"
+        className={`flex h-9 w-9 items-center justify-center rounded-xl transition active:scale-95 ${
+          isLight ? 'bg-gray-100 hover:bg-gray-200 text-gray-800' : 'bg-white/10 hover:bg-white/15 text-white'
+        }`}
       >
         <ChevronLeft size={18} />
       </button>
       <div>
-        <div className="text-[15px] font-bold text-white tracking-wide">{title}</div>
-        {subtitle && <div className="text-[11px] text-amber-300 font-medium">{subtitle}</div>}
+        <div className={`text-[15px] font-bold tracking-wide ${isLight ? 'text-gray-900' : 'text-white'}`}>{title}</div>
+        {subtitle && <div className={`text-[11px] font-medium ${isLight ? 'text-amber-600' : 'text-amber-300'}`}>{subtitle}</div>}
       </div>
     </div>
   )
@@ -63,11 +88,14 @@ export function Keypad({
   value,
   onChange,
   symbol = '₳',
+  theme = 'dark',
 }: {
   value: string
   onChange: (v: string) => void
   symbol?: string
+  theme?: ThemeMode
 }) {
+  const isLight = theme === 'light'
   const press = (k: string) => {
     if (k === '⌫') onChange(value.slice(0, -1))
     else if (k === '.' && value.includes('.')) return
@@ -78,16 +106,20 @@ export function Keypad({
   return (
     <div>
       <div className="flex items-baseline justify-center gap-1.5 py-4">
-        <span className="text-2xl font-bold text-amber-400">{symbol}</span>
-        <span className="text-4xl font-extrabold text-white font-mono tabular-nums">{value || '0'}</span>
-        <span className="text-xs text-amber-300/80 font-bold ml-1">AKD</span>
+        <span className={`text-2xl font-bold ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>{symbol}</span>
+        <span className={`text-4xl font-extrabold font-mono tabular-nums ${isLight ? 'text-gray-900' : 'text-white'}`}>{value || '0'}</span>
+        <span className={`text-xs font-bold ml-1 ${isLight ? 'text-amber-600/80' : 'text-amber-300/80'}`}>AKD</span>
       </div>
       <div className="grid grid-cols-3 gap-2 px-6 pb-2">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'].map((k) => (
           <button
             key={k}
             onClick={() => press(k)}
-            className="h-12 rounded-xl text-lg font-bold text-white transition active:scale-95 bg-white/[0.08] hover:bg-white/[0.12] border border-white/5"
+            className={`h-12 rounded-xl text-lg font-bold transition active:scale-95 border ${
+              isLight
+                ? 'text-gray-900 bg-white hover:bg-gray-50 border-gray-200 shadow-sm'
+                : 'text-white bg-white/[0.08] hover:bg-white/[0.12] border-white/5'
+            }`}
           >
             {k}
           </button>
@@ -121,16 +153,20 @@ export function Home({
   go,
   lang,
   profile,
+  theme = 'dark',
 }: {
   go: (s: Screen) => void
   lang: Language
   _onOpenLegal?: (doc: 'terms' | 'privacy' | 'guidelines' | 'fx') => void
   profile?: UserProfile
+  theme?: ThemeMode
 }) {
   const [hidden, setHidden] = useState(false)
   const [bannerVisible, setBannerVisible] = useState(true)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [loggedOutToast, setLoggedOutToast] = useState(false)
+  const { unread } = useNotifications()
+  const isLight = theme === 'light'
   const w = wallets[0]
 
   // 8 Quick Service items (mirroring Krungthai NEXT 8-service layout)
@@ -154,9 +190,13 @@ export function Home({
   ]
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-[#090D14] text-white">
+    <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
       {/* Top Header Card */}
-      <div className="px-5 pb-5 pt-3 bg-gradient-to-b from-[#2A080C] via-[#1A0A10] to-[#0E1522] rounded-b-[32px] border-b border-red-950/60 shadow-xl">
+      <div className={`px-5 pb-5 pt-3 rounded-b-[32px] border-b shadow-xl ${
+        isLight
+          ? 'bg-gradient-to-b from-[#7A1020] via-[#A31220] to-[#C2252F] border-red-200'
+          : 'bg-gradient-to-b from-[#2A080C] via-[#1A0A10] to-[#0E1522] border-red-950/60'
+      }`}>
         <div className="relative flex items-center justify-between pt-1">
           {/* User Photo (Left) */}
           <button
@@ -184,14 +224,18 @@ export function Home({
 
           {/* Noti Bell & Logout (Right) */}
           <div className="flex items-center gap-2 shrink-0 z-10">
-            {/* Notification Bell */}
+            {/* Notification Bell — badge synced with notification center state */}
             <button
               onClick={() => go('notifications')}
               className="relative w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-gray-300 hover:text-white transition active:scale-95"
               title={lang === 'arak' ? 'အသိပေးချက်များ' : 'Notifications'}
             >
               <Bell size={16} />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              {unread > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center animate-pulse border border-white/40">
+                  {unread}
+                </span>
+              )}
             </button>
 
             {/* Logout Button */}
@@ -205,11 +249,11 @@ export function Home({
           </div>
         </div>
 
-        {/* Balance Card */}
+        {/* Balance Card: Available Balance + Total Balance */}
         <div className="pt-4 text-center">
-          <div className="flex items-center justify-center gap-2 text-[11px] text-gray-300">
+          <div className="flex items-center justify-center gap-2 text-[11px] text-gray-200">
             <span>{lang === 'arak' ? w.labelMm : w.labelEn}</span>
-            <button onClick={() => setHidden(!hidden)} className="text-gray-400 hover:text-white transition">
+            <button onClick={() => setHidden(!hidden)} className="text-gray-300 hover:text-white transition">
               {hidden ? <EyeOff size={13} /> : <Eye size={13} />}
             </button>
           </div>
@@ -225,15 +269,32 @@ export function Home({
               </>
             )}
           </div>
+
+          {/* Total Balance row (available + pending holds) */}
+          <div className="pt-1.5 flex items-center justify-center gap-1.5 text-[11px] text-gray-300">
+            <span>{lang === 'arak' ? w.totalLabelMm : w.totalLabelEn}:</span>
+            <span className="font-mono font-bold text-amber-200/90 tabular-nums">
+              {hidden
+                ? '• • • •'
+                : `${w.symbol}${w.totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            </span>
+            {!hidden && w.pendingBalance > 0 && (
+              <span className="text-[9px] text-gray-400">
+                ({lang === 'arak' ? 'စောင့်ဆိုင်းဆဲ' : 'incl. pending'} {w.symbol}{w.pendingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })})
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Krungthai NEXT style Announcement Banner */}
       {bannerVisible && (
-        <div className="mx-4 mt-3 p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-start gap-2.5 text-xs text-amber-200">
-          <Sparkles size={16} className="text-amber-400 shrink-0 mt-0.5" />
+        <div className={`mx-4 mt-3 p-3 rounded-2xl border flex items-start gap-2.5 text-xs ${
+          isLight ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-amber-500/15 border-amber-500/30 text-amber-200'
+        }`}>
+          <Sparkles size={16} className={`shrink-0 mt-0.5 ${isLight ? 'text-amber-600' : 'text-amber-400'}`} />
           <div className="flex-1 text-[11px] leading-relaxed">
-            <strong className="text-amber-300 font-bold block mb-0.5">
+            <strong className={`font-bold block mb-0.5 ${isLight ? 'text-amber-700' : 'text-amber-300'}`}>
               {lang === 'arak' ? 'အာရက္ခဗဟိုဘဏ် အသိပေးချက်' : 'Bank of Arakan Notice'}
             </strong>
             {lang === 'arak'
@@ -253,12 +314,12 @@ export function Home({
             <button
               key={i}
               onClick={() => go(qs.id)}
-              className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-white/5 active:scale-95 transition"
+              className={`flex flex-col items-center gap-1.5 p-2 rounded-2xl active:scale-95 transition ${isLight ? 'hover:bg-gray-100' : 'hover:bg-white/5'}`}
             >
               <div className={`w-11 h-11 rounded-2xl ${qs.color} flex items-center justify-center shadow-md`}>
                 <qs.icon size={20} strokeWidth={2.2} />
               </div>
-              <span className="text-[10px] font-semibold text-gray-200 text-center leading-tight">
+              <span className={`text-[10px] font-semibold text-center leading-tight ${isLight ? 'text-gray-700' : 'text-gray-200'}`}>
                 {qs.label}
               </span>
             </button>
@@ -269,10 +330,10 @@ export function Home({
       {/* Krungthai NEXT style Favorites Row */}
       <div className="px-4 pt-4">
         <div className="flex items-center justify-between pb-2">
-          <span className="text-xs font-bold text-gray-300">
+          <span className={`text-xs font-bold ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
             {lang === 'arak' ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favorites'}
           </span>
-          <button onClick={() => go('send')} className="text-[11px] font-bold text-amber-400 hover:underline">
+          <button onClick={() => go('send')} className={`text-[11px] font-bold hover:underline ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>
             {lang === 'arak' ? 'အားလုံး' : 'View all'}
           </button>
         </div>
@@ -284,10 +345,10 @@ export function Home({
               onClick={() => go('send')}
               className="flex flex-col items-center gap-1.5 shrink-0 group active:scale-95 transition"
             >
-              <div className={`w-12 h-12 rounded-full ${fav.bg} flex items-center justify-center font-bold text-xs text-white shadow-md border-2 border-[#131B26] group-hover:brightness-110`}>
+              <div className={`w-12 h-12 rounded-full ${fav.bg} flex items-center justify-center font-bold text-xs text-white shadow-md border-2 ${isLight ? 'border-white' : 'border-[#131B26]'} group-hover:brightness-110`}>
                 {fav.initials}
               </div>
-              <span className="text-[10px] text-gray-300 font-medium truncate w-14 text-center">
+              <span className={`text-[10px] font-medium truncate w-14 text-center ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>
                 {lang === 'arak' ? fav.mm : fav.name}
               </span>
             </button>
@@ -298,10 +359,12 @@ export function Home({
             onClick={() => go('send')}
             className="flex flex-col items-center gap-1.5 shrink-0 group active:scale-95 transition"
           >
-            <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-400 hover:text-white border-2 border-dashed border-white/20">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-dashed ${
+              isLight ? 'bg-gray-100 hover:bg-gray-200 text-gray-500 border-gray-300' : 'bg-white/10 hover:bg-white/20 text-gray-400 hover:text-white border-white/20'
+            }`}>
               <Plus size={18} />
             </div>
-            <span className="text-[10px] text-gray-400 font-medium">Add</span>
+            <span className={`text-[10px] font-medium ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>Add</span>
           </button>
         </div>
       </div>
@@ -360,19 +423,23 @@ export function Home({
 export function AccountScreen({
   go,
   lang,
+  theme = 'dark',
 }: {
   go: (s: Screen) => void
   lang: Language
+  theme?: ThemeMode
 }) {
   const [cardFrozen, setCardFrozen] = useState(false)
   const [showCvv, setShowCvv] = useState(false)
+  const isLight = theme === 'light'
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-[#090D14] text-white">
+    <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
       <ScreenHeader
         title={lang === 'arak' ? 'မိမိ ငွေစာရင်းများနှင့် ကတ်များ' : 'My Accounts & Cards'}
         subtitle="Sovereign Arakan Dollar Enclave"
         onBack={() => go('home')}
+        theme={theme}
       />
 
       <div className="p-4 space-y-4">
@@ -419,7 +486,7 @@ export function AccountScreen({
         {/* PeThar Sovereign Visa Debit Card Widget */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+            <span className={`text-xs font-bold flex items-center gap-1.5 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
               <CreditCard size={14} className="text-amber-400" />
               {lang === 'arak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar Sovereign Debit Card'}
             </span>
@@ -488,7 +555,7 @@ export function AccountScreen({
         {/* Inbound Multi-Currency Auto-Conversion Engine */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+            <span className={`text-xs font-bold flex items-center gap-1.5 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
               <RefreshCw size={14} className="text-amber-400" />
               {lang === 'arak' ? 'နိုင်ငံခြားငွေနှင့် ဒင်္ဂါး အလိုအလျောက်လဲလှယ်စနစ်' : 'Inbound Auto-Conversion Engine'}
             </span>
@@ -501,14 +568,14 @@ export function AccountScreen({
             {inboundConversionRails.map((rail) => (
               <div
                 key={rail.asset}
-                className="p-3 rounded-2xl bg-[#131B26] border border-white/5 flex items-center justify-between"
+                className={`p-3 rounded-2xl border flex items-center justify-between ${th.card(theme)}`}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center font-bold text-amber-400 text-xs">
                     {rail.asset}
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white">
+                    <div className={`text-xs font-bold ${th.textMain(theme)}`}>
                       {lang === 'arak' ? rail.nameMm : rail.name}
                     </div>
                     <div className="text-[10px] text-gray-400 font-mono">{rail.network}</div>
@@ -528,23 +595,23 @@ export function AccountScreen({
         </div>
 
         {/* Bank of Arakan Global Routing / IBAN info */}
-        <div className="p-4 rounded-2xl bg-[#131B26] border border-[#283852] space-y-2 font-mono text-xs">
-          <div className="text-xs font-bold text-amber-400 font-sans flex items-center gap-1.5">
+        <div className={`p-4 rounded-2xl border space-y-2 font-mono text-xs ${th.card(theme)}`}>
+          <div className={`text-xs font-bold font-sans flex items-center gap-1.5 ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>
             <Globe size={14} />
             {lang === 'arak' ? 'အာရက္ခ နိုင်ငံတကာ IBAN စာရင်း' : 'Bank of Arakan Global IBAN'}
           </div>
-          <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 text-[11px]">
+          <div className={`p-2.5 rounded-xl border text-[11px] ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/30 border-white/5'}`}>
             <div className="text-[9px] text-gray-400 font-sans">IBAN</div>
-            <div className="text-white font-bold">AK89 ARAK 0001 2345 6789 01</div>
+            <div className={`font-bold ${th.textMain(theme)}`}>AK89 ARAK 0001 2345 6789 01</div>
           </div>
           <div className="grid grid-cols-2 gap-2 text-[11px]">
-            <div className="bg-black/30 p-2.5 rounded-xl border border-white/5">
+            <div className={`p-2.5 rounded-xl border ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/30 border-white/5'}`}>
               <div className="text-[9px] text-gray-400 font-sans">SWIFT / BIC</div>
-              <div className="text-white font-bold">ARAKMMXX</div>
+              <div className={`font-bold ${th.textMain(theme)}`}>ARAKMMXX</div>
             </div>
-            <div className="bg-black/30 p-2.5 rounded-xl border border-white/5">
+            <div className={`p-2.5 rounded-xl border ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/30 border-white/5'}`}>
               <div className="text-[9px] text-gray-400 font-sans">Bank</div>
-              <div className="text-white font-bold truncate">Bank of Arakan</div>
+              <div className={`font-bold truncate ${th.textMain(theme)}`}>Bank of Arakan</div>
             </div>
           </div>
         </div>
@@ -557,9 +624,11 @@ export function AccountScreen({
 export function ServicesScreen({
   go,
   lang,
+  theme = 'dark',
 }: {
   go: (s: Screen) => void
   lang: Language
+  theme?: ThemeMode
 }) {
   const serviceCategories = [
     {
@@ -591,17 +660,18 @@ export function ServicesScreen({
   ]
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-[#090D14] text-white">
+    <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
       <ScreenHeader
         title={lang === 'arak' ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services'}
         subtitle="PeThar Sovereign Platform Directory"
         onBack={() => go('home')}
+        theme={theme}
       />
 
       <div className="p-4 space-y-5">
         {serviceCategories.map((cat, i) => (
           <div key={i} className="space-y-2">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider font-mono">
+            <h3 className={`text-xs font-bold uppercase tracking-wider font-mono ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
               {lang === 'arak' ? cat.titleMm : cat.titleEn}
             </h3>
             <div className="space-y-2">
@@ -609,14 +679,14 @@ export function ServicesScreen({
                 <button
                   key={idx}
                   onClick={() => go(item.id)}
-                  className="w-full p-3 rounded-2xl bg-[#131B26] hover:bg-[#1A2536] border border-white/5 hover:border-amber-500/30 text-left transition flex items-center justify-between"
+                  className={`w-full p-3 rounded-2xl border text-left transition flex items-center justify-between ${th.card(theme)} ${th.cardHover(theme)} hover:border-amber-500/30`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-2xl ${item.color} flex items-center justify-center`}>
                       <item.icon size={20} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-white">
+                      <div className={`text-xs font-bold ${th.textMain(theme)}`}>
                         {lang === 'arak' ? item.nameMm : item.nameEn}
                       </div>
                       <div className="text-[10px] text-gray-400">{item.desc}</div>
@@ -678,6 +748,7 @@ export function SettingsScreen({
       petharId: editPetharId.trim() || currentProfile.petharId,
       location: editLocation.trim() || currentProfile.location,
       accountTier: currentProfile.accountTier,
+      avatarUrl: currentProfile.avatarUrl,
     }
     if (setProfile) {
       setProfile(updated)
@@ -700,9 +771,13 @@ export function SettingsScreen({
         }}
       >
         <div className="flex items-center gap-4">
-          {/* Circular avatar with user icon */}
-          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-xl shrink-0 border-2 border-white/30">
-            <User size={34} className="text-[#32195F]" />
+          {/* Circular avatar — shows profile photo when available */}
+          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-xl shrink-0 border-2 border-white/30 overflow-hidden">
+            {currentProfile.avatarUrl ? (
+              <img src={currentProfile.avatarUrl} alt={currentProfile.name} className="w-full h-full object-cover" />
+            ) : (
+              <User size={34} className="text-[#32195F]" />
+            )}
           </div>
 
           {/* User Name, Email, and Badge */}
@@ -1436,54 +1511,182 @@ export function Receive({ go, lang }: { go: (s: Screen) => void; lang: Language 
 }
 
 // ── SCAN SCREEN ─────────────────────────────────────────────────────────
-export function Scan({ go, lang }: { go: (s: Screen) => void; lang: Language }) {
+export function Scan({ go, lang, theme = 'dark' }: { go: (s: Screen) => void; lang: Language; theme?: ThemeMode }) {
   const t = translations[lang]
+  const [tab, setTab] = useState<'scan' | 'myqr' | 'pay'>('scan')
   const [simulated, setSimulated] = useState(false)
+  const [payCode, setPayCode] = useState('')
+  const isLight = theme === 'light'
+
+  const tabs = [
+    { id: 'scan' as const, label: lang === 'arak' ? 'စကင်ဖတ်' : 'Scan', icon: ScanLine },
+    { id: 'myqr' as const, label: lang === 'arak' ? 'မိမိ QR' : 'My QR', icon: QrCode },
+    { id: 'pay' as const, label: lang === 'arak' ? 'ငွေပေးချေ' : 'Pay', icon: ArrowUpRight },
+  ]
 
   return (
-    <div className="flex h-full flex-col bg-black text-white relative">
+    <div className={`flex h-full flex-col relative ${tab === 'scan' ? 'bg-black text-white' : th.root(theme)}`}>
       <ScreenHeader
         title={t.navScan}
-        subtitle={lang === 'arak' ? 'ကင်မရာ စကင်ဖတ်ရန်' : 'Scan ArakanPay or EMVCo'}
+        subtitle={lang === 'arak' ? 'ကင်မရာ · မိမိ QR · ငွေပေးချေ' : 'Camera · My QR · Pay'}
         onBack={() => go('home')}
+        theme={tab === 'scan' ? 'dark' : theme}
       />
 
-      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-        {!simulated ? (
-          <div className="space-y-6">
-            <div className="relative w-64 h-64 border-2 border-dashed border-amber-400 rounded-3xl flex items-center justify-center">
-              <ScanLine size={48} className="text-amber-400 animate-pulse" />
-            </div>
-
-            <p className="text-xs text-gray-400 max-w-xs">
-              {lang === 'arak'
-                ? 'ဆိုင် သို့မဟုတ် မိတ်ဆွေ၏ PeThar QR ကုဒ်ကို ဘောင်အတွင်းချိန်ပါ'
-                : 'Align ArakanPay merchant or friend QR within frame'}
-            </p>
-
-            <button
-              onClick={() => setSimulated(true)}
-              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition"
-            >
-              {lang === 'arak' ? 'စကင်ဖတ်ခြင်း သရုပ်ပြရန်' : 'Simulate QR Scan Detection'}
-            </button>
-          </div>
-        ) : (
-          <div className="p-5 rounded-3xl bg-[#131B26] border border-amber-500/40 text-center space-y-3 max-w-xs">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
-              <Store size={24} />
-            </div>
-            <h4 className="text-sm font-bold text-white">Shwe Sittwe Merchant Point</h4>
-            <div className="text-xs font-mono text-gray-400">Terminal #AK-001 • Sittwe Strand</div>
-            <button
-              onClick={() => go('send')}
-              className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition"
-            >
-              {lang === 'arak' ? 'ငွေပေးချေရန် ဆက်လုပ်ပါ' : 'Proceed to Pay Merchant'}
-            </button>
-          </div>
-        )}
+      {/* ── TAB BAR: Scan / My QR / Pay ── */}
+      <div className={`mx-4 mt-3 flex rounded-2xl p-1 ${
+        tab === 'scan' ? 'bg-white/10' : isLight ? 'bg-gray-200/70' : 'bg-white/[0.07]'
+      }`}>
+        {tabs.map((tb) => (
+          <button
+            key={tb.id}
+            onClick={() => setTab(tb.id)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition active:scale-95 ${
+              tab === tb.id
+                ? 'bg-amber-500 text-black shadow-md'
+                : tab === 'scan'
+                  ? 'text-gray-300 hover:text-white'
+                  : isLight
+                    ? 'text-gray-600 hover:text-gray-900'
+                    : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <tb.icon size={13} />
+            {tb.label}
+          </button>
+        ))}
       </div>
+
+      {/* ── TAB 1: SCAN (camera viewfinder, dead-center) ── */}
+      {tab === 'scan' && (
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center relative">
+          {/* fake camera backdrop */}
+          <div className="absolute inset-0 opacity-25 pointer-events-none" style={{
+            background: 'radial-gradient(circle at 50% 45%, #16222E 0%, #05080C 70%)',
+          }} />
+          {!simulated ? (
+            <div className="relative z-10 flex flex-col items-center gap-6">
+              {/* centered viewfinder */}
+              <div className="relative w-60 h-60">
+                {[
+                  'top-0 left-0 border-t-4 border-l-4 rounded-tl-3xl',
+                  'top-0 right-0 border-t-4 border-r-4 rounded-tr-3xl',
+                  'bottom-0 left-0 border-b-4 border-l-4 rounded-bl-3xl',
+                  'bottom-0 right-0 border-b-4 border-r-4 rounded-br-3xl',
+                ].map((pos) => (
+                  <div key={pos} className={`absolute w-10 h-10 border-amber-400 ${pos}`} />
+                ))}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <ScanLine size={40} className="text-amber-400/60" />
+                </div>
+                <div className="absolute left-4 right-4 top-1/2 h-0.5 bg-amber-400 animate-pulse" style={{ boxShadow: '0 0 14px rgba(251,191,36,0.8)' }} />
+              </div>
+
+              <p className="text-xs text-gray-400 max-w-xs">
+                {lang === 'arak'
+                  ? 'ဆိုင် သို့မဟုတ် မိတ်ဆွေ၏ PeThar QR ကုဒ်ကို ဘောင်အလယ်တွင် ချိန်ပါ'
+                  : 'Align ArakanPay merchant or friend QR within the center frame'}
+              </p>
+
+              <button
+                onClick={() => setSimulated(true)}
+                className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition"
+              >
+                {lang === 'arak' ? 'စကင်ဖတ်ခြင်း သရုပ်ပြရန်' : 'Simulate QR Scan Detection'}
+              </button>
+            </div>
+          ) : (
+            <div className="relative z-10 p-5 rounded-3xl bg-[#131B26] border border-amber-500/40 text-center space-y-3 w-full max-w-xs">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
+                <Store size={24} />
+              </div>
+              <h4 className="text-sm font-bold text-white">Shwe Sittwe Merchant Point</h4>
+              <div className="text-xs font-mono text-gray-400">Terminal #AK-001 • Sittwe Strand</div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSimulated(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-gray-300 font-bold text-xs transition"
+                >
+                  {lang === 'arak' ? 'ပြန်စကင်' : 'Rescan'}
+                </button>
+                <button
+                  onClick={() => go('send')}
+                  className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition"
+                >
+                  {lang === 'arak' ? 'ငွေပေးချေမည်' : 'Pay Merchant'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB 2: MY QR ── */}
+      {tab === 'myqr' && (
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-4">
+          <div className={`p-4 rounded-3xl border shadow-lg ${isLight ? 'bg-white border-gray-200' : 'bg-[#131B26] border-white/10'}`}>
+            <div className="bg-white p-3 rounded-2xl inline-block">
+              <FakeQR size={170} value="pethar://receive?id=ARAK-8891-JACK&cur=AKD" />
+            </div>
+            <div className={`pt-3 text-sm font-bold ${th.textMain(theme)}`}>Jack · ARAK-8891-JACK</div>
+            <div className={`text-[10px] font-mono ${th.textSub(theme)}`}>EMVCo · ArakanPay · AKD</div>
+          </div>
+          <p className={`text-[11px] max-w-xs ${th.textSub(theme)}`}>
+            {lang === 'arak'
+              ? 'ငွေလက်ခံရန် ဤ QR ကို ပို့သူအား ပြသပါ'
+              : 'Show this QR to receive AKD instantly, zero fee'}
+          </p>
+          <button
+            onClick={() => go('receive')}
+            className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition active:scale-95"
+          >
+            {lang === 'arak' ? 'ငွေလက်ခံစာမျက်နှာသို့' : 'Open Receive Options'}
+          </button>
+        </div>
+      )}
+
+      {/* ── TAB 3: PAY (manual merchant code) ── */}
+      {tab === 'pay' && (
+        <div className="flex-1 flex flex-col p-5 gap-4">
+          <div className={`p-4 rounded-3xl border ${th.card(theme)}`}>
+            <label className={`text-[11px] font-bold block mb-2 ${th.textSub(theme)}`}>
+              {lang === 'arak' ? 'ဆိုင်ကုဒ် သို့မဟုတ် PeThar ID' : 'Merchant Code or PeThar ID'}
+            </label>
+            <input
+              value={payCode}
+              onChange={(e) => setPayCode(e.target.value.toUpperCase())}
+              placeholder="ARAK-0000"
+              className={`w-full px-3 py-2.5 rounded-xl border font-mono font-bold text-sm focus:outline-none focus:border-amber-500 ${
+                isLight ? 'bg-gray-50 border-gray-200 text-gray-900' : 'bg-black/40 border-white/10 text-white'
+              }`}
+            />
+            <div className="grid grid-cols-2 gap-2 pt-3">
+              {['AK-001 · Sittwe', 'AK-042 · Mrauk-U'].map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setPayCode(m.split(' ')[0])}
+                  className={`px-2 py-2 rounded-xl text-[10px] font-bold border transition active:scale-95 ${
+                    isLight ? 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100' : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            disabled={payCode.trim().length < 4}
+            onClick={() => go('send')}
+            className="w-full py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-bold text-sm transition active:scale-[0.98]"
+          >
+            {lang === 'arak' ? 'ငွေပေးချေရန် ဆက်လုပ်ပါ' : `Pay ${payCode || '…'}`}
+          </button>
+          <p className={`text-center text-[10px] ${th.textSub(theme)}`}>
+            {lang === 'arak' ? 'အတည်ပြုထားသော ကုန်သည်များသာ ငွေလက်ခံနိုင်ပါသည်' : 'Only verified ArakanPay merchants can receive payments'}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -1611,274 +1814,157 @@ export function CashOut({ go, lang }: { go: (s: Screen) => void; lang: Language 
   )
 }
 
-// ── NOTIFICATIONS SCREEN (Matches user reference design) ─────────────────
+// ── NOTIFICATIONS SCREEN (store-driven, synced with home bell) ─────────────
 export function NotificationsScreen({
   go,
   lang = 'arak',
+  theme = 'dark',
 }: {
   go: (s: Screen) => void
   lang?: Language
+  theme?: ThemeMode
 }) {
   const [filter, setFilter] = useState<'all' | 'transaction' | 'system' | 'promotion'>('all')
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [claimedToast, setClaimedToast] = useState(false)
+  const { list, unread } = useNotifications()
+  const isLight = theme === 'light'
 
-  const handleMarkAllRead = () => {
-    setUnreadCount(0)
+  const filtered = list.filter((n) => filter === 'all' || n.type === filter)
+  const groups = [...new Set(filtered.map((n) => n.dateGroup))]
+
+  const typeIcon = (n: NotiItem) => {
+    const base = 'relative w-8 h-8 rounded-full border flex items-center justify-center shrink-0 mt-0.5'
+    if (n.type === 'transaction')
+      return (
+        <div className={`${base} ${isLight ? 'bg-emerald-50 border-emerald-200' : 'bg-emerald-500/15 border-emerald-500/30'}`}>
+          <ArrowLeftRight size={15} className="text-emerald-500" />
+          {!n.read && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500" />}
+        </div>
+      )
+    if (n.type === 'system')
+      return (
+        <div className={`${base} ${isLight ? 'bg-amber-50 border-amber-200' : 'bg-amber-500/15 border-amber-500/30'}`}>
+          <AlarmClock size={15} className="text-amber-500" />
+          {!n.read && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500" />}
+        </div>
+      )
+    return (
+      <div className={`${base} ${isLight ? 'bg-blue-50 border-blue-200' : 'bg-blue-500/15 border-blue-500/30'}`}>
+        <Megaphone size={15} className="text-blue-500" />
+        {!n.read && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500" />}
+      </div>
+    )
   }
 
-  const handleClaim = () => {
-    setClaimedToast(true)
-    setTimeout(() => setClaimedToast(false), 3000)
-  }
+  const pills: { id: typeof filter; label: string; mm: string }[] = [
+    { id: 'all', label: 'All', mm: 'အားလုံး' },
+    { id: 'transaction', label: 'Transaction', mm: 'ငွေလွှဲ' },
+    { id: 'system', label: 'System', mm: 'စနစ်' },
+    { id: 'promotion', label: 'Promotion', mm: 'ပရိုမိုးရှင်း' },
+  ]
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-white text-gray-900 select-none">
-      {/* ── GRADIENT HEADER (Deep Navy/Blue -> Purple/Magenta -> Orange/Red) ── */}
-      <div className="sticky top-0 z-30 px-4 py-3 bg-gradient-to-r from-[#17208E] via-[#63187A] to-[#FF4500] text-white flex items-center justify-between shadow-md">
+    <div className={`flex h-full flex-col overflow-y-auto select-none ${th.root(theme)}`}>
+      {/* Header */}
+      <div className={`sticky top-0 z-30 px-4 py-3 flex items-center justify-between border-b backdrop-blur-md ${
+        isLight ? 'bg-white/90 border-gray-200' : 'bg-[#090D14]/90 border-white/10'
+      }`}>
         <button
           onClick={() => go('home')}
-          className="p-1 hover:bg-white/10 rounded-full transition active:scale-95"
+          className={`p-1.5 rounded-full transition active:scale-95 ${isLight ? 'hover:bg-gray-100 text-gray-700' : 'hover:bg-white/10 text-white'}`}
           title="Back"
         >
-          <ArrowLeft size={20} className="text-white" />
+          <ArrowLeft size={19} />
         </button>
 
-        <h2 className="text-base font-bold text-white tracking-wide">
-          Notifications
+        <h2 className={`text-base font-bold tracking-wide ${th.textMain(theme)}`}>
+          {lang === 'arak' ? 'အသိပေးချက်များ' : 'Notifications'}
         </h2>
 
-        {/* Inbox count icon (rounded square badge with counter 0) */}
-        <div className="w-6 h-6 rounded-lg border-2 border-white/80 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
-          {unreadCount}
+        {/* Live unread counter — synced with the home bell */}
+        <div className={`min-w-[26px] h-6 px-1.5 rounded-lg border-2 flex items-center justify-center text-[10px] font-bold ${
+          unread > 0
+            ? 'border-red-500/70 text-red-500'
+            : isLight ? 'border-gray-300 text-gray-400' : 'border-white/30 text-gray-400'
+        }`}>
+          {unread}
         </div>
       </div>
 
-      {/* ── FILTER PILLS BAR ── */}
+      {/* Filter pills */}
       <div className="px-4 pt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
-        {/* All */}
-        <button
-          onClick={() => setFilter('all')}
-          className={`relative px-4 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
-            filter === 'all'
-              ? 'bg-[#0B5CFF] text-white shadow-sm'
-              : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          <span>All</span>
-          {unreadCount > 0 && (
-            <span className="w-2 h-2 rounded-full bg-[#FF4500]" />
-          )}
-        </button>
-
-        {/* Transaction */}
-        <button
-          onClick={() => setFilter('transaction')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
-            filter === 'transaction'
-              ? 'bg-[#0B5CFF] text-white shadow-sm'
-              : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          <ArrowLeftRight size={13} className={filter === 'transaction' ? 'text-white' : 'text-[#0B5CFF]'} />
-          <span>Transaction</span>
-        </button>
-
-        {/* System */}
-        <button
-          onClick={() => setFilter('system')}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
-            filter === 'system'
-              ? 'bg-[#0B5CFF] text-white shadow-sm'
-              : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          <AlarmClock size={13} className={filter === 'system' ? 'text-white' : 'text-[#0B5CFF]'} />
-          <span>System</span>
-        </button>
-
-        {/* Promotion */}
-        <button
-          onClick={() => setFilter('promotion')}
-          className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
-            filter === 'promotion'
-              ? 'bg-[#0B5CFF] text-white shadow-sm'
-              : 'bg-[#F2F4F7] text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          <Megaphone size={13} className={filter === 'promotion' ? 'text-white' : 'text-[#0B5CFF]'} />
-          <span>Promotion</span>
-          {unreadCount > 0 && (
-            <span className="w-2 h-2 rounded-full bg-[#FF4500]" />
-          )}
-        </button>
+        {pills.map((p) => (
+          <button
+            key={p.id}
+            onClick={() => setFilter(p.id)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 shrink-0 ${
+              filter === p.id
+                ? 'bg-amber-500 text-black shadow-sm'
+                : isLight
+                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-white/[0.07] text-gray-300 hover:bg-white/10'
+            }`}
+          >
+            {lang === 'arak' ? p.mm : p.label}
+          </button>
+        ))}
       </div>
 
-      {/* ── MARK ALL AS READ ── */}
+      {/* Mark all as read */}
       <div className="px-4 pt-2.5 text-right">
         <button
-          onClick={handleMarkAllRead}
-          className="text-xs font-semibold text-[#FF4500] hover:underline transition"
+          onClick={markAllRead}
+          disabled={unread === 0}
+          className={`text-xs font-semibold transition ${
+            unread === 0 ? 'text-gray-500 cursor-default' : 'text-red-500 hover:underline'
+          }`}
         >
-          Mark all as read
+          {lang === 'arak' ? 'အားလုံး ဖတ်ပြီးဟု မှတ်သား' : 'Mark all as read'}
         </button>
       </div>
 
-      {/* ── DATE GROUP HEADER ── */}
-      <div className="px-4 pt-4 pb-2 text-sm font-bold text-gray-900 tracking-tight">
-        23 Sep 2026
-      </div>
-
-      {/* ── NOTIFICATIONS FEED ── */}
-      <div className="divide-y divide-gray-100 pb-8">
-        {/* ITEM 1: PROMOTION (Faithful replica of user screenshot) */}
-        {(filter === 'all' || filter === 'promotion') && (
-          <div className="px-4 py-3">
-            <div className="flex items-start gap-3">
-              {/* Circular Link Icon with orange dot */}
-              <div className="relative w-8 h-8 rounded-full bg-[#EBF3FF] border border-[#D5E5FF] flex items-center justify-center shrink-0 mt-0.5">
-                <Link2 size={16} className="text-[#0B5CFF]" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#FF4500]" />
-                )}
-              </div>
-
-              {/* Body */}
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-gray-900 leading-snug">
-                  Sign Up on SCF and Donate. Welcome Gift 500 SDB Tokens Awaits!
-                </h3>
-                <p className="text-xs text-gray-600 leading-relaxed mt-1.5">
-                  Have not joined SCF yet? Now is the perfect time! Sign up on SCF between 22-26 Sep, make your very first donation, and submit the form to receive your 500 SDB Tokens welcome gift. Exclusive to the first 300 new heroes!
-                </p>
-                <div className="text-[11px] text-gray-400 mt-2 font-mono">
-                  2:14:04 PM
-                </div>
-
-                {/* Claim CTA Button */}
+      {/* Feed grouped by date */}
+      {groups.map((g) => (
+        <div key={g}>
+          <div className={`px-4 pt-4 pb-2 text-sm font-bold tracking-tight ${th.textMain(theme)}`}>{g}</div>
+          <div className={`divide-y ${th.divide(theme)} pb-2`}>
+            {filtered
+              .filter((n) => n.dateGroup === g)
+              .map((n) => (
                 <button
-                  onClick={handleClaim}
-                  className="mt-3 px-6 py-2 rounded-full bg-gradient-to-r from-[#FF5722] to-[#E91E63] text-white font-bold text-xs shadow-md hover:brightness-105 active:scale-95 transition"
+                  key={n.id}
+                  onClick={() => markRead(n.id)}
+                  className={`w-full px-4 py-3 text-left transition ${
+                    isLight ? 'hover:bg-gray-50' : 'hover:bg-white/[0.03]'
+                  } ${n.read ? 'opacity-60' : ''}`}
                 >
-                  Claim Your 500 Tokens
+                  <div className="flex items-start gap-3">
+                    {typeIcon(n)}
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`text-sm font-bold leading-snug ${th.textMain(theme)}`}>
+                        {lang === 'arak' ? n.titleMm : n.titleEn}
+                      </h3>
+                      <p className={`text-xs leading-relaxed mt-1 ${th.textSub(theme)}`}>
+                        {lang === 'arak' ? n.bodyMm : n.bodyEn}
+                      </p>
+                      <div className="text-[11px] text-gray-500 mt-1.5 font-mono">{n.time}</div>
+                    </div>
+                  </div>
                 </button>
-
-                {/* Promo Banner Graphic (Faithful replica of screenshot banner) */}
-                <div className="mt-3.5 rounded-2xl overflow-hidden border border-[#D7E6FF] bg-gradient-to-b from-[#EBF5FF] via-[#F4F9FF] to-[#D5E9FF] p-4 text-center relative shadow-sm">
-                  {/* Decorative background curves */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-xl pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-400/10 rounded-full blur-xl pointer-events-none" />
-
-                  {/* Top Bar inside banner */}
-                  <div className="flex items-center justify-between text-[10px] pb-2 border-b border-blue-200/50">
-                    <div className="flex items-center gap-1.5 font-bold text-[#0B5CFF]">
-                      <div className="w-4 h-4 rounded-full bg-[#0B5CFF] text-white flex items-center justify-center text-[8px] font-black">S</div>
-                      <span className="text-[9px] tracking-wide font-black">SCF SPRING CROWDFUND</span>
-                    </div>
-                    <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white font-mono font-bold text-[8px]">
-                      1 + 1 = 500
-                    </span>
-                  </div>
-
-                  {/* Center Text */}
-                  <div className="py-2">
-                    <div className="text-[10px] text-gray-600 font-medium">တစ်ကောင့်လျှင် တစ်ခါလှူ</div>
-                    <div className="text-base font-black text-[#0B3A82] tracking-wide mt-0.5">
-                      “500 Tokens လက်ဆောင်ယူ”
-                    </div>
-                  </div>
-
-                  {/* Visual Phone Mockups & Arrows Illustration */}
-                  <div className="my-2 p-3 bg-white/80 backdrop-blur-sm rounded-xl border border-blue-100 flex items-center justify-center gap-4">
-                    <div className="w-16 h-24 rounded-lg bg-gray-900 border-2 border-gray-700 p-1 flex flex-col justify-between shadow-md">
-                      <div className="w-4 h-1 bg-gray-700 rounded-full mx-auto" />
-                      <div className="text-[7px] text-amber-400 font-mono text-center font-bold">PeThar ₳</div>
-                      <div className="w-full h-8 bg-blue-900/60 rounded flex items-center justify-center text-[7px] text-white font-bold">500 SDB</div>
-                      <div className="w-full h-1 bg-gray-800 rounded" />
-                    </div>
-
-                    <div className="flex flex-col items-center">
-                      <RefreshCw size={18} className="text-[#0B5CFF] animate-spin" />
-                      <span className="text-[8px] font-bold text-blue-700 mt-1">GIFT 500</span>
-                    </div>
-
-                    <div className="w-16 h-24 rounded-lg bg-gray-900 border-2 border-gray-700 p-1 flex flex-col justify-between shadow-md">
-                      <div className="w-4 h-1 bg-gray-700 rounded-full mx-auto" />
-                      <div className="text-[7px] text-emerald-400 font-mono text-center font-bold">SCF WALLET</div>
-                      <div className="w-full h-8 bg-emerald-900/60 rounded flex items-center justify-center text-[7px] text-white font-bold">DONATED</div>
-                      <div className="w-full h-1 bg-gray-800 rounded" />
-                    </div>
-                  </div>
-
-                  {/* Bottom Footer Info */}
-                  <div className="flex items-center justify-between text-[9px] text-gray-500 pt-1">
-                    <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-semibold text-[8px]">
-                      22nd Sep - 26th Sep
-                    </span>
-                    <span className="font-mono text-gray-400 text-[8px]">@springcrowdfund</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+              ))}
           </div>
-        )}
+        </div>
+      ))}
 
-        {/* ITEM 2: TRANSACTION NOTIFICATION */}
-        {(filter === 'all' || filter === 'transaction') && (
-          <div className="px-4 py-3">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5">
-                <ArrowLeftRight size={15} className="text-emerald-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-gray-900">
-                  {lang === 'arak' ? 'ငွေလွှဲလက်ခံရရှိပါသည်: +350.00 AKD' : 'Payment Received: +350.00 AKD'}
-                </h3>
-                <p className="text-xs text-gray-600 leading-relaxed mt-1">
-                  {lang === 'arak'
-                    ? 'ကိုမင်းအောင် (ARAK-8891) ထံမှ ၃၅၀.၀၀ AKD အောင်မြင်စွာ လက်ခံရရှိပါပြီ။ ဝန်ဆောင်ခ ၀% ဖြစ်ပါသည်။'
-                    : 'You received 350.00 AKD from Ko Min Aung (ARAK-8891). 0% transfer fee was applied to this sovereign transaction.'}
-                </p>
-                <div className="text-[11px] text-gray-400 mt-1.5 font-mono">
-                  12:15:30 PM
-                </div>
-              </div>
-            </div>
+      {filtered.length === 0 && (
+        <div className={`flex-1 flex flex-col items-center justify-center gap-2 py-16 ${th.textSub(theme)}`}>
+          <Bell size={28} className="opacity-40" />
+          <div className="text-xs font-semibold">
+            {lang === 'arak' ? 'အသိပေးချက် မရှိပါ' : 'No notifications in this category'}
           </div>
-        )}
-
-        {/* ITEM 3: SYSTEM NOTIFICATION */}
-        {(filter === 'all' || filter === 'system') && (
-          <div className="px-4 py-3">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 mt-0.5">
-                <AlarmClock size={15} className="text-amber-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-gray-900">
-                  {lang === 'arak' ? 'အာရက္ခဗဟိုဘဏ် စာရင်းစနစ် အဆင့်မြှင့်တင်မှု' : 'Bank of Arakan Sovereign Ledger Upgrade'}
-                </h3>
-                <p className="text-xs text-gray-600 leading-relaxed mt-1">
-                  {lang === 'arak'
-                    ? 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀-၀၆:၀၀ တွင် PeThar ဗဟိုစာရင်းစနစ်အား အဆင့်မြှင့်ပါမည်။ အော့ဖ်လိုင်း QR ဘောက်ချာများ ပုံမှန်အသုံးပြုနိုင်ပါသည်။'
-                    : 'PeThar will undergo sovereign ledger maintenance on 24 Sep 2026 from 01:00-06:00 AM. Offline vouchers and QR payments remain fully functional during the window.'}
-                </p>
-                <div className="text-[11px] text-gray-400 mt-1.5 font-mono">
-                  09:00:00 AM
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Claimed Toast */}
-      {claimedToast && (
-        <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-emerald-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-emerald-400 animate-in fade-in slide-in-from-top-3">
-          <Check size={14} />
-          <span>500 SDB Welcome Gift Claimed Successfully!</span>
         </div>
       )}
+
+      <div className="pb-8" />
     </div>
   )
 }
