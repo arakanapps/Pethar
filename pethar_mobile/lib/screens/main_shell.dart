@@ -16,6 +16,9 @@ import 'intl_screen.dart';
 import 'crypto_screen.dart';
 import 'pos_screen.dart';
 
+import 'pos_terminal_screen.dart';
+import 'desktop_portal_screen.dart';
+
 class MainShell extends StatelessWidget {
   const MainShell({Key? key}) : super(key: key);
 
@@ -26,13 +29,14 @@ class MainShell extends StatelessWidget {
     final lang = appState.language;
 
     // Sub-screens routing
+    if (appState.currentScreen == Screen.desktop) return const DesktopPortalScreen();
+    if (appState.currentScreen == Screen.pos) return const PosTerminalScreen();
     if (appState.currentScreen == Screen.send) return const SendScreen();
     if (appState.currentScreen == Screen.receive) return const ReceiveScreen();
     if (appState.currentScreen == Screen.cashout) return const CashOutScreen();
     if (appState.currentScreen == Screen.notifications) return const NotificationsScreen();
     if (appState.currentScreen == Screen.intl) return const IntlScreen();
     if (appState.currentScreen == Screen.crypto) return const CryptoScreen();
-    if (appState.currentScreen == Screen.pos) return const PosScreen();
 
     int currentIndex = 0;
     switch (appState.currentScreen) {
