@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../theme.dart';
-import '../i18n.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({Key? key}) : super(key: key);
@@ -128,7 +127,7 @@ class ServicesScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 4, bottom: 10, top: catIdx == 0 ? 0 : 16),
+                padding: EdgeInsets.only(left: 4, bottom: 10, top: catIdx == 0 ? 0 : 16),
                 child: Text(
                   (lang == 'arak' ? cat['titleMm'] : cat['titleEn']) as String,
                   style: TextStyle(
