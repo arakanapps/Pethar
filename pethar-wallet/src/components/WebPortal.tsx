@@ -1,25 +1,28 @@
 import React, { useState } from 'react'
 import {
   ArrowUpRight, ArrowDownLeft, Store, Globe, Coins,
-  TrendingUp, Search, Sparkles, Send, CheckCircle, RefreshCw
+  TrendingUp, Search, Sparkles, Send, CheckCircle
 } from 'lucide-react'
-import { transactions, liveFxRates, contacts, inboundConversionRails } from '../data'
+import { transactions, liveFxRates, contacts } from '../data'
 import { ArakanEmblem } from './ArakanEmblem'
 import type { Language } from '../i18n'
 import { translations } from '../i18n'
 
 interface WebPortalProps {
   lang: Language
+  theme?: 'dark' | 'light'
   onOpenModule: (mod: 'send' | 'receive' | 'cashout' | 'intl' | 'crypto' | 'pos') => void
   onOpenLegal: (doc: 'terms' | 'privacy' | 'guidelines' | 'fx') => void
 }
 
 export const WebPortal: React.FC<WebPortalProps> = ({
   lang,
+  theme = 'dark',
   onOpenModule,
   onOpenLegal,
 }) => {
   const t = translations[lang]
+  const isLight = theme === 'light'
   const [filterCat, setFilterCat] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [quickSendAmount, setQuickSendAmount] = useState('150')
@@ -42,7 +45,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-[#090D14] text-white overflow-y-auto">
+    <div className={`flex-1 flex flex-col overflow-y-auto ${isLight ? 'bg-[#F4F5F8] text-gray-900' : 'bg-[#090D14] text-white'}`}>
       {/* Top Banner / Ticker */}
       <div className="bg-[#121A28] border-b border-[#283852] px-6 py-2 flex items-center justify-between text-xs">
         <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-0.5">
@@ -81,21 +84,21 @@ export const WebPortal: React.FC<WebPortalProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  {t.sovereignCurrency} (AKD)
+                  {t.currencyLabel}
                 </span>
                 <h1 className="text-3xl lg:text-4xl font-black text-white font-mono mt-3 tracking-tight">
-                  ₳ 14,850.00 <span className="text-base text-amber-400 font-sans font-bold">AKD</span>
+                  ₳ 14,850.00
                 </h1>
                 <p className="text-xs text-gray-400 mt-1 flex items-center gap-1.5">
                   <Sparkles size={13} className="text-amber-400" />
-                  {t.sovereignReserveBacked}
+                  {t.reserveBacked}
                 </p>
               </div>
 
               <div className="text-right">
                 <div className="text-xs text-gray-400">Total Net Worth (USD Eq.)</div>
                 <div className="text-xl font-bold font-mono text-emerald-400 mt-0.5">$ 21,526.00</div>
-                <div className="text-[10px] text-gray-500 mt-1">Tier 2 Sovereign Citizen Enclave</div>
+                <div className="text-[10px] text-gray-500 mt-1">Tier 2 Arakan Citizen Enclave</div>
               </div>
             </div>
 
@@ -165,7 +168,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
 
                 <div>
                   <label className="text-[11px] text-gray-400 block mb-1">
-                    {lang === 'arak' ? 'ပမာဏ (AKD)' : 'Amount (AKD)'}
+                    {lang === 'arak' ? 'ပမာဏ' : 'Amount'}
                   </label>
                   <input
                     type="number"
@@ -186,7 +189,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
               {quickSentSuccess && (
                 <div className="mt-3 p-2 rounded-xl bg-emerald-950/50 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-1.5">
                   <CheckCircle size={14} className="text-emerald-400 shrink-0" />
-                  <span>Settled ₳ {quickSendAmount} AKD instantly via Ed25519 hash chain!</span>
+                  <span>Settled ₳ {quickSendAmount} instantly via Ed25519 hash chain!</span>
                 </div>
               )}
             </div>
@@ -204,45 +207,6 @@ export const WebPortal: React.FC<WebPortalProps> = ({
           </div>
         </div>
 
-        {/* Inbound Multi-Currency Rails */}
-        <div className="p-5 rounded-3xl bg-[#131B26] border border-[#283852] shadow-xl space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-white">
-                {lang === 'arak' ? 'နိုင်ငံခြားငွေနှင့် ဒစ်ဂျစ်တယ်ဒင်္ဂါး လဲလှယ်စနစ်' : 'Inbound Currency & Crypto Rails'}
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
-              <RefreshCw size={14} className="animate-spin" />
-              <span>0% Slippage · 0% Fee</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {inboundConversionRails.map((rail) => (
-              <div
-                key={rail.asset}
-                className="p-3.5 rounded-2xl bg-black/40 border border-white/5 hover:border-amber-500/30 transition flex flex-col justify-between"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-amber-400">{rail.asset}</span>
-                  <span className="text-[10px] font-mono text-emerald-400 font-bold">AUTO</span>
-                </div>
-                <div className="my-2">
-                  <div className="text-xs font-bold text-white">
-                    {lang === 'arak' ? rail.nameMm : rail.name}
-                  </div>
-                  <div className="text-[10px] text-gray-400 font-mono mt-0.5">
-                    {rail.network}
-                  </div>
-                </div>
-                <div className="text-[11px] font-bold font-mono text-amber-300 pt-2 border-t border-white/5">
-                  {lang === 'arak' ? rail.rateTextMm : rail.rateText}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Ledger Transactions Table with Filters & Search */}
         <div className="p-6 rounded-3xl bg-[#131B26] border border-[#283852] shadow-xl">
@@ -296,7 +260,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
                   <th className="py-2.5 px-3">Category</th>
                   <th className="py-2.5 px-3">Counterparty</th>
                   <th className="py-2.5 px-3">Time</th>
-                  <th className="py-2.5 px-3 text-right">Amount (AKD)</th>
+                  <th className="py-2.5 px-3 text-right">Amount</th>
                   <th className="py-2.5 px-3 text-right">Status</th>
                 </tr>
               </thead>
@@ -321,7 +285,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
                     <td className="py-3 px-3 text-right font-mono font-bold">
                       <span className={txn.amount > 0 ? 'text-emerald-400' : 'text-white'}>
                         {txn.amount > 0 ? '+' : ''}
-                        {txn.amount.toFixed(2)} AKD
+                        ₳ {txn.amount.toFixed(2)}
                       </span>
                     </td>
                     <td className="py-3 px-3 text-right font-mono">

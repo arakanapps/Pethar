@@ -1,16 +1,16 @@
 import {
-  wallets, contacts, agents, inboundConversionRails,
+  wallets, contacts, agents,
   initialUserProfile, type UserProfile
 } from './data'
 import {
   ArrowUpRight, ArrowDownLeft, QrCode, Store, Eye, EyeOff,
-  ChevronLeft, ChevronRight, Copy, Check,
-  Fingerprint, ScanLine, Globe, Coins,
+  ChevronRight, Copy, Check,
+  Fingerprint, ScanLine, Globe, Coins, AlertTriangle, Barcode, Flashlight, ImagePlus,
   Clock, Sparkles, Terminal, CreditCard, Lock,
   Plus, X, LogOut, Shield, HelpCircle,
   TrendingUp, FileText, RefreshCw, Download,
   Receipt, Wallet, User, Sun, Moon, KeyRound, ShieldCheck,
-  Bell, ArrowLeft, AlarmClock, Megaphone, Link2, ArrowLeftRight
+  Bell, AlarmClock, Megaphone, ArrowLeftRight, Share2
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { FakeQR } from './components/FakeQR'
@@ -55,28 +55,20 @@ export type Screen =
 export function ScreenHeader({
   title,
   subtitle,
-  onBack,
+  centerTitle = false,
   theme = 'dark',
 }: {
   title: string
   subtitle?: string
-  onBack: () => void
+  centerTitle?: boolean
   theme?: ThemeMode
 }) {
   const isLight = theme === 'light'
   return (
-    <div className={`flex items-center gap-3 px-5 pt-4 pb-3 border-b backdrop-blur-md ${
+    <div className={`px-5 pt-4 pb-3 border-b backdrop-blur-md ${
       isLight ? 'border-gray-200 bg-white/85' : 'border-white/10 bg-[#090D14]/80'
     }`}>
-      <button
-        onClick={onBack}
-        className={`flex h-9 w-9 items-center justify-center rounded-xl transition active:scale-95 ${
-          isLight ? 'bg-gray-100 hover:bg-gray-200 text-gray-800' : 'bg-white/10 hover:bg-white/15 text-white'
-        }`}
-      >
-        <ChevronLeft size={18} />
-      </button>
-      <div>
+      <div className={centerTitle ? 'text-center' : undefined}>
         <div className={`text-[15px] font-bold tracking-wide ${isLight ? 'text-gray-900' : 'text-white'}`}>{title}</div>
         {subtitle && <div className={`text-[11px] font-medium ${isLight ? 'text-amber-600' : 'text-amber-300'}`}>{subtitle}</div>}
       </div>
@@ -108,7 +100,6 @@ export function Keypad({
       <div className="flex items-baseline justify-center gap-1.5 py-4">
         <span className={`text-2xl font-bold ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>{symbol}</span>
         <span className={`text-4xl font-extrabold font-mono tabular-nums ${isLight ? 'text-gray-900' : 'text-white'}`}>{value || '0'}</span>
-        <span className={`text-xs font-bold ml-1 ${isLight ? 'text-amber-600/80' : 'text-amber-300/80'}`}>AKD</span>
       </div>
       <div className="grid grid-cols-3 gap-2 px-6 pb-2">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'].map((k) => (
@@ -299,7 +290,7 @@ export function Home({
             </strong>
             {lang === 'arak'
               ? 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀-၀၆:၀၀ တွင် စာရင်းစနစ် အဆင့်မြှင့်မည်ဖြစ်ပါသည်။ အော့ဖ်လိုင်းဘောက်ချာများ အသုံးပြုနိုင်ပါသည်။'
-              : 'PeThar will undergo sovereign ledger upgrade on 24 Sep 2026 from 01:00-06:00 AM. Offline vouchers remain active.'}
+              : 'PeThar will undergo an Arakan ledger upgrade on 24 Sep 2026 from 01:00-06:00 AM. Offline vouchers remain active.'}
           </div>
           <button onClick={() => setBannerVisible(false)} className="text-amber-400/80 hover:text-white">
             <X size={14} />
@@ -437,8 +428,6 @@ export function AccountScreen({
     <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
       <ScreenHeader
         title={lang === 'arak' ? 'မိမိ ငွေစာရင်းများနှင့် ကတ်များ' : 'My Accounts & Cards'}
-        subtitle="Sovereign Arakan Dollar Enclave"
-        onBack={() => go('home')}
         theme={theme}
       />
 
@@ -448,7 +437,7 @@ export function AccountScreen({
           <div className="flex items-center justify-between text-xs text-amber-300">
             <span className="font-bold flex items-center gap-1.5">
               <Wallet size={14} />
-              {lang === 'arak' ? 'အာရက္ခဒေါ်လာ အဓိကစာရင်း' : 'Arakan Dollar Sovereign Account'}
+              {lang === 'arak' ? 'အာရက္ခဒေါ်လာ အဓိကစာရင်း' : 'Arakan Dollar Account'}
             </span>
             <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400">
               ACTIVE
@@ -458,10 +447,7 @@ export function AccountScreen({
           <div className="mt-3">
             <div className="text-[10px] text-gray-400 font-mono">ARAK-8891-JACK</div>
             <div className="text-3xl font-extrabold font-mono text-white mt-0.5">
-              ₳ 14,850.00 <span className="text-xs text-amber-400 font-sans">AKD</span>
-            </div>
-            <div className="text-[11px] text-emerald-400 font-mono mt-1">
-              ≈ $ 14,850.00 USD (100% Reserve Backed)
+              ₳ 14,850.00
             </div>
           </div>
 
@@ -483,12 +469,12 @@ export function AccountScreen({
           </div>
         </div>
 
-        {/* PeThar Sovereign Visa Debit Card Widget */}
+        {/* PeThar Visa Debit Card Widget */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className={`text-xs font-bold flex items-center gap-1.5 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
               <CreditCard size={14} className="text-amber-400" />
-              {lang === 'arak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar Sovereign Debit Card'}
+              {lang === 'arak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar Debit Card'}
             </span>
             <span className="text-[10px] text-amber-400 font-mono">VISA DEBIT</span>
           </div>
@@ -503,7 +489,7 @@ export function AccountScreen({
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
                 <ArakanEmblem size={28} variant="badge" />
-                <span className="font-bold text-white text-xs tracking-wider">PETHAR SOVEREIGN</span>
+                <span className="font-bold text-white text-xs tracking-wider">PETHAR</span>
               </div>
               <span className="text-[10px] font-mono text-amber-300">VISA</span>
             </div>
@@ -552,69 +538,6 @@ export function AccountScreen({
           </div>
         </div>
 
-        {/* Inbound Multi-Currency Auto-Conversion Engine */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className={`text-xs font-bold flex items-center gap-1.5 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
-              <RefreshCw size={14} className="text-amber-400" />
-              {lang === 'arak' ? 'နိုင်ငံခြားငွေနှင့် ဒင်္ဂါး အလိုအလျောက်လဲလှယ်စနစ်' : 'Inbound Auto-Conversion Engine'}
-            </span>
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-              0% Fee
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            {inboundConversionRails.map((rail) => (
-              <div
-                key={rail.asset}
-                className={`p-3 rounded-2xl border flex items-center justify-between ${th.card(theme)}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center font-bold text-amber-400 text-xs">
-                    {rail.asset}
-                  </div>
-                  <div>
-                    <div className={`text-xs font-bold ${th.textMain(theme)}`}>
-                      {lang === 'arak' ? rail.nameMm : rail.name}
-                    </div>
-                    <div className="text-[10px] text-gray-400 font-mono">{rail.network}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-bold font-mono text-emerald-400">
-                    {lang === 'arak' ? rail.rateTextMm : rail.rateText}
-                  </div>
-                  <div className="text-[9px] text-gray-400 font-mono">
-                    {rail.settlementSpeed}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Bank of Arakan Global Routing / IBAN info */}
-        <div className={`p-4 rounded-2xl border space-y-2 font-mono text-xs ${th.card(theme)}`}>
-          <div className={`text-xs font-bold font-sans flex items-center gap-1.5 ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>
-            <Globe size={14} />
-            {lang === 'arak' ? 'အာရက္ခ နိုင်ငံတကာ IBAN စာရင်း' : 'Bank of Arakan Global IBAN'}
-          </div>
-          <div className={`p-2.5 rounded-xl border text-[11px] ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/30 border-white/5'}`}>
-            <div className="text-[9px] text-gray-400 font-sans">IBAN</div>
-            <div className={`font-bold ${th.textMain(theme)}`}>AK89 ARAK 0001 2345 6789 01</div>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-[11px]">
-            <div className={`p-2.5 rounded-xl border ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/30 border-white/5'}`}>
-              <div className="text-[9px] text-gray-400 font-sans">SWIFT / BIC</div>
-              <div className={`font-bold ${th.textMain(theme)}`}>ARAKMMXX</div>
-            </div>
-            <div className={`p-2.5 rounded-xl border ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/30 border-white/5'}`}>
-              <div className="text-[9px] text-gray-400 font-sans">Bank</div>
-              <div className={`font-bold truncate ${th.textMain(theme)}`}>Bank of Arakan</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )
@@ -649,11 +572,11 @@ export function ServicesScreen({
       ],
     },
     {
-      titleEn: 'Digital Assets & Sovereign Retail',
+      titleEn: 'Digital Assets & Arakan Retail',
       titleMm: 'ဒစ်ဂျစ်တယ်ဒင်္ဂါးနှင့် အရောင်းစနစ်',
       items: [
         { id: 'crypto' as Screen, nameEn: 'Binance & MEXC Bridge', nameMm: 'Binance / MEXC ချိတ်ဆက်မှု', desc: 'Direct 0-fee crypto deposit and withdrawal', icon: Coins, color: 'text-purple-400 bg-purple-500/20' },
-        { id: 'crypto' as Screen, nameEn: 'Instant AKD Swap', nameMm: 'USDT မှ AKD သို့ ချက်ချင်းလဲလှယ်', desc: '1:1 Guaranteed sovereign liquidity parity', icon: RefreshCw, color: 'text-amber-400 bg-amber-500/20' },
+        { id: 'crypto' as Screen, nameEn: 'Instant Swap', nameMm: 'USDT မှ ချက်ချင်းလဲလှယ်', desc: '1:1 Guaranteed liquidity parity', icon: RefreshCw, color: 'text-amber-400 bg-amber-500/20' },
         { id: 'pos' as Screen, nameEn: 'Merchant POS Terminal', nameMm: 'ကုန်သည် POS အရောင်းစနစ်', desc: 'Register with dynamic QR and thermal receipt', icon: Terminal, color: 'text-orange-400 bg-orange-500/20' },
       ],
     },
@@ -663,8 +586,7 @@ export function ServicesScreen({
     <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
       <ScreenHeader
         title={lang === 'arak' ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services'}
-        subtitle="PeThar Sovereign Platform Directory"
-        onBack={() => go('home')}
+        subtitle="PeThar Platform Directory"
         theme={theme}
       />
 
@@ -988,25 +910,7 @@ export function SettingsScreen({
               ? 'bg-white border-gray-100 divide-gray-100'
               : 'bg-[#131B26] border-white/5 divide-white/5'
           }`}>
-            {/* 1. Change Password */}
-            <button
-              onClick={() => alert(lang === 'arak' ? 'စကားဝှက်အသစ် ပြောင်းလဲရန် SMS ကုဒ် ပို့ပေးထားပါသည်' : 'Password change OTP sent to your registered phone')}
-              className={`w-full p-4 flex items-center justify-between text-left transition ${
-                isLight ? 'hover:bg-gray-50' : 'hover:bg-white/5'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
-                  <Lock size={18} />
-                </div>
-                <div className={`text-xs font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>
-                  {t.changePassword}
-                </div>
-              </div>
-              <ChevronRight size={18} className="text-gray-400" />
-            </button>
-
-            {/* 2. Change PIN */}
+            {/* 1. Change PIN */}
             <button
               onClick={() => alert(lang === 'arak' ? '၆ လုံး လျှို့ဝှက်ကုဒ် (PIN) အသစ် ပြောင်းလဲရန် ညွှန်ကြားချက် ပို့ပြီးပါပြီ' : 'Instructions sent to reset your 6-digit transaction PIN')}
               className={`w-full p-4 flex items-center justify-between text-left transition ${
@@ -1110,22 +1014,6 @@ export function SettingsScreen({
           </button>
         </div>
 
-        {/* App Info & Sign Out */}
-        <div className={`p-4 rounded-3xl border flex items-center justify-between text-xs ${
-          isLight ? 'bg-white border-gray-100 text-gray-500 shadow-sm' : 'bg-[#131B26] border-white/5 text-gray-400'
-        }`}>
-          <div>
-            <div className={`font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>PeThar Sovereign v2.4.0</div>
-            <div className="text-[10px]">Build 902 • Arakan Digital Authority</div>
-          </div>
-          <button
-            onClick={() => alert(lang === 'arak' ? 'အကောင့်ထွက်ပြီးပါပြီ' : 'Logged out securely')}
-            className="px-3 py-1.5 rounded-xl bg-red-600/10 text-red-500 border border-red-500/20 flex items-center gap-1.5 hover:bg-red-600/20 transition text-xs font-bold"
-          >
-            <LogOut size={13} />
-            {lang === 'arak' ? 'ထွက်ရန်' : 'Sign Out'}
-          </button>
-        </div>
       </div>
 
       {/* ── EDIT PERSONAL DATA MODAL ─────────────────────────────────── */}
@@ -1249,10 +1137,12 @@ export function SettingsScreen({
 export function Send({
   go,
   lang,
+  theme = 'dark',
   onSent,
 }: {
   go: (s: Screen) => void
   lang: Language
+  theme?: ThemeMode
   onSent?: (amt: number) => void
 }) {
   const t = translations[lang]
@@ -1298,15 +1188,11 @@ export function Send({
   }
 
   return (
-    <div className="flex h-full flex-col bg-[#090D14] text-white">
+    <div className={`flex h-full flex-col ${th.root(theme)}`}>
       <ScreenHeader
         title={t.sendTitle}
-        subtitle={lang === 'arak' ? 'အာရက္ခဒေါ်လာ လွှဲပို့ခြင်း' : 'Zero-fee Sovereign Transfer'}
-        onBack={() => {
-          if (step === 'who' || step === 'done') go('home')
-          else if (step === 'amount') setStep('who')
-          else if (step === 'pin') setStep('amount')
-        }}
+        subtitle={lang === 'arak' ? 'အာရက္ခဒေါ်လာ လွှဲပို့ခြင်း' : 'Zero-fee Arakan Transfer'}
+        theme={theme}
       />
 
       {/* STEP 1: Select Recipient */}
@@ -1405,7 +1291,7 @@ export function Send({
               onClick={() => setStep('pin')}
               className="w-full py-3.5 rounded-2xl font-bold text-xs bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-lg hover:brightness-110 active:scale-[0.99] transition disabled:opacity-40"
             >
-              {t.sendContinue} (₳ {amount || '0'} AKD)
+              {t.sendContinue} (₳ {amount || '0'})
             </button>
           </div>
         </div>
@@ -1420,7 +1306,7 @@ export function Send({
             </div>
             <h3 className="text-sm font-bold text-white">{t.sendEnterPin}</h3>
             <p className="text-[11px] text-gray-400 mt-1">
-              Transfer ₳ {amount} AKD to {contact?.name}
+              Transfer ₳ {amount} to {contact?.name}
             </p>
             <div className="mt-4">
               <OtpDots len={pin.length} />
@@ -1464,7 +1350,7 @@ export function Send({
 }
 
 // ── RECEIVE SCREEN ──────────────────────────────────────────────────────
-export function Receive({ go, lang }: { go: (s: Screen) => void; lang: Language }) {
+export function Receive({ lang, theme = 'dark' }: { lang: Language; theme?: ThemeMode }) {
   const t = translations[lang]
   const [copied, setCopied] = useState(false)
   const myId = 'ARAK-8891-JACK'
@@ -1476,11 +1362,11 @@ export function Receive({ go, lang }: { go: (s: Screen) => void; lang: Language 
   }
 
   return (
-    <div className="flex h-full flex-col bg-[#090D14] text-white">
+    <div className={`flex h-full flex-col ${th.root(theme)}`}>
       <ScreenHeader
         title={t.receiveTitle}
         subtitle={lang === 'arak' ? 'ArakanPay စနစ်ဖြင့် လက်ခံရန်' : 'ArakanPay Verified QR'}
-        onBack={() => go('home')}
+        theme={theme}
       />
 
       <div className="flex flex-1 flex-col items-center justify-center p-6 text-center space-y-4">
@@ -1511,29 +1397,51 @@ export function Receive({ go, lang }: { go: (s: Screen) => void; lang: Language 
 }
 
 // ── SCAN SCREEN ─────────────────────────────────────────────────────────
-export function Scan({ go, lang, theme = 'dark' }: { go: (s: Screen) => void; lang: Language; theme?: ThemeMode }) {
-  const t = translations[lang]
+export function Scan({ lang, theme = 'dark' }: { lang: Language; theme?: ThemeMode }) {
   const [tab, setTab] = useState<'scan' | 'myqr' | 'pay'>('scan')
-  const [simulated, setSimulated] = useState(false)
-  const [payCode, setPayCode] = useState('')
+  const [flashEnabled, setFlashEnabled] = useState(false)
+  const [photoSelected, setPhotoSelected] = useState(false)
+  const [qrSaved, setQrSaved] = useState(false)
+  const [qrShared, setQrShared] = useState(false)
   const isLight = theme === 'light'
+
+  const handleSaveQr = () => {
+    localStorage.setItem('pethar-my-qr', 'pethar://receive?id=ARAK-8891-JACK&cur=AKD')
+    setQrSaved(true)
+    setTimeout(() => setQrSaved(false), 2000)
+  }
+
+  const handleShareQr = async () => {
+    const shareData = {
+      title: 'Arakan QR Payment',
+      text: 'Scan this QR to transfer to Jack · ARAK-8891-JACK',
+      url: 'pethar://receive?id=ARAK-8891-JACK&cur=AKD',
+    }
+    try {
+      if (navigator.share) await navigator.share(shareData)
+      else await navigator.clipboard?.writeText(shareData.url)
+      setQrShared(true)
+      setTimeout(() => setQrShared(false), 2000)
+    } catch {
+      // Sharing can be cancelled by the device without showing an error.
+    }
+  }
 
   const tabs = [
     { id: 'scan' as const, label: lang === 'arak' ? 'စကင်ဖတ်' : 'Scan', icon: ScanLine },
     { id: 'myqr' as const, label: lang === 'arak' ? 'မိမိ QR' : 'My QR', icon: QrCode },
-    { id: 'pay' as const, label: lang === 'arak' ? 'ငွေပေးချေ' : 'Pay', icon: ArrowUpRight },
+    { id: 'pay' as const, label: lang === 'arak' ? 'QR ဖြင့် ငွေပေးချေ' : 'QR to Pay', icon: Barcode },
   ]
 
   return (
     <div className={`flex h-full flex-col relative ${tab === 'scan' ? 'bg-black text-white' : th.root(theme)}`}>
       <ScreenHeader
-        title={t.navScan}
-        subtitle={lang === 'arak' ? 'ကင်မရာ · မိမိ QR · ငွေပေးချေ' : 'Camera · My QR · Pay'}
-        onBack={() => go('home')}
+        title="Scan/MyQR"
+        centerTitle
         theme={tab === 'scan' ? 'dark' : theme}
       />
 
-      {/* ── TAB BAR: Scan / My QR / Pay ── */}
+      {/* ── TAB BAR: Scan / My QR / QR to Pay ── */}
       <div className={`mx-4 mt-3 flex rounded-2xl p-1 ${
         tab === 'scan' ? 'bg-white/10' : isLight ? 'bg-gray-200/70' : 'bg-white/[0.07]'
       }`}>
@@ -1557,134 +1465,124 @@ export function Scan({ go, lang, theme = 'dark' }: { go: (s: Screen) => void; la
         ))}
       </div>
 
-      {/* ── TAB 1: SCAN (camera viewfinder, dead-center) ── */}
+      {/* ── TAB 1: SCAN ── */}
       {tab === 'scan' && (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center relative">
-          {/* fake camera backdrop */}
-          <div className="absolute inset-0 opacity-25 pointer-events-none" style={{
-            background: 'radial-gradient(circle at 50% 45%, #16222E 0%, #05080C 70%)',
-          }} />
-          {!simulated ? (
-            <div className="relative z-10 flex flex-col items-center gap-6">
-              {/* centered viewfinder */}
-              <div className="relative w-60 h-60">
-                {[
-                  'top-0 left-0 border-t-4 border-l-4 rounded-tl-3xl',
-                  'top-0 right-0 border-t-4 border-r-4 rounded-tr-3xl',
-                  'bottom-0 left-0 border-b-4 border-l-4 rounded-bl-3xl',
-                  'bottom-0 right-0 border-b-4 border-r-4 rounded-br-3xl',
-                ].map((pos) => (
-                  <div key={pos} className={`absolute w-10 h-10 border-amber-400 ${pos}`} />
-                ))}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <ScanLine size={40} className="text-amber-400/60" />
-                </div>
-                <div className="absolute left-4 right-4 top-1/2 h-0.5 bg-amber-400 animate-pulse" style={{ boxShadow: '0 0 14px rgba(251,191,36,0.8)' }} />
+        <>
+          <div className="mx-4 mt-2 flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-2 text-[10px] text-amber-200">
+            <AlertTriangle size={16} className="shrink-0 text-amber-400 mt-0.5" />
+            <span className="leading-relaxed">
+              {lang === 'arak'
+                ? 'ငွေပေးချေရန်၊ ငွေလွှဲရန် သို့မဟုတ် ငွေထုတ်ရန်သာ စကင်ဖတ်ပါ။ ငွေလက်ခံရန် စကင်ဖတ်ခြင်းကို မထောက်ပံ့ပါ။'
+                : 'Scan to pay, transfer, or withdraw only. Scan to receive money is not supported.'}
+            </span>
+          </div>
+          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-5">
+            <div className="relative w-60 h-60">
+              {flashEnabled && <div className="absolute inset-0 rounded-3xl bg-white/10" />}
+              {[
+                'top-0 left-0 border-t-4 border-l-4 rounded-tl-3xl',
+                'top-0 right-0 border-t-4 border-r-4 rounded-tr-3xl',
+                'bottom-0 left-0 border-b-4 border-l-4 rounded-bl-3xl',
+                'bottom-0 right-0 border-b-4 border-r-4 rounded-br-3xl',
+              ].map((pos) => (
+                <div key={pos} className={`absolute w-10 h-10 border-amber-400 ${pos}`} />
+              ))}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <ScanLine size={40} className="text-amber-400/60" />
               </div>
-
-              <p className="text-xs text-gray-400 max-w-xs">
-                {lang === 'arak'
-                  ? 'ဆိုင် သို့မဟုတ် မိတ်ဆွေ၏ PeThar QR ကုဒ်ကို ဘောင်အလယ်တွင် ချိန်ပါ'
-                  : 'Align ArakanPay merchant or friend QR within the center frame'}
-              </p>
-
+              <div className="absolute left-4 right-4 top-1/2 h-0.5 bg-amber-400 animate-pulse" style={{ boxShadow: '0 0 14px rgba(251,191,36,0.8)' }} />
+            </div>
+            <div className="w-60 flex items-center justify-between">
               <button
-                onClick={() => setSimulated(true)}
-                className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition"
+                type="button"
+                onClick={() => setFlashEnabled(!flashEnabled)}
+                aria-label={flashEnabled ? 'Turn flashlight off' : 'Turn flashlight on'}
+                className={`h-10 w-10 rounded-full flex items-center justify-center transition active:scale-95 ${
+                  flashEnabled ? 'bg-amber-500 text-black' : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                }`}
               >
-                {lang === 'arak' ? 'စကင်ဖတ်ခြင်း သရုပ်ပြရန်' : 'Simulate QR Scan Detection'}
+                <Flashlight size={18} />
               </button>
+              <label
+                htmlFor="qr-photo-upload"
+                aria-label="Scan QR from photo"
+                className={`h-10 w-10 rounded-full flex items-center justify-center cursor-pointer transition active:scale-95 ${
+                  photoSelected ? 'bg-emerald-500 text-black' : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                }`}
+              >
+                <ImagePlus size={18} />
+              </label>
+              <input
+                id="qr-photo-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => setPhotoSelected(Boolean(event.target.files?.length))}
+              />
             </div>
-          ) : (
-            <div className="relative z-10 p-5 rounded-3xl bg-[#131B26] border border-amber-500/40 text-center space-y-3 w-full max-w-xs">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
-                <Store size={24} />
-              </div>
-              <h4 className="text-sm font-bold text-white">Shwe Sittwe Merchant Point</h4>
-              <div className="text-xs font-mono text-gray-400">Terminal #AK-001 • Sittwe Strand</div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setSimulated(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-gray-300 font-bold text-xs transition"
-                >
-                  {lang === 'arak' ? 'ပြန်စကင်' : 'Rescan'}
-                </button>
-                <button
-                  onClick={() => go('send')}
-                  className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition"
-                >
-                  {lang === 'arak' ? 'ငွေပေးချေမည်' : 'Pay Merchant'}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        </>
       )}
 
       {/* ── TAB 2: MY QR ── */}
       {tab === 'myqr' && (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-4">
-          <div className={`p-4 rounded-3xl border shadow-lg ${isLight ? 'bg-white border-gray-200' : 'bg-[#131B26] border-white/10'}`}>
-            <div className="bg-white p-3 rounded-2xl inline-block">
-              <FakeQR size={170} value="pethar://receive?id=ARAK-8891-JACK&cur=AKD" />
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-full max-w-[260px] overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center gap-2 bg-[#17679a] px-3 py-2 text-left text-white">
+              <ArakanEmblem size={22} variant="badge" />
+              <div>
+                <div className="text-[11px] font-black tracking-wide">ARAKAN QR PAYMENT</div>
+                <div className="text-[8px] text-white/75">Arakan Digital Wallet</div>
+              </div>
             </div>
-            <div className={`pt-3 text-sm font-bold ${th.textMain(theme)}`}>Jack · ARAK-8891-JACK</div>
-            <div className={`text-[10px] font-mono ${th.textSub(theme)}`}>EMVCo · ArakanPay · AKD</div>
+            <div className="px-3 pt-3">
+              <div className="bg-white p-2">
+                <FakeQR size={168} value="pethar://receive?id=ARAK-8891-JACK&cur=AKD" />
+              </div>
+              <div className="mt-2 text-[10px] font-bold text-teal-600">Scan QR to transfer to account</div>
+              <div className="mt-1 text-[9px] text-gray-500">Name: Jack Halder</div>
+              <div className="text-[9px] text-gray-500">Account No: ARAK-8891-JACK</div>
+              <div className="pb-3 text-[8px] text-gray-400">Arakan QR Payment</div>
+            </div>
+            <div className="flex border-t border-gray-200 bg-gray-50">
+              <button
+                type="button"
+                onClick={handleSaveQr}
+                className="flex flex-1 flex-col items-center gap-1 py-2 text-[9px] font-semibold text-gray-600 hover:bg-gray-100"
+              >
+                <Download size={16} className={qrSaved ? 'text-emerald-600' : 'text-teal-600'} />
+                {qrSaved ? 'Saved' : 'Save'}
+              </button>
+              <button
+                type="button"
+                onClick={handleShareQr}
+                className="flex flex-1 flex-col items-center gap-1 border-l border-gray-200 py-2 text-[9px] font-semibold text-gray-600 hover:bg-gray-100"
+              >
+                <Share2 size={16} className={qrShared ? 'text-emerald-600' : 'text-teal-600'} />
+                {qrShared ? 'Shared' : 'Share'}
+              </button>
+            </div>
           </div>
-          <p className={`text-[11px] max-w-xs ${th.textSub(theme)}`}>
-            {lang === 'arak'
-              ? 'ငွေလက်ခံရန် ဤ QR ကို ပို့သူအား ပြသပါ'
-              : 'Show this QR to receive AKD instantly, zero fee'}
-          </p>
-          <button
-            onClick={() => go('receive')}
-            className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition active:scale-95"
-          >
-            {lang === 'arak' ? 'ငွေလက်ခံစာမျက်နှာသို့' : 'Open Receive Options'}
-          </button>
         </div>
       )}
 
-      {/* ── TAB 3: PAY (manual merchant code) ── */}
+      {/* ── TAB 3: QR TO PAY ── */}
       {tab === 'pay' && (
-        <div className="flex-1 flex flex-col p-5 gap-4">
-          <div className={`p-4 rounded-3xl border ${th.card(theme)}`}>
-            <label className={`text-[11px] font-bold block mb-2 ${th.textSub(theme)}`}>
-              {lang === 'arak' ? 'ဆိုင်ကုဒ် သို့မဟုတ် PeThar ID' : 'Merchant Code or PeThar ID'}
-            </label>
-            <input
-              value={payCode}
-              onChange={(e) => setPayCode(e.target.value.toUpperCase())}
-              placeholder="ARAK-0000"
-              className={`w-full px-3 py-2.5 rounded-xl border font-mono font-bold text-sm focus:outline-none focus:border-amber-500 ${
-                isLight ? 'bg-gray-50 border-gray-200 text-gray-900' : 'bg-black/40 border-white/10 text-white'
-              }`}
-            />
-            <div className="grid grid-cols-2 gap-2 pt-3">
-              {['AK-001 · Sittwe', 'AK-042 · Mrauk-U'].map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setPayCode(m.split(' ')[0])}
-                  className={`px-2 py-2 rounded-xl text-[10px] font-bold border transition active:scale-95 ${
-                    isLight ? 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100' : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
+        <div className="flex-1 flex flex-col items-center gap-3 overflow-y-auto p-4">
+          <div className="w-full max-w-[260px] overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between bg-[#17679a] px-3 py-2 text-white">
+              <div className="text-[11px] font-bold">Pay at</div>
+              <div className="text-[10px] font-bold">Arakan</div>
+            </div>
+            <div className="px-3 pt-3 text-left">
+              <div className="text-[10px] font-bold text-gray-800">Jack Halder</div>
+              <div className="mt-2 flex justify-center">
+                <FakeQR size={142} value="pethar://pay?merchant=ARAKAN&curr=AKD" />
+              </div>
+              <div className="mt-2 text-center text-[9px] font-bold text-teal-600">ARAKAN QR PAYMENT</div>
+              <div className="pb-3 text-center text-[8px] text-gray-400">Scan to pay with ₳</div>
             </div>
           </div>
-
-          <button
-            disabled={payCode.trim().length < 4}
-            onClick={() => go('send')}
-            className="w-full py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-bold text-sm transition active:scale-[0.98]"
-          >
-            {lang === 'arak' ? 'ငွေပေးချေရန် ဆက်လုပ်ပါ' : `Pay ${payCode || '…'}`}
-          </button>
-          <p className={`text-center text-[10px] ${th.textSub(theme)}`}>
-            {lang === 'arak' ? 'အတည်ပြုထားသော ကုန်သည်များသာ ငွေလက်ခံနိုင်ပါသည်' : 'Only verified ArakanPay merchants can receive payments'}
-          </p>
         </div>
       )}
     </div>
@@ -1692,7 +1590,7 @@ export function Scan({ go, lang, theme = 'dark' }: { go: (s: Screen) => void; la
 }
 
 // ── AGENT CASH OUT SCREEN ───────────────────────────────────────────────
-export function CashOut({ go, lang }: { go: (s: Screen) => void; lang: Language }) {
+export function CashOut({ go, lang, theme = 'dark' }: { go: (s: Screen) => void; lang: Language; theme?: ThemeMode }) {
   const t = translations[lang]
   const [selectedAgent, setSelectedAgent] = useState<(typeof agents)[0] | null>(null)
   const [showTotp, setShowTotp] = useState(false)
@@ -1718,14 +1616,11 @@ export function CashOut({ go, lang }: { go: (s: Screen) => void; lang: Language 
   }, [showTotp])
 
   return (
-    <div className="flex h-full flex-col bg-[#090D14] text-white">
+    <div className={`flex h-full flex-col ${th.root(theme)}`}>
       <ScreenHeader
         title={t.cashOutTitle}
         subtitle={lang === 'arak' ? 'တရားဝင် အာရက္ခအေးဂျင့်များ' : 'Verified Agent Branch Network'}
-        onBack={() => {
-          if (showTotp) setShowTotp(false)
-          else go('home')
-        }}
+        theme={theme}
       />
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -1795,7 +1690,7 @@ export function CashOut({ go, lang }: { go: (s: Screen) => void; lang: Language 
             <p className="text-[11px] text-gray-300 max-w-xs mx-auto">
               {lang === 'arak'
                 ? 'အေးဂျင့်ထံ ဤကုဒ်ပြသ၍ ငွေသားထုတ်ယူပါ။ တစ်ခါသုံးကုဒ်ဖြစ်သဖြင့် လုံခြုံစိတ်ချရပါသည်'
-                : 'Show dynamic code to agent counter to withdraw physical sovereign banknotes'}
+                : 'Show dynamic code to agent counter to withdraw physical Arakan banknotes'}
             </p>
 
             <button
@@ -1816,11 +1711,9 @@ export function CashOut({ go, lang }: { go: (s: Screen) => void; lang: Language 
 
 // ── NOTIFICATIONS SCREEN (store-driven, synced with home bell) ─────────────
 export function NotificationsScreen({
-  go,
   lang = 'arak',
   theme = 'dark',
 }: {
-  go: (s: Screen) => void
   lang?: Language
   theme?: ThemeMode
 }) {
@@ -1868,14 +1761,6 @@ export function NotificationsScreen({
       <div className={`sticky top-0 z-30 px-4 py-3 flex items-center justify-between border-b backdrop-blur-md ${
         isLight ? 'bg-white/90 border-gray-200' : 'bg-[#090D14]/90 border-white/10'
       }`}>
-        <button
-          onClick={() => go('home')}
-          className={`p-1.5 rounded-full transition active:scale-95 ${isLight ? 'hover:bg-gray-100 text-gray-700' : 'hover:bg-white/10 text-white'}`}
-          title="Back"
-        >
-          <ArrowLeft size={19} />
-        </button>
-
         <h2 className={`text-base font-bold tracking-wide ${th.textMain(theme)}`}>
           {lang === 'arak' ? 'အသိပေးချက်များ' : 'Notifications'}
         </h2>

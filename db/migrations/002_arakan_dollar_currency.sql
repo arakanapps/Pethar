@@ -1,12 +1,12 @@
 -- ============================================================================
--- PeThar (ဖေ့သာ) — Sovereign Arakan Monetary Migration
--- Revision: 002_arakan_dollar_sovereignty.sql
+-- PeThar (ဖေ့သာ) — Arakan Monetary Migration
+-- Revision: 002_arakan_dollar_currency.sql
 -- Target: PostgreSQL 14+
 --
 -- This migration establishes:
---   1. Sovereignty of AKD (Arakan Dollar / အာရက္ခဒေါ်လာ) replacing MMK.
+--   1. AKD (Arakan Dollar / အာရက္ခဒေါ်လာ) replacing MMK.
 --   2. Multi-currency and digital asset account constraints:
---      - Sovereign: AKD (Arakan Dollar, base unit, 1 AKD = 100 Cent)
+--      - Base currency: AKD (Arakan Dollar, 1 AKD = 100 Cent)
 --      - Stablecoin & Crypto: USDT, USDC, BTC, ETH
 --      - Foreign Exchange Corridors: USD, THB, MYR, SGD, EUR
 --   3. POS Merchant Terminal support (merchant_code, terminal_id, batch_settlement)
@@ -19,14 +19,14 @@ BEGIN;
 -- 1. Ensure pgcrypto extension for UUIDs and SHA-256 / SHA-3 hashing
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- 2. Update Currency Domain to Sovereign Arakan Dollar (AKD)
+-- 2. Update Currency Domain to Arakan Dollar (AKD)
 -- Drop old currency check if exists and re-apply strictly excluding MMK
 ALTER TABLE accounts DROP CONSTRAINT IF EXISTS accounts_currency_check;
 
 ALTER TABLE accounts
     ADD CONSTRAINT accounts_currency_check
     CHECK (currency IN (
-        'AKD',   -- Sovereign Arakan Dollar (အာရက္ခဒေါ်လာ)
+        'AKD',   -- Arakan Dollar (အာရက္ခဒေါ်လာ)
         'USDT',  -- Tether USD (Multi-chain)
         'USDC',  -- USD Coin
         'USD',   -- United States Dollar (Global IBAN Corridor)
@@ -81,12 +81,12 @@ CREATE TABLE IF NOT EXISTS fx_rate_board (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     pair                VARCHAR(20) UNIQUE NOT NULL,      -- e.g. 'AKD/THB'
     rate                NUMERIC(18, 6) NOT NULL,
-    spread_bps          INT NOT NULL DEFAULT 0,           -- 0 bps for sovereign parity
+    spread_bps          INT NOT NULL DEFAULT 0,           -- 0 bps for parity
     provider            VARCHAR(50) NOT NULL DEFAULT 'ARAKAN_CENTRAL_BANK',
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Seed Initial Sovereign Exchange Rates
+-- Seed Initial Exchange Rates
 INSERT INTO fx_rate_board (pair, rate, spread_bps, provider)
 VALUES
     ('AKD/USD', 1.000000, 0, 'ARAKAN_CENTRAL_BANK'),

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {
-  Globe, CreditCard, Copy, Check, ArrowRightLeft, ShieldCheck,
-  Lock, Eye, EyeOff, RefreshCw, Send, Sparkles, Building2
+  Globe, CreditCard, Check, ArrowRightLeft,
+  Lock, Eye, EyeOff, RefreshCw, Send, Sparkles
 } from 'lucide-react'
 import { ArakanEmblem } from './ArakanEmblem'
 import type { Language } from '../i18n'
@@ -9,16 +9,18 @@ import { translations } from '../i18n'
 
 interface InternationalBankingProps {
   lang: Language
+  theme?: 'dark' | 'light'
   onTopUpSuccess?: (amount: number) => void
 }
 
 export const InternationalBanking: React.FC<InternationalBankingProps> = ({
   lang,
+  theme = 'dark',
   onTopUpSuccess,
 }) => {
   const t = translations[lang]
-  const [activeTab, setActiveTab] = useState<'account' | 'remit' | 'topup' | 'card'>('account')
-  const [copiedField, setCopiedField] = useState<string | null>(null)
+  const isLight = theme === 'light'
+  const [activeTab, setActiveTab] = useState<'remit' | 'topup' | 'card'>('remit')
 
   // Remittance state
   const [sendCorridor, setSendCorridor] = useState<'THB' | 'MYR' | 'SGD' | 'USD' | 'EUR'>('THB')
@@ -36,12 +38,6 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
   // Card controls
   const [cardFrozen, setCardFrozen] = useState(false)
   const [showCvv, setShowCvv] = useState(false)
-
-  const copyText = (text: string, fieldId: string) => {
-    navigator.clipboard?.writeText(text)
-    setCopiedField(fieldId)
-    setTimeout(() => setCopiedField(null), 2000)
-  }
 
   // FX calculation
   const fxRates: Record<string, number> = {
@@ -67,31 +63,21 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#090D14] text-white overflow-y-auto">
+    <div className={`flex flex-col h-full overflow-y-auto ${isLight ? 'bg-[#F4F5F8] text-gray-900' : 'bg-[#090D14] text-white'}`}>
       {/* Header */}
-      <div className="p-5 bg-gradient-to-b from-[#1C2530] to-[#090D14] border-b border-[#283852]">
+      <div className={`p-5 border-b ${isLight ? 'bg-white border-gray-200' : 'bg-gradient-to-b from-[#1C2530] to-[#090D14] border-[#283852]'}`}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
             <Globe size={22} />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white tracking-wide">{t.intlTitle}</h2>
+            <h2 className={`text-base font-bold tracking-wide ${isLight ? 'text-gray-900' : 'text-white'}`}>{t.intlTitle}</h2>
             <p className="text-xs text-gray-400 mt-0.5">{t.intlSubtitle}</p>
           </div>
         </div>
 
         {/* Tab switchers */}
-        <div className="grid grid-cols-4 gap-1.5 mt-4 bg-black/40 p-1 rounded-xl border border-white/10">
-          <button
-            onClick={() => setActiveTab('account')}
-            className={`py-2 text-[11px] font-semibold rounded-lg transition ${
-              activeTab === 'account'
-                ? 'bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-md'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            {lang === 'arak' ? 'Global IBAN' : 'Global IBAN'}
-          </button>
+        <div className="grid grid-cols-3 gap-1.5 mt-4 bg-black/40 p-1 rounded-xl border border-white/10">
           <button
             onClick={() => setActiveTab('remit')}
             className={`py-2 text-[11px] font-semibold rounded-lg transition ${
@@ -126,81 +112,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
       </div>
 
       <div className="p-5 space-y-5">
-        {/* Tab 1: Global IBAN & SWIFT Receiving Account */}
-        {activeTab === 'account' && (
-          <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#172235] to-[#101724] border border-[#283852] relative overflow-hidden">
-              <div className="absolute right-0 top-0 opacity-10 p-4">
-                <ArakanEmblem size={120} variant="emblem-only" />
-              </div>
-
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                  <Building2 size={14} />
-                  {t.intlGlobalAccount}
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  {lang === 'arak' ? 'တရားဝင် အတည်ပြုပြီး' : 'Active Routing'}
-                </span>
-              </div>
-
-              <div className="space-y-3 font-mono text-xs">
-                <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 flex items-center justify-between">
-                  <div>
-                    <div className="text-[10px] text-gray-400 font-sans">{t.intlBankName}</div>
-                    <div className="text-white font-bold text-xs mt-0.5">Bank of Arakan (Arakan Digital Reserve)</div>
-                  </div>
-                </div>
-
-                <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 flex items-center justify-between">
-                  <div>
-                    <div className="text-[10px] text-gray-400 font-sans">{t.intlIban}</div>
-                    <div className="text-white font-bold tracking-wider mt-0.5">AK89 ARAK 0001 2345 6789 01</div>
-                  </div>
-                  <button
-                    onClick={() => copyText('AK89ARAK00012345678901', 'iban')}
-                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-gray-300 transition"
-                  >
-                    {copiedField === 'iban' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 flex items-center justify-between">
-                    <div>
-                      <div className="text-[10px] text-gray-400 font-sans">{t.intlSwift}</div>
-                      <div className="text-white font-bold mt-0.5">ARAKMMXX</div>
-                    </div>
-                    <button
-                      onClick={() => copyText('ARAKMMXX', 'swift')}
-                      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-gray-300 transition"
-                    >
-                      {copiedField === 'swift' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                    </button>
-                  </div>
-
-                  <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 flex items-center justify-between">
-                    <div>
-                      <div className="text-[10px] text-gray-400 font-sans">{lang === 'arak' ? 'ပိုင်ရှင်အမည်' : 'Beneficiary'}</div>
-                      <div className="text-white font-bold mt-0.5 truncate">Jack Halder</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-white/10 text-[11px] text-gray-400 flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-amber-400 shrink-0" />
-                <span>
-                  {lang === 'arak'
-                    ? 'Payoneer, Wise, နိုင်ငံခြားကုမ္ပဏီများနှင့် Freelance ငွေများကို တိုက်ရိုက်လက်ခံနိုင်ပါသည်'
-                    : 'Receive corporate payouts directly from Upwork, Payoneer, Wise, and global employers.'}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 2: Remittance Calculator (Wise-style) */}
+        {/* Remittance Calculator (Wise-style) */}
         {activeTab === 'remit' && (
           <div className="space-y-4">
             <div className="p-4 rounded-2xl bg-[#131B26] border border-[#283852] space-y-4">
@@ -246,14 +158,14 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
 
                 <div className="p-3 rounded-xl bg-gradient-to-r from-red-950/40 to-black/60 border border-amber-500/40">
                   <div className="text-[10px] text-amber-400 font-semibold">
-                    {lang === 'arak' ? 'အာရက္ခဒေါ်လာ လက်ခံရရှိမည့်ပမာဏ (AKD)' : 'Arakan Recipient Gets (AKD)'}
+                    {lang === 'arak' ? 'အာရက္ခဒေါ်လာ လက်ခံရရှိမည့်ပမာဏ' : 'Arakan Recipient Gets'}
                   </div>
                   <div className="text-2xl font-bold font-mono text-white mt-1">
-                    ₳ {calculatedAkd} <span className="text-xs text-amber-400 font-normal">AKD</span>
+                    ₳ {calculatedAkd}
                   </div>
                   <div className="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
                     <Sparkles size={11} className="text-amber-400" />
-                    <span>{`1 AKD = ${fxRates[sendCorridor]} ${sendCorridor} · Zero markup`}</span>
+                    <span>{`1 ₳ = ${fxRates[sendCorridor]} ${sendCorridor} · Zero markup`}</span>
                   </div>
                 </div>
               </div>
@@ -299,7 +211,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
               <div className="space-y-3">
                 <div>
                   <label className="text-[10px] text-gray-400 block mb-1">
-                    {lang === 'arak' ? 'ငွေသွင်းမည့်ပမာဏ (AKD / USD)' : 'Amount to Deposit (AKD / USD)'}
+                    {lang === 'arak' ? 'ငွေသွင်းမည့်ပမာဏ' : 'Amount to Deposit'}
                   </label>
                   <input
                     type="number"
@@ -361,8 +273,8 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                   <>
                     <CreditCard size={14} />
                     {lang === 'arak'
-                      ? `₳ ${topUpAmount} AKD ချက်ချင်းငွေသွင်းရန်`
-                      : `Top Up ₳ ${topUpAmount} AKD Instantly`}
+                      ? `₳ ${topUpAmount} ချက်ချင်းငွေသွင်းရန်`
+                      : `Top Up ₳ ${topUpAmount} Instantly`}
                   </>
                 )}
               </button>
@@ -372,8 +284,8 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                   <Check size={14} className="text-emerald-400" />
                   <span>
                     {lang === 'arak'
-                      ? `₳ ${topUpAmount} AKD အကောင့်အတွင်းသို့ အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ!`
-                      : `Successfully credited ₳ ${topUpAmount} AKD via ${selectedMethod.toUpperCase()}!`}
+                      ? `₳ ${topUpAmount} အကောင့်အတွင်းသို့ အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ!`
+                      : `Successfully credited ₳ ${topUpAmount} via ${selectedMethod.toUpperCase()}!`}
                   </span>
                 </div>
               )}
@@ -381,7 +293,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
           </div>
         )}
 
-        {/* Tab 4: PeThar Sovereign Debit Card Management */}
+        {/* Tab 4: PeThar Debit Card Management */}
         {activeTab === 'card' && (
           <div className="space-y-4">
             {/* Card Graphic */}
@@ -397,7 +309,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 <div className="flex items-center gap-2">
                   <ArakanEmblem size={32} variant="badge" />
                   <span className="font-bold text-white text-sm tracking-wide">
-                    {lang === 'arak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar Sovereign'}
+                    {lang === 'arak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar'}
                   </span>
                 </div>
                 <span className="font-mono text-xs text-amber-300 tracking-wider">VISA DEBIT</span>

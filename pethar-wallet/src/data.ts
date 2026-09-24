@@ -1,4 +1,4 @@
-// ── PeThar Sovereign Arakan Design Tokens & Core Data ─────────────────────
+// ── PeThar Arakan Design Tokens & Core Data ─────────────────────
 
 export const colors = {
   // Arakan Royal Crimson & Ruby
@@ -12,7 +12,7 @@ export const colors = {
   goldLight: '#F5E6A3',
   goldDark: '#9E7812',
 
-  // Sovereign Obsidian & Cyber Security Surfaces
+  // Obsidian & Cyber Security Surfaces
   obsidian: '#090D14',
   surfaceDark: '#101724',
   surfaceCard: '#172235',
@@ -68,7 +68,7 @@ export const transactions: Txn[] = [
     currency: 'AKD',
     time: 'Today · 11:05',
     status: 'SETTLED',
-    counterparty: 'Binance Pay Connect (1500 USDT -> 1500 AKD)',
+    counterparty: 'Binance Pay Connect (1500 USDT inflow)',
     counterpartyMm: 'Binance ဒစ်ဂျစ်တယ်ငွေသွင်း',
     fee: 0.0,
     hash: '0x3e11...904b',
@@ -256,7 +256,7 @@ export interface WalletBalance {
   labelMm: string
   totalLabelEn: string
   totalLabelMm: string
-  isSovereign?: boolean
+  isReserveBacked?: boolean
   usdEquivalent: number
 }
 
@@ -272,28 +272,9 @@ export const wallets: WalletBalance[] = [
     labelMm: 'ရရှိနိုင်သော လက်ကျန်ငွေ',
     totalLabelEn: 'Total Balance',
     totalLabelMm: 'စုစုပေါင်း လက်ကျန်ငွေ',
-    isSovereign: true,
+    isReserveBacked: true,
     usdEquivalent: 14850.0,
   },
-]
-
-export interface InboundConversionRail {
-  asset: string
-  name: string
-  nameMm: string
-  network: string
-  rateText: string
-  rateTextMm: string
-  settlementSpeed: string
-}
-
-export const inboundConversionRails: InboundConversionRail[] = [
-  { asset: 'USDT', name: 'Tether USD', nameMm: 'USDT ဒစ်ဂျစ်တယ်ဒေါ်လာ', network: 'TRC20 / ERC20 / TON', rateText: '1 USDT = 1.00 AKD (0% Fee)', rateTextMm: '၁ USDT = ၁.၀၀ AKD (အခမဲ့)', settlementSpeed: 'Instant (~3s)' },
-  { asset: 'USDC', name: 'USD Coin', nameMm: 'USDC စစ်ဆေးပြီးဒေါ်လာ', network: 'ERC20 / Polygon', rateText: '1 USDC = 1.00 AKD (0% Fee)', rateTextMm: '၁ USDC = ၁.၀၀ AKD (အခမဲ့)', settlementSpeed: 'Instant (~3s)' },
-  { asset: 'USD', name: 'US Dollar (SWIFT/Wire)', nameMm: 'အမေရိကန်ဒေါ်လာ နိုင်ငံတကာဘဏ်', network: 'Payoneer / Wise / IBAN', rateText: '1 USD = 1.00 AKD', rateTextMm: '၁ USD = ၁.၀၀ AKD', settlementSpeed: 'Real-time' },
-  { asset: 'THB', name: 'Thai Baht', nameMm: 'ထိုင်းဘတ် နယ်စပ်ငွေလွှဲ', network: 'PromptPay / Wise Rail', rateText: '35.80 THB = 1.00 AKD', rateTextMm: '၃၅.၈၀ THB = ၁.၀၀ AKD', settlementSpeed: 'Real-time' },
-  { asset: 'MYR', name: 'Malaysian Ringgit', nameMm: 'မလေးရှားရင်းဂစ် ငွေလွှဲ', network: 'DuitNow / Wise Rail', rateText: '4.72 MYR = 1.00 AKD', rateTextMm: '၄.၇၂ MYR = ၁.၀၀ AKD', settlementSpeed: 'Real-time' },
-  { asset: 'BTC', name: 'Bitcoin', nameMm: 'ဘစ်ကွိုင်', network: 'Bitcoin / Lightning', rateText: '1 BTC = 64,500 AKD', rateTextMm: '၁ BTC = ၆၄,၅၀၀ AKD', settlementSpeed: '1 Conf (~10m)' },
 ]
 
 export interface FxRateItem {
@@ -332,10 +313,10 @@ export const legalDocs = {
     titleMm: 'အာရက္ခငွေကြေးဝန်ဆောင်မှု စည်းမျဉ်းနှင့် သဘောတူညီချက်များ',
     sections: [
       {
-        hEn: '1. Legal Status & Sovereign Currency',
+        hEn: '1. Legal Status & Arakan Currency',
         hMm: '၁။ ဥပဒေရေးရာ အဆင့်အတန်းနှင့် အချုပ်အခြာအာဏာပိုင် ငွေကြေး',
-        pEn: 'PeThar is the institutional national financial technology infrastructure for the Arakan nation. The platform operates under the authority of the Arakan Digital Financial Regulatory Commission. The official sovereign unit of account is the Arakan Dollar (AKD), pegged 1:1 against USD value reserves. Myanmar Kyat (MMK) is completely deprecated and non-circulating on this ledger.',
-        pMm: 'ဖေ့သာသည် အာရက္ခပြည်သူများအတွက် ဖွဲ့စည်းတည်ထောင်ထားသော အမျိုးသားအဆင့် ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်ဖြစ်ပါသည်။ တရားဝင်သုံးစွဲငွေကြေးမှာ "အာရက္ခဒေါ်လာ (AKD)" ဖြစ်ပြီး ၁၀၀% အမေရိကန်ဒေါ်လာနှင့် ရွှေအာမခံဘဏ္ဍာတိုက်ဖြင့် ကျောထောက်နောက်ခံပြုထားပါသည်။ မြန်မာကျပ်ငွေ (MMK) အဟောင်း/ပြတ်လပ်မှုများကို လုံးဝအသုံးမပြုတော့ဘဲ စာရင်းစနစ်မှ ဖယ်ထုတ်ထားပြီးဖြစ်ပါသည်။',
+        pEn: 'PeThar is the institutional national financial technology infrastructure for the Arakan nation. The platform operates under the authority of the Arakan Digital Financial Regulatory Commission. The official unit of account is the Arakan Dollar, pegged 1:1 against USD value reserves. Myanmar Kyat (MMK) is completely deprecated and non-circulating on this ledger.',
+        pMm: 'ဖေ့သာသည် အာရက္ခပြည်သူများအတွက် ဖွဲ့စည်းတည်ထောင်ထားသော အမျိုးသားအဆင့် ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်ဖြစ်ပါသည်။ တရားဝင်သုံးစွဲငွေကြေးမှာ "အာရက္ခဒေါ်လာ" ဖြစ်ပြီး ၁၀၀% အမေရိကန်ဒေါ်လာနှင့် ရွှေအာမခံဘဏ္ဍာတိုက်ဖြင့် ကျောထောက်နောက်ခံပြုထားပါသည်။ မြန်မာကျပ်ငွေ (MMK) အဟောင်း/ပြတ်လပ်မှုများကို လုံးဝအသုံးမပြုတော့ဘဲ စာရင်းစနစ်မှ ဖယ်ထုတ်ထားပြီးဖြစ်ပါသည်။',
       },
       {
         hEn: '2. Ledger Invariants & Double-Entry Integrity',
@@ -346,13 +327,13 @@ export const legalDocs = {
       {
         hEn: '3. Agent Network & Physical Cash Operations',
         hMm: '၃။ တရားဝင် အေးဂျင့်ဆိုင်များနှင့် ငွေသားကိုင်တွယ်မှု စည်းကမ်းများ',
-        pEn: 'Authorized PeThar Agents must maintain physical AKD liquidity and adhere to anti-gouging fee ceilings (maximum 0.5% fee on cash-out). All agent withdrawals require dynamic 6-digit cryptographic Time-based One-Time Passwords (TOTP) from the consumer.',
+        pEn: 'Authorized PeThar Agents must maintain physical currency liquidity and adhere to anti-gouging fee ceilings (maximum 0.5% fee on cash-out). All agent withdrawals require dynamic 6-digit cryptographic Time-based One-Time Passwords (TOTP) from the consumer.',
         pMm: 'တရားဝင် အာရက္ခဖေ့သာအေးဂျင့်များသည် သတ်မှတ်ထားသော ဝန်ဆောင်ခ နှုန်းထားထက် ပိုမိုတောင်းခံခြင်းမပြုရပါ။ စားသုံးသူများ ငွေထုတ်ယူရာတွင် မိမိဖုန်းထဲရှိ တစ်ခါသုံး လျှို့ဝှက်ကုဒ် (TOTP) ကို အေးဂျင့်အား ပြသ၍သာ ထုတ်ယူရမည်ဖြစ်သဖြင့် မသမာသူများ ခိုးယူထုတ်ယူနိုင်ခြင်းမရှိပါ။',
       },
     ],
   },
   privacy: {
-    titleEn: 'Personal Data Protection & Sovereignty Charter',
+    titleEn: 'Personal Data Protection Charter',
     titleMm: 'ကိုယ်ရေးအချက်အလက် ကာကွယ်ရေးနှင့် လုံခြုံရေး ပဋိညာဉ်',
     sections: [
       {
@@ -362,7 +343,7 @@ export const legalDocs = {
         pMm: 'အသုံးပြုသူများ၏ ဖုန်းနံပါတ်၊ ကိုယ်ရေးအချက်အလက်နှင့် လက်ဗွေ/မျက်နှာ အချက်အလက်များကို အဆင့်မြင့် လျှို့ဝှက်ကုဒ်စနစ် (AES-256) ဖြင့် ချိတ်ပိတ်ထားပါသည်။ မည်သည့်နိုင်ငံခြားကုမ္ပဏီ သို့မဟုတ် ပြင်ပရန်သူအဖွဲ့အစည်းထံသို့မျှ ပေါက်ကြားရောင်းချခြင်း လုံးဝမရှိစေရန် တာဝန်ယူပါသည်။',
       },
       {
-        hEn: '2. Offline Voucher Data Sovereignty',
+        hEn: '2. Offline Voucher Data Protection',
         hMm: '၂။ အင်တာနက်လိုင်းမရှိချိန် အော့ဖ်လိုင်း ငွေလွှဲချက်များ၏ ကိုယ်ပိုင်လုံခြုံခွင့်',
         pEn: 'When transacting offline during telecom blackouts, transaction vouchers reside strictly on user devices in encrypted cryptographic containers until connectivity is restored, ensuring complete privacy even during air-gapped operations.',
         pMm: 'အင်တာနက်နှင့် ဖုန်းလိုင်းများ ဖြတ်တောက်ခံရချိန်တွင် ဖေ့သာ အော့ဖ်လိုင်းဘောက်ချာများသည် သင့်ဖုန်းအတွင်း၌သာ လုံခြုံစွာကိန်းအောင်းနေမည်ဖြစ်ပြီး အင်တာနက်ပြန်လည်ရရှိမှသာ စာရင်းချုပ်စနစ်သို့ လုံခြုံစွာ ပို့ဆောင်ပေးမည်ဖြစ်ပါသည်။',
@@ -388,7 +369,7 @@ export const legalDocs = {
       {
         hEn: '3. Emergency Duress PIN Instructions',
         hMm: '၃။ အရေးပေါ် အကျပ်အတည်းကြုံချိန် Panic PIN အသုံးပြုနည်း',
-        pEn: 'If forced under duress to unlock your wallet, enter your pre-configured Duress PIN (default: 999999). The wallet will display a decoy balance of $25 AKD and automatically transmit an encrypted silent alert to the community emergency registry.',
+        pEn: 'If forced under duress to unlock your wallet, enter your pre-configured Duress PIN (default: 999999). The wallet will display a decoy balance of $25 and automatically transmit an encrypted silent alert to the community emergency registry.',
         pMm: 'မလိုလားအပ်သော အကျပ်ကိုင် ခြိမ်းခြောက်မှုကြုံရပါက မိမိ၏ အရေးပေါ် Panic PIN (ပုံမှန်အားဖြင့် ၉၉၉၉၉၉) ကို ရိုက်ထည့်နိုင်ပါသည်။ အက်ပ်သည် အတုအယောင်လက်ကျန်ငွေ ၂၅ ဒေါ်လာသာ ပြသပေးမည်ဖြစ်ပြီး အသံတိတ် အရေးပေါ်အချက်ပြစနစ်ကို အလိုအလျောက် ပေးပို့မည်ဖြစ်ပါသည်။',
       },
     ],

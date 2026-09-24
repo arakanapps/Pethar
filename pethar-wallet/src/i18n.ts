@@ -3,7 +3,7 @@ export type Language = 'arak' | 'en'
 export interface TranslationStrings {
   appName: string
   appSubtitle: string
-  sovereignCurrency: string
+  currencyLabel: string
   currencySymbol: string
   currencyUnit: string
   navHome: string
@@ -24,7 +24,7 @@ export interface TranslationStrings {
   quickActions: string
   recentTransactions: string
   seeAll: string
-  sovereignReserveBacked: string
+  reserveBacked: string
 
   // Send Screen
   sendTitle: string
@@ -61,10 +61,6 @@ export interface TranslationStrings {
   // International Banking
   intlTitle: string
   intlSubtitle: string
-  intlGlobalAccount: string
-  intlIban: string
-  intlSwift: string
-  intlBankName: string
   intlRemittance: string
   intlSendAbroad: string
   intlTopUpCard: string
@@ -115,7 +111,6 @@ export interface TranslationStrings {
   darkMode: string
   lightMode: string
   securitySetting: string
-  changePassword: string
   changePin: string
   twoFactorAuth: string
 
@@ -131,15 +126,15 @@ export const translations: Record<Language, TranslationStrings> = {
   arak: {
     appName: 'ဖေ့သာ',
     appSubtitle: 'အာရက္ခအမျိုးသား ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်',
-    sovereignCurrency: 'အာရက္ခဒေါ်လာ',
+    currencyLabel: 'အာရက္ခဒေါ်လာ',
     currencySymbol: '₳',
-    currencyUnit: 'AKD',
+    currencyUnit: '₳',
     navHome: 'ပင်မ',
     navAccount: 'ငွေစာရင်း',
     navServices: 'ဝန်ဆောင်မှု',
     navSend: 'ငွေလွှဲရန်',
     navReceive: 'ငွေလက်ခံရန်',
-    navScan: 'စကင်ဖတ်ရန်',
+    navScan: 'Scan/MyQR',
     navCashOut: 'ငွေထုတ်ရန်',
     navInternational: 'နိုင်ငံတကာငွေလွှဲ',
     navCrypto: 'ဒစ်ဂျစ်တယ်ဒင်္ဂါး',
@@ -152,18 +147,18 @@ export const translations: Record<Language, TranslationStrings> = {
     quickActions: 'အဓိကလုပ်ဆောင်ချက်များ',
     recentTransactions: 'လတ်တလော ငွေစာရင်းမှတ်တမ်း',
     seeAll: 'အားလုံးကြည့်ရန်',
-    sovereignReserveBacked: '၁၀၀% အာရက္ခရွှေနှင့် တင်းပြည့်ဒေါ်လာဖြင့် အာမခံထားပါသည်',
+    reserveBacked: '၁၀၀% အာရက္ခရွှေနှင့် တင်းပြည့်ဒေါ်လာဖြင့် အာမခံထားပါသည်',
 
     // Send Screen
     sendTitle: 'ငွေလွှဲပို့ရန်',
     sendRecipientPlaceholder: 'ဖုန်းနံပါတ် သို့မဟုတ် ဖေ့သာ ID (ဥပမာ ARAK-0842)',
     sendRecentContacts: 'မကြာခဏလွှဲလေ့ရှိသူများ',
-    sendAmountLabel: 'လွှဲမည့်ငွေပမာဏ (AKD)',
+    sendAmountLabel: 'လွှဲမည့်ငွေပမာဏ',
     sendNotePlaceholder: 'ငွေလွှဲရသည့်အကြောင်းအရင်း မှတ်စု (ချန်လှပ်နိုင်ပါသည်)',
     sendContinue: 'ဆက်လက်လုပ်ဆောင်ရန်',
     sendConfirmTitle: 'ငွေလွှဲအတည်ပြုခြင်း',
     sendFeeLabel: 'ဝန်ဆောင်ခ',
-    sendFeeFree: 'အခမဲ့ (၀.၀၀ AKD)',
+    sendFeeFree: 'အခမဲ့ (၀.၀၀ ₳)',
     sendEnterPin: 'အတည်ပြုရန် လုံခြုံရေး PIN နံပါတ် ၆ လုံးရိုက်ထည့်ပါ',
     sendSuccess: 'ငွေလွှဲခြင်း အောင်မြင်ပါသည်!',
 
@@ -189,10 +184,6 @@ export const translations: Record<Language, TranslationStrings> = {
     // International Banking
     intlTitle: 'နိုင်ငံတကာဘဏ်နှင့် ငွေလွှဲစနစ်',
     intlSubtitle: 'Payoneer, Wise, PayPal, Visa, Mastercard, AMEX တို့မှ တိုက်ရိုက်ငွေသွင်း/ငွေလွှဲနိုင်ပါသည်',
-    intlGlobalAccount: 'အာရက္ခ ကမ္ဘာလုံးဆိုင်ရာ ဘဏ်အကောင့် (Global IBAN)',
-    intlIban: 'နိုင်ငံတကာ IBAN နံပါတ်',
-    intlSwift: 'SWIFT / BIC ကုဒ်',
-    intlBankName: 'အာရက္ခဗဟိုဒစ်ဂျစ်တယ်ဘဏ် (Bank of Arakan)',
     intlRemittance: 'ပြည်ပနိုင်ငံများမှ ငွေလွှဲလက်ခံမှု (ထိုင်း၊ မလေး၊ စင်ကာပူ၊ အမေရိကန်)',
     intlSendAbroad: 'ပြည်ပသို့ ငွေလွှဲပို့ရန်',
     intlTopUpCard: 'နိုင်ငံတကာ ကတ်များဖြင့် ငွေသွင်းရန် (Visa / Master / AMEX)',
@@ -206,16 +197,16 @@ export const translations: Record<Language, TranslationStrings> = {
     cryptoBinanceConnect: 'Binance Pay ချိတ်ဆက်ပြီး ဝန်ဆောင်ခမဲ့ ငွေသွင်းရန်',
     cryptoMexcConnect: 'MEXC Exchange တိုက်ရိုက်ချိတ်ဆက်ရန်',
     cryptoDepositUsdt: 'USDT (TRC20 / ERC20 / TON) ငွေသွင်းလိပ်စာ',
-    cryptoSwapToAkd: 'USDT မှ အာရက္ခဒေါ်လာ (AKD) သို့ ချက်ချင်းလဲလှယ်ရန်',
+    cryptoSwapToAkd: 'USDT မှ အာရက္ခဒေါ်လာသို့ ချက်ချင်းလဲလှယ်ရန်',
     cryptoProofOfReserves: '၁၀၀% အာမခံထားရှိမှု ပွင့်လင်းမြင်သာစွာ စစ်ဆေးရန် (Proof of Reserves)',
-    cryptoSwapRate: 'လဲလှယ်နှုန်း: ၁ USDT = ၁.၀၀ AKD',
+    cryptoSwapRate: 'လဲလှယ်နှုန်း: ၁ USDT = ၁.၀၀ ₳',
     cryptoZeroSlippage: 'စျေးနှုန်းကွာဟမှုမရှိ တိကျသော လဲလှယ်မှုနှုန်း',
 
     // POS Merchant
     posTitle: 'ကုန်သည်လက်လီ POS စနစ်',
     posSubtitle: 'အာရက္ခပြည်တွင်း ဆိုင်များ၊ ကုန်စုံဆိုင်များနှင့် ကုန်သည်ကြီးများအတွက် အရောင်းစနစ်',
     posChargeCustomer: 'ဝယ်ယူသူထံမှ ငွေတောင်းခံရန်',
-    posAmountDue: 'ကျသင့်ငွေပမာဏ (AKD)',
+    posAmountDue: 'ကျသင့်ငွေပမာဏ',
     posScanToPay: 'ဝယ်ယူသူ စကင်ဖတ်ပေးချေရန် QR ကုဒ်',
     posPrintReceipt: 'အရောင်းပြေစာ ထုတ်ယူရန်',
     posDailySummary: 'ယနေ့ အရောင်းစာရင်းနှင့် စာရင်းချုပ်',
@@ -243,7 +234,6 @@ export const translations: Record<Language, TranslationStrings> = {
     darkMode: 'အမှောင်စနစ် (Dark)',
     lightMode: 'အလင်းစနစ် (Light)',
     securitySetting: 'လုံခြုံရေးဆက်တင်များ',
-    changePassword: 'စကားဝှက် ပြောင်းလဲရန်',
     changePin: '၆ လုံး လျှို့ဝှက်ကုဒ် (PIN) ပြောင်းရန်',
     twoFactorAuth: 'အဆင့်နှစ်ဆင့် လုံခြုံရေး (2FA)',
 
@@ -257,16 +247,16 @@ export const translations: Record<Language, TranslationStrings> = {
 
   en: {
     appName: 'PeThar',
-    appSubtitle: 'Arakan National Sovereign Financial Infrastructure',
-    sovereignCurrency: 'Arakan Dollar',
+    appSubtitle: 'Arakan National Financial Infrastructure',
+    currencyLabel: 'Arakan Dollar',
     currencySymbol: '₳',
-    currencyUnit: 'AKD',
+    currencyUnit: '₳',
     navHome: 'Home',
     navAccount: 'Account',
     navServices: 'Services',
     navSend: 'Send',
     navReceive: 'Receive',
-    navScan: 'Scan QR',
+    navScan: 'Scan/MyQR',
     navCashOut: 'Cash Out',
     navInternational: 'Global Wire',
     navCrypto: 'Crypto & Vault',
@@ -274,23 +264,23 @@ export const translations: Record<Language, TranslationStrings> = {
     navSettings: 'Settings',
 
     // Home Screen
-    balanceTitle: 'Arakan Dollar (AKD) Balance',
+    balanceTitle: 'Arakan Dollar Balance',
     tierVerified: 'Citizen Tier 2 Verified ✓',
     quickActions: 'Quick Financial Actions',
     recentTransactions: 'Recent Ledger Postings',
     seeAll: 'View All',
-    sovereignReserveBacked: '100% Fully Backed by Sovereign Gold & Tier-1 Reserves',
+    reserveBacked: '100% Fully Backed by Arakan Gold & Tier-1 Reserves',
 
     // Send Screen
     sendTitle: 'Send Money',
     sendRecipientPlaceholder: 'Enter Phone or PeThar ID (e.g. ARAK-0842)',
     sendRecentContacts: 'Frequent Recipients',
-    sendAmountLabel: 'Transfer Amount (AKD)',
+    sendAmountLabel: 'Transfer Amount',
     sendNotePlaceholder: 'Transaction memo / reference (optional)',
     sendContinue: 'Continue Transfer',
     sendConfirmTitle: 'Transfer Review & Authorization',
     sendFeeLabel: 'Network Fee',
-    sendFeeFree: 'Free (0.00 AKD)',
+    sendFeeFree: 'Free (0.00 ₳)',
     sendEnterPin: 'Enter 6-digit Secure Authorization PIN',
     sendSuccess: 'Transfer Settled Successfully!',
 
@@ -316,14 +306,10 @@ export const translations: Record<Language, TranslationStrings> = {
     // International Banking
     intlTitle: 'Global Banking & Cross-Border Remittance',
     intlSubtitle: 'Direct incoming and outgoing rails for Payoneer, Wise, PayPal, Visa, Mastercard, and AMEX',
-    intlGlobalAccount: 'Arakan Sovereign Global IBAN Account',
-    intlIban: 'International IBAN',
-    intlSwift: 'SWIFT / BIC Code',
-    intlBankName: 'Bank of Arakan Central Digital Banking',
     intlRemittance: 'Global Inward Corridors (Thailand, Malaysia, Singapore, USA, Europe)',
     intlSendAbroad: 'Send Outward International Wire',
     intlTopUpCard: 'Top Up with Global Cards (Visa / Mastercard / AMEX)',
-    intlDebitCard: 'PeThar Sovereign Multi-Currency Debit Card',
+    intlDebitCard: 'PeThar Multi-Currency Debit Card',
     intlFreezeCard: 'Freeze Card Instantly',
     intlCardDetails: 'View Card Credentials',
 
@@ -333,16 +319,16 @@ export const translations: Record<Language, TranslationStrings> = {
     cryptoBinanceConnect: 'Binance Pay Direct Connect (0% Fee)',
     cryptoMexcConnect: 'MEXC Exchange Gateway',
     cryptoDepositUsdt: 'Deposit USDT (TRC-20 / ERC-20 / TON / Polygon)',
-    cryptoSwapToAkd: 'Instant Swap: USDT / USDC to Sovereign AKD',
+    cryptoSwapToAkd: 'Instant Swap: USDT / USDC',
     cryptoProofOfReserves: 'On-Chain Real-Time Proof of Reserves (105% Coverage)',
-    cryptoSwapRate: 'Rate: 1.00 USDT = 1.00 AKD',
-    cryptoZeroSlippage: 'Guaranteed 0% Slippage Sovereign Liquidity',
+    cryptoSwapRate: 'Rate: 1.00 USDT = 1.00 ₳',
+    cryptoZeroSlippage: 'Guaranteed 0% Slippage Liquidity',
 
     // POS Merchant
     posTitle: 'Merchant POS Terminal',
     posSubtitle: 'Touchscreen checkout for Arakan retailers, pharmacies, grocery stores, and wholesalers',
     posChargeCustomer: 'Charge Customer',
-    posAmountDue: 'Total Amount Due (AKD)',
+    posAmountDue: 'Total Amount Due',
     posScanToPay: 'Customer Scan-to-Pay ArakanPay QR',
     posPrintReceipt: 'Print Thermal Receipt',
     posDailySummary: 'Daily End-of-Day Cashier Reconciliation',
@@ -370,7 +356,6 @@ export const translations: Record<Language, TranslationStrings> = {
     darkMode: 'Dark Mode',
     lightMode: 'Light Mode',
     securitySetting: 'Security',
-    changePassword: 'Change Password',
     changePin: 'Change PIN',
     twoFactorAuth: 'Two-Factor Authentication',
 

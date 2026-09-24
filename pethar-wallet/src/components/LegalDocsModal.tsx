@@ -31,7 +31,7 @@ export const LegalDocsModal: React.FC<LegalDocsModalProps> = ({
             <ArakanEmblem size={28} variant="badge" />
             <div>
               <h2 className="text-sm font-bold text-white tracking-wide">
-                {lang === 'arak' ? 'အာရက္ခ တရားဝင် ဥပဒေနှင့် မူဝါဒများ' : 'Arakan Sovereign Legal & Compliance'}
+                {lang === 'arak' ? 'အာရက္ခ တရားဝင် ဥပဒေနှင့် မူဝါဒများ' : 'Arakan Legal & Compliance'}
               </h2>
               <div className="text-[10px] text-amber-300">
                 Arakan Digital Financial Regulatory Authority
@@ -104,7 +104,7 @@ export const LegalDocsModal: React.FC<LegalDocsModalProps> = ({
                   {lang === 'arak' ? legalDocs.terms.titleMm : legalDocs.terms.titleEn}
                 </h3>
                 <p className="text-[11px] text-gray-400 mt-1">
-                  Revision 2026.09 · Sovereign Legal Code of Arakan Nation
+                  Revision 2026.09 · Legal Code of Arakan Nation
                 </p>
               </div>
 
@@ -180,7 +180,7 @@ export const LegalDocsModal: React.FC<LegalDocsModalProps> = ({
                     {lang === 'arak' ? 'အာရက္ခဒေါ်လာ တရားဝင်ငွေလဲနှုန်း ဘုတ်' : 'Official Arakan FX Rates Board'}
                   </h3>
                   <p className="text-[11px] text-gray-400 mt-0.5">
-                    Live rates updated every 60s · 0% Sovereign Markup
+                    Live rates updated every 60s · 0% Arakan Markup
                   </p>
                 </div>
                 <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 flex items-center gap-1">
