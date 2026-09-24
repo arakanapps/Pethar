@@ -4,7 +4,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../app_state.dart';
 import '../theme.dart';
 import '../i18n.dart';
-import '../models/data.dart';
 
 class PosScreen extends StatefulWidget {
   const PosScreen({Key? key}) : super(key: key);

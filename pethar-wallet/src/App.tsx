@@ -23,6 +23,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('home')
   const [lang, setLang] = useState<Language>('en')
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [deviceSkin, setDeviceSkin] = useState<'android' | 'ios'>('android')
   const [profile, setProfile] = useState<UserProfile>(initialUserProfile)
   const [legalModalOpen, setLegalModalOpen] = useState(false)
   const [legalDocType, setLegalDocType] = useState<'terms' | 'privacy' | 'guidelines' | 'fx'>('terms')
@@ -175,34 +176,96 @@ export default function App() {
         {/* VIEWPORT 1: MOBILE CLIENT SIMULATOR (iOS / Android) */}
         {platform === 'mobile' && (
           <div className="flex flex-col items-center gap-3">
+            {/* Device Model Selector (Android vs iPhone) */}
+            <div className={`flex items-center gap-1.5 p-1 rounded-2xl border ${
+              theme === 'light' ? 'bg-white/80 border-gray-200' : 'bg-black/60 border-white/10'
+            } shadow-md`}>
+              <button
+                onClick={() => setDeviceSkin('android')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition ${
+                  deviceSkin === 'android'
+                    ? 'bg-emerald-500 text-black shadow-md'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <span>🤖 Android (Google Pixel / Samsung)</span>
+              </button>
+              <button
+                onClick={() => setDeviceSkin('ios')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition ${
+                  deviceSkin === 'ios'
+                    ? 'bg-amber-500 text-black shadow-md'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <span>🍎 iPhone (iOS)</span>
+              </button>
+            </div>
+
             <div
-              className="relative overflow-hidden rounded-[44px] shadow-2xl transition-all duration-300"
+              className={`relative overflow-hidden shadow-2xl transition-all duration-300 flex flex-col ${
+                deviceSkin === 'android' ? 'rounded-[36px]' : 'rounded-[44px]'
+              }`}
               style={{
-                width: 385,
-                height: 750,
-                border: theme === 'light' ? '10px solid #D1D5DB' : '10px solid #0B0F14',
+                width: deviceSkin === 'android' ? 390 : 385,
+                height: deviceSkin === 'android' ? 780 : 750,
+                border:
+                  theme === 'light'
+                    ? deviceSkin === 'android'
+                      ? '9px solid #94A3B8'
+                      : '10px solid #D1D5DB'
+                    : deviceSkin === 'android'
+                    ? '9px solid #1E293B'
+                    : '10px solid #0B0F14',
                 background: theme === 'light' ? '#F4F5F8' : colors.obsidian,
                 boxShadow:
                   '0 30px 90px rgba(0,0,0,0.8), 0 0 0 2px #283852, 0 0 40px rgba(217,22,36,0.15)',
               }}
             >
-              {/* Dynamic Island / Status Bar */}
-              <div className={`flex items-center justify-between px-6 pt-3 pb-1 text-[11px] font-semibold relative z-30 transition-colors ${
-                theme === 'light' ? 'text-gray-800 bg-white/95' : 'text-white bg-[#090D14]/90'
-              }`}>
-                <span className="font-mono">15:55</span>
-                <div className="absolute left-1/2 top-2 h-5 w-24 -translate-x-1/2 rounded-full bg-black flex items-center justify-end px-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+              {/* Android Punch-Hole Status Bar OR iOS Dynamic Island */}
+              {deviceSkin === 'android' ? (
+                <div
+                  className={`flex items-center justify-between px-5 pt-2.5 pb-1 text-[11px] font-semibold relative z-30 transition-colors ${
+                    theme === 'light' ? 'text-gray-800 bg-white/95' : 'text-white bg-[#090D14]/90'
+                  }`}
+                >
+                  <div className="flex items-center gap-1 font-mono text-[11px]">
+                    <span>17:20</span>
+                    <span className="text-[10px] text-emerald-400 ml-1">●</span>
+                  </div>
+
+                  {/* Android Center Punch-Hole Camera */}
+                  <div className="absolute left-1/2 top-2.5 -translate-x-1/2 w-4 h-4 rounded-full bg-black ring-2 ring-neutral-800 flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#0a192f]/80" />
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-[10px]">
+                    <span className="font-mono text-[9px] px-1 py-0.2 rounded bg-white/10 font-bold">5G</span>
+                    <Wifi size={11} />
+                    <span>98%</span>
+                    <Battery size={13} className="rotate-90" />
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Signal size={12} />
-                  <Wifi size={12} />
-                  <Battery size={14} />
+              ) : (
+                <div
+                  className={`flex items-center justify-between px-6 pt-3 pb-1 text-[11px] font-semibold relative z-30 transition-colors ${
+                    theme === 'light' ? 'text-gray-800 bg-white/95' : 'text-white bg-[#090D14]/90'
+                  }`}
+                >
+                  <span className="font-mono">15:55</span>
+                  <div className="absolute left-1/2 top-2 h-5 w-24 -translate-x-1/2 rounded-full bg-black flex items-center justify-end px-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Signal size={12} />
+                    <Wifi size={12} />
+                    <Battery size={14} />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Mobile Screen Router */}
-              <div className="h-[calc(100%-88px)] overflow-hidden">
+              <div className="flex-1 overflow-hidden flex flex-col">
                 {screen === 'home' && (
                   <Home go={handleMobileNav} lang={lang} profile={profile} theme={theme} />
                 )}
@@ -311,6 +374,27 @@ export default function App() {
                   <span>{t.navSettings}</span>
                 </button>
               </nav>
+
+              {/* Android 3-Button Navigation Bar OR iOS Home Indicator */}
+              {deviceSkin === 'android' ? (
+                <div className={`h-7 flex items-center justify-around px-16 transition-colors border-t ${
+                  theme === 'light' ? 'bg-white text-gray-600 border-gray-100' : 'bg-[#090D14] text-gray-400 border-white/5'
+                }`}>
+                  <button onClick={() => setScreen('home')} title="Back" className="hover:text-white active:scale-90 transition px-2">
+                    <span className="text-xs">◀</span>
+                  </button>
+                  <button onClick={() => setScreen('home')} title="Home" className="hover:text-white active:scale-90 transition px-2">
+                    <span className="text-[10px]">●</span>
+                  </button>
+                  <button onClick={() => setScreen('notifications')} title="Recent Notifications" className="hover:text-white active:scale-90 transition px-2">
+                    <span className="text-[10px]">■</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="h-4 flex items-center justify-center">
+                  <div className={`w-32 h-1 rounded-full ${theme === 'light' ? 'bg-gray-400' : 'bg-white/30'}`} />
+                </div>
+              )}
             </div>
 
             <div className={`text-center text-xs ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>

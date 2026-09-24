@@ -14,7 +14,6 @@ import 'cashout_screen.dart';
 import 'notifications_screen.dart';
 import 'intl_screen.dart';
 import 'crypto_screen.dart';
-import 'pos_screen.dart';
 
 import 'pos_terminal_screen.dart';
 import 'desktop_portal_screen.dart';
