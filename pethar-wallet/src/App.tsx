@@ -21,7 +21,7 @@ type PlatformView = 'mobile' | 'web' | 'pos'
 export default function App() {
   const [platform, setPlatform] = useState<PlatformView>('mobile')
   const [screen, setScreen] = useState<Screen>('home')
-  const [lang, setLang] = useState<Language>('arak') // Default to Arakanese per prompt!
+  const [lang, setLang] = useState<Language>('en')
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [profile, setProfile] = useState<UserProfile>(initialUserProfile)
   const [legalModalOpen, setLegalModalOpen] = useState(false)

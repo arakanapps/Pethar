@@ -8,7 +8,7 @@ interface EmblemProps {
 
 export const ArakanEmblem: React.FC<EmblemProps> = ({ className = '', size = 40, variant = 'badge' }) => (
   <img
-    src="/arakan-logo.svg"
+    src="/apple-touch-icon-removebg-preview.png"
     alt="Arakan emblem"
     className={`object-contain ${className}`}
     style={{ width: size, height: variant === 'emblem-only' ? (size * 3) / 4 : size }}

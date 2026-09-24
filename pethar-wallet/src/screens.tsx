@@ -783,16 +783,6 @@ export function SettingsScreen({
                 isLight ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/10'
               }`}>
                 <button
-                  onClick={() => setLang && setLang('arak')}
-                  className={`flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold transition ${
-                    lang === 'arak'
-                      ? 'bg-red-700 text-white shadow-sm'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                >
-                  <span>ရခိုင်</span>
-                </button>
-                <button
                   onClick={() => setLang && setLang('en')}
                   className={`flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold transition ${
                     lang === 'en'
@@ -801,6 +791,16 @@ export function SettingsScreen({
                   }`}
                 >
                   <span>English</span>
+                </button>
+                <button
+                  onClick={() => setLang && setLang('arak')}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold transition ${
+                    lang === 'arak'
+                      ? 'bg-red-700 text-white shadow-sm'
+                      : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  <span>ရခိုင်</span>
                 </button>
               </div>
             </div>
