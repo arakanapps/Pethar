@@ -51,10 +51,10 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
     if (navigator.share) {
       navigator.share({
         title: 'PeThar Transaction Slip',
-        text: `PeThar e-Slip: Sent ₳ ${amount.toFixed(2)} AKD to ${recipientName}. Ref: ${refId}`,
+        text: `PeThar e-Slip: Sent ₳ ${amount.toFixed(2)} to ${recipientName}. Ref: ${refId}`,
       }).catch(() => {})
     } else {
-      navigator.clipboard?.writeText(`PeThar e-Slip | Ref: ${refId} | Amount: ₳ ${amount.toFixed(2)} AKD to ${recipientName}`)
+      navigator.clipboard?.writeText(`PeThar e-Slip | Ref: ${refId} | Amount: ₳ ${amount.toFixed(2)} to ${recipientName}`)
     }
   }
 
@@ -82,7 +82,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
           <div className="flex items-center gap-2">
             <ArakanEmblem size={30} variant="badge" />
             <div>
-              <div className="font-extrabold text-xs tracking-wider text-red-700">PETHAR SOVEREIGN</div>
+              <div className="font-extrabold text-xs tracking-wider text-red-700">PETHAR</div>
               <div className="text-[9px] text-gray-500 font-medium">Bank of Arakan Electronic Slip</div>
             </div>
           </div>
@@ -126,13 +126,13 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
         {/* Amount Box */}
         <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200/80 text-center">
           <div className="text-[10px] uppercase tracking-wider text-amber-800 font-bold">
-            {lang === 'arak' ? 'လွှဲပို့ငွေပမာဏ (AKD သီးသန့်)' : 'Transfer Amount (AKD Only)'}
+            {lang === 'arak' ? 'လွှဲပို့ငွေပမာဏ' : 'Transfer Amount'}
           </div>
           <div className="text-2xl font-black font-mono text-gray-900 mt-0.5">
             ₳ {amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="text-[9px] text-emerald-700 font-medium mt-0.5">
-            {fee === 0 ? (lang === 'arak' ? 'ဝန်ဆောင်ခ အခမဲ့ (၀.၀၀ AKD)' : 'Fee: Free (0.00 AKD)') : `Fee: ₳ ${fee.toFixed(2)} AKD`}
+            {fee === 0 ? (lang === 'arak' ? 'ဝန်ဆောင်ခ အခမဲ့ (၀.၀၀ ₳)' : 'Fee: Free (0.00 ₳)') : `Fee: ₳ ${fee.toFixed(2)}`}
           </div>
         </div>
 

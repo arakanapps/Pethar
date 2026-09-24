@@ -42,25 +42,29 @@ export default function App() {
     <div
       className="flex min-h-screen flex-col"
       style={{
-        background: 'radial-gradient(circle at 50% 0%, #1A2230 0%, #0A0E17 80%)',
-        color: '#FFFFFF',
+        background: theme === 'light'
+          ? 'radial-gradient(circle at 50% 0%, #FFFFFF 0%, #E7EAF0 80%)'
+          : 'radial-gradient(circle at 50% 0%, #1A2230 0%, #0A0E17 80%)',
+        color: theme === 'light' ? '#111827' : '#FFFFFF',
       }}
     >
       {/* ── GLOBAL TOP COMMAND BAR ─────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 w-full border-b border-[#283852] bg-[#090D14]/90 backdrop-blur-md px-4 py-2.5 flex items-center justify-between">
+      <header className={`sticky top-0 z-40 w-full border-b backdrop-blur-md px-4 py-2.5 flex items-center justify-between ${
+        theme === 'light' ? 'border-gray-200 bg-white/90' : 'border-[#283852] bg-[#090D14]/90'
+      }`}>
         {/* Brand & Emblem */}
         <div className="flex items-center gap-3">
           <ArakanEmblem size={36} variant="badge" />
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-base font-black tracking-wider text-white">
+              <span className={`text-base font-black tracking-wider ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
                 {t.appName}
               </span>
               <span className="text-xs text-amber-400 font-semibold font-mono">
-                {t.currencyUnit} (₳)
+                {t.currencyUnit}
               </span>
-              <span className="hidden sm:inline-block rounded-full bg-red-600/30 px-2 py-0.5 text-[9px] font-bold text-red-300 border border-red-500/40">
-                ARAKAN SOVEREIGN
+                <span className="hidden sm:inline-block rounded-full bg-red-600/30 px-2 py-0.5 text-[9px] font-bold text-red-300 border border-red-500/40">
+                  ARAKAN NETWORK
               </span>
             </div>
             <div className="text-[10px] text-gray-400 hidden sm:block">
@@ -70,7 +74,7 @@ export default function App() {
         </div>
 
         {/* Platform Viewport Switcher */}
-        <div className="flex items-center bg-black/40 rounded-xl p-1 border border-white/10">
+        <div className={`flex items-center rounded-xl p-1 border ${theme === 'light' ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/10'}`}>
           <button
             onClick={() => setPlatform('mobile')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
@@ -114,7 +118,7 @@ export default function App() {
         {/* Language & Tools Right Actions */}
         <div className="flex items-center gap-2">
           {/* Bilingual Language Switcher with Flags */}
-          <div className="flex items-center bg-black/50 border border-white/10 rounded-xl p-0.5">
+          <div className={`flex items-center border rounded-xl p-0.5 ${theme === 'light' ? 'bg-gray-100 border-gray-200' : 'bg-black/50 border-white/10'}`}>
             <button
               onClick={() => setLang('arak')}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition ${
@@ -200,13 +204,13 @@ export default function App() {
               {/* Mobile Screen Router */}
               <div className="h-[calc(100%-88px)] overflow-hidden">
                 {screen === 'home' && (
-                  <Home go={handleMobileNav} lang={lang} profile={profile} />
+                  <Home go={handleMobileNav} lang={lang} profile={profile} theme={theme} />
                 )}
                 {screen === 'account' && (
-                  <AccountScreen go={handleMobileNav} lang={lang} />
+                  <AccountScreen go={handleMobileNav} lang={lang} theme={theme} />
                 )}
                 {screen === 'services' && (
-                  <ServicesScreen go={handleMobileNav} lang={lang} />
+                  <ServicesScreen go={handleMobileNav} lang={lang} theme={theme} />
                 )}
                 {screen === 'settings' && (
                   <SettingsScreen
@@ -221,28 +225,28 @@ export default function App() {
                   />
                 )}
                 {screen === 'send' && (
-                  <Send go={handleMobileNav} lang={lang} />
+                  <Send go={handleMobileNav} lang={lang} theme={theme} />
                 )}
                 {screen === 'receive' && (
-                  <Receive go={handleMobileNav} lang={lang} />
+                  <Receive lang={lang} theme={theme} />
                 )}
                 {screen === 'scan' && (
-                  <Scan go={handleMobileNav} lang={lang} />
+                  <Scan lang={lang} />
                 )}
                 {screen === 'cashout' && (
-                  <CashOut go={handleMobileNav} lang={lang} />
+                  <CashOut go={handleMobileNav} lang={lang} theme={theme} />
                 )}
                 {screen === 'intl' && (
-                  <InternationalBanking lang={lang} />
+                  <InternationalBanking lang={lang} theme={theme} />
                 )}
                 {screen === 'crypto' && (
-                  <CryptoGateway lang={lang} />
+                  <CryptoGateway lang={lang} theme={theme} />
                 )}
                 {screen === 'pos' && (
-                  <POSTerminal lang={lang} />
+                  <POSTerminal lang={lang} theme={theme} />
                 )}
                 {screen === 'notifications' && (
-                  <NotificationsScreen go={handleMobileNav} lang={lang} />
+                  <NotificationsScreen lang={lang} theme={theme} />
                 )}
               </div>
 
@@ -279,7 +283,7 @@ export default function App() {
                   onClick={() => setScreen('scan')}
                   className="flex flex-col items-center -mt-5"
                 >
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 shadow-lg shadow-cyan-950/50 flex items-center justify-center text-white border-4 border-[#0B0F14] transition transform active:scale-95">
+                  <div className={`w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 shadow-lg shadow-cyan-950/50 flex items-center justify-center text-white border-4 transition transform active:scale-95 ${theme === 'light' ? 'border-white' : 'border-[#0B0F14]'}`}>
                     <QrCode size={20} />
                   </div>
                   <span className="text-[9px] mt-0.5 font-bold text-gray-200">{t.navScan}</span>
@@ -309,8 +313,8 @@ export default function App() {
               </nav>
             </div>
 
-            <div className="text-center text-xs text-gray-400">
-              <span className="font-semibold text-white">PeThar (ဖေ့သာ)</span> · Sovereign Arakan Wallet (AKD)
+            <div className={`text-center text-xs ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
+              <span className={`font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>PeThar (ဖေ့သာ)</span> · Arakan Wallet
             </div>
           </div>
         )}
@@ -320,6 +324,7 @@ export default function App() {
           <div className="w-full max-w-7xl h-[85vh] rounded-3xl overflow-hidden border border-[#283852] shadow-2xl flex flex-col">
             <WebPortal
               lang={lang}
+              theme={theme}
               onOpenModule={(mod) => {
                 setScreen(mod)
                 setPlatform('mobile')
@@ -331,7 +336,7 @@ export default function App() {
 
         {/* VIEWPORT 3: MERCHANT POS TERMINAL */}
         {platform === 'pos' && (
-          <div className="w-full max-w-2xl h-[85vh] rounded-3xl overflow-hidden border border-[#283852] shadow-2xl bg-[#090D14] flex flex-col">
+          <div className={`w-full max-w-2xl h-[85vh] rounded-3xl overflow-hidden border shadow-2xl flex flex-col ${theme === 'light' ? 'border-gray-200 bg-white' : 'border-[#283852] bg-[#090D14]'}`}>
             <POSTerminal lang={lang} />
           </div>
         )}

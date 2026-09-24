@@ -1,4 +1,4 @@
-# PeThar (ဖေ့သာ) — Sovereign Arakan Financial Infrastructure
+# PeThar (ဖေ့သာ) — Arakan Financial Infrastructure
 
 **အာရက္ခအမျိုးသား ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်နှင့် အချုပ်အခြာအာဏာပိုင် ငွေကြေးစနစ်**
 

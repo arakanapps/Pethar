@@ -11,6 +11,7 @@ import { translations } from '../i18n'
 
 interface POSTerminalProps {
   lang: Language
+  theme?: 'dark' | 'light'
   onPaymentSettled?: (amount: number) => void
 }
 
@@ -22,8 +23,9 @@ interface CartItem {
   qty: number
 }
 
-export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, onPaymentSettled }) => {
+export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', onPaymentSettled }) => {
   const t = translations[lang]
+  const isLight = theme === 'light'
   const [cart, setCart] = useState<CartItem[]>([
     { id: '1', name: quickPosItems[0].name, nameMm: quickPosItems[0].nameMm, price: quickPosItems[0].price, qty: 1 },
   ])
@@ -70,9 +72,9 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, onPaymentSettled
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#090D14] text-white overflow-y-auto">
+    <div className={`flex flex-col h-full overflow-y-auto ${isLight ? 'bg-[#F4F5F8] text-gray-900' : 'bg-[#090D14] text-white'}`}>
       {/* Header */}
-      <div className="p-4 bg-gradient-to-b from-[#1C2530] to-[#090D14] border-b border-[#283852] flex items-center justify-between">
+      <div className={`p-4 border-b flex items-center justify-between ${isLight ? 'bg-white border-gray-200' : 'bg-gradient-to-b from-[#1C2530] to-[#090D14] border-[#283852]'}`}>
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-400">
             <Store size={20} />
@@ -85,14 +87,14 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, onPaymentSettled
               </span>
             </div>
             <p className="text-[11px] text-gray-400 mt-0.5">
-              {lang === 'arak' ? 'မြောက်ဦးတော်ဝင် ကုန်မာနှင့် စတိုးဆိုင်' : 'Mrauk-U Sovereign Merchant Register'}
+              {lang === 'arak' ? 'မြောက်ဦးတော်ဝင် ကုန်မာနှင့် စတိုးဆိုင်' : 'Mrauk-U Merchant Register'}
             </p>
           </div>
         </div>
 
         <div className="text-right">
           <div className="text-[10px] text-gray-400">{lang === 'arak' ? 'ယနေ့ရောင်းရငွေ' : 'Daily Sales'}</div>
-          <div className="text-xs font-mono font-bold text-emerald-400">₳ 4,890.50 AKD</div>
+          <div className="text-xs font-mono font-bold text-emerald-400">₳ 4,890.50</div>
         </div>
       </div>
 
@@ -131,7 +133,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, onPaymentSettled
             {/* Custom Keypad Input */}
             <div className="p-3 rounded-2xl bg-[#131B26] border border-[#283852]">
               <label className="text-[10px] text-gray-400 block mb-1">
-                {lang === 'arak' ? 'အခြား ပမာဏ ရိုက်ထည့်ရန် (AKD)' : 'Add Custom Charge (AKD)'}
+                {lang === 'arak' ? 'အခြား ပမာဏ ရိုက်ထည့်ရန်' : 'Add Custom Charge'}
               </label>
               <input
                 type="number"
@@ -188,7 +190,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, onPaymentSettled
               <div className="pt-2 border-t border-white/10 flex items-baseline justify-between">
                 <span className="text-xs font-bold text-gray-400">{t.posAmountDue}:</span>
                 <span className="text-2xl font-bold font-mono text-amber-400">
-                  ₳ {totalAmount.toFixed(2)} <span className="text-xs font-normal">AKD</span>
+                  ₳ {totalAmount.toFixed(2)}
                 </span>
               </div>
 
@@ -213,7 +215,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, onPaymentSettled
               </span>
 
               <div className="text-3xl font-bold font-mono text-white mt-2">
-                ₳ {totalAmount.toFixed(2)} <span className="text-xs text-amber-400">AKD</span>
+                ₳ {totalAmount.toFixed(2)}
               </div>
 
               <div className="p-3 bg-white rounded-2xl inline-block shadow-2xl my-2">
@@ -260,7 +262,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, onPaymentSettled
               </h3>
 
               <div className="text-3xl font-bold font-mono text-emerald-400">
-                + ₳ {totalAmount.toFixed(2)} AKD
+                + ₳ {totalAmount.toFixed(2)}
               </div>
 
               <p className="text-xs text-gray-300 font-mono">
@@ -296,9 +298,9 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, onPaymentSettled
                 <div className="flex justify-center mb-1">
                   <ArakanEmblem size={30} variant="badge" />
                 </div>
-                <div className="font-bold text-sm tracking-wide">PETHAR SOVEREIGN POS</div>
+                <div className="font-bold text-sm tracking-wide">PETHAR POS</div>
                 <div className="text-[10px] text-gray-600">MRAUK-U ROYAL STORE #092</div>
-                <div className="text-[9px] text-gray-500">Arakan Sovereign Monetary Network</div>
+                <div className="text-[9px] text-gray-500">Arakan Monetary Network</div>
                 <div className="border-b border-dashed border-gray-400 my-2" />
               </div>
 
@@ -322,11 +324,11 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, onPaymentSettled
                 )}
                 <div className="border-b border-dashed border-gray-300 my-1" />
                 <div className="flex justify-between font-bold text-sm pt-1">
-                  <span>TOTAL PAID (AKD)</span>
+                  <span>TOTAL PAID</span>
                   <span>₳ {totalAmount.toFixed(2)}</span>
                 </div>
                 <div className="text-[9px] text-gray-500 text-center pt-2">
-                  * 100% Guaranteed by Arakan Dollar Reserves *
+                  * 100% Guaranteed by reserve backing *
                 </div>
               </div>
 

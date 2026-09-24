@@ -9,14 +9,17 @@ import { translations } from '../i18n'
 
 interface CryptoGatewayProps {
   lang: Language
+  theme?: 'dark' | 'light'
   onSwapSuccess?: (usdtAmount: number, akdAmount: number) => void
 }
 
 export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
   lang,
+  theme = 'dark',
   onSwapSuccess,
 }) => {
   const t = translations[lang]
+  const isLight = theme === 'light'
   const [activeTab, setActiveTab] = useState<'swap' | 'deposit' | 'exchanges' | 'por'>('swap')
   const [swapDirection, setSwapDirection] = useState<'usdt_to_akd' | 'akd_to_usdt'>('usdt_to_akd')
   const [swapAmount, setSwapAmount] = useState('500')
@@ -26,7 +29,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
   const [swapSuccessMsg, setSwapSuccessMsg] = useState(false)
 
   const chainAddresses: Record<string, string> = {
-    TRC20: 'TPeTharArakanSovereignVault992XyZ18kQ',
+    TRC20: 'TPeTharArakanVault992XyZ18kQ',
     ERC20: '0x71C9482Ac7B943A11C90eB892F91b0A4050e82D4',
     TON: 'EQDPeTharArakan_TON_Bridge_88921aZc99',
     POLYGON: '0x71C9482Ac7B943A11C90eB892F91b0A4050e82D4',
@@ -52,15 +55,15 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#090D14] text-white overflow-y-auto">
+    <div className={`flex flex-col h-full overflow-y-auto ${isLight ? 'bg-[#F4F5F8] text-gray-900' : 'bg-[#090D14] text-white'}`}>
       {/* Header */}
-      <div className="p-5 bg-gradient-to-b from-[#1C2530] to-[#090D14] border-b border-[#283852]">
+      <div className={`p-5 border-b ${isLight ? 'bg-white border-gray-200' : 'bg-gradient-to-b from-[#1C2530] to-[#090D14] border-[#283852]'}`}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
             <Coins size={22} />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white tracking-wide">{t.cryptoTitle}</h2>
+            <h2 className={`text-base font-bold tracking-wide ${isLight ? 'text-gray-900' : 'text-white'}`}>{t.cryptoTitle}</h2>
             <p className="text-xs text-gray-400 mt-0.5">{t.cryptoSubtitle}</p>
           </div>
         </div>
@@ -75,7 +78,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            {lang === 'arak' ? 'ဒေါ်လာလဲလှယ်' : 'AKD Swap'}
+            {lang === 'arak' ? 'ဒေါ်လာလဲလှယ်' : 'Dollar Swap'}
           </button>
           <button
             onClick={() => setActiveTab('deposit')}
@@ -111,24 +114,24 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
       </div>
 
       <div className="p-5 space-y-5">
-        {/* Tab 1: Instant AKD ⇄ USDT Swap */}
+        {/* Tab 1: Instant Dollar ⇄ USDT Swap */}
         {activeTab === 'swap' && (
           <div className="space-y-4">
             <div className="p-4 rounded-2xl bg-[#131B26] border border-[#283852] space-y-4">
               <div className="flex items-center justify-between text-xs text-gray-400">
                 <span className="font-medium">
-                  {lang === 'arak' ? 'တိုက်ရိုက် လဲလှယ်မှုစနစ်' : 'Zero-Slippage Sovereign Swap'}
+                  {lang === 'arak' ? 'တိုက်ရိုက် လဲလှယ်မှုစနစ်' : 'Zero-Slippage Dollar Swap'}
                 </span>
                 <span className="text-amber-400 font-bold flex items-center gap-1">
                   <Sparkles size={12} />
-                  1 USDT = 1.00 AKD
+                  1 USDT = 1.00 ₳
                 </span>
               </div>
 
               {/* Input 1 */}
               <div className="p-3 rounded-xl bg-black/40 border border-white/10">
                 <div className="text-[10px] text-gray-400 flex items-center justify-between">
-                  <span>{swapDirection === 'usdt_to_akd' ? 'You Pay (USDT)' : 'You Pay (AKD)'}</span>
+                  <span>{swapDirection === 'usdt_to_akd' ? 'You Pay (USDT)' : 'You Pay (₳)'}</span>
                   <span className="text-amber-300">Balance: 2,450.00 USDT</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
@@ -139,7 +142,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                     className="bg-transparent text-xl font-bold font-mono text-white focus:outline-none w-2/3"
                   />
                   <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                    {swapDirection === 'usdt_to_akd' ? 'USDT' : 'AKD'}
+                    {swapDirection === 'usdt_to_akd' ? 'USDT' : '₳'}
                   </span>
                 </div>
               </div>
@@ -161,15 +164,15 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
               {/* Input 2 (Output) */}
               <div className="p-3 rounded-xl bg-gradient-to-r from-red-950/30 to-black/50 border border-amber-500/40">
                 <div className="text-[10px] text-amber-400 flex items-center justify-between">
-                  <span>{swapDirection === 'usdt_to_akd' ? 'You Receive (AKD)' : 'You Receive (USDT)'}</span>
-                  <span className="text-emerald-400">Guaranteed Sovereign Parity</span>
+                  <span>{swapDirection === 'usdt_to_akd' ? 'You Receive (₳)' : 'You Receive (USDT)'}</span>
+                  <span className="text-emerald-400">Guaranteed Parity</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <div className="text-xl font-bold font-mono text-white">
                     {swapAmount || '0'}.00
                   </div>
                   <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600/30 text-red-300 border border-red-500/40">
-                    {swapDirection === 'usdt_to_akd' ? 'AKD (₳)' : 'USDT'}
+                    {swapDirection === 'usdt_to_akd' ? '₳' : 'USDT'}
                   </span>
                 </div>
               </div>
@@ -182,7 +185,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 {isSwapping ? (
                   <>
                     <RefreshCw size={14} className="animate-spin" />
-                    {lang === 'arak' ? 'ချက်ချင်းလဲလှယ်နေပါသည်...' : 'Executing Sovereign Settlement...'}
+                    {lang === 'arak' ? 'ချက်ချင်းလဲလှယ်နေပါသည်...' : 'Executing Dollar Settlement...'}
                   </>
                 ) : (
                   <>
@@ -197,8 +200,8 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                   <Check size={14} className="text-emerald-400" />
                   <span>
                     {lang === 'arak'
-                      ? `${swapAmount} USDT မှ ${swapAmount} AKD သို့ အောင်မြင်စွာ လဲလှယ်ပြီးပါပြီ!`
-                      : `Successfully swapped ${swapAmount} USDT to ${swapAmount} AKD at 1:1 parity!`}
+                      ? `${swapAmount} USDT မှ ${swapAmount} ₳ သို့ အောင်မြင်စွာ လဲလှယ်ပြီးပါပြီ!`
+                      : `Successfully swapped ${swapAmount} USDT to ${swapAmount} ₳ at 1:1 parity!`}
                   </span>
                 </div>
               )}
@@ -358,7 +361,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                   <p className="text-[11px] text-gray-400 mt-0.5">
                     {lang === 'arak'
                       ? 'လွတ်လပ်သော နိုင်ငံတကာ စာရင်းစစ်အဖွဲ့မှ တိုက်ရိုက်စစ်ဆေးမှု'
-                      : 'Real-time cryptographic audit backing all AKD in circulation'}
+                      : 'Real-time cryptographic audit backing all assets in circulation'}
                   </p>
                 </div>
                 <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
@@ -369,7 +372,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
               {/* Stats */}
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="p-3 rounded-xl bg-black/40 border border-white/5">
-                  <div className="text-[10px] text-gray-400">Total AKD in Circulation</div>
+                  <div className="text-[10px] text-gray-400">Total in Circulation</div>
                   <div className="text-base font-bold text-white font-mono mt-1">₳ 48,500,000</div>
                 </div>
                 <div className="p-3 rounded-xl bg-black/40 border border-white/5">
@@ -391,7 +394,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                   </div>
 
                   <div className="flex justify-between items-center text-gray-300 pt-1">
-                    <span>Physical Sovereign Gold Bullion</span>
+                    <span>Physical Arakan Gold Bullion</span>
                     <span className="font-mono font-bold text-white">35% ($17.8M)</span>
                   </div>
                   <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
