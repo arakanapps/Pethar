@@ -4,6 +4,9 @@
   "private": true,
   "description": "PeThar (ဖေ့သာ) — Multi-Platform Financial Infrastructure (Web, Android, iOS, POS, Desktop)",
   "scripts": {
+    "build": "cd pethar-wallet && npm install && npm run build",
+    "dev": "cd pethar-wallet && npm run dev",
+    "start": "cd pethar-wallet && npm run preview",
     "web": "./apps/web/run.sh",
     "android": "./apps/android/run.sh",
     "android:apk": "./apps/android/build-apk.sh",
