@@ -25,10 +25,10 @@ export default function App() {
   const paramView = searchParams?.get('view') as PlatformView | null
   const paramDevice = searchParams?.get('device') as 'android' | 'ios' | null
 
-  // Make Home wallet page visible by default!
-  // Only show landing page if explicitly requested via ?landing=true or toggled
-  const paramLanding = searchParams?.get('landing') === 'true'
-  const [showLanding, setShowLanding] = useState(paramLanding)
+  // Always first show landing page!
+  // (Can be bypassed directly to wallet via ?app=true if needed)
+  const paramApp = searchParams?.get('app') === 'true'
+  const [showLanding, setShowLanding] = useState(!paramApp)
 
   const [platform, setPlatform] = useState<PlatformView>(paramPlatform || paramView || 'mobile')
   const [screen, setScreen] = useState<Screen>('home')
