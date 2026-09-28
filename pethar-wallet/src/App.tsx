@@ -19,11 +19,16 @@ import {
 type PlatformView = 'mobile' | 'web' | 'pos'
 
 export default function App() {
-  const [platform, setPlatform] = useState<PlatformView>('mobile')
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+  const paramPlatform = searchParams?.get('platform') as PlatformView | null
+  const paramView = searchParams?.get('view') as PlatformView | null
+  const paramDevice = searchParams?.get('device') as 'android' | 'ios' | null
+
+  const [platform, setPlatform] = useState<PlatformView>(paramPlatform || paramView || 'mobile')
   const [screen, setScreen] = useState<Screen>('home')
   const [lang, setLang] = useState<Language>('en')
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
-  const [deviceSkin, setDeviceSkin] = useState<'android' | 'ios'>('android')
+  const [deviceSkin, setDeviceSkin] = useState<'android' | 'ios'>(paramDevice || 'android')
   const [profile, setProfile] = useState<UserProfile>(initialUserProfile)
   const [legalModalOpen, setLegalModalOpen] = useState(false)
   const [legalDocType, setLegalDocType] = useState<'terms' | 'privacy' | 'guidelines' | 'fx'>('terms')
