@@ -16,7 +16,6 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [loginId, setLoginId] = useState('')
   const [loginPin, setLoginPin] = useState('')
-  const [activeSection, setActiveSection] = useState<string | null>(null)
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()

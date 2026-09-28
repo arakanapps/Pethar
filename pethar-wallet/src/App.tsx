@@ -25,9 +25,10 @@ export default function App() {
   const paramView = searchParams?.get('view') as PlatformView | null
   const paramDevice = searchParams?.get('device') as 'android' | 'ios' | null
 
-  // Show landing page by default unless a specific platform/view/device is requested via URL
-  const hasDirectEntry = !!(paramPlatform || paramView || paramDevice)
-  const [showLanding, setShowLanding] = useState(!hasDirectEntry)
+  // Make Home wallet page visible by default!
+  // Only show landing page if explicitly requested via ?landing=true or toggled
+  const paramLanding = searchParams?.get('landing') === 'true'
+  const [showLanding, setShowLanding] = useState(paramLanding)
 
   const [platform, setPlatform] = useState<PlatformView>(paramPlatform || paramView || 'mobile')
   const [screen, setScreen] = useState<Screen>('home')
@@ -182,6 +183,15 @@ export default function App() {
             title="Legal & Compliance Policies"
           >
             <FileText size={16} />
+          </button>
+
+          {/* Landing Page Trigger */}
+          <button
+            onClick={() => setShowLanding(true)}
+            className="px-2.5 py-1 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 text-xs font-semibold transition flex items-center gap-1"
+            title="View Landing Page & Info"
+          >
+            Landing
           </button>
         </div>
       </header>
