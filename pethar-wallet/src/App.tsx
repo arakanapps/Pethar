@@ -10,6 +10,7 @@ import { LegalDocsModal } from './components/LegalDocsModal'
 import { WebPortal } from './components/WebPortal'
 import { ArakanEmblem, FlagArakan, FlagInternational } from './components/ArakanEmblem'
 import { type Language, translations } from './i18n'
+import LandingPage from './pages/LandingPage'
 import {
   Wifi, Battery, Signal, Monitor, Terminal,
   FileText, QrCode, Sun, Moon,
@@ -23,6 +24,10 @@ export default function App() {
   const paramPlatform = searchParams?.get('platform') as PlatformView | null
   const paramView = searchParams?.get('view') as PlatformView | null
   const paramDevice = searchParams?.get('device') as 'android' | 'ios' | null
+
+  // Show landing page by default unless a specific platform/view/device is requested via URL
+  const hasDirectEntry = !!(paramPlatform || paramView || paramDevice)
+  const [showLanding, setShowLanding] = useState(!hasDirectEntry)
 
   const [platform, setPlatform] = useState<PlatformView>(paramPlatform || paramView || 'mobile')
   const [screen, setScreen] = useState<Screen>('home')
@@ -42,6 +47,11 @@ export default function App() {
 
   const handleMobileNav = (s: Screen) => {
     setScreen(s)
+  }
+
+  // If landing page is active, render it instead of the app
+  if (showLanding) {
+    return <LandingPage onEnterApp={() => setShowLanding(false)} />
   }
 
   return (
