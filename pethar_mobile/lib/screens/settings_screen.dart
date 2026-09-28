@@ -259,7 +259,9 @@ class SettingsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[200]!),
                     ),
-                    child: Column(
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: Column(
                       children: [
                         // Profile Info
                         ListTile(
@@ -399,6 +401,7 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    ),
                   ),
                   const SizedBox(height: 20),
 
@@ -419,7 +422,9 @@ class SettingsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[200]!),
                     ),
-                    child: Column(
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: Column(
                       children: [
                         ListTile(
                           leading: const CircleAvatar(
@@ -480,6 +485,7 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    ),
                   ),
                   const SizedBox(height: 20),
 
@@ -500,7 +506,9 @@ class SettingsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[200]!),
                     ),
-                    child: Column(
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: Column(
                       children: [
                         ListTile(
                           leading: const Icon(Icons.description, color: gold, size: 20),
@@ -564,6 +572,7 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ),
                       ],
+                    ),
                     ),
                   ),
                   const SizedBox(height: 30),
