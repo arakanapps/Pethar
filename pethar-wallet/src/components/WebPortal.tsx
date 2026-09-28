@@ -12,14 +12,12 @@ interface WebPortalProps {
   lang: Language
   theme?: 'dark' | 'light'
   onOpenModule: (mod: 'send' | 'receive' | 'cashout' | 'intl' | 'crypto' | 'pos') => void
-  onOpenLegal: (doc: 'terms' | 'privacy' | 'guidelines' | 'fx') => void
 }
 
 export const WebPortal: React.FC<WebPortalProps> = ({
   lang,
   theme = 'dark',
   onOpenModule,
-  onOpenLegal,
 }) => {
   const t = translations[lang]
   const isLight = theme === 'light'
@@ -63,13 +61,6 @@ export const WebPortal: React.FC<WebPortalProps> = ({
             </div>
           ))}
         </div>
-
-        <button
-          onClick={() => onOpenLegal('fx')}
-          className="text-amber-400 hover:text-amber-300 font-semibold text-[11px] shrink-0 ml-4"
-        >
-          {lang === 'arak' ? 'ဘုတ်အပြည့်အစုံ' : 'Full Board →'}
-        </button>
       </div>
 
       <div className="p-6 max-w-7xl w-full mx-auto space-y-6">
