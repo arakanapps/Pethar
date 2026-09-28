@@ -1,0 +1,1 @@
+../../pethar_mobile/lib/screens/pos_terminal_screen.dart

@@ -1,0 +1,16 @@
+{
+  "name": "pethar-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PeThar (ဖေ့သာ) — Multi-Platform Financial Infrastructure (Web, Android, iOS, POS, Desktop)",
+  "scripts": {
+    "web": "./apps/web/run.sh",
+    "android": "./apps/android/run.sh",
+    "android:apk": "./apps/android/build-apk.sh",
+    "ios": "./apps/ios/run.sh",
+    "ios:xcode": "./apps/ios/open-xcode.sh",
+    "pos": "./apps/pos/run.sh",
+    "desktop": "./apps/desktop/run-macos.sh",
+    "desktop:electron": "./apps/desktop/run-electron.sh"
+  }
+}
