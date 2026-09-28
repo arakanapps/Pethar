@@ -6,14 +6,13 @@ import {
 import { InternationalBanking } from './components/InternationalBanking'
 import { CryptoGateway } from './components/CryptoGateway'
 import { POSTerminal } from './components/POSTerminal'
-import { LegalDocsModal } from './components/LegalDocsModal'
 import { WebPortal } from './components/WebPortal'
 import { ArakanEmblem, FlagArakan, FlagInternational } from './components/ArakanEmblem'
 import { type Language, translations } from './i18n'
 import LandingPage from './pages/LandingPage'
 import {
   Wifi, Battery, Signal, Monitor, Terminal,
-  FileText, QrCode, Sun, Moon,
+  QrCode, Sun, Moon,
   CreditCard, LayoutGrid, Settings as SettingsIcon, Home as HomeIcon
 } from 'lucide-react'
 
@@ -36,15 +35,7 @@ export default function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [deviceSkin, setDeviceSkin] = useState<'android' | 'ios'>(paramDevice || 'android')
   const [profile, setProfile] = useState<UserProfile>(initialUserProfile)
-  const [legalModalOpen, setLegalModalOpen] = useState(false)
-  const [legalDocType, setLegalDocType] = useState<'terms' | 'privacy' | 'guidelines' | 'fx'>('terms')
-
   const t = translations[lang]
-
-  const openLegal = (doc: 'terms' | 'privacy' | 'guidelines' | 'fx') => {
-    setLegalDocType(doc)
-    setLegalModalOpen(true)
-  }
 
   const handleMobileNav = (s: Screen) => {
     setScreen(s)
@@ -176,15 +167,6 @@ export default function App() {
             )}
           </button>
 
-          {/* Legal Docs Trigger */}
-          <button
-            onClick={() => openLegal('terms')}
-            className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 transition"
-            title="Legal & Compliance Policies"
-          >
-            <FileText size={16} />
-          </button>
-
           {/* Landing Page Trigger */}
           <button
             onClick={() => setShowLanding(true)}
@@ -309,7 +291,6 @@ export default function App() {
                     setTheme={setTheme}
                     profile={profile}
                     setProfile={setProfile}
-                    onOpenLegal={openLegal}
                   />
                 )}
                 {screen === 'send' && (
@@ -438,7 +419,6 @@ export default function App() {
                 setScreen(mod)
                 setPlatform('mobile')
               }}
-              onOpenLegal={openLegal}
             />
           </div>
         )}
@@ -450,15 +430,6 @@ export default function App() {
           </div>
         )}
       </main>
-
-      {/* ── LEGAL & POLICIES MODAL ─────────────────────────────────────── */}
-      {legalModalOpen && (
-        <LegalDocsModal
-          lang={lang}
-          initialDoc={legalDocType}
-          onClose={() => setLegalModalOpen(false)}
-        />
-      )}
     </div>
   )
 }

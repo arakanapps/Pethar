@@ -7,8 +7,8 @@ import {
   ChevronRight, Copy, Check,
   Fingerprint, ScanLine, Globe, Coins, AlertTriangle, Barcode, Flashlight, ImagePlus,
   Clock, Sparkles, Terminal, CreditCard, Lock,
-  Plus, X, LogOut, Shield, HelpCircle,
-  TrendingUp, FileText, RefreshCw, Download,
+  Plus, X, LogOut,
+  RefreshCw, Download,
   Receipt, Wallet, User, Sun, Moon, KeyRound, ShieldCheck,
   Bell, AlarmClock, Megaphone, ArrowLeftRight, Share2
 } from 'lucide-react'
@@ -634,7 +634,6 @@ export function SettingsScreen({
   setTheme,
   profile,
   setProfile,
-  onOpenLegal,
 }: {
   go: (s: Screen) => void
   lang: Language
@@ -643,7 +642,6 @@ export function SettingsScreen({
   setTheme?: (t: 'dark' | 'light') => void
   profile?: UserProfile
   setProfile?: (p: UserProfile) => void
-  onOpenLegal: (doc: 'terms' | 'privacy' | 'guidelines' | 'fx') => void
 }) {
   const [localProfile, setLocalProfile] = useState<UserProfile>(profile || initialUserProfile)
   const currentProfile = profile || localProfile
@@ -951,67 +949,6 @@ export function SettingsScreen({
               </button>
             </div>
           </div>
-        </div>
-
-        {/* ── SECTION 3: LEGAL & POLICIES ─────────────────────────────── */}
-        <div className={`p-4 rounded-3xl border space-y-2 text-xs ${
-          isLight ? 'bg-white border-gray-100 shadow-sm' : 'bg-[#131B26] border-white/5'
-        }`}>
-          <h3 className={`text-xs font-bold uppercase font-mono mb-2 ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>
-            {lang === 'arak' ? 'ဥပဒေနှင့် စည်းမျဉ်းများ' : 'Legal & Compliance'}
-          </h3>
-
-          <button
-            onClick={() => onOpenLegal('terms')}
-            className={`w-full flex items-center justify-between py-2 border-b text-xs ${
-              isLight ? 'border-gray-100 text-gray-700 hover:text-black' : 'border-white/5 text-gray-300 hover:text-white'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <FileText size={14} className="text-amber-500" />
-              <span>{lang === 'arak' ? 'အသုံးပြုမှု စည်းမျဉ်းများ' : 'Terms & Conditions'}</span>
-            </div>
-            <ChevronRight size={14} className="text-gray-400" />
-          </button>
-
-          <button
-            onClick={() => onOpenLegal('privacy')}
-            className={`w-full flex items-center justify-between py-2 border-b text-xs ${
-              isLight ? 'border-gray-100 text-gray-700 hover:text-black' : 'border-white/5 text-gray-300 hover:text-white'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <Shield size={14} className="text-emerald-500" />
-              <span>{lang === 'arak' ? 'ကိုယ်ရေးအချက်အလက် ကာကွယ်ရေး' : 'Personal Data Protection'}</span>
-            </div>
-            <ChevronRight size={14} className="text-gray-400" />
-          </button>
-
-          <button
-            onClick={() => onOpenLegal('guidelines')}
-            className={`w-full flex items-center justify-between py-2 border-b text-xs ${
-              isLight ? 'border-gray-100 text-gray-700 hover:text-black' : 'border-white/5 text-gray-300 hover:text-white'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <HelpCircle size={14} className="text-blue-500" />
-              <span>{lang === 'arak' ? 'အက်ပ်အသုံးပြုနည်းနှင့် လုံခြုံရေး' : 'Application Guidelines'}</span>
-            </div>
-            <ChevronRight size={14} className="text-gray-400" />
-          </button>
-
-          <button
-            onClick={() => onOpenLegal('fx')}
-            className={`w-full flex items-center justify-between py-2 text-xs ${
-              isLight ? 'text-gray-700 hover:text-black' : 'text-gray-300 hover:text-white'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <TrendingUp size={14} className="text-cyan-500" />
-              <span>{lang === 'arak' ? 'အထူးနိုင်ငံခြားငွေလဲနှုန်းများ' : 'Official FX Rates Board'}</span>
-            </div>
-            <ChevronRight size={14} className="text-gray-400" />
-          </button>
         </div>
 
       </div>
