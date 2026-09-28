@@ -20,85 +20,86 @@ PeThar should become a trusted, accessible wallet for web, Android, iOS, and POS
 - Arakanese-first, plain-language UX with accessibility and low-bandwidth support
 - **အာရက္ခပြည်သူတွေအတွက် ငွေပေးချေမှု၊ ငွေလွှဲမှုနဲ့ ငွေသားရရှိမှုကို လုံခြုံ၊ ရိုးရှင်းပြီး ယုံကြည်စိတ်ချရအောင် ပြုလုပ်ရန်။**
 
-## Repository status
+## Multi-Platform Ecosystem
 
-| Area | Current state |
-| --- | --- |
-| Web app | React + TypeScript + Vite wallet prototype |
-| Mobile/POS | Planned clients; shared domain contracts should come first |
-| Ledger | PostgreSQL double-entry migration with idempotent posting function |
-| Payments | Mock UI flows only; no live provider integration |
-| Crypto | Mock USDT presentation only; no custody, exchange, or blockchain settlement |
-| Compliance | Product requirements and controls are still to be implemented with qualified counsel |
-| Production readiness | Not ready for real money |
+PeThar is organized as a multi-platform monorepo supporting **Web**, **Android**, **iOS**, **Merchant POS**, and **Desktop**:
 
-## Current prototype
+| Platform | Directory | Framework / Core | Status & Capabilities |
+| :--- | :--- | :--- | :--- |
+| **🌐 Web** | [`apps/web/`](apps/web/) | React 19 + TypeScript + Vite + Tailwind CSS | Full responsive wallet, simulator controls (skin toggle, device frames) |
+| **🤖 Android** | [`apps/android/`](apps/android/) | Flutter 3.47+ / Android Gradle (Kotlin) | Native Android APK & AAB, Material 3, camera QR scanner, haptics |
+| **🍎 iOS** | [`apps/ios/`](apps/ios/) | Flutter 3.47+ / iOS Runner (Swift, CocoaPods) | Native iPhone/iPad experience, Dynamic Island skin, Secure Enclave ready |
+| **🏪 Merchant POS** | [`apps/pos/`](apps/pos/) | React / Flutter dual-engine POS | Cashier terminal, numeric keypad, fast presets, dual-display QR, thermal receipts |
+| **💻 Desktop** | [`apps/desktop/`](apps/desktop/) | Flutter Desktop (macOS/Win/Linux) + Electron | Full-screen multi-column workstation for agents, accounting & treasury |
 
-The web prototype is in [`pethar-wallet/`](pethar-wallet/). It currently demonstrates:
+For complete documentation on platform architecture and run scripts, see [`PLATFORMS.md`](PLATFORMS.md).
 
-- Home wallet with AKD, PeThar Unit, and USDT sample balances
-- Send flow with recent contacts and a keypad
-- Receive flow with PeThar QR and crypto deposit presentation
-- Scan and agent cash-out screens
-- Arakanese and English labels, offline-ready messaging, and security cues
+---
 
-Run it locally:
+## Quick Launch & Scripts
+
+Run any platform directly from the repository root:
 
 ```bash
-cd pethar-wallet
-npm install
-npm run dev
+# Web application (http://localhost:3000)
+npm run web
+
+# Android client (emulator or connected phone)
+npm run android
+
+# Build standalone Android APK
+npm run android:apk
+
+# iOS client (iPhone simulator or connected device)
+npm run ios
+
+# Open iOS project in Xcode
+npm run ios:xcode
+
+# Merchant POS Terminal (touchscreen checkout UI)
+npm run pos
+
+# macOS Desktop application
+npm run desktop
+
+# Electron Desktop application
+npm run desktop:electron
 ```
 
-Build and test for production:
+---
 
-```bash
-cd pethar-wallet
-npm run build
-```
-
-## Repository layout
+## Repository Layout
 
 ```text
 PeThar/
-├── db/
-│   └── migrations/              # PostgreSQL schema and ledger functions
-├── docs/                        # Product, architecture, and operating decisions
-├── pethar-wallet/               # Current React/Vite web prototype
-│   ├── src/components/          # Reusable UI and QR presentation
-│   ├── src/data.ts              # Prototype-only sample data
-│   ├── src/screens.tsx          # Wallet flows and screen composition
-│   ├── src/types/               # Shared frontend domain types as they emerge
-│   └── src/App.tsx              # Web prototype entry point
-├── CONTRIBUTING.md
-├── SECURITY.md
-└── README.md
+├── apps/                        # Platform launchers and entry points
+│   ├── web/                     # 🌐 Web application (scripts, symlinks, docs)
+│   ├── android/                 # 🤖 Android client (run script, APK builder)
+│   ├── ios/                     # 🍎 iOS client (run script, Xcode launcher)
+│   ├── pos/                     # 🏪 Merchant POS terminal (dual-engine)
+│   └── desktop/                 # 💻 Desktop application (macOS + Electron)
+│
+├── pethar-wallet/               # React + TypeScript + Vite web app & skin simulator
+│   ├── src/components/          # Reusable UI, QR presentation & POS terminal
+│   ├── src/data.ts              # Sample accounts, transactions, and agents
+│   ├── src/screens.tsx          # Main wallet screen flows
+│   ├── src/types/               # Domain TypeScript interfaces
+│   └── src/App.tsx              # Web app root with platform routing (?platform=...)
+│
+├── pethar_mobile/               # Cross-platform Flutter engine (Dart 3.13+)
+│   ├── android/                 # Native Android gradle configuration & manifest
+│   ├── ios/                     # Native iOS Runner Xcode project & Podfile
+│   ├── macos/                   # Native macOS desktop runner
+│   ├── web/                     # Flutter web output harness
+│   ├── lib/                     # Clean architecture screens, state & widgets
+│   └── test/                    # Automated widget and unit tests
+│
+├── db/                          # PostgreSQL ledger migrations & double-entry engine
+├── docs/                        # Architecture decisions & operating manuals
+├── PLATFORMS.md                 # Master multi-platform matrix and guides
+├── package.json                 # Monorepo task orchestration
+└── README.md                    # Project overview & roadmap
 ```
-
-As services are implemented, the intended product structure is:
-
-```text
-apps/
-├── web/                         # Customer web app and operations console
-├── mobile/                      # Android and iOS client
-└── pos/                         # Agent/POS client with offline mode
-services/
-├── identity/                    # Authentication, devices, KYC/KYB workflows
-├── ledger/                      # Money movement and ledger orchestration
-├── payments/                    # Provider adapters and webhooks
-├── fx/                          # Rate sourcing, quotes, spreads, expiry
-├── crypto/                      # Compliance-gated partner and chain adapters
-└── notifications/               # SMS, push, email, and receipts
-packages/
-├── contracts/                   # Versioned API and event schemas
-├── domain/                      # Shared money, currency, and risk rules
-└── design-system/               # Accessible web/mobile design tokens
-infra/
-├── environments/                # IaC and deployment configuration
-└── observability/               # Logs, metrics, traces, and alert rules
-```
-
-The future structure is documented here first so the team can migrate by bounded capability rather than moving files prematurely.
 
 ## Financial safety principles
 

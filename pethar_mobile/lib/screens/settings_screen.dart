@@ -357,7 +357,7 @@ class SettingsScreen extends StatelessWidget {
                           ),
                           trailing: Switch(
                             value: appState.autoSaveSlip,
-                            activeColor: const Color(0xFFFF5722),
+                            activeThumbColor: const Color(0xFFFF5722),
                             onChanged: (_) => appState.toggleAutoSaveSlip(),
                           ),
                         ),
