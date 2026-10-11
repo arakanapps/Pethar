@@ -8,6 +8,7 @@
     "dev": "cd pethar-wallet && npm run dev",
     "test": "cd pethar-wallet && npm test",
     "start": "cd pethar-wallet && npm run preview",
+    "lint:ui": "cd pethar-wallet && npm run lint:ui",
     "web": "./apps/web/run.sh",
     "android": "./apps/android/run.sh",
     "android:apk": "./apps/android/build-apk.sh",
