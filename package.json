@@ -12,6 +12,9 @@
     "lint:ui": "cd pethar-wallet && npm run lint:ui",
     "drizzle:generate": "drizzle-kit generate",
     "drizzle:push": "drizzle-kit push",
+    "supabase:link": "supabase link --project-ref uklqksioruxvatwpvopm",
+    "supabase:db:pull": "supabase db pull",
+    "supabase:db:push": "supabase db push",
     "web": "./apps/web/run.sh",
     "android": "./apps/android/run.sh",
     "android:apk": "./apps/android/build-apk.sh",
@@ -28,6 +31,7 @@
   "devDependencies": {
     "@types/node": "^26.6.5",
     "drizzle-kit": "^0.31.11",
+    "supabase": "^2.120.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
