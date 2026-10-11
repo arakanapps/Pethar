@@ -164,7 +164,7 @@ export const translations: Record<Language, TranslationStrings> = {
 
     // Receive Screen
     receiveTitle: 'ငွေလက်ခံရန်',
-    receiveMyQr: 'မိမိ၏ ဖေ့သာ ArakanPay QR ကုဒ်',
+    receiveMyQr: 'မိမိ၏ ဖေ့သာ Arakan QR ကုဒ် (AK QR)',
     receiveCopyId: 'ဖေ့သာ ID ကူးယူရန်',
     receiveIdCopied: 'ဖေ့သာ ID ကို ကူးယူပြီးပါပြီ!',
     receiveSetAmount: 'လက်ခံမည့်ပမာဏ သတ်မှတ်ရန်',
@@ -286,7 +286,7 @@ export const translations: Record<Language, TranslationStrings> = {
 
     // Receive Screen
     receiveTitle: 'Receive Money',
-    receiveMyQr: 'My ArakanPay Verified QR',
+    receiveMyQr: 'My Arakan QR (AK QR)',
     receiveCopyId: 'Copy PeThar ID',
     receiveIdCopied: 'PeThar ID Copied to Clipboard!',
     receiveSetAmount: 'Specify Amount to Request',
@@ -329,7 +329,7 @@ export const translations: Record<Language, TranslationStrings> = {
     posSubtitle: 'Touchscreen checkout for Arakan retailers, pharmacies, grocery stores, and wholesalers',
     posChargeCustomer: 'Charge Customer',
     posAmountDue: 'Total Amount Due',
-    posScanToPay: 'Customer Scan-to-Pay ArakanPay QR',
+    posScanToPay: 'Customer Scan-to-Pay Arakan QR (AK QR)',
     posPrintReceipt: 'Print Thermal Receipt',
     posDailySummary: 'Daily End-of-Day Cashier Reconciliation',
     posQuickItems: 'Fast Inventory Presets',

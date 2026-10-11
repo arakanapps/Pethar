@@ -14,7 +14,7 @@ Empower the people of Arakan with resilient digital financial infrastructure. Pe
 - **Complete MMK Deprecation**: Myanmar Kyat is non-circulating and excluded from the Arakan ledger.
 
 ### 2. Domestic Mobile Money (bKash / TrueMoney / KPay Benchmark)
-- **Peer-to-Peer (P2P)**: Free instant transfers using Phone numbers, PeThar IDs (`ARAK-XXXX`), or ArakanPay dynamic QR codes.
+- **Peer-to-Peer (P2P)**: Free instant transfers using Phone numbers, PeThar IDs (`ARAK-XXXX`), or Arakan QR (AK QR) codes.
 - **Physical Agent Network**: Verified branch counters across Sittwe, Mrauk-U, Kyaukpyu, Thandwe, Ramree, Minbya, and Ponnagyun.
 - **Dynamic Cash-Out Security**: Time-based One-Time Passwords (TOTP) refreshed every 30 seconds to prevent unauthorized withdrawals.
 
@@ -30,7 +30,7 @@ Empower the people of Arakan with resilient digital financial infrastructure. Pe
 
 ### 5. Point of Sale (POS) Merchant Terminal
 - Touchscreen register for local retailers, pharmacies, fuel stations, and grocery markets across Arakan.
-- Real-time ArakanPay dynamic QR generation and simulated Bluetooth thermal receipt printing.
+- Real-time Arakan QR (AK QR) generation and simulated Bluetooth thermal receipt printing.
 
 ### 6. AI Cyber Defense Shield & Blackout Resilience
 - **Zero-Trust Append-Only Ledger**: Cryptographically chained transactions with Ed25519 signatures.

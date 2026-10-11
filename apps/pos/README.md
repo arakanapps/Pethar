@@ -10,7 +10,7 @@ The **Merchant Point-of-Sale Register Terminal** for physical Arakan retailers, 
 - **Fast Touchscreen Catalog**: One-tap item presets for common commodities (Rice, Fuel, Solar Battery, Antibiotics, Starlink, Cooking Oil).
 - **Custom Amount Keypad**: Rapid charge entry for uncataloged goods.
 - **Real-Time Cart Drawer**: Quantity multipliers (`+` / `-`), subtotals, item deletion, and total due.
-- **Dynamic ArakanPay QR Code**: Instantly generates customer scan-to-pay QR.
+- **Dynamic Arakan QR (AK QR) Code**: Instantly generates customer scan-to-pay QR.
 - **Payment Settled Animation**: Immediate feedback with audio/visual confirmation upon payment receipt.
 - **Monochrome Thermal Paper Receipt**: Printable sales slip with store metadata, itemized breakdown, total, barcode, Ed25519 hash, and print button.
 

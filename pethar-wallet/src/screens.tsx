@@ -560,7 +560,7 @@ export function ServicesScreen({
       items: [
         { id: 'send' as Screen, nameEn: 'P2P Transfer', nameMm: 'ဖေ့သာအချင်းချင်း ငွေလွှဲ', desc: 'Instant 0-fee domestic transfers', icon: ArrowUpRight, color: 'text-blue-400 bg-blue-500/20' },
         { id: 'cashout' as Screen, nameEn: 'Agent Cash-Out', nameMm: 'အေးဂျင့်မှ ငွေသားထုတ်ယူ', desc: 'Physical cash at Sittwe, Mrauk-U, Kyaukpyu', icon: Store, color: 'text-emerald-400 bg-emerald-500/20' },
-        { id: 'receive' as Screen, nameEn: 'My ArakanPay QR', nameMm: 'မိမိ QR ဖြင့် ငွေလက်ခံ', desc: 'Personal and merchant receiving code', icon: QrCode, color: 'text-amber-400 bg-amber-500/20' },
+        { id: 'receive' as Screen, nameEn: 'My Arakan QR (AK QR)', nameMm: 'မိမိ QR ဖြင့် ငွေလက်ခံ', desc: 'Personal and merchant receiving code', icon: QrCode, color: 'text-amber-400 bg-amber-500/20' },
       ],
     },
     {
@@ -1308,7 +1308,7 @@ export function Receive({ lang, theme = 'dark' }: { lang: Language; theme?: Them
     <div className={`flex h-full flex-col ${th.root(theme)}`}>
       <ScreenHeader
         title={t.receiveTitle}
-        subtitle={lang === 'ak' ? 'ArakanPay စနစ်ဖြင့် လက်ခံရန်' : 'ArakanPay Verified QR'}
+        subtitle={lang === 'ak' ? 'Arakan QR စနစ်ဖြင့် လက်ခံရန်' : 'Arakan QR (AK QR)'}
         theme={theme}
       />
 

@@ -15,7 +15,7 @@ This is the complete cross-platform mobile application for **PeThar (ဖေ့�
   - **Services**: Full directory for Money Movement, Global Banking & Remittance, and Digital Assets.
   - **Settings**: Vibrant gradient hero banner, Edit Personal Profile dialog, Auto-save slip toggle, Security (PIN reset, 2FA toggle), and Legal policies.
 - **P2P Send Money**: 4-step wizard with recipient search, amount keypad with quick preset chips, 6-digit PIN authorization, and auto-saved Electronic Transaction Slip (e-Slip).
-- **Receive Money**: Dynamic ArakanPay QR code (`pethar://pay...`) with one-tap PeThar ID copy.
+- **Receive Money**: Dynamic Arakan QR (AK QR) code (`pethar://pay...`) with one-tap PeThar ID copy.
 - **Agent Cash-Out**: Verified physical agent branch directory with distance and float indicators, plus 30-second dynamic TOTP withdrawal codes.
 - **International Banking & Wire**: Wise global corridors (THB, MYR, SGD, USD) with zero-fee calculation.
 - **Crypto & Stablecoin Gateway**: Proof of Reserves audit view (105% coverage) and multi-chain USDT deposit addresses (TRC-20, ERC-20, TON, Polygon).
@@ -99,7 +99,7 @@ pethar_mobile/
         ├── home_screen.dart        # Home dashboard with Krungthai NEXT style
         ├── account_screen.dart     # Account balances and Visa debit card
         ├── send_screen.dart        # 4-step transfer with e-Slip receipt
-        ├── receive_screen.dart     # Personal ArakanPay QR receiver
+        ├── receive_screen.dart     # Personal Arakan QR (AK QR) receiver
         ├── scan_screen.dart        # Viewfinder, My QR, and QR to Pay tabs
         ├── cashout_screen.dart     # Physical agent branch directory & TOTP
         ├── services_screen.dart    # Full services categorized directory
