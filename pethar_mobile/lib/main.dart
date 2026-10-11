@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app_state.dart';
 import 'theme.dart';
 import 'screens/main_shell.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Lock to portrait for mobile-first UX
@@ -22,13 +23,15 @@ void main() async {
     systemNavigationBarIconBrightness: Brightness.light,
   ));
 
-  // TODO(production): Initialize Supabase
-  // Uncomment when SUPABASE_URL and SUPABASE_ANON_KEY are configured:
-  //
-  // await PeTharSupabaseService.instance.initialize(
-  //   url: const String.fromEnvironment('SUPABASE_URL'),
-  //   anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
-  // );
+  // Initialize Supabase
+  try {
+    await Supabase.initialize(
+      url: 'https://uklqksioruxvatwpvopm.supabase.co',
+      anonKey: 'sb_publishable_rUiqzJYfjRLzNK0d6xyg-g_5Z6WmTya',
+    );
+  } catch (e) {
+    debugPrint('Supabase initialization notice: $e');
+  }
 
   runApp(
     ChangeNotifierProvider(
