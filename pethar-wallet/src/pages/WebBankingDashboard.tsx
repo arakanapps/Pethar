@@ -116,7 +116,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 font-mono hidden sm:block">
-                {lang === 'arak' ? 'အချုပ်အခြာအာဏာပိုင် ဒစ်ဂျစ်တယ်ဘဏ်စနစ်' : 'Sovereign Institutional Portal · Tier 2 Verified'}
+                {lang === 'arak' ? 'ဒစ်ဂျစ်တယ်ဘဏ်စနစ် ပေါ်တယ်' : 'Institutional Banking Portal · Tier 2 Verified'}
               </p>
             </div>
           </div>
@@ -708,7 +708,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                   }`}>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Network Fee:</span>
-                      <span className="font-bold text-emerald-400">0.00 ₳ (Free Sovereign Ledger)</span>
+                      <span className="font-bold text-emerald-400">0.00 ₳ (Free Internal Ledger)</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Settlement Guarantee:</span>
@@ -800,7 +800,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                 } shadow-xl`}
               >
                 <h2 className="text-xl font-bold font-sans mb-1">
-                  {lang === 'arak' ? 'ဖေ့သာ နိုင်ငံတကာ ဒစ်ဂျစ်တယ်ဒက်ဘစ်ကတ်' : 'PeThar Sovereign Multi-Currency Card'}
+                  {lang === 'arak' ? 'ဖေ့သာ နိုင်ငံတကာ ဒစ်ဂျစ်တယ်ဒက်ဘစ်ကတ်' : 'PeThar Multi-Currency Debit Card'}
                 </h2>
                 <p className="text-xs text-slate-400 font-mono mb-6">
                   Virtual Visa Debit with instant freeze and dynamic 3D-Secure

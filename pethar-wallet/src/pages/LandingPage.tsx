@@ -3,7 +3,7 @@ import { ArakanEmblem, FlagArakan, FlagInternational } from '../components/Araka
 import type { Language } from '../i18n'
 import {
   Globe, Smartphone, ArrowRight, Download, Apple, Lock,
-  ChevronDown, Send, Sun, Moon, Menu, X,
+  ChevronDown, Send, Menu, X,
   Building2, Store, Terminal, CheckCircle,
   PhoneCall, Radio, ArrowUpRight,
   Wallet, Database, KeyRound, FileText, Check
@@ -14,8 +14,6 @@ interface LandingPageProps {
   onOpenBanking?: () => void
   lang?: Language
   setLang?: (lang: Language) => void
-  theme?: 'dark' | 'light'
-  setTheme?: (theme: 'dark' | 'light') => void
 }
 
 /* ─── Animated Counter Hook ──────────────────────────────────────────── */
@@ -146,8 +144,6 @@ export default function LandingPage({
   onOpenBanking,
   lang = 'arak',
   setLang,
-  theme = 'dark',
-  setTheme,
 }: LandingPageProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -182,9 +178,7 @@ export default function LandingPage({
   ]
 
   return (
-    <div className={`min-h-screen text-[#F1F0E0] overflow-x-hidden selection:bg-red-700/60 selection:text-white font-sans relative ${
-      theme === 'light' ? 'bg-[#F4F6FB] text-neutral-900' : 'bg-[#06090E] text-[#F1F0E0]'
-    }`}>
+    <div className="min-h-screen text-[#F1F0E0] overflow-x-hidden selection:bg-red-700/60 selection:text-white font-sans relative bg-[#06090E]">
 
       {/* ── AMBIENT RESTRAINED GLASS GRADIENT BACKDROP ───────────────────── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -246,15 +240,6 @@ export default function LandingPage({
                 <span>EN</span>
               </button>
             </div>
-
-            {/* Theme Toggle */}
-            <button
-              onClick={() => setTheme && setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-white/70 transition-colors"
-              title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-            >
-              {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-indigo-400" />}
-            </button>
           </div>
         </div>
       </div>
