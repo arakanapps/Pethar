@@ -20,8 +20,6 @@ export default function App() {
         onEnterApp={() => setCurrentView('banking')}
         lang={lang}
         setLang={setLang}
-        theme={theme}
-        setTheme={setTheme}
       />
     )
   }

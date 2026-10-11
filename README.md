@@ -1,6 +1,6 @@
 # PeThar (ဖေ့သာ) — Arakan Financial Infrastructure
 
-**အာရက္ခအမျိုးသား ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်နှင့် အချုပ်အခြာအာဏာပိုင် ငွေကြေးစနစ်**
+**အာရက္ခအမျိုးသား ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်နှင့် ခေတ်မီငွေကြေးစနစ်**
 
 PeThar is a financial services platform for Arakan communities and their global connections. The product is designed to make everyday payments, agent-assisted cash access, international transfers, foreign-exchange conversion, and digital-asset services easier to use when local cash is worn, scarce, or difficult to move.
 

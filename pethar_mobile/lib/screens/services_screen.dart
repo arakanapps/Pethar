@@ -104,7 +104,7 @@ class ServicesScreen extends StatelessWidget {
         ],
       },
       {
-        'titleEn': 'Sovereign Resilient & Offline Rails',
+        'titleEn': 'Resilient & Offline Payment Rails',
         'titleMm': 'အော့ဖ်လိုင်း ဆက်သွယ်ရေးပြတ်တောက်မှု ကာကွယ်ရေး',
         'items': [
           {

@@ -2,7 +2,7 @@
 
 ## Mission
 
-**အာရက္ခပြည်သူများအတွက် ငွေပေးချေမှု၊ ငွေလွှဲမှုနှင့် နိုင်ငံတကာဘဏ္ဍာရေး ဆက်သွယ်မှုများကို လုံခြုံ၊ ရိုးရှင်းပြီး အချုပ်အခြာအာဏာပိုင် ဒစ်ဂျစ်တယ်စနစ်ဖြင့် ဖြေရှင်းရန်။**
+**အာရက္ခပြည်သူများအတွက် ငွေပေးချေမှု၊ ငွေလွှဲမှုနှင့် နိုင်ငံတကာဘဏ္ဍာရေး ဆက်သွယ်မှုများကို လုံခြုံ၊ ရိုးရှင်းပြီး ခေတ်မီ ဒစ်ဂျစ်တယ်စနစ်ဖြင့် ဖြေရှင်းရန်။**
 
 Empower the people of Arakan with resilient digital financial infrastructure. PeThar eliminates reliance on scarce, worn, or deprecated Myanmar Kyat (MMK) by instituting the **Arakan Dollar (AKD)**, backed 100% by liquid reserves and gold.
 
