@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test": "tsc -b && eslint .",
     "preview": "vite preview",
     "desktop": "electron electron/main.js"
   },
