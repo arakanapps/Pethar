@@ -109,14 +109,14 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-base tracking-tight font-sans">
-                  {lang === 'arak' ? 'ဖေ့သာ အွန်လိုင်းဘဏ်' : 'PeThar Online Banking'}
+                  {lang === 'ak' ? 'ဖေ့သာ အွန်လိုင်းဘဏ်' : 'PeThar Online Banking'}
                 </span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
                   ARAKAN CENTRAL
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 font-mono hidden sm:block">
-                {lang === 'arak' ? 'ဒစ်ဂျစ်တယ်ဘဏ်စနစ် ပေါ်တယ်' : 'Institutional Banking Portal · Tier 2 Verified'}
+                {lang === 'ak' ? 'ဒစ်ဂျစ်တယ်ဘဏ်စနစ် ပေါ်တယ်' : 'Institutional Banking Portal · Tier 2 Verified'}
               </p>
             </div>
           </div>
@@ -151,28 +151,28 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
             }`}
           >
             <button
-              onClick={() => setLang('arak')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition ${
-                lang === 'arak'
+              onClick={() => setLang('ak')}
+              className={`flex items-center justify-center p-1.5 rounded-lg transition ${
+                lang === 'ak'
                   ? 'bg-red-700 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
               title="ရခိုင်ဘာသာ"
+              aria-label="ရခိုင်ဘာသာ"
             >
-              <FlagArakan size={13} />
-              <span className="text-[11px]">ရခိုင်</span>
+              <FlagArakan size={15} />
             </button>
             <button
               onClick={() => setLang('en')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center justify-center p-1.5 rounded-lg transition ${
                 lang === 'en'
                   ? 'bg-blue-800 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
               title="English"
+              aria-label="English"
             >
-              <FlagInternational size={13} />
-              <span className="text-[11px]">EN</span>
+              <FlagInternational size={15} />
             </button>
           </div>
 
@@ -213,7 +213,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
             title="Return to Public Website"
           >
             <LogOut size={13} />
-            <span className="hidden sm:inline">{lang === 'arak' ? 'ပင်မစာမျက်နှာသို့' : 'Website'}</span>
+            <span className="hidden sm:inline">{lang === 'ak' ? 'ပင်မစာမျက်နှာသို့' : 'Website'}</span>
           </button>
         </div>
       </header>
@@ -264,12 +264,12 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
             {/* Navigation Menu */}
             <nav className="space-y-1">
               {[
-                { id: 'overview' as TabType, label: lang === 'arak' ? 'ပင်မဘဏ်စာမျက်နှာ' : 'Account Overview', icon: LayoutDashboard },
-                { id: 'transfers' as TabType, label: lang === 'arak' ? 'ငွေစာရင်းနှင့် မှတ်တမ်း' : 'Ledger & Transfers', icon: History },
-                { id: 'remittance' as TabType, label: lang === 'arak' ? 'နိုင်ငံတကာငွေလွှဲ / FX' : 'Global Wire & FX', icon: Globe },
-                { id: 'cards' as TabType, label: lang === 'arak' ? 'ဒစ်ဂျစ်တယ်ကတ်များ' : 'Cards & Spending', icon: CreditCard },
-                { id: 'reserves' as TabType, label: lang === 'arak' ? 'အာမခံဘဏ္ဍာတိုက် (Reserves)' : 'Proof of Reserves', icon: Coins },
-                { id: 'settings' as TabType, label: lang === 'arak' ? 'လုံခြုံရေးနှင့် ဆက်တင်' : 'Security & Settings', icon: Lock },
+                { id: 'overview' as TabType, label: lang === 'ak' ? 'ပင်မဘဏ်စာမျက်နှာ' : 'Account Overview', icon: LayoutDashboard },
+                { id: 'transfers' as TabType, label: lang === 'ak' ? 'ငွေစာရင်းနှင့် မှတ်တမ်း' : 'Ledger & Transfers', icon: History },
+                { id: 'remittance' as TabType, label: lang === 'ak' ? 'နိုင်ငံတကာငွေလွှဲ / FX' : 'Global Wire & FX', icon: Globe },
+                { id: 'cards' as TabType, label: lang === 'ak' ? 'ဒစ်ဂျစ်တယ်ကတ်များ' : 'Cards & Spending', icon: CreditCard },
+                { id: 'reserves' as TabType, label: lang === 'ak' ? 'အာမခံဘဏ္ဍာတိုက် (Reserves)' : 'Proof of Reserves', icon: Coins },
+                { id: 'settings' as TabType, label: lang === 'ak' ? 'လုံခြုံရေးနှင့် ဆက်တင်' : 'Security & Settings', icon: Lock },
               ].map((item) => {
                 const Icon = item.icon
                 const isActive = activeTab === item.id
@@ -309,7 +309,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
               <span>Ed25519 Enclave Auth</span>
             </div>
             <p className="text-[10px] leading-relaxed">
-              {lang === 'arak'
+              {lang === 'ak'
                 ? 'ငွေကြေးလွှဲပြောင်းမှုများကို အဆင့်မြင့် လျှို့ဝှက်ကုဒ်စနစ်ဖြင့် ကာကွယ်ထားပါသည်'
                 : 'Session anchored to cryptographic secure hardware enclave. Zero telemetry tracking.'}
             </p>
@@ -385,7 +385,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                       className="flex-1 sm:flex-none px-5 py-3 rounded-2xl bg-emerald-600/30 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/40 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition"
                     >
                       <Coins size={16} />
-                      <span>{lang === 'arak' ? 'USDT ငွေသွင်း' : 'Deposit USDT'}</span>
+                      <span>{lang === 'ak' ? 'USDT ငွေသွင်း' : 'Deposit USDT'}</span>
                     </button>
                   </div>
                 </div>
@@ -422,7 +422,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-sm flex items-center gap-2">
                       <Globe size={15} className="text-amber-400" />
-                      <span>{lang === 'arak' ? 'တရားဝင် ငွေလဲလှယ်နှုန်းများ' : 'Official Arakan FX Board'}</span>
+                      <span>{lang === 'ak' ? 'တရားဝင် ငွေလဲလှယ်နှုန်းများ' : 'Official Arakan FX Board'}</span>
                     </h3>
                     <span className="text-[10px] font-mono text-emerald-400">Live Synced</span>
                   </div>
@@ -432,7 +432,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                       <div key={fx.pair} className="py-2.5 flex items-center justify-between text-xs">
                         <div>
                           <span className="font-mono font-bold">{fx.pair}</span>
-                          <span className="text-[10px] text-slate-400 block">{lang === 'arak' ? fx.nameMm : fx.name}</span>
+                          <span className="text-[10px] text-slate-400 block">{lang === 'ak' ? fx.nameMm : fx.name}</span>
                         </div>
                         <div className="text-right font-mono">
                           <span className="font-bold">{fx.rate}</span>
@@ -465,7 +465,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                         onClick={() => setSendModalOpen(true)}
                         className="text-xs text-amber-400 hover:underline font-mono"
                       >
-                        {lang === 'arak' ? 'အသစ်လွှဲရန်' : '+ New Transfer'}
+                        {lang === 'ak' ? 'အသစ်လွှဲရန်' : '+ New Transfer'}
                       </button>
                     </div>
 
@@ -489,7 +489,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                             </div>
                             <div className="overflow-hidden">
                               <span className="text-xs font-bold block truncate">
-                                {lang === 'arak' ? c.mm : c.name}
+                                {lang === 'ak' ? c.mm : c.name}
                               </span>
                               <span className="text-[10px] font-mono text-slate-400 block truncate">
                                 {c.id}
@@ -512,7 +512,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                   >
                     <div className="flex items-center gap-2">
                       <Building2 size={16} />
-                      <span>{lang === 'arak' ? 'အာရက္ခအေးဂျင့်ကွန်ရက် ဖွင့်လှစ်ထားပါသည်' : '340+ Verified Cash Agents Active Across Arakan'}</span>
+                      <span>{lang === 'ak' ? 'အာရက္ခအေးဂျင့်ကွန်ရက် ဖွင့်လှစ်ထားပါသည်' : '340+ Verified Cash Agents Active Across Arakan'}</span>
                     </div>
                     <span className="text-[10px] text-emerald-500 font-bold">100% ONLINE</span>
                   </div>
@@ -544,7 +544,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder={lang === 'arak' ? 'ရှာဖွေရန်...' : 'Search ledger...'}
+                        placeholder={lang === 'ak' ? 'ရှာဖွေရန်...' : 'Search ledger...'}
                         className={`pl-8 pr-3 py-1.5 rounded-xl text-xs border outline-none font-mono ${
                           isLight
                             ? 'bg-slate-50 border-slate-200 text-slate-900 focus:border-red-500'
@@ -595,10 +595,10 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                               <span className="text-[10px] text-slate-400 block">{tx.hash}</span>
                             </td>
                             <td className="py-3.5 pr-4 font-sans font-medium text-slate-800 dark:text-slate-200">
-                              {lang === 'arak' ? tx.titleMm : tx.title}
+                              {lang === 'ak' ? tx.titleMm : tx.title}
                             </td>
                             <td className="py-3.5 pr-4 text-slate-500 dark:text-slate-400 font-sans">
-                              {lang === 'arak' ? tx.counterpartyMm : tx.counterparty}
+                              {lang === 'ak' ? tx.counterpartyMm : tx.counterparty}
                             </td>
                             <td className="py-3.5 pr-4 text-slate-500 dark:text-slate-400">
                               {tx.time}
@@ -634,7 +634,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h2 className="text-xl font-bold font-sans">
-                      {lang === 'arak' ? 'အာရက္ခဒေါ်လာ တိုက်ရိုက်ငွေလွှဲခြင်း' : 'Direct Arakan Dollar Transfer'}
+                      {lang === 'ak' ? 'အာရက္ခဒေါ်လာ တိုက်ရိုက်ငွေလွှဲခြင်း' : 'Direct Arakan Dollar Transfer'}
                     </h2>
                     <p className="text-xs text-slate-400 font-mono mt-1">
                       Zero fee · Settles within 250ms via Arakan Double-Entry Core
@@ -646,7 +646,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                 <form onSubmit={handleExecuteSend} className="space-y-5">
                   <div>
                     <label className="block text-xs font-mono uppercase tracking-wider text-slate-500 mb-2">
-                      {lang === 'arak' ? 'လက်ခံသူ ဖုန်းနံပါတ် သို့မဟုတ် PeThar ID' : 'Recipient Phone Number or PeThar ID'}
+                      {lang === 'ak' ? 'လက်ခံသူ ဖုန်းနံပါတ် သို့မဟုတ် PeThar ID' : 'Recipient Phone Number or PeThar ID'}
                     </label>
                     <input
                       type="text"
@@ -664,7 +664,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
 
                   <div>
                     <label className="block text-xs font-mono uppercase tracking-wider text-slate-500 mb-2">
-                      {lang === 'arak' ? 'ငွေလွှဲမည့်ပမာဏ (AKD / ₳)' : 'Transfer Amount (AKD / ₳)'}
+                      {lang === 'ak' ? 'ငွေလွှဲမည့်ပမာဏ (AKD / ₳)' : 'Transfer Amount (AKD / ₳)'}
                     </label>
                     <div className="relative">
                       <input
@@ -688,7 +688,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
 
                   <div>
                     <label className="block text-xs font-mono uppercase tracking-wider text-slate-500 mb-2">
-                      {lang === 'arak' ? 'မှတ်စု (ရွေးချယ်ရန်)' : 'Transaction Memo (Optional)'}
+                      {lang === 'ak' ? 'မှတ်စု (ရွေးချယ်ရန်)' : 'Transaction Memo (Optional)'}
                     </label>
                     <input
                       type="text"
@@ -723,7 +723,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                   >
                     {isSending
                       ? 'Signing Ed25519 Cryptographic Authorization...'
-                      : lang === 'arak'
+                      : lang === 'ak'
                       ? 'ငွေလွှဲချက် အတည်ပြုမည်'
                       : 'Authorize & Settle Transfer'}
                   </button>
@@ -750,7 +750,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                 <div className="flex items-center gap-3 mb-2">
                   <Globe className="text-amber-400" size={24} />
                   <h2 className="text-xl font-bold font-sans">
-                    {lang === 'arak' ? 'နိုင်ငံတကာ ငွေလွှဲစင်္ကြံများ' : 'Global Remittance Corridors'}
+                    {lang === 'ak' ? 'နိုင်ငံတကာ ငွေလွှဲစင်္ကြံများ' : 'Global Remittance Corridors'}
                   </h2>
                 </div>
                 <p className="text-xs text-slate-400 font-mono mb-8">
@@ -800,7 +800,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                 } shadow-xl`}
               >
                 <h2 className="text-xl font-bold font-sans mb-1">
-                  {lang === 'arak' ? 'ဖေ့သာ နိုင်ငံတကာ ဒစ်ဂျစ်တယ်ဒက်ဘစ်ကတ်' : 'PeThar Multi-Currency Debit Card'}
+                  {lang === 'ak' ? 'ဖေ့သာ နိုင်ငံတကာ ဒစ်ဂျစ်တယ်ဒက်ဘစ်ကတ်' : 'PeThar Multi-Currency Debit Card'}
                 </h2>
                 <p className="text-xs text-slate-400 font-mono mb-6">
                   Virtual Visa Debit with instant freeze and dynamic 3D-Secure
@@ -866,7 +866,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                 <div className="flex items-center gap-3 mb-2">
                   <Coins className="text-amber-400" size={24} />
                   <h2 className="text-xl font-bold font-sans">
-                    {lang === 'arak' ? 'အာမခံဘဏ္ဍာတိုက်နှင့် အရန်ငွေကြေး ပွင့်လင်းမြင်သာမှု' : '105% Liquid Reserve Transparency'}
+                    {lang === 'ak' ? 'အာမခံဘဏ္ဍာတိုက်နှင့် အရန်ငွေကြေး ပွင့်လင်းမြင်သာမှု' : '105% Liquid Reserve Transparency'}
                   </h2>
                 </div>
                 <p className="text-xs text-slate-400 font-mono mb-8">
@@ -916,7 +916,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                 } shadow-xl space-y-6`}
               >
                 <h2 className="text-xl font-bold font-sans">
-                  {lang === 'arak' ? 'အကောင့်ဆက်တင်နှင့် လုံခြုံရေး' : 'Security & Account Governance'}
+                  {lang === 'ak' ? 'အကောင့်ဆက်တင်နှင့် လုံခြုံရေး' : 'Security & Account Governance'}
                 </h2>
 
                 <div className="space-y-4">
@@ -924,9 +924,9 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                     isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/[0.02] border-white/10'
                   }`}>
                     <div>
-                      <div className="font-bold text-sm">{lang === 'arak' ? 'အရေးပေါ် Panic PIN' : 'Emergency Duress / Panic PIN'}</div>
+                      <div className="font-bold text-sm">{lang === 'ak' ? 'အရေးပေါ် Panic PIN' : 'Emergency Duress / Panic PIN'}</div>
                       <div className="text-xs text-slate-400 mt-0.5">
-                        {lang === 'arak' ? 'အတင်းအဓမ္မ ဖိအားပေးခံရချိန်တွင် ရိုက်ထည့်ရန် (၉၉၉၉၉၉)' : 'Configure silent distress broadcast pin (default: 999999)'}
+                        {lang === 'ak' ? 'အတင်းအဓမ္မ ဖိအားပေးခံရချိန်တွင် ရိုက်ထည့်ရန် (၉၉၉၉၉၉)' : 'Configure silent distress broadcast pin (default: 999999)'}
                       </div>
                     </div>
                     <span className="text-xs font-mono text-amber-400 font-bold">CONFIGURED</span>
@@ -936,9 +936,9 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                     isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/[0.02] border-white/10'
                   }`}>
                     <div>
-                      <div className="font-bold text-sm">{lang === 'arak' ? 'အဆင့်နှစ်ဆင့် အတည်ပြုမှု (2FA)' : 'Hardware Keystore / 2FA'}</div>
+                      <div className="font-bold text-sm">{lang === 'ak' ? 'အဆင့်နှစ်ဆင့် အတည်ပြုမှု (2FA)' : 'Hardware Keystore / 2FA'}</div>
                       <div className="text-xs text-slate-400 mt-0.5">
-                        {lang === 'arak' ? 'Ed25519 Secure Enclave ဖြင့် အတည်ပြုခြင်း' : 'Ed25519 signature validation on all outward transfers'}
+                        {lang === 'ak' ? 'Ed25519 Secure Enclave ဖြင့် အတည်ပြုခြင်း' : 'Ed25519 signature validation on all outward transfers'}
                       </div>
                     </div>
                     <span className="text-xs font-mono text-emerald-400 font-bold">ACTIVE</span>
@@ -948,9 +948,9 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                     isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/[0.02] border-white/10'
                   }`}>
                     <div>
-                      <div className="font-bold text-sm">{lang === 'arak' ? 'အော့ဖ်လိုင်းဘောက်ချာ လုံခြုံရေး' : 'Offline Mesh Voucher Cache'}</div>
+                      <div className="font-bold text-sm">{lang === 'ak' ? 'အော့ဖ်လိုင်းဘောက်ချာ လုံခြုံရေး' : 'Offline Mesh Voucher Cache'}</div>
                       <div className="text-xs text-slate-400 mt-0.5">
-                        {lang === 'arak' ? 'ဖုန်းလိုင်းပြတ်တောက်ချိန်တွင် လွှဲပြောင်းနိုင်မှု' : 'Local encrypted buffer for blackout resilient transactions'}
+                        {lang === 'ak' ? 'ဖုန်းလိုင်းပြတ်တောက်ချိန်တွင် လွှဲပြောင်းနိုင်မှု' : 'Local encrypted buffer for blackout resilient transactions'}
                       </div>
                     </div>
                     <span className="text-xs font-mono text-emerald-400 font-bold">ENABLED</span>
@@ -1073,7 +1073,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-bold font-sans mb-1">
-              {lang === 'arak' ? 'USDT တိုက်ရိုက်ငွေသွင်းရန်' : 'Deposit USDT (TRC-20 / TON)'}
+              {lang === 'ak' ? 'USDT တိုက်ရိုက်ငွေသွင်းရန်' : 'Deposit USDT (TRC-20 / TON)'}
             </h3>
             <p className="text-xs text-slate-400 font-mono mb-4">1 USDT = 1.00 AKD (Zero Slippage)</p>
 

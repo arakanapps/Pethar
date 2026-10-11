@@ -6,7 +6,7 @@ enum Screen { home, account, services, settings, send, receive, scan, cashout, i
 class AppState extends ChangeNotifier {
   Screen currentScreen = Screen.home;
   List<Screen> navigationStack = [Screen.home];
-  String language = 'arak'; // Default Arakanese as in user flow
+  String language = 'ak'; // Default Arakanese (ak)
   ThemeMode themeMode = ThemeMode.dark;
   UserProfile profile = initialUserProfile;
   WalletBalance wallet = akdWallet;

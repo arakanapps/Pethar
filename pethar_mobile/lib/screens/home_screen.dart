@@ -38,12 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              lang == 'arak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of PeThar?',
+              lang == 'ak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of PeThar?',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
             ),
             const SizedBox(height: 8),
             Text(
-              lang == 'arak'
+              lang == 'ak'
                   ? 'လုံခြုံရေးအရ သင်၏ စက်တွင်း session အား ပိတ်သိမ်းပါမည်။'
                   : 'Your active session will be ended securely.',
               style: TextStyle(fontSize: 12, color: Colors.grey[400]),
@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       side: const BorderSide(color: Colors.white24),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: Text(lang == 'arak' ? 'မထွက်ပါ' : 'Cancel'),
+                    child: Text(lang == 'ak' ? 'မထွက်ပါ' : 'Cancel'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(lang == 'arak' ? 'အကောင့်ထွက်ပြီးပါပြီ' : 'Logged out securely'),
+                          content: Text(lang == 'ak' ? 'အကောင့်ထွက်ပြီးပါပြီ' : 'Logged out securely'),
                           backgroundColor: crimson,
                           behavior: SnackBarBehavior.floating,
                         ),
@@ -80,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       backgroundColor: crimson,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: Text(lang == 'arak' ? 'ထွက်မည်' : 'Log Out'),
+                    child: Text(lang == 'ak' ? 'ထွက်မည်' : 'Log Out'),
                   ),
                 ),
               ],
@@ -100,56 +100,56 @@ class _HomeScreenState extends State<HomeScreen> {
     final quickServices = [
       {
         'id': Screen.send,
-        'label': lang == 'arak' ? 'ငွေလွှဲ' : 'Transfer',
+        'label': lang == 'ak' ? 'ငွေလွှဲ' : 'Transfer',
         'icon': Icons.arrow_outward,
         'color': Colors.blue.withOpacity(0.2),
         'iconColor': Colors.blueAccent,
       },
       {
         'id': Screen.intl,
-        'label': lang == 'arak' ? 'ငွေဖြည့်' : 'Top Up',
+        'label': lang == 'ak' ? 'ငွေဖြည့်' : 'Top Up',
         'icon': Icons.add,
         'color': Colors.amber.withOpacity(0.2),
         'iconColor': gold,
       },
       {
         'id': Screen.pos,
-        'label': lang == 'arak' ? 'ဘေလ်ဆောင်' : 'Pay Bills',
+        'label': lang == 'ak' ? 'ဘေလ်ဆောင်' : 'Pay Bills',
         'icon': Icons.receipt,
         'color': Colors.red.withOpacity(0.2),
         'iconColor': Colors.redAccent,
       },
       {
         'id': Screen.cashout,
-        'label': lang == 'arak' ? 'ငွေသားထုတ်' : 'Cash Out',
+        'label': lang == 'ak' ? 'ငွေသားထုတ်' : 'Cash Out',
         'icon': Icons.store,
         'color': emeraldSuccess.withOpacity(0.2),
         'iconColor': emeraldSuccess,
       },
       {
         'id': Screen.crypto,
-        'label': lang == 'arak' ? 'ဒင်္ဂါးဘဏ္ဍာ' : 'Crypto Vault',
+        'label': lang == 'ak' ? 'ဒင်္ဂါးဘဏ္ဍာ' : 'Crypto Vault',
         'icon': Icons.currency_bitcoin,
         'color': Colors.purple.withOpacity(0.2),
         'iconColor': Colors.purpleAccent,
       },
       {
         'id': Screen.account,
-        'label': lang == 'arak' ? 'ငွေစာရင်း' : 'Account',
+        'label': lang == 'ak' ? 'ငွေစာရင်း' : 'Account',
         'icon': Icons.account_balance_wallet,
         'color': Colors.cyan.withOpacity(0.2),
         'iconColor': Colors.cyanAccent,
       },
       {
         'id': Screen.offlinePayment,
-        'label': lang == 'arak' ? 'အော့ဖ်လိုင်း' : 'Offline NFC',
+        'label': lang == 'ak' ? 'အော့ဖ်လိုင်း' : 'Offline NFC',
         'icon': Icons.contactless,
         'color': cyanNeon.withOpacity(0.2),
         'iconColor': cyanNeon,
       },
       {
         'id': Screen.receive,
-        'label': lang == 'arak' ? 'မိမိ QR' : 'My QR',
+        'label': lang == 'ak' ? 'မိမိ QR' : 'My QR',
         'icon': Icons.qr_code,
         'color': Colors.pink.withOpacity(0.2),
         'iconColor': Colors.pinkAccent,
@@ -257,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        lang == 'arak' ? appState.wallet.labelMm : appState.wallet.labelEn,
+                        lang == 'ak' ? appState.wallet.labelMm : appState.wallet.labelEn,
                         style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 11),
                       ),
                       const SizedBox(width: 6),
@@ -307,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '${lang == 'arak' ? appState.wallet.totalLabelMm : appState.wallet.totalLabelEn}: ',
+                        '${lang == 'ak' ? appState.wallet.totalLabelMm : appState.wallet.totalLabelEn}: ',
                         style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11),
                       ),
                       Text(
@@ -324,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (!appState.balanceHidden && appState.wallet.pendingBalance > 0) ...[
                         const SizedBox(width: 4),
                         Text(
-                          '(${lang == 'arak' ? 'စောင့်ဆိုင်းဆဲ' : 'incl. pending'} ₳ ${appState.wallet.pendingBalance.toStringAsFixed(2)})',
+                          '(${lang == 'ak' ? 'စောင့်ဆိုင်းဆဲ' : 'incl. pending'} ₳ ${appState.wallet.pendingBalance.toStringAsFixed(2)})',
                           style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10),
                         ),
                       ],
@@ -354,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            lang == 'arak' ? 'အာရက္ခဗဟိုဘဏ် အသိပေးချက်' : 'Bank of Arakan Notice',
+                            lang == 'ak' ? 'အာရက္ခဗဟိုဘဏ် အသိပေးချက်' : 'Bank of Arakan Notice',
                             style: const TextStyle(
                               color: gold,
                               fontWeight: FontWeight.bold,
@@ -363,7 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            lang == 'arak'
+                            lang == 'ak'
                                 ? 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀-၀၆:၀၀ တွင် စာရင်းစနစ် အဆင့်မြှင့်ပါမည်။ အော့ဖ်လိုင်းဘောက်ချာများ အသုံးပြုနိုင်ပါသည်။'
                                 : 'PeThar will undergo an Arakan ledger upgrade on 24 Sep 2026. Offline vouchers remain active.',
                             style: TextStyle(
@@ -451,7 +451,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        lang == 'arak' ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favorites',
+                        lang == 'ak' ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favorites',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -461,7 +461,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       GestureDetector(
                         onTap: () => appState.navigate(Screen.send),
                         child: Text(
-                          lang == 'arak' ? 'အားလုံး' : 'View all',
+                          lang == 'ak' ? 'အားလုံး' : 'View all',
                           style: const TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -513,7 +513,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   SizedBox(
                                     width: 60,
                                     child: Text(
-                                      lang == 'arak' ? fav.mm : fav.name,
+                                      lang == 'ak' ? fav.mm : fav.name,
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w600,
@@ -610,7 +610,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  lang == 'arak' ? t.titleMm : t.title,
+                                  lang == 'ak' ? t.titleMm : t.title,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,

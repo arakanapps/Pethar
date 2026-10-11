@@ -71,7 +71,7 @@ class _IntlScreenState extends State<IntlScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              lang == 'arak' ? 'ငွေလွှဲပေးပို့မည့် နိုင်ငံနှင့် ငွေကြေး' : 'Select Remittance Corridor',
+              lang == 'ak' ? 'ငွေလွှဲပေးပို့မည့် နိုင်ငံနှင့် ငွေကြေး' : 'Select Remittance Corridor',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -112,7 +112,7 @@ class _IntlScreenState extends State<IntlScreen> {
             ),
             const SizedBox(height: 18),
             Text(
-              '${lang == 'arak' ? 'နိုင်ငံခြားငွေပမာဏ' : 'Foreign Amount'} ($_selectedCorridor)',
+              '${lang == 'ak' ? 'နိုင်ငံခြားငွေပမာဏ' : 'Foreign Amount'} ($_selectedCorridor)',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -144,7 +144,7 @@ class _IntlScreenState extends State<IntlScreen> {
               child: Column(
                 children: [
                   Text(
-                    lang == 'arak' ? 'ရရှိမည့် အာရက္ခဒေါ်လာ (AKD)' : 'Estimated Arakan Dollar (AKD)',
+                    lang == 'ak' ? 'ရရှိမည့် အာရက္ခဒေါ်လာ (AKD)' : 'Estimated Arakan Dollar (AKD)',
                     style: TextStyle(color: Colors.grey[500], fontSize: 11),
                   ),
                   const SizedBox(height: 6),
@@ -174,7 +174,7 @@ class _IntlScreenState extends State<IntlScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        lang == 'arak'
+                        lang == 'ak'
                             ? 'Wise နိုင်ငံတကာငွေလွှဲစနစ် စတင်လုပ်ဆောင်နေပါသည်...'
                             : 'Initiated Wise Global Remittance...',
                       ),
@@ -189,7 +189,7 @@ class _IntlScreenState extends State<IntlScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 child: Text(
-                  lang == 'arak' ? 'ငွေလွှဲအတည်ပြုမည်' : 'Confirm Global Remittance',
+                  lang == 'ak' ? 'ငွေလွှဲအတည်ပြုမည်' : 'Confirm Global Remittance',
                   style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),

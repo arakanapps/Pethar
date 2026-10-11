@@ -40,9 +40,9 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
     final lang = appState.language;
 
     final tabs = [
-      {'label': lang == 'arak' ? 'စကင်ဖတ်' : 'Scan', 'icon': Icons.qr_code_scanner},
-      {'label': lang == 'arak' ? 'မိမိ QR' : 'My QR', 'icon': Icons.qr_code},
-      {'label': lang == 'arak' ? 'QR ဖြင့် ငွေပေးချေ' : 'QR to Pay', 'icon': Icons.payment},
+      {'label': lang == 'ak' ? 'စကင်ဖတ်' : 'Scan', 'icon': Icons.qr_code_scanner},
+      {'label': lang == 'ak' ? 'မိမိ QR' : 'My QR', 'icon': Icons.qr_code},
+      {'label': lang == 'ak' ? 'QR ဖြင့် ငွေပေးချေ' : 'QR to Pay', 'icon': Icons.payment},
     ];
 
     return Scaffold(
@@ -129,7 +129,7 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      lang == 'arak'
+                      lang == 'ak'
                           ? 'ငွေပေးချေရန်၊ ငွေလွှဲရန် သို့မဟုတ် ငွေထုတ်ရန်သာ စကင်ဖတ်ပါ။'
                           : 'Scan to pay, transfer, or withdraw only.',
                       style: const TextStyle(color: goldLight, fontSize: 10, height: 1.3),
@@ -264,7 +264,7 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(lang == 'arak' ? 'ပုံပြခန်းမှ QR ရွေးပါ' : 'Select QR from Gallery'),
+                                content: Text(lang == 'ak' ? 'ပုံပြခန်းမှ QR ရွေးပါ' : 'Select QR from Gallery'),
                                 behavior: SnackBarBehavior.floating,
                               ),
                             );

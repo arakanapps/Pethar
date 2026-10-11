@@ -17,7 +17,7 @@ class AccountScreen extends StatelessWidget {
       backgroundColor: isDark ? obsidian : paper,
       appBar: AppBar(
         title: Text(
-          lang == 'arak' ? 'မိမိ ငွေစာရင်းများနှင့် ကတ်များ' : 'My Accounts & Cards',
+          lang == 'ak' ? 'မိမိ ငွေစာရင်းများနှင့် ကတ်များ' : 'My Accounts & Cards',
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         backgroundColor: isDark ? surfaceDark : Colors.white,
@@ -59,7 +59,7 @@ class AccountScreen extends StatelessWidget {
                           const Icon(Icons.account_balance_wallet, size: 16, color: gold),
                           const SizedBox(width: 8),
                           Text(
-                            lang == 'arak' ? 'အာရက္ခဒေါ်လာ အဓိကစာရင်း' : 'Arakan Dollar Account',
+                            lang == 'ak' ? 'အာရက္ခဒေါ်လာ အဓိကစာရင်း' : 'Arakan Dollar Account',
                             style: const TextStyle(color: goldLight, fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                         ],
@@ -116,7 +116,7 @@ class AccountScreen extends StatelessWidget {
                           onPressed: () => appState.navigate(Screen.send),
                           icon: const Icon(Icons.arrow_outward, size: 16, color: Colors.black),
                           label: Text(
-                            lang == 'arak' ? 'ငွေလွှဲမည်' : 'Send Money',
+                            lang == 'ak' ? 'ငွေလွှဲမည်' : 'Send Money',
                             style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                           style: ElevatedButton.styleFrom(
@@ -132,7 +132,7 @@ class AccountScreen extends StatelessWidget {
                           onPressed: () => appState.navigate(Screen.receive),
                           icon: const Icon(Icons.arrow_downward, size: 16, color: Colors.white),
                           label: Text(
-                            lang == 'arak' ? 'ငွေလက်ခံမည်' : 'Deposit',
+                            lang == 'ak' ? 'ငွေလက်ခံမည်' : 'Deposit',
                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -159,7 +159,7 @@ class AccountScreen extends StatelessWidget {
                     const Icon(Icons.credit_card, size: 16, color: gold),
                     const SizedBox(width: 8),
                     Text(
-                      lang == 'arak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar Debit Card',
+                      lang == 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar Debit Card',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -359,7 +359,7 @@ class AccountScreen extends StatelessWidget {
 
             // ── Recent Activity ──────────────────────────────────────────
             Text(
-              lang == 'arak' ? 'လတ်တလော ငွေစာရင်းမှတ်တမ်း' : 'Recent Transactions',
+              lang == 'ak' ? 'လတ်တလော ငွေစာရင်းမှတ်တမ်း' : 'Recent Transactions',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -398,7 +398,7 @@ class AccountScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            lang == 'arak' ? tx.titleMm : tx.title,
+                            lang == 'ak' ? tx.titleMm : tx.title,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 12,

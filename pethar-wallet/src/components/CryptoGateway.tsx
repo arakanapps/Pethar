@@ -78,7 +78,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            {lang === 'arak' ? 'ဒေါ်လာလဲလှယ်' : 'Dollar Swap'}
+            {lang === 'ak' ? 'ဒေါ်လာလဲလှယ်' : 'Dollar Swap'}
           </button>
           <button
             onClick={() => setActiveTab('deposit')}
@@ -88,7 +88,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            {lang === 'arak' ? 'USDT သွင်းရန်' : 'Deposit USDT'}
+            {lang === 'ak' ? 'USDT သွင်းရန်' : 'Deposit USDT'}
           </button>
           <button
             onClick={() => setActiveTab('exchanges')}
@@ -98,7 +98,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            {lang === 'arak' ? 'Binance / MEXC' : 'Binance/MEXC'}
+            {lang === 'ak' ? 'Binance / MEXC' : 'Binance/MEXC'}
           </button>
           <button
             onClick={() => setActiveTab('por')}
@@ -108,7 +108,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            {lang === 'arak' ? 'အာမခံစစ်ဆေး' : 'Reserves PoR'}
+            {lang === 'ak' ? 'အာမခံစစ်ဆေး' : 'Reserves PoR'}
           </button>
         </div>
       </div>
@@ -120,7 +120,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
             <div className="p-4 rounded-2xl bg-[#131B26] border border-[#283852] space-y-4">
               <div className="flex items-center justify-between text-xs text-gray-400">
                 <span className="font-medium">
-                  {lang === 'arak' ? 'တိုက်ရိုက် လဲလှယ်မှုစနစ်' : 'Zero-Slippage Dollar Swap'}
+                  {lang === 'ak' ? 'တိုက်ရိုက် လဲလှယ်မှုစနစ်' : 'Zero-Slippage Dollar Swap'}
                 </span>
                 <span className="text-amber-400 font-bold flex items-center gap-1">
                   <Sparkles size={12} />
@@ -185,12 +185,12 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 {isSwapping ? (
                   <>
                     <RefreshCw size={14} className="animate-spin" />
-                    {lang === 'arak' ? 'ချက်ချင်းလဲလှယ်နေပါသည်...' : 'Executing Dollar Settlement...'}
+                    {lang === 'ak' ? 'ချက်ချင်းလဲလှယ်နေပါသည်...' : 'Executing Dollar Settlement...'}
                   </>
                 ) : (
                   <>
                     <Coins size={14} />
-                    {lang === 'arak' ? 'ချက်ချင်း အာရက္ခဒေါ်လာသို့ လဲလှယ်ရန်' : 'Execute Instant 1:1 Swap'}
+                    {lang === 'ak' ? 'ချက်ချင်း အာရက္ခဒေါ်လာသို့ လဲလှယ်ရန်' : 'Execute Instant 1:1 Swap'}
                   </>
                 )}
               </button>
@@ -199,7 +199,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 <div className="p-2.5 rounded-xl bg-emerald-950/50 border border-emerald-700/50 text-emerald-300 text-xs flex items-center gap-2">
                   <Check size={14} className="text-emerald-400" />
                   <span>
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? `${swapAmount} USDT မှ ${swapAmount} ₳ သို့ အောင်မြင်စွာ လဲလှယ်ပြီးပါပြီ!`
                       : `Successfully swapped ${swapAmount} USDT to ${swapAmount} ₳ at 1:1 parity!`}
                   </span>
@@ -215,7 +215,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
             <div className="p-4 rounded-2xl bg-[#131B26] border border-[#283852] space-y-4">
               <div>
                 <label className="text-xs text-gray-400 block mb-1.5 font-medium">
-                  {lang === 'arak' ? 'ကွန်ရက် (Network / Chain) ရွေးချယ်ပါ' : 'Select Network / Chain'}
+                  {lang === 'ak' ? 'ကွန်ရက် (Network / Chain) ရွေးချယ်ပါ' : 'Select Network / Chain'}
                 </label>
                 <div className="grid grid-cols-4 gap-1.5">
                   {(['TRC20', 'ERC20', 'TON', 'POLYGON'] as const).map((chain) => (
@@ -242,7 +242,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
 
                 <div className="w-full mt-4 space-y-2">
                   <div className="text-[10px] text-gray-400 text-center font-medium">
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? `သင်၏ PeThar ${selectedChain} USDT ငွေသွင်းလိပ်စာ`
                       : `Your Verified PeThar ${selectedChain} USDT Vault Address`}
                   </div>
@@ -256,8 +256,8 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                   >
                     {copiedField === 'addr' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                     {copiedField === 'addr'
-                      ? (lang === 'arak' ? 'လိပ်စာ ကူးယူပြီး' : 'Address Copied')
-                      : (lang === 'arak' ? 'လိပ်စာ ကူးယူရန်' : 'Copy Vault Address')}
+                      ? (lang === 'ak' ? 'လိပ်စာ ကူးယူပြီး' : 'Address Copied')
+                      : (lang === 'ak' ? 'လိပ်စာ ကူးယူရန်' : 'Copy Vault Address')}
                   </button>
                 </div>
               </div>
@@ -303,7 +303,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 className="w-full py-2 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-black flex items-center justify-center gap-1.5 transition"
               >
                 <ExternalLink size={13} />
-                {lang === 'arak' ? 'Binance Pay မှ တိုက်ရိုက်သွင်းရန်' : 'Deposit via Binance App'}
+                {lang === 'ak' ? 'Binance Pay မှ တိုက်ရိုက်သွင်းရန်' : 'Deposit via Binance App'}
               </button>
             </div>
 
@@ -342,7 +342,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 className="w-full py-2 rounded-xl text-xs font-bold bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center gap-1.5 transition"
               >
                 <ExternalLink size={13} />
-                {lang === 'arak' ? 'MEXC မှ ငွေလွှဲလက်ခံရန်' : 'Bridge from MEXC'}
+                {lang === 'ak' ? 'MEXC မှ ငွေလွှဲလက်ခံရန်' : 'Bridge from MEXC'}
               </button>
             </div>
           </div>
@@ -359,7 +359,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                     {t.cryptoProofOfReserves}
                   </h3>
                   <p className="text-[11px] text-gray-400 mt-0.5">
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? 'လွတ်လပ်သော နိုင်ငံတကာ စာရင်းစစ်အဖွဲ့မှ တိုက်ရိုက်စစ်ဆေးမှု'
                       : 'Real-time cryptographic audit backing all assets in circulation'}
                   </p>

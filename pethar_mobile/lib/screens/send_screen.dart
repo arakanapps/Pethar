@@ -193,7 +193,7 @@ class _SendScreenState extends State<SendScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              lang == 'arak' ? c.mm : c.name,
+                              lang == 'ak' ? c.mm : c.name,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -249,7 +249,7 @@ class _SendScreenState extends State<SendScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      lang == 'arak' ? (selectedContact?.mm ?? '') : (selectedContact?.name ?? ''),
+                      lang == 'ak' ? (selectedContact?.mm ?? '') : (selectedContact?.name ?? ''),
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                     Text(

@@ -140,7 +140,7 @@ class _CashOutScreenState extends State<CashOutScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      lang == 'arak' ? agt.mm : agt.name,
+                                      lang == 'ak' ? agt.mm : agt.name,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 13,
@@ -149,12 +149,12 @@ class _CashOutScreenState extends State<CashOutScreen> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      '${agt.code} • ${lang == 'arak' ? agt.townshipMm : agt.township}',
+                                      '${agt.code} • ${lang == 'ak' ? agt.townshipMm : agt.township}',
                                       style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      '${agt.distance} • ${lang == 'arak' ? agt.floatStatusMm : '${agt.floatStatus} Cash Float'}',
+                                      '${agt.distance} • ${lang == 'ak' ? agt.floatStatusMm : '${agt.floatStatus} Cash Float'}',
                                       style: const TextStyle(fontSize: 10, color: goldLight, fontFamily: 'monospace'),
                                     ),
                                   ],
@@ -187,7 +187,7 @@ class _CashOutScreenState extends State<CashOutScreen> {
                 child: Column(
                   children: [
                     Text(
-                      lang == 'arak' ? _selectedAgent!.mm : _selectedAgent!.name,
+                      lang == 'ak' ? _selectedAgent!.mm : _selectedAgent!.name,
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
@@ -234,7 +234,7 @@ class _CashOutScreenState extends State<CashOutScreen> {
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      lang == 'arak'
+                      lang == 'ak'
                           ? 'အေးဂျင့်ထံ ဤကုဒ်ပြသ၍ ငွေသားထုတ်ယူပါ။ တစ်ခါသုံးကုဒ်ဖြစ်သဖြင့် လုံခြုံစိတ်ချရပါသည်'
                           : 'Show dynamic code to agent counter to withdraw physical Arakan banknotes',
                       style: const TextStyle(color: Colors.white70, fontSize: 11, height: 1.4),
@@ -249,7 +249,7 @@ class _CashOutScreenState extends State<CashOutScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                lang == 'arak' ? 'ငွေသားထုတ်ယူမှု အောင်မြင်ပါသည်!' : 'Cash-out withdrawal settled!',
+                                lang == 'ak' ? 'ငွေသားထုတ်ယူမှု အောင်မြင်ပါသည်!' : 'Cash-out withdrawal settled!',
                               ),
                               backgroundColor: emeraldSuccess,
                               behavior: SnackBarBehavior.floating,
@@ -262,7 +262,7 @@ class _CashOutScreenState extends State<CashOutScreen> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
                         child: Text(
-                          lang == 'arak' ? 'ငွေသားလက်ခံရရှိပါပြီ' : 'Confirm Cash Received',
+                          lang == 'ak' ? 'ငွေသားလက်ခံရရှိပါပြီ' : 'Confirm Cash Received',
                           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
