@@ -23,7 +23,7 @@ dependencies:
   intl: ^0.20.3
 
   # ── Supabase (Backend) ──
-  supabase_flutter: ^2.8.4
+  supabase_flutter: ^2.18.2
 
   # ── Local Encrypted Storage ──
   # SQLCipher-backed SQLite for data-at-rest encryption
