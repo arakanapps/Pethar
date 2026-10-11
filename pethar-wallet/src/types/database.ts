@@ -1,0 +1,607 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
+export type Currency =
+  | 'AKD'
+  | 'USDT'
+  | 'USDC'
+  | 'USD'
+  | 'THB'
+  | 'MYR'
+  | 'SGD'
+  | 'EUR'
+  | 'BTC'
+  | 'ETH'
+  | 'MMK'
+  | 'PETHAR_UNIT';
+
+export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'FROZEN' | 'CLOSED';
+export type KycTier = 1 | 2 | 3;
+
+export type AccountType =
+  | 'USER_WALLET'
+  | 'AGENT_FLOAT'
+  | 'RESERVE_VAULT'
+  | 'FEE_INCOME'
+  | 'COMMISSION_PAYABLE'
+  | 'SUSPENSE';
+
+export type TransactionType =
+  | 'P2P_TRANSFER'
+  | 'CASH_IN'
+  | 'CASH_OUT'
+  | 'POS_CHECKOUT'
+  | 'CRYPTO_SWAP'
+  | 'BINANCE_PAY_DEPOSIT'
+  | 'MEXC_BRIDGE_DEPOSIT'
+  | 'WISE_REMITTANCE'
+  | 'CARD_TOPUP'
+  | 'COMMISSION_PAYOUT'
+  | 'OFFLINE_VOUCHER_ISSUE'
+  | 'OFFLINE_VOUCHER_REDEEM'
+  | 'REVERSAL'
+  | 'ADJUSTMENT'
+  | 'FX_CONVERSION';
+
+export type TransactionStatus = 'PENDING' | 'SETTLED' | 'FAILED';
+
+export type AgentStatus = 'ACTIVE' | 'SUSPENDED' | 'TERMINATED';
+
+export type OtpPurpose =
+  | 'CASH_IN'
+  | 'CASH_OUT'
+  | 'TRANSFER_CONFIRM'
+  | 'LOGIN'
+  | 'DEVICE_BINDING';
+
+export type OtpChannel = 'SMS' | 'PUSH' | 'TOTP';
+
+export type VoucherStatus = 'ISSUED' | 'REDEEMED' | 'EXPIRED' | 'VOID' | 'REVOKED';
+
+export type PosTerminalStatus = 'ACTIVE' | 'SUSPENDED' | 'DECOMMISSIONED';
+
+export type DefenseSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface Database {
+  public: {
+    Tables: {
+      users: {
+        Row: {
+          id: string;
+          phone_number: string;
+          full_name: string;
+          kyc_tier: KycTier;
+          status: UserStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          phone_number: string;
+          full_name: string;
+          kyc_tier?: KycTier;
+          status?: UserStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          phone_number?: string;
+          full_name?: string;
+          kyc_tier?: KycTier;
+          status?: UserStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      agents: {
+        Row: {
+          id: string;
+          user_id: string;
+          agent_code: string;
+          display_name: string;
+          commission_bps: number;
+          parent_agent_id: string | null;
+          status: AgentStatus;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          agent_code: string;
+          display_name: string;
+          commission_bps?: number;
+          parent_agent_id?: string | null;
+          status?: AgentStatus;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          agent_code?: string;
+          display_name?: string;
+          commission_bps?: number;
+          parent_agent_id?: string | null;
+          status?: AgentStatus;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'agents_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: true;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'agents_parent_agent_id_fkey';
+            columns: ['parent_agent_id'];
+            isOneToOne: false;
+            referencedRelation: 'agents';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      accounts: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          currency: Currency;
+          account_type: AccountType;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          currency: Currency;
+          account_type: AccountType;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          currency?: Currency;
+          account_type?: AccountType;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'accounts_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      transactions: {
+        Row: {
+          id: string;
+          reference_id: string;
+          transaction_type: TransactionType;
+          status: TransactionStatus;
+          reverses_transaction_id: string | null;
+          metadata: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          reference_id: string;
+          transaction_type: TransactionType;
+          status?: TransactionStatus;
+          reverses_transaction_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          reference_id?: string;
+          transaction_type?: TransactionType;
+          status?: TransactionStatus;
+          reverses_transaction_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'transactions_reverses_transaction_id_fkey';
+            columns: ['reverses_transaction_id'];
+            isOneToOne: false;
+            referencedRelation: 'transactions';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      ledger_entries: {
+        Row: {
+          id: string;
+          transaction_id: string;
+          account_id: string;
+          currency: Currency;
+          amount: number;
+          seq: number;
+          balance_after: number;
+          created_at: string;
+          chain_hash: string | null;
+        };
+        Insert: {
+          id?: string;
+          transaction_id: string;
+          account_id: string;
+          currency: Currency;
+          amount: number;
+          seq: number;
+          balance_after: number;
+          created_at?: string;
+          chain_hash?: string | null;
+        };
+        Update: {
+          id?: string;
+          transaction_id?: string;
+          account_id?: string;
+          currency?: Currency;
+          amount?: number;
+          seq?: number;
+          balance_after?: number;
+          created_at?: string;
+          chain_hash?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'ledger_entries_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'ledger_entries_transaction_id_fkey';
+            columns: ['transaction_id'];
+            isOneToOne: false;
+            referencedRelation: 'transactions';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      otp_challenges: {
+        Row: {
+          id: string;
+          user_id: string;
+          purpose: OtpPurpose;
+          code_hash: string;
+          channel: OtpChannel;
+          attempts: number;
+          max_attempts: number;
+          expires_at: string;
+          consumed_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          purpose: OtpPurpose;
+          code_hash: string;
+          channel?: OtpChannel;
+          attempts?: number;
+          max_attempts?: number;
+          expires_at: string;
+          consumed_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          purpose?: OtpPurpose;
+          code_hash?: string;
+          channel?: OtpChannel;
+          attempts?: number;
+          max_attempts?: number;
+          expires_at?: string;
+          consumed_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'otp_challenges_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      offline_vouchers: {
+        Row: {
+          id: string;
+          voucher_code: string;
+          owner_account_id: string;
+          agent_id: string | null;
+          currency: string;
+          amount: number;
+          issue_txn_id: string;
+          redeem_txn_id: string | null;
+          device_public_key: string;
+          payload_signature: string;
+          status: VoucherStatus;
+          issued_at: string;
+          expires_at: string;
+          redeemed_at: string | null;
+          offline_redeem_ref: string | null;
+        };
+        Insert: {
+          id?: string;
+          voucher_code: string;
+          owner_account_id: string;
+          agent_id?: string | null;
+          currency: string;
+          amount: number;
+          issue_txn_id: string;
+          redeem_txn_id?: string | null;
+          device_public_key: string;
+          payload_signature: string;
+          status?: VoucherStatus;
+          issued_at?: string;
+          expires_at: string;
+          redeemed_at?: string | null;
+          offline_redeem_ref?: string | null;
+        };
+        Update: {
+          id?: string;
+          voucher_code?: string;
+          owner_account_id?: string;
+          agent_id?: string | null;
+          currency?: string;
+          amount?: number;
+          issue_txn_id?: string;
+          redeem_txn_id?: string | null;
+          device_public_key?: string;
+          payload_signature?: string;
+          status?: VoucherStatus;
+          issued_at?: string;
+          expires_at?: string;
+          redeemed_at?: string | null;
+          offline_redeem_ref?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'offline_vouchers_owner_account_id_fkey';
+            columns: ['owner_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'offline_vouchers_agent_id_fkey';
+            columns: ['agent_id'];
+            isOneToOne: false;
+            referencedRelation: 'agents';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      fx_rates: {
+        Row: {
+          id: string;
+          base_currency: string;
+          quote_currency: string;
+          rate: number;
+          source: string;
+          spread_bps: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          base_currency: string;
+          quote_currency: string;
+          rate: number;
+          source: string;
+          spread_bps?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          base_currency?: string;
+          quote_currency?: string;
+          rate?: number;
+          source?: string;
+          spread_bps?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      pos_terminals: {
+        Row: {
+          id: string;
+          terminal_code: string;
+          merchant_user_id: string;
+          store_name: string;
+          store_name_mm: string | null;
+          township: string;
+          daily_sales_limit: number;
+          status: PosTerminalStatus;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          terminal_code: string;
+          merchant_user_id: string;
+          store_name: string;
+          store_name_mm?: string | null;
+          township: string;
+          daily_sales_limit?: number;
+          status?: PosTerminalStatus;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          terminal_code?: string;
+          merchant_user_id?: string;
+          store_name?: string;
+          store_name_mm?: string | null;
+          township?: string;
+          daily_sales_limit?: number;
+          status?: PosTerminalStatus;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'pos_terminals_merchant_user_id_fkey';
+            columns: ['merchant_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      fx_rate_board: {
+        Row: {
+          id: string;
+          pair: string;
+          rate: number;
+          spread_bps: number;
+          provider: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          pair: string;
+          rate: number;
+          spread_bps?: number;
+          provider?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          pair?: string;
+          rate?: number;
+          spread_bps?: number;
+          provider?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      offline_signed_vouchers: {
+        Row: {
+          id: string;
+          voucher_code: string;
+          issuer_account_id: string;
+          recipient_identifier: string;
+          amount: number;
+          currency: string;
+          ed25519_signature: string;
+          expires_at: string;
+          redeemed_at: string | null;
+          status: VoucherStatus;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          voucher_code: string;
+          issuer_account_id: string;
+          recipient_identifier: string;
+          amount: number;
+          currency?: string;
+          ed25519_signature: string;
+          expires_at: string;
+          redeemed_at?: string | null;
+          status?: VoucherStatus;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          voucher_code?: string;
+          issuer_account_id?: string;
+          recipient_identifier?: string;
+          amount?: number;
+          currency?: string;
+          ed25519_signature?: string;
+          expires_at?: string;
+          redeemed_at?: string | null;
+          status?: VoucherStatus;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'offline_signed_vouchers_issuer_account_id_fkey';
+            columns: ['issuer_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      cyber_defense_events: {
+        Row: {
+          id: string;
+          event_type: string;
+          severity: DefenseSeverity;
+          ip_hash: string;
+          details: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_type: string;
+          severity: DefenseSeverity;
+          ip_hash: string;
+          details?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          event_type?: string;
+          severity?: DefenseSeverity;
+          ip_hash?: string;
+          details?: Json;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+    };
+    Views: {
+      account_balances: {
+        Row: {
+          account_id: string;
+          user_id: string | null;
+          currency: Currency;
+          account_type: AccountType;
+          balance: number;
+          last_seq: number;
+          as_of: string;
+        };
+      };
+    };
+    Functions: {
+      post_transaction: {
+        Args: {
+          p_reference_id: string;
+          p_transaction_type: TransactionType;
+          p_metadata?: Json;
+          p_entries?: { account_id: string; amount: string | number }[] | Json;
+        };
+        Returns: string;
+      };
+    };
+  };
+}
+
+export type User = Database['public']['Tables']['users']['Row'];
+export type Account = Database['public']['Tables']['accounts']['Row'];
+export type Transaction = Database['public']['Tables']['transactions']['Row'];
+export type LedgerEntry = Database['public']['Tables']['ledger_entries']['Row'];
+export type Agent = Database['public']['Tables']['agents']['Row'];
+export type OtpChallenge = Database['public']['Tables']['otp_challenges']['Row'];
+export type OfflineVoucher = Database['public']['Tables']['offline_vouchers']['Row'];
+export type FxRate = Database['public']['Tables']['fx_rates']['Row'];
+export type PosTerminal = Database['public']['Tables']['pos_terminals']['Row'];
+export type FxRateBoard = Database['public']['Tables']['fx_rate_board']['Row'];
+export type AccountBalance = Database['public']['Views']['account_balances']['Row'];

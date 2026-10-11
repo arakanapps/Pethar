@@ -1,15 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArakanEmblem, FlagArakan } from '../components/ArakanEmblem'
+import { ArakanEmblem, FlagArakan, FlagInternational } from '../components/ArakanEmblem'
+import type { Language } from '../i18n'
 import {
   Shield, Globe, Smartphone, Monitor, CreditCard,
   ArrowRight, Download, Apple, Eye, EyeOff, Lock,
   QrCode, TrendingUp, ChevronDown,
-  BadgeCheck, Fingerprint, Send, ArrowUpRight,
-  Menu, X, Sparkles, Building2, Store, Terminal, RefreshCw
+  BadgeCheck, Fingerprint, Send, Sun, Moon,
+  Menu, X, Sparkles, Building2, Store, Terminal, RefreshCw, CheckCircle, Play
 } from 'lucide-react'
 
 interface LandingPageProps {
-  onEnterApp: () => void
+  onEnterApp?: () => void
+  onOpenBanking?: () => void
+  lang?: Language
+  setLang?: (lang: Language) => void
+  theme?: 'dark' | 'light'
+  setTheme?: (theme: 'dark' | 'light') => void
 }
 
 /* ─── Animated Counter Hook ──────────────────────────────────────────── */
@@ -104,7 +110,15 @@ function Marquee({ children, speed = 35 }: { children: React.ReactNode; speed?: 
 /* ═══════════════════════════════════════════════════════════════════════
     MAIN NDS-STYLE LANDING PAGE
 ═══════════════════════════════════════════════════════════════════════ */
-export default function LandingPage({ onEnterApp }: LandingPageProps) {
+export default function LandingPage({
+  onEnterApp,
+  onOpenBanking,
+  lang = 'en',
+  setLang,
+  theme = 'dark',
+  setTheme,
+}: LandingPageProps) {
+  const handleOpenBanking = onOpenBanking || onEnterApp || (() => {})
   const [showLogin, setShowLogin] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [loginId, setLoginId] = useState('')
@@ -125,7 +139,7 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    onEnterApp()
+    handleOpenBanking()
   }
 
   const handleSubscribe = (e: React.FormEvent) => {
@@ -142,8 +156,10 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
     { label: '01 / Mission', href: '#mission' },
     { label: '02 / Architecture', href: '#architecture' },
     { label: '03 / Reserves', href: '#reserves' },
-    { label: '04 / Platforms', href: '#platforms' },
-    { label: '05 / Security', href: '#security' },
+    { label: '04 / App Features', href: '#showcase' },
+    { label: '05 / Platforms', href: '#platforms' },
+    { label: '06 / Download', href: '#download' },
+    { label: '07 / Security', href: '#security' },
   ]
 
   const stats = [
@@ -321,22 +337,59 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {/* Bilingual Switcher */}
+            {setLang && (
+              <div className="flex items-center border border-white/10 rounded-full p-0.5 bg-white/[0.04]">
+                <button
+                  onClick={() => setLang('arak')}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition ${
+                    lang === 'arak' ? 'bg-red-700 text-white shadow-sm' : 'text-white/40 hover:text-white'
+                  }`}
+                  title="ရခိုင်ဘာသာ"
+                >
+                  <FlagArakan size={13} />
+                  <span className="text-[11px] font-mono">ရခိုင်</span>
+                </button>
+                <button
+                  onClick={() => setLang('en')}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition ${
+                    lang === 'en' ? 'bg-blue-800 text-white shadow-sm' : 'text-white/40 hover:text-white'
+                  }`}
+                  title="English"
+                >
+                  <FlagInternational size={13} />
+                  <span className="text-[11px] font-mono">EN</span>
+                </button>
+              </div>
+            )}
+
+            {/* Theme Switcher */}
+            {setTheme && (
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2 rounded-full border border-white/10 bg-white/[0.04] text-white/60 hover:text-white transition"
+                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {theme === 'dark' ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-indigo-400" />}
+              </button>
+            )}
+
             <button
               onClick={() => setShowLogin(true)}
               className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-white/60 hover:text-white transition-colors px-3 py-2"
             >
               <Lock size={12} className="text-amber-400" />
-              <span>Portal Login</span>
+              <span>{lang === 'arak' ? 'အွန်လိုင်းဘဏ် ဝင်ရန်' : 'Online Banking'}</span>
             </button>
 
-            <button
-              onClick={onEnterApp}
+            <a
+              href="#download"
               className="pill-button px-5 py-2.5 text-xs font-semibold uppercase tracking-wider bg-white text-black hover:bg-neutral-200 flex items-center gap-1.5 shadow-lg shadow-white/5 active:scale-95"
             >
-              <span>Launch Wallet</span>
-              <ArrowUpRight size={14} />
-            </button>
+              <Download size={14} />
+              <span>{lang === 'arak' ? 'အက်ပ် ဒေါင်းလုဒ်' : 'Download App'}</span>
+            </a>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -366,14 +419,22 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
                 onClick={() => { setMobileMenuOpen(false); setShowLogin(true) }}
                 className="w-full py-3 text-center border border-white/10 rounded-xl text-white/80"
               >
-                Portal Login
+                {lang === 'arak' ? 'အွန်လိုင်းဘဏ် ဝင်ရန်' : 'Online Banking Login'}
               </button>
               <button
-                onClick={() => { setMobileMenuOpen(false); onEnterApp() }}
-                className="w-full py-3 text-center bg-white text-black font-semibold rounded-xl"
+                onClick={() => { setMobileMenuOpen(false); handleOpenBanking() }}
+                className="w-full py-3 text-center bg-gradient-to-r from-red-600 to-amber-600 text-white font-semibold rounded-xl"
               >
-                Open PeThar Wallet
+                {lang === 'arak' ? 'အွန်လိုင်းဘဏ် ဖွင့်လှစ်ရန်' : 'Open Online Banking'}
               </button>
+              <a
+                href="#download"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full py-3 text-center bg-white text-black font-semibold rounded-xl flex items-center justify-center gap-2"
+              >
+                <Download size={15} />
+                <span>{lang === 'arak' ? 'မိုဘိုင်းအက်ပ် ဒေါင်းလုဒ်' : 'Download Mobile App'}</span>
+              </a>
             </div>
           </div>
         )}
@@ -444,19 +505,19 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
           <RevealSection delay={400}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
               <button
-                onClick={onEnterApp}
+                onClick={handleOpenBanking}
                 className="pill-button px-8 py-4 text-sm font-semibold tracking-wider uppercase bg-white text-black hover:bg-neutral-100 flex items-center gap-3 shadow-2xl shadow-white/20 active:scale-95"
               >
-                <span>Launch Web Terminal</span>
+                <span>{lang === 'arak' ? 'အွန်လိုင်းဘဏ် ဖွင့်လှစ်ရန်' : 'Open Online Banking'}</span>
                 <ArrowRight size={16} />
               </button>
 
               <a
-                href="#platforms"
+                href="#download"
                 className="pill-button px-8 py-4 text-sm font-semibold tracking-wider uppercase border border-white/[0.14] bg-white/[0.03] text-white/80 hover:text-white hover:bg-white/[0.08] backdrop-blur-xl flex items-center gap-2.5"
               >
                 <Download size={16} className="text-white/50" />
-                <span>Get Mobile App</span>
+                <span>{lang === 'arak' ? 'မိုဘိုင်းအက်ပ် ဒေါင်းလုဒ်ရယူရန်' : 'Download Mobile App'}</span>
               </a>
             </div>
           </RevealSection>
@@ -968,7 +1029,7 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
               {
                 platform: 'iOS Application',
                 tag: 'iPhone & iPad',
-                desc: 'Apple Silicon optimized, Dynamic Island skin, Face ID authentication, and Secure Enclave storage.',
+                desc: 'Apple Silicon optimized, native iOS performance, Face ID authentication, and Secure Enclave hardware storage.',
                 icon: <Apple size={24} />,
                 accent: 'text-blue-400',
               },
@@ -1005,7 +1066,7 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
               <RevealSection key={p.platform} delay={i * 80}>
                 {p.isAction ? (
                   <button
-                    onClick={onEnterApp}
+                    onClick={handleOpenBanking}
                     className="hairline-card p-8 rounded-3xl text-left border-red-500/30 bg-red-950/[0.08] hover:bg-red-950/[0.16] hover:border-red-500/50 transition-all group flex flex-col justify-between h-full w-full"
                   >
                     <div>
@@ -1022,7 +1083,7 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
                       <p className="text-xs text-white/60 leading-relaxed">{p.desc}</p>
                     </div>
                     <div className="mt-8 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs font-mono text-white group-hover:text-amber-300 transition-colors">
-                      <span>OPEN WEB WALLET</span>
+                      <span>OPEN ONLINE BANKING</span>
                       <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     </div>
                   </button>
@@ -1050,6 +1111,351 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
               </RevealSection>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SECTION: MOBILE APP SCREENSHOTS & FEATURE SHOWCASE
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section id="showcase" className="py-28 bg-[#020407] relative overflow-hidden">
+        <div className="max-w-[1300px] mx-auto px-6 lg:px-12 relative z-10">
+          <RevealSection>
+            <div className="flex items-center gap-4 mb-4">
+              <span className="font-mono text-sm text-red-500 font-bold">V.</span>
+              <span className="font-mono text-xs uppercase tracking-[0.25em] text-white/40">Mobile App Interface</span>
+              <div className="flex-1 editorial-rule" />
+            </div>
+
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-bold tracking-tight mb-4">
+                Engineered for Simplicity & Speed.
+              </h2>
+              <p className="text-white/50 text-base">
+                Experience sovereign mobile banking built with native performance, offline resilience, and military-grade encryption.
+              </p>
+            </div>
+          </RevealSection>
+
+          {/* Screenshots Showcase Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Screenshot Card 1: P2P Transfers */}
+            <RevealSection delay={0}>
+              <div className="hairline-card rounded-3xl p-6 h-full flex flex-col justify-between group hover:border-red-500/40 transition-all">
+                <div>
+                  <div className="text-xs font-mono text-red-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                    <Send size={13} />
+                    <span>Instant P2P Rail</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Zero-Fee Transfers</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mb-6">
+                    Send Arakan Dollars instantly to any phone number or citizen ID across all 17 townships.
+                  </p>
+                </div>
+
+                {/* UI Preview Mockup */}
+                <div className="rounded-2xl bg-[#0B0F17] border border-white/10 p-4 space-y-3 shadow-xl">
+                  <div className="flex items-center justify-between text-[11px] font-mono border-b border-white/[0.06] pb-2">
+                    <span className="text-white/40">Transfer To</span>
+                    <span className="text-amber-400 font-bold">ARAK-8891</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 py-1">
+                    <div className="w-9 h-9 rounded-full bg-red-600/20 border border-red-500/30 flex items-center justify-center font-bold text-xs text-red-300">
+                      MA
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white">Ko Min Aung</div>
+                      <div className="text-[10px] text-white/40 font-mono">Sittwe Strand Road</div>
+                    </div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-between font-mono text-xs">
+                    <span className="text-white/50">Amount:</span>
+                    <span className="font-bold text-white text-sm">₳ 350.00</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] font-mono text-emerald-400">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle size={10} /> Free Network Transfer
+                    </span>
+                    <span>&lt; 250ms</span>
+                  </div>
+                </div>
+              </div>
+            </RevealSection>
+
+            {/* Screenshot Card 2: QR & Merchant POS */}
+            <RevealSection delay={80}>
+              <div className="hairline-card rounded-3xl p-6 h-full flex flex-col justify-between group hover:border-amber-500/40 transition-all">
+                <div>
+                  <div className="text-xs font-mono text-amber-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                    <QrCode size={13} />
+                    <span>ArakanPay QR</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Retail Checkout</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mb-6">
+                    Scan merchant counter QR codes instantly at groceries, solar vendors, and pharmacies.
+                  </p>
+                </div>
+
+                {/* UI Preview Mockup */}
+                <div className="rounded-2xl bg-[#0B0F17] border border-white/10 p-4 space-y-3 shadow-xl">
+                  <div className="flex items-center justify-between text-[11px] font-mono border-b border-white/[0.06] pb-2">
+                    <span className="text-white/40">Merchant Counter</span>
+                    <span className="text-emerald-400 font-bold">VERIFIED POS</span>
+                  </div>
+                  <div className="py-2 flex flex-col items-center justify-center">
+                    <div className="w-20 h-20 bg-white rounded-xl p-2 flex items-center justify-center shadow-lg">
+                      <QrCode size={64} className="text-black" />
+                    </div>
+                    <span className="text-[10px] font-mono text-white/60 mt-2">Mrauk-U Solar Supplies #04</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center font-mono">
+                    <span className="text-amber-300 font-bold text-xs">Due: ₳ 125.50</span>
+                  </div>
+                </div>
+              </div>
+            </RevealSection>
+
+            {/* Screenshot Card 3: Multi-Currency & USDT */}
+            <RevealSection delay={160}>
+              <div className="hairline-card rounded-3xl p-6 h-full flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
+                <div>
+                  <div className="text-xs font-mono text-emerald-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                    <Globe size={13} />
+                    <span>Global Corridors</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">USDT & Forex Bridge</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mb-6">
+                    Seamless bridge to Binance Pay, USDT (TRC-20), PromptPay (THB), and DuitNow (MYR).
+                  </p>
+                </div>
+
+                {/* UI Preview Mockup */}
+                <div className="rounded-2xl bg-[#0B0F17] border border-white/10 p-4 space-y-2.5 shadow-xl font-mono text-xs">
+                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+                    <span className="text-white/40">Exchange Pair</span>
+                    <span className="text-white/40">Live Rate</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="font-bold text-white">AKD / USD</span>
+                    <span className="text-emerald-400 font-bold">1.00 (Pegged)</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="font-bold text-white">AKD / USDT</span>
+                    <span className="text-emerald-400 font-bold">1.00 (0-fee)</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="font-bold text-white">AKD / THB</span>
+                    <span className="text-amber-400 font-bold">35.80 ฿</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-300 text-center">
+                    105% Audited Liquid Reserves
+                  </div>
+                </div>
+              </div>
+            </RevealSection>
+
+            {/* Screenshot Card 4: Blackout Mesh & Duress PIN */}
+            <RevealSection delay={240}>
+              <div className="hairline-card rounded-3xl p-6 h-full flex flex-col justify-between group hover:border-cyan-500/40 transition-all">
+                <div>
+                  <div className="text-xs font-mono text-cyan-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                    <Shield size={13} />
+                    <span>Blackout Mesh</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Offline Resilience</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mb-6">
+                    Transact even during cellular shutdowns with Ed25519 offline signed vouchers and Panic PIN 999999 decoy mode.
+                  </p>
+                </div>
+
+                {/* UI Preview Mockup */}
+                <div className="rounded-2xl bg-[#0B0F17] border border-white/10 p-4 space-y-3 shadow-xl font-mono text-xs">
+                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+                    <span className="text-cyan-400 font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                      MESH ACTIVE
+                    </span>
+                    <span className="text-white/40 text-[10px]">AIR-GAPPED</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05] space-y-1">
+                    <div className="text-[10px] text-white/40 uppercase">Signed Offline Voucher</div>
+                    <div className="text-white font-bold text-[11px] truncate">VOUCH-ARAK-2026-9041</div>
+                  </div>
+                  <div className="p-2 rounded-xl bg-red-600/10 border border-red-500/20 text-[10px] text-red-300 flex items-center justify-between">
+                    <span>Duress Decoy Guard</span>
+                    <span className="font-bold">ARMED</span>
+                  </div>
+                </div>
+              </div>
+            </RevealSection>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SECTION: OFFICIAL APP DOWNLOAD SUITE (Android / iOS Badges)
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section id="download" className="py-28 bg-[#04070C] border-y border-white/[0.06] relative">
+        <div className="max-w-[1300px] mx-auto px-6 lg:px-12 relative z-10">
+          <RevealSection>
+            <div className="flex items-center gap-4 mb-4">
+              <span className="font-mono text-sm text-red-500 font-bold">VI.</span>
+              <span className="font-mono text-xs uppercase tracking-[0.25em] text-white/40">Application Distribution</span>
+              <div className="flex-1 editorial-rule" />
+            </div>
+
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-bold tracking-tight mb-4">
+                Download PeThar Wallet
+              </h2>
+              <p className="text-white/50 text-base">
+                Secure your sovereign Arakan Dollars today. Available across iOS, Android, and Desktop Online Banking.
+              </p>
+            </div>
+          </RevealSection>
+
+          {/* Badges Container */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {/* 1. Apple App Store Badge */}
+            <RevealSection delay={0}>
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); alert('Apple App Store package: TestFlight / Direct IPA distribution active for Arakan citizens.') }}
+                className="p-6 rounded-3xl bg-[#090D14] border border-white/10 hover:border-white/30 hover:bg-white/[0.04] transition-all group flex flex-col justify-between h-full shadow-xl"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+                      <Apple size={28} />
+                    </div>
+                    <span className="font-mono text-[10px] text-white/40 px-2 py-0.5 rounded-full border border-white/10">
+                      iOS 16.0+
+                    </span>
+                  </div>
+                  <div className="text-[10px] font-mono text-white/50 uppercase tracking-wider">Download on the</div>
+                  <div className="text-xl font-bold text-white tracking-tight mt-0.5">Apple App Store</div>
+                  <p className="text-xs text-white/45 mt-3 leading-relaxed">
+                    Optimized for iPhone with Face ID biometric keystore and Secure Enclave authentication.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono text-white group-hover:text-amber-300">
+                  <span>GET FOR IPHONE</span>
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </a>
+            </RevealSection>
+
+            {/* 2. Google Play Store Badge */}
+            <RevealSection delay={80}>
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); alert('Google Play Store package: Arakan National Registry distribution active.') }}
+                className="p-6 rounded-3xl bg-[#090D14] border border-white/10 hover:border-white/30 hover:bg-white/[0.04] transition-all group flex flex-col justify-between h-full shadow-xl"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                      <Play size={24} className="fill-emerald-400" />
+                    </div>
+                    <span className="font-mono text-[10px] text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      Android 9.0+
+                    </span>
+                  </div>
+                  <div className="text-[10px] font-mono text-white/50 uppercase tracking-wider">GET IT ON</div>
+                  <div className="text-xl font-bold text-white tracking-tight mt-0.5">Google Play</div>
+                  <p className="text-xs text-white/45 mt-3 leading-relaxed">
+                    Native Material 3 design, fast camera QR scanner, and background blackout mesh sync.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono text-white group-hover:text-amber-300">
+                  <span>GET ON GOOGLE PLAY</span>
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </a>
+            </RevealSection>
+
+            {/* 3. Direct Android APK Badge */}
+            <RevealSection delay={160}>
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); alert('Direct APK download link initiated. SHA-256: 8f2a40b91c... authenticated by Arakan Security Enclave.') }}
+                className="p-6 rounded-3xl bg-[#090D14] border border-white/10 hover:border-white/30 hover:bg-white/[0.04] transition-all group flex flex-col justify-between h-full shadow-xl"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                      <Download size={24} />
+                    </div>
+                    <span className="font-mono text-[10px] text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20">
+                      v2.4.1 APK
+                    </span>
+                  </div>
+                  <div className="text-[10px] font-mono text-white/50 uppercase tracking-wider">Air-Gapped Install</div>
+                  <div className="text-xl font-bold text-white tracking-tight mt-0.5">Direct APK Download</div>
+                  <p className="text-xs text-white/45 mt-3 leading-relaxed">
+                    For devices without Google Services. Signed with sovereign PGP key and verifiable SHA-256 hash.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono text-white group-hover:text-amber-300">
+                  <span>DOWNLOAD APK</span>
+                  <Download size={14} className="group-hover:translate-y-0.5 transition-transform" />
+                </div>
+              </a>
+            </RevealSection>
+
+            {/* 4. Desktop Online Banking Badge */}
+            <RevealSection delay={240}>
+              <button
+                onClick={handleOpenBanking}
+                className="p-6 rounded-3xl bg-gradient-to-br from-red-950/30 via-[#0E121B] to-[#070A10] border border-red-500/30 hover:border-red-500/60 hover:bg-red-950/50 transition-all group flex flex-col justify-between h-full text-left shadow-xl"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="w-12 h-12 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-red-400">
+                      <Globe size={24} />
+                    </div>
+                    <span className="font-mono text-[10px] text-red-400 font-bold px-2 py-0.5 rounded-full border border-red-500/30">
+                      WEB PORTAL
+                    </span>
+                  </div>
+                  <div className="text-[10px] font-mono text-white/50 uppercase tracking-wider">Browser Access</div>
+                  <div className="text-xl font-bold text-white tracking-tight mt-0.5">Online Banking</div>
+                  <p className="text-xs text-white/60 mt-3 leading-relaxed">
+                    Full desktop institutional portal with instant P2P ledger, live FX rates, and statement audit export.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs font-mono text-white group-hover:text-amber-300">
+                  <span>ENTER ONLINE BANKING</span>
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </button>
+            </RevealSection>
+          </div>
+
+          {/* Quick QR Direct Scan Strip */}
+          <RevealSection delay={320}>
+            <div className="hairline-card rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
+              <div className="flex items-center gap-5 text-left">
+                <div className="w-24 h-24 bg-white p-2.5 rounded-2xl shrink-0 shadow-lg flex items-center justify-center">
+                  <QrCode size={78} className="text-black" />
+                </div>
+                <div>
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-amber-400 font-bold block mb-1">
+                    Scan with Mobile Phone Camera
+                  </span>
+                  <h4 className="text-lg font-bold text-white">Instant Cross-Platform Smart Download</h4>
+                  <p className="text-xs text-white/50 mt-1 max-w-md">
+                    Automatically routes iOS devices to TestFlight/App Store and Android devices to verified direct APK.
+                  </p>
+                </div>
+              </div>
+
+              <div className="shrink-0 text-center sm:text-right font-mono text-xs">
+                <span className="text-white/40 block text-[10px] uppercase">Cryptographic Integrity</span>
+                <span className="text-emerald-400 font-bold block mt-1">SHA-256 Verified ✓</span>
+                <span className="text-white/30 text-[10px] block mt-0.5">Zero telemetry tracking</span>
+              </div>
+            </div>
+          </RevealSection>
         </div>
       </section>
 
@@ -1239,9 +1645,9 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
             <div>
               <span className="text-white/30 uppercase tracking-widest block mb-4">Platforms</span>
               <ul className="space-y-2.5 text-white/50">
-                <li><button onClick={onEnterApp} className="hover:text-white transition-colors">Web Banking Portal</button></li>
-                <li><a href="#platforms" className="hover:text-white transition-colors">Android Mobile APK</a></li>
-                <li><a href="#platforms" className="hover:text-white transition-colors">iOS TestFlight</a></li>
+                <li><button onClick={handleOpenBanking} className="hover:text-white transition-colors">Web Banking Portal</button></li>
+                <li><a href="#download" className="hover:text-white transition-colors">Android Mobile APK</a></li>
+                <li><a href="#download" className="hover:text-white transition-colors">iOS TestFlight</a></li>
                 <li><a href="#platforms" className="hover:text-white transition-colors">Merchant POS Register</a></li>
                 <li><a href="#platforms" className="hover:text-white transition-colors">macOS & Electron</a></li>
               </ul>
@@ -1363,7 +1769,7 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
                 <span className="text-xs text-white/30">Need a sovereign account? </span>
                 <button
                   type="button"
-                  onClick={() => { setShowLogin(false); onEnterApp() }}
+                  onClick={() => { setShowLogin(false); handleOpenBanking() }}
                   className="text-xs font-mono text-amber-400 hover:underline"
                 >
                   Create Wallet Instantly
