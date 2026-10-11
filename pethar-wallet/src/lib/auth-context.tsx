@@ -44,11 +44,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const fetchDbUser = useCallback(async (authUserId: string, phone?: string) => {
     try {
       // First try to look up by auth user ID
-      let { data, error: fetchError } = await supabase
+      const { data: initialData, error: fetchError } = await supabase
         .from('users')
         .select('*')
         .eq('id', authUserId)
         .maybeSingle();
+
+      let data = initialData;
 
       // Fallback: look up by phone number if available
       if (!data && phone) {
@@ -130,8 +132,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const data = await apiSignInWithOtp(phoneNumber);
       return { messageId: data.messageId };
-    } catch (err: any) {
-      const msg = err?.message || 'Failed to send OTP code';
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to send OTP code';
       setError(msg);
       throw err;
     }
@@ -150,8 +152,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
         return data.session;
-      } catch (err: any) {
-        const msg = err?.message || 'Failed to verify OTP code';
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Failed to verify OTP code';
         setError(msg);
         throw err;
       }
@@ -166,8 +168,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setSession(null);
       setUser(null);
       setDbUser(null);
-    } catch (err: any) {
-      const msg = err?.message || 'Failed to sign out';
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to sign out';
       setError(msg);
       throw err;
     }
