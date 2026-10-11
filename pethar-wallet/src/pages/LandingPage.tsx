@@ -142,7 +142,7 @@ function Marquee({ children, speed = 35 }: { children: React.ReactNode; speed?: 
 export default function LandingPage({
   onEnterApp,
   onOpenBanking,
-  lang = 'arak',
+  lang = 'ak',
   setLang,
 }: LandingPageProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -168,13 +168,13 @@ export default function LandingPage({
   }
 
   const navMenuItems = [
-    { label: lang === 'arak' ? 'ပင်မ' : 'Overview', href: '#overview' },
-    { label: lang === 'arak' ? 'ဘဏ္ဍာရေးဝန်ဆောင်မှုများ' : 'Services', href: '#services' },
-    { label: lang === 'arak' ? 'ကုန်သည်စနစ်' : 'Merchants', href: '#merchants' },
-    { label: lang === 'arak' ? 'အော့ဖ်လိုင်းနည်းပညာ' : 'Offline Protocol', href: '#offline' },
-    { label: lang === 'arak' ? 'ငွေကြေးစနစ်' : 'Currency & Ledger', href: '#currency' },
-    { label: lang === 'arak' ? 'ဒေါင်းလုဒ်' : 'Download', href: '#download' },
-    { label: lang === 'arak' ? 'လုံခြုံရေး' : 'Security', href: '#security' },
+    { label: lang === 'ak' ? 'ပင်မ' : 'Overview', href: '#overview' },
+    { label: lang === 'ak' ? 'ဘဏ္ဍာရေးဝန်ဆောင်မှုများ' : 'Services', href: '#services' },
+    { label: lang === 'ak' ? 'ကုန်သည်စနစ်' : 'Merchants', href: '#merchants' },
+    { label: lang === 'ak' ? 'အော့ဖ်လိုင်းနည်းပညာ' : 'Offline Protocol', href: '#offline' },
+    { label: lang === 'ak' ? 'ငွေကြေးစနစ်' : 'Currency & Ledger', href: '#currency' },
+    { label: lang === 'ak' ? 'ဒေါင်းလုဒ်' : 'Download', href: '#download' },
+    { label: lang === 'ak' ? 'လုံခြုံရေး' : 'Security', href: '#security' },
   ]
 
   return (
@@ -197,13 +197,13 @@ export default function LandingPage({
           <div className="flex items-center gap-4 text-white/70">
             <div className="flex items-center gap-1.5">
               <PhoneCall className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-white/40 font-bold uppercase">{lang === 'arak' ? 'အကူအညီ' : 'Support'}:</span>
+              <span className="text-white/40 font-bold uppercase">{lang === 'ak' ? 'အကူအညီ' : 'Support'}:</span>
               <a href="tel:+959798112334" className="text-white hover:text-amber-300 transition-colors font-bold">+95 9 798 112 334</a>
             </div>
             <div className="hidden md:inline-block w-[1px] h-3 bg-white/20" />
             <div className="hidden md:flex items-center gap-1.5 text-white/60">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>{lang === 'arak' ? 'အာရက္ခဒေသတွင်း ဘဏ္ဍာရေးနည်းပညာစနစ်' : 'PeThar Financial Infrastructure Platform'}</span>
+              <span>{lang === 'ak' ? 'အာရက္ခဒေသတွင်း ဘဏ္ဍာရေးနည်းပညာစနစ်' : 'PeThar Financial Infrastructure Platform'}</span>
             </div>
           </div>
 
@@ -220,24 +220,24 @@ export default function LandingPage({
             {/* Language Toggle */}
             <div className="flex items-center bg-white/[0.06] border border-white/10 rounded-full p-0.5">
               <button
-                onClick={() => setLang && setLang('arak')}
-                className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
-                  lang === 'arak' ? 'bg-red-700 text-white shadow-sm' : 'text-white/60 hover:text-white'
+                onClick={() => setLang && setLang('ak')}
+                className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
+                  lang === 'ak' ? 'bg-red-700 text-white shadow-sm' : 'text-white/60 hover:text-white'
                 }`}
                 title="ရခိုင်ဘာသာ"
+                aria-label="ရခိုင်ဘာသာ"
               >
-                <FlagArakan size={13} />
-                <span>ရခိုင်</span>
+                <FlagArakan size={15} />
               </button>
               <button
                 onClick={() => setLang && setLang('en')}
-                className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
+                className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
                   lang === 'en' ? 'bg-blue-700 text-white shadow-sm' : 'text-white/60 hover:text-white'
                 }`}
                 title="English"
+                aria-label="English"
               >
-                <FlagInternational size={13} />
-                <span>EN</span>
+                <FlagInternational size={15} />
               </button>
             </div>
           </div>
@@ -268,7 +268,7 @@ export default function LandingPage({
                 <span className="text-xs font-mono font-bold text-amber-400">FINTECH</span>
               </div>
               <p className="text-[10px] text-white/45 hidden sm:block font-sans -mt-0.5">
-                {lang === 'arak' ? 'အာရက္ခဒစ်ဂျစ်တယ် ဘဏ္ဍာရေးကွန်ရက်' : 'Arakan Digital Financial Infrastructure'}
+                {lang === 'ak' ? 'အာရက္ခဒစ်ဂျစ်တယ် ဘဏ္ဍာရေးကွန်ရက်' : 'Arakan Digital Financial Infrastructure'}
               </p>
             </div>
           </div>
@@ -294,14 +294,14 @@ export default function LandingPage({
               className="hidden sm:flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-white/75 hover:text-white px-3.5 py-2 rounded-xl border border-white/10 hover:bg-white/[0.06] transition-all"
             >
               <Lock className="w-3.5 h-3.5 text-amber-400" />
-              <span>{lang === 'arak' ? 'အကောင့်ဝင်ရန်' : 'Portal Login'}</span>
+              <span>{lang === 'ak' ? 'အကောင့်ဝင်ရန်' : 'Portal Login'}</span>
             </button>
 
             <button
               onClick={handleOpenBankingClick}
               className="liquid-glass-pill px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2 shadow-lg active:scale-95 group"
             >
-              <span>{lang === 'arak' ? 'ဝဘ်ဘဏ်လုပ်ငန်း' : 'Web Banking'}</span>
+              <span>{lang === 'ak' ? 'ဝဘ်ဘဏ်လုပ်ငန်း' : 'Web Banking'}</span>
               <ArrowUpRight className="w-3.5 h-3.5 text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </button>
 
@@ -334,13 +334,13 @@ export default function LandingPage({
                 onClick={() => { setMobileMenuOpen(false); setShowLoginModal(true) }}
                 className="w-full py-3 text-center border border-white/10 rounded-xl text-white/80"
               >
-                {lang === 'arak' ? 'အကောင့်ဝင်ရန်' : 'Portal Login'}
+                {lang === 'ak' ? 'အကောင့်ဝင်ရန်' : 'Portal Login'}
               </button>
               <button
                 onClick={() => { setMobileMenuOpen(false); handleOpenBankingClick() }}
                 className="w-full py-3 text-center bg-gradient-to-r from-red-600 to-amber-600 text-white font-bold rounded-xl"
               >
-                {lang === 'arak' ? 'ဝဘ်ဘဏ်လုပ်ငန်း စတင်ရန်' : 'Launch Online Banking'}
+                {lang === 'ak' ? 'ဝဘ်ဘဏ်လုပ်ငန်း စတင်ရန်' : 'Launch Online Banking'}
               </button>
             </div>
           </div>
@@ -368,17 +368,17 @@ export default function LandingPage({
               <RevealSection delay={100}>
                 <h1 className="text-[clamp(2.5rem,5.2vw,4.5rem)] font-extrabold tracking-[-0.03em] leading-[1.08]">
                   <span className="block text-white">
-                    {lang === 'arak' ? 'အာရက္ခဒေသတွင်း ခေတ်မီ' : 'Modern Financial Rails'}
+                    {lang === 'ak' ? 'အာရက္ခဒေသတွင်း ခေတ်မီ' : 'Modern Financial Rails'}
                   </span>
                   <span className="block bg-gradient-to-r from-red-500 via-amber-300 to-amber-500 bg-clip-text text-transparent font-serif italic font-normal text-[clamp(2.75rem,5.8vw,5rem)]">
-                    {lang === 'arak' ? 'ဒစ်ဂျစ်တယ်ငွေပေးချေမှုစနစ်' : 'for Families, Merchants & Enterprise'}
+                    {lang === 'ak' ? 'ဒစ်ဂျစ်တယ်ငွေပေးချေမှုစနစ်' : 'for Families, Merchants & Enterprise'}
                   </span>
                 </h1>
               </RevealSection>
 
               <RevealSection delay={200}>
                 <p className="text-base sm:text-lg text-white/65 max-w-xl leading-relaxed">
-                  {lang === 'arak'
+                  {lang === 'ak'
                     ? 'ဖေ့သာ (PeThar) သည် မြန်ဆန်၍ လုံခြုံစိတ်ချရသော ဒစ်ဂျစ်တယ်ငွေလွှဲခြင်း၊ ဈေးဆိုင်သုံး ArakanPay QR ငွေရှင်းစနစ်၊ ဒေသတွင်းငွေလွှဲစင်္ကြံများနှင့် ဆက်သွယ်ရေးပြတ်တောက်ချိန်တွင် အသုံးပြုနိုင်သည့် အော့ဖ်လိုင်းငွေပေးချေမှု နည်းပညာများကို ထောက်ပံ့ပေးပါသည်။'
                     : 'PeThar provides reliable digital payment infrastructure across Arakan. Enabling instant peer-to-peer transfers, zero-fee merchant QR checkout, regional remittance corridors, and cryptographic offline transaction resilience.'}
                 </p>
@@ -391,7 +391,7 @@ export default function LandingPage({
                     onClick={handleOpenBankingClick}
                     className="liquid-glass-pill px-7 py-4 rounded-2xl text-sm font-bold text-white flex items-center gap-2.5 shadow-xl hover:scale-105 active:scale-95 transition"
                   >
-                    <span>{lang === 'arak' ? 'ဝဘ်ဘဏ်လုပ်ငန်း စတင်ရန်' : 'Open Online Banking Portal'}</span>
+                    <span>{lang === 'ak' ? 'ဝဘ်ဘဏ်လုပ်ငန်း စတင်ရန်' : 'Open Online Banking Portal'}</span>
                     <ArrowRight size={17} className="text-amber-400" />
                   </button>
 
@@ -400,7 +400,7 @@ export default function LandingPage({
                     className="px-6 py-4 rounded-2xl border border-white/15 hover:bg-white/[0.05] text-white/85 font-mono text-xs uppercase tracking-wider transition flex items-center gap-2"
                   >
                     <Download size={15} />
-                    <span>{lang === 'arak' ? 'အက်ပ် ရယူရန်' : 'Download Mobile App'}</span>
+                    <span>{lang === 'ak' ? 'အက်ပ် ရယူရန်' : 'Download Mobile App'}</span>
                   </a>
                 </div>
               </RevealSection>
@@ -551,10 +551,10 @@ export default function LandingPage({
                 FINANCIAL TECHNOLOGY SERVICES
               </span>
               <h2 className="text-[clamp(2.25rem,4vw,3.5rem)] font-extrabold text-white tracking-tight mt-1">
-                {lang === 'arak' ? 'အဓိက ဘဏ္ဍာရေးဝန်ဆောင်မှုများ' : 'Comprehensive Financial Services'}
+                {lang === 'ak' ? 'အဓိက ဘဏ္ဍာရေးဝန်ဆောင်မှုများ' : 'Comprehensive Financial Services'}
               </h2>
               <p className="text-white/50 text-base mt-2">
-                {lang === 'arak'
+                {lang === 'ak'
                   ? 'ပြည်တွင်းငွေလွှဲခြင်း၊ ဈေးဆိုင်ငွေရှင်းစနစ်၊ နိုင်ငံတကာငွေလွှဲနှင့် အော့ဖ်လိုင်း ဆက်သွယ်ရေးပြတ်တောက်မှု ကာကွယ်ရေး'
                   : 'Practical, low-latency financial tools designed for day-to-day transactions and business growth.'}
               </p>
@@ -562,10 +562,10 @@ export default function LandingPage({
               {/* Pillar Category Tabs */}
               <div className="mt-8 inline-flex p-1.5 rounded-full liquid-glass border border-white/15 max-w-full overflow-x-auto">
                 {[
-                  { id: 'transfers' as const, label: lang === 'arak' ? 'ငွေလွှဲစနစ်' : 'P2P Transfers' },
-                  { id: 'merchants' as const, label: lang === 'arak' ? 'ကုန်သည် POS' : 'Merchant POS' },
-                  { id: 'remittance' as const, label: lang === 'arak' ? 'နိုင်ငံတကာငွေလွှဲ' : 'Cross-Border' },
-                  { id: 'offline' as const, label: lang === 'arak' ? 'အော့ဖ်လိုင်းစနစ်' : 'Offline Protocol' },
+                  { id: 'transfers' as const, label: lang === 'ak' ? 'ငွေလွှဲစနစ်' : 'P2P Transfers' },
+                  { id: 'merchants' as const, label: lang === 'ak' ? 'ကုန်သည် POS' : 'Merchant POS' },
+                  { id: 'remittance' as const, label: lang === 'ak' ? 'နိုင်ငံတကာငွေလွှဲ' : 'Cross-Border' },
+                  { id: 'offline' as const, label: lang === 'ak' ? 'အော့ဖ်လိုင်းစနစ်' : 'Offline Protocol' },
                 ].map((t) => (
                   <button
                     key={t.id}
@@ -593,10 +593,10 @@ export default function LandingPage({
                     <Send size={22} />
                   </div>
                   <h3 className="text-lg font-bold text-white mb-2">
-                    {lang === 'arak' ? 'ချက်ချင်း ငွေလွှဲခြင်း' : 'Instant P2P Transfers'}
+                    {lang === 'ak' ? 'ချက်ချင်း ငွေလွှဲခြင်း' : 'Instant P2P Transfers'}
                   </h3>
                   <p className="text-xs text-white/55 leading-relaxed">
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? 'ဖုန်းနံပါတ် သို့မဟုတ် PeThar ID ဖြင့် စက္ကန့်ပိုင်းအတွင်း ၀% ငွေလွှဲခဖြင့် ချက်ချင်း လွှဲပို့နိုင်ပါသည်'
                       : 'Send Arakan Dollars instantly to any phone number or citizen identifier with zero transaction fees.'}
                   </p>
@@ -615,10 +615,10 @@ export default function LandingPage({
                     <Store size={22} />
                   </div>
                   <h3 className="text-lg font-bold text-white mb-2">
-                    {lang === 'arak' ? 'ArakanPay QR ကုန်သည်စနစ်' : 'Merchant POS & QR'}
+                    {lang === 'ak' ? 'ArakanPay QR ကုန်သည်စနစ်' : 'Merchant POS & QR'}
                   </h3>
                   <p className="text-xs text-white/55 leading-relaxed">
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? 'လက်လီဆိုင်များနှင့် လုပ်ငန်းများအတွက် ၀% ကတ်ဖြတ်ခနှင့် ချက်ချင်း စာရင်းဝင်သည့် POS စနစ်'
                       : 'Touchscreen cashier terminals and static QR stands with zero card processing fees for retailers.'}
                   </p>
@@ -637,10 +637,10 @@ export default function LandingPage({
                     <Globe size={22} />
                   </div>
                   <h3 className="text-lg font-bold text-white mb-2">
-                    {lang === 'arak' ? 'ဒေသတွင်း နိုင်ငံတကာငွေလွှဲ' : 'Regional Remittance'}
+                    {lang === 'ak' ? 'ဒေသတွင်း နိုင်ငံတကာငွေလွှဲ' : 'Regional Remittance'}
                   </h3>
                   <p className="text-xs text-white/55 leading-relaxed">
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? 'ထိုင်း PromptPay၊ မလေး DuitNow နှင့် စင်ကာပူတို့မှတစ်ဆင့် မြို့နယ်ရှိ မိသားစုထံ တိုက်ရိုက်ငွေလွှဲပါ'
                       : 'Direct worker remittance corridors from Thailand, Malaysia, and Singapore with live transparent rates.'}
                   </p>
@@ -659,10 +659,10 @@ export default function LandingPage({
                     <Radio size={22} />
                   </div>
                   <h3 className="text-lg font-bold text-white mb-2">
-                    {lang === 'arak' ? 'အော့ဖ်လိုင်း ဆက်သွယ်ရေးကာကွယ်မှု' : 'Offline Payment Protocol'}
+                    {lang === 'ak' ? 'အော့ဖ်လိုင်း ဆက်သွယ်ရေးကာကွယ်မှု' : 'Offline Payment Protocol'}
                   </h3>
                   <p className="text-xs text-white/55 leading-relaxed">
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? 'ဖုန်းလိုင်းနှင့် အင်တာနက် ပြတ်တောက်နေချိန်တွင် NFC နှင့် Bluetooth ဖြင့် အတည်ပြု ပေးချေနိုင်ပါသည်'
                       : 'Cryptographically signed vouchers enable device-to-device payments during telecommunication blackouts.'}
                   </p>
@@ -687,10 +687,10 @@ export default function LandingPage({
                 CURRENCY SPECIFICATION & LEDGER TRANSPARENCY
               </span>
               <h2 className="text-[clamp(2rem,3.8vw,3.25rem)] font-bold text-white tracking-tight mt-1">
-                {lang === 'arak' ? 'အာရက္ခဒေါ်လာ (AKD) နှင့် ငွေစာရင်းစနစ်' : 'Arakan Dollar (AKD) & Ledger Architecture'}
+                {lang === 'ak' ? 'အာရက္ခဒေါ်လာ (AKD) နှင့် ငွေစာရင်းစနစ်' : 'Arakan Dollar (AKD) & Ledger Architecture'}
               </h2>
               <p className="text-white/60 text-sm mt-3 leading-relaxed">
-                {lang === 'arak'
+                {lang === 'ak'
                   ? 'အာရက္ခဒေါ်လာ (AKD) သည် PeThar ၏ အခြေခံ စာရင်းတွက်ချက်မှု ယူနစ်ဖြစ်ပြီး USDT နှင့် ၁:၁ တန်ဖိုးတူညီစေရန် ရည်ရွယ်တည်ဆောက်ထားပါသည်။ စနစ်၏ ပွင့်လင်းမြင်သာမှုဆိုင်ရာ အချက်အလက်များကို အောက်တွင် ဖော်ပြထားပါသည်။'
                   : 'The Arakan Dollar (AKD) functions as the core digital accounting unit on PeThar, engineered for proposed 1:1 parity with USDT/USD to provide price stability and cross-border fungibility.'}
               </p>
@@ -749,10 +749,10 @@ export default function LandingPage({
                 TELECOMMUNICATION RESILIENCE PROTOCOL
               </span>
               <h2 className="text-[clamp(2.25rem,4vw,3.5rem)] font-extrabold text-white tracking-tight mt-1">
-                {lang === 'arak' ? 'အင်တာနက်မရှိဘဲ ငွေပေးချေနိုင်သော နည်းပညာ' : 'How Offline Payments Work'}
+                {lang === 'ak' ? 'အင်တာနက်မရှိဘဲ ငွေပေးချေနိုင်သော နည်းပညာ' : 'How Offline Payments Work'}
               </h2>
               <p className="text-white/50 text-base mt-2">
-                {lang === 'arak'
+                {lang === 'ak'
                   ? 'ဆက်သွယ်ရေးလိုင်းများ ပြတ်တောက်သည့် အရေးပေါ်အခြေအနေများတွင်လည်း အရောင်းအဝယ် မရပ်တန့်စေရန် တည်ဆောက်ထားပါသည်'
                   : 'Inspired by decentralized mesh protocols, engineered specifically with double-spend controls for financial safety.'}
               </p>
@@ -763,25 +763,25 @@ export default function LandingPage({
               {[
                 {
                   step: '01',
-                  title: lang === 'arak' ? 'စက်တွင်း သော့တွဲဖန်တီးခြင်း' : 'Device Key Generation',
+                  title: lang === 'ak' ? 'စက်တွင်း သော့တွဲဖန်တီးခြင်း' : 'Device Key Generation',
                   desc: 'The mobile app generates an asymmetric Ed25519 keypair inside the hardware keystore (Apple Secure Enclave / Android Keystore).',
                   icon: <KeyRound className="w-5 h-5 text-amber-400" />,
                 },
                 {
                   step: '02',
-                  title: lang === 'arak' ? 'ဘောက်ချာ လက်မှတ်ရေးထိုးခြင်း' : 'Signed Voucher Creation',
+                  title: lang === 'ak' ? 'ဘောက်ချာ လက်မှတ်ရေးထိုးခြင်း' : 'Signed Voucher Creation',
                   desc: 'Sender authorizes a payload containing amount, recipient ID, unique UUID nonce, and a strict 24-hour expiry timestamp.',
                   icon: <FileText className="w-5 h-5 text-red-400" />,
                 },
                 {
                   step: '03',
-                  title: lang === 'arak' ? 'NFC / BLE ဖြင့် လွှဲပြောင်းခြင်း' : 'NFC / BLE Proximity Tap',
+                  title: lang === 'ak' ? 'NFC / BLE ဖြင့် လွှဲပြောင်းခြင်း' : 'NFC / BLE Proximity Tap',
                   desc: 'The encrypted voucher payload is transmitted in sub-second speed (< 1KB NDEF record) to the recipient device without internet.',
                   icon: <Radio className="w-5 h-5 text-cyan-400" />,
                 },
                 {
                   step: '04',
-                  title: lang === 'arak' ? 'အလိုအလျောက် စာရင်းရှင်းလင်းခြင်း' : 'Reconciliation & Settle',
+                  title: lang === 'ak' ? 'အလိုအလျောက် စာရင်းရှင်းလင်းခြင်း' : 'Reconciliation & Settle',
                   desc: 'When either device reconnects to a data hub, pending vouchers sync to the server ledger. Nonces reject duplicate submissions.',
                   icon: <CheckCircle className="w-5 h-5 text-emerald-400" />,
                 },
@@ -818,10 +818,10 @@ export default function LandingPage({
                     <Store size={24} />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-2">
-                    {lang === 'arak' ? 'ကုန်သည်နှင့် အရောင်းဆိုင်များ' : 'Merchant POS & Retail Solutions'}
+                    {lang === 'ak' ? 'ကုန်သည်နှင့် အရောင်းဆိုင်များ' : 'Merchant POS & Retail Solutions'}
                   </h3>
                   <p className="text-xs sm:text-sm text-white/60 leading-relaxed mb-6">
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? 'ဆန်စပါး၊ လောင်စာဆီ၊ ကုန်မာနှင့် ဆေးဆိုင်များတွင် ArakanPay QR ဖြင့် စက္ကန့်ပိုင်းအတွင်း ငွေလက်ခံပြီး စာရွက်ပြေစာ ထုတ်ပေးနိုင်ပါသည်'
                       : 'Accept instant customer QR payments at grocery, fuel, and wholesale stores with zero card processing fees and automatic accounting journals.'}
                   </p>
@@ -846,7 +846,7 @@ export default function LandingPage({
                   onClick={handleOpenBankingClick}
                   className="w-full py-3.5 rounded-2xl bg-white hover:bg-neutral-200 text-black font-bold text-xs uppercase tracking-wider font-mono transition"
                 >
-                  {lang === 'arak' ? 'ကုန်သည် စာရင်းဖွင့်ရန်' : 'Register Merchant Terminal'}
+                  {lang === 'ak' ? 'ကုန်သည် စာရင်းဖွင့်ရန်' : 'Register Merchant Terminal'}
                 </button>
               </div>
             </RevealSection>
@@ -859,10 +859,10 @@ export default function LandingPage({
                     <Building2 size={24} />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-2">
-                    {lang === 'arak' ? 'ငွေသားကောင်တာ အေးဂျင့်များ' : 'Authorized Cash Counters'}
+                    {lang === 'ak' ? 'ငွေသားကောင်တာ အေးဂျင့်များ' : 'Authorized Cash Counters'}
                   </h3>
                   <p className="text-xs sm:text-sm text-white/60 leading-relaxed mb-6">
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? 'စစ်တွေ၊ မြောက်ဦး၊ ကျောက်ဖြူနှင့် မြို့နယ်များရှိ ပြည်သူများ ငွေသားသွင်း/ထုတ်ရန် အတည်ပြု ကောင်တာအဖြစ် ဆောင်ရွက်ပါ'
                       : 'Provide local deposit and cash-out liquidity across Sittwe, Mrauk-U, and Kyaukpyu townships while earning verified commissions.'}
                   </p>
@@ -887,7 +887,7 @@ export default function LandingPage({
                   onClick={handleOpenBankingClick}
                   className="w-full py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs uppercase tracking-wider font-mono transition"
                 >
-                  {lang === 'arak' ? 'အေးဂျင့် လျှောက်ထားရန်' : 'Apply for Agent Counter'}
+                  {lang === 'ak' ? 'အေးဂျင့် လျှောက်ထားရန်' : 'Apply for Agent Counter'}
                 </button>
               </div>
             </RevealSection>
@@ -907,7 +907,7 @@ export default function LandingPage({
                   PLATFORM TELEMETRY
                 </span>
                 <h3 className="text-2xl font-bold text-white mt-1">
-                  {lang === 'arak' ? 'ကွန်ရက် စာရင်းစစ်တမ်း' : 'Platform Network Indicators'}
+                  {lang === 'ak' ? 'ကွန်ရက် စာရင်းစစ်တမ်း' : 'Platform Network Indicators'}
                 </h3>
               </div>
               <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
@@ -919,14 +919,14 @@ export default function LandingPage({
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
               <MetricCard
                 value={14850}
-                label={lang === 'arak' ? 'အကောင့်ပိုင်ရှင် ဦးရေ' : 'Registered Wallets'}
+                label={lang === 'ak' ? 'အကောင့်ပိုင်ရှင် ဦးရေ' : 'Registered Wallets'}
                 sublabel="Citizens & Merchants"
                 colorClass="text-white"
               />
 
               <MetricCard
                 value={4800000}
-                label={lang === 'arak' ? 'AKD စာရင်းလက်ကျန်' : 'Active Accounting Float'}
+                label={lang === 'ak' ? 'AKD စာရင်းလက်ကျန်' : 'Active Accounting Float'}
                 sublabel="Arakan Dollars (AKD)"
                 colorClass="text-amber-400"
                 formatValue={(c) => `₳ ${(c / 1000000).toFixed(1)}M`}
@@ -934,7 +934,7 @@ export default function LandingPage({
 
               <MetricCard
                 value={340}
-                label={lang === 'arak' ? 'အတည်ပြု ကောင်တာများ' : 'Active Counters & POS'}
+                label={lang === 'ak' ? 'အတည်ပြု ကောင်တာများ' : 'Active Counters & POS'}
                 sublabel="Township Coverage"
                 colorClass="text-cyan-400"
                 formatValue={(c) => `${c} Nodes`}
@@ -942,7 +942,7 @@ export default function LandingPage({
 
               <MetricCard
                 value={100}
-                label={lang === 'arak' ? 'စာရင်းစစ်မှန်မှု အာမခံ' : 'Ledger Hash Integrity'}
+                label={lang === 'ak' ? 'စာရင်းစစ်မှန်မှု အာမခံ' : 'Ledger Hash Integrity'}
                 sublabel="SHA-256 Chained"
                 colorClass="text-emerald-400"
                 formatValue={(c) => `${c}% Validated`}
@@ -964,11 +964,11 @@ export default function LandingPage({
               </span>
 
               <h2 className="text-[clamp(2.25rem,4vw,3.5rem)] font-extrabold text-white tracking-tight">
-                {lang === 'arak' ? 'ဖေ့သာ အက်ပ် ရယူပါ' : 'Access PeThar Anywhere'}
+                {lang === 'ak' ? 'ဖေ့သာ အက်ပ် ရယူပါ' : 'Access PeThar Anywhere'}
               </h2>
 
               <p className="text-white/60 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-                {lang === 'arak'
+                {lang === 'ak'
                   ? 'Android စမတ်ဖုန်းများအတွက် တိုက်ရိုက် APK ရယူနိုင်ပြီး၊ ကွန်ပျူတာနှင့် မည်သည့် ဘရောင်ဇာမှမဆို ဝဘ်ဘဏ်လုပ်ငန်းကို တိုက်ရိုက် အသုံးပြုနိုင်ပါသည်။'
                   : 'Download the client directly for Android, or access the full-featured online banking dashboard from any modern web browser.'}
               </p>
@@ -1033,27 +1033,27 @@ export default function LandingPage({
                 SECURITY STANDARDS & PROTOCOLS
               </span>
               <h2 className="text-3xl sm:text-4xl font-bold text-white mt-1">
-                {lang === 'arak' ? 'မေးလေ့ရှိသော မေးခွန်းများ' : 'Frequently Asked Questions'}
+                {lang === 'ak' ? 'မေးလေ့ရှိသော မေးခွန်းများ' : 'Frequently Asked Questions'}
               </h2>
             </div>
 
             <div className="space-y-4">
               {[
                 {
-                  q: lang === 'arak' ? 'အာရက္ခဒေါ်လာ (AKD) ၏ တန်ဖိုးသတ်မှတ်ချက် မည်သို့ရှိသနည်း?' : 'What is the Arakan Dollar (AKD) and how is parity established?',
-                  a: lang === 'arak'
+                  q: lang === 'ak' ? 'အာရက္ခဒေါ်လာ (AKD) ၏ တန်ဖိုးသတ်မှတ်ချက် မည်သို့ရှိသနည်း?' : 'What is the Arakan Dollar (AKD) and how is parity established?',
+                  a: lang === 'ak'
                     ? 'အာရက္ခဒေါ်လာ (AKD) သည် PeThar ငွေစာရင်းစနစ်၏ အခြေခံယူနစ်ဖြစ်ပြီး USDT နှင့် ၁:၁ တန်ဖိုးညီမျှစေရန် ရည်ရွယ်ထားပါသည်။ ငွေကြေးလဲလှယ်မှုများကို အတည်ပြု အေးဂျင့်များနှင့် ငွေဖြစ်လွယ်မှု ပံ့ပိုးသူများမှတစ်ဆင့် ရှင်းလင်းဆောင်ရွက်ပေးပါသည်။'
                     : 'The Arakan Dollar (AKD) is the native digital accounting unit on PeThar, designed with target 1:1 parity with USDT/USD for price stability. Parity is maintained operationally via authorized liquidity providers and clearing desks.',
                 },
                 {
-                  q: lang === 'arak' ? 'အင်တာနက်ပြတ်တောက်ချိန်တွင် ငွေပေးချေမှု မည်သို့ လုံခြုံသနည်း?' : 'How do offline transactions remain secure against fraud?',
-                  a: lang === 'arak'
+                  q: lang === 'ak' ? 'အင်တာနက်ပြတ်တောက်ချိန်တွင် ငွေပေးချေမှု မည်သို့ လုံခြုံသနည်း?' : 'How do offline transactions remain secure against fraud?',
+                  a: lang === 'ak'
                     ? 'စက်တွင်း Ed25519 ဒစ်ဂျစ်တယ်လက်မှတ်ဖြင့် အတည်ပြုထားသော ဘောက်ချာများသည် Nonce နံပါတ်ပါဝင်သောကြောင့် တစ်ကြိမ်သာ သုံးနိုင်ပြီး ၂၄ နာရီအတွင်း အင်တာနက်ပြန်ရပါက အလိုအလျောက် စာရင်းရှင်းလင်းပါသည်။ ထပ်ခါတလဲလဲ သုံးစွဲခြင်း (Double-spending) ကို စနစ်မှ ပယ်ဖျက်ပေးပါသည်။'
                     : 'Offline vouchers are digitally signed on-device using Ed25519 cryptography. Unique nonces and strict 24-hour expiry prevent replay attacks, while the server ledger reconciles and validates balances upon hub reconnection.',
                 },
                 {
-                  q: lang === 'arak' ? 'အရေးပေါ် Duress PIN ကာကွယ်မှုစနစ် ဆိုသည်မှာ အဘယ်နည်း?' : 'What is the Duress Distress PIN protocol (999999)?',
-                  a: lang === 'arak'
+                  q: lang === 'ak' ? 'အရေးပေါ် Duress PIN ကာကွယ်မှုစနစ် ဆိုသည်မှာ အဘယ်နည်း?' : 'What is the Duress Distress PIN protocol (999999)?',
+                  a: lang === 'ak'
                     ? 'စစ်ဆေးရေးဂိတ်များ သို့မဟုတ် အကျပ်ကိုင်ခံရသည့် အရေးပေါ်အခြေအနေများတွင် ၉၉၉၉၉၉ ကို ရိုက်ထည့်ပါက သာမန်ငွေပမာဏ အနည်းငယ်သာရှိသော Decoy မျက်နှာပြင်ကို ပြသပေးပြီး အသံတိတ် အကူအညီတောင်းခံမှု ပေးပို့ပါသည်။'
                     : 'Entering the designated duress PIN (999999) unlocks a benign decoy wallet displaying minimal spending money while silently generating an audit alert for emergency response.',
                 },
@@ -1092,7 +1092,7 @@ export default function LandingPage({
                 <span className="text-lg font-bold text-white">PeThar (ဖေ့သာ)</span>
               </div>
               <p className="text-white/40 text-xs leading-relaxed font-sans">
-                {lang === 'arak'
+                {lang === 'ak'
                   ? 'အာရက္ခဒေသတွင်း စီးပွားရေးနှင့် ပြည်သူများအတွက် ခေတ်မီ ဒစ်ဂျစ်တယ် ဘဏ္ဍာရေး အခြေခံအဆောက်အအုံ။'
                   : 'Practical, reliable digital financial infrastructure powering modern payments and commerce in Arakan.'}
               </p>
@@ -1104,7 +1104,7 @@ export default function LandingPage({
             {/* Col 2: Solutions */}
             <div>
               <h5 className="font-mono text-xs font-bold text-white uppercase tracking-wider mb-4">
-                {lang === 'arak' ? 'ဝန်ဆောင်မှုများ' : 'Solutions'}
+                {lang === 'ak' ? 'ဝန်ဆောင်မှုများ' : 'Solutions'}
               </h5>
               <ul className="space-y-2 font-mono text-xs text-white/50">
                 <li><a href="#services" className="hover:text-white transition">Instant P2P Transfers</a></li>
@@ -1118,7 +1118,7 @@ export default function LandingPage({
             {/* Col 3: Resources */}
             <div>
               <h5 className="font-mono text-xs font-bold text-white uppercase tracking-wider mb-4">
-                {lang === 'arak' ? 'အထောက်အကူ' : 'Platform'}
+                {lang === 'ak' ? 'အထောက်အကူ' : 'Platform'}
               </h5>
               <ul className="space-y-2 font-mono text-xs text-white/50">
                 <li><a href="#download" className="hover:text-white transition">Download Mobile App</a></li>
@@ -1131,7 +1131,7 @@ export default function LandingPage({
             {/* Col 4: Contact */}
             <div className="space-y-3 font-mono text-xs text-white/50">
               <h5 className="font-mono text-xs font-bold text-white uppercase tracking-wider mb-4">
-                {lang === 'arak' ? 'ဆက်သွယ်ရန်' : 'Contact & Support'}
+                {lang === 'ak' ? 'ဆက်သွယ်ရန်' : 'Contact & Support'}
               </h5>
               <div>Hotline: <a href="tel:+959798112334" className="text-white hover:text-amber-400 font-bold">+95 9 798 112 334</a></div>
               <div>Inquiries: <span className="text-white">support@pethar.co.uk</span></div>
@@ -1172,7 +1172,7 @@ export default function LandingPage({
               <ArakanEmblem size={40} variant="badge" className="mx-auto mb-3" />
               <h3 className="text-xl font-bold text-white">PeThar Online Banking</h3>
               <p className="text-xs text-white/50 font-mono mt-1">
-                {lang === 'arak' ? 'အာရက္ခဒေါ်လာ ဝဘ်ဘဏ်လုပ်ငန်းသို့ ဝင်ရောက်ပါ' : 'Sign in to access your ledger account'}
+                {lang === 'ak' ? 'အာရက္ခဒေါ်လာ ဝဘ်ဘဏ်လုပ်ငန်းသို့ ဝင်ရောက်ပါ' : 'Sign in to access your ledger account'}
               </p>
             </div>
 
@@ -1186,7 +1186,7 @@ export default function LandingPage({
             >
               <div>
                 <label className="block text-[11px] font-mono text-white/60 mb-1 uppercase">
-                  {lang === 'arak' ? 'ဖုန်းနံပါတ် သို့မဟုတ် Citizen ID' : 'Phone Number or Identifier'}
+                  {lang === 'ak' ? 'ဖုန်းနံပါတ် သို့မဟုတ် Citizen ID' : 'Phone Number or Identifier'}
                 </label>
                 <input
                   type="text"
@@ -1200,7 +1200,7 @@ export default function LandingPage({
 
               <div>
                 <label className="block text-[11px] font-mono text-white/60 mb-1 uppercase">
-                  {lang === 'arak' ? '၆ လုံး PIN ကုဒ်' : '6-Digit Security PIN'}
+                  {lang === 'ak' ? '၆ လုံး PIN ကုဒ်' : '6-Digit Security PIN'}
                 </label>
                 <input
                   type="password"
@@ -1217,7 +1217,7 @@ export default function LandingPage({
                 type="submit"
                 className="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-amber-600 to-amber-500 text-white font-bold font-mono text-xs uppercase tracking-wider shadow-lg hover:brightness-110 active:scale-95 transition mt-2"
               >
-                {lang === 'arak' ? 'ဘဏ်စာရင်း ဖွင့်မည်' : 'Authorize & Open Banking'}
+                {lang === 'ak' ? 'ဘဏ်စာရင်း ဖွင့်မည်' : 'Authorize & Open Banking'}
               </button>
 
               <div className="text-center text-[10px] text-white/40 font-mono pt-2">

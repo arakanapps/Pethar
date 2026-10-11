@@ -65,7 +65,7 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                 const Icon(Icons.trending_up, color: gold, size: 14),
                 const SizedBox(width: 6),
                 Text(
-                  lang == 'arak' ? 'တရားဝင်ငွေလဲနှုန်း' : 'Arakan FX Ticker:',
+                  lang == 'ak' ? 'တရားဝင်ငွေလဲနှုန်း' : 'Arakan FX Ticker:',
                   style: const TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(width: 14),
@@ -178,9 +178,9 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                 const SizedBox(width: 12),
                 // Language Toggle
                 TextButton(
-                  onPressed: () => appState.setLanguage(lang == 'arak' ? 'en' : 'arak'),
+                  onPressed: () => appState.setLanguage(lang == 'ak' ? 'en' : 'ak'),
                   child: Text(
-                    lang == 'arak' ? 'EN' : 'ရခိုင်',
+                    lang == 'ak' ? 'EN' : 'ရခိုင်',
                     style: const TextStyle(color: gold, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -511,7 +511,7 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                                 ],
                               ),
                             ),
-                            DataCell(Text(lang == 'arak' ? tx.titleMm : tx.title, style: const TextStyle(fontSize: 12))),
+                            DataCell(Text(lang == 'ak' ? tx.titleMm : tx.title, style: const TextStyle(fontSize: 12))),
                             DataCell(Text(tx.counterparty, style: TextStyle(fontSize: 11, color: Colors.grey[400]))),
                             DataCell(Text(tx.time, style: const TextStyle(fontSize: 11))),
                             DataCell(

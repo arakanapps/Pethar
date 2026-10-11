@@ -107,7 +107,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
 
             // Deposit USDT Card
             Text(
-              lang == 'arak' ? 'USDT ငွေသွင်းလိပ်စာ (Deposit Address)' : 'Deposit USDT Address',
+              lang == 'ak' ? 'USDT ငွေသွင်းလိပ်စာ (Deposit Address)' : 'Deposit USDT Address',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,

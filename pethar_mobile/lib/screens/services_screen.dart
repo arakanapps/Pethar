@@ -124,7 +124,7 @@ class ServicesScreen extends StatelessWidget {
       backgroundColor: isDark ? obsidian : paper,
       appBar: AppBar(
         title: Text(
-          lang == 'arak' ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services',
+          lang == 'ak' ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services',
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         backgroundColor: isDark ? surfaceDark : Colors.white,
@@ -144,7 +144,7 @@ class ServicesScreen extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(left: 4, bottom: 10, top: catIdx == 0 ? 0 : 16),
                 child: Text(
-                  (lang == 'arak' ? cat['titleMm'] : cat['titleEn']) as String,
+                  (lang == 'ak' ? cat['titleMm'] : cat['titleEn']) as String,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -188,7 +188,7 @@ class ServicesScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    (lang == 'arak' ? item['nameMm'] : item['nameEn']) as String,
+                                    (lang == 'ak' ? item['nameMm'] : item['nameEn']) as String,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
@@ -197,7 +197,7 @@ class ServicesScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 3),
                                   Text(
-                                    (lang == 'arak' ? item['descMm'] : item['descEn']) as String,
+                                    (lang == 'ak' ? item['descMm'] : item['descEn']) as String,
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: Colors.grey[500],

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { FakeQR } from './components/FakeQR'
-import { ArakanEmblem } from './components/ArakanEmblem'
+import { ArakanEmblem, FlagArakan, FlagInternational } from './components/ArakanEmblem'
 import { TransactionSlip } from './components/TransactionSlip'
 import { useNotifications, markAllRead, markRead, type NotiItem } from './notifications'
 import type { Language } from './i18n'
@@ -162,14 +162,14 @@ export function Home({
 
   // 8 Quick Service items (mirroring Krungthai NEXT 8-service layout)
   const quickServices = [
-    { id: 'send' as Screen, label: lang === 'arak' ? 'ငွေလွှဲ' : 'Transfer', icon: ArrowUpRight, color: 'bg-blue-600/30 text-blue-400' },
-    { id: 'intl' as Screen, label: lang === 'arak' ? 'ငွေဖြည့်' : 'Top Up', icon: Plus, color: 'bg-amber-500/30 text-amber-400' },
-    { id: 'pos' as Screen, label: lang === 'arak' ? 'ဘေလ်ဆောင်' : 'Pay Bills', icon: Receipt, color: 'bg-red-500/30 text-red-400' },
-    { id: 'cashout' as Screen, label: lang === 'arak' ? 'ငွေသားထုတ်' : 'Cash Out', icon: Store, color: 'bg-emerald-500/30 text-emerald-400' },
-    { id: 'crypto' as Screen, label: lang === 'arak' ? 'ဒင်္ဂါးဘဏ္ဍာ' : 'Crypto Vault', icon: Coins, color: 'bg-purple-500/30 text-purple-400' },
-    { id: 'account' as Screen, label: lang === 'arak' ? 'ငွေစာရင်း' : 'Account', icon: Wallet, color: 'bg-cyan-500/30 text-cyan-400' },
-    { id: 'pos' as Screen, label: lang === 'arak' ? 'ကုန်သည် POS' : 'Merchant POS', icon: Terminal, color: 'bg-orange-500/30 text-orange-400' },
-    { id: 'receive' as Screen, label: lang === 'arak' ? 'မိမိ QR' : 'My QR', icon: QrCode, color: 'bg-rose-500/30 text-rose-400' },
+    { id: 'send' as Screen, label: lang === 'ak' ? 'ငွေလွှဲ' : 'Transfer', icon: ArrowUpRight, color: 'bg-blue-600/30 text-blue-400' },
+    { id: 'intl' as Screen, label: lang === 'ak' ? 'ငွေဖြည့်' : 'Top Up', icon: Plus, color: 'bg-amber-500/30 text-amber-400' },
+    { id: 'pos' as Screen, label: lang === 'ak' ? 'ဘေလ်ဆောင်' : 'Pay Bills', icon: Receipt, color: 'bg-red-500/30 text-red-400' },
+    { id: 'cashout' as Screen, label: lang === 'ak' ? 'ငွေသားထုတ်' : 'Cash Out', icon: Store, color: 'bg-emerald-500/30 text-emerald-400' },
+    { id: 'crypto' as Screen, label: lang === 'ak' ? 'ဒင်္ဂါးဘဏ္ဍာ' : 'Crypto Vault', icon: Coins, color: 'bg-purple-500/30 text-purple-400' },
+    { id: 'account' as Screen, label: lang === 'ak' ? 'ငွေစာရင်း' : 'Account', icon: Wallet, color: 'bg-cyan-500/30 text-cyan-400' },
+    { id: 'pos' as Screen, label: lang === 'ak' ? 'ကုန်သည် POS' : 'Merchant POS', icon: Terminal, color: 'bg-orange-500/30 text-orange-400' },
+    { id: 'receive' as Screen, label: lang === 'ak' ? 'မိမိ QR' : 'My QR', icon: QrCode, color: 'bg-rose-500/30 text-rose-400' },
   ]
 
   // Krungthai NEXT style favorites contacts
@@ -219,7 +219,7 @@ export function Home({
             <button
               onClick={() => go('notifications')}
               className="relative w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-gray-300 hover:text-white transition active:scale-95"
-              title={lang === 'arak' ? 'အသိပေးချက်များ' : 'Notifications'}
+              title={lang === 'ak' ? 'အသိပေးချက်များ' : 'Notifications'}
             >
               <Bell size={16} />
               {unread > 0 && (
@@ -233,7 +233,7 @@ export function Home({
             <button
               onClick={() => setShowLogoutModal(true)}
               className="w-8 h-8 rounded-full bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 border border-red-500/20 flex items-center justify-center transition active:scale-95"
-              title={lang === 'arak' ? 'အကောင့်ထွက်ရန်' : 'Log Out'}
+              title={lang === 'ak' ? 'အကောင့်ထွက်ရန်' : 'Log Out'}
             >
               <LogOut size={15} />
             </button>
@@ -243,7 +243,7 @@ export function Home({
         {/* Balance Card: Available Balance + Total Balance */}
         <div className="pt-4 text-center">
           <div className="flex items-center justify-center gap-2 text-[11px] text-gray-200">
-            <span>{lang === 'arak' ? w.labelMm : w.labelEn}</span>
+            <span>{lang === 'ak' ? w.labelMm : w.labelEn}</span>
             <button onClick={() => setHidden(!hidden)} className="text-gray-300 hover:text-white transition">
               {hidden ? <EyeOff size={13} /> : <Eye size={13} />}
             </button>
@@ -263,7 +263,7 @@ export function Home({
 
           {/* Total Balance row (available + pending holds) */}
           <div className="pt-1.5 flex items-center justify-center gap-1.5 text-[11px] text-gray-300">
-            <span>{lang === 'arak' ? w.totalLabelMm : w.totalLabelEn}:</span>
+            <span>{lang === 'ak' ? w.totalLabelMm : w.totalLabelEn}:</span>
             <span className="font-mono font-bold text-amber-200/90 tabular-nums">
               {hidden
                 ? '• • • •'
@@ -271,7 +271,7 @@ export function Home({
             </span>
             {!hidden && w.pendingBalance > 0 && (
               <span className="text-[9px] text-gray-400">
-                ({lang === 'arak' ? 'စောင့်ဆိုင်းဆဲ' : 'incl. pending'} {w.symbol}{w.pendingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })})
+                ({lang === 'ak' ? 'စောင့်ဆိုင်းဆဲ' : 'incl. pending'} {w.symbol}{w.pendingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })})
               </span>
             )}
           </div>
@@ -286,9 +286,9 @@ export function Home({
           <Sparkles size={16} className={`shrink-0 mt-0.5 ${isLight ? 'text-amber-600' : 'text-amber-400'}`} />
           <div className="flex-1 text-[11px] leading-relaxed">
             <strong className={`font-bold block mb-0.5 ${isLight ? 'text-amber-700' : 'text-amber-300'}`}>
-              {lang === 'arak' ? 'အာရက္ခဗဟိုဘဏ် အသိပေးချက်' : 'Bank of Arakan Notice'}
+              {lang === 'ak' ? 'အာရက္ခဗဟိုဘဏ် အသိပေးချက်' : 'Bank of Arakan Notice'}
             </strong>
-            {lang === 'arak'
+            {lang === 'ak'
               ? 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀-၀၆:၀၀ တွင် စာရင်းစနစ် အဆင့်မြှင့်မည်ဖြစ်ပါသည်။ အော့ဖ်လိုင်းဘောက်ချာများ အသုံးပြုနိုင်ပါသည်။'
               : 'PeThar will undergo an Arakan ledger upgrade on 24 Sep 2026 from 01:00-06:00 AM. Offline vouchers remain active.'}
           </div>
@@ -322,10 +322,10 @@ export function Home({
       <div className="px-4 pt-4">
         <div className="flex items-center justify-between pb-2">
           <span className={`text-xs font-bold ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
-            {lang === 'arak' ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favorites'}
+            {lang === 'ak' ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favorites'}
           </span>
           <button onClick={() => go('send')} className={`text-[11px] font-bold hover:underline ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>
-            {lang === 'arak' ? 'အားလုံး' : 'View all'}
+            {lang === 'ak' ? 'အားလုံး' : 'View all'}
           </button>
         </div>
 
@@ -340,7 +340,7 @@ export function Home({
                 {fav.initials}
               </div>
               <span className={`text-[10px] font-medium truncate w-14 text-center ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>
-                {lang === 'arak' ? fav.mm : fav.name}
+                {lang === 'ak' ? fav.mm : fav.name}
               </span>
             </button>
           ))}
@@ -369,10 +369,10 @@ export function Home({
             </div>
             <div>
               <h3 className="font-bold text-base text-white">
-                {lang === 'arak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of PeThar?'}
+                {lang === 'ak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of PeThar?'}
               </h3>
               <p className="text-xs text-gray-400 mt-1">
-                {lang === 'arak'
+                {lang === 'ak'
                   ? 'လုံခြုံရေးအရ သင်၏ စက်တွင်း session အား ပိတ်သိမ်းပါမည်။'
                   : 'Your active session will be ended securely.'}
               </p>
@@ -382,7 +382,7 @@ export function Home({
                 onClick={() => setShowLogoutModal(false)}
                 className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-gray-300 transition"
               >
-                {lang === 'arak' ? 'မထွက်ပါ' : 'Cancel'}
+                {lang === 'ak' ? 'မထွက်ပါ' : 'Cancel'}
               </button>
               <button
                 onClick={() => {
@@ -392,7 +392,7 @@ export function Home({
                 }}
                 className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-xs font-bold text-white shadow-lg transition"
               >
-                {lang === 'arak' ? 'ထွက်မည်' : 'Log Out'}
+                {lang === 'ak' ? 'ထွက်မည်' : 'Log Out'}
               </button>
             </div>
           </div>
@@ -403,7 +403,7 @@ export function Home({
       {loggedOutToast && (
         <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-red-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-red-400">
           <Check size={14} />
-          <span>{lang === 'arak' ? 'အကောင့်ထွက်ပြီးပါပြီ' : 'Logged out securely'}</span>
+          <span>{lang === 'ak' ? 'အကောင့်ထွက်ပြီးပါပြီ' : 'Logged out securely'}</span>
         </div>
       )}
     </div>
@@ -427,7 +427,7 @@ export function AccountScreen({
   return (
     <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
       <ScreenHeader
-        title={lang === 'arak' ? 'မိမိ ငွေစာရင်းများနှင့် ကတ်များ' : 'My Accounts & Cards'}
+        title={lang === 'ak' ? 'မိမိ ငွေစာရင်းများနှင့် ကတ်များ' : 'My Accounts & Cards'}
         theme={theme}
       />
 
@@ -437,7 +437,7 @@ export function AccountScreen({
           <div className="flex items-center justify-between text-xs text-amber-300">
             <span className="font-bold flex items-center gap-1.5">
               <Wallet size={14} />
-              {lang === 'arak' ? 'အာရက္ခဒေါ်လာ အဓိကစာရင်း' : 'Arakan Dollar Account'}
+              {lang === 'ak' ? 'အာရက္ခဒေါ်လာ အဓိကစာရင်း' : 'Arakan Dollar Account'}
             </span>
             <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400">
               ACTIVE
@@ -457,14 +457,14 @@ export function AccountScreen({
               className="py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center gap-1.5 transition"
             >
               <ArrowUpRight size={14} />
-              {lang === 'arak' ? 'ငွေလွှဲမည်' : 'Send Money'}
+              {lang === 'ak' ? 'ငွေလွှဲမည်' : 'Send Money'}
             </button>
             <button
               onClick={() => go('receive')}
               className="py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/15 text-white flex items-center justify-center gap-1.5 transition"
             >
               <ArrowDownLeft size={14} />
-              {lang === 'arak' ? 'ငွေလက်ခံမည်' : 'Deposit'}
+              {lang === 'ak' ? 'ငွေလက်ခံမည်' : 'Deposit'}
             </button>
           </div>
         </div>
@@ -474,7 +474,7 @@ export function AccountScreen({
           <div className="flex items-center justify-between mb-2">
             <span className={`text-xs font-bold flex items-center gap-1.5 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
               <CreditCard size={14} className="text-amber-400" />
-              {lang === 'arak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar Debit Card'}
+              {lang === 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar Debit Card'}
             </span>
             <span className="text-[10px] text-amber-400 font-mono">VISA DEBIT</span>
           </div>
@@ -585,7 +585,7 @@ export function ServicesScreen({
   return (
     <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
       <ScreenHeader
-        title={lang === 'arak' ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services'}
+        title={lang === 'ak' ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services'}
         subtitle="PeThar Platform Directory"
         theme={theme}
       />
@@ -594,7 +594,7 @@ export function ServicesScreen({
         {serviceCategories.map((cat, i) => (
           <div key={i} className="space-y-2">
             <h3 className={`text-xs font-bold uppercase tracking-wider font-mono ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-              {lang === 'arak' ? cat.titleMm : cat.titleEn}
+              {lang === 'ak' ? cat.titleMm : cat.titleEn}
             </h3>
             <div className="space-y-2">
               {cat.items.map((item, idx) => (
@@ -609,7 +609,7 @@ export function ServicesScreen({
                     </div>
                     <div>
                       <div className={`text-xs font-bold ${th.textMain(theme)}`}>
-                        {lang === 'arak' ? item.nameMm : item.nameEn}
+                        {lang === 'ak' ? item.nameMm : item.nameEn}
                       </div>
                       <div className="text-[10px] text-gray-400">{item.desc}</div>
                     </div>
@@ -781,24 +781,28 @@ export function SettingsScreen({
                 isLight ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/10'
               }`}>
                 <button
+                  onClick={() => setLang && setLang('ak')}
+                  className={`flex items-center justify-center p-1.5 rounded-lg transition ${
+                    lang === 'ak'
+                      ? 'bg-red-700 text-white shadow-sm'
+                      : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                  title="ရခိုင်ဘာသာ"
+                  aria-label="ရခိုင်ဘာသာ"
+                >
+                  <FlagArakan size={15} />
+                </button>
+                <button
                   onClick={() => setLang && setLang('en')}
-                  className={`flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold transition ${
+                  className={`flex items-center justify-center p-1.5 rounded-lg transition ${
                     lang === 'en'
                       ? 'bg-blue-800 text-white shadow-sm'
                       : 'text-gray-400 hover:text-gray-200'
                   }`}
+                  title="English"
+                  aria-label="English"
                 >
-                  <span>English</span>
-                </button>
-                <button
-                  onClick={() => setLang && setLang('arak')}
-                  className={`flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold transition ${
-                    lang === 'arak'
-                      ? 'bg-red-700 text-white shadow-sm'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                >
-                  <span>ရခိုင်</span>
+                  <FlagInternational size={15} />
                 </button>
               </div>
             </div>
@@ -910,7 +914,7 @@ export function SettingsScreen({
           }`}>
             {/* 1. Change PIN */}
             <button
-              onClick={() => alert(lang === 'arak' ? '၆ လုံး လျှို့ဝှက်ကုဒ် (PIN) အသစ် ပြောင်းလဲရန် ညွှန်ကြားချက် ပို့ပြီးပါပြီ' : 'Instructions sent to reset your 6-digit transaction PIN')}
+              onClick={() => alert(lang === 'ak' ? '၆ လုံး လျှို့ဝှက်ကုဒ် (PIN) အသစ် ပြောင်းလဲရန် ညွှန်ကြားချက် ပို့ပြီးပါပြီ' : 'Instructions sent to reset your 6-digit transaction PIN')}
               className={`w-full p-4 flex items-center justify-between text-left transition ${
                 isLight ? 'hover:bg-gray-50' : 'hover:bg-white/5'
               }`}
@@ -1053,7 +1057,7 @@ export function SettingsScreen({
                   onClick={() => setEditModalOpen(false)}
                   className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 text-xs font-semibold hover:bg-gray-100 dark:hover:bg-white/5 transition"
                 >
-                  {lang === 'arak' ? 'မလုပ်တော့ပါ' : 'Cancel'}
+                  {lang === 'ak' ? 'မလုပ်တော့ပါ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
@@ -1130,7 +1134,7 @@ export function Send({
     <div className={`flex h-full flex-col ${th.root(theme)}`}>
       <ScreenHeader
         title={t.sendTitle}
-        subtitle={lang === 'arak' ? 'အာရက္ခဒေါ်လာ လွှဲပို့ခြင်း' : 'Zero-fee Arakan Transfer'}
+        subtitle={lang === 'ak' ? 'အာရက္ခဒေါ်လာ လွှဲပို့ခြင်း' : 'Zero-fee Arakan Transfer'}
         theme={theme}
       />
 
@@ -1170,7 +1174,7 @@ export function Send({
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white">
-                        {lang === 'arak' ? c.mm : c.name}
+                        {lang === 'ak' ? c.mm : c.name}
                       </div>
                       <div className="text-[10px] text-gray-400">
                         {c.id} • {c.location}
@@ -1195,7 +1199,7 @@ export function Send({
               </div>
               <div className="flex-1">
                 <div className="text-xs font-bold text-white">
-                  {lang === 'arak' ? contact.mm : contact.name}
+                  {lang === 'ak' ? contact.mm : contact.name}
                 </div>
                 <div className="text-[10px] text-gray-400">{contact.id}</div>
               </div>
@@ -1304,7 +1308,7 @@ export function Receive({ lang, theme = 'dark' }: { lang: Language; theme?: Them
     <div className={`flex h-full flex-col ${th.root(theme)}`}>
       <ScreenHeader
         title={t.receiveTitle}
-        subtitle={lang === 'arak' ? 'ArakanPay စနစ်ဖြင့် လက်ခံရန်' : 'ArakanPay Verified QR'}
+        subtitle={lang === 'ak' ? 'ArakanPay စနစ်ဖြင့် လက်ခံရန်' : 'ArakanPay Verified QR'}
         theme={theme}
       />
 
@@ -1317,7 +1321,7 @@ export function Receive({ lang, theme = 'dark' }: { lang: Language; theme?: Them
           <div className="text-base font-bold text-white">Jack Halder</div>
           <div className="text-xs font-mono text-amber-400 mt-0.5">{myId}</div>
           <p className="text-[11px] text-gray-400 mt-1 max-w-xs">
-            {lang === 'arak'
+            {lang === 'ak'
               ? 'ဤ QR ကုဒ်ကို ပေးပို့သူအား ပြသ၍ အာရက္ခဒေါ်လာ တိုက်ရိုက်လက်ခံပါ'
               : 'Scan with PeThar Mobile to send Arakan Dollars instantly'}
           </p>
@@ -1367,9 +1371,9 @@ export function Scan({ lang, theme = 'dark' }: { lang: Language; theme?: ThemeMo
   }
 
   const tabs = [
-    { id: 'scan' as const, label: lang === 'arak' ? 'စကင်ဖတ်' : 'Scan', icon: ScanLine },
-    { id: 'myqr' as const, label: lang === 'arak' ? 'မိမိ QR' : 'My QR', icon: QrCode },
-    { id: 'pay' as const, label: lang === 'arak' ? 'QR ဖြင့် ငွေပေးချေ' : 'QR to Pay', icon: Barcode },
+    { id: 'scan' as const, label: lang === 'ak' ? 'စကင်ဖတ်' : 'Scan', icon: ScanLine },
+    { id: 'myqr' as const, label: lang === 'ak' ? 'မိမိ QR' : 'My QR', icon: QrCode },
+    { id: 'pay' as const, label: lang === 'ak' ? 'QR ဖြင့် ငွေပေးချေ' : 'QR to Pay', icon: Barcode },
   ]
 
   return (
@@ -1410,7 +1414,7 @@ export function Scan({ lang, theme = 'dark' }: { lang: Language; theme?: ThemeMo
           <div className="mx-4 mt-2 flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-2 text-[10px] text-amber-200">
             <AlertTriangle size={16} className="shrink-0 text-amber-400 mt-0.5" />
             <span className="leading-relaxed">
-              {lang === 'arak'
+              {lang === 'ak'
                 ? 'ငွေပေးချေရန်၊ ငွေလွှဲရန် သို့မဟုတ် ငွေထုတ်ရန်သာ စကင်ဖတ်ပါ။ ငွေလက်ခံရန် စကင်ဖတ်ခြင်းကို မထောက်ပံ့ပါ။'
                 : 'Scan to pay, transfer, or withdraw only. Scan to receive money is not supported.'}
             </span>
@@ -1558,7 +1562,7 @@ export function CashOut({ go, lang, theme = 'dark' }: { go: (s: Screen) => void;
     <div className={`flex h-full flex-col ${th.root(theme)}`}>
       <ScreenHeader
         title={t.cashOutTitle}
-        subtitle={lang === 'arak' ? 'တရားဝင် အာရက္ခအေးဂျင့်များ' : 'Verified Agent Branch Network'}
+        subtitle={lang === 'ak' ? 'တရားဝင် အာရက္ခအေးဂျင့်များ' : 'Verified Agent Branch Network'}
         theme={theme}
       />
 
@@ -1587,13 +1591,13 @@ export function CashOut({ go, lang, theme = 'dark' }: { go: (s: Screen) => void;
                       </div>
                       <div>
                         <div className="text-xs font-bold text-white">
-                          {lang === 'arak' ? agt.mm : agt.name}
+                          {lang === 'ak' ? agt.mm : agt.name}
                         </div>
                         <div className="text-[10px] text-gray-400">
-                          {agt.code} • {lang === 'arak' ? agt.townshipMm : agt.township}
+                          {agt.code} • {lang === 'ak' ? agt.townshipMm : agt.township}
                         </div>
                         <div className="text-[9px] text-amber-300 font-mono mt-0.5">
-                          {agt.distance} • {lang === 'arak' ? agt.floatStatusMm : `${agt.floatStatus} Cash Float`}
+                          {agt.distance} • {lang === 'ak' ? agt.floatStatusMm : `${agt.floatStatus} Cash Float`}
                         </div>
                       </div>
                     </div>
@@ -1606,7 +1610,7 @@ export function CashOut({ go, lang, theme = 'dark' }: { go: (s: Screen) => void;
         ) : (
           <div className="p-5 rounded-3xl bg-gradient-to-b from-[#1C2530] to-[#101724] border border-amber-500/40 text-center space-y-4">
             <div className="text-xs font-bold text-white">
-              {lang === 'arak' ? selectedAgent?.mm : selectedAgent?.name}
+              {lang === 'ak' ? selectedAgent?.mm : selectedAgent?.name}
             </div>
 
             <div>
@@ -1627,19 +1631,19 @@ export function CashOut({ go, lang, theme = 'dark' }: { go: (s: Screen) => void;
             </div>
 
             <p className="text-[11px] text-gray-300 max-w-xs mx-auto">
-              {lang === 'arak'
+              {lang === 'ak'
                 ? 'အေးဂျင့်ထံ ဤကုဒ်ပြသ၍ ငွေသားထုတ်ယူပါ။ တစ်ခါသုံးကုဒ်ဖြစ်သဖြင့် လုံခြုံစိတ်ချရပါသည်'
                 : 'Show dynamic code to agent counter to withdraw physical Arakan banknotes'}
             </p>
 
             <button
               onClick={() => {
-                alert(lang === 'arak' ? 'ငွေသားထုတ်ယူမှု အောင်မြင်ပါသည်!' : 'Cash-out withdrawal settled!')
+                alert(lang === 'ak' ? 'ငွေသားထုတ်ယူမှု အောင်မြင်ပါသည်!' : 'Cash-out withdrawal settled!')
                 go('home')
               }}
               className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition"
             >
-              {lang === 'arak' ? 'ငွေသားလက်ခံရရှိပါပြီ' : 'Confirm Cash Received'}
+              {lang === 'ak' ? 'ငွေသားလက်ခံရရှိပါပြီ' : 'Confirm Cash Received'}
             </button>
           </div>
         )}
@@ -1650,7 +1654,7 @@ export function CashOut({ go, lang, theme = 'dark' }: { go: (s: Screen) => void;
 
 // ── NOTIFICATIONS SCREEN (store-driven, synced with home bell) ─────────────
 export function NotificationsScreen({
-  lang = 'arak',
+  lang = 'ak',
   theme = 'dark',
 }: {
   lang?: Language
@@ -1701,7 +1705,7 @@ export function NotificationsScreen({
         isLight ? 'bg-white/90 border-gray-200' : 'bg-[#090D14]/90 border-white/10'
       }`}>
         <h2 className={`text-base font-bold tracking-wide ${th.textMain(theme)}`}>
-          {lang === 'arak' ? 'အသိပေးချက်များ' : 'Notifications'}
+          {lang === 'ak' ? 'အသိပေးချက်များ' : 'Notifications'}
         </h2>
 
         {/* Live unread counter — synced with the home bell */}
@@ -1728,7 +1732,7 @@ export function NotificationsScreen({
                   : 'bg-white/[0.07] text-gray-300 hover:bg-white/10'
             }`}
           >
-            {lang === 'arak' ? p.mm : p.label}
+            {lang === 'ak' ? p.mm : p.label}
           </button>
         ))}
       </div>
@@ -1742,7 +1746,7 @@ export function NotificationsScreen({
             unread === 0 ? 'text-gray-500 cursor-default' : 'text-red-500 hover:underline'
           }`}
         >
-          {lang === 'arak' ? 'အားလုံး ဖတ်ပြီးဟု မှတ်သား' : 'Mark all as read'}
+          {lang === 'ak' ? 'အားလုံး ဖတ်ပြီးဟု မှတ်သား' : 'Mark all as read'}
         </button>
       </div>
 
@@ -1765,10 +1769,10 @@ export function NotificationsScreen({
                     {typeIcon(n)}
                     <div className="flex-1 min-w-0">
                       <h3 className={`text-sm font-bold leading-snug ${th.textMain(theme)}`}>
-                        {lang === 'arak' ? n.titleMm : n.titleEn}
+                        {lang === 'ak' ? n.titleMm : n.titleEn}
                       </h3>
                       <p className={`text-xs leading-relaxed mt-1 ${th.textSub(theme)}`}>
-                        {lang === 'arak' ? n.bodyMm : n.bodyEn}
+                        {lang === 'ak' ? n.bodyMm : n.bodyEn}
                       </p>
                       <div className="text-[11px] text-gray-500 mt-1.5 font-mono">{n.time}</div>
                     </div>
@@ -1783,7 +1787,7 @@ export function NotificationsScreen({
         <div className={`flex-1 flex flex-col items-center justify-center gap-2 py-16 ${th.textSub(theme)}`}>
           <Bell size={28} className="opacity-40" />
           <div className="text-xs font-semibold">
-            {lang === 'arak' ? 'အသိပေးချက် မရှိပါ' : 'No notifications in this category'}
+            {lang === 'ak' ? 'အသိပေးချက် မရှိပါ' : 'No notifications in this category'}
           </div>
         </div>
       )}

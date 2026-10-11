@@ -87,13 +87,13 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
               </span>
             </div>
             <p className="text-[11px] text-gray-400 mt-0.5">
-              {lang === 'arak' ? 'မြောက်ဦးတော်ဝင် ကုန်မာနှင့် စတိုးဆိုင်' : 'Mrauk-U Merchant Register'}
+              {lang === 'ak' ? 'မြောက်ဦးတော်ဝင် ကုန်မာနှင့် စတိုးဆိုင်' : 'Mrauk-U Merchant Register'}
             </p>
           </div>
         </div>
 
         <div className="text-right">
-          <div className="text-[10px] text-gray-400">{lang === 'arak' ? 'ယနေ့ရောင်းရငွေ' : 'Daily Sales'}</div>
+          <div className="text-[10px] text-gray-400">{lang === 'ak' ? 'ယနေ့ရောင်းရငွေ' : 'Daily Sales'}</div>
           <div className="text-xs font-mono font-bold text-emerald-400">₳ 4,890.50</div>
         </div>
       </div>
@@ -117,7 +117,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
                   >
                     <div>
                       <div className="text-xs font-medium text-white line-clamp-1">
-                        {lang === 'arak' ? item.nameMm : item.name}
+                        {lang === 'ak' ? item.nameMm : item.name}
                       </div>
                       <div className="text-[10px] text-gray-400">{item.category}</div>
                     </div>
@@ -133,7 +133,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
             {/* Custom Keypad Input */}
             <div className="p-3 rounded-2xl bg-[#131B26] border border-[#283852]">
               <label className="text-[10px] text-gray-400 block mb-1">
-                {lang === 'arak' ? 'အခြား ပမာဏ ရိုက်ထည့်ရန်' : 'Add Custom Charge'}
+                {lang === 'ak' ? 'အခြား ပမာဏ ရိုက်ထည့်ရန်' : 'Add Custom Charge'}
               </label>
               <input
                 type="number"
@@ -147,13 +147,13 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
             {/* Current Bill List */}
             <div className="p-3.5 rounded-2xl bg-[#101724] border border-[#283852] space-y-2.5">
               <div className="flex items-center justify-between text-xs font-bold text-gray-300 pb-2 border-b border-white/10">
-                <span>{lang === 'arak' ? 'ရွေးချယ်ထားသော ပစ္စည်းများ' : 'Cart Summary'}</span>
+                <span>{lang === 'ak' ? 'ရွေးချယ်ထားသော ပစ္စည်းများ' : 'Cart Summary'}</span>
                 <span>{cart.length} items</span>
               </div>
 
               {cart.length === 0 && !customAmount ? (
                 <div className="py-4 text-center text-xs text-gray-500">
-                  {lang === 'arak' ? 'ပစ္စည်း ရွေးချယ်ထားခြင်း မရှိသေးပါ' : 'No items added yet'}
+                  {lang === 'ak' ? 'ပစ္စည်း ရွေးချယ်ထားခြင်း မရှိသေးပါ' : 'No items added yet'}
                 </div>
               ) : (
                 <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
@@ -167,7 +167,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
                           <Trash2 size={12} />
                         </button>
                         <span>
-                          {lang === 'arak' ? item.nameMm : item.name} (x{item.qty})
+                          {lang === 'ak' ? item.nameMm : item.name} (x{item.qty})
                         </span>
                       </div>
                       <span className="font-mono text-white font-semibold">
@@ -177,7 +177,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
                   ))}
                   {parseFloat(customAmount) > 0 && (
                     <div className="flex items-center justify-between text-xs text-gray-300">
-                      <span>{lang === 'arak' ? 'အခြားကျသင့်ငွေ' : 'Custom Charge'}</span>
+                      <span>{lang === 'ak' ? 'အခြားကျသင့်ငွေ' : 'Custom Charge'}</span>
                       <span className="font-mono text-white font-semibold">
                         ₳ {parseFloat(customAmount).toFixed(2)}
                       </span>
@@ -200,7 +200,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
                 className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-lg hover:brightness-110 active:scale-[0.99] transition disabled:opacity-40 flex items-center justify-center gap-2 mt-2"
               >
                 <QrCode size={14} />
-                {lang === 'arak' ? 'ငွေကောက်ခံရန် QR ကုဒ်ပြသပါ' : 'Generate ArakanPay Charge QR'}
+                {lang === 'ak' ? 'ငွေကောက်ခံရန် QR ကုဒ်ပြသပါ' : 'Generate ArakanPay Charge QR'}
               </button>
             </div>
           </div>
@@ -211,7 +211,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
           <div className="space-y-4">
             <div className="p-5 rounded-2xl bg-gradient-to-b from-[#172235] to-[#101724] border border-amber-500/40 text-center space-y-3">
               <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                {lang === 'arak' ? 'ဝယ်ယူသူ စကင်ဖတ်ရန် စောင့်ဆိုင်းနေပါသည်...' : 'Awaiting Customer Scan...'}
+                {lang === 'ak' ? 'ဝယ်ယူသူ စကင်ဖတ်ရန် စောင့်ဆိုင်းနေပါသည်...' : 'Awaiting Customer Scan...'}
               </span>
 
               <div className="text-3xl font-bold font-mono text-white mt-2">
@@ -223,7 +223,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
               </div>
 
               <p className="text-xs text-gray-400">
-                {lang === 'arak'
+                {lang === 'ak'
                   ? 'ဝယ်ယူသူ၏ ဖေ့သာ အက်ပ်မှ Scan ကို ဖွင့်၍ ငွေပေးချေပါ'
                   : 'Customer should open PeThar Camera / QR scanner to complete'}
               </p>
@@ -235,14 +235,14 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
                   className="w-full py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg transition flex items-center justify-center gap-1.5"
                 >
                   <Sparkles size={14} />
-                  {lang === 'arak' ? 'ဝယ်ယူသူ ငွေရှင်းပြီးကြောင်း သရုပ်ပြရန်' : 'Simulate Customer Payment Confirmation'}
+                  {lang === 'ak' ? 'ဝယ်ယူသူ ငွေရှင်းပြီးကြောင်း သရုပ်ပြရန်' : 'Simulate Customer Payment Confirmation'}
                 </button>
 
                 <button
                   onClick={() => setViewState('checkout')}
                   className="w-full mt-2 py-1.5 text-xs text-gray-400 hover:text-white transition"
                 >
-                  {lang === 'arak' ? 'ပယ်ဖျက်ရန်' : 'Cancel'}
+                  {lang === 'ak' ? 'ပယ်ဖျက်ရန်' : 'Cancel'}
                 </button>
               </div>
             </div>
@@ -258,7 +258,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
               </div>
 
               <h3 className="text-lg font-bold text-white">
-                {lang === 'arak' ? 'ငွေပေးချေမှု အောင်မြင်ပါသည်!' : 'Payment Received & Settled!'}
+                {lang === 'ak' ? 'ငွေပေးချေမှု အောင်မြင်ပါသည်!' : 'Payment Received & Settled!'}
               </h3>
 
               <div className="text-3xl font-bold font-mono text-emerald-400">
@@ -282,7 +282,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
                   className="py-2.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white transition flex items-center justify-center gap-1.5"
                 >
                   <RefreshCw size={14} />
-                  {lang === 'arak' ? 'နောက်ထပ် အရောင်းသစ်' : 'New Order'}
+                  {lang === 'ak' ? 'နောက်ထပ် အရောင်းသစ်' : 'New Order'}
                 </button>
               </div>
             </div>
@@ -340,18 +340,18 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
 
             <div className="flex gap-2">
               <button
-                onClick={() => alert(lang === 'arak' ? 'အရောင်းပြေစာ ပရင်တာသို့ ပို့ဆောင်ပြီးပါပြီ!' : 'Thermal Receipt sent to Bluetooth Printer!')}
+                onClick={() => alert(lang === 'ak' ? 'အရောင်းပြေစာ ပရင်တာသို့ ပို့ဆောင်ပြီးပါပြီ!' : 'Thermal Receipt sent to Bluetooth Printer!')}
                 className="w-1/2 py-2.5 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-black flex items-center justify-center gap-1.5 transition"
               >
                 <Printer size={14} />
-                {lang === 'arak' ? 'ပရင်တာ ထုတ်ရန်' : 'Print Receipt'}
+                {lang === 'ak' ? 'ပရင်တာ ထုတ်ရန်' : 'Print Receipt'}
               </button>
               <button
                 onClick={resetRegister}
                 className="w-1/2 py-2.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white flex items-center justify-center gap-1.5 transition"
               >
                 <RefreshCw size={14} />
-                {lang === 'arak' ? 'စာရင်းချုပ်ရန်' : 'Next Sale'}
+                {lang === 'ak' ? 'စာရင်းချုပ်ရန်' : 'Next Sale'}
               </button>
             </div>
           </div>

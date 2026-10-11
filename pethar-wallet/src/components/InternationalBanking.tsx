@@ -86,7 +86,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            {lang === 'arak' ? 'Wise ငွေလွှဲ' : 'Wise Remit'}
+            {lang === 'ak' ? 'Wise ငွေလွှဲ' : 'Wise Remit'}
           </button>
           <button
             onClick={() => setActiveTab('topup')}
@@ -96,7 +96,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            {lang === 'arak' ? 'ကတ်ဖြင့်ငွေသွင်း' : 'Card Top-Up'}
+            {lang === 'ak' ? 'ကတ်ဖြင့်ငွေသွင်း' : 'Card Top-Up'}
           </button>
           <button
             onClick={() => setActiveTab('card')}
@@ -106,7 +106,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            {lang === 'arak' ? 'ဖေ့သာကတ်' : 'PeThar Card'}
+            {lang === 'ak' ? 'ဖေ့သာကတ်' : 'PeThar Card'}
           </button>
         </div>
       </div>
@@ -118,7 +118,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
             <div className="p-4 rounded-2xl bg-[#131B26] border border-[#283852] space-y-4">
               <div>
                 <label className="text-xs text-gray-400 block mb-1.5 font-medium">
-                  {lang === 'arak' ? 'ပေးပို့မည့် နိုင်ငံခြားငွေကြေး ရွေးပါ' : 'Sender Corridor & Currency'}
+                  {lang === 'ak' ? 'ပေးပို့မည့် နိုင်ငံခြားငွေကြေး ရွေးပါ' : 'Sender Corridor & Currency'}
                 </label>
                 <div className="grid grid-cols-5 gap-1.5">
                   {(['THB', 'MYR', 'SGD', 'USD', 'EUR'] as const).map((curr) => (
@@ -140,7 +140,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
               <div className="space-y-3">
                 <div className="p-3 rounded-xl bg-black/40 border border-white/10">
                   <div className="text-[10px] text-gray-400">
-                    {lang === 'arak' ? `ပြည်ပမှ လွှဲမည့်ပမာဏ (${sendCorridor})` : `Sending from abroad (${sendCorridor})`}
+                    {lang === 'ak' ? `ပြည်ပမှ လွှဲမည့်ပမာဏ (${sendCorridor})` : `Sending from abroad (${sendCorridor})`}
                   </div>
                   <input
                     type="number"
@@ -158,7 +158,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
 
                 <div className="p-3 rounded-xl bg-gradient-to-r from-red-950/40 to-black/60 border border-amber-500/40">
                   <div className="text-[10px] text-amber-400 font-semibold">
-                    {lang === 'arak' ? 'အာရက္ခဒေါ်လာ လက်ခံရရှိမည့်ပမာဏ' : 'Arakan Recipient Gets'}
+                    {lang === 'ak' ? 'အာရက္ခဒေါ်လာ လက်ခံရရှိမည့်ပမာဏ' : 'Arakan Recipient Gets'}
                   </div>
                   <div className="text-2xl font-bold font-mono text-white mt-1">
                     ₳ {calculatedAkd}
@@ -172,12 +172,12 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
 
               <button
                 onClick={() => {
-                  alert(lang === 'arak' ? 'နိုင်ငံတကာငွေလွှဲ အောင်မြင်စွာ ပို့ဆောင်ပြီးပါပြီ!' : 'Wise Remittance Corridor Settled Successfully!')
+                  alert(lang === 'ak' ? 'နိုင်ငံတကာငွေလွှဲ အောင်မြင်စွာ ပို့ဆောင်ပြီးပါပြီ!' : 'Wise Remittance Corridor Settled Successfully!')
                 }}
                 className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-lg hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2"
               >
                 <Send size={14} />
-                {lang === 'arak' ? 'ယခုချက်ချင်း ငွေလွှဲအတည်ပြုရန်' : 'Initiate Guaranteed Remittance'}
+                {lang === 'ak' ? 'ယခုချက်ချင်း ငွေလွှဲအတည်ပြုရန်' : 'Initiate Guaranteed Remittance'}
               </button>
             </div>
           </div>
@@ -189,7 +189,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
             <div className="p-4 rounded-2xl bg-[#131B26] border border-[#283852] space-y-4">
               <div>
                 <label className="text-xs text-gray-400 block mb-1.5 font-medium">
-                  {lang === 'arak' ? 'ငွေသွင်းမည့် နည်းလမ်း ရွေးပါ' : 'Select Payment Method'}
+                  {lang === 'ak' ? 'ငွေသွင်းမည့် နည်းလမ်း ရွေးပါ' : 'Select Payment Method'}
                 </label>
                 <div className="grid grid-cols-5 gap-1.5">
                   {(['visa', 'mastercard', 'amex', 'paypal', 'wise'] as const).map((method) => (
@@ -211,7 +211,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
               <div className="space-y-3">
                 <div>
                   <label className="text-[10px] text-gray-400 block mb-1">
-                    {lang === 'arak' ? 'ငွေသွင်းမည့်ပမာဏ' : 'Amount to Deposit'}
+                    {lang === 'ak' ? 'ငွေသွင်းမည့်ပမာဏ' : 'Amount to Deposit'}
                   </label>
                   <input
                     type="number"
@@ -223,7 +223,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
 
                 <div>
                   <label className="text-[10px] text-gray-400 block mb-1">
-                    {lang === 'arak' ? 'ကတ်နံပါတ် (Card Number)' : 'Card Number'}
+                    {lang === 'ak' ? 'ကတ်နံပါတ် (Card Number)' : 'Card Number'}
                   </label>
                   <input
                     type="text"
@@ -236,7 +236,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="text-[10px] text-gray-400 block mb-1">
-                      {lang === 'arak' ? 'သက်တမ်းကုန်ရက် (MM/YY)' : 'Expiry (MM/YY)'}
+                      {lang === 'ak' ? 'သက်တမ်းကုန်ရက် (MM/YY)' : 'Expiry (MM/YY)'}
                     </label>
                     <input
                       type="text"
@@ -247,7 +247,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                   </div>
                   <div>
                     <label className="text-[10px] text-gray-400 block mb-1">
-                      {lang === 'arak' ? 'လုံခြုံရေးကုဒ် (CVV)' : 'Security CVV'}
+                      {lang === 'ak' ? 'လုံခြုံရေးကုဒ် (CVV)' : 'Security CVV'}
                     </label>
                     <input
                       type="password"
@@ -267,12 +267,12 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 {isProcessing ? (
                   <>
                     <RefreshCw size={14} className="animate-spin" />
-                    {lang === 'arak' ? 'ကတ်ဖြင့် ငွေသွင်းနေပါသည်...' : 'Securing 3D-Secure Clearance...'}
+                    {lang === 'ak' ? 'ကတ်ဖြင့် ငွေသွင်းနေပါသည်...' : 'Securing 3D-Secure Clearance...'}
                   </>
                 ) : (
                   <>
                     <CreditCard size={14} />
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? `₳ ${topUpAmount} ချက်ချင်းငွေသွင်းရန်`
                       : `Top Up ₳ ${topUpAmount} Instantly`}
                   </>
@@ -283,7 +283,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 <div className="p-2.5 rounded-xl bg-emerald-950/50 border border-emerald-700/50 text-emerald-300 text-xs flex items-center gap-2">
                   <Check size={14} className="text-emerald-400" />
                   <span>
-                    {lang === 'arak'
+                    {lang === 'ak'
                       ? `₳ ${topUpAmount} အကောင့်အတွင်းသို့ အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ!`
                       : `Successfully credited ₳ ${topUpAmount} via ${selectedMethod.toUpperCase()}!`}
                   </span>
@@ -309,7 +309,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 <div className="flex items-center gap-2">
                   <ArakanEmblem size={32} variant="badge" />
                   <span className="font-bold text-white text-sm tracking-wide">
-                    {lang === 'arak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar'}
+                    {lang === 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar'}
                   </span>
                 </div>
                 <span className="font-mono text-xs text-amber-300 tracking-wider">VISA DEBIT</span>
@@ -352,8 +352,8 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
               >
                 <Lock size={14} />
                 {cardFrozen
-                  ? (lang === 'arak' ? 'ကတ်ပြန်ဖွင့်ရန်' : 'Unfreeze Card')
-                  : (lang === 'arak' ? 'ကတ်ယာယီပိတ်ရန်' : 'Freeze Card')}
+                  ? (lang === 'ak' ? 'ကတ်ပြန်ဖွင့်ရန်' : 'Unfreeze Card')
+                  : (lang === 'ak' ? 'ကတ်ယာယီပိတ်ရန်' : 'Freeze Card')}
               </button>
 
               <button
@@ -362,8 +362,8 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
               >
                 {showCvv ? <EyeOff size={14} /> : <Eye size={14} />}
                 {showCvv
-                  ? (lang === 'arak' ? 'CVV ဝှက်ရန်' : 'Hide CVV')
-                  : (lang === 'arak' ? 'CVV ပြသရန်' : 'Show CVV')}
+                  ? (lang === 'ak' ? 'CVV ဝှက်ရန်' : 'Hide CVV')
+                  : (lang === 'ak' ? 'CVV ပြသရန်' : 'Show CVV')}
               </button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-export type Language = 'arak' | 'en'
+export type Language = 'ak' | 'en'
 
 export interface TranslationStrings {
   appName: string
@@ -123,7 +123,7 @@ export interface TranslationStrings {
 }
 
 export const translations: Record<Language, TranslationStrings> = {
-  arak: {
+  ak: {
     appName: 'ဖေ့သာ',
     appSubtitle: 'အာရက္ခအမျိုးသား ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်',
     currencyLabel: 'အာရက္ခဒေါ်လာ',

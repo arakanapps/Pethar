@@ -188,7 +188,7 @@ class _PosScreenState extends State<PosScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      lang == 'arak' ? (itm['mm'] as String) : name,
+                                      lang == 'ak' ? (itm['mm'] as String) : name,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 12,
@@ -251,7 +251,7 @@ class _PosScreenState extends State<PosScreen> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ),
                           child: Text(
-                            lang == 'arak' ? 'QR ဖြင့် ငွေတောင်းခံမည်' : 'Charge with QR',
+                            lang == 'ak' ? 'QR ဖြင့် ငွေတောင်းခံမည်' : 'Charge with QR',
                             style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
                           ),
                         ),

@@ -49,7 +49,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
         <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-0.5">
           <span className="font-bold text-amber-400 flex items-center gap-1.5 shrink-0">
             <TrendingUp size={13} />
-            {lang === 'arak' ? 'တရားဝင်ငွေလဲနှုန်း' : 'Arakan FX Ticker'}:
+            {lang === 'ak' ? 'တရားဝင်ငွေလဲနှုန်း' : 'Arakan FX Ticker'}:
           </span>
           {liveFxRates.slice(0, 4).map((fx) => (
             <div key={fx.pair} className="flex items-center gap-1 shrink-0 font-mono text-[11px]">
@@ -132,7 +132,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-white text-sm flex items-center gap-2">
                   <Send size={15} className="text-amber-400" />
-                  {lang === 'arak' ? 'အမြန်ငွေလွှဲ' : 'Instant Transfer'}
+                  {lang === 'ak' ? 'အမြန်ငွေလွှဲ' : 'Instant Transfer'}
                 </h3>
                 <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                   0% Fee
@@ -142,7 +142,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
               <form onSubmit={handleQuickSend} className="space-y-3">
                 <div>
                   <label className="text-[11px] text-gray-400 block mb-1">
-                    {lang === 'arak' ? 'လက်ခံသူ ရွေးပါ' : 'Select Recipient'}
+                    {lang === 'ak' ? 'လက်ခံသူ ရွေးပါ' : 'Select Recipient'}
                   </label>
                   <select
                     value={quickSendContact}
@@ -159,7 +159,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
 
                 <div>
                   <label className="text-[11px] text-gray-400 block mb-1">
-                    {lang === 'arak' ? 'ပမာဏ' : 'Amount'}
+                    {lang === 'ak' ? 'ပမာဏ' : 'Amount'}
                   </label>
                   <input
                     type="number"
@@ -173,7 +173,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
                   type="submit"
                   className="w-full py-2.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-400 text-black shadow-md transition"
                 >
-                  {lang === 'arak' ? 'ချက်ချင်းလွှဲပို့ရန်' : 'Execute Instant P2P Transfer'}
+                  {lang === 'ak' ? 'ချက်ချင်းလွှဲပို့ရန်' : 'Execute Instant P2P Transfer'}
                 </button>
               </form>
 
@@ -186,13 +186,13 @@ export const WebPortal: React.FC<WebPortalProps> = ({
             </div>
 
             <div className="pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400">
-              <span>{lang === 'arak' ? 'အေးဂျင့်ငွေထုတ်ရန်' : 'Need cash?'}</span>
+              <span>{lang === 'ak' ? 'အေးဂျင့်ငွေထုတ်ရန်' : 'Need cash?'}</span>
               <button
                 onClick={() => onOpenModule('cashout')}
                 className="text-amber-400 font-semibold hover:underline flex items-center gap-1"
               >
                 <Store size={12} />
-                {lang === 'arak' ? 'အနီးဆုံးအေးဂျင့်ရှာရန်' : 'Find Agent Branch'}
+                {lang === 'ak' ? 'အနီးဆုံးအေးဂျင့်ရှာရန်' : 'Find Agent Branch'}
               </button>
             </div>
           </div>
@@ -205,7 +205,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
             <div>
               <h3 className="font-bold text-white text-base">{t.recentTransactions}</h3>
               <p className="text-xs text-gray-400 mt-0.5">
-                {lang === 'arak'
+                {lang === 'ak'
                   ? 'အာရက္ခဒေါ်လာ စာရင်းချုပ်မှတ်တမ်းအပြည့်အစုံ'
                   : 'Immutable append-only double-entry ledger postings'}
               </p>
@@ -217,7 +217,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
                 <Search size={14} className="absolute left-3 top-2.5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder={lang === 'arak' ? 'စာရင်းရှာဖွေရန်...' : 'Search ledger...'}
+                  placeholder={lang === 'ak' ? 'စာရင်းရှာဖွေရန်...' : 'Search ledger...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-8 pr-3 py-1.5 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 w-44"
@@ -235,7 +235,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
                         : 'bg-black/30 text-gray-400 hover:text-white border border-white/5'
                     }`}
                   >
-                    {cat === 'all' ? (lang === 'arak' ? 'အားလုံး' : 'All') : cat}
+                    {cat === 'all' ? (lang === 'ak' ? 'အားလုံး' : 'All') : cat}
                   </button>
                 ))}
               </div>
@@ -260,7 +260,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
                   <tr key={txn.id} className="hover:bg-white/[0.02] transition">
                     <td className="py-3 px-3">
                       <div className="font-bold text-white">
-                        {lang === 'arak' ? txn.titleMm : txn.title}
+                        {lang === 'ak' ? txn.titleMm : txn.title}
                       </div>
                       <div className="text-[10px] font-mono text-gray-500">{txn.refId}</div>
                     </td>
@@ -270,7 +270,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
                       </span>
                     </td>
                     <td className="py-3 px-3 text-gray-300">
-                      {lang === 'arak' ? txn.counterpartyMm || txn.counterparty : txn.counterparty}
+                      {lang === 'ak' ? txn.counterpartyMm || txn.counterparty : txn.counterparty}
                     </td>
                     <td className="py-3 px-3 text-gray-400">{txn.time}</td>
                     <td className="py-3 px-3 text-right font-mono font-bold">

@@ -71,14 +71,14 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              lang == 'arak' ? 'အော့ဖ်လိုင်း ငွေပေးချေမှု' : 'Offline Payment',
+              lang == 'ak' ? 'အော့ဖ်လိုင်း ငွေပေးချေမှု' : 'Offline Payment',
               style: TextStyle(
                 fontSize: 16, fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : Colors.black87,
               ),
             ),
             Text(
-              lang == 'arak' ? 'NFC / ဘလူးတုသ်' : 'NFC / Bluetooth',
+              lang == 'ak' ? 'NFC / ဘလူးတုသ်' : 'NFC / Bluetooth',
               style: TextStyle(fontSize: 11, color: Colors.grey[500]),
             ),
           ],
@@ -118,8 +118,8 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
           unselectedLabelColor: Colors.grey[500],
           labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           tabs: [
-            Tab(text: lang == 'arak' ? 'ငွေပို့' : 'Send'),
-            Tab(text: lang == 'arak' ? 'ငွေလက်ခံ' : 'Receive'),
+            Tab(text: lang == 'ak' ? 'ငွေပို့' : 'Send'),
+            Tab(text: lang == 'ak' ? 'ငွေလက်ခံ' : 'Receive'),
           ],
         ),
       ),
@@ -153,7 +153,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    lang == 'arak'
+                    lang == 'ak'
                         ? 'အော့ဖ်လိုင်း မုဒ်: ဘောက်ချာများသည် အင်တာနက် ပြန်ရပါက အလိုအလျောက် sync ပြုလုပ်ပါမည်။'
                         : 'Offline mode: Vouchers will auto-sync when connectivity returns.',
                     style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : Colors.black87),
@@ -166,7 +166,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
 
           // Transport method selector
           Text(
-            lang == 'arak' ? 'ငွေလွှဲနည်း ရွေးပါ' : 'Select Transfer Method',
+            lang == 'ak' ? 'ငွေလွှဲနည်း ရွေးပါ' : 'Select Transfer Method',
             style: TextStyle(
               fontSize: 13, fontWeight: FontWeight.bold,
               color: isDark ? Colors.white : Colors.black87,
@@ -178,7 +178,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               _buildMethodCard(
                 icon: Icons.contactless,
                 label: 'NFC',
-                sublabel: lang == 'arak' ? 'ထိ၍ပို့' : 'Tap to Pay',
+                sublabel: lang == 'ak' ? 'ထိ၍ပို့' : 'Tap to Pay',
                 method: 'nfc',
                 isDark: isDark,
               ),
@@ -186,7 +186,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               _buildMethodCard(
                 icon: Icons.bluetooth,
                 label: 'Bluetooth',
-                sublabel: lang == 'arak' ? 'ဘလူးတုသ်' : 'BLE Transfer',
+                sublabel: lang == 'ak' ? 'ဘလူးတုသ်' : 'BLE Transfer',
                 method: 'ble',
                 isDark: isDark,
               ),
@@ -194,7 +194,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               _buildMethodCard(
                 icon: Icons.qr_code_2,
                 label: 'QR',
-                sublabel: lang == 'arak' ? 'QR ကုဒ်' : 'QR Code',
+                sublabel: lang == 'ak' ? 'QR ကုဒ်' : 'QR Code',
                 method: 'qr',
                 isDark: isDark,
               ),
@@ -204,7 +204,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
 
           // Amount input
           Text(
-            lang == 'arak' ? 'ငွေပမာဏ (AKD)' : 'Amount (AKD)',
+            lang == 'ak' ? 'ငွေပမာဏ (AKD)' : 'Amount (AKD)',
             style: TextStyle(
               fontSize: 13, fontWeight: FontWeight.bold,
               color: isDark ? Colors.white : Colors.black87,
@@ -239,7 +239,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
 
           // Recipient input
           Text(
-            lang == 'arak' ? 'လက်ခံသူ ID' : 'Recipient ID',
+            lang == 'ak' ? 'လက်ခံသူ ID' : 'Recipient ID',
             style: TextStyle(
               fontSize: 13, fontWeight: FontWeight.bold,
               color: isDark ? Colors.white : Colors.black87,
@@ -252,7 +252,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               color: isDark ? Colors.white : Colors.black87,
             ),
             decoration: InputDecoration(
-              hintText: lang == 'arak' ? 'ARAK-XXXX သို့မဟုတ် ဖုန်းနံပါတ်' : 'ARAK-XXXX or phone number',
+              hintText: lang == 'ak' ? 'ARAK-XXXX သို့မဟုတ် ဖုန်းနံပါတ်' : 'ARAK-XXXX or phone number',
               hintStyle: TextStyle(color: Colors.grey[600], fontSize: 13),
               filled: true,
               fillColor: isDark ? surfaceCard : Colors.grey[100],
@@ -283,7 +283,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
                     const Icon(Icons.verified_user, color: emeraldSuccess, size: 16),
                     const SizedBox(width: 6),
                     Text(
-                      lang == 'arak' ? 'ကာကွယ်ထားသော ငွေလွှဲခြင်း' : 'Secured Transfer',
+                      lang == 'ak' ? 'ကာကွယ်ထားသော ငွေလွှဲခြင်း' : 'Secured Transfer',
                       style: const TextStyle(
                         fontSize: 12, fontWeight: FontWeight.bold, color: emeraldSuccess,
                       ),
@@ -292,7 +292,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  lang == 'arak'
+                  lang == 'ak'
                       ? '• Ed25519 ဒစ်ဂျစ်တယ် လက်မှတ်ဖြင့် ကာကွယ်ထားသည်\n'
                         '• Replay attack ကို nonce ဖြင့် တားဆီးသည်\n'
                         '• ၂၄ နာရီ သက်တမ်းရှိ (ပြန်လည်ကောင်းသည့်အခါ sync ပြုလုပ်ပါ)\n'
@@ -339,7 +339,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          lang == 'arak'
+                          lang == 'ak'
                               ? (_selectedMethod == 'nfc' ? 'ထိ၍ ငွေပို့ပါ' : 'ဘောက်ချာ ဖန်တီးပါ')
                               : (_selectedMethod == 'nfc' ? 'Tap to Send' : 'Create Voucher'),
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
@@ -374,8 +374,8 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
           const SizedBox(height: 20),
           Text(
             _isScanning
-                ? (lang == 'arak' ? 'စကင်ဖတ်နေပါသည်...' : 'Scanning...')
-                : (lang == 'arak' ? 'ငွေလက်ခံရန် အသင့် ရှိပါသည်' : 'Ready to Receive'),
+                ? (lang == 'ak' ? 'စကင်ဖတ်နေပါသည်...' : 'Scanning...')
+                : (lang == 'ak' ? 'ငွေလက်ခံရန် အသင့် ရှိပါသည်' : 'Ready to Receive'),
             style: TextStyle(
               fontSize: 16, fontWeight: FontWeight.bold,
               color: isDark ? Colors.white : Colors.black87,
@@ -383,7 +383,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            lang == 'arak'
+            lang == 'ak'
                 ? 'ပေးပို့သူ၏ ဖုန်းဖြင့် ထိပါ (NFC) သို့မဟုတ် ဘလူးတုသ် ဖွင့်ပါ'
                 : 'Tap sender\'s phone (NFC) or enable Bluetooth',
             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
@@ -400,8 +400,8 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
             icon: Icon(_isScanning ? Icons.stop : Icons.play_arrow),
             label: Text(
               _isScanning
-                  ? (lang == 'arak' ? 'ရပ်ပါ' : 'Stop')
-                  : (lang == 'arak' ? 'လက်ခံစတင်ပါ' : 'Start Receiving'),
+                  ? (lang == 'ak' ? 'ရပ်ပါ' : 'Stop')
+                  : (lang == 'ak' ? 'လက်ခံစတင်ပါ' : 'Start Receiving'),
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
@@ -494,7 +494,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            lang == 'arak'
+            lang == 'ak'
                 ? 'ဘောက်ချာ ဖန်တီးပြီးပါပြီ — အင်တာနက် ပြန်ရပါက sync ပြုလုပ်ပါမည်'
                 : 'Voucher created — will sync when connectivity returns',
           ),
@@ -529,7 +529,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: const Color(0xFF101724),
         title: Text(
-          lang == 'arak' ? 'Sync အခြေအနေ' : 'Sync Status',
+          lang == 'ak' ? 'Sync အခြေအနေ' : 'Sync Status',
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         content: Column(
@@ -539,7 +539,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  lang == 'arak' ? 'စောင့်ဆိုင်းဆဲ ဘောက်ချာ' : 'Pending Vouchers',
+                  lang == 'ak' ? 'စောင့်ဆိုင်းဆဲ ဘောက်ချာ' : 'Pending Vouchers',
                   style: TextStyle(color: Colors.grey[400], fontSize: 13),
                 ),
                 Text(
@@ -555,7 +555,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
             const Divider(color: Colors.white10),
             const SizedBox(height: 12),
             Text(
-              lang == 'arak'
+              lang == 'ak'
                   ? 'အင်တာနက် ချိတ်ဆက်မှုရရှိပါက ဘောက်ချာများ အလိုအလျောက် sync ပြုလုပ်ပါမည်။'
                   : 'Vouchers will automatically sync when internet connectivity is restored.',
               style: TextStyle(color: Colors.grey[500], fontSize: 12),
@@ -565,7 +565,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(lang == 'arak' ? 'ပိတ်ပါ' : 'Close',
+            child: Text(lang == 'ak' ? 'ပိတ်ပါ' : 'Close',
               style: const TextStyle(color: gold)),
           ),
         ],

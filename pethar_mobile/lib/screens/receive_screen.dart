@@ -86,7 +86,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
-                  lang == 'arak'
+                  lang == 'ak'
                       ? 'ဤ QR ကုဒ်ကို ပေးပို့သူအား ပြသ၍ အာရက္ခဒေါ်လာ တိုက်ရိုက်လက်ခံပါ'
                       : 'Scan with PeThar Mobile to send Arakan Dollars instantly',
                   style: TextStyle(fontSize: 12, color: Colors.grey[500], height: 1.4),

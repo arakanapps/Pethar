@@ -34,7 +34,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       backgroundColor: isDark ? obsidian : paper,
       appBar: AppBar(
         title: Text(
-          lang == 'arak' ? 'အသိပေးချက်များ' : 'Notifications',
+          lang == 'ak' ? 'အသိပေးချက်များ' : 'Notifications',
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         backgroundColor: isDark ? surfaceDark : Colors.white,
@@ -80,7 +80,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   margin: const EdgeInsets.only(right: 8),
                   child: FilterChip(
                     label: Text(
-                      (lang == 'arak' ? pill['mm'] : pill['label']) as String,
+                      (lang == 'ak' ? pill['mm'] : pill['label']) as String,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -110,7 +110,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ? () => appState.markAllNotificationsRead()
                       : null,
                   child: Text(
-                    lang == 'arak' ? 'အားလုံး ဖတ်ပြီးဟု မှတ်သား' : 'Mark all as read',
+                    lang == 'ak' ? 'အားလုံး ဖတ်ပြီးဟု မှတ်သား' : 'Mark all as read',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -132,7 +132,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         Icon(Icons.notifications_off_outlined, size: 40, color: Colors.grey[600]),
                         const SizedBox(height: 10),
                         Text(
-                          lang == 'arak' ? 'အသိပေးချက် မရှိပါ' : 'No notifications in this category',
+                          lang == 'ak' ? 'အသိပေးချက် မရှိပါ' : 'No notifications in this category',
                           style: TextStyle(color: Colors.grey[500], fontSize: 12),
                         ),
                       ],
@@ -192,7 +192,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            lang == 'arak' ? item.titleMm : item.titleEn,
+                                            lang == 'ak' ? item.titleMm : item.titleEn,
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 13,
@@ -213,7 +213,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      lang == 'arak' ? item.bodyMm : item.bodyEn,
+                                      lang == 'ak' ? item.bodyMm : item.bodyEn,
                                       style: TextStyle(
                                         fontSize: 11,
                                         color: isDark ? Colors.grey[400] : Colors.grey[700],

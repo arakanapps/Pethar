@@ -38,7 +38,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
     setDownloaded(true)
     setTimeout(() => {
       alert(
-        lang === 'arak'
+        lang === 'ak'
           ? 'ငွေလွှဲဖြတ်ပိုင်း (e-Slip) ကို ဖုန်း၏ Photos / Gallery ထဲသို့ သိမ်းဆည်းပြီးပါပြီ!'
           : 'Transaction e-Slip saved to Photos / Gallery!'
       )
@@ -65,7 +65,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
         <div className="mb-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-[10px] font-bold text-emerald-300 flex items-center gap-1.5 animate-bounce">
           <Check size={12} className="text-emerald-400" />
           <span>
-            {lang === 'arak'
+            {lang === 'ak'
               ? 'ဖြတ်ပိုင်းကို Photos ထဲသို့ အလိုအလျောက် သိမ်းဆည်းပြီးပါပြီ'
               : 'Slip Auto-Saved to Photos'}
           </span>
@@ -89,7 +89,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
           <div className="text-right">
             <div className="flex items-center gap-1 text-emerald-600 font-bold text-[11px]">
               <CheckCircle size={14} className="fill-emerald-600 text-white" />
-              <span>{lang === 'arak' ? 'အောင်မြင်ပါသည်' : 'Successful'}</span>
+              <span>{lang === 'ak' ? 'အောင်မြင်ပါသည်' : 'Successful'}</span>
             </div>
             <div className="text-[9px] text-gray-400 font-mono mt-0.5">{timestamp}</div>
           </div>
@@ -126,13 +126,13 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
         {/* Amount Box */}
         <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200/80 text-center">
           <div className="text-[10px] uppercase tracking-wider text-amber-800 font-bold">
-            {lang === 'arak' ? 'လွှဲပို့ငွေပမာဏ' : 'Transfer Amount'}
+            {lang === 'ak' ? 'လွှဲပို့ငွေပမာဏ' : 'Transfer Amount'}
           </div>
           <div className="text-2xl font-black font-mono text-gray-900 mt-0.5">
             ₳ {amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="text-[9px] text-emerald-700 font-medium mt-0.5">
-            {fee === 0 ? (lang === 'arak' ? 'ဝန်ဆောင်ခ အခမဲ့ (၀.၀၀ ₳)' : 'Fee: Free (0.00 ₳)') : `Fee: ₳ ${fee.toFixed(2)}`}
+            {fee === 0 ? (lang === 'ak' ? 'ဝန်ဆောင်ခ အခမဲ့ (၀.၀၀ ₳)' : 'Fee: Free (0.00 ₳)') : `Fee: ₳ ${fee.toFixed(2)}`}
           </div>
         </div>
 
@@ -161,10 +161,10 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
           {downloaded ? <Check size={14} className="text-emerald-400" /> : <Download size={14} />}
           <span>
             {downloaded
-              ? lang === 'arak'
+              ? lang === 'ak'
                 ? 'သိမ်းဆည်းပြီး ✓'
                 : 'Slip Saved ✓'
-              : lang === 'arak'
+              : lang === 'ak'
               ? 'ဖြတ်ပိုင်းသိမ်းရန်'
               : 'Save Slip'}
           </span>
@@ -175,7 +175,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
           className="py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 border border-white/10"
         >
           {shared ? <Check size={14} className="text-emerald-400" /> : <Share2 size={14} />}
-          <span>{shared ? (lang === 'arak' ? 'ကူးယူပြီး' : 'Copied') : (lang === 'arak' ? 'မျှဝေရန်' : 'Share Slip')}</span>
+          <span>{shared ? (lang === 'ak' ? 'ကူးယူပြီး' : 'Copied') : (lang === 'ak' ? 'မျှဝေရန်' : 'Share Slip')}</span>
         </button>
       </div>
 
@@ -184,7 +184,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
           onClick={onClose}
           className="w-full mt-3 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition shadow-lg"
         >
-          {lang === 'arak' ? 'ပြီးပါပြီ' : 'Done'}
+          {lang === 'ak' ? 'ပြီးပါပြီ' : 'Done'}
         </button>
       )}
     </div>

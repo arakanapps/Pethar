@@ -320,11 +320,11 @@ class SettingsScreen extends StatelessWidget {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () => appState.setLanguage('arak'),
+                                  onTap: () => appState.setLanguage('ak'),
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: lang == 'arak' ? crimson : Colors.transparent,
+                                      color: lang == 'ak' ? crimson : Colors.transparent,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
@@ -332,7 +332,7 @@ class SettingsScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
-                                        color: lang == 'arak' ? Colors.white : Colors.grey,
+                                        color: lang == 'ak' ? Colors.white : Colors.grey,
                                       ),
                                     ),
                                   ),
@@ -440,7 +440,7 @@ class SettingsScreen extends StatelessWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  lang == 'arak'
+                                  lang == 'ak'
                                       ? '၆ လုံး လျှို့ဝှက်ကုဒ် (PIN) အသစ် ပြောင်းလဲရန် ညွှန်ကြားချက် ပို့ပြီးပါပြီ'
                                       : 'Instructions sent to reset your 6-digit transaction PIN',
                                 ),
@@ -491,7 +491,7 @@ class SettingsScreen extends StatelessWidget {
 
                   // SECTION 3: LEGAL & POLICIES
                   Text(
-                    (lang == 'arak' ? 'ဥပဒေနှင့် စည်းမျဉ်းများ' : 'Legal & Policies').toUpperCase(),
+                    (lang == 'ak' ? 'ဥပဒေနှင့် စည်းမျဉ်းများ' : 'Legal & Policies').toUpperCase(),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -520,7 +520,7 @@ class SettingsScreen extends StatelessWidget {
                           onTap: () => _showPolicyDialog(
                             context,
                             TranslationStrings.tr('legalTerms', lang),
-                            lang == 'arak'
+                            lang == 'ak'
                                 ? 'ဖေ့သာသည် အာရက္ခပြည်သူများအတွက် ဖွဲ့စည်းတည်ထောင်ထားသော ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်ဖြစ်ပါသည်။ တရားဝင်ငွေကြေးမှာ အာရက္ခဒေါ်လာ (AKD) ဖြစ်ပြီး အမေရိကန်ဒေါ်လာနှင့် ရွှေအာမခံဘဏ္ဍာတိုက်ဖြင့် ကျောထောက်နောက်ခံပြုထားပါသည်။'
                                 : 'PeThar is the institutional national financial technology infrastructure for Arakan. The official unit of account is the Arakan Dollar (AKD), pegged 1:1 against USD value reserves with double-entry cryptographic ledger.',
                           ),
@@ -536,7 +536,7 @@ class SettingsScreen extends StatelessWidget {
                           onTap: () => _showPolicyDialog(
                             context,
                             TranslationStrings.tr('legalPrivacy', lang),
-                            lang == 'arak'
+                            lang == 'ak'
                                 ? 'အသုံးပြုသူများ၏ ကိုယ်ရေးအချက်အလက်များကို AES-256 ဖြင့် စာဝှက်စနစ် ချိတ်ပိတ်ထားပြီး မည်သည့်ပြင်ပအဖွဲ့အစည်းထံသို့မျှ ရောင်းချပေါက်ကြားခြင်းမရှိစေရန် အာမခံပါသည်။'
                                 : 'User identity records, phone numbers, and proofs are protected with AES-256-GCM encryption. Zero data is shared or sold to advertising brokers or external authorities.',
                           ),
@@ -552,7 +552,7 @@ class SettingsScreen extends StatelessWidget {
                           onTap: () => _showPolicyDialog(
                             context,
                             TranslationStrings.tr('legalGuidelines', lang),
-                            lang == 'arak'
+                            lang == 'ak'
                                 ? 'သင်၏ ၆ လုံး လျှို့ဝှက် PIN ကို မည်သူ့ကိုမျှ မပြောပြပါနှင့်။ အရေးပေါ်အကျပ်အတည်းကြုံပါက Panic PIN (၉၉၉၉၉၉) ကို ရိုက်ထည့်နိုင်ပါသည်။'
                                 : 'Never share your 6-digit PIN with anyone. In emergencies under duress, entering the Panic PIN (999999) displays a decoy balance of 25 AKD and sends a silent community alert.',
                           ),

@@ -142,7 +142,7 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
                           ],
                         ),
                         Text(
-                          lang == 'arak' ? 'မြောက်ဦးတော်ဝင် ကုန်မာနှင့် စတိုးဆိုင်' : 'Mrauk-U Royal Merchant Register',
+                          lang == 'ak' ? 'မြောက်ဦးတော်ဝင် ကုန်မာနှင့် စတိုးဆိုင်' : 'Mrauk-U Royal Merchant Register',
                           style: TextStyle(fontSize: 10, color: Colors.grey[500]),
                         ),
                       ],
@@ -154,7 +154,7 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(lang == 'arak' ? 'ယနေ့ရောင်းရငွေ' : 'Daily Sales', style: TextStyle(fontSize: 9, color: Colors.grey[500])),
+                        Text(lang == 'ak' ? 'ယနေ့ရောင်းရငွေ' : 'Daily Sales', style: TextStyle(fontSize: 9, color: Colors.grey[500])),
                         const Text('₳ 4,890.50', style: TextStyle(fontFamily: 'monospace', fontSize: 13, fontWeight: FontWeight.bold, color: emeraldSuccess)),
                       ],
                     ),
@@ -245,7 +245,7 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    lang == 'arak' ? (itm['mm'] as String) : name,
+                                    lang == 'ak' ? (itm['mm'] as String) : name,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 11,
@@ -370,7 +370,7 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        lang == 'arak' ? (itm['mm'] as String) : itm['name'] as String,
+                                        lang == 'ak' ? (itm['mm'] as String) : itm['name'] as String,
                                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -428,7 +428,7 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
                         onPressed: _totalAmount > 0 ? () => setState(() => _viewState = 'waiting') : null,
                         icon: const Icon(Icons.qr_code, color: Colors.black, size: 18),
                         label: Text(
-                          lang == 'arak' ? 'QR ဖြင့် ငွေတောင်းခံမည်' : 'Charge with QR',
+                          lang == 'ak' ? 'QR ဖြင့် ငွေတောင်းခံမည်' : 'Charge with QR',
                           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                         style: ElevatedButton.styleFrom(

@@ -1,6 +1,6 @@
 class TranslationStrings {
   static const Map<String, Map<String, String>> translations = {
-    'arak': {
+    'ak': {
       'appName': 'ဖေ့သာ',
       'appSubtitle': 'အာရက္ခအမျိုးသား ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်',
       'currencyLabel': 'အာရက္ခဒေါ်လာ',
