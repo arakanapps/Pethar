@@ -1,6 +1,6 @@
 import { ArakanEmblem } from './ArakanEmblem'
 
-/** Deterministic pseudo-QR pattern with ArakanPay center emblem */
+/** Deterministic pseudo-QR pattern with Arakan QR center emblem */
 export function FakeQR({
   seed,
   value,

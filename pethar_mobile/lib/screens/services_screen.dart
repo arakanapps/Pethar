@@ -37,9 +37,9 @@ class ServicesScreen extends StatelessWidget {
           },
           {
             'screen': Screen.receive,
-            'nameEn': 'My ArakanPay QR',
+            'nameEn': 'My Arakan QR (AK QR)',
             'nameMm': 'မိမိ QR ဖြင့် ငွေလက်ခံ',
-            'descEn': 'Personal and merchant receiving code',
+            'descEn': 'Personal and merchant AK QR receiving code',
             'descMm': 'မိမိ၏ ငွေလက်ခံ QR ကုဒ်',
             'icon': Icons.qr_code,
             'color': gold,

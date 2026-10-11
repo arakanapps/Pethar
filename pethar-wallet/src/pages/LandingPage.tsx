@@ -379,7 +379,7 @@ export default function LandingPage({
               <RevealSection delay={200}>
                 <p className="text-base sm:text-lg text-white/65 max-w-xl leading-relaxed">
                   {lang === 'ak'
-                    ? 'ဖေ့သာ (PeThar) သည် မြန်ဆန်၍ လုံခြုံစိတ်ချရသော ဒစ်ဂျစ်တယ်ငွေလွှဲခြင်း၊ ဈေးဆိုင်သုံး ArakanPay QR ငွေရှင်းစနစ်၊ ဒေသတွင်းငွေလွှဲစင်္ကြံများနှင့် ဆက်သွယ်ရေးပြတ်တောက်ချိန်တွင် အသုံးပြုနိုင်သည့် အော့ဖ်လိုင်းငွေပေးချေမှု နည်းပညာများကို ထောက်ပံ့ပေးပါသည်။'
+                    ? 'ဖေ့သာ (PeThar) သည် မြန်ဆန်၍ လုံခြုံစိတ်ချရသော ဒစ်ဂျစ်တယ်ငွေလွှဲခြင်း၊ ဈေးဆိုင်သုံး Arakan QR (AK QR) ငွေရှင်းစနစ်၊ ဒေသတွင်းငွေလွှဲစင်္ကြံများနှင့် ဆက်သွယ်ရေးပြတ်တောက်ချိန်တွင် အသုံးပြုနိုင်သည့် အော့ဖ်လိုင်းငွေပေးချေမှု နည်းပညာများကို ထောက်ပံ့ပေးပါသည်။'
                     : 'PeThar provides reliable digital payment infrastructure across Arakan. Enabling instant peer-to-peer transfers, zero-fee merchant QR checkout, regional remittance corridors, and cryptographic offline transaction resilience.'}
                 </p>
               </RevealSection>
@@ -615,7 +615,7 @@ export default function LandingPage({
                     <Store size={22} />
                   </div>
                   <h3 className="text-lg font-bold text-white mb-2">
-                    {lang === 'ak' ? 'ArakanPay QR ကုန်သည်စနစ်' : 'Merchant POS & QR'}
+                    {lang === 'ak' ? 'Arakan QR ကုန်သည်စနစ်' : 'Merchant POS & AK QR'}
                   </h3>
                   <p className="text-xs text-white/55 leading-relaxed">
                     {lang === 'ak'
@@ -822,7 +822,7 @@ export default function LandingPage({
                   </h3>
                   <p className="text-xs sm:text-sm text-white/60 leading-relaxed mb-6">
                     {lang === 'ak'
-                      ? 'ဆန်စပါး၊ လောင်စာဆီ၊ ကုန်မာနှင့် ဆေးဆိုင်များတွင် ArakanPay QR ဖြင့် စက္ကန့်ပိုင်းအတွင်း ငွေလက်ခံပြီး စာရွက်ပြေစာ ထုတ်ပေးနိုင်ပါသည်'
+                      ? 'ဆန်စပါး၊ လောင်စာဆီ၊ ကုန်မာနှင့် ဆေးဆိုင်များတွင် Arakan QR (AK QR) ဖြင့် စက္ကန့်ပိုင်းအတွင်း ငွေလက်ခံပြီး စာရွက်ပြေစာ ထုတ်ပေးနိုင်ပါသည်'
                       : 'Accept instant customer QR payments at grocery, fuel, and wholesale stores with zero card processing fees and automatic accounting journals.'}
                   </p>
 

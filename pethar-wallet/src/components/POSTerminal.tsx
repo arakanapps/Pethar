@@ -200,7 +200,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
                 className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-lg hover:brightness-110 active:scale-[0.99] transition disabled:opacity-40 flex items-center justify-center gap-2 mt-2"
               >
                 <QrCode size={14} />
-                {lang === 'ak' ? 'ငွေကောက်ခံရန် QR ကုဒ်ပြသပါ' : 'Generate ArakanPay Charge QR'}
+                {lang === 'ak' ? 'ငွေကောက်ခံရန် Arakan QR ပြသပါ' : 'Generate Arakan QR (AK QR)'}
               </button>
             </div>
           </div>
