@@ -6,6 +6,7 @@
   "scripts": {
     "build": "cd pethar-wallet && npm install && npm run build",
     "dev": "cd pethar-wallet && npm run dev",
+    "test": "cd pethar-wallet && npm test",
     "start": "cd pethar-wallet && npm run preview",
     "web": "./apps/web/run.sh",
     "android": "./apps/android/run.sh",
