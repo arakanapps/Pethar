@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "description": "PeThar (ဖေ့သာ) — Multi-Platform Financial Infrastructure (Web, Android, iOS, POS, Desktop)",
+  "type": "module",
   "scripts": {
     "build": "cd pethar-wallet && npm install && npm run build",
     "dev": "cd pethar-wallet && npm run dev",
     "test": "cd pethar-wallet && npm test",
     "start": "cd pethar-wallet && npm run preview",
     "lint:ui": "cd pethar-wallet && npm run lint:ui",
+    "drizzle:generate": "drizzle-kit generate",
+    "drizzle:push": "drizzle-kit push",
     "web": "./apps/web/run.sh",
     "android": "./apps/android/run.sh",
     "android:apk": "./apps/android/build-apk.sh",
@@ -17,5 +20,15 @@
     "pos": "./apps/pos/run.sh",
     "desktop": "./apps/desktop/run-macos.sh",
     "desktop:electron": "./apps/desktop/run-electron.sh"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.4",
+    "postgres": "^3.4.9"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "drizzle-kit": "^0.31.11",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }
