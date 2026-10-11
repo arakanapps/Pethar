@@ -14,6 +14,7 @@ import 'cashout_screen.dart';
 import 'notifications_screen.dart';
 import 'intl_screen.dart';
 import 'crypto_screen.dart';
+import 'offline_payment_screen.dart';
 
 import 'pos_terminal_screen.dart';
 import 'desktop_portal_screen.dart';
@@ -36,6 +37,7 @@ class MainShell extends StatelessWidget {
     if (appState.currentScreen == Screen.notifications) return const NotificationsScreen();
     if (appState.currentScreen == Screen.intl) return const IntlScreen();
     if (appState.currentScreen == Screen.crypto) return const CryptoScreen();
+    if (appState.currentScreen == Screen.offlinePayment) return const OfflinePaymentScreen();
 
     int currentIndex = 0;
     switch (appState.currentScreen) {

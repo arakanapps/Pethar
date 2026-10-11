@@ -141,11 +141,11 @@ class _HomeScreenState extends State<HomeScreen> {
         'iconColor': Colors.cyanAccent,
       },
       {
-        'id': Screen.pos,
-        'label': lang == 'arak' ? 'ကုန်သည် POS' : 'Merchant POS',
-        'icon': Icons.point_of_sale,
-        'color': Colors.orange.withOpacity(0.2),
-        'iconColor': Colors.orangeAccent,
+        'id': Screen.offlinePayment,
+        'label': lang == 'arak' ? 'အော့ဖ်လိုင်း' : 'Offline NFC',
+        'icon': Icons.contactless,
+        'color': cyanNeon.withOpacity(0.2),
+        'iconColor': cyanNeon,
       },
       {
         'id': Screen.receive,

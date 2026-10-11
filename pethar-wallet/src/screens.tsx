@@ -1088,6 +1088,7 @@ export function Send({
   const [amount, setAmount] = useState('')
   const [pin, setPin] = useState('')
   const [customRecipient, setCustomRecipient] = useState('')
+  const [slipRefId, setSlipRefId] = useState('')
 
   const handleSelectContact = (c: (typeof contacts)[0]) => {
     setContact(c)
@@ -1115,6 +1116,7 @@ export function Send({
       setPin(nextPin)
       if (nextPin.length === 6) {
         setTimeout(() => {
+          setSlipRefId(`ARAK-P2P-${Date.now().toString().slice(-6)}`)
           setStep('done')
           if (onSent) {
             onSent(parseFloat(amount || '0'))
@@ -1270,7 +1272,7 @@ export function Send({
         <div className="flex-1 overflow-y-auto">
           <TransactionSlip
             lang={lang}
-            refId={`ARAK-P2P-${Date.now().toString().slice(-6)}`}
+            refId={slipRefId || 'ARAK-P2P-984210'}
             amount={parseFloat(amount) || 0}
             recipientName={contact.name}
             recipientId={contact.id}

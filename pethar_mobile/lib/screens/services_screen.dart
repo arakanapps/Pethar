@@ -103,6 +103,21 @@ class ServicesScreen extends StatelessWidget {
           },
         ],
       },
+      {
+        'titleEn': 'Sovereign Resilient & Offline Rails',
+        'titleMm': 'အော့ဖ်လိုင်း ဆက်သွယ်ရေးပြတ်တောက်မှု ကာကွယ်ရေး',
+        'items': [
+          {
+            'screen': Screen.offlinePayment,
+            'nameEn': 'Offline NFC & Bluetooth Mesh',
+            'nameMm': 'အော့ဖ်လိုင်း NFC / ဘလူးတုသ် ငွေပေးချေမှု',
+            'descEn': 'Tap-to-pay & BLE mesh during blackout',
+            'descMm': 'အင်တာနက်မရှိဘဲ NFC ဖြင့် ထိ၍ ငွေပေးချေပါ',
+            'icon': Icons.contactless,
+            'color': cyanNeon,
+          },
+        ],
+      },
     ];
 
     return Scaffold(
