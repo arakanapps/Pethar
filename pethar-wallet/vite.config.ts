@@ -8,12 +8,12 @@ export default defineConfig({
   base: '/',
   plugins: [inspectAttr(), react()],
   server: {
-    port: 3006,
+    port: 3000,
     host: true,
     allowedHosts: true,
   },
   preview: {
-    port: 3006,
+    port: 3000,
     host: true,
     allowedHosts: true,
   },

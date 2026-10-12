@@ -11,7 +11,7 @@
     "test": "tsc -b && eslint .",
     "preview": "vite preview",
     "desktop": "electron electron/main.js",
-    "lint:ui": "lintapple http://localhost:3006"
+    "lint:ui": "lintapple http://localhost:3000"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
