@@ -18,7 +18,7 @@ export const ArakanEmblem: React.FC<EmblemProps> = ({ className = '', size = 40,
 /** Flag icons for language selector (zero text, graphical flags) */
 export const FlagArakan: React.FC<{ size?: number; className?: string }> = ({ size = 20, className = '' }) => (
   <div
-    className={`inline-flex items-center justify-center rounded overflow-hidden border border-white/20 shrink-0 relative bg-[#D91624] ${className}`}
+    className={`inline-flex items-center justify-center rounded overflow-hidden border border-white/20 shrink-0 relative bg-[#ec201c] ${className}`}
     style={{ width: size, height: (size * 2) / 3 }}
     title="ရခိုင် (Arakan)"
     aria-label="ရခိုင်"
@@ -58,7 +58,7 @@ export const FlagInternational: React.FC<{ size?: number; className?: string }> 
 /** Circular Flag for Arakan (United League of Arakan flag) */
 export const FlagArakanCircle: React.FC<{ size?: number; className?: string }> = ({ size = 28, className = '' }) => (
   <div
-    className={`inline-flex items-center justify-center rounded-full overflow-hidden border-2 border-white/90 shadow-sm shrink-0 relative bg-[#D91624] ${className}`}
+    className={`inline-flex items-center justify-center rounded-full overflow-hidden border-2 border-white/90 shadow-sm shrink-0 relative bg-[#ec201c] ${className}`}
     style={{ width: size, height: size }}
     title="Arakan"
     aria-label="Arakan"
@@ -66,7 +66,7 @@ export const FlagArakanCircle: React.FC<{ size?: number; className?: string }> =
     <img
       src="/united-league-of-arakan-flag.png"
       alt="United League of Arakan Flag"
-      className="w-full h-full object-cover scale-110"
+      className="w-full h-full object-contain p-[2px] scale-[0.84]"
     />
   </div>
 )

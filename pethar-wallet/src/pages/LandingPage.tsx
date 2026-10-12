@@ -328,47 +328,41 @@ export default function LandingPage({
                 )}
               </button>
 
-              {/* Speech-Bubble Popover Card (Zero Text, Pure Graphical Flags) */}
+              {/* Speech-Bubble Popover Card (Single Flag to Change, Zero Text) */}
               {langDropdownOpen && (
-                <div className="absolute top-full right-0 mt-2 z-50 animate-in fade-in slide-in-from-top-1">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 animate-in fade-in slide-in-from-top-1">
                   {/* Speech bubble pointer arrow */}
-                  <div className="w-0 h-0 border-x-[6px] border-x-transparent border-b-[6px] border-b-white mx-auto drop-shadow-[0_-1px_1px_rgba(0,0,0,0.06)] mr-3 -mb-[1px]" />
+                  <div className="w-0 h-0 border-x-[6px] border-x-transparent border-b-[6px] border-b-white mx-auto drop-shadow-[0_-1px_1px_rgba(0,0,0,0.06)] -mb-[1px]" />
 
-                  {/* Popover body */}
-                  <div className="bg-white rounded-2xl p-1.5 shadow-xl border border-slate-200/90 flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLang?.('ak')
-                        setLangDropdownOpen(false)
-                      }}
-                      className={`p-1.5 rounded-xl transition-all ${
-                        lang === 'ak'
-                          ? 'bg-red-50 ring-2 ring-red-500 shadow-sm'
-                          : 'hover:bg-slate-100 opacity-60 hover:opacity-100'
-                      }`}
-                      title="ရခိုင်ဘာသာ"
-                      aria-label="ရခိုင်ဘာသာ"
-                    >
-                      <FlagArakanCircle size={26} />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLang?.('en')
-                        setLangDropdownOpen(false)
-                      }}
-                      className={`p-1.5 rounded-xl transition-all ${
-                        lang === 'en'
-                          ? 'bg-blue-50 ring-2 ring-blue-500 shadow-sm'
-                          : 'hover:bg-slate-100 opacity-60 hover:opacity-100'
-                      }`}
-                      title="English"
-                      aria-label="English"
-                    >
-                      <FlagUKCircle size={26} />
-                    </button>
+                  {/* Popover body: Exactly one button to change */}
+                  <div className="bg-white rounded-2xl p-1.5 shadow-xl border border-slate-200/90 flex items-center justify-center min-w-[46px]">
+                    {lang === 'ak' ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLang?.('en')
+                          setLangDropdownOpen(false)
+                        }}
+                        className="p-1 rounded-full hover:bg-slate-100 transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                        title="English"
+                        aria-label="Switch to English"
+                      >
+                        <FlagUKCircle size={28} />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLang?.('ak')
+                          setLangDropdownOpen(false)
+                        }}
+                        className="p-1 rounded-full hover:bg-slate-100 transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                        title="ရခိုင်ဘာသာ"
+                        aria-label="Switch to Arakanese"
+                      >
+                        <FlagArakanCircle size={28} />
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -446,37 +440,22 @@ export default function LandingPage({
               )}
             </div>
 
-            {/* Mobile Language Selector (Zero Text) */}
+            {/* Mobile Language Selector: Single button to change */}
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="text-xs text-slate-500 font-sans">{lang === 'ak' ? 'ဘာသာစကား ရွေးချယ်ရန်' : 'Language'}</span>
-              <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-full p-1">
-                <button
-                  type="button"
-                  onClick={() => setLang?.('ak')}
-                  className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
-                    lang === 'ak'
-                      ? 'bg-red-50 ring-2 ring-red-500 shadow-sm'
-                      : 'opacity-60 hover:opacity-100'
-                  }`}
-                  title="ရခိုင်ဘာသာ"
-                  aria-label="ရခိုင်ဘာသာ"
-                >
-                  <FlagArakanCircle size={22} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLang?.('en')}
-                  className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
-                    lang === 'en'
-                      ? 'bg-blue-50 ring-2 ring-blue-500 shadow-sm'
-                      : 'opacity-60 hover:opacity-100'
-                  }`}
-                  title="English"
-                  aria-label="English"
-                >
-                  <FlagUKCircle size={22} />
-                </button>
-              </div>
+              <span className="text-xs text-slate-500 font-sans">{lang === 'ak' ? 'ဘာသာစကား' : 'Language'}</span>
+              <button
+                type="button"
+                onClick={() => setLang?.(lang === 'ak' ? 'en' : 'ak')}
+                className="p-1 rounded-full border border-slate-200 bg-white shadow-sm hover:scale-105 active:scale-95 transition-all"
+                title={lang === 'ak' ? 'Switch to English' : 'ရခိုင်ဘာသာသို့ ပြောင်းမည်'}
+                aria-label="Change language"
+              >
+                {lang === 'ak' ? (
+                  <FlagUKCircle size={24} />
+                ) : (
+                  <FlagArakanCircle size={24} />
+                )}
+              </button>
             </div>
 
             {navMenuItems.map((item) => (
