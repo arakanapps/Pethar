@@ -6,7 +6,7 @@ import {
   Smartphone, ArrowRight, Download, Apple,
   ChevronDown, Send, Menu, X, CheckCircle,
   Radio, Search,
-  Wallet, Check, QrCode, ShieldCheck, CreditCard
+  Wallet, Check, QrCode, ShieldCheck, CreditCard, Mail
 } from 'lucide-react'
 
 interface LandingPageProps {
@@ -1025,6 +1025,16 @@ export default function LandingPage({
               <div className="font-bold text-slate-800 mb-3 uppercase tracking-wider">{lang === 'ak' ? 'ဆက်သွယ်ရန်' : 'Contact Support'}</div>
               <div className="space-y-2.5 text-[11px]">
                 <div className="flex items-center gap-2">
+                  <span className="text-slate-400">Email:</span>
+                  <a
+                    href="mailto:pethar-app@protonmail.com"
+                    className="text-amber-700 font-bold hover:underline flex items-center gap-1.5"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-amber-600" />
+                    <span>pethar-app@protonmail.com</span>
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
                   <span className="text-slate-400">Telegram:</span>
                   <a
                     href="https://t.me/petharsupport"
@@ -1040,7 +1050,7 @@ export default function LandingPage({
                 </div>
                 <div>Web: <a href="https://www.pethar.co.uk" target="_blank" rel="noopener noreferrer" className="text-slate-800 font-bold hover:underline">www.pethar.co.uk</a></div>
                 <div className="pt-1 text-[10px] text-slate-400">
-                  {lang === 'ak' ? 'တရားဝင် အကူအညီအတွက် Telegram တွင် ဆက်သွယ်ပါ' : 'Official 24/7 customer assistance via Telegram'}
+                  {lang === 'ak' ? 'တရားဝင် အကူအညီအတွက် Telegram သို့မဟုတ် ProtonMail တွင် ဆက်သွယ်ပါ' : 'Official 24/7 customer assistance via Telegram & ProtonMail'}
                 </div>
               </div>
             </div>

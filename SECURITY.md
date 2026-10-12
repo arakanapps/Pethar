@@ -4,7 +4,7 @@ PeThar is an early prototype. It is not approved for real-money use, production 
 
 ## Reporting a vulnerability
 
-Do not open a public issue for a vulnerability. Contact the project security owner through a private channel agreed by the maintainers and include:
+Do not open a public issue for a vulnerability. Contact the project security maintainers privately at [pethar-app@protonmail.com](mailto:pethar-app@protonmail.com) and include:
 
 - affected component, commit, or deployment
 - reproducible steps or proof of concept

@@ -100,6 +100,7 @@ class TranslationStrings {
       'legalGuidelines': 'အက်ပ်အသုံးပြုနည်းနှင့် လုံခြုံရေး လမ်းညွှန်ချက်',
       'legalFxRates': 'အာရက္ခဒေါ်လာ အထူးနိုင်ငံခြားငွေလဲလှယ်နှုန်းများ',
       'legalRegulatory': 'အာရက္ခဒစ်ဂျစ်တယ်ဘဏ္ဍာရေး စည်းမျဉ်းကြီးကြပ်ရေးအဖွဲ့ လိုင်စင်ရ',
+      'supportContact': 'အကူအညီနှင့် တရားဝင်ဆက်သွယ်ရန်',
     },
     'en': {
       'appName': 'PeThar',
@@ -201,6 +202,7 @@ class TranslationStrings {
       'legalGuidelines': 'Safe Banking Guidelines & Fraud Prevention',
       'legalFxRates': 'Official Arakan Foreign Exchange Special Board',
       'legalRegulatory': 'Licensed by Arakan Digital Financial Regulatory Authority',
+      'supportContact': 'Official Support & Inquiries',
     }
   };
 

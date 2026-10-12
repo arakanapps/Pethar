@@ -149,6 +149,14 @@ The migration in [`db/migrations/001_initial_revised.sql`](db/migrations/001_ini
 - [`docs/README.md`](docs/README.md): product and architecture documentation map
 - [`docs/product-principles.md`](docs/product-principles.md): customer, compliance, and design principles
 
+## Contact & Support
+
+For inquiries, support, and security disclosures:
+
+- **Official Secure Email**: [`pethar-app@protonmail.com`](mailto:pethar-app@protonmail.com)
+- **Telegram Support**: [@petharsupport](https://t.me/petharsupport)
+- **Official Web Portal**: [www.pethar.co.uk](https://www.pethar.co.uk)
+
 ## License
 
 No open-source license has been selected yet. Until a license is added, all rights are reserved by the project owner.
