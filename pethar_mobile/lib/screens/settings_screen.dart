@@ -571,6 +571,22 @@ class SettingsScreen extends StatelessWidget {
                             '1.00 AKD = 1.00 USD\n1.00 AKD = 1.00 USDT\n1.00 AKD = 35.80 THB\n1.00 AKD = 4.72 MYR\n1.00 AKD = 1.34 SGD\n1.00 AKD = 0.92 EUR',
                           ),
                         ),
+                        Divider(height: 1, color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[100]),
+                        ListTile(
+                          leading: const Icon(Icons.mail_outline, color: gold, size: 20),
+                          title: Text(
+                            TranslationStrings.tr('supportContact', lang),
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                          ),
+                          trailing: const Icon(Icons.chevron_right, size: 18),
+                          onTap: () => _showPolicyDialog(
+                            context,
+                            TranslationStrings.tr('supportContact', lang),
+                            lang == 'ak'
+                                ? 'တရားဝင် အကူအညီနှင့် သတင်းပို့ဆက်သွယ်ရန် -\n\n• Email: pethar-app@protonmail.com\n• Telegram: @petharsupport\n• Website: https://www.pethar.co.uk'
+                                : 'For customer support, security disclosures, and official inquiries:\n\n• Email: pethar-app@protonmail.com\n• Telegram: @petharsupport\n• Website: https://www.pethar.co.uk',
+                          ),
+                        ),
                       ],
                     ),
                     ),
