@@ -312,14 +312,14 @@ export default function LandingPage({
               )}
             </div>
 
-            {/* Circular Flag Language Selector with Speech-Bubble Popover (MTB Pay inspired) */}
+            {/* Circular Flag Language Selector (Zero Text) */}
             <div ref={langDropdownRef} className="relative">
               <button
                 type="button"
                 onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                className="relative w-8 h-8 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200/80 flex items-center justify-center overflow-hidden hover:scale-105 active:scale-95 transition-all"
-                title={lang === 'ak' ? 'ဘာသာစကား ရွေးချယ်ရန် (Arakanese)' : 'Select Language (ENG)'}
-                aria-label="Toggle language menu"
+                className="relative w-8 h-8 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200/80 flex items-center justify-center overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                title={lang === 'ak' ? 'ရခိုင်ဘာသာ' : 'English'}
+                aria-label="Language selector"
               >
                 {lang === 'ak' ? (
                   <FlagArakanCircle size={28} />
@@ -328,29 +328,29 @@ export default function LandingPage({
                 )}
               </button>
 
-              {/* Speech-Bubble Popover Card with Upward Notch Pointer */}
+              {/* Speech-Bubble Popover Card (Zero Text, Pure Graphical Flags) */}
               {langDropdownOpen && (
                 <div className="absolute top-full right-0 mt-2 z-50 animate-in fade-in slide-in-from-top-1">
                   {/* Speech bubble pointer arrow */}
                   <div className="w-0 h-0 border-x-[6px] border-x-transparent border-b-[6px] border-b-white mx-auto drop-shadow-[0_-1px_1px_rgba(0,0,0,0.06)] mr-3 -mb-[1px]" />
 
                   {/* Popover body */}
-                  <div className="bg-white rounded-2xl p-1.5 shadow-xl border border-slate-200/90 min-w-[150px] space-y-1">
+                  <div className="bg-white rounded-2xl p-1.5 shadow-xl border border-slate-200/90 flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => {
                         setLang?.('ak')
                         setLangDropdownOpen(false)
                       }}
-                      className={`flex items-center gap-2.5 px-3 py-2 w-full rounded-xl text-left transition-all ${
+                      className={`p-1.5 rounded-xl transition-all ${
                         lang === 'ak'
-                          ? 'bg-red-50 text-red-950 font-bold border border-red-100 shadow-sm'
-                          : 'hover:bg-slate-50 text-slate-700 font-medium'
+                          ? 'bg-red-50 ring-2 ring-red-500 shadow-sm'
+                          : 'hover:bg-slate-100 opacity-60 hover:opacity-100'
                       }`}
+                      title="ရခိုင်ဘာသာ"
+                      aria-label="ရခိုင်ဘာသာ"
                     >
-                      <FlagArakanCircle size={24} />
-                      <span className="text-xs font-mono font-bold tracking-tight">Arakanese</span>
-                      {lang === 'ak' && <Check className="w-3.5 h-3.5 text-red-600 ml-auto" />}
+                      <FlagArakanCircle size={26} />
                     </button>
 
                     <button
@@ -359,15 +359,15 @@ export default function LandingPage({
                         setLang?.('en')
                         setLangDropdownOpen(false)
                       }}
-                      className={`flex items-center gap-2.5 px-3 py-2 w-full rounded-xl text-left transition-all ${
+                      className={`p-1.5 rounded-xl transition-all ${
                         lang === 'en'
-                          ? 'bg-blue-50 text-blue-950 font-bold border border-blue-100 shadow-sm'
-                          : 'hover:bg-slate-50 text-slate-700 font-medium'
+                          ? 'bg-blue-50 ring-2 ring-blue-500 shadow-sm'
+                          : 'hover:bg-slate-100 opacity-60 hover:opacity-100'
                       }`}
+                      title="English"
+                      aria-label="English"
                     >
-                      <FlagUKCircle size={24} />
-                      <span className="text-xs font-mono font-bold tracking-tight">ENG</span>
-                      {lang === 'en' && <Check className="w-3.5 h-3.5 text-blue-600 ml-auto" />}
+                      <FlagUKCircle size={26} />
                     </button>
                   </div>
                 </div>
@@ -446,31 +446,35 @@ export default function LandingPage({
               )}
             </div>
 
-            {/* Mobile Language Selector */}
+            {/* Mobile Language Selector (Zero Text) */}
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <span className="text-xs text-slate-500 font-sans">{lang === 'ak' ? 'ဘာသာစကား ရွေးချယ်ရန်' : 'Language'}</span>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-full p-1">
                 <button
+                  type="button"
                   onClick={() => setLang?.('ak')}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-mono transition-all ${
+                  className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
                     lang === 'ak'
-                      ? 'bg-red-50 border-red-200 text-red-900 font-bold'
-                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                      ? 'bg-red-50 ring-2 ring-red-500 shadow-sm'
+                      : 'opacity-60 hover:opacity-100'
                   }`}
+                  title="ရခိုင်ဘာသာ"
+                  aria-label="ရခိုင်ဘာသာ"
                 >
-                  <FlagArakanCircle size={18} />
-                  <span>Arakanese</span>
+                  <FlagArakanCircle size={22} />
                 </button>
                 <button
+                  type="button"
                   onClick={() => setLang?.('en')}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-mono transition-all ${
+                  className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
                     lang === 'en'
-                      ? 'bg-blue-50 border-blue-200 text-blue-900 font-bold'
-                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                      ? 'bg-blue-50 ring-2 ring-blue-500 shadow-sm'
+                      : 'opacity-60 hover:opacity-100'
                   }`}
+                  title="English"
+                  aria-label="English"
                 >
-                  <FlagUKCircle size={18} />
-                  <span>ENG</span>
+                  <FlagUKCircle size={22} />
                 </button>
               </div>
             </div>
