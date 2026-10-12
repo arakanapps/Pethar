@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArakanEmblem, FlagArakan, FlagInternational } from '../components/ArakanEmblem'
+import { ArakanEmblem, FlagArakanCircle, FlagUKCircle } from '../components/ArakanEmblem'
 import { AuthModal } from '../components/AuthModal'
 import type { Language } from '../i18n'
 import {
   Smartphone, ArrowRight, Download, Apple,
   ChevronDown, Send, Menu, X, CheckCircle,
-  Radio,
+  Radio, Search,
   Wallet, Check, QrCode, ShieldCheck, CreditCard
 } from 'lucide-react'
 
@@ -98,11 +98,62 @@ export default function LandingPage({
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login')
 
+  // Language Popover State (MTB Pay inspired)
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false)
+  const langDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Search Bar State
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const searchRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  // Close popovers on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
+        setLangDropdownOpen(false)
+      }
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const searchableItems = [
+    { id: 'overview', title: lang === 'ak' ? 'ပင်မ ခြုံငုံသုံးသပ်ချက်' : 'Overview & Digital Banking', keywords: 'overview home balance usdt parity' },
+    { id: 'services', title: lang === 'ak' ? 'ဒစ်ဂျစ်တယ် ဘဏ်ဝန်ဆောင်မှုများ' : 'Instant Transfers & Services', keywords: 'services transfer p2p instant zero fee' },
+    { id: 'merchants', title: lang === 'ak' ? 'Arakan QR (AK QR) ကုန်သည်စနစ်' : 'Arakan QR (AK QR) Merchants', keywords: 'qr merchants ak qr pos payments' },
+    { id: 'offline', title: lang === 'ak' ? 'အော့ဖ်လိုင်း မက်ရှ် ကွန်ရက်' : 'Offline BLE Mesh Protocol', keywords: 'offline ble mesh mesh payments ed25519' },
+    { id: 'currency', title: lang === 'ak' ? '၁:၁ USDT တည်ငြိမ်ငွေကြေး' : '1:1 USDT Treasury Parity', keywords: 'usdt currency treasury akd parity' },
+    { id: 'download', title: lang === 'ak' ? 'မိုဘိုင်းအက်ပ် ဒေါင်းလုဒ်' : 'Download Mobile App', keywords: 'download app ios android mobile apple' },
+    { id: 'security', title: lang === 'ak' ? 'လုံခြုံရေးနှင့် စည်းမျဉ်းများ' : 'SQLCipher & Enclave Security', keywords: 'security sqlcipher enclave 256-bit encryption' },
+    { id: 'faq', title: lang === 'ak' ? 'မေးလေ့ရှိသော မေးခွန်းများ (FAQ)' : 'Frequently Asked Questions (FAQ)', keywords: 'faq questions help' },
+  ]
+
+  const filteredItems = searchQuery.trim()
+    ? searchableItems.filter(item =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.keywords.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : []
+
+  const handleSelectSearchItem = (id: string) => {
+    setSearchOpen(false)
+    setSearchQuery('')
+    const element = document.getElementById(id)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 
   const handleOpenBankingClick = () => {
     if (onOpenBanking) {
@@ -180,46 +231,150 @@ export default function LandingPage({
             ))}
           </nav>
 
-          {/* Binance Style Authentication Actions & Telegram Support */}
-          <div className="hidden sm:flex items-center gap-2">
-            {/* Language Toggle (Pure Graphical Flags Only) */}
-            <div className="flex items-center bg-slate-100/90 border border-slate-200 rounded-full p-0.5 shadow-sm mr-1">
-              <button
-                onClick={() => setLang && setLang('ak')}
-                className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
-                  lang === 'ak' ? 'bg-red-600 text-white shadow-sm ring-1 ring-red-500' : 'text-slate-500 hover:text-slate-900'
-                }`}
-                title="ရခိုင်ဘာသာ"
-                aria-label="ရခိုင်ဘာသာ"
-              >
-                <FlagArakan size={16} />
-              </button>
-              <button
-                onClick={() => setLang && setLang('en')}
-                className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
-                  lang === 'en' ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-500' : 'text-slate-500 hover:text-slate-900'
-                }`}
-                title="English"
-                aria-label="English"
-              >
-                <FlagInternational size={16} />
-              </button>
+          {/* Actions: Search Bar, Circular Flag Language Selector (MTB Pay inspired), Log In, Sign Up */}
+          <div className="hidden sm:flex items-center gap-2.5">
+            {/* Search Bar / Search Button */}
+            <div ref={searchRef} className="relative">
+              <div className={`flex items-center transition-all duration-300 rounded-full border ${
+                searchOpen
+                  ? 'w-48 sm:w-56 bg-white border-amber-400 shadow-sm px-3 py-1.5'
+                  : 'w-9 h-9 bg-slate-100/80 hover:bg-slate-200/80 border-slate-200/80 justify-center cursor-pointer'
+              }`}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchOpen(!searchOpen)
+                    if (!searchOpen) {
+                      setTimeout(() => searchInputRef.current?.focus(), 100)
+                    }
+                  }}
+                  className="text-slate-600 hover:text-slate-900 flex items-center justify-center shrink-0"
+                  aria-label="Search"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+                {searchOpen && (
+                  <div className="flex items-center flex-1 ml-2">
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && filteredItems.length > 0) {
+                          handleSelectSearchItem(filteredItems[0].id)
+                        } else if (e.key === 'Escape') {
+                          setSearchOpen(false)
+                        }
+                      }}
+                      placeholder={lang === 'ak' ? 'ရှာဖွေရန်...' : 'Search...'}
+                      className="w-full text-xs font-mono bg-transparent outline-none text-slate-800 placeholder:text-slate-400"
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery('')}
+                        className="text-slate-400 hover:text-slate-600 p-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Search Results Dropdown */}
+              {searchOpen && searchQuery.trim() && (
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl rounded-2xl p-2 shadow-2xl border border-slate-200/80 z-50 animate-in fade-in slide-in-from-top-1">
+                  <div className="text-[10px] font-mono text-slate-400 px-2 py-1 uppercase tracking-wider">
+                    {lang === 'ak' ? 'ရှာဖွေတွေ့ရှိချက်များ' : 'Quick Navigation'}
+                  </div>
+                  {filteredItems.length > 0 ? (
+                    <div className="space-y-1 mt-1 max-h-56 overflow-y-auto">
+                      {filteredItems.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => handleSelectSearchItem(item.id)}
+                          className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-amber-50 text-slate-700 hover:text-amber-900 text-xs font-medium transition-colors flex items-center justify-between"
+                        >
+                          <span>{item.title}</span>
+                          <ArrowRight className="w-3 h-3 text-slate-400" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="px-3 py-3 text-xs text-slate-400 text-center font-mono">
+                      {lang === 'ak' ? 'ရလဒ် မတွေ့ပါ' : 'No matching sections'}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Telegram Support Button */}
-            <a
-              href="https://t.me/petharsupport"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-2 rounded-xl text-xs font-bold font-mono text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/80 transition-all flex items-center gap-1.5 shadow-sm"
-              title="Official Telegram Support"
-            >
-              <svg className="w-3.5 h-3.5 fill-sky-600" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.37.75-.56 2.95-1.28 4.92-2.13 5.92-2.54 2.81-1.17 3.4-1.38 3.78-1.38.08 0 .28.02.4.12.1.08.13.19.14.27-.01.06.01.23 0 .38z"/>
-              </svg>
-              <span>@petharsupport</span>
-            </a>
+            {/* Circular Flag Language Selector with Speech-Bubble Popover (MTB Pay inspired) */}
+            <div ref={langDropdownRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                className="relative w-8 h-8 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200/80 flex items-center justify-center overflow-hidden hover:scale-105 active:scale-95 transition-all"
+                title={lang === 'ak' ? 'ဘာသာစကား ရွေးချယ်ရန် (Arakanese)' : 'Select Language (ENG)'}
+                aria-label="Toggle language menu"
+              >
+                {lang === 'ak' ? (
+                  <FlagArakanCircle size={28} />
+                ) : (
+                  <FlagUKCircle size={28} />
+                )}
+              </button>
 
+              {/* Speech-Bubble Popover Card with Upward Notch Pointer */}
+              {langDropdownOpen && (
+                <div className="absolute top-full right-0 mt-2 z-50 animate-in fade-in slide-in-from-top-1">
+                  {/* Speech bubble pointer arrow */}
+                  <div className="w-0 h-0 border-x-[6px] border-x-transparent border-b-[6px] border-b-white mx-auto drop-shadow-[0_-1px_1px_rgba(0,0,0,0.06)] mr-3 -mb-[1px]" />
+
+                  {/* Popover body */}
+                  <div className="bg-white rounded-2xl p-1.5 shadow-xl border border-slate-200/90 min-w-[150px] space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLang?.('ak')
+                        setLangDropdownOpen(false)
+                      }}
+                      className={`flex items-center gap-2.5 px-3 py-2 w-full rounded-xl text-left transition-all ${
+                        lang === 'ak'
+                          ? 'bg-red-50 text-red-950 font-bold border border-red-100 shadow-sm'
+                          : 'hover:bg-slate-50 text-slate-700 font-medium'
+                      }`}
+                    >
+                      <FlagArakanCircle size={24} />
+                      <span className="text-xs font-mono font-bold tracking-tight">Arakanese</span>
+                      {lang === 'ak' && <Check className="w-3.5 h-3.5 text-red-600 ml-auto" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLang?.('en')
+                        setLangDropdownOpen(false)
+                      }}
+                      className={`flex items-center gap-2.5 px-3 py-2 w-full rounded-xl text-left transition-all ${
+                        lang === 'en'
+                          ? 'bg-blue-50 text-blue-950 font-bold border border-blue-100 shadow-sm'
+                          : 'hover:bg-slate-50 text-slate-700 font-medium'
+                      }`}
+                    >
+                      <FlagUKCircle size={24} />
+                      <span className="text-xs font-mono font-bold tracking-tight">ENG</span>
+                      {lang === 'en' && <Check className="w-3.5 h-3.5 text-blue-600 ml-auto" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Log In Button */}
             <button
               onClick={() => openAuth('login')}
               className="px-4 py-2 rounded-xl text-xs font-bold font-mono text-slate-700 hover:text-slate-950 hover:bg-slate-100/90 transition-all border border-slate-200/80 shadow-sm"
@@ -227,6 +382,7 @@ export default function LandingPage({
               {lang === 'ak' ? 'အကောင့်ဝင်ရန်' : 'Log In'}
             </button>
 
+            {/* Sign Up Button */}
             <button
               onClick={() => openAuth('signup')}
               className="px-4.5 py-2 rounded-xl text-xs font-bold font-mono bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-sm shadow-amber-500/20 hover:shadow-md transition-all active:scale-[0.98]"
@@ -247,30 +403,74 @@ export default function LandingPage({
 
         {/* Mobile Dropdown */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-white/95 backdrop-blur-2xl border-b border-slate-200 p-4 space-y-2 font-mono text-sm shadow-xl">
-            {/* Mobile Language Toggle */}
+          <div className="lg:hidden bg-white/95 backdrop-blur-2xl border-b border-slate-200 p-4 space-y-3 font-mono text-sm shadow-xl">
+            {/* Mobile Search Bar */}
+            <div className="relative">
+              <div className="flex items-center bg-slate-100 rounded-xl px-3 py-2 border border-slate-200">
+                <Search className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && filteredItems.length > 0) {
+                      handleSelectSearchItem(filteredItems[0].id)
+                      setMobileMenuOpen(false)
+                    }
+                  }}
+                  placeholder={lang === 'ak' ? 'ရှာဖွေရန်...' : 'Search...'}
+                  className="w-full text-xs font-mono bg-transparent outline-none text-slate-800 placeholder:text-slate-400"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')} className="text-slate-400 p-0.5">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+              {searchQuery.trim() && filteredItems.length > 0 && (
+                <div className="mt-1 bg-white rounded-xl p-2 border border-slate-200 shadow-md space-y-1">
+                  {filteredItems.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        handleSelectSearchItem(item.id)
+                        setMobileMenuOpen(false)
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-amber-50 text-slate-700 text-xs font-medium flex items-center justify-between"
+                    >
+                      <span>{item.title}</span>
+                      <ArrowRight className="w-3 h-3 text-slate-400" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Language Selector */}
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <span className="text-xs text-slate-500 font-sans">{lang === 'ak' ? 'ဘာသာစကား ရွေးချယ်ရန်' : 'Language'}</span>
-              <div className="flex items-center bg-slate-100 border border-slate-200 rounded-full p-0.5">
+              <div className="flex items-center gap-1.5">
                 <button
-                  onClick={() => setLang && setLang('ak')}
-                  className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
-                    lang === 'ak' ? 'bg-red-600 text-white shadow-sm ring-1 ring-red-500' : 'text-slate-500'
+                  onClick={() => setLang?.('ak')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-mono transition-all ${
+                    lang === 'ak'
+                      ? 'bg-red-50 border-red-200 text-red-900 font-bold'
+                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
-                  title="ရခိုင်ဘာသာ"
-                  aria-label="ရခိုင်ဘာသာ"
                 >
-                  <FlagArakan size={16} />
+                  <FlagArakanCircle size={18} />
+                  <span>Arakanese</span>
                 </button>
                 <button
-                  onClick={() => setLang && setLang('en')}
-                  className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
-                    lang === 'en' ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-500' : 'text-slate-500'
+                  onClick={() => setLang?.('en')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-mono transition-all ${
+                    lang === 'en'
+                      ? 'bg-blue-50 border-blue-200 text-blue-900 font-bold'
+                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
-                  title="English"
-                  aria-label="English"
                 >
-                  <FlagInternational size={16} />
+                  <FlagUKCircle size={18} />
+                  <span>ENG</span>
                 </button>
               </div>
             </div>
@@ -286,20 +486,7 @@ export default function LandingPage({
               </a>
             ))}
 
-            <div className="pt-3 border-t border-slate-200 flex flex-col gap-2">
-              <a
-                href="https://t.me/petharsupport"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 rounded-xl text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200 text-center flex items-center justify-center gap-1.5"
-              >
-                <svg className="w-3.5 h-3.5 fill-sky-600" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.37.75-.56 2.95-1.28 4.92-2.13 5.92-2.54 2.81-1.17 3.4-1.38 3.78-1.38.08 0 .28.02.4.12.1.08.13.19.14.27-.01.06.01.23 0 .38z"/>
-                </svg>
-                <span>Telegram Support (@petharsupport)</span>
-              </a>
-
+            <div className="pt-2 border-t border-slate-200 flex flex-col gap-2">
               <button
                 onClick={() => {
                   setMobileMenuOpen(false)
@@ -925,13 +1112,8 @@ export default function LandingPage({
 
           </div>
 
-          <div className="pt-6 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-4 text-[10px]">
-            <div>© {new Date().getFullYear()} PeThar (ဖေ့သာ). All rights reserved.</div>
-            <div className="flex items-center gap-3">
-              <span>Arakan QR Specification v2.0</span>
-              <span>•</span>
-              <span>Ed25519 Offline Protocol v1</span>
-            </div>
+          <div className="pt-6 border-t border-slate-200/80 text-center text-xs text-slate-500 font-mono">
+            <div>© 2026 PeThar (ဖေ့သာ). All rights reserved.</div>
           </div>
         </div>
       </footer>

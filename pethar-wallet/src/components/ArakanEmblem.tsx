@@ -56,3 +56,49 @@ export const FlagInternational: React.FC<{ size?: number; className?: string }> 
     </g>
   </svg>
 )
+
+/** Circular Flag for Arakan (Arakanese / AK) */
+export const FlagArakanCircle: React.FC<{ size?: number; className?: string }> = ({ size = 28, className = '' }) => (
+  <div
+    className={`inline-flex items-center justify-center rounded-full overflow-hidden border-2 border-white/90 shadow-sm shrink-0 relative bg-slate-50 ${className}`}
+    style={{ width: size, height: size }}
+    title="Arakanese (ရခိုင်)"
+    aria-label="Arakanese"
+  >
+    <div className="absolute inset-0 flex flex-col">
+      <div className="w-full h-1/2 bg-white" />
+      <div className="w-full h-1/2 bg-[#D91624]" />
+    </div>
+    <div className="relative z-10 flex items-center justify-center">
+      <ArakanEmblem size={size * 0.72} variant="emblem-only" />
+    </div>
+  </div>
+)
+
+/** Circular Flag for United Kingdom (English / ENG) */
+export const FlagUKCircle: React.FC<{ size?: number; className?: string }> = ({ size = 28, className = '' }) => (
+  <svg
+    viewBox="0 0 60 60"
+    className={`inline-flex shrink-0 rounded-full overflow-hidden border-2 border-white/90 shadow-sm ${className}`}
+    style={{ width: size, height: size }}
+    aria-label="English (ENG)"
+  >
+    <title>English (ENG)</title>
+    <defs>
+      <clipPath id="uk-circle-flag-clip">
+        <circle cx="30" cy="30" r="30" />
+      </clipPath>
+      <clipPath id="uk-circle-flag-diag">
+        <path d="M30,30 L60,60 H0 z M30,30 L60,0 H0 z" />
+      </clipPath>
+    </defs>
+    <g clipPath="url(#uk-circle-flag-clip)">
+      <rect width="60" height="60" fill="#012169" />
+      <path d="M0,0 L60,60 M60,0 L0,60" stroke="#fff" strokeWidth="10" />
+      <path d="M0,0 L60,60 M60,0 L0,60" clipPath="url(#uk-circle-flag-diag)" stroke="#C8102E" strokeWidth="5" />
+      <path d="M30,0 v60 M0,30 h60" stroke="#fff" strokeWidth="15" />
+      <path d="M30,0 v60 M0,30 h60" stroke="#C8102E" strokeWidth="9" />
+    </g>
+  </svg>
+)
+
