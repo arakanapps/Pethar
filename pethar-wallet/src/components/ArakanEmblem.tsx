@@ -58,7 +58,7 @@ export const FlagInternational: React.FC<{ size?: number; className?: string }> 
 /** Circular Flag for Arakan (United League of Arakan flag) */
 export const FlagArakanCircle: React.FC<{ size?: number; className?: string }> = ({ size = 28, className = '' }) => (
   <div
-    className={`inline-flex items-center justify-center rounded-full overflow-hidden border-2 border-white/90 shadow-sm shrink-0 relative bg-[#ec201c] ${className}`}
+    className={`inline-flex items-center justify-center rounded-full overflow-hidden shrink-0 relative bg-[#ec201c] ${className}`}
     style={{ width: size, height: size }}
     title="Arakan"
     aria-label="Arakan"
@@ -75,7 +75,7 @@ export const FlagArakanCircle: React.FC<{ size?: number; className?: string }> =
 export const FlagUKCircle: React.FC<{ size?: number; className?: string }> = ({ size = 28, className = '' }) => (
   <svg
     viewBox="0 0 60 60"
-    className={`inline-flex shrink-0 rounded-full overflow-hidden border-2 border-white/90 shadow-sm ${className}`}
+    className={`inline-flex shrink-0 rounded-full overflow-hidden ${className}`}
     style={{ width: size, height: size }}
     aria-label="English (ENG)"
   >
