@@ -4,8 +4,8 @@ import { AuthModal } from '../components/AuthModal'
 import type { Language } from '../i18n'
 import {
   Smartphone, ArrowRight, Download, Apple,
-  ChevronDown, Send, Menu, X, Terminal, CheckCircle,
-  PhoneCall, Radio, ArrowUpRight,
+  ChevronDown, Send, Menu, X, CheckCircle,
+  Radio,
   Wallet, Check, QrCode, ShieldCheck, CreditCard
 } from 'lucide-react'
 
@@ -139,62 +139,6 @@ export default function LandingPage({
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          ENTERPRISE COMMUNICATIONS & NOTICE BAR (MTB PAY INSPIRED)
-      ═══════════════════════════════════════════════════════════════════ */}
-      <div className="relative z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl text-[11px] font-mono tracking-wider py-1.5 px-4 sm:px-8 shadow-sm">
-        <div className="max-w-[1400px] mx-auto flex flex-wrap items-center justify-between gap-3">
-          {/* Support Line & Inquiries */}
-          <div className="flex items-center gap-4 text-slate-600">
-            <div className="flex items-center gap-1.5">
-              <PhoneCall className="w-3.5 h-3.5 text-amber-600" />
-              <span className="text-slate-400 font-bold uppercase">{lang === 'ak' ? 'ဟော့လိုင်း' : 'Hotline'}:</span>
-              <a href="tel:+959685682682" className="text-slate-900 hover:text-amber-600 transition-colors font-bold">+95 9 685 682 682</a>
-            </div>
-            <div className="hidden md:inline-block w-[1px] h-3 bg-slate-300" />
-            <div className="hidden md:flex items-center gap-1.5 text-slate-500">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>{lang === 'ak' ? 'အာရက္ခဒေသတွင်း ဘဏ္ဍာရေးနည်းပညာစနစ်' : 'PeThar Financial Super App Platform'}</span>
-            </div>
-          </div>
-
-          {/* Currency Reference + Language Selector */}
-          <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center gap-2 text-[10px] text-slate-600 bg-slate-100/80 px-3 py-0.5 rounded-full border border-slate-200">
-              <span className="text-amber-700 font-bold">1 AKD = 1.00 USDT (Parity Target)</span>
-              <span className="text-slate-300">•</span>
-              <span className="text-emerald-700 font-medium">THB 35.80</span>
-              <span className="text-slate-300">•</span>
-              <span className="text-sky-700 font-medium">MYR 4.72</span>
-            </div>
-
-            {/* Language Toggle (Pure Graphical Flags Only) */}
-            <div className="flex items-center bg-slate-100/90 border border-slate-200 rounded-full p-0.5 shadow-sm">
-              <button
-                onClick={() => setLang && setLang('ak')}
-                className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
-                  lang === 'ak' ? 'bg-red-600 text-white shadow-sm ring-1 ring-red-500' : 'text-slate-500 hover:text-slate-900'
-                }`}
-                title="ရခိုင်ဘာသာ"
-                aria-label="ရခိုင်ဘာသာ"
-              >
-                <FlagArakan size={16} />
-              </button>
-              <button
-                onClick={() => setLang && setLang('en')}
-                className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
-                  lang === 'en' ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-500' : 'text-slate-500 hover:text-slate-900'
-                }`}
-                title="English"
-                aria-label="English"
-              >
-                <FlagInternational size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════════════════════════════════════
           STICKY LIQUID GLASS NAVIGATION BAR (MTB PAY INSPIRED)
       ═══════════════════════════════════════════════════════════════════ */}
       <header className={`sticky top-0 z-40 transition-all duration-300 ${
@@ -236,8 +180,46 @@ export default function LandingPage({
             ))}
           </nav>
 
-          {/* Binance Style Authentication Actions */}
-          <div className="hidden sm:flex items-center gap-2.5">
+          {/* Binance Style Authentication Actions & Telegram Support */}
+          <div className="hidden sm:flex items-center gap-2">
+            {/* Language Toggle (Pure Graphical Flags Only) */}
+            <div className="flex items-center bg-slate-100/90 border border-slate-200 rounded-full p-0.5 shadow-sm mr-1">
+              <button
+                onClick={() => setLang && setLang('ak')}
+                className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
+                  lang === 'ak' ? 'bg-red-600 text-white shadow-sm ring-1 ring-red-500' : 'text-slate-500 hover:text-slate-900'
+                }`}
+                title="ရခိုင်ဘာသာ"
+                aria-label="ရခိုင်ဘာသာ"
+              >
+                <FlagArakan size={16} />
+              </button>
+              <button
+                onClick={() => setLang && setLang('en')}
+                className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
+                  lang === 'en' ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-500' : 'text-slate-500 hover:text-slate-900'
+                }`}
+                title="English"
+                aria-label="English"
+              >
+                <FlagInternational size={16} />
+              </button>
+            </div>
+
+            {/* Telegram Support Button */}
+            <a
+              href="https://t.me/petharsupport"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-2 rounded-xl text-xs font-bold font-mono text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/80 transition-all flex items-center gap-1.5 shadow-sm"
+              title="Official Telegram Support"
+            >
+              <svg className="w-3.5 h-3.5 fill-sky-600" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.37.75-.56 2.95-1.28 4.92-2.13 5.92-2.54 2.81-1.17 3.4-1.38 3.78-1.38.08 0 .28.02.4.12.1.08.13.19.14.27-.01.06.01.23 0 .38z"/>
+              </svg>
+              <span>@petharsupport</span>
+            </a>
+
             <button
               onClick={() => openAuth('login')}
               className="px-4 py-2 rounded-xl text-xs font-bold font-mono text-slate-700 hover:text-slate-950 hover:bg-slate-100/90 transition-all border border-slate-200/80 shadow-sm"
@@ -250,14 +232,6 @@ export default function LandingPage({
               className="px-4.5 py-2 rounded-xl text-xs font-bold font-mono bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-sm shadow-amber-500/20 hover:shadow-md transition-all active:scale-[0.98]"
             >
               {lang === 'ak' ? 'အကောင့်ဖွင့်ရန်' : 'Sign Up'}
-            </button>
-
-            <button
-              onClick={handleOpenBankingClick}
-              className="px-4 py-2 rounded-xl text-xs font-bold font-mono bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all flex items-center gap-1.5 active:scale-[0.98]"
-            >
-              <span>{lang === 'ak' ? 'အွန်လိုင်းဘဏ်' : 'Online Banking'}</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
@@ -274,6 +248,33 @@ export default function LandingPage({
         {/* Mobile Dropdown */}
         {mobileMenuOpen && (
           <div className="lg:hidden bg-white/95 backdrop-blur-2xl border-b border-slate-200 p-4 space-y-2 font-mono text-sm shadow-xl">
+            {/* Mobile Language Toggle */}
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span className="text-xs text-slate-500 font-sans">{lang === 'ak' ? 'ဘာသာစကား ရွေးချယ်ရန်' : 'Language'}</span>
+              <div className="flex items-center bg-slate-100 border border-slate-200 rounded-full p-0.5">
+                <button
+                  onClick={() => setLang && setLang('ak')}
+                  className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
+                    lang === 'ak' ? 'bg-red-600 text-white shadow-sm ring-1 ring-red-500' : 'text-slate-500'
+                  }`}
+                  title="ရခိုင်ဘာသာ"
+                  aria-label="ရခိုင်ဘာသာ"
+                >
+                  <FlagArakan size={16} />
+                </button>
+                <button
+                  onClick={() => setLang && setLang('en')}
+                  className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
+                    lang === 'en' ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-500' : 'text-slate-500'
+                  }`}
+                  title="English"
+                  aria-label="English"
+                >
+                  <FlagInternational size={16} />
+                </button>
+              </div>
+            </div>
+
             {navMenuItems.map((item) => (
               <a
                 key={item.href}
@@ -284,7 +285,21 @@ export default function LandingPage({
                 {item.label}
               </a>
             ))}
+
             <div className="pt-3 border-t border-slate-200 flex flex-col gap-2">
+              <a
+                href="https://t.me/petharsupport"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full py-2.5 rounded-xl text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200 text-center flex items-center justify-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5 fill-sky-600" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.37.75-.56 2.95-1.28 4.92-2.13 5.92-2.54 2.81-1.17 3.4-1.38 3.78-1.38.08 0 .28.02.4.12.1.08.13.19.14.27-.01.06.01.23 0 .38z"/>
+                </svg>
+                <span>Telegram Support (@petharsupport)</span>
+              </a>
+
               <button
                 onClick={() => {
                   setMobileMenuOpen(false)
@@ -294,6 +309,7 @@ export default function LandingPage({
               >
                 {lang === 'ak' ? 'အကောင့်ဝင်ရန်' : 'Log In'}
               </button>
+
               <button
                 onClick={() => {
                   setMobileMenuOpen(false)
@@ -302,15 +318,6 @@ export default function LandingPage({
                 className="w-full py-2.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 text-center"
               >
                 {lang === 'ak' ? 'အကောင့်ဖွင့်ရန်' : 'Sign Up'}
-              </button>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  handleOpenBankingClick()
-                }}
-                className="w-full py-2.5 rounded-xl text-xs font-bold bg-slate-900 text-white text-center"
-              >
-                {lang === 'ak' ? 'အွန်လိုင်းဘဏ်လုပ်ငန်း' : 'Online Banking Portal'}
               </button>
             </div>
           </div>
@@ -372,13 +379,17 @@ export default function LandingPage({
                   <span>{lang === 'ak' ? 'မိုဘိုင်းအက်ပ် ဒေါင်းလုဒ်' : 'Download Mobile App'}</span>
                 </a>
 
-                <button
-                  onClick={handleOpenBankingClick}
-                  className="px-6 py-3.5 rounded-2xl font-bold text-sm bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all flex items-center gap-2"
+                <a
+                  href="https://t.me/petharsupport"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3.5 rounded-2xl font-bold text-sm bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200/80 shadow-sm transition-all flex items-center gap-2"
                 >
-                  <Terminal className="w-4 h-4 text-emerald-400" />
-                  <span>{lang === 'ak' ? 'အွန်လိုင်းဘဏ်' : 'Online Banking'}</span>
-                </button>
+                  <svg className="w-4 h-4 fill-sky-600" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.37.75-.56 2.95-1.28 4.92-2.13 5.92-2.54 2.81-1.17 3.4-1.38 3.78-1.38.08 0 .28.02.4.12.1.08.13.19.14.27-.01.06.01.23 0 .38z"/>
+                  </svg>
+                  <span>Telegram (@petharsupport)</span>
+                </a>
               </div>
 
               {/* App Store Trust Badges */}
@@ -890,10 +901,25 @@ export default function LandingPage({
             {/* Col 4 */}
             <div>
               <div className="font-bold text-slate-800 mb-3 uppercase tracking-wider">{lang === 'ak' ? 'ဆက်သွယ်ရန်' : 'Contact Support'}</div>
-              <div className="space-y-2 text-[11px]">
-                <div>Hotline: <a href="tel:+959685682682" className="text-slate-800 font-bold hover:underline">+95 9 685 682 682</a></div>
-                <div>Support: <a href="tel:+959798112334" className="text-slate-800 font-bold hover:underline">+95 9 798 112 334</a></div>
-                <div>Web: <a href="https://www.pethar.co.uk" className="text-slate-800 font-bold hover:underline">www.pethar.co.uk</a></div>
+              <div className="space-y-2.5 text-[11px]">
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400">Telegram:</span>
+                  <a
+                    href="https://t.me/petharsupport"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sky-700 font-bold hover:underline flex items-center gap-1.5"
+                  >
+                    <svg className="w-3.5 h-3.5 fill-sky-600" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.37.75-.56 2.95-1.28 4.92-2.13 5.92-2.54 2.81-1.17 3.4-1.38 3.78-1.38.08 0 .28.02.4.12.1.08.13.19.14.27-.01.06.01.23 0 .38z"/>
+                    </svg>
+                    <span>@petharsupport</span>
+                  </a>
+                </div>
+                <div>Web: <a href="https://www.pethar.co.uk" target="_blank" rel="noopener noreferrer" className="text-slate-800 font-bold hover:underline">www.pethar.co.uk</a></div>
+                <div className="pt-1 text-[10px] text-slate-400">
+                  {lang === 'ak' ? 'တရားဝင် အကူအညီအတွက် Telegram တွင် ဆက်သွယ်ပါ' : 'Official 24/7 customer assistance via Telegram'}
+                </div>
               </div>
             </div>
 

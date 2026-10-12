@@ -652,7 +652,7 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
                       type="text"
                       value={recipient}
                       onChange={(e) => setRecipient(e.target.value)}
-                      placeholder="e.g. ARAK-8891 or +95 9 881 204 991"
+                      placeholder="e.g. ARAK-8891 or @username"
                       className={`w-full px-4 py-3 rounded-2xl border text-sm font-mono outline-none ${
                         isLight
                           ? 'bg-slate-50 border-slate-200 text-slate-900 focus:border-red-500'
