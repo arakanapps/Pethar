@@ -18,18 +18,16 @@ export const ArakanEmblem: React.FC<EmblemProps> = ({ className = '', size = 40,
 /** Flag icons for language selector (zero text, graphical flags) */
 export const FlagArakan: React.FC<{ size?: number; className?: string }> = ({ size = 20, className = '' }) => (
   <div
-    className={`inline-flex items-center justify-center rounded overflow-hidden border border-white/20 shrink-0 relative ${className}`}
+    className={`inline-flex items-center justify-center rounded overflow-hidden border border-white/20 shrink-0 relative bg-[#D91624] ${className}`}
     style={{ width: size, height: (size * 2) / 3 }}
     title="ရခိုင် (Arakan)"
     aria-label="ရခိုင်"
   >
-    <div className="absolute inset-0 flex flex-col">
-      <div className="w-full h-1/2 bg-white" />
-      <div className="w-full h-1/2 bg-[#D91624]" />
-    </div>
-    <div className="relative z-10 flex items-center justify-center">
-      <ArakanEmblem size={size * 0.75} variant="emblem-only" />
-    </div>
+    <img
+      src="/united-league-of-arakan-flag.png"
+      alt="United League of Arakan Flag"
+      className="w-full h-full object-cover"
+    />
   </div>
 )
 
@@ -57,21 +55,19 @@ export const FlagInternational: React.FC<{ size?: number; className?: string }> 
   </svg>
 )
 
-/** Circular Flag for Arakan (Arakanese / AK) */
+/** Circular Flag for Arakan (United League of Arakan flag) */
 export const FlagArakanCircle: React.FC<{ size?: number; className?: string }> = ({ size = 28, className = '' }) => (
   <div
-    className={`inline-flex items-center justify-center rounded-full overflow-hidden border-2 border-white/90 shadow-sm shrink-0 relative bg-slate-50 ${className}`}
+    className={`inline-flex items-center justify-center rounded-full overflow-hidden border-2 border-white/90 shadow-sm shrink-0 relative bg-[#D91624] ${className}`}
     style={{ width: size, height: size }}
-    title="Arakanese (ရခိုင်)"
-    aria-label="Arakanese"
+    title="Arakan"
+    aria-label="Arakan"
   >
-    <div className="absolute inset-0 flex flex-col">
-      <div className="w-full h-1/2 bg-white" />
-      <div className="w-full h-1/2 bg-[#D91624]" />
-    </div>
-    <div className="relative z-10 flex items-center justify-center">
-      <ArakanEmblem size={size * 0.72} variant="emblem-only" />
-    </div>
+    <img
+      src="/united-league-of-arakan-flag.png"
+      alt="United League of Arakan Flag"
+      className="w-full h-full object-cover scale-110"
+    />
   </div>
 )
 
