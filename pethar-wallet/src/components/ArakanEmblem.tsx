@@ -66,7 +66,7 @@ export const FlagArakanCircle: React.FC<{ size?: number; className?: string }> =
     <img
       src="/united-league-of-arakan-flag.png"
       alt="United League of Arakan Flag"
-      className="w-full h-full object-contain p-[2px] scale-[0.84]"
+      className="w-full h-full object-cover scale-[0.96]"
     />
   </div>
 )
