@@ -6,12 +6,12 @@ interface EmblemProps {
   variant?: 'emblem-only' | 'flag' | 'badge'
 }
 
-export const ArakanEmblem: React.FC<EmblemProps> = ({ className = '', size = 40, variant = 'badge' }) => (
+export const ArakanEmblem: React.FC<EmblemProps> = ({ className = '', size = 40 }) => (
   <img
     src="/apple-touch-icon-removebg-preview.png"
-    alt="Arakan emblem"
-    className={`object-contain ${className}`}
-    style={{ width: size, height: variant === 'emblem-only' ? (size * 3) / 4 : size }}
+    alt="PeThar logo"
+    className={`object-contain select-none shrink-0 ${className}`}
+    style={{ width: size, height: size }}
   />
 )
 
