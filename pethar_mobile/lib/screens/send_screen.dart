@@ -93,6 +93,17 @@ class _SendScreenState extends State<SendScreen> {
         ),
         backgroundColor: isDark ? surfaceDark : Colors.white,
         elevation: 0,
+        actions: [
+          if (step == 1)
+            TextButton.icon(
+              onPressed: () => appState.navigate(Screen.offlinePayment),
+              icon: const Icon(Icons.offline_bolt_rounded, color: gold, size: 16),
+              label: Text(
+                lang == 'ak' ? 'အော့ဖ်လိုင်း' : 'Offline',
+                style: const TextStyle(color: gold, fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+        ],
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -110,7 +121,7 @@ class _SendScreenState extends State<SendScreen> {
         ),
       ),
       body: step == 1
-          ? _buildStep1(isDark, lang)
+          ? _buildStep1(isDark, lang, appState)
           : step == 2
               ? _buildStep2(isDark, lang)
               : step == 3
@@ -120,10 +131,56 @@ class _SendScreenState extends State<SendScreen> {
   }
 
   // ── STEP 1: SELECT RECIPIENT ─────────────────────────────────────────────
-  Widget _buildStep1(bool isDark, String lang) {
+  Widget _buildStep1(bool isDark, String lang, AppState appState) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // Offline P2P banner shortcut
+        InkWell(
+          onTap: () => appState.navigate(Screen.offlinePayment),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isDark ? gold.withOpacity(0.12) : const Color(0xFFFFF9E6),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: gold.withOpacity(0.35)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: gold.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.offline_bolt_rounded, color: gold, size: 18),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        lang == 'ak' ? 'အင်တာနက်မရှိဘဲ ငွေလွှဲမည်လား?' : 'Need to send money offline?',
+                        style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        lang == 'ak' ? 'QR၊ NFC သို့မဟုတ် ဘလူးတုသ် မက်ရှ်ဖြင့် တိုက်ရိုက်လွှဲပါ' : 'Use Bearer eCash via NFC, BLE mesh or QR',
+                        style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 12, color: gold),
+              ],
+            ),
+          ),
+        ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           decoration: BoxDecoration(

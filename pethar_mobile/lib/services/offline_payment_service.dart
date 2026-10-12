@@ -238,3 +238,134 @@ class VoucherSyncResult {
   bool get hasErrors => errors.isNotEmpty;
   bool get allSettled => settledCount == totalVouchers;
 }
+
+/// ─────────────────────────────────────────────────────────────────────────────
+/// CASHU-INSPIRED BEARER ECASH TOKENS & PROOFS (NUT-00, NUT-11, NUT-12)
+/// ─────────────────────────────────────────────────────────────────────────────
+
+/// Discrete bearer ecash proof.
+/// Represents a pre-minted coin locked in the SUSPENSE reserve account.
+class PeTharProof {
+  final int amount;        // Discrete power-of-two (1, 2, 4, 8, 16, 32, 64 AKD)
+  final String keysetId;   // Keyset identifier for PeThar Mint
+  final String secret;     // Random entropy or P2PK locked secret
+  final String c;          // Mint blind signature (unblinded)
+  final String? dleqProof; // Offline DLEQ proof for client-side verification
+
+  PeTharProof({
+    required this.amount,
+    required this.keysetId,
+    required this.secret,
+    required this.c,
+    this.dleqProof,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'a': amount,
+    'id': keysetId,
+    's': secret,
+    'c': c,
+    if (dleqProof != null) 'dl': dleqProof,
+  };
+
+  factory PeTharProof.fromJson(Map<String, dynamic> json) => PeTharProof(
+    amount: (json['a'] as num).toInt(),
+    keysetId: json['id'] as String,
+    secret: json['s'] as String,
+    c: json['c'] as String,
+    dleqProof: json['dl'] as String?,
+  );
+}
+
+/// Token bundle transmitted P2P over NFC, BLE, or QR code ("petharA...").
+class PeTharOfflineToken {
+  final String mintUrl;
+  final List<PeTharProof> proofs;
+  final String? memo;
+  final String? recipientPubkey; // NUT-11 P2PK recipient lock
+  final DateTime createdAt;
+
+  PeTharOfflineToken({
+    required this.mintUrl,
+    required this.proofs,
+    this.memo,
+    this.recipientPubkey,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
+
+  int get totalAmount => proofs.fold(0, (sum, p) => sum + p.amount);
+
+  /// Serialize to compact URI string: "petharA<base64url>"
+  String serialize() {
+    final payload = jsonEncode({
+      'v': 1,
+      'm': mintUrl,
+      't': proofs.map((p) => p.toJson()).toList(),
+      if (memo != null) 'd': memo,
+      if (recipientPubkey != null) 'pk': recipientPubkey,
+      'ts': createdAt.toUtc().millisecondsSinceEpoch,
+    });
+    return 'petharA${base64Url.encode(utf8.encode(payload))}';
+  }
+
+  /// Parse from "petharA..." string
+  static PeTharOfflineToken deserialize(String tokenStr) {
+    final clean = tokenStr.trim();
+    if (!clean.startsWith('petharA')) {
+      throw const FormatException('Invalid PeThar token header. Must start with petharA');
+    }
+    final raw = base64Url.decode(clean.substring(7));
+    final data = jsonDecode(utf8.decode(raw)) as Map<String, dynamic>;
+    final list = (data['t'] as List).cast<Map<String, dynamic>>();
+    return PeTharOfflineToken(
+      mintUrl: data['m'] as String? ?? 'https://mint.pethar.co.uk',
+      proofs: list.map((m) => PeTharProof.fromJson(m)).toList(),
+      memo: data['d'] as String?,
+      recipientPubkey: data['pk'] as String?,
+      createdAt: data['ts'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(data['ts'] as int, isUtc: true)
+          : null,
+    );
+  }
+
+  /// Decomposes an integer amount into powers of two (e.g. 25 -> [16, 8, 1])
+  static List<int> splitIntoPowersOfTwo(int amount) {
+    final List<int> parts = [];
+    int power = 1;
+    while (power <= amount) {
+      if ((amount & power) != 0) {
+        parts.add(power);
+      }
+      power <<= 1;
+    }
+    return parts.reversed.toList();
+  }
+
+  /// Creates a synthetic mint-signed offline token for a requested amount
+  static PeTharOfflineToken createMockMintedToken({
+    required int amount,
+    String? recipientPubkey,
+    String? memo,
+  }) {
+    final denominations = splitIntoPowersOfTwo(amount);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final proofs = denominations.map((denomination) {
+      final secretEntropy = 'sec_${now}_${denomination}_${(denomination * 997) % 10000}';
+      return PeTharProof(
+        amount: denomination,
+        keysetId: 'arakan_akd_v1',
+        secret: recipientPubkey != null ? 'P2PK:$recipientPubkey:$secretEntropy' : secretEntropy,
+        c: 'c_mint_sig_${denomination}_${secretEntropy.hashCode.toRadixString(16)}',
+        dleqProof: 'dleq_valid_${denomination}',
+      );
+    }).toList();
+
+    return PeTharOfflineToken(
+      mintUrl: 'https://mint.pethar.co.uk',
+      proofs: proofs,
+      memo: memo,
+      recipientPubkey: recipientPubkey,
+    );
+  }
+}
+

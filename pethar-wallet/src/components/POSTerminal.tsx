@@ -32,6 +32,9 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
   const [customAmount, setCustomAmount] = useState('')
   const [viewState, setViewState] = useState<'checkout' | 'waiting' | 'paid' | 'receipt'>('checkout')
   const [paidTxnId, setPaidTxnId] = useState('')
+  const [showOfflineInput, setShowOfflineInput] = useState(false)
+  const [offlineTokenInput, setOfflineTokenInput] = useState('')
+  const [offlineError, setOfflineError] = useState('')
 
   const totalAmount =
     cart.reduce((acc, item) => acc + item.price * item.qty, 0) +
@@ -65,9 +68,38 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
     }
   }
 
+  const handleRedeemOfflineToken = () => {
+    try {
+      const clean = offlineTokenInput.trim()
+      if (!clean.startsWith('petharA')) {
+        setOfflineError(lang === 'ak' ? 'Token မှားယွင်းနေပါသည် (petharA ဖြင့် စရပါမည်)' : 'Invalid token: must start with petharA')
+        return
+      }
+      const raw = atob(clean.substring(7))
+      const data = JSON.parse(raw)
+      const proofs = data.t || []
+      const tokenSum = proofs.reduce((acc: number, p: any) => acc + (p.a || 0), 0)
+      if (tokenSum < totalAmount) {
+        setOfflineError(lang === 'ak' ? `ငွေမလုံလောက်ပါ (တိုကင်ထဲတွင် ₳ ${tokenSum} သာ ရှိပါသည်)` : `Insufficient: token only has ₳${tokenSum}`)
+        return
+      }
+      const txId = 'ARAK-CASHU-' + Math.floor(100000 + Math.random() * 900000)
+      setPaidTxnId(txId)
+      setViewState('paid')
+      if (onPaymentSettled) {
+        onPaymentSettled(tokenSum)
+      }
+    } catch {
+      setOfflineError(lang === 'ak' ? 'Token စစ်ဆေး၍ မရပါ' : 'Failed to decode token')
+    }
+  }
+
   const resetRegister = () => {
     setCart([])
     setCustomAmount('')
+    setShowOfflineInput(false)
+    setOfflineTokenInput('')
+    setOfflineError('')
     setViewState('checkout')
   }
 
@@ -227,6 +259,44 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', 
                   ? 'ဝယ်ယူသူ၏ ဖေ့သာ အက်ပ်မှ Scan ကို ဖွင့်၍ ငွေပေးချေပါ'
                   : 'Customer should open PeThar Camera / QR scanner to complete'}
               </p>
+
+              {/* Cashu / PeThar Offline eCash Redeem Option */}
+              <div className="pt-2 border-t border-white/10 text-left">
+                <button
+                  type="button"
+                  onClick={() => setShowOfflineInput(!showOfflineInput)}
+                  className="w-full text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center justify-between py-1.5"
+                >
+                  <span>{lang === 'ak' ? 'အော့ဖ်လိုင်း eCash တိုကင်ဖြင့် ငွေလက်ခံမည်' : 'Accept Offline eCash Token (Cashu)'}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono">petharA...</span>
+                </button>
+
+                {showOfflineInput && (
+                  <div className="mt-2 space-y-2 p-3 rounded-xl bg-black/40 border border-amber-500/30">
+                    <input
+                      type="text"
+                      value={offlineTokenInput}
+                      onChange={(e) => {
+                        setOfflineTokenInput(e.target.value)
+                        setOfflineError('')
+                      }}
+                      placeholder="petharAeyJsIjoiYXJha2Fu..."
+                      className="w-full px-3 py-2 rounded-lg text-xs bg-slate-900 border border-slate-700 text-white font-mono placeholder:text-gray-600 focus:outline-none focus:border-amber-400"
+                    />
+                    {offlineError && (
+                      <p className="text-[11px] text-red-400">{offlineError}</p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleRedeemOfflineToken}
+                      disabled={!offlineTokenInput.trim()}
+                      className="w-full py-2 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition disabled:opacity-50"
+                    >
+                      {lang === 'ak' ? 'တိုကင် အတည်ပြုပြီး ငွေလက်ခံမည်' : 'Verify & Redeem Offline Token'}
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Simulation Helper Button */}
               <div className="pt-2">

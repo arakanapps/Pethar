@@ -17,6 +17,8 @@ class AppState extends ChangeNotifier {
   bool showCardCvv = false;
   List<NotificationItem> notifications = List.from(sampleNotifications);
   List<Transaction> txList = List.from(transactions);
+  double offlinePocketBalance = 150.0; // Pre-loaded offline bearer cash
+  List<String> offlineTokens = [];     // Stored bearer tokens
 
   int get unreadNotificationsCount => notifications.where((n) => !n.read).length;
 
@@ -132,6 +134,137 @@ class AppState extends ChangeNotifier {
         titleMm: 'ငွေလွှဲခြင်း အောင်မြင်ပါသည်',
         bodyEn: 'Sent ${amount.toStringAsFixed(2)} AKD to $recipientName.',
         bodyMm: '$recipientName ထံသို့ ₳ ${amount.toStringAsFixed(2)} ပို့ပြီးပါပြီ။',
+        time: 'Just now',
+        dateGroup: 'Today',
+        type: 'transaction',
+        read: false,
+      ),
+    );
+    notifyListeners();
+  }
+
+  bool loadOfflinePocket(double amount) {
+    if (wallet.balance < amount) return false;
+    wallet.balance -= amount;
+    wallet.totalBalance -= amount;
+    offlinePocketBalance += amount;
+    txList.insert(
+      0,
+      Transaction(
+        id: 'TX-OFF-LOAD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        refId: 'ARAK-POCKET-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        title: 'Loaded to Offline Pocket',
+        titleMm: 'အော့ဖ်လိုင်းအိတ်ကပ်သို့ ငွေထည့်ခြင်း',
+        category: 'pocket',
+        currency: 'AKD',
+        time: 'Just now',
+        status: 'HELD_IN_SUSPENSE',
+        counterparty: 'Offline Vault (Encrypted SQLite)',
+        counterpartyMm: 'အော့ဖ်လိုင်း ဘဏ္ဍာတိုက်',
+        hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}...offline',
+        amount: -amount,
+        fee: 0.0,
+      ),
+    );
+    notifications.insert(
+      0,
+      NotificationItem(
+        id: 'N-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+        titleEn: 'Offline Pocket Loaded',
+        titleMm: 'အော့ဖ်လိုင်းငွေ ထည့်သွင်းပြီးပါပြီ',
+        bodyEn: 'Allocated ${amount.toStringAsFixed(2)} AKD for offline transfers.',
+        bodyMm: 'အော့ဖ်လိုင်းသုံးရန် ₳ ${amount.toStringAsFixed(2)} ထည့်ပြီးပါပြီ။',
+        time: 'Just now',
+        dateGroup: 'Today',
+        type: 'system',
+        read: false,
+      ),
+    );
+    notifyListeners();
+    return true;
+  }
+
+  bool depositOfflinePocket(double amount) {
+    if (offlinePocketBalance < amount) return false;
+    offlinePocketBalance -= amount;
+    wallet.balance += amount;
+    wallet.totalBalance += amount;
+    txList.insert(
+      0,
+      Transaction(
+        id: 'TX-OFF-DEP-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        refId: 'ARAK-RECON-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        title: 'Returned from Offline Pocket',
+        titleMm: 'အော့ဖ်လိုင်းအိတ်ကပ်မှ ပြန်လည်သွင်းယူခြင်း',
+        category: 'rebalance',
+        currency: 'AKD',
+        time: 'Just now',
+        status: 'SETTLED',
+        counterparty: 'PeThar Online Ledger',
+        counterpartyMm: 'ဖေ့သာ အွန်လိုင်းစာရင်း',
+        hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}...reconcile',
+        amount: amount,
+        fee: 0.0,
+      ),
+    );
+    notifyListeners();
+    return true;
+  }
+
+  bool sendOfflineCash({required double amount, required String recipient}) {
+    if (offlinePocketBalance < amount) return false;
+    offlinePocketBalance -= amount;
+    txList.insert(
+      0,
+      Transaction(
+        id: 'TX-OFF-SEND-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        refId: 'ARAK-OFFLINE-P2P-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        title: 'Offline P2P to $recipient',
+        titleMm: '$recipient သို့ အော့ဖ်လိုင်းငွေလွှဲခြင်း',
+        category: 'offline_p2p',
+        currency: 'AKD',
+        time: 'Just now',
+        status: 'PENDING_MESH_SYNC',
+        counterparty: recipient,
+        counterpartyMm: recipient,
+        hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}...mesh',
+        amount: -amount,
+        fee: 0.0,
+      ),
+    );
+    notifyListeners();
+    return true;
+  }
+
+  void receiveOfflineCash({required double amount, required String sender, required String tokenStr}) {
+    offlinePocketBalance += amount;
+    offlineTokens.add(tokenStr);
+    txList.insert(
+      0,
+      Transaction(
+        id: 'TX-OFF-REC-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        refId: 'ARAK-OFFLINE-REC-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        title: 'Offline P2P from $sender',
+        titleMm: '$sender ထံမှ အော့ဖ်လိုင်းငွေလက်ခံခြင်း',
+        category: 'offline_p2p',
+        currency: 'AKD',
+        time: 'Just now',
+        status: 'HELD_IN_VAULT',
+        counterparty: sender,
+        counterpartyMm: sender,
+        hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}...token',
+        amount: amount,
+        fee: 0.0,
+      ),
+    );
+    notifications.insert(
+      0,
+      NotificationItem(
+        id: 'N-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+        titleEn: 'Offline Payment Received',
+        titleMm: 'အော့ဖ်လိုင်းငွေ လက်ခံရရှိပါသည်',
+        bodyEn: 'Received ${amount.toStringAsFixed(2)} AKD offline from $sender.',
+        bodyMm: '$sender ထံမှ ₳ ${amount.toStringAsFixed(2)} အော့ဖ်လိုင်း ရရှိပါသည်။',
         time: 'Just now',
         dateGroup: 'Today',
         type: 'transaction',

@@ -142,10 +142,10 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       {
         'id': Screen.offlinePayment,
-        'label': lang == 'ak' ? 'အော့ဖ်လိုင်း' : 'Offline NFC',
-        'icon': Icons.contactless,
-        'color': cyanNeon.withOpacity(0.2),
-        'iconColor': cyanNeon,
+        'label': lang == 'ak' ? 'အော့ဖ်လိုင်း' : 'Offline P2P',
+        'icon': Icons.offline_bolt_rounded,
+        'color': gold.withOpacity(0.2),
+        'iconColor': gold,
       },
       {
         'id': Screen.receive,
@@ -329,6 +329,35 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Offline Bearer Pocket indicator pill
+                  InkWell(
+                    onTap: () => appState.navigate(Screen.offlinePayment),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: gold.withOpacity(0.35)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.offline_bolt_rounded, color: gold, size: 12),
+                          const SizedBox(width: 5),
+                          Text(
+                            lang == 'ak'
+                                ? 'အော့ဖ်လိုင်း အိတ်ကပ်: ₳ ${appState.offlinePocketBalance.toStringAsFixed(2)}'
+                                : 'Offline Bearer Pocket: ₳ ${appState.offlinePocketBalance.toStringAsFixed(2)}',
+                            style: const TextStyle(color: goldLight, fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.chevron_right, color: goldLight, size: 12),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
