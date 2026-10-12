@@ -98,10 +98,6 @@ export default function LandingPage({
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login')
 
-  // Language Popover State (MTB Pay inspired)
-  const [langDropdownOpen, setLangDropdownOpen] = useState(false)
-  const langDropdownRef = useRef<HTMLDivElement>(null)
-
   // Search Bar State
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -114,12 +110,9 @@ export default function LandingPage({
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Close popovers on click outside
+  // Close search on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
-        setLangDropdownOpen(false)
-      }
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setSearchOpen(false)
       }
@@ -312,61 +305,20 @@ export default function LandingPage({
               )}
             </div>
 
-            {/* Circular Flag Language Selector (Zero Text) */}
-            <div ref={langDropdownRef} className="relative">
-              <button
-                type="button"
-                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                className="relative w-8 h-8 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200/80 flex items-center justify-center overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer"
-                title={lang === 'ak' ? 'ရခိုင်ဘာသာ' : 'English'}
-                aria-label="Language selector"
-              >
-                {lang === 'ak' ? (
-                  <FlagArakanCircle size={28} />
-                ) : (
-                  <FlagUKCircle size={28} />
-                )}
-              </button>
-
-              {/* Speech-Bubble Popover Card (Single Flag to Change, Zero Text) */}
-              {langDropdownOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 animate-in fade-in slide-in-from-top-1">
-                  {/* Speech bubble pointer arrow */}
-                  <div className="w-0 h-0 border-x-[6px] border-x-transparent border-b-[6px] border-b-white mx-auto drop-shadow-[0_-1px_1px_rgba(0,0,0,0.06)] -mb-[1px]" />
-
-                  {/* Popover body: Exactly one button to change */}
-                  <div className="bg-white rounded-2xl p-1.5 shadow-xl border border-slate-200/90 flex items-center justify-center min-w-[46px]">
-                    {lang === 'ak' ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setLang?.('en')
-                          setLangDropdownOpen(false)
-                        }}
-                        className="p-1 rounded-full hover:bg-slate-100 transition-all hover:scale-110 active:scale-95 cursor-pointer"
-                        title="English"
-                        aria-label="Switch to English"
-                      >
-                        <FlagUKCircle size={28} />
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setLang?.('ak')
-                          setLangDropdownOpen(false)
-                        }}
-                        className="p-1 rounded-full hover:bg-slate-100 transition-all hover:scale-110 active:scale-95 cursor-pointer"
-                        title="ရခိုင်ဘာသာ"
-                        aria-label="Switch to Arakanese"
-                      >
-                        <FlagArakanCircle size={28} />
-                      </button>
-                    )}
-                  </div>
-                </div>
+            {/* Circular Flag Language Selector (Single Button, Zero Borders, Zero Shake) */}
+            <button
+              type="button"
+              onClick={() => setLang?.(lang === 'ak' ? 'en' : 'ak')}
+              className="relative w-8 h-8 rounded-full flex items-center justify-center overflow-hidden cursor-pointer shrink-0 shadow-sm hover:opacity-85 active:opacity-75 transition-opacity select-none"
+              title={lang === 'ak' ? 'Switch to English (/en)' : 'ရခိုင်ဘာသာသို့ ပြောင်းမည် (/ak)'}
+              aria-label={lang === 'ak' ? 'Switch to English' : 'Switch to Arakanese'}
+            >
+              {lang === 'ak' ? (
+                <FlagArakanCircle size={32} />
+              ) : (
+                <FlagUKCircle size={32} />
               )}
-            </div>
+            </button>
 
             {/* Log In Button */}
             <button
@@ -446,14 +398,14 @@ export default function LandingPage({
               <button
                 type="button"
                 onClick={() => setLang?.(lang === 'ak' ? 'en' : 'ak')}
-                className="p-1 rounded-full border border-slate-200 bg-white shadow-sm hover:scale-105 active:scale-95 transition-all"
-                title={lang === 'ak' ? 'Switch to English' : 'ရခိုင်ဘာသာသို့ ပြောင်းမည်'}
-                aria-label="Change language"
+                className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden hover:opacity-85 active:opacity-75 transition-opacity cursor-pointer shrink-0 select-none shadow-sm"
+                title={lang === 'ak' ? 'Switch to English (/en)' : 'ရခိုင်ဘာသာသို့ ပြောင်းမည် (/ak)'}
+                aria-label={lang === 'ak' ? 'Switch to English' : 'Switch to Arakanese'}
               >
                 {lang === 'ak' ? (
-                  <FlagUKCircle size={24} />
+                  <FlagArakanCircle size={32} />
                 ) : (
-                  <FlagArakanCircle size={24} />
+                  <FlagUKCircle size={32} />
                 )}
               </button>
             </div>
