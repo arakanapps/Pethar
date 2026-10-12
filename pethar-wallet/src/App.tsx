@@ -11,7 +11,7 @@ export default function App() {
 
   const [currentView, setCurrentView] = useState<AppView>(paramApp ? 'banking' : 'landing')
   const [lang, setLang] = useState<Language>('en')
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [theme, setTheme] = useState<'dark' | 'light'>('light')
 
   if (currentView === 'landing') {
     return (
