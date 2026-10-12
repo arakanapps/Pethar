@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { ArakanEmblem, FlagArakan, FlagInternational } from '../components/ArakanEmblem'
+import { AuthModal } from '../components/AuthModal'
 import type { Language } from '../i18n'
 import {
-  Globe, Smartphone, ArrowRight, Download, Apple, Lock,
-  ChevronDown, Send, Menu, X,
-  Building2, Store, Terminal, CheckCircle,
+  Smartphone, ArrowRight, Download, Apple,
+  ChevronDown, Send, Menu, X, Terminal, CheckCircle,
   PhoneCall, Radio, ArrowUpRight,
-  Wallet, Database, KeyRound, FileText, Check
+  Wallet, Check, QrCode, ShieldCheck, CreditCard
 } from 'lucide-react'
 
 interface LandingPageProps {
@@ -53,7 +53,7 @@ function MetricCard({
   value,
   label,
   sublabel,
-  colorClass = 'text-white',
+  colorClass = 'text-slate-900',
   formatValue,
 }: {
   value: number
@@ -64,16 +64,16 @@ function MetricCard({
 }) {
   const { count, ref } = useCountUp(value)
   return (
-    <div ref={ref} className="liquid-glass-card rounded-2xl p-6 border border-white/10 relative overflow-hidden group">
-      <div className="absolute top-0 right-0 w-28 h-28 bg-red-600/5 rounded-full blur-2xl group-hover:scale-125 transition-transform" />
+    <div ref={ref} className="liquid-glass-card-light rounded-2xl p-6 border border-white/90 relative overflow-hidden group">
+      <div className="absolute top-0 right-0 w-28 h-28 bg-amber-400/10 rounded-full blur-2xl group-hover:scale-125 transition-transform" />
       <div className={`text-[clamp(1.75rem,3vw,2.5rem)] font-extrabold font-mono tracking-tight ${colorClass}`}>
         {formatValue ? formatValue(count) : count.toLocaleString()}
       </div>
-      <div className="text-xs font-bold text-white/90 mt-1">
+      <div className="text-xs font-bold text-slate-800 mt-1">
         {label}
       </div>
       {sublabel && (
-        <div className="text-[11px] font-mono text-white/45 mt-0.5">
+        <div className="text-[11px] font-mono text-slate-500 mt-0.5">
           {sublabel}
         </div>
       )}
@@ -81,63 +81,8 @@ function MetricCard({
   )
 }
 
-/* ─── Scroll Reveal Hook ─────────────────────────────────────────────── */
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [])
-
-  return { ref, isVisible }
-}
-
-/* ─── Section Reveal Wrapper ─────────────────────────────────────────── */
-function RevealSection({ children, className = '', delay = 0 }: {
-  children: React.ReactNode; className?: string; delay?: number
-}) {
-  const { ref, isVisible } = useScrollReveal()
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ease-out ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-      } ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  )
-}
-
-/* ─── Marquee Component ──────────────────────────────────────────────── */
-function Marquee({ children, speed = 35 }: { children: React.ReactNode; speed?: number }) {
-  return (
-    <div className="overflow-hidden whitespace-nowrap mask-marquee">
-      <div
-        className="inline-flex animate-marquee items-center"
-        style={{ animationDuration: `${speed}s` }}
-      >
-        {children}
-        {children}
-      </div>
-    </div>
-  )
-}
-
 /* ═══════════════════════════════════════════════════════════════════════
-    PROFESSIONAL FINTECH PLATFORM WEBSITE
+    PROFESSIONAL FINTECH PLATFORM WEBSITE (LIGHT THEME LIQUID GLASS)
 ═══════════════════════════════════════════════════════════════════════ */
 export default function LandingPage({
   onEnterApp,
@@ -147,11 +92,11 @@ export default function LandingPage({
 }: LandingPageProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [activeTab, setActiveTab] = useState<'transfers' | 'merchants' | 'remittance' | 'offline'>('transfers')
   const [openFaq, setOpenFaq] = useState<number | null>(0)
-  const [showLoginModal, setShowLoginModal] = useState(false)
-  const [loginPhone, setLoginPhone] = useState('')
-  const [loginPin, setLoginPin] = useState('')
+
+  // Binance-style AuthModal State
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login')
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -167,77 +112,82 @@ export default function LandingPage({
     }
   }
 
+  const openAuth = (mode: 'login' | 'signup') => {
+    setAuthModalMode(mode)
+    setAuthModalOpen(true)
+  }
+
   const navMenuItems = [
     { label: lang === 'ak' ? 'ပင်မ' : 'Overview', href: '#overview' },
-    { label: lang === 'ak' ? 'ဘဏ္ဍာရေးဝန်ဆောင်မှုများ' : 'Services', href: '#services' },
+    { label: lang === 'ak' ? 'ဝန်ဆောင်မှုများ' : 'Services', href: '#services' },
     { label: lang === 'ak' ? 'ကုန်သည်စနစ်' : 'Merchants', href: '#merchants' },
-    { label: lang === 'ak' ? 'အော့ဖ်လိုင်းနည်းပညာ' : 'Offline Protocol', href: '#offline' },
-    { label: lang === 'ak' ? 'ငွေကြေးစနစ်' : 'Currency & Ledger', href: '#currency' },
+    { label: lang === 'ak' ? 'အော့ဖ်လိုင်းစနစ်' : 'Offline Protocol', href: '#offline' },
+    { label: lang === 'ak' ? 'ငွေကြေးစနစ်' : 'Treasury & Parity', href: '#currency' },
     { label: lang === 'ak' ? 'ဒေါင်းလုဒ်' : 'Download', href: '#download' },
     { label: lang === 'ak' ? 'လုံခြုံရေး' : 'Security', href: '#security' },
   ]
 
   return (
-    <div className="min-h-screen text-[#F1F0E0] overflow-x-hidden selection:bg-red-700/60 selection:text-white font-sans relative bg-[#06090E]">
+    <div className="min-h-screen text-slate-800 overflow-x-hidden selection:bg-amber-500/30 selection:text-slate-900 font-sans relative bg-[#F8FAFC]">
 
-      {/* ── AMBIENT RESTRAINED GLASS GRADIENT BACKDROP ───────────────────── */}
+      {/* ── AMBIENT LIQUID GLASS LIGHT BACKDROP ───────────────────── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-10%] left-[25%] w-[600px] h-[600px] rounded-full bg-red-700/[0.08] blur-[160px] animate-pulse-glow" />
-        <div className="absolute top-[40%] right-[-5%] w-[500px] h-[500px] rounded-full bg-amber-500/[0.06] blur-[150px] animate-float-slow" />
-        <div className="absolute bottom-[10%] left-[-10%] w-[550px] h-[550px] rounded-full bg-blue-600/[0.05] blur-[170px] animate-float-reverse" />
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] opacity-40" />
+        <div className="absolute top-[-5%] left-[20%] w-[650px] h-[650px] rounded-full bg-gradient-to-br from-amber-200/30 via-red-100/25 to-transparent blur-[130px] animate-pulse-glow" />
+        <div className="absolute top-[35%] right-[-5%] w-[550px] h-[550px] rounded-full bg-gradient-to-bl from-sky-200/30 via-emerald-100/20 to-transparent blur-[140px] animate-float-slow" />
+        <div className="absolute bottom-[10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-rose-200/25 via-amber-100/30 to-transparent blur-[150px] animate-float-reverse" />
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(15,23,42,0.03)_1px,transparent_1px)] bg-[size:32px_32px] opacity-70" />
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          ENTERPRISE COMMUNICATIONS & NOTICE BAR
+          ENTERPRISE COMMUNICATIONS & NOTICE BAR (MTB PAY INSPIRED)
       ═══════════════════════════════════════════════════════════════════ */}
-      <div className="relative z-50 border-b border-white/[0.08] bg-black/70 backdrop-blur-xl text-[11px] font-mono tracking-wider py-1.5 px-4 sm:px-8">
+      <div className="relative z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl text-[11px] font-mono tracking-wider py-1.5 px-4 sm:px-8 shadow-sm">
         <div className="max-w-[1400px] mx-auto flex flex-wrap items-center justify-between gap-3">
           {/* Support Line & Inquiries */}
-          <div className="flex items-center gap-4 text-white/70">
+          <div className="flex items-center gap-4 text-slate-600">
             <div className="flex items-center gap-1.5">
-              <PhoneCall className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-white/40 font-bold uppercase">{lang === 'ak' ? 'အကူအညီ' : 'Support'}:</span>
-              <a href="tel:+959798112334" className="text-white hover:text-amber-300 transition-colors font-bold">+95 9 798 112 334</a>
+              <PhoneCall className="w-3.5 h-3.5 text-amber-600" />
+              <span className="text-slate-400 font-bold uppercase">{lang === 'ak' ? 'ဟော့လိုင်း' : 'Hotline'}:</span>
+              <a href="tel:+959685682682" className="text-slate-900 hover:text-amber-600 transition-colors font-bold">+95 9 685 682 682</a>
             </div>
-            <div className="hidden md:inline-block w-[1px] h-3 bg-white/20" />
-            <div className="hidden md:flex items-center gap-1.5 text-white/60">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>{lang === 'ak' ? 'အာရက္ခဒေသတွင်း ဘဏ္ဍာရေးနည်းပညာစနစ်' : 'PeThar Financial Infrastructure Platform'}</span>
+            <div className="hidden md:inline-block w-[1px] h-3 bg-slate-300" />
+            <div className="hidden md:flex items-center gap-1.5 text-slate-500">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span>{lang === 'ak' ? 'အာရက္ခဒေသတွင်း ဘဏ္ဍာရေးနည်းပညာစနစ်' : 'PeThar Financial Super App Platform'}</span>
             </div>
           </div>
 
-          {/* Currency Reference + Language Selector + Theme Toggle */}
+          {/* Currency Reference + Language Selector */}
           <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center gap-2 text-[10px] text-white/60 bg-white/[0.04] px-3 py-0.5 rounded-full border border-white/10">
-              <span className="text-amber-400 font-bold">1 AKD = 1.00 USDT (Target Parity)</span>
-              <span className="text-white/30">•</span>
-              <span className="text-emerald-400">THB 35.80</span>
-              <span className="text-white/30">•</span>
-              <span className="text-cyan-400">MYR 4.72</span>
+            <div className="hidden lg:flex items-center gap-2 text-[10px] text-slate-600 bg-slate-100/80 px-3 py-0.5 rounded-full border border-slate-200">
+              <span className="text-amber-700 font-bold">1 AKD = 1.00 USDT (Parity Target)</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-emerald-700 font-medium">THB 35.80</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-sky-700 font-medium">MYR 4.72</span>
             </div>
 
-            {/* Language Toggle */}
-            <div className="flex items-center bg-white/[0.06] border border-white/10 rounded-full p-0.5">
+            {/* Language Toggle (Pure Graphical Flags Only) */}
+            <div className="flex items-center bg-slate-100/90 border border-slate-200 rounded-full p-0.5 shadow-sm">
               <button
                 onClick={() => setLang && setLang('ak')}
                 className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
-                  lang === 'ak' ? 'bg-red-700 text-white shadow-sm' : 'text-white/60 hover:text-white'
+                  lang === 'ak' ? 'bg-red-600 text-white shadow-sm ring-1 ring-red-500' : 'text-slate-500 hover:text-slate-900'
                 }`}
                 title="ရခိုင်ဘာသာ"
                 aria-label="ရခိုင်ဘာသာ"
               >
-                <FlagArakan size={15} />
+                <FlagArakan size={16} />
               </button>
               <button
                 onClick={() => setLang && setLang('en')}
                 className={`flex items-center justify-center p-1.5 rounded-full transition-all ${
-                  lang === 'en' ? 'bg-blue-700 text-white shadow-sm' : 'text-white/60 hover:text-white'
+                  lang === 'en' ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-500' : 'text-slate-500 hover:text-slate-900'
                 }`}
                 title="English"
                 aria-label="English"
               >
-                <FlagInternational size={15} />
+                <FlagInternational size={16} />
               </button>
             </div>
           </div>
@@ -245,102 +195,122 @@ export default function LandingPage({
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          STICKY LIQUID GLASS NAVIGATION BAR
+          STICKY LIQUID GLASS NAVIGATION BAR (MTB PAY INSPIRED)
       ═══════════════════════════════════════════════════════════════════ */}
       <header className={`sticky top-0 z-40 transition-all duration-300 ${
         scrolled
-          ? 'bg-[#090D14]/90 backdrop-blur-2xl border-b border-white/[0.12] shadow-2xl shadow-black/60'
-          : 'bg-[#090D14]/60 backdrop-blur-md border-b border-white/[0.05]'
+          ? 'bg-white/85 backdrop-blur-2xl border-b border-slate-200/80 shadow-md shadow-slate-200/40'
+          : 'bg-white/65 backdrop-blur-xl border-b border-slate-200/50'
       }`}>
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 h-[72px] flex items-center justify-between">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 h-[74px] flex items-center justify-between">
           {/* Brand Identity */}
           <div
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-red-600/30 blur-md group-hover:scale-110 transition-transform" />
-              <ArakanEmblem size={36} variant="badge" className="relative drop-shadow" />
+              <div className="absolute inset-0 rounded-full bg-amber-400/20 blur-md group-hover:scale-110 transition-transform" />
+              <ArakanEmblem size={38} variant="badge" className="relative drop-shadow-sm" />
             </div>
             <div>
               <div className="flex items-baseline gap-2">
-                <span className="text-xl font-black tracking-tight text-white font-sans">PeThar</span>
-                <span className="text-xs font-mono font-bold text-amber-400">FINTECH</span>
+                <span className="text-xl font-black tracking-tight text-slate-900 font-sans">PeThar</span>
+                <span className="text-xs font-mono font-bold px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 border border-amber-200/60">PAY</span>
               </div>
-              <p className="text-[10px] text-white/45 hidden sm:block font-sans -mt-0.5">
-                {lang === 'ak' ? 'အာရက္ခဒစ်ဂျစ်တယ် ဘဏ္ဍာရေးကွန်ရက်' : 'Arakan Digital Financial Infrastructure'}
+              <p className="text-[10px] text-slate-500 hidden sm:block font-sans -mt-0.5">
+                {lang === 'ak' ? 'အာရက္ခဒစ်ဂျစ်တယ် ဘဏ္ဍာရေးကွန်ရက်' : 'Arakan Unified Digital Payment System'}
               </p>
             </div>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1 font-mono text-[12px] tracking-wide">
+          <nav className="hidden lg:flex items-center gap-1 font-mono text-[13px] tracking-wide text-slate-600">
             {navMenuItems.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="relative px-3.5 py-2 text-white/65 hover:text-white transition-colors group rounded-xl hover:bg-white/[0.04]"
+                className="px-3.5 py-2 rounded-xl hover:text-slate-950 hover:bg-slate-100/80 transition-all font-medium"
               >
-                <span>{item.label}</span>
-                <span className="absolute bottom-1 left-3.5 right-3.5 h-[1.5px] bg-gradient-to-r from-red-500 to-amber-400 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+                {item.label}
               </a>
             ))}
           </nav>
 
-          {/* Action CTAs */}
-          <div className="flex items-center gap-3">
+          {/* Binance Style Authentication Actions */}
+          <div className="hidden sm:flex items-center gap-2.5">
             <button
-              onClick={() => setShowLoginModal(true)}
-              className="hidden sm:flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-white/75 hover:text-white px-3.5 py-2 rounded-xl border border-white/10 hover:bg-white/[0.06] transition-all"
+              onClick={() => openAuth('login')}
+              className="px-4 py-2 rounded-xl text-xs font-bold font-mono text-slate-700 hover:text-slate-950 hover:bg-slate-100/90 transition-all border border-slate-200/80 shadow-sm"
             >
-              <Lock className="w-3.5 h-3.5 text-amber-400" />
-              <span>{lang === 'ak' ? 'အကောင့်ဝင်ရန်' : 'Portal Login'}</span>
+              {lang === 'ak' ? 'အကောင့်ဝင်ရန်' : 'Log In'}
+            </button>
+
+            <button
+              onClick={() => openAuth('signup')}
+              className="px-4.5 py-2 rounded-xl text-xs font-bold font-mono bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-sm shadow-amber-500/20 hover:shadow-md transition-all active:scale-[0.98]"
+            >
+              {lang === 'ak' ? 'အကောင့်ဖွင့်ရန်' : 'Sign Up'}
             </button>
 
             <button
               onClick={handleOpenBankingClick}
-              className="liquid-glass-pill px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2 shadow-lg active:scale-95 group"
+              className="px-4 py-2 rounded-xl text-xs font-bold font-mono bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all flex items-center gap-1.5 active:scale-[0.98]"
             >
-              <span>{lang === 'ak' ? 'ဝဘ်ဘဏ်လုပ်ငန်း' : 'Web Banking'}</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </button>
-
-            {/* Mobile Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-white/70 hover:text-white rounded-xl bg-white/[0.05]"
-              aria-label="Toggle Navigation"
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              <span>{lang === 'ak' ? 'အွန်လိုင်းဘဏ်' : 'Online Banking'}</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200"
+            aria-label="Toggle Menu"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
 
-        {/* Mobile Navigation Drawer */}
+        {/* Mobile Dropdown */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#0A0D14]/95 backdrop-blur-2xl border-b border-white/[0.1] px-6 py-6 space-y-3 font-mono text-xs">
+          <div className="lg:hidden bg-white/95 backdrop-blur-2xl border-b border-slate-200 p-4 space-y-2 font-mono text-sm shadow-xl">
             {navMenuItems.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-2.5 text-white/70 hover:text-white border-b border-white/[0.04]"
+                className="block px-3 py-2.5 rounded-lg text-slate-700 hover:bg-slate-100"
               >
                 {item.label}
               </a>
             ))}
-            <div className="pt-3 flex flex-col gap-2">
+            <div className="pt-3 border-t border-slate-200 flex flex-col gap-2">
               <button
-                onClick={() => { setMobileMenuOpen(false); setShowLoginModal(true) }}
-                className="w-full py-3 text-center border border-white/10 rounded-xl text-white/80"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  openAuth('login')
+                }}
+                className="w-full py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-800 text-center"
               >
-                {lang === 'ak' ? 'အကောင့်ဝင်ရန်' : 'Portal Login'}
+                {lang === 'ak' ? 'အကောင့်ဝင်ရန်' : 'Log In'}
               </button>
               <button
-                onClick={() => { setMobileMenuOpen(false); handleOpenBankingClick() }}
-                className="w-full py-3 text-center bg-gradient-to-r from-red-600 to-amber-600 text-white font-bold rounded-xl"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  openAuth('signup')
+                }}
+                className="w-full py-2.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 text-center"
               >
-                {lang === 'ak' ? 'ဝဘ်ဘဏ်လုပ်ငန်း စတင်ရန်' : 'Launch Online Banking'}
+                {lang === 'ak' ? 'အကောင့်ဖွင့်ရန်' : 'Sign Up'}
+              </button>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  handleOpenBankingClick()
+                }}
+                className="w-full py-2.5 rounded-xl text-xs font-bold bg-slate-900 text-white text-center"
+              >
+                {lang === 'ak' ? 'အွန်လိုင်းဘဏ်လုပ်ငန်း' : 'Online Banking Portal'}
               </button>
             </div>
           </div>
@@ -348,885 +318,611 @@ export default function LandingPage({
       </header>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 1: HERO MONUMENT (FINTECH BRAND ARCHITECTURE)
+          SECTION 1: HERO (MTB PAY INSPIRED LIGHT LIQUID GLASS)
       ═══════════════════════════════════════════════════════════════════ */}
-      <section id="overview" className="relative pt-16 pb-24 overflow-hidden">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 relative z-10">
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
+      <section id="overview" className="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            
+            {/* Left Column: Vision & Actions */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Institutional Compliance Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full liquid-glass-pill-light border border-slate-200 shadow-sm text-xs font-mono font-medium text-slate-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{lang === 'ak' ? 'Arakan QR (AK QR) စံသတ်မှတ်ချက်ကိုက်ညီ' : 'Arakan QR (AK QR) National Standard Compliant'}</span>
+                <span className="text-slate-300">•</span>
+                <span className="text-amber-700 font-bold">1:1 USDT Parity</span>
+              </div>
 
-            {/* Left 7 Columns: Product Statement & Actions */}
-            <div className="lg:col-span-7 text-left space-y-6">
-              <RevealSection delay={0}>
-                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full liquid-glass-pill border border-white/15 text-xs font-mono tracking-wider">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span className="text-white/80 font-bold">DIGITAL FINANCIAL RAILS FOR ARAKAN</span>
-                  <span className="text-white/30">•</span>
-                  <span className="text-amber-300 font-bold">ONLINE & OFFLINE RESILIENT</span>
+              {/* Main Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-950 leading-[1.12]">
+                {lang === 'ak' ? (
+                  <>
+                    အာရက္ခဒေသတွင်း <span className="bg-gradient-to-r from-red-600 via-amber-600 to-amber-700 bg-clip-text text-transparent">ခေတ်မီ ဒစ်ဂျစ်တယ်ဘဏ်နှင့်</span> ငွေပေးချေမှုကွန်ရက်
+                  </>
+                ) : (
+                  <>
+                    Next-Generation <span className="bg-gradient-to-r from-red-600 via-amber-600 to-amber-700 bg-clip-text text-transparent">Digital Banking</span> for Arakan
+                  </>
+                )}
+              </h1>
+
+              {/* Sub-paragraph */}
+              <p className="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed">
+                {lang === 'ak'
+                  ? 'စက္ကန့်ပိုင်းအတွင်း လွယ်ကူလျင်မြန်သော ငွေလွှဲပြောင်းမှုများ၊ အင်တာနက်လိုင်းမရှိချိန်တွင်လည်း အသုံးပြုနိုင်သော အော့ဖ်လိုင်းစနစ်၊ Arakan QR (AK QR) ကုန်သည်ငွေပေးချေမှုနှင့် ၁:၁ USDT တည်ငြိမ်ငွေကြေးစနစ်။'
+                  : 'Empowering communities and commerce across Arakan with instant zero-fee peer transfers, offline mesh payments via BLE & NFC, unified Arakan QR merchant acceptance, and an auditable 1:1 USDT parity financial ledger.'}
+              </p>
+
+              {/* CTAs */}
+              <div className="flex flex-wrap items-center gap-3.5 pt-2">
+                <button
+                  onClick={() => openAuth('signup')}
+                  className="px-6 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 hover:shadow-lg transition-all flex items-center gap-2 active:scale-[0.98]"
+                >
+                  <span>{lang === 'ak' ? 'အကောင့် အခမဲ့ဖွင့်မည်' : 'Get Started (Sign Up)'}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                <a
+                  href="#download"
+                  className="px-6 py-3.5 rounded-2xl font-bold text-sm bg-white hover:bg-slate-50 text-slate-800 border border-slate-200/90 shadow-sm transition-all flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4 text-amber-600" />
+                  <span>{lang === 'ak' ? 'မိုဘိုင်းအက်ပ် ဒေါင်းလုဒ်' : 'Download Mobile App'}</span>
+                </a>
+
+                <button
+                  onClick={handleOpenBankingClick}
+                  className="px-6 py-3.5 rounded-2xl font-bold text-sm bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all flex items-center gap-2"
+                >
+                  <Terminal className="w-4 h-4 text-emerald-400" />
+                  <span>{lang === 'ak' ? 'အွန်လိုင်းဘဏ်' : 'Online Banking'}</span>
+                </button>
+              </div>
+
+              {/* App Store Trust Badges */}
+              <div className="pt-4 flex flex-wrap items-center gap-6 text-xs text-slate-500 font-mono">
+                <div className="flex items-center gap-1.5">
+                  <Apple className="w-4 h-4 text-slate-800" />
+                  <span>iOS 16+ (Apple Secure Enclave)</span>
                 </div>
-              </RevealSection>
-
-              <RevealSection delay={100}>
-                <h1 className="text-[clamp(2.5rem,5.2vw,4.5rem)] font-extrabold tracking-[-0.03em] leading-[1.08]">
-                  <span className="block text-white">
-                    {lang === 'ak' ? 'အာရက္ခဒေသတွင်း ခေတ်မီ' : 'Modern Financial Rails'}
-                  </span>
-                  <span className="block bg-gradient-to-r from-red-500 via-amber-300 to-amber-500 bg-clip-text text-transparent font-serif italic font-normal text-[clamp(2.75rem,5.8vw,5rem)]">
-                    {lang === 'ak' ? 'ဒစ်ဂျစ်တယ်ငွေပေးချေမှုစနစ်' : 'for Families, Merchants & Enterprise'}
-                  </span>
-                </h1>
-              </RevealSection>
-
-              <RevealSection delay={200}>
-                <p className="text-base sm:text-lg text-white/65 max-w-xl leading-relaxed">
-                  {lang === 'ak'
-                    ? 'ဖေ့သာ (PeThar) သည် မြန်ဆန်၍ လုံခြုံစိတ်ချရသော ဒစ်ဂျစ်တယ်ငွေလွှဲခြင်း၊ ဈေးဆိုင်သုံး Arakan QR (AK QR) ငွေရှင်းစနစ်၊ ဒေသတွင်းငွေလွှဲစင်္ကြံများနှင့် ဆက်သွယ်ရေးပြတ်တောက်ချိန်တွင် အသုံးပြုနိုင်သည့် အော့ဖ်လိုင်းငွေပေးချေမှု နည်းပညာများကို ထောက်ပံ့ပေးပါသည်။'
-                    : 'PeThar provides reliable digital payment infrastructure across Arakan. Enabling instant peer-to-peer transfers, zero-fee merchant QR checkout, regional remittance corridors, and cryptographic offline transaction resilience.'}
-                </p>
-              </RevealSection>
-
-              {/* Primary Call to Action Buttons */}
-              <RevealSection delay={300}>
-                <div className="flex flex-wrap items-center gap-4 pt-2">
-                  <button
-                    onClick={handleOpenBankingClick}
-                    className="liquid-glass-pill px-7 py-4 rounded-2xl text-sm font-bold text-white flex items-center gap-2.5 shadow-xl hover:scale-105 active:scale-95 transition"
-                  >
-                    <span>{lang === 'ak' ? 'ဝဘ်ဘဏ်လုပ်ငန်း စတင်ရန်' : 'Open Online Banking Portal'}</span>
-                    <ArrowRight size={17} className="text-amber-400" />
-                  </button>
-
-                  <a
-                    href="#download"
-                    className="px-6 py-4 rounded-2xl border border-white/15 hover:bg-white/[0.05] text-white/85 font-mono text-xs uppercase tracking-wider transition flex items-center gap-2"
-                  >
-                    <Download size={15} />
-                    <span>{lang === 'ak' ? 'အက်ပ် ရယူရန်' : 'Download Mobile App'}</span>
-                  </a>
+                <div className="flex items-center gap-1.5">
+                  <Smartphone className="w-4 h-4 text-emerald-600" />
+                  <span>Android 10+ (Keystore Auth)</span>
                 </div>
-              </RevealSection>
-
-              {/* Trust Indicators */}
-              <RevealSection delay={400}>
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/[0.08] max-w-lg font-mono">
-                  <div>
-                    <div className="text-sm font-bold text-emerald-400">&lt; 250 ms</div>
-                    <div className="text-[10px] text-white/40 uppercase mt-0.5">Instant Finality</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-amber-400">0% Domestic Fees</div>
-                    <div className="text-[10px] text-white/40 uppercase mt-0.5">P2P & Merchant QR</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-cyan-400">Ed25519 Signed</div>
-                    <div className="text-[10px] text-white/40 uppercase mt-0.5">Offline Vouchers</div>
-                  </div>
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-blue-600" />
+                  <span>256-bit SQLCipher Encrypted</span>
                 </div>
-              </RevealSection>
+              </div>
             </div>
 
-            {/* Right 5 Columns: Desktop Platform Architecture Card (NOT a mobile phone mockup) */}
-            <div className="lg:col-span-5">
-              <RevealSection delay={200}>
-                <div className="liquid-glass-card rounded-[32px] p-6 sm:p-7 border border-white/15 relative overflow-hidden shadow-2xl backdrop-blur-2xl">
-                  {/* Card Header */}
-                  <div className="flex items-center justify-between pb-5 border-b border-white/10">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-red-600/20 text-red-400 border border-red-500/30 flex items-center justify-center font-bold">
-                        <Terminal size={18} />
+            {/* Right Column: Liquid Glass Interactive Financial Showcase (MTB Pay Banner Style) */}
+            <div className="lg:col-span-5 relative">
+              <div className="relative mx-auto max-w-[440px]">
+                {/* Glow ring */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-amber-400/20 to-red-500/20 rounded-3xl blur-2xl transform rotate-1" />
+
+                {/* Main Card: PeThar Super App Liquid Glass Showcase */}
+                <div className="liquid-glass-card-light rounded-3xl p-6 sm:p-7 border border-white/95 relative shadow-2xl">
+                  {/* Account Header */}
+                  <div className="flex items-center justify-between pb-5 border-b border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center text-white shadow-sm">
+                        <Wallet className="w-5 h-5" />
                       </div>
                       <div>
-                        <div className="text-sm font-bold text-white">PeThar Settlement Core</div>
-                        <div className="text-[10px] font-mono text-white/40">Append-Only Double-Entry Ledger</div>
+                        <div className="text-xs font-mono font-bold text-slate-500 uppercase">PeThar Primary Vault</div>
+                        <div className="text-sm font-extrabold text-slate-900">U Kyaw Min Htin</div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                      OPERATIONAL
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Tier 2 KYC Verified
                     </span>
                   </div>
 
-                  {/* Multi-Currency Board */}
-                  <div className="py-5 space-y-3 font-mono">
-                    <div className="text-[10px] uppercase text-white/40 tracking-wider">
-                      Settlement Unit Configuration
+                  {/* Balance Display */}
+                  <div className="py-6 space-y-1">
+                    <div className="text-xs font-mono text-slate-500">{lang === 'ak' ? 'လက်ကျန်ငွေ' : 'Total Available Balance'}</div>
+                    <div className="text-4xl font-extrabold font-mono text-slate-950 tracking-tight flex items-baseline gap-2">
+                      <span>42,850.00</span>
+                      <span className="text-amber-600 text-lg">AKD</span>
                     </div>
-
-                    <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <span className="w-2 h-2 rounded-full bg-amber-400" />
-                        <div>
-                          <div className="text-xs font-bold text-white">Arakan Dollar (AKD)</div>
-                          <div className="text-[10px] text-white/40">Primary Digital Accounting Unit</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs font-bold text-amber-300">1.00 USDT</div>
-                        <div className="text-[9px] text-emerald-400">Target Peg</div>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                        <div>
-                          <div className="text-xs font-bold text-white">Thailand PromptPay Corridor</div>
-                          <div className="text-[10px] text-white/40">Direct Regional Settlement</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs font-bold text-white">35.80 THB</div>
-                        <div className="text-[9px] text-white/40">Live Spot</div>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <span className="w-2 h-2 rounded-full bg-cyan-400" />
-                        <div>
-                          <div className="text-xs font-bold text-white">Offline Mesh Relay</div>
-                          <div className="text-[10px] text-white/40">NFC & BLE Protocol Buffer</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs font-bold text-cyan-300">Active</div>
-                        <div className="text-[9px] text-white/40">Anti-Replay</div>
-                      </div>
+                    <div className="text-xs font-mono text-slate-500 flex items-center gap-1.5 pt-1">
+                      <span>≈ 42,850.00 USDT</span>
+                      <span className="text-slate-300">•</span>
+                      <span className="text-emerald-600 font-bold">+1,250.00 (7d)</span>
                     </div>
                   </div>
 
-                  {/* Quick Action Bar */}
-                  <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs font-mono">
-                    <span className="text-[10px] text-white/40">Node Sync: Block #948,124</span>
+                  {/* 4 Quick Financial Action Pills (MTB Pay inspired) */}
+                  <div className="grid grid-cols-4 gap-2 py-3 border-y border-slate-100">
                     <button
                       onClick={handleOpenBankingClick}
-                      className="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition"
+                      className="flex flex-col items-center justify-center p-2.5 rounded-xl hover:bg-slate-50 transition-colors group"
                     >
-                      <span>Launch Dashboard</span>
-                      <ArrowRight size={13} />
+                      <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-100 flex items-center justify-center mb-1">
+                        <Send className="w-4 h-4" />
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-700">{lang === 'ak' ? 'လွှဲမည်' : 'Send'}</span>
+                    </button>
+
+                    <button
+                      onClick={handleOpenBankingClick}
+                      className="flex flex-col items-center justify-center p-2.5 rounded-xl hover:bg-slate-50 transition-colors group"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-100 flex items-center justify-center mb-1">
+                        <QrCode className="w-4 h-4" />
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-700">AK QR</span>
+                    </button>
+
+                    <button
+                      onClick={handleOpenBankingClick}
+                      className="flex flex-col items-center justify-center p-2.5 rounded-xl hover:bg-slate-50 transition-colors group"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 group-hover:bg-purple-100 flex items-center justify-center mb-1">
+                        <CreditCard className="w-4 h-4" />
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-700">{lang === 'ak' ? 'ဘေလ်' : 'Bills'}</span>
+                    </button>
+
+                    <button
+                      onClick={handleOpenBankingClick}
+                      className="flex flex-col items-center justify-center p-2.5 rounded-xl hover:bg-slate-50 transition-colors group"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100 flex items-center justify-center mb-1">
+                        <Radio className="w-4 h-4" />
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-700">{lang === 'ak' ? 'အော့ဖ်လိုင်း' : 'Offline'}</span>
                     </button>
                   </div>
-                </div>
-              </RevealSection>
-            </div>
 
-          </div>
-        </div>
-      </section>
-
-      {/* ─── REGIONAL HUBS & CORRIDORS MARQUEE ───────────────────────────── */}
-      <div className="border-y border-white/[0.08] bg-black/50 backdrop-blur-xl py-3.5 overflow-hidden">
-        <Marquee speed={32}>
-          <div className="flex items-center gap-12 font-mono text-xs text-white/50 uppercase tracking-widest px-6">
-            <span className="flex items-center gap-2 text-white/80 font-bold">
-              <ArakanEmblem size={16} variant="badge" /> PeThar Network
-            </span>
-            <span>•</span>
-            <span className="text-amber-400 font-bold">Sittwe Central Hub</span>
-            <span>•</span>
-            <span>Mrauk-U Regional Desk</span>
-            <span>•</span>
-            <span className="text-emerald-400 font-bold">Kyaukpyu Port Corridor</span>
-            <span>•</span>
-            <span>Thandwe & Ramree Outlets</span>
-            <span>•</span>
-            <span className="text-cyan-400 font-bold">PromptPay Thailand Direct</span>
-            <span>•</span>
-            <span>Malaysia DuitNow Corridor</span>
-            <span>•</span>
-            <span className="text-purple-400 font-bold">USDT Liquidity Integration</span>
-            <span>•</span>
-            <span>Starlink Blackout Bridge</span>
-            <span>•</span>
-          </div>
-        </Marquee>
-      </div>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 2: FOUR CORE FINANCIAL PILLARS
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section id="services" className="py-24 relative">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
-          <RevealSection>
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-red-400 font-bold">
-                FINANCIAL TECHNOLOGY SERVICES
-              </span>
-              <h2 className="text-[clamp(2.25rem,4vw,3.5rem)] font-extrabold text-white tracking-tight mt-1">
-                {lang === 'ak' ? 'အဓိက ဘဏ္ဍာရေးဝန်ဆောင်မှုများ' : 'Comprehensive Financial Services'}
-              </h2>
-              <p className="text-white/50 text-base mt-2">
-                {lang === 'ak'
-                  ? 'ပြည်တွင်းငွေလွှဲခြင်း၊ ဈေးဆိုင်ငွေရှင်းစနစ်၊ နိုင်ငံတကာငွေလွှဲနှင့် အော့ဖ်လိုင်း ဆက်သွယ်ရေးပြတ်တောက်မှု ကာကွယ်ရေး'
-                  : 'Practical, low-latency financial tools designed for day-to-day transactions and business growth.'}
-              </p>
-
-              {/* Pillar Category Tabs */}
-              <div className="mt-8 inline-flex p-1.5 rounded-full liquid-glass border border-white/15 max-w-full overflow-x-auto">
-                {[
-                  { id: 'transfers' as const, label: lang === 'ak' ? 'ငွေလွှဲစနစ်' : 'P2P Transfers' },
-                  { id: 'merchants' as const, label: lang === 'ak' ? 'ကုန်သည် POS' : 'Merchant POS' },
-                  { id: 'remittance' as const, label: lang === 'ak' ? 'နိုင်ငံတကာငွေလွှဲ' : 'Cross-Border' },
-                  { id: 'offline' as const, label: lang === 'ak' ? 'အော့ဖ်လိုင်းစနစ်' : 'Offline Protocol' },
-                ].map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => setActiveTab(t.id)}
-                    className={`px-5 py-2 rounded-full text-xs font-mono uppercase tracking-wider font-bold transition ${
-                      activeTab === t.id
-                        ? 'bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-lg'
-                        : 'text-white/60 hover:text-white'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </RevealSection>
-
-          {/* Service Cards Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Card 1: P2P Transfers */}
-            <RevealSection delay={0}>
-              <div className="liquid-glass-card rounded-3xl p-7 border border-white/10 h-full flex flex-col justify-between">
-                <div>
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-5">
-                    <Send size={22} />
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-2">
-                    {lang === 'ak' ? 'ချက်ချင်း ငွေလွှဲခြင်း' : 'Instant P2P Transfers'}
-                  </h3>
-                  <p className="text-xs text-white/55 leading-relaxed">
-                    {lang === 'ak'
-                      ? 'ဖုန်းနံပါတ် သို့မဟုတ် PeThar ID ဖြင့် စက္ကန့်ပိုင်းအတွင်း ၀% ငွေလွှဲခဖြင့် ချက်ချင်း လွှဲပို့နိုင်ပါသည်'
-                      : 'Send Arakan Dollars instantly to any phone number or citizen identifier with zero transaction fees.'}
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-white/[0.06] text-[11px] font-mono text-amber-400">
-                  Sub-second settlement
-                </div>
-              </div>
-            </RevealSection>
-
-            {/* Card 2: Merchant Solutions */}
-            <RevealSection delay={100}>
-              <div className="liquid-glass-card rounded-3xl p-7 border border-white/10 h-full flex flex-col justify-between">
-                <div>
-                  <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mb-5">
-                    <Store size={22} />
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-2">
-                    {lang === 'ak' ? 'Arakan QR ကုန်သည်စနစ်' : 'Merchant POS & AK QR'}
-                  </h3>
-                  <p className="text-xs text-white/55 leading-relaxed">
-                    {lang === 'ak'
-                      ? 'လက်လီဆိုင်များနှင့် လုပ်ငန်းများအတွက် ၀% ကတ်ဖြတ်ခနှင့် ချက်ချင်း စာရင်းဝင်သည့် POS စနစ်'
-                      : 'Touchscreen cashier terminals and static QR stands with zero card processing fees for retailers.'}
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-white/[0.06] text-[11px] font-mono text-red-400">
-                  0% Swipe Fee
-                </div>
-              </div>
-            </RevealSection>
-
-            {/* Card 3: Regional Remittance */}
-            <RevealSection delay={200}>
-              <div className="liquid-glass-card rounded-3xl p-7 border border-white/10 h-full flex flex-col justify-between">
-                <div>
-                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mb-5">
-                    <Globe size={22} />
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-2">
-                    {lang === 'ak' ? 'ဒေသတွင်း နိုင်ငံတကာငွေလွှဲ' : 'Regional Remittance'}
-                  </h3>
-                  <p className="text-xs text-white/55 leading-relaxed">
-                    {lang === 'ak'
-                      ? 'ထိုင်း PromptPay၊ မလေး DuitNow နှင့် စင်ကာပူတို့မှတစ်ဆင့် မြို့နယ်ရှိ မိသားစုထံ တိုက်ရိုက်ငွေလွှဲပါ'
-                      : 'Direct worker remittance corridors from Thailand, Malaysia, and Singapore with live transparent rates.'}
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-white/[0.06] text-[11px] font-mono text-cyan-400">
-                  PromptPay / DuitNow Direct
-                </div>
-              </div>
-            </RevealSection>
-
-            {/* Card 4: Offline Resilience */}
-            <RevealSection delay={300}>
-              <div className="liquid-glass-card rounded-3xl p-7 border border-white/10 h-full flex flex-col justify-between">
-                <div>
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-5">
-                    <Radio size={22} />
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-2">
-                    {lang === 'ak' ? 'အော့ဖ်လိုင်း ဆက်သွယ်ရေးကာကွယ်မှု' : 'Offline Payment Protocol'}
-                  </h3>
-                  <p className="text-xs text-white/55 leading-relaxed">
-                    {lang === 'ak'
-                      ? 'ဖုန်းလိုင်းနှင့် အင်တာနက် ပြတ်တောက်နေချိန်တွင် NFC နှင့် Bluetooth ဖြင့် အတည်ပြု ပေးချေနိုင်ပါသည်'
-                      : 'Cryptographically signed vouchers enable device-to-device payments during telecommunication blackouts.'}
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-white/[0.06] text-[11px] font-mono text-emerald-400">
-                  Ed25519 & Replay Resistant
-                </div>
-              </div>
-            </RevealSection>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 3: CURRENCY ARCHITECTURE & AKD-USDT DISCLOSURE
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section id="currency" className="py-24 border-y border-white/[0.08] bg-black/60 relative">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-8">
-          <RevealSection>
-            <div className="max-w-3xl mb-12">
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-amber-400 font-bold">
-                CURRENCY SPECIFICATION & LEDGER TRANSPARENCY
-              </span>
-              <h2 className="text-[clamp(2rem,3.8vw,3.25rem)] font-bold text-white tracking-tight mt-1">
-                {lang === 'ak' ? 'အာရက္ခဒေါ်လာ (AKD) နှင့် ငွေစာရင်းစနစ်' : 'Arakan Dollar (AKD) & Ledger Architecture'}
-              </h2>
-              <p className="text-white/60 text-sm mt-3 leading-relaxed">
-                {lang === 'ak'
-                  ? 'အာရက္ခဒေါ်လာ (AKD) သည် PeThar ၏ အခြေခံ စာရင်းတွက်ချက်မှု ယူနစ်ဖြစ်ပြီး USDT နှင့် ၁:၁ တန်ဖိုးတူညီစေရန် ရည်ရွယ်တည်ဆောက်ထားပါသည်။ စနစ်၏ ပွင့်လင်းမြင်သာမှုဆိုင်ရာ အချက်အလက်များကို အောက်တွင် ဖော်ပြထားပါသည်။'
-                  : 'The Arakan Dollar (AKD) functions as the core digital accounting unit on PeThar, engineered for proposed 1:1 parity with USDT/USD to provide price stability and cross-border fungibility.'}
-              </p>
-            </div>
-
-            {/* Architecture Grid with 3 Technical Specification Cards */}
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="liquid-glass-card rounded-3xl p-7 border border-white/10 space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
-                  <Wallet size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white">Target 1:1 USDT Parity</h3>
-                <p className="text-xs text-white/55 leading-relaxed">
-                  AKD is structured to maintain a target 1:1 relationship with USDT for everyday settlement. Real-value parity depends on operational liquidity reserves, transparent counter clearing, and audited redemption arrangements.
-                </p>
-              </div>
-
-              <div className="liquid-glass-card rounded-3xl p-7 border border-white/10 space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
-                  <Database size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white">Double-Entry Immutability</h3>
-                <p className="text-xs text-white/55 leading-relaxed">
-                  Every transaction updates ledger accounts atomically. PostgreSQL rules enforce that ledger entries cannot be updated or deleted, guaranteeing mathematical zero-sum verification across all currency balances.
-                </p>
-              </div>
-
-              <div className="liquid-glass-card rounded-3xl p-7 border border-white/10 space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold">
-                  <KeyRound size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white">Tamper-Evident Hash Chain</h3>
-                <p className="text-xs text-white/55 leading-relaxed">
-                  Every sequential ledger entry incorporates a SHA-256 cryptographic chain hash combining the previous entry's hash, account ID, amount, and resulting balance to detect any out-of-band manipulation.
-                </p>
-              </div>
-            </div>
-
-            {/* Operational Disclosure Box */}
-            <div className="mt-8 p-5 rounded-2xl bg-amber-500/[0.05] border border-amber-500/20 text-xs text-white/70 leading-relaxed font-mono">
-              <strong className="text-amber-400 block mb-1">OPERATIONAL CLARIFICATION & RISK DISCLOSURE:</strong>
-              PeThar represents financial technology infrastructure. The proposed 1:1 parity between AKD and USDT reflects our settlement target and clearing design. Transfers of real external monetary value are processed through authorized liquidity providers and redemption counters with explicit operational limits.
-            </div>
-          </RevealSection>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 4: OFFLINE TRANSACTION RESILIENCE ARCHITECTURE
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section id="offline" className="py-24 relative">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-8">
-          <RevealSection>
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-cyan-400 font-bold">
-                TELECOMMUNICATION RESILIENCE PROTOCOL
-              </span>
-              <h2 className="text-[clamp(2.25rem,4vw,3.5rem)] font-extrabold text-white tracking-tight mt-1">
-                {lang === 'ak' ? 'အင်တာနက်မရှိဘဲ ငွေပေးချေနိုင်သော နည်းပညာ' : 'How Offline Payments Work'}
-              </h2>
-              <p className="text-white/50 text-base mt-2">
-                {lang === 'ak'
-                  ? 'ဆက်သွယ်ရေးလိုင်းများ ပြတ်တောက်သည့် အရေးပေါ်အခြေအနေများတွင်လည်း အရောင်းအဝယ် မရပ်တန့်စေရန် တည်ဆောက်ထားပါသည်'
-                  : 'Inspired by decentralized mesh protocols, engineered specifically with double-spend controls for financial safety.'}
-              </p>
-            </div>
-
-            {/* Step-by-Step Interactive Flow Card */}
-            <div className="grid md:grid-cols-4 gap-6">
-              {[
-                {
-                  step: '01',
-                  title: lang === 'ak' ? 'စက်တွင်း သော့တွဲဖန်တီးခြင်း' : 'Device Key Generation',
-                  desc: 'The mobile app generates an asymmetric Ed25519 keypair inside the hardware keystore (Apple Secure Enclave / Android Keystore).',
-                  icon: <KeyRound className="w-5 h-5 text-amber-400" />,
-                },
-                {
-                  step: '02',
-                  title: lang === 'ak' ? 'ဘောက်ချာ လက်မှတ်ရေးထိုးခြင်း' : 'Signed Voucher Creation',
-                  desc: 'Sender authorizes a payload containing amount, recipient ID, unique UUID nonce, and a strict 24-hour expiry timestamp.',
-                  icon: <FileText className="w-5 h-5 text-red-400" />,
-                },
-                {
-                  step: '03',
-                  title: lang === 'ak' ? 'NFC / BLE ဖြင့် လွှဲပြောင်းခြင်း' : 'NFC / BLE Proximity Tap',
-                  desc: 'The encrypted voucher payload is transmitted in sub-second speed (< 1KB NDEF record) to the recipient device without internet.',
-                  icon: <Radio className="w-5 h-5 text-cyan-400" />,
-                },
-                {
-                  step: '04',
-                  title: lang === 'ak' ? 'အလိုအလျောက် စာရင်းရှင်းလင်းခြင်း' : 'Reconciliation & Settle',
-                  desc: 'When either device reconnects to a data hub, pending vouchers sync to the server ledger. Nonces reject duplicate submissions.',
-                  icon: <CheckCircle className="w-5 h-5 text-emerald-400" />,
-                },
-              ].map((s) => (
-                <div key={s.step} className="liquid-glass-card rounded-3xl p-6 border border-white/10 relative flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-mono text-xs font-bold text-white/30">{s.step}</span>
-                      <div className="w-9 h-9 rounded-xl bg-white/[0.05] flex items-center justify-center">
-                        {s.icon}
+                  {/* Recent Activity Mini Item */}
+                  <div className="pt-4 space-y-2.5">
+                    <div className="text-[11px] font-mono font-bold text-slate-400 uppercase">Recent Clearances</div>
+                    
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/80 border border-slate-100 text-xs">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                          <CheckCircle className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-800">Sittwe Merchant Terminal #04</div>
+                          <div className="text-[10px] font-mono text-slate-400">Arakan QR POS • Instant</div>
+                        </div>
                       </div>
+                      <div className="font-mono font-bold text-emerald-600">+125.00 AKD</div>
                     </div>
-                    <h3 className="text-sm font-bold text-white mb-2">{s.title}</h3>
-                    <p className="text-xs text-white/55 leading-relaxed">{s.desc}</p>
+
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/80 border border-slate-100 text-xs">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                          <Radio className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-800">Offline BLE Peer Voucher</div>
+                          <div className="text-[10px] font-mono text-slate-400">Ed25519 Signed • Mrauk-U</div>
+                        </div>
+                      </div>
+                      <div className="font-mono font-bold text-slate-700">-45.00 AKD</div>
+                    </div>
                   </div>
                 </div>
-              ))}
+
+                {/* Floating Trust Badge */}
+                <div className="absolute -bottom-5 -left-4 sm:-left-6 liquid-glass-pill-light px-4 py-2.5 rounded-2xl shadow-lg border border-white flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-extrabold text-slate-900">100% Backed Reserves</div>
+                    <div className="text-[10px] font-mono text-slate-500">Auditable On-Chain & Off-Chain</div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </RevealSection>
-        </div>
-      </section>
 
-      {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 5: MERCHANT & PARTNER DISTRIBUTION
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section id="merchants" className="py-20 border-t border-white/[0.08] bg-black/40">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            {/* Merchant Solutions Card */}
-            <RevealSection delay={0}>
-              <div className="liquid-glass-card rounded-[32px] p-8 sm:p-10 border border-white/15 h-full flex flex-col justify-between">
-                <div>
-                  <div className="w-12 h-12 rounded-2xl bg-red-600/20 text-red-400 border border-red-500/30 flex items-center justify-center mb-6">
-                    <Store size={24} />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">
-                    {lang === 'ak' ? 'ကုန်သည်နှင့် အရောင်းဆိုင်များ' : 'Merchant POS & Retail Solutions'}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed mb-6">
-                    {lang === 'ak'
-                      ? 'ဆန်စပါး၊ လောင်စာဆီ၊ ကုန်မာနှင့် ဆေးဆိုင်များတွင် Arakan QR (AK QR) ဖြင့် စက္ကန့်ပိုင်းအတွင်း ငွေလက်ခံပြီး စာရွက်ပြေစာ ထုတ်ပေးနိုင်ပါသည်'
-                      : 'Accept instant customer QR payments at grocery, fuel, and wholesale stores with zero card processing fees and automatic accounting journals.'}
-                  </p>
-
-                  <div className="space-y-2.5 text-xs font-mono text-white/75 mb-6">
-                    <div className="flex items-center gap-2">
-                      <Check size={14} className="text-emerald-400" />
-                      <span>Instant customer wallet QR scanning</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check size={14} className="text-emerald-400" />
-                      <span>0% transaction swipe fees for local shops</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check size={14} className="text-emerald-400" />
-                      <span>Bluetooth thermal receipt printing support</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleOpenBankingClick}
-                  className="w-full py-3.5 rounded-2xl bg-white hover:bg-neutral-200 text-black font-bold text-xs uppercase tracking-wider font-mono transition"
-                >
-                  {lang === 'ak' ? 'ကုန်သည် စာရင်းဖွင့်ရန်' : 'Register Merchant Terminal'}
-                </button>
-              </div>
-            </RevealSection>
-
-            {/* Cash Counter Agents Card */}
-            <RevealSection delay={150}>
-              <div className="liquid-glass-card rounded-[32px] p-8 sm:p-10 border border-white/15 h-full flex flex-col justify-between">
-                <div>
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center mb-6">
-                    <Building2 size={24} />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">
-                    {lang === 'ak' ? 'ငွေသားကောင်တာ အေးဂျင့်များ' : 'Authorized Cash Counters'}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed mb-6">
-                    {lang === 'ak'
-                      ? 'စစ်တွေ၊ မြောက်ဦး၊ ကျောက်ဖြူနှင့် မြို့နယ်များရှိ ပြည်သူများ ငွေသားသွင်း/ထုတ်ရန် အတည်ပြု ကောင်တာအဖြစ် ဆောင်ရွက်ပါ'
-                      : 'Provide local deposit and cash-out liquidity across Sittwe, Mrauk-U, and Kyaukpyu townships while earning verified commissions.'}
-                  </p>
-
-                  <div className="space-y-2.5 text-xs font-mono text-white/75 mb-6">
-                    <div className="flex items-center gap-2">
-                      <Check size={14} className="text-emerald-400" />
-                      <span>150 bps (1.50%) liquidity compensation</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check size={14} className="text-emerald-400" />
-                      <span>Dynamic 30-second TOTP token authentication</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check size={14} className="text-emerald-400" />
-                      <span>Dedicated regional float account allocation</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleOpenBankingClick}
-                  className="w-full py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs uppercase tracking-wider font-mono transition"
-                >
-                  {lang === 'ak' ? 'အေးဂျင့် လျှောက်ထားရန်' : 'Apply for Agent Counter'}
-                </button>
-              </div>
-            </RevealSection>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 6: REAL NETWORK METRICS
+          SECTION 2: 4-PILLAR SERVICES ROW (MTB PAY INSPIRED SERVICES)
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-20 border-y border-white/[0.08] bg-black/60 relative">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-8">
-          <RevealSection>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <span className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400 font-bold">
-                  PLATFORM TELEMETRY
-                </span>
-                <h3 className="text-2xl font-bold text-white mt-1">
-                  {lang === 'ak' ? 'ကွန်ရက် စာရင်းစစ်တမ်း' : 'Platform Network Indicators'}
-                </h3>
+      <section id="services" className="py-16 bg-white/70 border-y border-slate-200/70 relative">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-xs font-mono font-bold text-amber-600 uppercase tracking-wider">
+              {lang === 'ak' ? 'ဘဏ္ဍာရေးဝန်ဆောင်မှုများ' : 'Core Financial Services'}
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight mt-1">
+              {lang === 'ak' ? 'PeThar ၏ အဓိက ငွေပေးချေမှုစနစ်များ' : 'Engineered for Everyday Financial Freedom'}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {/* Card 1: Instant P2P Transfer */}
+            <div className="liquid-glass-card-light rounded-2xl p-6 border border-white relative group">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4 group-hover:bg-amber-100 transition-colors">
+                <Send className="w-6 h-6" />
               </div>
-              <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span>Audited Ledger</span>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">
+                {lang === 'ak' ? 'ချက်ချင်းငွေလွှဲခြင်း' : 'Instant P2P Transfers'}
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {lang === 'ak'
+                  ? 'ဖုန်းနံပါတ် သို့မဟုတ် PeThar ID ဖြင့် မည်သည့်နေရာမှမဆို အခမဲ့ စက္ကန့်ပိုင်းအတွင်း ငွေလွှဲနိုင်ပါသည်။'
+                  : 'Send and receive funds in seconds using just phone numbers or PeThar IDs with 0% peer transfer fees.'}
+              </p>
+            </div>
+
+            {/* Card 2: Arakan QR (AK QR) Merchant Checkout */}
+            <div className="liquid-glass-card-light rounded-2xl p-6 border border-white relative group">
+              <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-4 group-hover:bg-red-100 transition-colors">
+                <QrCode className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Arakan QR (AK QR)</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {lang === 'ak'
+                  ? 'ဆိုင်များ၊ စတိုးဆိုင်များနှင့် စီးပွားရေးလုပ်ငန်းများတွင် တစ်ခုတည်းသော AK QR ကုဒ်ဖြင့် စကင်ဖတ်ငွေပေးချေနိုင်ပါသည်။'
+                  : 'Scan and pay at merchants across Arakan with the unified AK QR interoperable payment specification.'}
+              </p>
+            </div>
+
+            {/* Card 3: Offline Device-to-Device Protocol */}
+            <div className="liquid-glass-card-light rounded-2xl p-6 border border-white relative group">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 group-hover:bg-emerald-100 transition-colors">
+                <Radio className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">
+                {lang === 'ak' ? 'အော့ဖ်လိုင်းငွေပေးချေမှု' : 'Offline Device Protocol'}
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {lang === 'ak'
+                  ? 'အင်တာနက်လုံးဝမရှိသည့်အချိန်တွင်လည်း BLE နှင့် NFC နည်းပညာဖြင့် ဖုန်းအချင်းချင်း ငွေပေးချေနိုင်ပါသည်။'
+                  : 'Transact without internet connectivity via Bluetooth Low Energy and NFC cryptographic payment vouchers.'}
+              </p>
+            </div>
+
+            {/* Card 4: Bills & Utility Payments */}
+            <div className="liquid-glass-card-light rounded-2xl p-6 border border-white relative group">
+              <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center mb-4 group-hover:bg-sky-100 transition-colors">
+                <CreditCard className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">
+                {lang === 'ak' ? 'ဘေလ်နှင့် လျှပ်စစ်မီတာခ' : 'Bill & Utility Clearance'}
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {lang === 'ak'
+                  ? 'ဖုန်းဘေလ်ဖြည့်ခြင်း၊ လျှပ်စစ်မီတာခပေးဆောင်ခြင်းနှင့် နိုင်ငံတကာလုပ်သားငွေလွှဲစနစ်များကို လွယ်ကူစွာ ဆောင်ရွက်ပါ။'
+                  : 'Seamlessly top up telecom, pay electric utilities, and process regional worker remittances from Thailand & Malaysia.'}
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SECTION 3: METRICS & RESILIENT LEDGER ARCHITECTURE
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section id="currency" className="py-20 relative">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left: Financial Architecture Explainer */}
+            <div className="lg:col-span-6 space-y-6">
+              <span className="text-xs font-mono font-bold text-red-600 uppercase tracking-wider">
+                {lang === 'ak' ? 'ငွေကြေးစနစ်နှင့် တည်ငြိမ်မှု' : 'Reserve & Ledger Architecture'}
+              </span>
+              
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
+                {lang === 'ak' ? (
+                  <>၁ AKD = ၁ USDT တည်ငြိမ်မှုစနစ်ဖြင့် <span className="text-amber-600">အာမခံထားသော ဘဏ္ဍာရေးအခြေခံ</span></>
+                ) : (
+                  <>1 AKD = 1 USDT Parity Architecture with <span className="text-amber-600">Auditable Reserves</span></>
+                )}
+              </h2>
+
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                {lang === 'ak'
+                  ? 'Arakan Dollar (AKD) သည် တည်ငြိမ်သော ဒစ်ဂျစ်တယ်ငွေကြေးဖြစ်ပြီး ၁:၁ USDT တန်ဖိုးတူညီမှု ရည်မှန်းချက်ဖြင့် လည်ပတ်ပါသည်။ နှစ်ထပ်ငွေပေးချေမှု မဖြစ်ပေါ်စေရန်နှင့် ငွေကြေးတည်ငြိမ်မှုရှိစေရန် PostgreSQL စာရင်းဇယား (Ledger) ဖြင့် အတိအကျ ထိန်းချုပ်ထားပါသည်။'
+                  : 'Arakan Dollar (AKD) is anchored to a 1:1 parity target with USDT, backed by verifiable multi-signature treasury reserves. Online ledger entries execute atomically with Row Level Security, ensuring strict double-entry balancing and fraud resistance.'}
+              </p>
+
+              <div className="space-y-3 pt-2">
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-800">{lang === 'ak' ? 'အပြည့်အဝ စာရင်းစစ်ဆေးခံနိုင်ခြင်း' : 'Fully Auditable Server-Side Ledger'}</h4>
+                    <p className="text-xs text-slate-500">{lang === 'ak' ? 'ငွေလွှဲမှုတိုင်းအတွက် နှစ်ထပ်စာရင်းကိုင်စနစ်ဖြင့် မှတ်တမ်းတင်ပါသည်' : 'Atomic posting functions with cryptographic idempotency keys.'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-800">{lang === 'ak' ? 'လုံခြုံစိတ်ချရသော ကုန်သည်စနစ်' : 'Instant Merchant Settlement'}</h4>
+                    <p className="text-xs text-slate-500">{lang === 'ak' ? 'ကုန်သည်များထံသို့ ချက်ချင်း ငွေစာရင်းဝင်ရောက်ပါသည်' : 'Real-time reconciliation for physical POS and online vendors.'}</p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-              <MetricCard
-                value={14850}
-                label={lang === 'ak' ? 'အကောင့်ပိုင်ရှင် ဦးရေ' : 'Registered Wallets'}
-                sublabel="Citizens & Merchants"
-                colorClass="text-white"
-              />
-
-              <MetricCard
-                value={4800000}
-                label={lang === 'ak' ? 'AKD စာရင်းလက်ကျန်' : 'Active Accounting Float'}
-                sublabel="Arakan Dollars (AKD)"
-                colorClass="text-amber-400"
-                formatValue={(c) => `₳ ${(c / 1000000).toFixed(1)}M`}
-              />
-
-              <MetricCard
-                value={340}
-                label={lang === 'ak' ? 'အတည်ပြု ကောင်တာများ' : 'Active Counters & POS'}
-                sublabel="Township Coverage"
-                colorClass="text-cyan-400"
-                formatValue={(c) => `${c} Nodes`}
-              />
-
+            {/* Right: Metrics Grid */}
+            <div className="lg:col-span-6 grid grid-cols-2 gap-4">
               <MetricCard
                 value={100}
-                label={lang === 'ak' ? 'စာရင်းစစ်မှန်မှု အာမခံ' : 'Ledger Hash Integrity'}
-                sublabel="SHA-256 Chained"
-                colorClass="text-emerald-400"
-                formatValue={(c) => `${c}% Validated`}
+                label={lang === 'ak' ? 'အရန်ငွေကြေး အာမခံချက်' : 'Reserve Backing Ratio'}
+                sublabel="1:1 USDT Target"
+                colorClass="text-amber-600"
+                formatValue={(v) => `${v}%`}
+              />
+              <MetricCard
+                value={0}
+                label={lang === 'ak' ? 'ငွေလွှဲခ' : 'Peer Transfer Fee'}
+                sublabel="Permanent P2P Zero Fee"
+                colorClass="text-emerald-600"
+                formatValue={() => '0.0%'}
+              />
+              <MetricCard
+                value={1200}
+                label={lang === 'ak' ? 'ငွေလွှဲပြီးမြောက်ချိန်' : 'Transaction Finality'}
+                sublabel="Sub-Second Settlement"
+                colorClass="text-blue-600"
+                formatValue={() => '< 1.2s'}
+              />
+              <MetricCard
+                value={250}
+                label={lang === 'ak' ? 'အော့ဖ်လိုင်း ကန့်သတ်ချက်' : 'Offline Voucher Cap'}
+                sublabel="Risk-Engine Enforced"
+                colorClass="text-slate-900"
+                formatValue={(v) => `$${v} AKD`}
               />
             </div>
-          </RevealSection>
+
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 7: TRANSPARENT APP DOWNLOAD HUB
+          SECTION 4: DOWNLOAD APP (MTB PAY INSPIRED CLEAN SECTION)
       ═══════════════════════════════════════════════════════════════════ */}
-      <section id="download" className="py-24 relative">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-8">
-          <RevealSection>
-            <div className="liquid-glass-card rounded-[36px] p-8 sm:p-14 border border-white/20 text-center max-w-3xl mx-auto space-y-6">
-              <span className="px-3.5 py-1 rounded-full bg-red-600/20 text-red-300 font-mono text-xs font-bold border border-red-500/30 inline-block">
-                CROSS-PLATFORM DISTRIBUTION
-              </span>
-
-              <h2 className="text-[clamp(2.25rem,4vw,3.5rem)] font-extrabold text-white tracking-tight">
-                {lang === 'ak' ? 'ဖေ့သာ အက်ပ် ရယူပါ' : 'Access PeThar Anywhere'}
-              </h2>
-
-              <p className="text-white/60 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-                {lang === 'ak'
-                  ? 'Android စမတ်ဖုန်းများအတွက် တိုက်ရိုက် APK ရယူနိုင်ပြီး၊ ကွန်ပျူတာနှင့် မည်သည့် ဘရောင်ဇာမှမဆို ဝဘ်ဘဏ်လုပ်ငန်းကို တိုက်ရိုက် အသုံးပြုနိုင်ပါသည်။'
-                  : 'Download the client directly for Android, or access the full-featured online banking dashboard from any modern web browser.'}
-              </p>
-
-              <div className="grid sm:grid-cols-3 gap-4 pt-4 text-left">
-                {/* Android APK Download Card */}
-                <div className="liquid-glass-pill p-5 rounded-2xl border border-white/15">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Smartphone className="w-5 h-5 text-emerald-400" />
-                    <div className="text-xs font-bold text-white font-mono">Android Client</div>
-                  </div>
-                  <p className="text-[11px] text-white/50 mb-3">Direct Signed APK (Android 9.0+)</p>
-                  <span className="inline-block px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold">
-                    Direct Download Available
-                  </span>
-                </div>
-
-                {/* iOS App Store Card */}
-                <div className="liquid-glass-pill p-5 rounded-2xl border border-white/15">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Apple className="w-5 h-5 text-white" />
-                    <div className="text-xs font-bold text-white font-mono">Apple iOS</div>
-                  </div>
-                  <p className="text-[11px] text-white/50 mb-3">Apple Silicon & iPhone (iOS 16+)</p>
-                  <span className="inline-block px-2.5 py-1 rounded-lg bg-white/10 text-white/70 font-mono text-[10px] font-bold">
-                    TestFlight & Dev Build
-                  </span>
-                </div>
-
-                {/* Web Banking Card */}
-                <div className="liquid-glass-pill p-5 rounded-2xl border border-white/15">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Globe className="w-5 h-5 text-amber-400" />
-                    <div className="text-xs font-bold text-white font-mono">Web Banking</div>
-                  </div>
-                  <p className="text-[11px] text-white/50 mb-3">Instant Access via Browser</p>
-                  <button
-                    onClick={handleOpenBankingClick}
-                    className="text-amber-400 font-mono text-[10px] font-bold flex items-center gap-1 hover:underline"
-                  >
-                    <span>Launch Portal →</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="pt-2 text-xs text-white/40 font-mono">
-                Real mobile builds available directly from repository build scripts (`flutter build apk`).
-              </div>
-            </div>
-          </RevealSection>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 8: SECURITY & FAQS
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section id="security" className="py-20 border-t border-white/[0.08] bg-black/40">
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-8">
-          <RevealSection>
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-cyan-400 font-bold">
-                SECURITY STANDARDS & PROTOCOLS
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mt-1">
-                {lang === 'ak' ? 'မေးလေ့ရှိသော မေးခွန်းများ' : 'Frequently Asked Questions'}
-              </h2>
-            </div>
-
-            <div className="space-y-4">
-              {[
-                {
-                  q: lang === 'ak' ? 'အာရက္ခဒေါ်လာ (AKD) ၏ တန်ဖိုးသတ်မှတ်ချက် မည်သို့ရှိသနည်း?' : 'What is the Arakan Dollar (AKD) and how is parity established?',
-                  a: lang === 'ak'
-                    ? 'အာရက္ခဒေါ်လာ (AKD) သည် PeThar ငွေစာရင်းစနစ်၏ အခြေခံယူနစ်ဖြစ်ပြီး USDT နှင့် ၁:၁ တန်ဖိုးညီမျှစေရန် ရည်ရွယ်ထားပါသည်။ ငွေကြေးလဲလှယ်မှုများကို အတည်ပြု အေးဂျင့်များနှင့် ငွေဖြစ်လွယ်မှု ပံ့ပိုးသူများမှတစ်ဆင့် ရှင်းလင်းဆောင်ရွက်ပေးပါသည်။'
-                    : 'The Arakan Dollar (AKD) is the native digital accounting unit on PeThar, designed with target 1:1 parity with USDT/USD for price stability. Parity is maintained operationally via authorized liquidity providers and clearing desks.',
-                },
-                {
-                  q: lang === 'ak' ? 'အင်တာနက်ပြတ်တောက်ချိန်တွင် ငွေပေးချေမှု မည်သို့ လုံခြုံသနည်း?' : 'How do offline transactions remain secure against fraud?',
-                  a: lang === 'ak'
-                    ? 'စက်တွင်း Ed25519 ဒစ်ဂျစ်တယ်လက်မှတ်ဖြင့် အတည်ပြုထားသော ဘောက်ချာများသည် Nonce နံပါတ်ပါဝင်သောကြောင့် တစ်ကြိမ်သာ သုံးနိုင်ပြီး ၂၄ နာရီအတွင်း အင်တာနက်ပြန်ရပါက အလိုအလျောက် စာရင်းရှင်းလင်းပါသည်။ ထပ်ခါတလဲလဲ သုံးစွဲခြင်း (Double-spending) ကို စနစ်မှ ပယ်ဖျက်ပေးပါသည်။'
-                    : 'Offline vouchers are digitally signed on-device using Ed25519 cryptography. Unique nonces and strict 24-hour expiry prevent replay attacks, while the server ledger reconciles and validates balances upon hub reconnection.',
-                },
-                {
-                  q: lang === 'ak' ? 'အရေးပေါ် Duress PIN ကာကွယ်မှုစနစ် ဆိုသည်မှာ အဘယ်နည်း?' : 'What is the Duress Distress PIN protocol (999999)?',
-                  a: lang === 'ak'
-                    ? 'စစ်ဆေးရေးဂိတ်များ သို့မဟုတ် အကျပ်ကိုင်ခံရသည့် အရေးပေါ်အခြေအနေများတွင် ၉၉၉၉၉၉ ကို ရိုက်ထည့်ပါက သာမန်ငွေပမာဏ အနည်းငယ်သာရှိသော Decoy မျက်နှာပြင်ကို ပြသပေးပြီး အသံတိတ် အကူအညီတောင်းခံမှု ပေးပို့ပါသည်။'
-                    : 'Entering the designated duress PIN (999999) unlocks a benign decoy wallet displaying minimal spending money while silently generating an audit alert for emergency response.',
-                },
-              ].map((faq, idx) => (
-                <div
-                  key={faq.q}
-                  className="liquid-glass-card rounded-2xl p-5 border border-white/10 transition-all cursor-pointer"
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <h4 className="text-base font-bold text-white">{faq.q}</h4>
-                    <ChevronDown className={`w-5 h-5 text-amber-400 transition-transform duration-300 shrink-0 ${openFaq === idx ? 'rotate-180' : ''}`} />
-                  </div>
-                  {openFaq === idx && (
-                    <p className="mt-3 text-xs text-white/60 leading-relaxed border-t border-white/[0.06] pt-3">
-                      {faq.a}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </RevealSection>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          ENTERPRISE FOOTER
-      ═══════════════════════════════════════════════════════════════════ */}
-      <footer className="border-t border-white/[0.08] bg-[#03060A] text-white/60 text-xs py-14">
+      <section id="download" className="py-20 bg-gradient-to-b from-white to-slate-100/80 border-t border-slate-200/80 relative">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-            {/* Col 1: Brand & Purpose */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <ArakanEmblem size={30} variant="badge" />
-                <span className="text-lg font-bold text-white">PeThar (ဖေ့သာ)</span>
+          <div className="liquid-glass-modal-light rounded-3xl p-8 sm:p-12 border border-white shadow-xl relative overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              
+              <div className="lg:col-span-8 space-y-4">
+                <span className="text-xs font-mono font-bold text-amber-600 uppercase tracking-wider">
+                  {lang === 'ak' ? 'မိုဘိုင်းအက်ပ် ရယူပါ' : 'Experience PeThar On Mobile'}
+                </span>
+                
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
+                  {lang === 'ak' ? 'Android နှင့် iOS အတွက် အခုပဲ ဒေါင်းလုဒ်လုပ်ပါ' : 'Download PeThar for iOS & Android'}
+                </h2>
+
+                <p className="text-sm sm:text-base text-slate-600 max-w-xl">
+                  {lang === 'ak'
+                    ? 'စမတ်ဖုန်းတစ်လုံးရှိရုံဖြင့် အချိန်မရွေး၊ နေရာမရွေး လွယ်ကူလျင်မြန်စွာ ငွေပေးချေနိုင်ပါပြီ။ စက္ကန့်ပိုင်းအတွင်း အကောင့်ဖွင့်ပြီး စတင်အသုံးပြုနိုင်ပါသည်။'
+                    : 'Manage your assets, scan Arakan QR codes, and pay offline without internet. Available for immediate installation on iPhone and Android devices.'}
+                </p>
+
+                {/* Download Store Buttons (MTB Pay Style) */}
+                <div className="flex flex-wrap items-center gap-3 pt-4">
+                  <a
+                    href="#download"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      alert(lang === 'ak' ? 'iOS App Store build မကြာမီ ထွက်ရှိပါမည်' : 'iOS TestFlight build is queued for App Store distribution.')
+                    }}
+                    className="px-5 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-medium text-xs flex items-center gap-2.5 shadow-md transition-all"
+                  >
+                    <Apple className="w-5 h-5 text-white" />
+                    <div className="text-left">
+                      <div className="text-[9px] uppercase text-slate-400 leading-none">Download on</div>
+                      <div className="text-xs font-bold leading-none mt-1">App Store</div>
+                    </div>
+                  </a>
+
+                  <a
+                    href="#download"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      alert(lang === 'ak' ? 'Google Play Store build မကြာမီ ထွက်ရှိပါမည်' : 'Google Play release is pending staging verification.')
+                    }}
+                    className="px-5 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-medium text-xs flex items-center gap-2.5 shadow-md transition-all"
+                  >
+                    <Smartphone className="w-5 h-5 text-emerald-400" />
+                    <div className="text-left">
+                      <div className="text-[9px] uppercase text-slate-400 leading-none">Get it on</div>
+                      <div className="text-xs font-bold leading-none mt-1">Google Play</div>
+                    </div>
+                  </a>
+
+                  <a
+                    href="#download"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      alert(lang === 'ak' ? 'Android APK တိုက်ရိုက်ဒေါင်းလုဒ်စနစ် ပြင်ဆင်နေပါသည်' : 'Android APK direct package will be generated via ./apps/android/build-apk.sh')
+                    }}
+                    className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-md transition-all"
+                  >
+                    <Download className="w-4 h-4 text-slate-950" />
+                    <span>Direct APK</span>
+                  </a>
+                </div>
               </div>
-              <p className="text-white/40 text-xs leading-relaxed font-sans">
-                {lang === 'ak'
-                  ? 'အာရက္ခဒေသတွင်း စီးပွားရေးနှင့် ပြည်သူများအတွက် ခေတ်မီ ဒစ်ဂျစ်တယ် ဘဏ္ဍာရေး အခြေခံအဆောက်အအုံ။'
-                  : 'Practical, reliable digital financial infrastructure powering modern payments and commerce in Arakan.'}
-              </p>
-              <div className="text-[11px] font-mono text-amber-400 font-bold">
-                Target 1:1 USDT Accounting Parity
+
+              {/* QR Code Scan (MTB Pay style) */}
+              <div className="lg:col-span-4 flex flex-col items-center justify-center p-6 bg-slate-50/80 rounded-2xl border border-slate-200/80 text-center">
+                <div className="w-36 h-36 bg-white p-3 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-center mb-3">
+                  <QrCode className="w-28 h-28 text-slate-900" />
+                </div>
+                <div className="text-xs font-bold text-slate-800">
+                  {lang === 'ak' ? 'မိုဘိုင်းအက်ပ် ရယူရန် စကင်ဖတ်ပါ' : 'Scan to Download'}
+                </div>
+                <div className="text-[10px] font-mono text-slate-500 mt-0.5">iOS & Android Compatible</div>
               </div>
-            </div>
 
-            {/* Col 2: Solutions */}
-            <div>
-              <h5 className="font-mono text-xs font-bold text-white uppercase tracking-wider mb-4">
-                {lang === 'ak' ? 'ဝန်ဆောင်မှုများ' : 'Solutions'}
-              </h5>
-              <ul className="space-y-2 font-mono text-xs text-white/50">
-                <li><a href="#services" className="hover:text-white transition">Instant P2P Transfers</a></li>
-                <li><a href="#merchants" className="hover:text-white transition">Merchant POS & QR</a></li>
-                <li><a href="#services" className="hover:text-white transition">Regional Remittance</a></li>
-                <li><a href="#offline" className="hover:text-white transition">Offline Mesh Protocol</a></li>
-                <li><a href="#currency" className="hover:text-white transition">Ledger Architecture</a></li>
-              </ul>
-            </div>
-
-            {/* Col 3: Resources */}
-            <div>
-              <h5 className="font-mono text-xs font-bold text-white uppercase tracking-wider mb-4">
-                {lang === 'ak' ? 'အထောက်အကူ' : 'Platform'}
-              </h5>
-              <ul className="space-y-2 font-mono text-xs text-white/50">
-                <li><a href="#download" className="hover:text-white transition">Download Mobile App</a></li>
-                <li><button onClick={handleOpenBankingClick} className="hover:text-white transition">Online Banking Portal</button></li>
-                <li><a href="#security" className="hover:text-white transition">Security Standards</a></li>
-                <li><a href="#currency" className="hover:text-white transition">Currency Specifications</a></li>
-              </ul>
-            </div>
-
-            {/* Col 4: Contact */}
-            <div className="space-y-3 font-mono text-xs text-white/50">
-              <h5 className="font-mono text-xs font-bold text-white uppercase tracking-wider mb-4">
-                {lang === 'ak' ? 'ဆက်သွယ်ရန်' : 'Contact & Support'}
-              </h5>
-              <div>Hotline: <a href="tel:+959798112334" className="text-white hover:text-amber-400 font-bold">+95 9 798 112 334</a></div>
-              <div>Inquiries: <span className="text-white">support@pethar.co.uk</span></div>
-              <div>Headquarters: Sittwe Central Financial District</div>
-              <div className="text-[10px] text-white/30 pt-2">Emergency Distress PIN: 999999</div>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="border-t border-white/[0.06] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] text-white/40">
-            <div>
-              © 2026 PeThar (ဖေ့သာ). All rights reserved.
+      {/* ═══════════════════════════════════════════════════════════════════
+          SECTION 5: FAQ & INSTITUTIONAL TRUST
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section className="py-20 bg-white">
+        <div className="max-w-[900px] mx-auto px-4 sm:px-8">
+          <div className="text-center mb-12">
+            <span className="text-xs font-mono font-bold text-amber-600 uppercase tracking-wider">
+              {lang === 'ak' ? 'မကြာခဏ မေးလေ့ရှိသော မေးခွန်းများ' : 'Frequently Asked Questions'}
+            </span>
+            <h2 className="text-3xl font-extrabold text-slate-950 tracking-tight mt-1">
+              {lang === 'ak' ? 'အမေးများသော အချက်အလက်များ' : 'Everything You Need to Know'}
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              {
+                q: lang === 'ak' ? 'PeThar ကို အင်တာနက်မရှိချိန်တွင် အသုံးပြုနိုင်ပါသလား?' : 'Can I use PeThar without internet connection?',
+                a: lang === 'ak'
+                  ? 'ဟုတ်ကဲ့၊ အသုံးပြုနိုင်ပါသည်။ PeThar တွင် ပါရှိသော Bluetooth Low Energy (BLE) နှင့် NFC အော့ဖ်လိုင်းငွေပေးချေမှုစနစ်ဖြင့် ဖုန်းအချင်းချင်း ဒစ်ဂျစ်တယ်လက်မှတ် (Digital Signature) ထိုးကာ လုံခြုံစွာ ငွေပေးချေနိုင်ပါသည်။ အင်တာနက်လိုင်း ပြန်ရချိန်တွင် ဗဟိုစနစ်သို့ အလိုအလျောက် ပေးပို့အတည်ပြုပါမည်။'
+                  : 'Yes. PeThar incorporates an advanced device-to-device offline payment protocol utilizing BLE and NFC. Transactions are cryptographically signed with Ed25519 keys and synchronized as soon as connectivity is restored.'
+              },
+              {
+                q: lang === 'ak' ? '၁ AKD နှင့် ၁ USDT တန်ဖိုးတူညီမှု မည်သို့အလုပ်လုပ်သနည်း?' : 'How is the 1 AKD = 1 USDT parity maintained?',
+                a: lang === 'ak'
+                  ? 'PeThar သည် ၁ AKD လျှင် ၁ USDT တန်ဖိုးတူညီမှု ရည်မှန်းချက်ဖြင့် လည်ပတ်ပြီး တရားဝင်အရန်ငွေကြေး ထိန်းသိမ်းမှုစနစ်နှင့် ပေါင်းစပ်ထားပါသည်။ ပြင်ပငွေကြေးဈေးကွက်များနှင့် တိုက်ရိုက်လဲလှယ်နိုင်ရန် ဘဏ္ဍာရေးစာရင်းစစ်ဆေးမှုများ ဆောင်ရွက်ထားပါသည်။'
+                  : '1 AKD is pegged to 1 USDT as a target parity standard, reinforced by multi-sig treasury reserves and verified double-entry ledger audits.'
+              },
+              {
+                q: lang === 'ak' ? 'Arakan QR (AK QR) ကို မည်သည့်နေရာများတွင် သုံးနိုင်သနည်း?' : 'Where can Arakan QR (AK QR) be used?',
+                a: lang === 'ak'
+                  ? 'အာရက္ခဒေသတစ်ဝှမ်းရှိ စတိုးဆိုင်များ၊ လက်လီအရောင်းဆိုင်များ၊ စားသောက်ဆိုင်များနှင့် ကုန်စည်ပို့ဆောင်ရေးလုပ်ငန်းများတွင် စကင်ဖတ်ငွေပေးချေနိုင်ပါသည်။'
+                  : 'Arakan QR (AK QR) can be scanned at participating retail merchants, grocery markets, service points, and online checkout portals.'
+              },
+              {
+                q: lang === 'ak' ? 'အကောင့်လုံခြုံရေးအတွက် မည်သည့်နည်းပညာများ သုံးထားသနည်း?' : 'What security protections guard my account and data?',
+                a: lang === 'ak'
+                  ? 'စမတ်ဖုန်း၏ Apple Secure Enclave / Android Keystore ဖြင့် ထိန်းချုပ်ထားသော Face ID / လက်ဗွေလော့ခ်စနစ်၊ AES-256 SQLCipher စာဝှက်စနစ်နှင့် Supabase PostgreSQL RLS လုံခြုံရေးစည်းမျဉ်းများဖြင့် ကာကွယ်ထားပါသည်။'
+                  : 'Your funds are secured with hardware-backed key storage (Apple Secure Enclave and Android Keystore), biometric Face ID authentication, AES-256 SQLCipher local encryption, and server-side PostgreSQL Row Level Security.'
+              }
+            ].map((faq, idx) => (
+              <div
+                key={idx}
+                className="liquid-glass-card-light rounded-2xl border border-slate-200/80 overflow-hidden"
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  className="w-full p-5 text-left font-bold text-slate-900 flex items-center justify-between gap-4 text-sm sm:text-base hover:text-amber-700 transition-colors"
+                >
+                  <span>{faq.q}</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${openFaq === idx ? 'rotate-180 text-amber-600' : ''}`} />
+                </button>
+                {openFaq === idx && (
+                  <div className="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SECTION 6: INSTITUTIONAL FOOTER
+      ═══════════════════════════════════════════════════════════════════ */}
+      <footer className="border-t border-slate-200 bg-slate-100/90 py-12 text-xs text-slate-500 font-mono">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+            
+            {/* Col 1 */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <ArakanEmblem size={28} variant="badge" />
+                <span className="text-base font-black text-slate-900 font-sans">PeThar Pay</span>
+              </div>
+              <p className="text-[11px] text-slate-500 font-sans leading-relaxed">
+                {lang === 'ak'
+                  ? 'အာရက္ခဒေသတွင်း ဘဏ္ဍာရေးလွတ်လပ်ခွင့်နှင့် ခေတ်မီငွေပေးချေမှုကွန်ရက်'
+                  : 'Independent, resilient, and inclusive digital financial infrastructure for Arakan.'}
+              </p>
+              <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span>Ledger Operational & Verified</span>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span>Security Policy</span>
+
+            {/* Col 2 */}
+            <div>
+              <div className="font-bold text-slate-800 mb-3 uppercase tracking-wider">{lang === 'ak' ? 'ဝန်ဆောင်မှုများ' : 'Services'}</div>
+              <ul className="space-y-2">
+                <li><a href="#services" className="hover:text-slate-900 transition-colors">Instant Transfers</a></li>
+                <li><a href="#merchants" className="hover:text-slate-900 transition-colors">Arakan QR (AK QR)</a></li>
+                <li><a href="#offline" className="hover:text-slate-900 transition-colors">Offline BLE Mesh Pay</a></li>
+                <li><a href="#currency" className="hover:text-slate-900 transition-colors">USDT Parity Ledger</a></li>
+              </ul>
+            </div>
+
+            {/* Col 3 */}
+            <div>
+              <div className="font-bold text-slate-800 mb-3 uppercase tracking-wider">{lang === 'ak' ? 'လုံခြုံရေး' : 'Security & Legal'}</div>
+              <ul className="space-y-2">
+                <li><a href="#security" className="hover:text-slate-900 transition-colors">Secure Enclave Bridge</a></li>
+                <li><a href="#security" className="hover:text-slate-900 transition-colors">SQLCipher AES-256</a></li>
+                <li><a href="#security" className="hover:text-slate-900 transition-colors">Privacy Policy</a></li>
+                <li><a href="#security" className="hover:text-slate-900 transition-colors">Terms of Service</a></li>
+              </ul>
+            </div>
+
+            {/* Col 4 */}
+            <div>
+              <div className="font-bold text-slate-800 mb-3 uppercase tracking-wider">{lang === 'ak' ? 'ဆက်သွယ်ရန်' : 'Contact Support'}</div>
+              <div className="space-y-2 text-[11px]">
+                <div>Hotline: <a href="tel:+959685682682" className="text-slate-800 font-bold hover:underline">+95 9 685 682 682</a></div>
+                <div>Support: <a href="tel:+959798112334" className="text-slate-800 font-bold hover:underline">+95 9 798 112 334</a></div>
+                <div>Web: <a href="https://www.pethar.co.uk" className="text-slate-800 font-bold hover:underline">www.pethar.co.uk</a></div>
+              </div>
+            </div>
+
+          </div>
+
+          <div className="pt-6 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-4 text-[10px]">
+            <div>© {new Date().getFullYear()} PeThar (ဖေ့သာ). All rights reserved.</div>
+            <div className="flex items-center gap-3">
+              <span>Arakan QR Specification v2.0</span>
               <span>•</span>
-              <span>Terms of Service</span>
-              <span>•</span>
-              <span>Audit Disclosure</span>
+              <span>Ed25519 Offline Protocol v1</span>
             </div>
           </div>
         </div>
       </footer>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          LOGIN PORTAL MODAL DIALOG
+          BINANCE-STYLE AUTHENTICATION MODAL (LOG IN / SIGN UP)
       ═══════════════════════════════════════════════════════════════════ */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
-          <div className="liquid-glass-card rounded-[32px] p-8 border border-white/20 max-w-md w-full shadow-2xl relative">
-            <button
-              onClick={() => setShowLoginModal(false)}
-              className="absolute top-5 right-5 p-2 rounded-full bg-white/10 text-white/60 hover:text-white"
-            >
-              <X size={18} />
-            </button>
-
-            <div className="text-center mb-6">
-              <ArakanEmblem size={40} variant="badge" className="mx-auto mb-3" />
-              <h3 className="text-xl font-bold text-white">PeThar Online Banking</h3>
-              <p className="text-xs text-white/50 font-mono mt-1">
-                {lang === 'ak' ? 'အာရက္ခဒေါ်လာ ဝဘ်ဘဏ်လုပ်ငန်းသို့ ဝင်ရောက်ပါ' : 'Sign in to access your ledger account'}
-              </p>
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                setShowLoginModal(false)
-                handleOpenBankingClick()
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <label className="block text-[11px] font-mono text-white/60 mb-1 uppercase">
-                  {lang === 'ak' ? 'ဖုန်းနံပါတ် သို့မဟုတ် Citizen ID' : 'Phone Number or Identifier'}
-                </label>
-                <input
-                  type="text"
-                  placeholder="+95 9 ... or ARAK-XXXX"
-                  value={loginPhone}
-                  onChange={(e) => setLoginPhone(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-white/30 text-xs focus:outline-none focus:border-amber-400 font-mono"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-mono text-white/60 mb-1 uppercase">
-                  {lang === 'ak' ? '၆ လုံး PIN ကုဒ်' : '6-Digit Security PIN'}
-                </label>
-                <input
-                  type="password"
-                  maxLength={6}
-                  placeholder="••••••"
-                  value={loginPin}
-                  onChange={(e) => setLoginPin(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-white/30 text-xs focus:outline-none focus:border-amber-400 font-mono tracking-widest text-center text-lg"
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-amber-600 to-amber-500 text-white font-bold font-mono text-xs uppercase tracking-wider shadow-lg hover:brightness-110 active:scale-95 transition mt-2"
-              >
-                {lang === 'ak' ? 'ဘဏ်စာရင်း ဖွင့်မည်' : 'Authorize & Open Banking'}
-              </button>
-
-              <div className="text-center text-[10px] text-white/40 font-mono pt-2">
-                Protected by Ed25519 Cryptographic Verification · Duress PIN 999999
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode={authModalMode}
+        onSuccess={() => {
+          setAuthModalOpen(false)
+          handleOpenBankingClick()
+        }}
+        lang={lang}
+      />
 
     </div>
   )
