@@ -272,8 +272,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {mode === 'login' && (
                     <button
                       type="button"
-                      onClick={() => alert(lang === 'ak' ? 'စကားဝှက်ပြန်ယူရန် အကူအညီ (+95 9 798 112 334) သို့ ဆက်သွယ်ပါ' : 'Contact support at +95 9 798 112 334 to reset your credentials.')}
+                      onClick={() => window.open('https://t.me/petharsupport', '_blank')}
                       className="text-[11px] font-medium text-amber-600 hover:text-amber-700 transition-colors"
+                      title={lang === 'ak' ? 'Telegram @petharsupport သို့ ဆက်သွယ်ပါ' : 'Contact Telegram @petharsupport'}
                     >
                       {lang === 'ak' ? 'စကားဝှက်မေ့နေပါသလား?' : 'Forgot password?'}
                     </button>
