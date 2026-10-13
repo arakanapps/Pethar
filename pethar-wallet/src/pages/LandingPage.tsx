@@ -6,7 +6,8 @@ import {
   Smartphone, ArrowRight, Download, Apple,
   ChevronDown, Send, Menu, X, CheckCircle,
   Radio, Search,
-  Wallet, Check, QrCode, ShieldCheck, CreditCard, Mail
+  Wallet, Check, QrCode, ShieldCheck, CreditCard, Mail,
+  Lock, Trash2, Server, ExternalLink, Cpu, UserCheck
 } from 'lucide-react'
 
 interface LandingPageProps {
@@ -121,6 +122,25 @@ export default function LandingPage({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Auto-scroll to target hash section on mount or hash change (e.g. #security)
+  useEffect(() => {
+    const handleHashScroll = () => {
+      if (typeof window !== 'undefined' && window.location.hash) {
+        const id = window.location.hash.replace('#', '')
+        const elem = document.getElementById(id)
+        if (elem) {
+          setTimeout(() => {
+            elem.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }, 150)
+        }
+      }
+    }
+
+    handleHashScroll()
+    window.addEventListener('hashchange', handleHashScroll)
+    return () => window.removeEventListener('hashchange', handleHashScroll)
+  }, [])
+
   const searchableItems = [
     { id: 'overview', title: lang === 'ak' ? 'ပင်မ ခြုံငုံသုံးသပ်ချက်' : 'Overview & Digital Banking', keywords: 'overview home balance usdt parity' },
     { id: 'services', title: lang === 'ak' ? 'ဒစ်ဂျစ်တယ် ဘဏ်ဝန်ဆောင်မှုများ' : 'Instant Transfers & Services', keywords: 'services transfer p2p instant zero fee' },
@@ -128,7 +148,7 @@ export default function LandingPage({
     { id: 'offline', title: lang === 'ak' ? 'အော့ဖ်လိုင်း မက်ရှ် ကွန်ရက်' : 'Offline BLE Mesh Protocol', keywords: 'offline ble mesh mesh payments ed25519' },
     { id: 'currency', title: lang === 'ak' ? '၁:၁ USDT တည်ငြိမ်ငွေကြေး' : '1:1 USDT Treasury Parity', keywords: 'usdt currency treasury akd parity' },
     { id: 'download', title: lang === 'ak' ? 'မိုဘိုင်းအက်ပ် ဒေါင်းလုဒ်' : 'Download Mobile App', keywords: 'download app ios android mobile apple' },
-    { id: 'security', title: lang === 'ak' ? 'လုံခြုံရေးနှင့် စည်းမျဉ်းများ' : 'SQLCipher & Enclave Security', keywords: 'security sqlcipher enclave 256-bit encryption' },
+    { id: 'security', title: lang === 'ak' ? 'လုံခြုံရေးနှင့် ကိုယ်ရေးအချက်အလက် မူဝါဒ' : 'Security & Privacy Policy', keywords: 'security privacy policy google oauth data deletion encryption compliance' },
     { id: 'faq', title: lang === 'ak' ? 'မေးလေ့ရှိသော မေးခွန်းများ (FAQ)' : 'Frequently Asked Questions (FAQ)', keywords: 'faq questions help' },
   ]
 
@@ -168,7 +188,7 @@ export default function LandingPage({
     { label: lang === 'ak' ? 'အော့ဖ်လိုင်းစနစ်' : 'Offline Protocol', href: '#offline' },
     { label: lang === 'ak' ? 'ငွေကြေးစနစ်' : 'Treasury & Parity', href: '#currency' },
     { label: lang === 'ak' ? 'ဒေါင်းလုဒ်' : 'Download', href: '#download' },
-    { label: lang === 'ak' ? 'လုံခြုံရေး' : 'Security', href: '#security' },
+    { label: lang === 'ak' ? 'လုံခြုံရေးနှင့် မူဝါဒ' : 'Security & Privacy', href: '#security' },
   ]
 
   return (
@@ -975,7 +995,249 @@ export default function LandingPage({
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 6: INSTITUTIONAL FOOTER
+          SECTION 6: SECURITY & PRIVACY POLICY COMPLIANCE (id="security")
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section id="security" className="py-20 bg-white border-t border-slate-200/90 relative">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-8 space-y-12">
+          
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-800 text-xs font-bold border border-emerald-500/20">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Official Regulatory & Privacy Compliance Disclosures</span>
+            </div>
+            
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+              {lang === 'ak'
+                ? 'PeThar ကိုယ်ရေးအချက်အလက်နှင့် လုံခြုံရေး မူဝါဒ (Privacy Policy)'
+                : 'PeThar Application Privacy Policy & Security Disclosures'}
+            </h2>
+
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+              {lang === 'ak'
+                ? 'PeThar (ဖေ့သာ) သည် သုံးစွဲသူများ၏ ကိုယ်ရေးအချက်အလက်နှင့် ငွေကြေးလုံခြုံမှုကို အမြင့်ဆုံးကာကွယ်ထားပါသည်။ Google Sign-In ဖြင့် ဝင်ရောက်အသုံးပြုသူများ၏ ဒေတာရယူမှု၊ အသုံးပြုမှု၊ လုံခြုံရေးစာဝှက်စနစ်နှင့် ဒေတာဖျက်သိမ်းခွင့်များကို အောက်တွင် အသေးစိတ် ဖော်ပြထားပါသည်။'
+                : 'PeThar ("PeThar Wallet", "PeThar Mobile", operated by PeThar Financial Technologies at pethar.co.uk) strictly protects user confidentiality, data integrity, and digital rights. This policy details how our application accesses, uses, protects, and deletes Google user data and account information in full compliance with the Google API Services User Data Policy.'}
+            </p>
+
+            <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-6 text-xs font-mono text-slate-500 pt-2 border-t border-slate-100">
+              <div><strong className="text-slate-800">App Name:</strong> PeThar</div>
+              <div><strong className="text-slate-800">Developer:</strong> PeThar Financial Technologies</div>
+              <div><strong className="text-slate-800">Verified Domain:</strong> pethar.co.uk</div>
+              <div><strong className="text-slate-800">Effective Date:</strong> October 13, 2026</div>
+              <div><strong className="text-slate-800">Audit Status:</strong> Verified & Active</div>
+            </div>
+          </div>
+
+          {/* Golden Notice Box - Google Limited Use Compliance */}
+          <div className="bg-amber-500/10 rounded-2xl p-6 sm:p-8 border border-amber-500/30">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-amber-500 text-slate-950 rounded-xl font-black shrink-0">
+                <Lock className="w-6 h-6" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-base sm:text-lg font-bold text-amber-950">
+                  Google API Services User Data Policy Compliance Statement
+                </h3>
+                <p className="text-sm text-amber-900 leading-relaxed font-sans">
+                  <strong>PeThar's use and transfer to any other app of information received from Google APIs will adhere to the{' '}
+                  <a
+                    href="https://developers.google.com/terms/api-services-user-data-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline font-bold text-amber-950 hover:text-amber-800 inline-flex items-center gap-1"
+                  >
+                    Google API Services User Data Policy
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>, including the Limited Use requirements.</strong>
+                </p>
+                <p className="text-xs text-amber-800/90 leading-relaxed">
+                  All Google user data accessed by PeThar is used exclusively to provide and improve user-facing features (account sign-in, profile identification, and wallet security). We do not transfer, disclose, or sell Google user data to data brokers, advertising networks, or third parties for training non-personalized AI/ML models.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Cards Grid: Sections 1 to 6 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {/* Card 1: Data Accessed & Collected */}
+            <div className="liquid-glass-card-light rounded-2xl p-6 sm:p-7 border border-slate-200/90 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-sky-500/10 text-sky-700">
+                  <UserCheck className="w-5 h-5 text-sky-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {lang === 'ak' ? '၁။ ရယူစုဆောင်းသော ဒေတာများ' : '1. Data Accessed & Collected'}
+                </h3>
+              </div>
+              <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <li>
+                  <strong className="text-slate-900">Google Account Profile:</strong> Display name, profile avatar URL, and verified primary email address accessed via Google OAuth 2.0 (<code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded font-mono">email</code> and <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded font-mono">profile</code> scopes).
+                </li>
+                <li>
+                  <strong className="text-slate-900">Unique User Identifier:</strong> Immutable Google user identifier token (<code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded font-mono">sub</code> / Firebase UID) to authenticate sessions without storing user passwords.
+                </li>
+                <li>
+                  <strong className="text-slate-900">Phone & Credentials:</strong> Phone number collected strictly for one-time SMS passcodes when Phone Authentication is selected.
+                </li>
+                <li>
+                  <strong className="text-slate-900">Public Wallet Address & Ledger Records:</strong> Ed25519 public addresses and transaction records (amounts in AKD, USD, MMK, timestamps, and hashes). <span className="font-semibold text-emerald-800">Private keys never leave your device's Secure Enclave / Keystore.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Card 2: How We Use Your Data */}
+            <div className="liquid-glass-card-light rounded-2xl p-6 sm:p-7 border border-slate-200/90 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-700">
+                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {lang === 'ak' ? '၂။ ဒေတာ အသုံးပြုမှု ရည်ရွယ်ချက်များ' : '2. Purpose of Data Processing'}
+                </h3>
+              </div>
+              <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <li>
+                  <strong className="text-slate-900">Authentication & Account Provisioning:</strong> Authenticating user identity, establishing encrypted sessions, and managing active wallet credentials.
+                </li>
+                <li>
+                  <strong className="text-slate-900">Service Delivery & Sync:</strong> Displaying account balances, synchronizing peer-to-peer transfers, offline BLE mesh vouchers, and Arakan QR invoices.
+                </li>
+                <li>
+                  <strong className="text-slate-900">Security & Anti-Fraud:</strong> Monitoring unauthorized login attempts, safeguarding user assets against phishing, and enforcing rate limiting.
+                </li>
+                <li>
+                  <strong className="text-slate-900">Customer Support:</strong> Providing prompt responses to user support queries received at <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded font-mono">contact@pethar.co.uk</code> or <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded font-mono">pethar-app@protonmail.com</code>.
+                </li>
+              </ul>
+            </div>
+
+            {/* Card 3: Strict Prohibitions & Permitted Use Limits */}
+            <div className="liquid-glass-card-light rounded-2xl p-6 sm:p-7 border border-slate-200/90 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-red-500/10 text-red-700">
+                  <Lock className="w-5 h-5 text-red-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {lang === 'ak' ? '၃။ တားမြစ်ချက်များနှင့် ကန့်သတ်ချက်များ' : '3. Strict Prohibitions & Limited Use'}
+                </h3>
+              </div>
+              <ul className="space-y-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 font-bold shrink-0">✕</span>
+                  <span><strong>No Data Brokers:</strong> We never sell, rent, or trade Google user data or personal data to data brokers or resellers.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 font-bold shrink-0">✕</span>
+                  <span><strong>No Targeted Advertising:</strong> We never use user data for targeted ads, personalized advertisements, or retargeting campaigns.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 font-bold shrink-0">✕</span>
+                  <span><strong>No Credit Scoring:</strong> We never use Google user data to evaluate creditworthiness or for consumer lending.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 font-bold shrink-0">✕</span>
+                  <span><strong>No Non-Personalized AI/ML:</strong> Data from Google APIs is never used to develop or train non-personalized AI/ML models.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Card 4: Third-Party Disclosures & Sub-Processors */}
+            <div className="liquid-glass-card-light rounded-2xl p-6 sm:p-7 border border-slate-200/90 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-700">
+                  <Server className="w-5 h-5 text-indigo-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {lang === 'ak' ? '၄။ ပြင်ပသို့ မျှဝေခြင်းနှင့် အခြေခံစနစ်' : '4. Third Parties & Sub-Processors'}
+                </h3>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                "We do not transfer or disclose your information to third parties for purposes other than providing the PeThar services." Data is transferred only to trusted infrastructure providers:
+              </p>
+              <ul className="space-y-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <li>
+                  <strong className="text-slate-900">Google Cloud & Firebase:</strong> Backend hosting, Firebase Authentication, Cloud Firestore databases, and Cloud Storage with enterprise SOC2/ISO 27001 data center certifications.
+                </li>
+                <li>
+                  <strong className="text-slate-900">SMS Telecom Gateways:</strong> Exclusively for dispatching one-time OTP verification passcodes for phone login.
+                </li>
+                <li>
+                  <strong className="text-slate-900">Legal Mandates:</strong> Disclosed only if required by a valid judicial subpoena or applicable law.
+                </li>
+              </ul>
+            </div>
+
+            {/* Card 5: Security & Cryptographic Mechanisms */}
+            <div className="liquid-glass-card-light rounded-2xl p-6 sm:p-7 border border-slate-200/90 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-700">
+                  <Cpu className="w-5 h-5 text-amber-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {lang === 'ak' ? '၅။ စာဝှက်စနစ်နှင့် နည်းပညာလုံခြုံရေး' : '5. Security Procedures & Encryption'}
+                </h3>
+              </div>
+              <ul className="space-y-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <li>
+                  <strong className="text-slate-900">Encryption in Transit:</strong> End-to-end TLS 1.3 / HTTPS encryption for all client-server communications.
+                </li>
+                <li>
+                  <strong className="text-slate-900">Encryption at Rest:</strong> AES-256 cloud database encryption; local client databases secured via SQLCipher AES-256.
+                </li>
+                <li>
+                  <strong className="text-slate-900">Hardware Keystore:</strong> Private keys generated and isolated inside Apple Secure Enclave & Android Keystore, guarded by biometric Face ID.
+                </li>
+                <li>
+                  <strong className="text-slate-900">Access Control:</strong> Granular Firebase Security Rules ensuring tenant-isolated database access.
+                </li>
+              </ul>
+            </div>
+
+            {/* Card 6: Data Retention & User Deletion Rights */}
+            <div className="liquid-glass-card-light rounded-2xl p-6 sm:p-7 border border-slate-200/90 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-red-500/10 text-red-700">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {lang === 'ak' ? '၆။ ဒေတာ ထိန်းသိမ်းခြင်းနှင့် ဖျက်သိမ်းခွင့်' : '6. Data Retention & Deletion Rights'}
+                </h3>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                We retain your personal information only for the length of time needed to fulfill the purposes outlined in this privacy policy unless a longer retention period is required by law.
+              </p>
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1.5">
+                <div className="font-bold text-slate-900">How to Delete Your Account and Data:</div>
+                <div>1. <strong>In-App:</strong> Navigate to <em>Profile → Settings → Delete Account</em>.</div>
+                <div>2. <strong>By Email:</strong> Email <a href="mailto:privacy@pethar.co.uk" className="text-amber-700 font-bold underline">privacy@pethar.co.uk</a> with subject "Data Deletion Request".</div>
+                <div className="pt-1 text-[11px] text-slate-500 border-t border-slate-200/70">
+                  <strong>Timeline:</strong> All Google user profile data is permanently purged from active Firebase Authentication and Firestore within <strong>30 days</strong>.
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Dedicated Page Link Banner */}
+          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-xs sm:text-sm text-slate-600">
+              Need a standalone official copy of our complete legal agreement and regulatory terms?
+            </div>
+            <a
+              href="/privacy"
+              className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-2 shrink-0"
+            >
+              <span>View Standalone Privacy Page (/privacy)</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SECTION 7: INSTITUTIONAL FOOTER
       ═══════════════════════════════════════════════════════════════════ */}
       <footer className="border-t border-slate-200 bg-slate-100/90 py-12 text-xs text-slate-500 font-mono">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
@@ -1011,12 +1273,12 @@ export default function LandingPage({
 
             {/* Col 3 */}
             <div>
-              <div className="font-bold text-slate-800 mb-3 uppercase tracking-wider">{lang === 'ak' ? 'လုံခြုံရေး' : 'Security & Legal'}</div>
+              <div className="font-bold text-slate-800 mb-3 uppercase tracking-wider">{lang === 'ak' ? 'လုံခြုံရေးနှင့် ဥပဒေ' : 'Security & Legal'}</div>
               <ul className="space-y-2">
-                <li><a href="#security" className="hover:text-slate-900 transition-colors">Secure Enclave Bridge</a></li>
-                <li><a href="#security" className="hover:text-slate-900 transition-colors">SQLCipher AES-256</a></li>
-                <li><a href="#security" className="hover:text-slate-900 transition-colors">Privacy Policy</a></li>
-                <li><a href="#security" className="hover:text-slate-900 transition-colors">Terms of Service</a></li>
+                <li><a href="#security" className="hover:text-slate-900 transition-colors">Privacy Policy (#security)</a></li>
+                <li><a href="#security" className="hover:text-slate-900 transition-colors">Google OAuth Disclosures</a></li>
+                <li><a href="#security" className="hover:text-slate-900 transition-colors">Data Retention & Deletion</a></li>
+                <li><a href="/privacy" className="hover:text-slate-900 transition-colors">Dedicated Policy (/privacy)</a></li>
               </ul>
             </div>
 

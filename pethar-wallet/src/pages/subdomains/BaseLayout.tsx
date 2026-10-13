@@ -161,13 +161,13 @@ export const BaseLayout = ({
               </div>
               <div>
                 <h3 className="font-bold text-slate-900 mb-3 text-sm">
-                  {lang === 'ak' ? 'လုံခြုံရေးနှင့် စည်းမျဉ်း' : 'Security & Reserves'}
+                  {lang === 'ak' ? 'လုံခြုံရေးနှင့် စည်းမျဉ်း' : 'Security & Legal'}
                 </h3>
                 <ul className="space-y-2">
+                  <li><button onClick={() => redirectToSubdomain('privacy')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'ကိုယ်ရေးအချက်အလက် မူဝါဒ' : 'Privacy Policy'}</button></li>
                   <li><button onClick={() => redirectToSubdomain('docs')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'နည်းပညာ စာရွက်စာတမ်း' : 'Documentation'}</button></li>
-                  <li><button onClick={() => redirectToSubdomain('support')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'လုံခြုံရေး မူဝါဒ' : 'Proof of Reserves'}</button></li>
+                  <li><button onClick={() => redirectToSubdomain('support')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'အရန်ငွေကြေး အာမခံ' : 'Proof of Reserves'}</button></li>
                   <li><span className="text-emerald-600 font-semibold">{lang === 'ak' ? '၁၀၀% ရွှေ/ဒေါ်လာ အာမခံ' : '100% Backed by Reserves'}</span></li>
-                  <li><span>{lang === 'ak' ? 'လိုင်စင်ရ ငွေကြေးအဖွဲ့အစည်း' : 'Regulated Financial Authority'}</span></li>
                 </ul>
               </div>
               <div>
