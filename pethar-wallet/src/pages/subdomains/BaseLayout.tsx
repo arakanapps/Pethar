@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { ArakanEmblem, FlagArakanCircle, FlagUKCircle } from '../components/ArakanEmblem';
-import type { Language } from '../i18n';
+import { useState } from 'react';
+import { ArakanEmblem, FlagArakanCircle, FlagUKCircle } from '../../components/ArakanEmblem';
+import type { Language } from '../../i18n';
 
 interface BaseLayoutProps {
   children: React.ReactNode;

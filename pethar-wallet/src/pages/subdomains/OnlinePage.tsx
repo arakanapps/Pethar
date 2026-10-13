@@ -1,5 +1,5 @@
 import { BaseLayout } from './BaseLayout';
-import type { Language } from '../i18n';
+import type { Language } from '../../i18n';
 
 interface OnlinePageProps {
   lang: Language;
@@ -161,7 +161,7 @@ export const OnlinePage = ({ lang }: OnlinePageProps) => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                 {t.feature3Title}
-              </h3
+              </h3>
               <p className="text-gray-600 dark:text-gray-400">
                 {t.feature3Desc}
               </p>

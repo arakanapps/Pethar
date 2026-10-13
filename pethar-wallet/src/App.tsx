@@ -1,52 +1,51 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import type { Language } from './i18n'
-import { getSubdomain, isSubdomain, getRedirectMap } from './utils/subdomain'
+import { getSubdomain, getRedirectMap } from './utils/subdomain'
 
 // Import all subdomain pages
-import AppPage from './pages/subdomains/AppPage'
-import WalletPage from './pages/subdomains/WalletPage'
-import LoginPage from './pages/subdomains/LoginPage'
-import SignupPage from './pages/subdomains/SignupPage'
-import PayPage from './pages/subdomains/PayPage'
-import CardPage from './pages/subdomains/CardPage'
-import MerchantPage from './pages/subdomains/MerchantPage'
-import IBankingPage from './pages/subdomains/IBankingPage'
-import AccountsPage from './pages/subdomains/AccountsPage'
-import SupportPage from './pages/subdomains/SupportPage'
-import HelpPage from './pages/subdomains/HelpPage'
-import DeveloperPage from './pages/subdomains/DeveloperPage'
-import ApiPage from './pages/subdomains/ApiPage'
-import DocsPage from './pages/subdomains/DocsPage'
+import { AppPage } from './pages/subdomains/AppPage'
+import { LoginPage } from './pages/subdomains/LoginPage'
+import { SignupPage } from './pages/subdomains/SignupPage'
+import { PayPage } from './pages/subdomains/PayPage'
+import { CardPage } from './pages/subdomains/CardPage'
+import { MerchantPage } from './pages/subdomains/MerchantPage'
+import { IBankingPage } from './pages/subdomains/IBankingPage'
+import { AccountsPage } from './pages/subdomains/AccountsPage'
+import { SupportPage } from './pages/subdomains/SupportPage'
+import { HelpPage } from './pages/subdomains/HelpPage'
+import { DeveloperPage } from './pages/subdomains/DeveloperPage'
+import { ApiPage } from './pages/subdomains/ApiPage'
+import { DocsPage } from './pages/subdomains/DocsPage'
 import LandingPage from './pages/LandingPage'
 import WebBankingDashboard from './pages/WebBankingDashboard'
 // New subdomain pages
-import OfflinePage from './pages/subdomains/OfflinePage'
-import OnlinePage from './pages/subdomains/OnlinePage'
-import PlatformPage from './pages/subdomains/PlatformPage'
-import AdminPage from './pages/subdomains/AdminPage'
-import CloudPage from './pages/subdomains/CloudPage'
-import BetaPage from './pages/subdomains/BetaPage'
-import RootPage from './pages/subdomains/RootPage'
-import P2MPage from './pages/subdomains/P2MPage'
-import P2CPage from './pages/subdomains/P2CPage'
-import C2CPage from './pages/subdomains/C2CPage'
-import P2PPage from './pages/subdomains/P2PPage'
-import M2MPage from './pages/subdomains/M2MPage'
-import Web3Page from './pages/subdomains/Web3Page'
-import TradePage from './pages/subdomains/TradePage'
-import ExchangePage from './pages/subdomains/ExchangePage'
-import GlobalPage from './pages/subdomains/GlobalPage'
-import DataPage from './pages/subdomains/DataPage'
+import { OfflinePage } from './pages/subdomains/OfflinePage'
+import { OnlinePage } from './pages/subdomains/OnlinePage'
+import { PlatformPage } from './pages/subdomains/PlatformPage'
+import { AdminPage } from './pages/subdomains/AdminPage'
+import { CloudPage } from './pages/subdomains/CloudPage'
+import { BetaPage } from './pages/subdomains/BetaPage'
+import { RootPage } from './pages/subdomains/RootPage'
+import { P2MPage } from './pages/subdomains/P2MPage'
+import { P2CPage } from './pages/subdomains/P2CPage'
+import { C2CPage } from './pages/subdomains/C2CPage'
+import { P2PPage } from './pages/subdomains/P2PPage'
+import { M2MPage } from './pages/subdomains/M2MPage'
+import { Web3Page } from './pages/subdomains/Web3Page'
+import { TradePage } from './pages/subdomains/TradePage'
+import { ExchangePage } from './pages/subdomains/ExchangePage'
+import { GlobalPage } from './pages/subdomains/GlobalPage'
+import { DataPage } from './pages/subdomains/DataPage'
 // Additional subdomain pages
-import SearchPage from './pages/subdomains/SearchPage'
-import InfoPage from './pages/subdomains/InfoPage'
-import CareersPage from './pages/subdomains/CareersPage'
-import AdsPage from './pages/subdomains/AdsPage'
-import ChatPage from './pages/subdomains/ChatPage'
-import ConnectPage from './pages/subdomains/ConnectPage'
-import DownloadPage from './pages/subdomains/DownloadPage'
-import DemoPage from './pages/subdomains/DemoPage'
+import { SearchPage } from './pages/subdomains/SearchPage'
+import { InfoPage } from './pages/subdomains/InfoPage'
+import { CareersPage } from './pages/subdomains/CareersPage'
+import { AdsPage } from './pages/subdomains/AdsPage'
+import { ChatPage } from './pages/subdomains/ChatPage'
+import { ConnectPage } from './pages/subdomains/ConnectPage'
+import { DownloadPage } from './pages/subdomains/DownloadPage'
+import { DemoPage } from './pages/subdomains/DemoPage'
 
 export default function App() {
   const location = useLocation()
@@ -215,12 +214,6 @@ export default function App() {
       case 'data':
         return (
           <DataPage
-            lang={currentLang}
-          />
-        )
-      case 'developer':
-        return (
-          <DeveloperPage
             lang={currentLang}
           />
         )

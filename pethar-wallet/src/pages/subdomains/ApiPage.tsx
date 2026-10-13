@@ -1,5 +1,5 @@
 import { BaseLayout } from './BaseLayout';
-import type { Language } from '../i18n';
+import type { Language } from '../../i18n';
 
 interface ApiPageProps {
   lang: Language;
@@ -144,7 +144,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Accounts</h3>
               <p className="text-gray-600 dark:text-gray-400">
                 GET /accounts - List accounts<br/>
-                GET /accounts/{id} - Get account details<br/>
+                GET /accounts/&#123;id&#125; - Get account details<br/>
                 POST /accounts - Create account
               </p>
             </div>
@@ -154,7 +154,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
               <p className="text-gray-600 dark:text-gray-400">
                 GET /transactions - List transactions<br/>
                 POST /transactions - Create transaction<br/>
-                GET /transactions/{id} - Get transaction details
+                GET /transactions/&#123;id&#125; - Get transaction details
               </p>
             </div>
 
@@ -162,8 +162,8 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Payments</h3>
               <p className="text-gray-600 dark:text-gray-400">
                 POST /payments - Initiate payment<br/>
-                GET /payments/{id} - Get payment status<br/>
-                POST /payments/{id}/cancel - Cancel payment
+                GET /payments/&#123;id&#125; - Get payment status<br/>
+                POST /payments/&#123;id&#125;/cancel - Cancel payment
               </p>
             </div>
 
@@ -181,7 +181,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
               <p className="text-gray-600 dark:text-gray-400">
                 POST /webhooks - Register webhook<br/>
                 GET /webhooks - List webhooks<br/>
-                DELETE /webhooks/{id} - Delete webhook
+                DELETE /webhooks/&#123;id&#125; - Delete webhook
               </p>
             </div>
 
@@ -190,8 +190,8 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
               <p className="text-gray-600 dark:text-gray-400">
                 GET /cards - List cards<br/>
                 POST /cards - Issue card<br/>
-                GET /cards/{id} - Get card details<br/>
-                POST /cards/{id}/freeze - Freeze card
+                GET /cards/&#123;id&#125; - Get card details<br/>
+                POST /cards/&#123;id&#125;/freeze - Freeze card
               </p>
             </div>
           </div>

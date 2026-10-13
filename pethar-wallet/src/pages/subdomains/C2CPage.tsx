@@ -1,5 +1,5 @@
 import { BaseLayout } from './BaseLayout';
-import type { Language } from '../i18n';
+import type { Language } from '../../i18n';
 
 interface C2CPageProps {
   lang: Language;
@@ -213,4 +213,45 @@ export const C2CPage = ({ lang }: C2CPageProps) => {
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                 Perfect for artisans, hobbyists, and creative entrepreneurs
-              </p
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+        {/* Benefits Section */}
+        <section className="mb-16">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
+              {lang === 'ak' ? 'PeThar C2C ��� benefits' : 'Benefits of PeThar C2C'}
+            </h2>
+            <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
+              {lang === 'ak'
+                ? 'PeThar C2C ��� benefits Dawlonлодх'
+                : 'Why choose PeThar for your Consumer-to-Consumer transactions'}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Secure & Trusted</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Escrow protection and verified user profiles ensure safe transactions
+                </p>
+              </div>
+              <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Low Fees</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Minimal transaction fees compared to traditional marketplaces
+                </p>
+              </div>
+              <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Wide Reach</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Connect with buyers and sellers across regions and countries
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </BaseLayout>
+    );
+  };

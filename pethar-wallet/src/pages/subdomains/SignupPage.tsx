@@ -1,6 +1,6 @@
 import { BaseLayout } from './BaseLayout';
-import { AuthModal } from '../components/AuthModal';
-import type { Language } from '../i18n';
+import { AuthModal } from '../../components/AuthModal';
+import type { Language } from '../../i18n';
 import { useState } from 'react';
 
 interface SignupPageProps {

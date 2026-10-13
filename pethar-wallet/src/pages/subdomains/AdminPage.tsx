@@ -1,5 +1,5 @@
 import { BaseLayout } from './BaseLayout';
-import type { Language } from '../i18n';
+import type { Language } from '../../i18n';
 
 interface AdminPageProps {
   lang: Language;
@@ -100,4 +100,41 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">2. Comprehensive Dashboard</h3>
               <p className="text-gray-600 dark:text-gray-400">
                 Real-time overview of system health, transaction volumes, and key metrics
-              </p
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+        {/* Compliance & Reporting Section */}
+        <section className="mb-16">
+          <div className="max-w-4xl mx-auto">
+            <div className="w-12 h-12 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
+              <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">3. Compliance & Reporting</h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Automated KYC/AML compliance, regulatory reporting, and audit tools
+            </p>
+          </div>
+        </section>
+
+        {/* System Configuration Section */}
+        <section className="mb-16">
+          <div className="max-w-4xl mx-auto">
+            <div className="w-12 h-12 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
+              <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">4. System Configuration</h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Configure banking parameters, fees, limits, and service settings
+            </p>
+          </div>
+        </section>
+      </BaseLayout>
+    );
+  };

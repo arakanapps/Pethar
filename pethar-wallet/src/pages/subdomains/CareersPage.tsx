@@ -1,5 +1,5 @@
 import { BaseLayout } from './BaseLayout';
-import type { Language } from '../i18n';
+import type { Language } from '../../i18n';
 
 interface CareersPageProps {
   lang: Language;
@@ -184,7 +184,7 @@ export const CareersPage = ({ lang }: CareersPageProps) => {
               <p className="text-gray-600 dark:text-gray-400">
                 {t.feature4Desc}
               </p>
-            }
+            </div>
           </div>
         </div>
       </section>
