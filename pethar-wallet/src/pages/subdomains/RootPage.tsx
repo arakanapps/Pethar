@@ -71,11 +71,11 @@ export const RootPage = ({ lang }: RootPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar ��� how it works' : 'How PeThar Works'}
+            {lang === 'ak' ? 'ဖေ့သာ အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar ��� how it works Dawlonлодх'
+              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
               : 'Building financial services that work for everyone in the Arakan community'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -122,11 +122,11 @@ export const RootPage = ({ lang }: RootPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar �ں services' : 'Our Financial Services'}
+            {lang === 'ak' ? 'ကျွန်ုပ်တို့၏ ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'Our Financial Services'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar �ں services Dawlonлодх'
+              ? 'ဘဏ်လုပ်ငန်း၊ ငွေလွှဲမှုနှင့် ဒစ်ဂျစ်တယ် ပိုက်ဆံအိတ် ဝန်ဆောင်မှုများ'
               : 'Comprehensive financial services designed for the Arakan community'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -192,11 +192,11 @@ export const RootPage = ({ lang }: RootPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Begin Your Financial Journey?'}
+          {lang === 'ak' ? 'သင့်ဘဏ္ဍာရေးခရီးစဉ်ကို စတင်ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Begin Your Financial Journey?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar �ں Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Join thousands in the Arakan community who are building better financial futures with PeThar'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

@@ -71,7 +71,7 @@ export const DataPage = ({ lang }: DataPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Data ��� 특징' : 'PeThar Data Features'}
+            {lang === 'ak' ? 'PeThar Data အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar Data Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -137,11 +137,11 @@ export const DataPage = ({ lang }: DataPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Data ��� categories' : 'Data Categories & Services'}
+            {lang === 'ak' ? 'ဒေတာ အမျိုးအစားများနှင့် ဝန်ဆောင်မှုများ' : 'Data Categories & Services'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Data ��� categories Dawlonлодх'
+              ? 'ရရှိနိုင်သော ဝန်ဆောင်မှုနှင့် ကဏ္ဍအသီးသီးကို လေ့လာပါ'
               : 'Comprehensive financial data services for individuals, businesses, and developers'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -191,11 +191,11 @@ export const DataPage = ({ lang }: DataPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Access Financial Data?'}
+          {lang === 'ak' ? 'ဘဏ္ဍာရေးဒေတာများကို ကြည့်ရှုအသုံးပြုရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Access Financial Data?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Data ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တльнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Access comprehensive financial data services to power your decisions and applications'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

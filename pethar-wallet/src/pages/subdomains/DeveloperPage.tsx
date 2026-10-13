@@ -71,7 +71,7 @@ export const DeveloperPage = ({ lang }: DeveloperPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Developer Portal ��� 특징' : 'Developer Portal Features'}
+            {lang === 'ak' ? 'Developer Portal အင်္ဂါရပ်များ' : 'Developer Portal Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -137,11 +137,11 @@ export const DeveloperPage = ({ lang }: DeveloperPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Developer Portal ��� quick start' : 'Quick Start Guide'}
+            {lang === 'ak' ? 'အမြန်စတင်ရန် လမ်းညွှန်' : 'Quick Start Guide'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Developer Portal ��� quick start Dawlonлодх'
+              ? 'မိနစ်ပိုင်းအတွင်း လွယ်ကူလျင်မြန်စွာ စတင်အသုံးပြုနိုင်မည့် အဆင့်များ'
               : 'Get started with PeThar development in just a few minutes'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -172,11 +172,11 @@ export const DeveloperPage = ({ lang }: DeveloperPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Build?'}
+          {lang === 'ak' ? 'စနစ်စတင်တည်ဆောက်ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Build?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Developer Portal ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တльнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Join thousands of developers building on the PeThar financial platform'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

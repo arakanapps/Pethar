@@ -63,6 +63,30 @@ export async function resendOtp(phone: string) {
 }
 
 /**
+ * Google OAuth Sign In / Sign Up
+ */
+export async function signInWithGoogle(redirectTo?: string) {
+  const defaultRedirect = typeof window !== 'undefined'
+    ? `${window.location.origin}/app`
+    : undefined;
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: redirectTo || defaultRedirect,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  });
+  if (error) {
+    throw error;
+  }
+  return data;
+}
+
+/**
  * Session management helpers
  */
 export async function signOut() {

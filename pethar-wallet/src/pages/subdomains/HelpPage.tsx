@@ -38,16 +38,16 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
 
   const faqItems = lang === 'ak' ? [
     {
-      question: 'PeThar Wallet ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တльнуюponde လzii',
-      answer: 'PeThar Wallet app ကို Apple Store � aimé Borneo Dawlonлодх, KYC စာဝ pliوفةမဲ့ နomyind တльнуюponde လzii,itsda ပして $10,000 AKD พร้อมใช้งานทันที'
+      question: 'PeThar ပိုက်ဆံအိတ်ကို မည်သို့ ဒေါင်းလုဒ်ရယူပြီး စတင်အသုံးပြုရမည်နည်း။',
+      answer: 'PeThar Wallet ကို App Store သို့မဟုတ် Google Play မှ ဒေါင်းလုဒ်ရယူနိုင်ပါသည်။ ထည့်သွင်းပြီးပါက မျက်နှာပြင်ပေါ်ရှိ လမ်းညွှန်ချက်များအတိုင်း အကောင့်ဖွင့်ပြီး လွယ်ကူလျင်မြန်စွာ အတည်ပြုနိုင်ပါသည်။'
     },
     {
-      question: 'PeThar ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တnąیی муба МЫ МЫ',
-      answer: 'PeThar ကို ইন্টারনেট�ရှိေ�временем zamanda도 траnsac 군ders 消费者采购祈愿师资格认定核定的文件'
+      question: 'အင်တာနက်လိုင်းမရှိဘဲ ဖေ့သာကို အသုံးပြုနိုင်ပါသလား။',
+      answer: 'ဟုတ်ကဲ့၊ အသုံးပြုနိုင်ပါသည်။ ဖေ့သာတွင် BLE နှင့် NFC နည်းပညာသုံး အော့ဖ်လိုင်း ငွေပေးချေမှုစနစ် ပါဝင်သောကြောင့် အင်တာနက်မရှိသည့်အချိန်တွင်လည်း လုံခြုံစွာ ငွေလွှဲပေးချေနိုင်ပါသည်။'
     },
     {
-      question: 'PeThar ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တнуюponde ลี้',
-      answer: 'PeThar ถอนเงินได้ผ่านตัวแทนที่ได้รับอนุญาตหรือการโอนเงินผ่านธนาคารที่เชื่อมต่อกับระบบ PeThar'
+      question: 'PeThar ပိုက်ဆံအိတ်မှ ငွေသားကို မည်သို့ ထုတ်ယူနိုင်ပါသလဲ။',
+      answer: 'တရားဝင်ခွင့်ပြုထားသော ဖေ့သာကိုယ်စားလှယ်များ သို့မဟုတ် ချိတ်ဆက်ထားသော ဘဏ်အကောင့်များမှတစ်ဆင့် ငွေထုတ်ယူနိုင်ပါသည်။ ငွေထုတ်ယူမှုများကို ပုံမှန်အားဖြင့် ၁-၂ နာရီအတွင်း ဆောင်ရွက်ပေးပါသည်။'
     }
   ] : [
     {
@@ -99,7 +99,7 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Help Center ��� FAQ' : 'Frequently Asked Questions'}
+            {lang === 'ak' ? 'မကြာခဏ မေးလေ့ရှိသော မေးခွန်းများ' : 'Frequently Asked Questions'}
           </h2>
           <div className="space-y-4">
             {faqItems.map((faq, index) => (
@@ -120,7 +120,7 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Help Center ��� categories' : 'Help Categories'}
+            {lang === 'ak' ? 'အကူအညီ ကဏ္ဍများ' : 'Help Categories'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -193,11 +193,11 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Still Need Help?'}
+          {lang === 'ak' ? 'အကူအညီ ထပ်မံလိုအပ်ပါသလား' : 'Still Need Help?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Help Center ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တльнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Our support team is available 24/7 to help you with any questions or issues'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

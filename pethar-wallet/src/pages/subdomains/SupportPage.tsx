@@ -71,7 +71,7 @@ export const SupportPage = ({ lang }: SupportPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Support ��� 특징' : 'Support Features'}
+            {lang === 'ak' ? 'အကူအညီနှင့် ဝန်ဆောင်မှု အင်္ဂါရပ်များ' : 'Support Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -137,11 +137,11 @@ export const SupportPage = ({ lang }: SupportPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Support ��� contact' : 'Contact Support'}
+            {lang === 'ak' ? 'ကျွန်ုပ်တို့ထံ ဆက်သွယ်ရန်' : 'Contact Support'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Support ��� contact Dawlonлодх'
+              ? '၂၄/၇ အချိန်မရွေး ကျွန်ုပ်တို့၏ အကူအညီပေးရေး အဖွဲ့ထံ ဆက်သွယ်နိုင်ပါသည်'
               : 'Reach out to our support team through any of these channels'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -175,11 +175,11 @@ export const SupportPage = ({ lang }: SupportPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Need Help? We\'re Here for You'}
+          {lang === 'ak' ? 'ဖေ့သာနှင့်အတူ ယနေ့ပင် စတင်လိုက်ပါ' : 'Need Help? We\'re Here for You'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Support ��� Dawlonлодх KYC စာဝ pliaufte маке'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Our support team is ready to assist you with any questions or issues'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

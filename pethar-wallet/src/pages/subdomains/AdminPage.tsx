@@ -71,11 +71,11 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Admin ��� how it works' : 'How PeThar Admin Works'}
+            {lang === 'ak' ? 'PeThar Admin အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Admin Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Admin ��� how it works Dawlonлодх'
+              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
               : 'Secure administration portal for managing financial services and compliance'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

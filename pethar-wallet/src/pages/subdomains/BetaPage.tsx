@@ -71,11 +71,11 @@ export const BetaPage = ({ lang }: BetaPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Beta ��� how it works' : 'How the Beta Program Works'}
+            {lang === 'ak' ? 'Beta ပရိုဂရမ် အလုပ်လုပ်ဆောင်ပုံ' : 'How the Beta Program Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Beta ��� how it works Dawlonлодх'
+              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
               : 'Get early access to new features and help us improve PeThar'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -122,7 +122,7 @@ export const BetaPage = ({ lang }: BetaPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Beta ��� caractéristiques' : 'Benefits of Joining the Beta Program'}
+            {lang === 'ak' ? 'Beta ပရိုဂရမ်တွင် ပါဝင်ခြင်း၏ အကျိုးကျေးဇူးများ' : 'Benefits of Joining the Beta Program'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -188,11 +188,11 @@ export const BetaPage = ({ lang }: BetaPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Beta ��� current features' : 'Current Beta Features'}
+            {lang === 'ak' ? 'လက်ရှိ စမ်းသပ်နိုင်သော အင်္ဂါရပ်များ' : 'Current Beta Features'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Beta ��� current features Dawlonлодх'
+              ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
               : 'Features currently available in our beta program'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -242,11 +242,11 @@ export const BetaPage = ({ lang }: BetaPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Join the Beta Program?'}
+          {lang === 'ak' ? 'Beta ပရိုဂရမ်တွင် ပါဝင်ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Join the Beta Program?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Beta ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Get early access to new features and help us build the future of PeThar'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

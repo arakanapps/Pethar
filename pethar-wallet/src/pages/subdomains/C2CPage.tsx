@@ -71,11 +71,11 @@ export const C2CPage = ({ lang }: C2CPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar C2C ��� how it works' : 'How PeThar C2C Works'}
+            {lang === 'ak' ? 'PeThar C2C အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar C2C Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar C2C ��� how it works Dawlonлодх'
+              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
               : 'Buy and sell safely with other PeThar users in our secure marketplace'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -122,7 +122,7 @@ export const C2CPage = ({ lang }: C2CPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar C2C ��� caractéristiques' : 'PeThar C2C Features'}
+            {lang === 'ak' ? 'PeThar C2C အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar C2C Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -188,11 +188,11 @@ export const C2CPage = ({ lang }: C2CPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar C2C �ں use cases' : 'C2C Use Cases'}
+            {lang === 'ak' ? 'C2C အသုံးပြုနိုင်သည့် နယ်ပယ်များ' : 'C2C Use Cases'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar C2C �ں use cases Dawlonлодх'
+              ? 'လက်တွေ့နယ်ပယ်အသီးသီးတွင် အကျိုးရှိစွာ အသုံးချနိုင်သည့် နည်းလမ်းများ'
               : 'Ideal scenarios for Consumer-to-Consumer transactions with PeThar'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -223,11 +223,11 @@ export const C2CPage = ({ lang }: C2CPageProps) => {
         <section className="mb-16">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-              {lang === 'ak' ? 'PeThar C2C ��� benefits' : 'Benefits of PeThar C2C'}
+              {lang === 'ak' ? 'PeThar C2C ၏ အကျိုးကျေးဇူးများ' : 'Benefits of PeThar C2C'}
             </h2>
             <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
               {lang === 'ak'
-                ? 'PeThar C2C ��� benefits Dawlonлодх'
+                ? 'အသုံးပြုသူများအတွက် အထူးသင့်လျော်သော အကျိုးကျေးဇူးများ'
                 : 'Why choose PeThar for your Consumer-to-Consumer transactions'}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

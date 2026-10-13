@@ -41,30 +41,107 @@ export type Subdomain =
   | 'docs'
   | 'cloud'
   | 'www'
-  | string; // Allow any subdomain for flexibility
+  | string;
+
+export const KNOWN_SUBDOMAINS: string[] = [
+  'app',
+  'wallet',
+  'login',
+  'signup',
+  'platform',
+  'pay',
+  'card',
+  'merchant',
+  'ibanking',
+  'accounts',
+  'support',
+  'help',
+  'developer',
+  'api',
+  'trade',
+  'data',
+  'exchange',
+  'global',
+  'docs',
+  'offline',
+  'online',
+  'admin',
+  'cloud',
+  'beta',
+  'root',
+  'p2m',
+  'p2c',
+  'c2c',
+  'p2p',
+  'm2m',
+  'web3',
+  'ads',
+  'chat',
+  'connect',
+  'careers',
+  'demo',
+  'download',
+  'info',
+  'search',
+];
 
 export const getSubdomain = (): Subdomain => {
   if (typeof window === 'undefined') return '';
 
-  const hostname = window.location.hostname;
-  // Remove port if present (e.g., localhost:3000)
-  const hostnameWithoutPort = hostname.split(':')[0];
+  // 1. Check URL query parameter (essential for preview and local development)
+  const searchParams = new URLSearchParams(window.location.search);
+  const paramSubdomain = searchParams.get('subdomain') || searchParams.get('sd');
+  if (paramSubdomain) {
+    return paramSubdomain.toLowerCase().trim() as Subdomain;
+  }
 
-  // Split by dots and take the first part as subdomain
-  const parts = hostnameWithoutPort.split('.');
-  if (parts.length >= 2) {
-    // Handle special case for www and root domain
-    if (parts[0] === 'www' && parts.length >= 3) {
-      return parts[0] as Subdomain; // www
+  // 2. Check path-based routing (e.g. /login, /signup, /wallet, /app, /platform, /en/wallet, /ak/login)
+  const pathSegments = window.location.pathname.split('/').filter(Boolean);
+  for (const segment of pathSegments) {
+    const s = segment.toLowerCase().trim();
+    if (KNOWN_SUBDOMAINS.includes(s)) {
+      return s as Subdomain;
     }
-    if (parts[0] === 'pethar' && parts.length >= 2) {
-      // This would be for direct domain access like pethar.co.uk
-      return '' as Subdomain;
+  }
+
+  const hostname = window.location.hostname;
+  const hostnameWithoutPort = hostname.split(':')[0].toLowerCase();
+
+  // If localhost or IP address without subdomain
+  if (hostnameWithoutPort === 'localhost' || hostnameWithoutPort === '127.0.0.1') {
+    return '';
+  }
+
+  const parts = hostnameWithoutPort.split('.');
+
+  // Support local dev subdomains like wallet.localhost
+  if (parts.length === 2 && parts[1] === 'localhost') {
+    return parts[0] as Subdomain;
+  }
+
+  // Handle .co.uk domain (e.g. pethar.co.uk or wallet.pethar.co.uk)
+  if (parts.length >= 3 && parts[parts.length - 2] === 'co' && parts[parts.length - 1] === 'uk') {
+    // pethar.co.uk -> main domain
+    if (parts.length === 3 && parts[0] === 'pethar') {
+      return '';
+    }
+    // www.pethar.co.uk -> main domain
+    if (parts[0] === 'www') {
+      return '';
+    }
+    // wallet.pethar.co.uk -> 'wallet'
+    return parts[0] as Subdomain;
+  }
+
+  // Handle standard domains (e.g. pethar.com, wallet.pethar.com)
+  if (parts.length >= 2) {
+    if (parts[0] === 'www' || parts[0] === 'pethar') {
+      return '';
     }
     return parts[0] as Subdomain;
   }
 
-  return '' as Subdomain;
+  return '';
 };
 
 export const isSubdomain = (subdomain: string): boolean => {
@@ -74,26 +151,44 @@ export const isSubdomain = (subdomain: string): boolean => {
 export const redirectToSubdomain = (subdomain: string) => {
   if (typeof window === 'undefined') return;
 
-  const currentHost = window.location.hostname;
-  const newHostname = currentHost.replace(/^[^.]+\./, `${subdomain}.`);
-  window.location.href = `${window.location.protocol}//${newHostname}${window.location.pathname}${window.location.search}`;
+  const hostname = window.location.hostname;
+  const port = window.location.port ? `:${window.location.port}` : '';
+  const pathname = window.location.pathname;
+  const search = window.location.search;
+
+  // Localhost or preview hosts: switch via path
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.vercel.app')) {
+    if (!subdomain) {
+      window.location.href = `${window.location.protocol}//${hostname}${port}/`;
+    } else {
+      window.location.href = `${window.location.protocol}//${hostname}${port}/${subdomain}${search}`;
+    }
+    return;
+  }
+
+  // Official production domain (*.pethar.co.uk)
+  if (hostname.endsWith('pethar.co.uk')) {
+    const targetHost = subdomain ? `${subdomain}.pethar.co.uk` : 'pethar.co.uk';
+    window.location.href = `${window.location.protocol}//${targetHost}${port}${pathname}${search}`;
+    return;
+  }
+
+  // Generic domain fallback
+  const baseDomain = hostname.replace(/^[^.]+\./, '');
+  const targetHost = subdomain ? `${subdomain}.${baseDomain}` : baseDomain;
+  window.location.href = `${window.location.protocol}//${targetHost}${port}${pathname}${search}`;
 };
 
 export const getRedirectMap = (): Record<string, string> => {
   return {
-    // Common redirects
-    'www': 'app',
-    '': 'app', // root domain
+    // Note: '' (root domain pethar.co.uk) and 'www' must NOT redirect to app!
+    // They serve the public landing page for everyone to see.
 
-    // Alternative spellings/common typos
-    'esearch': 'search', // handle the typo from user's list
-    'carreers': 'careers', // handle the typo from user's list
-    'auth': 'login', // auth redirects to login
-    'dev': 'developer', // dev redirects to developer
-
-    // Common aliases
-    'home': 'app',
-    'main': 'app',
-    'web': 'app',
+    // Typo corrections & aliases
+    'esearch': 'search',
+    'carreers': 'careers',
+    'auth': 'login',
+    'dev': 'developer',
+    'faq': 'help',
   };
 };

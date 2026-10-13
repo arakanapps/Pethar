@@ -71,11 +71,11 @@ export const OnlinePage = ({ lang }: OnlinePageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Online ��� how it works' : 'How PeThar Online Works'}
+            {lang === 'ak' ? 'PeThar Online အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Online Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Online ��� how it works Dawlonлодх'
+              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
               : 'Access all your financial services through our secure web portal'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -122,7 +122,7 @@ export const OnlinePage = ({ lang }: OnlinePageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Online ��� 특징' : 'PeThar Online Features'}
+            {lang === 'ak' ? 'PeThar Online အင်္ဂါရပ်များ' : 'PeThar Online Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -187,11 +187,11 @@ export const OnlinePage = ({ lang }: OnlinePageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Experience Online Banking?'}
+          {lang === 'ak' ? 'အွန်လိုင်းဘဏ်စနစ်ကို စတင်အသုံးပြုရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Experience Online Banking?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Online ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Access your complete financial dashboard and start managing your money online'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

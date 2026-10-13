@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArakanEmblem, FlagArakanCircle, FlagUKCircle } from '../../components/ArakanEmblem';
 import type { Language } from '../../i18n';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -21,9 +22,25 @@ export const BaseLayout = ({
 }: BaseLayoutProps) => {
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
+  useEffect(() => {
+    if (typeof document !== 'undefined' && title) {
+      document.title = `${title} | PeThar`;
+    }
+  }, [title]);
+
   const handleSetLang = (newLang: Language) => {
     localStorage.setItem('pethar_lang', newLang);
     setLang?.(newLang);
+    // Reload or trigger url change if needed
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (url.pathname.startsWith('/en')) {
+        url.pathname = url.pathname.replace(/^\/en/, `/${newLang}`);
+      } else if (url.pathname.startsWith('/ak')) {
+        url.pathname = url.pathname.replace(/^\/ak/, `/${newLang}`);
+      }
+      window.location.href = url.toString();
+    }
   };
 
   const handleToggleTheme = () => {
@@ -31,49 +48,98 @@ export const BaseLayout = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:bg-gray-900 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100">
+    <div className={`min-h-screen ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'bg-[#FAFCFF] text-slate-900'} font-sans`}>
       {showHeader && (
-        <header className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <header className="sticky top-0 z-40 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16 items-center">
-              <div className="flex items-center space-x-3">
-                <ArakanEmblem size={32} variant="badge" />
-                <div className="space-y-1">
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                    {title}
-                  </h1>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    PeThar Financial Infrastructure
+            <div className="flex justify-between h-16 items-center gap-4">
+              {/* Brand Logo & Title */}
+              <div 
+                onClick={() => redirectToSubdomain('')}
+                className="flex items-center space-x-3 cursor-pointer group"
+              >
+                <ArakanEmblem size={34} variant="badge" />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-black tracking-tight text-slate-950 dark:text-white">
+                      PeThar
+                    </span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                      ဖေ့သာ
+                    </span>
+                  </div>
+                  <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                    {lang === 'ak' ? 'အာရက္ခဒေါ်လာ ဘဏ္ဍာရေးကွန်ရက်' : 'Arakan Financial Network'}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
+
+              {/* Navigation Links */}
+              <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                <button
+                  onClick={() => redirectToSubdomain('')}
+                  className="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                >
+                  {lang === 'ak' ? 'ပင်မ / အကြောင်း' : 'About / Home'}
+                </button>
+                <button
+                  onClick={() => redirectToSubdomain('wallet')}
+                  className="px-3 py-1.5 rounded-lg hover:bg-amber-500/10 text-amber-700 dark:text-amber-400 transition"
+                >
+                  {lang === 'ak' ? 'ပိုက်ဆံအိတ် (Wallet)' : 'Wallet'}
+                </button>
+                <button
+                  onClick={() => redirectToSubdomain('app')}
+                  className="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                >
+                  {lang === 'ak' ? 'သုံးစွဲသူ အက်ပ် (App)' : 'Customer App'}
+                </button>
+                <button
+                  onClick={() => redirectToSubdomain('platform')}
+                  className="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                >
+                  {lang === 'ak' ? 'ကုမ္ပဏီ ပလက်ဖောင်း' : 'Platform (Internal)'}
+                </button>
+              </nav>
+
+              {/* Actions & Switchers */}
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <button
+                  onClick={() => redirectToSubdomain('login')}
+                  className="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                >
+                  {lang === 'ak' ? 'အကောင့်ဝင်ရန်' : 'Log In'}
+                </button>
+                <button
+                  onClick={() => redirectToSubdomain('signup')}
+                  className="text-xs font-bold px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition"
+                >
+                  {lang === 'ak' ? 'အကောင့်ဖွင့်ရန်' : 'Sign Up'}
+                </button>
+
                 {/* Language Switcher */}
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleSetLang(lang === 'ak' ? 'en' : 'ak')}
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
-                    aria-label={lang === 'ak' ? 'Switch to English' : 'Switch to Arakanese'}
-                  >
-                    {lang === 'ak' ? <FlagUKCircle size={24} /> : <FlagArakanCircle size={24} />}
-                  </button>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {lang === 'ak' ? 'AK' : 'EN'}
-                  </span>
-                </div>
+                <button
+                  onClick={() => handleSetLang(lang === 'ak' ? 'en' : 'ak')}
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition"
+                  aria-label={lang === 'ak' ? 'Switch to English' : 'Switch to Arakanese'}
+                  title={lang === 'ak' ? 'Switch to English' : 'Switch to Arakanese'}
+                >
+                  {lang === 'ak' ? <FlagUKCircle size={18} /> : <FlagArakanCircle size={18} />}
+                  <span>{lang === 'ak' ? 'EN' : 'ရခိုင်'}</span>
+                </button>
 
                 {/* Theme Switcher */}
                 <button
                   onClick={handleToggleTheme}
-                  className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
                   aria-label="Toggle theme"
                 >
                   {theme === 'light' ? (
-                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646l1.293 1.293A9 9 0 0012 21a9 9 0 008.354-5.646z" />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                   )}
@@ -84,55 +150,63 @@ export const BaseLayout = ({
         </header>
       )}
 
-      <main className="flex-1 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <main className="flex-1 py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {children}
         </div>
       </main>
 
       {showFooter && (
-        <footer className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-sm text-gray-500 dark:text-gray-400">
+        <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-xs text-slate-600 dark:text-slate-400">
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">PeThar Network</h3>
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm">
+                  {lang === 'ak' ? 'ဖေ့သာ ကွန်ရက်' : 'PeThar Network'}
+                </h3>
                 <ul className="space-y-2">
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">About PeThar</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Careers</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Press</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Blog</a></li>
+                  <li><button onClick={() => redirectToSubdomain('')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'ဖေ့သာ အကြောင်း သိကောင်းစရာ' : 'About PeThar'}</button></li>
+                  <li><button onClick={() => redirectToSubdomain('wallet')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'ဒစ်ဂျစ်တယ် ပိုက်ဆံအိတ်' : 'PeThar Wallet'}</button></li>
+                  <li><button onClick={() => redirectToSubdomain('app')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'သုံးစွဲသူ အက်ပ်' : 'Customer App'}</button></li>
+                  <li><button onClick={() => redirectToSubdomain('platform')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'ကုမ္ပဏီတွင်း ပလက်ဖောင်း' : 'Internal Platform'}</button></li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Products</h3>
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm">
+                  {lang === 'ak' ? 'ဝန်ဆောင်မှုများ' : 'Services'}
+                </h3>
                 <ul className="space-y-2">
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">PeThar Wallet</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">PeThar Business</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">PeThar Agent</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">PeThar Exchange</a></li>
+                  <li><button onClick={() => redirectToSubdomain('pay')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'Arakan QR ငွေပေးချေမှု' : 'Arakan QR Payments'}</button></li>
+                  <li><button onClick={() => redirectToSubdomain('card')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'ဒစ်ဂျစ်တယ် ဒက်ဘစ်ကတ်' : 'Digital Debit Card'}</button></li>
+                  <li><button onClick={() => redirectToSubdomain('merchant')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'ကုန်သည် POS စနစ်' : 'Merchant POS'}</button></li>
+                  <li><button onClick={() => redirectToSubdomain('exchange')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'ဒင်္ဂါး လဲလှယ်ရေး' : 'Crypto Exchange'}</button></li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Resources</h3>
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm">
+                  {lang === 'ak' ? 'လုံခြုံရေးနှင့် စည်းမျဉ်း' : 'Security & Reserves'}
+                </h3>
                 <ul className="space-y-2">
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Documentation</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Security</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Fees</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Limits</a></li>
+                  <li><button onClick={() => redirectToSubdomain('docs')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'နည်းပညာ စာရွက်စာတမ်း' : 'Documentation'}</button></li>
+                  <li><button onClick={() => redirectToSubdomain('support')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'လုံခြုံရေး မူဝါဒ' : 'Proof of Reserves'}</button></li>
+                  <li><span className="text-emerald-600 dark:text-emerald-400 font-semibold">{lang === 'ak' ? '၁၀၀% ရွှေ/ဒေါ်လာ အာမခံ' : '100% Backed by Reserves'}</span></li>
+                  <li><span>{lang === 'ak' ? 'လိုင်စင်ရ ငွေကြေးအဖွဲ့အစည်း' : 'Regulated Financial Authority'}</span></li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Support</h3>
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm">
+                  {lang === 'ak' ? 'အကူအညီနှင့် ဆက်သွယ်ရန်' : 'Support & Contact'}
+                </h3>
                 <ul className="space-y-2">
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Help Center</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Contact Us</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Telegram: @petharsupport</a></li>
-                  <li><a href="#" className="hover:text-gray-900 dark:hover:text-gray-100">Email: pethar-app@protonmail.com</a></li>
+                  <li><button onClick={() => redirectToSubdomain('help')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'မေးလေ့ရှိသော မေးခွန်းများ' : 'Help & FAQ'}</button></li>
+                  <li><a href="https://t.me/petharsupport" target="_blank" rel="noreferrer" className="hover:text-amber-600 transition">Telegram: @petharsupport</a></li>
+                  <li><a href="mailto:pethar-app@protonmail.com" className="hover:text-amber-600 transition">Email: pethar-app@protonmail.com</a></li>
+                  <li><span>Main Domain: pethar.co.uk</span></li>
                 </ul>
               </div>
             </div>
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center text-xs text-gray-500 dark:text-gray-400">
-              © 2026 PeThar (ဖေ့သာ). All rights reserved.
+            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+              © 2026 PeThar (ဖေ့သာ) · Arakan National Financial Infrastructure · pethar.co.uk
             </div>
           </div>
         </footer>

@@ -71,11 +71,11 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Download ��� how it works' : 'How PeThar Download Works'}
+            {lang === 'ak' ? 'PeThar Download ရယူနည်း' : 'How PeThar Download Works'}
           </h2>
           {lang === 'ak' ? (
             <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-              PeThar Download ��� how it works Dawlonлодх
+              အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်
             </p>
           ) : (
             <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
@@ -126,7 +126,7 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Download ��� characteristics' : 'PeThar Download Features'}
+            {lang === 'ak' ? 'PeThar Download အင်္ဂါရပ်များ' : 'PeThar Download Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -192,11 +192,11 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Download ��� platforms' : 'Available Platforms'}
+            {lang === 'ak' ? 'အသုံးပြုနိုင်သော ပလက်ဖောင်းများ' : 'Available Platforms'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Download ��� platforms Dawlonлодх'
+              ? 'မည်သည့် စက်ပစ္စည်းနှင့် ပလက်ဖောင်းပေါ်တွင်မဆို အဆင်ပြေစွာ သုံးနိုင်ပါသည်'
               : 'PeThar applications available for all major platforms'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -246,11 +246,11 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Download?'}
+          {lang === 'ak' ? 'ဒေါင်းလုဒ်ရယူရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Download?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Download ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Download the official PeThar apps and start managing your finances securely'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

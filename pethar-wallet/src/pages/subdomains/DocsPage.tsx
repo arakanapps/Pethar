@@ -71,7 +71,7 @@ export const DocsPage = ({ lang }: DocsPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Documentation ��� sections' : 'Documentation Sections'}
+            {lang === 'ak' ? 'စာရွက်စာတမ်း ကဏ္ဍများ' : 'Documentation Sections'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -153,11 +153,11 @@ export const DocsPage = ({ lang }: DocsPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Documentation ��� popular guides' : 'Popular Guides & Tutorials'}
+            {lang === 'ak' ? 'လူကြိုက်များသော လမ်းညွှန်နှင့် သင်ခန်းစာများ' : 'Popular Guides & Tutorials'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Documentation ��� popular guides Dawlonлодх'
+              ? 'အသုံးများသော လမ်းညွှန်ချက်များနှင့် အထောက်အကူပြု စာရွက်စာတမ်းများ'
               : 'Most viewed documentation and tutorials'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -209,11 +209,11 @@ export const DocsPage = ({ lang }: DocsPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Learn?'}
+          {lang === 'ak' ? 'လေ့လာသင်ယူရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Learn?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Documentation ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တльнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Explore our comprehensive documentation to get the most out of PeThar'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
