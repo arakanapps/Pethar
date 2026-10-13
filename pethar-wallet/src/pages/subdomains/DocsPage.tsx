@@ -1,5 +1,5 @@
 import { BaseLayout } from './BaseLayout';
-import type { Language } from '../i18n';
+import type { Language } from '../../i18n';
 
 interface DocsPageProps {
   lang: Language;
@@ -138,7 +138,7 @@ export const DocsPage = ({ lang }: DocsPageProps) => {
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
                     {t.feature4Title}
-                  </h3
+                  </h3>
                   <p className="text-gray-600 dark:text-gray-400">
                     {t.feature4Desc}
                   </p>

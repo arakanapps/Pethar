@@ -1,5 +1,5 @@
 import { BaseLayout } from './BaseLayout';
-import type { Language } from '../i18n';
+import type { Language } from '../../i18n';
 
 interface HelpPageProps {
   lang: Language;

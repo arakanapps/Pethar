@@ -1,5 +1,6 @@
 import { BaseLayout } from './BaseLayout';
-import type { Language } from '../i18n';
+import { ArakanEmblem } from '../../components/ArakanEmblem';
+import type { Language } from '../../i18n';
 
 interface CardPageProps {
   lang: Language;

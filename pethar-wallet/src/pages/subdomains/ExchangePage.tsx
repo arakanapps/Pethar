@@ -1,5 +1,5 @@
 import { BaseLayout } from './BaseLayout';
-import type { Language } from '../i18n';
+import type { Language } from '../../i18n';
 
 interface ExchangePageProps {
   lang: Language;
@@ -172,7 +172,7 @@ export const ExchangePage = ({ lang }: ExchangePageProps) => {
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                 Supporting local innovation and economic development
-              </p
+              </p>
             </div>
           </div>
         </div>

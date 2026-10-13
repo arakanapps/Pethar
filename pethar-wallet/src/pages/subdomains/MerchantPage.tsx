@@ -1,5 +1,5 @@
 import { BaseLayout } from './BaseLayout';
-import type { Language } from '../i18n';
+import type { Language } from '../../i18n';
 
 interface MerchantPageProps {
   lang: Language;
@@ -182,7 +182,7 @@ export const MerchantPage = ({ lang }: MerchantPageProps) => {
             </div>
           </div>
         </div>
-      </section
+      </section>
 
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
