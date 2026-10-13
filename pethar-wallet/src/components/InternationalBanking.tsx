@@ -15,7 +15,7 @@ interface InternationalBankingProps {
 
 export const InternationalBanking: React.FC<InternationalBankingProps> = ({
   lang,
-  theme = 'dark',
+  theme = 'light',
   onTopUpSuccess,
 }) => {
   const t = translations[lang]

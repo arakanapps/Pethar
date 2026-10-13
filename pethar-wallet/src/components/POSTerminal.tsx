@@ -23,7 +23,7 @@ interface CartItem {
   qty: number
 }
 
-export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'dark', onPaymentSettled }) => {
+export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'light', onPaymentSettled }) => {
   const t = translations[lang]
   const isLight = theme === 'light'
   const [cart, setCart] = useState<CartItem[]>([

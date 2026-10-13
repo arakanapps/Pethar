@@ -15,7 +15,7 @@ interface CryptoGatewayProps {
 
 export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
   lang,
-  theme = 'dark',
+  theme = 'light',
   onSwapSuccess,
 }) => {
   const t = translations[lang]

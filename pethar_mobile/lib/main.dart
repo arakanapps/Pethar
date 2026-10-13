@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'services/firebase_service.dart';
 import 'app_state.dart';
 import 'theme.dart';
 import 'screens/main_shell.dart';
@@ -23,7 +24,10 @@ Future<void> main() async {
     systemNavigationBarIconBrightness: Brightness.light,
   ));
 
-  // Initialize Supabase
+  // Initialize Firebase (Project: pe-thar)
+  await FirebaseService.initialize();
+
+  // Initialize Supabase fallback
   try {
     await Supabase.initialize(
       url: 'https://uklqksioruxvatwpvopm.supabase.co',

@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ArrowUpRight, ArrowDownLeft, Send, QrCode,
   Globe, Coins, ShieldCheck, History, CreditCard,
   Search, Bell, LogOut, CheckCircle,
-  Copy, Sun, Moon, Sparkles, Building2,
+  Copy, Sparkles, Building2,
   ChevronRight, Lock, Eye, EyeOff
 } from 'lucide-react'
 import {
@@ -18,8 +18,8 @@ import { type Language, translations } from '../i18n'
 interface WebBankingDashboardProps {
   lang: Language
   setLang: (lang: Language) => void
-  theme: 'dark' | 'light'
-  setTheme: (theme: 'dark' | 'light') => void
+  theme?: 'dark' | 'light'
+  setTheme?: (theme: 'dark' | 'light') => void
   onExit: () => void
 }
 
@@ -28,12 +28,10 @@ type TabType = 'overview' | 'transfers' | 'remittance' | 'cards' | 'reserves' | 
 export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
   lang,
   setLang,
-  theme,
-  setTheme,
   onExit,
 }) => {
   const t = translations[lang]
-  const isLight = theme === 'light'
+  const isLight = true
 
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [profile] = useState<UserProfile>(initialUserProfile)
@@ -175,19 +173,6 @@ export const WebBankingDashboard: React.FC<WebBankingDashboardProps> = ({
               <FlagInternational size={15} />
             </button>
           </div>
-
-          {/* Theme Switcher */}
-          <button
-            onClick={() => setTheme(isLight ? 'dark' : 'light')}
-            className={`p-2 rounded-xl border transition ${
-              isLight
-                ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
-                : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/10 text-slate-300'
-            }`}
-            title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
-          >
-            {isLight ? <Moon size={15} /> : <Sun size={15} className="text-amber-400" />}
-          </button>
 
           {/* Notifications */}
           <button
