@@ -47,6 +47,7 @@ import { ChatPage } from './pages/subdomains/ChatPage'
 import { ConnectPage } from './pages/subdomains/ConnectPage'
 import { DownloadPage } from './pages/subdomains/DownloadPage'
 import { DemoPage } from './pages/subdomains/DemoPage'
+import { PrivacyPage } from './pages/subdomains/PrivacyPage'
 
 export default function App() {
   const location = useLocation()
@@ -371,6 +372,15 @@ export default function App() {
       case 'search':
         return (
           <SearchPage
+            lang={currentLang}
+          />
+        )
+      case 'privacy':
+      case 'security':
+      case 'legal':
+      case 'terms':
+        return (
+          <PrivacyPage
             lang={currentLang}
           />
         )

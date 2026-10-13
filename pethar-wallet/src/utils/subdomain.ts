@@ -40,6 +40,10 @@ export type Subdomain =
   | 'api'
   | 'docs'
   | 'cloud'
+  | 'privacy'
+  | 'security'
+  | 'legal'
+  | 'terms'
   | 'www'
   | string;
 
@@ -83,6 +87,10 @@ export const KNOWN_SUBDOMAINS: string[] = [
   'download',
   'info',
   'search',
+  'privacy',
+  'security',
+  'legal',
+  'terms',
 ];
 
 export const getSubdomain = (): Subdomain => {
@@ -190,5 +198,7 @@ export const getRedirectMap = (): Record<string, string> => {
     'auth': 'login',
     'dev': 'developer',
     'faq': 'help',
+    'legal': 'privacy',
+    'terms': 'privacy',
   };
 };
