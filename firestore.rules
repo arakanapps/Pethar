@@ -1,0 +1,170 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId (matches request.auth.uid)
+    // Fields:
+    //   - uid: string (required, immutable) - user ID
+    //   - email: string (optional, valid email, max 120 chars) - user email
+    //   - phoneNumber: string (optional, max 30 chars) - user phone
+    //   - displayName: string (optional, max 100 chars) - full name
+    //   - photoURL: string (optional, valid URL, max 500 chars) - avatar image URL
+    //   - currency: string (optional, max 10 chars, default 'AKD')
+    //   - language: string (optional, max 10 chars, default 'ak')
+    //   - createdAt: timestamp (required on create, immutable)
+    //   - updatedAt: timestamp (required)
+    //
+    // Collection: wallets
+    // Document ID: userId (matches request.auth.uid)
+    // Fields:
+    //   - uid: string (required, immutable) - user ID
+    //   - balanceAKD: number (required, >= 0) - Arakan Dollar balance
+    //   - balanceUSD: number (required, >= 0) - USD balance
+    //   - balanceMMK: number (required, >= 0) - MMK balance
+    //   - walletAddress: string (required, immutable, max 50 chars) - on-chain address
+    //   - tier: string (required, immutable by user, enum ['standard', 'premium', 'merchant'])
+    //   - status: string (required, immutable by user, enum ['active', 'suspended'])
+    //   - createdAt: timestamp (required on create, immutable)
+    //   - updatedAt: timestamp (required)
+    //
+    // Collection: transactions
+    // Document ID: transactionId (auto-generated)
+    // Fields:
+    //   - senderUid: string (required, matches request.auth.uid)
+    //   - recipientUid: string (required, max 128 chars)
+    //   - amount: number (required, > 0)
+    //   - currency: string (required, enum ['AKD', 'USD', 'MMK'])
+    //   - type: string (required, enum ['transfer', 'topup', 'exchange', 'payout'])
+    //   - status: string (required, enum ['completed', 'pending', 'failed'])
+    //   - note: string (optional, max 200 chars)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // Global default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUrl(url) {
+      return url is string &&
+        (url.matches("^https://.*") || url.matches("^http://.*"));
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasRequiredFields(['uid']) &&
+        hasOnlyAllowedFields(['uid', 'email', 'phoneNumber', 'displayName', 'photoURL', 'currency', 'language', 'createdAt', 'updatedAt']) &&
+        data.uid is string &&
+        data.uid.size() > 0 &&
+        data.uid.size() <= 128 &&
+        (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 120 && isValidEmail(data.email))) &&
+        (!('phoneNumber' in data) || data.phoneNumber == null || (data.phoneNumber is string && data.phoneNumber.size() <= 30)) &&
+        (!('displayName' in data) || data.displayName == null || (data.displayName is string && data.displayName.size() <= 100)) &&
+        (!('photoURL' in data) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 500 && isValidUrl(data.photoURL))) &&
+        (!('currency' in data) || (data.currency is string && data.currency.size() <= 10)) &&
+        (!('language' in data) || (data.language is string && data.language.size() <= 10));
+    }
+
+    function isValidWallet(data) {
+      return hasRequiredFields(['uid', 'balanceAKD', 'balanceUSD', 'balanceMMK', 'walletAddress', 'tier', 'status']) &&
+        hasOnlyAllowedFields(['uid', 'balanceAKD', 'balanceUSD', 'balanceMMK', 'walletAddress', 'tier', 'status', 'createdAt', 'updatedAt']) &&
+        data.uid is string &&
+        data.uid.size() > 0 &&
+        data.balanceAKD is number && data.balanceAKD >= 0 &&
+        data.balanceUSD is number && data.balanceUSD >= 0 &&
+        data.balanceMMK is number && data.balanceMMK >= 0 &&
+        data.walletAddress is string && data.walletAddress.size() > 0 && data.walletAddress.size() <= 50 &&
+        data.tier in ['standard', 'premium', 'merchant'] &&
+        data.status in ['active', 'suspended'];
+    }
+
+    function isValidTransaction(data) {
+      return hasRequiredFields(['senderUid', 'recipientUid', 'amount', 'currency', 'type', 'status']) &&
+        hasOnlyAllowedFields(['senderUid', 'recipientUid', 'amount', 'currency', 'type', 'status', 'note', 'createdAt']) &&
+        data.senderUid is string && data.senderUid.size() > 0 && data.senderUid.size() <= 128 &&
+        data.recipientUid is string && data.recipientUid.size() > 0 && data.recipientUid.size() <= 128 &&
+        data.amount is number && data.amount > 0 &&
+        data.currency in ['AKD', 'USD', 'MMK'] &&
+        data.type in ['transfer', 'topup', 'exchange', 'payout'] &&
+        data.status in ['completed', 'pending', 'failed'] &&
+        (!('note' in data) || (data.note is string && data.note.size() <= 200));
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // Users Collection (Strict PII Isolation)
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) &&
+                       isValidUser(request.resource.data) &&
+                       request.resource.data.uid == userId;
+      allow update: if isOwner(userId) &&
+                       isValidUser(request.resource.data) &&
+                       areImmutableFieldsUnchanged(['uid', 'createdAt']);
+      allow delete: if false;
+    }
+
+    // Wallets Collection
+    match /wallets/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) &&
+                       isValidWallet(request.resource.data) &&
+                       request.resource.data.uid == userId;
+      allow update: if isOwner(userId) &&
+                       isValidWallet(request.resource.data) &&
+                       areImmutableFieldsUnchanged(['uid', 'walletAddress', 'tier', 'status', 'createdAt']);
+      allow delete: if false;
+    }
+
+    // Transactions Ledger (Append-only immutable audit trail)
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated() &&
+                     (request.auth.uid == resource.data.senderUid ||
+                      request.auth.uid == resource.data.recipientUid);
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == request.resource.data.senderUid &&
+                       isValidTransaction(request.resource.data);
+      allow update, delete: if false;
+    }
+  }
+}

@@ -16,7 +16,7 @@ interface WebPortalProps {
 
 export const WebPortal: React.FC<WebPortalProps> = ({
   lang,
-  theme = 'dark',
+  theme = 'light',
   onOpenModule,
 }) => {
   const t = translations[lang]

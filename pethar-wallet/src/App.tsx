@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import type { Language } from './i18n'
 import { getSubdomain, getRedirectMap } from './utils/subdomain'
@@ -55,6 +55,14 @@ export default function App() {
   // Get current subdomain
   const subdomain = useMemo(() => getSubdomain(), [])
 
+  // Enforce Light Mode across all pages
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.remove('dark')
+      document.body.classList.remove('dark')
+    }
+  }, [])
+
   // Check for redirects
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -88,8 +96,6 @@ export default function App() {
       searchParams.get('portal') === 'true'
     return location.pathname.includes('/banking') || paramBanking
   }, [location.pathname, location.search])
-
-  const [theme, setTheme] = useState<'dark' | 'light'>('light')
 
   // Handle root redirect or normalization: / -> /ak or /en
   useEffect(() => {
@@ -388,8 +394,8 @@ export default function App() {
     <WebBankingDashboard
       lang={currentLang}
       setLang={handleSetLang}
-      theme={theme}
-      setTheme={setTheme}
+      theme="light"
+      setTheme={() => {}}
       onExit={handleExitBanking}
     />
   )

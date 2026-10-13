@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { ArakanEmblem, FlagArakanCircle, FlagUKCircle } from '../../components/ArakanEmblem';
 import type { Language } from '../../i18n';
 import { redirectToSubdomain } from '../../utils/subdomain';
@@ -20,8 +20,6 @@ export const BaseLayout = ({
   showHeader = true,
   showFooter = true,
 }: BaseLayoutProps) => {
-  const [theme, setTheme] = useState<'dark' | 'light'>('light');
-
   useEffect(() => {
     if (typeof document !== 'undefined' && title) {
       document.title = `${title} | PeThar`;
@@ -43,14 +41,10 @@ export const BaseLayout = ({
     }
   };
 
-  const handleToggleTheme = () => {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
-  };
-
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'bg-[#FAFCFF] text-slate-900'} font-sans`}>
+    <div className="min-h-screen bg-[#FAFCFF] text-slate-900 font-sans">
       {showHeader && (
-        <header className="sticky top-0 z-40 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
+        <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-colors">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16 items-center gap-4">
               {/* Brand Logo & Title */}
@@ -61,42 +55,42 @@ export const BaseLayout = ({
                 <ArakanEmblem size={34} variant="badge" />
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-black tracking-tight text-slate-950 dark:text-white">
+                    <span className="text-lg font-black tracking-tight text-slate-950">
                       PeThar
                     </span>
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 border border-amber-500/20">
                       ဖေ့သာ
                     </span>
                   </div>
-                  <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] font-medium text-slate-500">
                     {lang === 'ak' ? 'အာရက္ခဒေါ်လာ ဘဏ္ဍာရေးကွန်ရက်' : 'Arakan Financial Network'}
                   </p>
                 </div>
               </div>
 
               {/* Navigation Links */}
-              <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+              <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 text-xs font-bold text-slate-600">
                 <button
                   onClick={() => redirectToSubdomain('')}
-                  className="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                  className="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition"
                 >
                   {lang === 'ak' ? 'ပင်မ / အကြောင်း' : 'About / Home'}
                 </button>
                 <button
                   onClick={() => redirectToSubdomain('wallet')}
-                  className="px-3 py-1.5 rounded-lg hover:bg-amber-500/10 text-amber-700 dark:text-amber-400 transition"
+                  className="px-3 py-1.5 rounded-lg hover:bg-amber-500/10 text-amber-700 transition"
                 >
                   {lang === 'ak' ? 'ပိုက်ဆံအိတ် (Wallet)' : 'Wallet'}
                 </button>
                 <button
                   onClick={() => redirectToSubdomain('app')}
-                  className="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                  className="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition"
                 >
                   {lang === 'ak' ? 'သုံးစွဲသူ အက်ပ် (App)' : 'Customer App'}
                 </button>
                 <button
                   onClick={() => redirectToSubdomain('platform')}
-                  className="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                  className="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition"
                 >
                   {lang === 'ak' ? 'ကုမ္ပဏီ ပလက်ဖောင်း' : 'Platform (Internal)'}
                 </button>
@@ -106,7 +100,7 @@ export const BaseLayout = ({
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <button
                   onClick={() => redirectToSubdomain('login')}
-                  className="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                  className="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition"
                 >
                   {lang === 'ak' ? 'အကောင့်ဝင်ရန်' : 'Log In'}
                 </button>
@@ -120,29 +114,12 @@ export const BaseLayout = ({
                 {/* Language Switcher */}
                 <button
                   onClick={() => handleSetLang(lang === 'ak' ? 'en' : 'ak')}
-                  className="flex items-center gap-1 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition"
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition"
                   aria-label={lang === 'ak' ? 'Switch to English' : 'Switch to Arakanese'}
                   title={lang === 'ak' ? 'Switch to English' : 'Switch to Arakanese'}
                 >
                   {lang === 'ak' ? <FlagUKCircle size={18} /> : <FlagArakanCircle size={18} />}
                   <span>{lang === 'ak' ? 'EN' : 'ရခိုင်'}</span>
-                </button>
-
-                {/* Theme Switcher */}
-                <button
-                  onClick={handleToggleTheme}
-                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
-                  aria-label="Toggle theme"
-                >
-                  {theme === 'light' ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646l1.293 1.293A9 9 0 0012 21a9 9 0 008.354-5.646z" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  )}
                 </button>
               </div>
             </div>
@@ -157,11 +134,11 @@ export const BaseLayout = ({
       </main>
 
       {showFooter && (
-        <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md">
+        <footer className="border-t border-slate-200 bg-white/80 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-xs text-slate-600 dark:text-slate-400">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-xs text-slate-600">
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm">
+                <h3 className="font-bold text-slate-900 mb-3 text-sm">
                   {lang === 'ak' ? 'ဖေ့သာ ကွန်ရက်' : 'PeThar Network'}
                 </h3>
                 <ul className="space-y-2">
@@ -172,7 +149,7 @@ export const BaseLayout = ({
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm">
+                <h3 className="font-bold text-slate-900 mb-3 text-sm">
                   {lang === 'ak' ? 'ဝန်ဆောင်မှုများ' : 'Services'}
                 </h3>
                 <ul className="space-y-2">
@@ -183,18 +160,18 @@ export const BaseLayout = ({
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm">
+                <h3 className="font-bold text-slate-900 mb-3 text-sm">
                   {lang === 'ak' ? 'လုံခြုံရေးနှင့် စည်းမျဉ်း' : 'Security & Reserves'}
                 </h3>
                 <ul className="space-y-2">
                   <li><button onClick={() => redirectToSubdomain('docs')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'နည်းပညာ စာရွက်စာတမ်း' : 'Documentation'}</button></li>
                   <li><button onClick={() => redirectToSubdomain('support')} className="hover:text-amber-600 transition">{lang === 'ak' ? 'လုံခြုံရေး မူဝါဒ' : 'Proof of Reserves'}</button></li>
-                  <li><span className="text-emerald-600 dark:text-emerald-400 font-semibold">{lang === 'ak' ? '၁၀၀% ရွှေ/ဒေါ်လာ အာမခံ' : '100% Backed by Reserves'}</span></li>
+                  <li><span className="text-emerald-600 font-semibold">{lang === 'ak' ? '၁၀၀% ရွှေ/ဒေါ်လာ အာမခံ' : '100% Backed by Reserves'}</span></li>
                   <li><span>{lang === 'ak' ? 'လိုင်စင်ရ ငွေကြေးအဖွဲ့အစည်း' : 'Regulated Financial Authority'}</span></li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm">
+                <h3 className="font-bold text-slate-900 mb-3 text-sm">
                   {lang === 'ak' ? 'အကူအညီနှင့် ဆက်သွယ်ရန်' : 'Support & Contact'}
                 </h3>
                 <ul className="space-y-2">
@@ -205,7 +182,7 @@ export const BaseLayout = ({
                 </ul>
               </div>
             </div>
-            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+            <div className="mt-8 pt-6 border-t border-slate-200 text-center text-xs text-slate-500">
               © 2026 PeThar (ဖေ့သာ) · Arakan National Financial Infrastructure · pethar.co.uk
             </div>
           </div>

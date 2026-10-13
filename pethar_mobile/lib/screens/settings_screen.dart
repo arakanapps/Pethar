@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../theme.dart';
 import '../i18n.dart';
+import '../widgets/firebase_auth_dialog.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -263,6 +264,30 @@ class SettingsScreen extends StatelessWidget {
                       type: MaterialType.transparency,
                       child: Column(
                       children: [
+                        // Firebase Cloud Account & Authentication
+                        ListTile(
+                          leading: Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.amber.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.cloud_sync, color: gold, size: 22),
+                          ),
+                          title: Text(
+                            lang == 'ak' ? 'Firebase အကောင့်နှင့် Cloud Sync' : 'Firebase Auth & Cloud Sync',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: const Text(
+                            'Email, Phone OTP, Google (pe-thar)',
+                            style: TextStyle(fontSize: 11, color: goldLight, fontFamily: 'monospace'),
+                          ),
+                          trailing: const Icon(Icons.chevron_right, size: 20),
+                          onTap: () => FirebaseAuthDialog.show(context, lang),
+                        ),
+                        Divider(height: 1, color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[100]),
+
                         // Profile Info
                         ListTile(
                           leading: const CircleAvatar(

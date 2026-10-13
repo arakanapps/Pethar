@@ -9,7 +9,7 @@ import {
   Clock, Sparkles, Terminal, CreditCard, Lock,
   Plus, X, LogOut,
   RefreshCw, Download,
-  Receipt, Wallet, User, Sun, Moon, KeyRound, ShieldCheck,
+  Receipt, Wallet, User, Sun, KeyRound, ShieldCheck,
   Bell, AlarmClock, Megaphone, ArrowLeftRight, Share2
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -22,19 +22,14 @@ import { translations } from './i18n'
 
 export type ThemeMode = 'dark' | 'light'
 
-// Shared theme-aware surface helpers
+// Shared theme-aware surface helpers (strictly light theme)
 export const th = {
-  root: (theme: ThemeMode) =>
-    theme === 'light' ? 'bg-[#F4F5F8] text-gray-900' : 'bg-[#090D14] text-white',
-  card: (theme: ThemeMode) =>
-    theme === 'light'
-      ? 'bg-white border-gray-200 text-gray-900'
-      : 'bg-[#131B26] border-white/5 text-white',
-  cardHover: (theme: ThemeMode) =>
-    theme === 'light' ? 'hover:bg-gray-50' : 'hover:bg-[#1A2536]',
-  textMain: (theme: ThemeMode) => (theme === 'light' ? 'text-gray-900' : 'text-white'),
-  textSub: (theme: ThemeMode) => (theme === 'light' ? 'text-gray-500' : 'text-gray-400'),
-  divide: (theme: ThemeMode) => (theme === 'light' ? 'divide-gray-100' : 'divide-white/5'),
+  root: (_theme?: ThemeMode) => 'bg-[#F4F5F8] text-gray-900',
+  card: (_theme?: ThemeMode) => 'bg-white border-gray-200 text-gray-900 shadow-sm',
+  cardHover: (_theme?: ThemeMode) => 'hover:bg-gray-50',
+  textMain: (_theme?: ThemeMode) => 'text-gray-900',
+  textSub: (_theme?: ThemeMode) => 'text-gray-500',
+  divide: (_theme?: ThemeMode) => 'divide-gray-100',
 }
 
 export type Screen =
@@ -56,7 +51,7 @@ export function ScreenHeader({
   title,
   subtitle,
   centerTitle = false,
-  theme = 'dark',
+  theme = 'light',
 }: {
   title: string
   subtitle?: string
@@ -80,7 +75,7 @@ export function Keypad({
   value,
   onChange,
   symbol = '₳',
-  theme = 'dark',
+  theme = 'light',
 }: {
   value: string
   onChange: (v: string) => void
@@ -144,7 +139,7 @@ export function Home({
   go,
   lang,
   profile,
-  theme = 'dark',
+  theme = 'light',
 }: {
   go: (s: Screen) => void
   lang: Language
@@ -414,7 +409,7 @@ export function Home({
 export function AccountScreen({
   go,
   lang,
-  theme = 'dark',
+  theme = 'light',
 }: {
   go: (s: Screen) => void
   lang: Language
@@ -547,7 +542,7 @@ export function AccountScreen({
 export function ServicesScreen({
   go,
   lang,
-  theme = 'dark',
+  theme = 'light',
 }: {
   go: (s: Screen) => void
   lang: Language
@@ -630,8 +625,7 @@ export function SettingsScreen({
   go,
   lang,
   setLang,
-  theme = 'dark',
-  setTheme,
+  theme = 'light',
   profile,
   setProfile,
 }: {
@@ -834,50 +828,24 @@ export function SettingsScreen({
               </button>
             </div>
 
-            {/* 4. Dark / Light Mode Toggle */}
+            {/* 4. Theme Display (Light Mode Only) */}
             <div className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
-                  {isLight ? <Sun size={18} /> : <Moon size={18} />}
+                  <Sun size={18} />
                 </div>
                 <div>
-                  <div className={`text-xs font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>
+                  <div className="text-xs font-bold text-gray-900">
                     {t.themeSetting}
                   </div>
-                  <div className="text-[10px] text-gray-400 mt-0.5">
-                    {isLight ? t.lightMode : t.darkMode}
+                  <div className="text-[10px] text-gray-500 mt-0.5">
+                    {t.lightMode}
                   </div>
                 </div>
               </div>
 
-              {/* Dark / Light Mode Segmented Toggle Buttons */}
-              <div className={`flex items-center p-1 rounded-xl border ${
-                isLight ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/10'
-              }`}>
-                <button
-                  onClick={() => setTheme && setTheme('light')}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition ${
-                    isLight
-                      ? 'bg-amber-500 text-black shadow-sm'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                  title="Light Mode"
-                >
-                  <Sun size={13} />
-                  <span>Light</span>
-                </button>
-                <button
-                  onClick={() => setTheme && setTheme('dark')}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition ${
-                    !isLight
-                      ? 'bg-[#1F2937] text-amber-300 shadow-sm'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                  title="Dark Mode"
-                >
-                  <Moon size={13} />
-                  <span>Dark</span>
-                </button>
+              <div className="flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-800 border border-amber-500/30">
+                <span>Light Mode</span>
               </div>
             </div>
 
@@ -1078,7 +1046,7 @@ export function SettingsScreen({
 export function Send({
   go,
   lang,
-  theme = 'dark',
+  theme = 'light',
   onSent,
 }: {
   go: (s: Screen) => void
@@ -1293,7 +1261,7 @@ export function Send({
 }
 
 // ── RECEIVE SCREEN ──────────────────────────────────────────────────────
-export function Receive({ lang, theme = 'dark' }: { lang: Language; theme?: ThemeMode }) {
+export function Receive({ lang, theme = 'light' }: { lang: Language; theme?: ThemeMode }) {
   const t = translations[lang]
   const [copied, setCopied] = useState(false)
   const myId = 'ARAK-8891-JACK'
@@ -1340,7 +1308,7 @@ export function Receive({ lang, theme = 'dark' }: { lang: Language; theme?: Them
 }
 
 // ── SCAN SCREEN ─────────────────────────────────────────────────────────
-export function Scan({ lang, theme = 'dark' }: { lang: Language; theme?: ThemeMode }) {
+export function Scan({ lang, theme = 'light' }: { lang: Language; theme?: ThemeMode }) {
   const [tab, setTab] = useState<'scan' | 'myqr' | 'pay'>('scan')
   const [flashEnabled, setFlashEnabled] = useState(false)
   const [photoSelected, setPhotoSelected] = useState(false)
@@ -1533,7 +1501,7 @@ export function Scan({ lang, theme = 'dark' }: { lang: Language; theme?: ThemeMo
 }
 
 // ── AGENT CASH OUT SCREEN ───────────────────────────────────────────────
-export function CashOut({ go, lang, theme = 'dark' }: { go: (s: Screen) => void; lang: Language; theme?: ThemeMode }) {
+export function CashOut({ go, lang, theme = 'light' }: { go: (s: Screen) => void; lang: Language; theme?: ThemeMode }) {
   const t = translations[lang]
   const [selectedAgent, setSelectedAgent] = useState<(typeof agents)[0] | null>(null)
   const [showTotp, setShowTotp] = useState(false)
@@ -1655,7 +1623,7 @@ export function CashOut({ go, lang, theme = 'dark' }: { go: (s: Screen) => void;
 // ── NOTIFICATIONS SCREEN (store-driven, synced with home bell) ─────────────
 export function NotificationsScreen({
   lang = 'ak',
-  theme = 'dark',
+  theme = 'light',
 }: {
   lang?: Language
   theme?: ThemeMode
