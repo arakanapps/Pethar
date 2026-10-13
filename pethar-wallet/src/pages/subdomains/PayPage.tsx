@@ -71,7 +71,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Pay ��� 특징' : 'PeThar Pay Features'}
+            {lang === 'ak' ? 'PeThar Pay အင်္ဂါရပ်များ' : 'PeThar Pay Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -137,11 +137,11 @@ export const PayPage = ({ lang }: PayPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Pay � //$// (((' : 'How PeThar Pay Works'}
+            {lang === 'ak' ? 'PeThar Pay အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Pay Works'}
           </h2>
           <p className="text-center text-lg mb-8 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Pay န �လ MW/(‘ ((('
+              ? 'PeThar Pay ဖြင့် လွယ်ကူမြန်ဆန်စွာ ငွေပေးချေနိုင်သည့် အဆင့်များ'
               : 'Simple, secure payment processing in three easy steps'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -187,11 +187,11 @@ export const PayPage = ({ lang }: PayPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһανουလာကြိမ်ပါဝင်ပါ' : 'Ready to Start Accepting Payments?'}
+          {lang === 'ak' ? 'ငွေပေးချေမှု စတင်လက်ခံရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Start Accepting Payments?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Pay ��� Dawlonлодх KYC စာဝ pliẫuမဲ့ နomyind တльную၍ PYL 정산 시작하기'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Join thousands of businesses using PeThar Pay to grow their revenue'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

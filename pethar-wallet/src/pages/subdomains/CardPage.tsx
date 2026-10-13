@@ -120,7 +120,7 @@ export const CardPage = ({ lang }: CardPageProps) => {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {lang === 'ak'
-                ? 'PeThar Card ��� Dawlonлодх KYC စာဝ pliẫuမဲ့ နomyind တльнуюponde လ ידי'
+                ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
                 : 'Your PeThar Card details will be available instantly in the app upon approval'}
             </p>
           </div>
@@ -131,7 +131,7 @@ export const CardPage = ({ lang }: CardPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Card ��� 특징' : 'Card Features & Benefits'}
+            {lang === 'ak' ? 'PeThar ကတ် အင်္ဂါရပ်များနှင့် အကျိုးကျေးဇူးများ' : 'Card Features & Benefits'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -197,11 +197,11 @@ export const CardPage = ({ lang }: CardPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Card ��� 보안' : 'Card Security Features'}
+            {lang === 'ak' ? 'ကတ်လုံခြုံရေး စနစ်နှင့် အကာအကွယ်များ' : 'Card Security Features'}
           </h2>
           <p className="text-lg text-center mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Card ��� 보안 Dawlonлодх'
+              ? 'အဆင့်မြင့် လုံခြုံရေးစနစ်ဖြင့် အပြည့်အဝ ကာကွယ်ပေးထားပါသည်'
               : 'Advanced security features protect your card and account'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -259,11 +259,11 @@ export const CardPage = ({ lang }: CardPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһανουလာကြိမ်ပါဝင်ပါ' : 'Ready to Start Spending?'}
+          {lang === 'ak' ? 'သုံးစွဲမှု စတင်ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Start Spending?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Card ��� Dawlonлодх KYC စာဝ pliẫuမဲ့ နomyind တноюнс длыг дла сзс'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Order your PeThar Card today and start spending your Arakan Dollars globally'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

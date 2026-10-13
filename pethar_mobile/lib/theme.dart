@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 const Color crimson = Color(0xFFD91624);
 const Color crimsonDark = Color(0xFF990000);
@@ -18,6 +19,7 @@ const Color cyanNeon = Color(0xFF00F0FF);
 const Color emeraldSuccess = Color(0xFF10B981);
 
 ThemeData darkTheme() {
+  final baseTextTheme = ThemeData.dark().textTheme;
   return ThemeData(
     brightness: Brightness.dark,
     scaffoldBackgroundColor: obsidian,
@@ -28,11 +30,14 @@ ThemeData darkTheme() {
       surface: surfaceCard,
     ),
     cardColor: surfaceCard,
+    textTheme: GoogleFonts.notoSansMyanmarTextTheme(baseTextTheme),
+    fontFamilyFallback: const ['Noto Sans Myanmar', 'Padauk', 'Pyidaungsu'],
     useMaterial3: true,
   );
 }
 
 ThemeData lightTheme() {
+  final baseTextTheme = ThemeData.light().textTheme;
   return ThemeData(
     brightness: Brightness.light,
     scaffoldBackgroundColor: paper,
@@ -43,6 +48,8 @@ ThemeData lightTheme() {
       surface: paperCard,
     ),
     cardColor: paperCard,
+    textTheme: GoogleFonts.notoSansMyanmarTextTheme(baseTextTheme),
+    fontFamilyFallback: const ['Noto Sans Myanmar', 'Padauk', 'Pyidaungsu'],
     useMaterial3: true,
   );
 }

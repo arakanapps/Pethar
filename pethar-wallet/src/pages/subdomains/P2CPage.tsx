@@ -71,11 +71,11 @@ export const P2CPage = ({ lang }: P2CPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar P2C ��� how it works' : 'How PeThar P2C Works'}
+            {lang === 'ak' ? 'PeThar P2C အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar P2C Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar P2C ��� how it works Dawlonлодх'
+              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
               : 'Send money to friends and family instantly with PeThar Wallet'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -122,7 +122,7 @@ export const P2CPage = ({ lang }: P2CPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar P2C ��� características' : 'PeThar P2C Features'}
+            {lang === 'ak' ? 'PeThar P2C အင်္ဂါရပ်များ' : 'PeThar P2C Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -188,11 +188,11 @@ export const P2CPage = ({ lang }: P2CPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar P2C �ں use cases' : 'P2C Use Cases'}
+            {lang === 'ak' ? 'P2C အသုံးပြုနိုင်သည့် နယ်ပယ်များ' : 'P2C Use Cases'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar P2C �ں use cases Dawlonлодх'
+              ? 'လက်တွေ့နယ်ပယ်အသီးသီးတွင် အကျိုးရှိစွာ အသုံးချနိုင်သည့် နည်းလမ်းများ'
               : 'Ideal scenarios for Person-to-Consumer payments with PeThar'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -242,11 +242,11 @@ export const P2CPage = ({ lang }: P2CPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Send Money?'}
+          {lang === 'ak' ? 'ငွေစတင်လွှဲပို့ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Send Money?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar P2C �ں Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Send money to friends and family instantly with zero fees'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

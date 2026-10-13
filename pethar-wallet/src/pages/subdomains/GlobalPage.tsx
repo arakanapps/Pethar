@@ -71,7 +71,7 @@ export const GlobalPage = ({ lang }: GlobalPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Global ��� 특징' : 'PeThar Global Features'}
+            {lang === 'ak' ? 'PeThar Global အင်္ဂါရပ်များ' : 'PeThar Global Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -137,11 +137,11 @@ export const GlobalPage = ({ lang }: GlobalPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Global ��� corridors' : 'Supported Corridors & Partnerships'}
+            {lang === 'ak' ? 'ငွေလွှဲလမ်းကြောင်းများနှင့် မိတ်ဖက်များ' : 'Supported Corridors & Partnerships'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
-              ? 'PeThar Global ��� corridors Dawlonлодх'
+              ? 'ကမ္ဘာတစ်ဝှမ်း ချိတ်ဆက်ထားသော ဒေသတွင်းနှင့် နိုင်ငံတကာ ငွေလွှဲကွန်ရက်များ'
               : 'Global payment corridors and partnerships enabling worldwide money movement'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -191,11 +191,11 @@ export const GlobalPage = ({ lang }: GlobalPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Go Global?'}
+          {lang === 'ak' ? 'ကမ္ဘာတစ်ဝှမ်း ချိတ်ဆက်ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Go Global?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Global ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တльнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Access international financial services and move money around the world'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

@@ -17,6 +17,7 @@ import { HelpPage } from './pages/subdomains/HelpPage'
 import { DeveloperPage } from './pages/subdomains/DeveloperPage'
 import { ApiPage } from './pages/subdomains/ApiPage'
 import { DocsPage } from './pages/subdomains/DocsPage'
+import { WalletPage } from './pages/subdomains/WalletPage'
 import LandingPage from './pages/LandingPage'
 import WebBankingDashboard from './pages/WebBankingDashboard'
 // New subdomain pages
@@ -131,8 +132,13 @@ export default function App() {
   if (!isBanking) {
     // Route based on subdomain
     switch (subdomain) {
-      case 'app':
       case 'wallet':
+        return (
+          <WalletPage
+            lang={currentLang}
+          />
+        )
+      case 'app':
         return (
           <AppPage
             lang={currentLang}
@@ -364,14 +370,8 @@ export default function App() {
         )
       case 'www':
       case '':
-        // Default to app page for www and root domain
-        return (
-          <AppPage
-            lang={currentLang}
-          />
-        )
       default:
-        // Fallback to landing page for unknown subdomains
+        // Main domain pethar.co.uk & www - public landing page for everyone to see about PeThar
         return (
           <LandingPage
             onOpenBanking={handleOpenBanking}

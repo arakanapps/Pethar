@@ -71,7 +71,7 @@ export const AccountsPage = ({ lang }: AccountsPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Accounts ��� 특징' : 'Accounts Features'}
+            {lang === 'ak' ? 'PeThar Accounts အင်္ဂါရပ်များ' : 'Accounts Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -136,11 +136,11 @@ export const AccountsPage = ({ lang }: AccountsPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Take Control of Your Finances?'}
+          {lang === 'ak' ? 'သင့်ဘဏ္ဍာရေးကို စိတ်ကြိုက်စီမံခန့်ခွဲရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Take Control of Your Finances?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar Accounts ��� Dawlonлодх KYC စာဝ pliaufte маке'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Gain complete visibility and control over your PeThar financial accounts'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">

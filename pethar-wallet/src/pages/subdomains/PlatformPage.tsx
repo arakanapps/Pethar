@@ -1,270 +1,358 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  ShieldAlert, Database, Key
+} from 'lucide-react';
 
 interface PlatformPageProps {
   lang: Language;
 }
 
 export const PlatformPage = ({ lang }: PlatformPageProps) => {
+  const [activeTab, setActiveTab] = useState<'treasury' | 'nodes' | 'compliance' | 'security'>('treasury');
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Platform - Banking Infrastructure as a Service',
-        heroSubtitle: 'Modular banking platform enabling rapid deployment of financial services',
-        feature1Title: 'Core Banking Modules',
-        feature1Desc: 'Accounts, payments, lending, and compliance as plug-and-play services',
-        feature2Title: 'API-First Architecture',
-        feature2Desc: 'RESTful and GraphQL APIs for seamless integration with existing systems',
-        feature3Title: 'White Label Solutions',
-        feature3Desc: 'Customizable UI/UX with your branding for rapid market deployment',
-        feature4Title: 'Regulatory Ready',
-        feature4Desc: 'Pre-built compliance modules for KYC/AML, GDPR, and local regulations',
-        ctaLearnMore: 'Platform Documentation',
-        ctaGetStarted: 'Request Platform Access',
+        title: 'ဖေ့သာ ကုမ္ပဏီတွင်း လုပ်ငန်းသုံး ပလက်ဖောင်း',
+        badge: 'ကုမ္ပဏီတွင်း သီးသန့် အသုံးပြုရန် (Internal Only)',
+        subtitle: 'အာရက္ခဒေါ်လာ ဗဟိုရှင်းလင်းရေး၊ ဘဏ္ဍာတိုက် အရန်ရွှေ/ဒေါ်လာ ထိန်းချုပ်ရေးနှင့် လုံခြုံရေး စီမံခန့်ခွဲမှု',
+        tabTreasury: 'ဘဏ္ဍာတိုက်နှင့် အရန်ငွေ',
+        tabNodes: 'ကွန်ရက် နုတ်ဒ်များ',
+        tabCompliance: 'KYC အတည်ပြုရေး စာရင်း',
+        tabSecurity: 'လုံခြုံရေးနှင့် HSM',
+        vaultTitle: 'အာရက္ခဒေါ်လာ ၁၀၀% အာမခံ ဘဏ္ဍာတိုက်',
+        vaultDesc: 'ရွှေတုံးနှင့် တင်းပြည့် အမေရိကန်ဒေါ်လာဖြင့် အပြည့်အဝ ကျောထောက်နောက်ခံပြုထားသော ဗဟိုအရန်ငွေ',
+        totalReserve: 'စုစုပေါင်း ဗဟိုအရန်ငွေ တန်ဖိုး',
+        circulatingSupply: 'လက်ရှိ လည်ပတ်နေသော AKD ပမာဏ',
+        reserveRatio: 'အာမခံထားရှိမှု အချိုးအစား (Reserve Coverage)',
+        multisigStatus: 'ကုမ္ပဏီ အဆင့်မြင့် Multi-Sig လက်မှတ် (၃/၅ ဖွဲ့စည်းပုံ)',
+        nodeStatusTitle: 'ဗဟိုဘဏ် ငွေပေးချေမှု နုတ်ဒ်စနစ်များ',
+        nodeUptime: 'စနစ် လည်ပတ်မှု ပုံမှန်ရှိခြင်း',
+        kycQueueTitle: 'နိုင်ငံသား အဆင့် ၂ KYC စစ်ဆေးအတည်ပြုရန် တန်းစီဇယား',
+        kycApprovedNotice: 'မှတ်ပုံတင်နှင့် နိုင်ငံသားစိစစ်မှု ပြီးစီးပြီးဖြစ်ပါသည်',
+        securityTitle: 'Hardware Security Module (HSM) နှင့် Secure Enclave',
+        securityDesc: 'FIPS 140-2 Level 3 စံချိန်မီ ဟာ့ဒ်ဝဲ လုံခြုံရေးစနစ်ဖြင့် ကိုယ်ရေးကိုယ်တာနှင့် ငွေကြေးဒေတာများကို ကာကွယ်ထားပါသည်',
       }
     : {
-        heroTitle: 'PeThar Platform - Banking Infrastructure as a Service',
-        heroSubtitle: 'Modular banking platform enabling rapid deployment of financial services',
-        feature1Title: 'Core Banking Modules',
-        feature1Desc: 'Accounts, payments, lending, and compliance as plug-and-play services',
-        feature2Title: 'API-First Architecture',
-        feature2Desc: 'RESTful and GraphQL APIs for seamless integration with existing systems',
-        feature3Title: 'White Label Solutions',
-        feature3Desc: 'Customizable UI/UX with your branding for rapid market deployment',
-        feature4Title: 'Regulatory Ready',
-        feature4Desc: 'Pre-built compliance modules for KYC/AML, GDPR, and local regulations',
-        ctaLearnMore: 'Platform Documentation',
-        ctaGetStarted: 'Request Platform Access',
+        title: 'PeThar Internal Platform',
+        badge: 'Internal Company Use Only',
+        subtitle: 'Core banking settlement rails, multi-sig treasury vault, and infrastructure administration',
+        tabTreasury: 'Treasury & Reserves',
+        tabNodes: 'Network Nodes',
+        tabCompliance: 'KYC Compliance',
+        tabSecurity: 'Security & HSM',
+        vaultTitle: '100% Backed Central Reserves Vault',
+        vaultDesc: 'Physical gold bullion and USD-denominated Tier-1 institutional collateral backing AKD',
+        totalReserve: 'Total Backed Reserve Value',
+        circulatingSupply: 'Current Circulating AKD Supply',
+        reserveRatio: 'Reserve Coverage Ratio',
+        multisigStatus: 'Multi-Sig Governance (3-of-5 Authorized Signers Active)',
+        nodeStatusTitle: 'Core Settlement Nodes Status',
+        nodeUptime: 'System Uptime (Last 30 Days)',
+        kycQueueTitle: 'Tier-2 Citizen KYC Verification Queue',
+        kycApprovedNotice: 'National ID and biometric documents verified',
+        securityTitle: 'Hardware Security Module (HSM) & Secure Enclave',
+        securityDesc: 'FIPS 140-2 Level 3 hardware modules protecting cryptographic keys and private ledgers',
       };
 
   return (
     <BaseLayout
-      title={t.heroTitle}
+      title={t.title}
       lang={lang}
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            {t.heroTitle}
-          </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-            {t.heroSubtitle}
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
-            >
-              {t.ctaGetStarted}
-            </button>
-            <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
-            >
-              {t.ctaLearnMore}
-            </button>
+      <div className="space-y-8">
+        {/* Internal Banner */}
+        <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-black uppercase tracking-wider mb-2">
+                <ShieldAlert className="w-3.5 h-3.5" />
+                <span>{t.badge}</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                {t.title}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
+                {t.subtitle}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping" />
+              <span className="text-xs font-mono font-bold text-emerald-400">
+                ALL SYSTEMS OPERATIONAL
+              </span>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* How It Works Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Platform ��� how it works' : 'How PeThar Platform Works'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'PeThar Platform ��� how it works Dawlonлодх'
-              : 'Build and launch financial services faster with our modular banking platform'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+          {/* Metric Bar */}
+          <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-700/60">
+              <div className="text-xs text-slate-400 mb-1">{t.totalReserve}</div>
+              <div className="text-2xl font-black font-mono text-amber-400">
+                $1,560,000 USD
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">1. Choose Modules</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Select from pre-built banking modules: accounts, payments, lending, cards
-              </p>
+              <div className="text-[11px] text-slate-400 mt-1">
+                {lang === 'ak' ? 'ရွှေတန်ဖိုး ၄၀% + ဒေါ်လာ ၆၀%' : '40% Physical Gold · 60% Liquid USD'}
+              </div>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
+            <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-700/60">
+              <div className="text-xs text-slate-400 mb-1">{t.circulatingSupply}</div>
+              <div className="text-2xl font-black font-mono text-white">
+                1,485,000 ₳
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">2. Customize & Brand</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                White-label the UI/UX with your branding, colors, and domain
-              </p>
+              <div className="text-[11px] text-emerald-400 font-semibold mt-1">
+                {t.reserveRatio}: 105.05%
+              </div>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
+            <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-700/60">
+              <div className="text-xs text-slate-400 mb-1">{t.nodeUptime}</div>
+              <div className="text-2xl font-black font-mono text-emerald-400">
+                99.998%
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">3. Deploy & Scale</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Launch your financial service with auto-scaling infrastructure and monitoring
-              </p>
+              <div className="text-[11px] text-slate-400 mt-1">
+                {lang === 'ak' ? 'ရပ်တန့်မှုမရှိသော ငွေပေးချေမှုကွန်ရက်' : 'Zero-downtime consensus'}
+              </div>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Platform ��� 특징' : 'PeThar Platform Features'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature1Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature1Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature2Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature2Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature3Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature3Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature4Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature4Desc}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Use Cases Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Platform ��� use cases' : 'Platform Use Cases'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'PeThar Platform ��� use cases Dawlonлодх'
-              : 'Ideal scenarios for leveraging the PeThar Platform'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Neobanks</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Launch a digital bank in weeks instead of years with our core banking modules
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Focus on customer acquisition while we handle the banking infrastructure
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Fintech Startups</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Integrate payment processing, lending, or investment services quickly
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Reduce development time and regulatory complexity for your fintech product
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Traditional Banks</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Modernize legacy systems with API-first microservices architecture
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Gradually migrate to modern infrastructure without disrupting operations
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Enterprise Solutions</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Embed financial services into your existing product or platform
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Add banking capabilities to ERP, CRM, or e-commerce systems seamlessly
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Build Your Financial Service?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'PeThar Platform ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တкуюponde လzii'
-            : 'Accelerate your financial product launch with our modular banking platform'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
+        {/* Platform Module Tabs */}
+        <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-2xl overflow-x-auto">
           <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
+            onClick={() => setActiveTab('treasury')}
+            className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+              activeTab === 'treasury'
+                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Request Platform Access
+            {t.tabTreasury}
           </button>
           <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
+            onClick={() => setActiveTab('nodes')}
+            className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+              activeTab === 'nodes'
+                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
           >
-            View Platform Documentation
+            {t.tabNodes}
+          </button>
+          <button
+            onClick={() => setActiveTab('compliance')}
+            className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+              activeTab === 'compliance'
+                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            {t.tabCompliance}
+          </button>
+          <button
+            onClick={() => setActiveTab('security')}
+            className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+              activeTab === 'security'
+                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            {t.tabSecurity}
           </button>
         </div>
-      </section>
+
+        {/* Tab 1: Treasury & Reserves */}
+        {activeTab === 'treasury' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center font-bold">
+                  <Database className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                    {t.vaultTitle}
+                  </h3>
+                  <p className="text-xs text-slate-500">{t.vaultDesc}</p>
+                </div>
+              </div>
+              <div className="space-y-3 pt-2 text-xs">
+                <div className="flex justify-between py-2 border-b border-slate-100 dark:border-slate-800">
+                  <span className="text-slate-500">{lang === 'ak' ? 'ရွှေအရန်သိုလှောင်မှု' : 'Physical Gold Reserve'}</span>
+                  <span className="font-mono font-bold text-slate-800 dark:text-slate-200">250.00 oz (99.99% Fine Gold)</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-slate-100 dark:border-slate-800">
+                  <span className="text-slate-500">{lang === 'ak' ? 'ဒေါ်လာ အရန်ငွေ' : 'Liquid USD Reserves'}</span>
+                  <span className="font-mono font-bold text-slate-800 dark:text-slate-200">$935,000.00 USD</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-slate-100 dark:border-slate-800">
+                  <span className="text-slate-500">{lang === 'ak' ? 'စစ်ဆေးချက် အတည်ပြုသည့်ရက်' : 'Last Certified Audit'}</span>
+                  <span className="font-mono font-bold text-emerald-600">Today · Verified</span>
+                </div>
+                <div className="flex justify-between py-2">
+                  <span className="text-slate-500">{lang === 'ak' ? 'အုပ်ချုပ်မှုပုံစံ' : 'Governance'}</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{t.multisigStatus}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 flex items-center justify-center font-bold">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                    {lang === 'ak' ? 'ကုမ္ပဏီ ဗဟိုငွေစာရင်း ထိန်းချုပ်ခွင့်' : 'Treasury Multi-Signature Signers'}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {lang === 'ak' ? 'ငွေကြေးလွှဲပြောင်းမှုတိုင်း အနည်းဆုံး လက်မှတ် ၃ ခု လိုအပ်ပါသည်' : '3 signatures required to authorize liquidity adjustments'}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2.5 pt-2 text-xs">
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 flex justify-between items-center">
+                  <div>
+                    <div className="font-bold text-slate-800 dark:text-slate-200">Executive Key 1 (Sittwe Vault)</div>
+                    <div className="text-[10px] font-mono text-slate-500">0x74a...92b1</div>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded">ONLINE</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 flex justify-between items-center">
+                  <div>
+                    <div className="font-bold text-slate-800 dark:text-slate-200">Executive Key 2 (Mrauk-U Station)</div>
+                    <div className="text-[10px] font-mono text-slate-500">0x81e...38d2</div>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded">ONLINE</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 flex justify-between items-center">
+                  <div>
+                    <div className="font-bold text-slate-800 dark:text-slate-200">Executive Key 3 (London HQ Operations)</div>
+                    <div className="text-[10px] font-mono text-slate-500">0x12c...94a7</div>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded">ONLINE</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2: Network Nodes */}
+        {activeTab === 'nodes' && (
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">
+              {t.nodeStatusTitle}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-bold text-sm text-slate-900 dark:text-white">Node 01: Sittwe Core</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                </div>
+                <div className="text-xs text-slate-500 space-y-1 font-mono">
+                  <div>Latency: 14ms</div>
+                  <div>Blocks: 2,491,012</div>
+                  <div>Sync: 100%</div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-bold text-sm text-slate-900 dark:text-white">Node 02: Mrauk-U Relay</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                </div>
+                <div className="text-xs text-slate-500 space-y-1 font-mono">
+                  <div>Latency: 22ms</div>
+                  <div>Blocks: 2,491,012</div>
+                  <div>Sync: 100%</div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-bold text-sm text-slate-900 dark:text-white">Node 03: Kyaukphyu Gateway</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                </div>
+                <div className="text-xs text-slate-500 space-y-1 font-mono">
+                  <div>Latency: 18ms</div>
+                  <div>Blocks: 2,491,012</div>
+                  <div>Sync: 100%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3: Compliance & KYC */}
+        {activeTab === 'compliance' && (
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">
+              {t.kycQueueTitle}
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              {lang === 'ak'
+                ? 'နိုင်ငံသားများ၏ အာရက္ခဒေါ်လာ အကောင့်များကို တရားဝင် စိစစ်အတည်ပြုခြင်း'
+                : 'Reviewing customer identity documents and Tier-2 citizen credentials'}
+            </p>
+            <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+              <div className="py-3 flex justify-between items-center">
+                <div>
+                  <div className="font-bold text-slate-800 dark:text-slate-200">Jack Halder</div>
+                  <div className="text-slate-500 font-mono">ARAK-8891-JACK · Sittwe</div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold">
+                  APPROVED ✓
+                </span>
+              </div>
+              <div className="py-3 flex justify-between items-center">
+                <div>
+                  <div className="font-bold text-slate-800 dark:text-slate-200">Daw Nilar Win</div>
+                  <div className="text-slate-500 font-mono">ARAK-9042-NLW · Mrauk-U</div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold">
+                  UNDER REVIEW
+                </span>
+              </div>
+              <div className="py-3 flex justify-between items-center">
+                <div>
+                  <div className="font-bold text-slate-800 dark:text-slate-200">U Kyaw Zan Hla</div>
+                  <div className="text-slate-500 font-mono">ARAK-3811-KZH · Kyaukphyu</div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold">
+                  APPROVED ✓
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Security & HSM */}
+        {activeTab === 'security' && (
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              {t.securityTitle}
+            </h3>
+            <p className="text-xs text-slate-500">{t.securityDesc}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-xs font-mono">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800">
+                <span className="text-slate-500 block mb-1">ENCRYPTION PROTOCOL</span>
+                <span className="font-bold text-slate-900 dark:text-white">AES-256-GCM + Ed25519</span>
+              </div>
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800">
+                <span className="text-slate-500 block mb-1">KEY STORAGE ENCLAVE</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">HARDWARE SECURE ENCLAVE</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </BaseLayout>
   );
 };

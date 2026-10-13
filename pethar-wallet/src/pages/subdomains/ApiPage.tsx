@@ -71,7 +71,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar API ��� 특징' : 'PeThar API Features'}
+            {lang === 'ak' ? 'PeThar API အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar API Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -137,7 +137,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar API ��� endpoints' : 'Core API Endpoints'}
+            {lang === 'ak' ? 'အဓိက API အင်ပွိုင့်များ' : 'Core API Endpoints'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -201,11 +201,11 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဒီဇһာနလာကြိမ် ပါဝင်ပါ' : 'Ready to Start Building?'}
+          {lang === 'ak' ? 'စနစ်တည်ဆောက်မှု စတင်ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Start Building?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
-            ? 'PeThar API ��� Dawlonлодх KYC စာဝ pliوفةမဲ့ နomyind တльнуюponde လzii'
+            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
             : 'Access our comprehensive API documentation and start building today'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
