@@ -52,6 +52,7 @@ export const KNOWN_SUBDOMAINS: string[] = [
   'wallet',
   'login',
   'signup',
+  'auth',
   'platform',
   'pay',
   'card',
@@ -156,18 +157,22 @@ export const isSubdomain = (subdomain: string): boolean => {
   return getSubdomain() === subdomain;
 };
 
-export const redirectToSubdomain = (subdomain: string) => {
+export const redirectToSubdomain = (
+  subdomain: string,
+  options?: { search?: string }
+) => {
   if (typeof window === 'undefined') return;
 
   const hostname = window.location.hostname;
   const port = window.location.port ? `:${window.location.port}` : '';
   const pathname = window.location.pathname;
-  const search = window.location.search;
+  const search =
+    options?.search !== undefined ? options.search : window.location.search;
 
   // Localhost or preview hosts: switch via path
   if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.vercel.app')) {
     if (!subdomain) {
-      window.location.href = `${window.location.protocol}//${hostname}${port}/`;
+      window.location.href = `${window.location.protocol}//${hostname}${port}/${search}`;
     } else {
       window.location.href = `${window.location.protocol}//${hostname}${port}/${subdomain}${search}`;
     }
@@ -176,7 +181,7 @@ export const redirectToSubdomain = (subdomain: string) => {
 
   // Official production domain (*.pethar.co.uk)
   if (hostname.endsWith('pethar.co.uk')) {
-    const targetHost = subdomain ? `${subdomain}.pethar.co.uk` : 'pethar.co.uk';
+    const targetHost = subdomain ? `${subdomain}.pethar.co.uk` : 'www.pethar.co.uk';
     window.location.href = `${window.location.protocol}//${targetHost}${port}${pathname}${search}`;
     return;
   }
@@ -187,6 +192,14 @@ export const redirectToSubdomain = (subdomain: string) => {
   window.location.href = `${window.location.protocol}//${targetHost}${port}${pathname}${search}`;
 };
 
+export const goToAuth = (mode: 'login' | 'signup' = 'login') => {
+  redirectToSubdomain('auth', { search: `?mode=${mode}` });
+};
+
+export const goToApp = () => {
+  redirectToSubdomain('app', { search: '' });
+};
+
 export const getRedirectMap = (): Record<string, string> => {
   return {
     // Note: '' (root domain pethar.co.uk) and 'www' must NOT redirect to app!
@@ -195,7 +208,6 @@ export const getRedirectMap = (): Record<string, string> => {
     // Typo corrections & aliases
     'esearch': 'search',
     'carreers': 'careers',
-    'auth': 'login',
     'dev': 'developer',
     'faq': 'help',
     'legal': 'privacy',

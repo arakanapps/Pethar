@@ -1,10 +1,9 @@
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import type { Language } from './i18n'
-import { getSubdomain, getRedirectMap } from './utils/subdomain'
+import { getSubdomain, getRedirectMap, redirectToSubdomain } from './utils/subdomain'
 
 // Import all subdomain pages
-import { AppPage } from './pages/subdomains/AppPage'
 import { LoginPage } from './pages/subdomains/LoginPage'
 import { SignupPage } from './pages/subdomains/SignupPage'
 import { PayPage } from './pages/subdomains/PayPage'
@@ -127,11 +126,6 @@ export default function App() {
     navigate(`/${newLang}${viewSuffix}${location.search}${location.hash}`)
   }
 
-  // 5. Open / Exit banking handlers
-  const handleOpenBanking = () => {
-    navigate(`/${currentLang}/banking${location.search}${location.hash}`)
-  }
-
   const handleExitBanking = () => {
     navigate(`/${currentLang}${location.search}${location.hash}`)
   }
@@ -153,22 +147,26 @@ export default function App() {
         )
       case 'app':
         return (
-          <AppPage
+          <WebBankingDashboard
             lang={currentLang}
+            setLang={handleSetLang}
+            theme="light"
+            setTheme={() => {}}
+            onExit={() => redirectToSubdomain('', { search: '' })}
           />
         )
+      case 'auth':
       case 'login':
-        return (
-          <LoginPage
-            lang={currentLang}
-          />
+      case 'signup': {
+        const authMode = new URLSearchParams(location.search).get('mode')
+        const showSignup =
+          subdomain === 'signup' || authMode === 'signup'
+        return showSignup ? (
+          <SignupPage lang={currentLang} />
+        ) : (
+          <LoginPage lang={currentLang} />
         )
-      case 'signup':
-        return (
-          <SignupPage
-            lang={currentLang}
-          />
-        )
+      }
       case 'pay':
         return (
           <PayPage
@@ -396,8 +394,6 @@ export default function App() {
         // Main domain pethar.co.uk & www - public landing page for everyone to see about PeThar
         return (
           <LandingPage
-            onOpenBanking={handleOpenBanking}
-            onEnterApp={handleOpenBanking}
             lang={currentLang}
             setLang={handleSetLang}
           />
