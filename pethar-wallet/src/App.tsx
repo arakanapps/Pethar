@@ -20,6 +20,7 @@ import { DocsPage } from './pages/subdomains/DocsPage'
 import { WalletPage } from './pages/subdomains/WalletPage'
 import LandingPage from './pages/LandingPage'
 import WebBankingDashboard from './pages/WebBankingDashboard'
+import petharLanding from './pages/pethar/petharLanding'
 // New subdomain pages
 import { OfflinePage } from './pages/subdomains/OfflinePage'
 import { OnlinePage } from './pages/subdomains/OnlinePage'
@@ -136,6 +137,11 @@ export default function App() {
   }
 
   // Subdomain-based routing for public pages
+  // pethar landing page (design preview) at /pethar
+  if (location.pathname === '/pethar' || location.pathname.startsWith('/pethar/')) {
+    return <petharLanding />
+  }
+
   if (!isBanking) {
     // Route based on subdomain
     switch (subdomain) {
