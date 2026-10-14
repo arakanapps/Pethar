@@ -1,40 +1,124 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  Users, ShieldCheck, CheckCircle2, Lock,
+  Star, ChevronRight, Zap
+} from 'lucide-react';
 
 interface P2PPageProps {
   lang: Language;
 }
 
+interface P2POffer {
+  id: string;
+  trader: string;
+  rating: string;
+  tradesCount: number;
+  type: 'buy' | 'sell';
+  fiatCurrency: string;
+  rate: string;
+  limit: string;
+  methods: string[];
+}
+
 export const P2PPage = ({ lang }: P2PPageProps) => {
+  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
+  const [selectedOffer, setSelectedOffer] = useState<P2POffer | null>(null);
+  const [escrowStep, setEscrowStep] = useState<'idle' | 'locked' | 'confirmed'>('idle');
+
+  const offers: P2POffer[] = [
+    {
+      id: 'p2p-1',
+      trader: 'Ko Kyaw Zin (Bangkok Direct)',
+      rating: '99.8%',
+      tradesCount: 1420,
+      type: 'buy',
+      fiatCurrency: 'THB',
+      rate: '36.85 THB / ₳',
+      limit: '1,000 - 50,000 THB',
+      methods: ['KBank', 'SCB Easy', 'PromptPay']
+    },
+    {
+      id: 'p2p-2',
+      trader: 'Daw Nilar Win (Mae Sot Hub)',
+      rating: '100%',
+      tradesCount: 890,
+      type: 'buy',
+      fiatCurrency: 'THB',
+      rate: '36.88 THB / ₳',
+      limit: '5,000 - 150,000 THB',
+      methods: ['PromptPay', 'Cash Mae Sot']
+    },
+    {
+      id: 'p2p-3',
+      trader: 'U Aung Kyaw (Sittwe Port Exchange)',
+      rating: '99.4%',
+      tradesCount: 2310,
+      type: 'buy',
+      fiatCurrency: 'MMK',
+      rate: '4,450 MMK / ₳',
+      limit: '500,000 - 30,000,000 MMK',
+      methods: ['KPay', 'WavePay', 'Cash In-Person']
+    },
+    {
+      id: 'p2p-4',
+      trader: 'Arakan Global SG Desk',
+      rating: '100%',
+      tradesCount: 540,
+      type: 'sell',
+      fiatCurrency: 'SGD',
+      rate: '1.34 SGD / ₳',
+      limit: '200 - 10,000 SGD',
+      methods: ['PayNow', 'DBS Fast']
+    }
+  ];
+
+  const filteredOffers = offers.filter(o => o.type === activeTab);
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar P2P - Peer-to-Peer Financial Services',
-        heroSubtitle: 'Lending, borrowing, and collaborative finance directly between individuals',
-        feature1Title: 'Peer-to-Peer Lending',
-        feature1Desc: 'Lend money to earn interest or borrow funds at competitive rates',
-        feature2Title: 'Group Savings & Pools',
-        feature2Desc: 'Create savings groups and money pools with friends, family, or community',
-        feature3Title: 'Invoice Factoring',
-        feature3Desc: 'Sell outstanding invoices for immediate cash flow at a discount',
-        feature4Title: 'Crowdfunding',
-        feature4Desc: 'Raise funds for personal projects, community initiatives, or business ideas',
-        ctaLearnMore: 'How P2P Finance Works',
-        ctaGetStarted: 'Start P2P Transactions',
+        badge: 'PeThar P2P လွတ်လပ်သော ငွေလဲလှယ်ရေးကွန်ရက် · 0% Intermediary Fee',
+        heroTitle: 'အာရက္ခသား အချင်းချင်း တိုက်ရိုက် အရောင်းအဝယ် ပြုလုပ်ပါ',
+        heroSubtitle: 'ကြားခံပွဲစားမလိုဘဲ ရွှေအာမခံ multi-sig escrow စနစ်ဖြင့် လုံခြုံစိတ်ချစွာ ဘတ်၊ ကျပ်၊ စင်ကာပူဒေါ်လာများဖြင့် တိုက်ရိုက် လဲလှယ်နိုင်ပါသည်',
+        tabBuy: '₳ (AKD) ဝယ်ယူမည်',
+        tabSell: '₳ (AKD) ရောင်းချမည်',
+        trader: 'ကုန်သည် အမည်',
+        rate: 'လဲလှယ်နှုန်း',
+        limits: 'ကန့်သတ် ပမာဏ',
+        paymentMethods: 'ငွေပေးချေမှု နည်းလမ်းများ',
+        actionTrade: 'တိုက်ရိုက် လဲလှယ်မည်',
+        escrowNoticeTitle: '100% Multi-Sig Escrow အကာအကွယ်',
+        escrowNoticeDesc: 'အရောင်းအဝယ်ပြုလုပ်ချိန်တွင် ရောင်းချသူ၏ ငွေကြေးကို စမတ်ကန်ထရိုက်ထဲတွင် သော့ခတ်ထားပြီး ဝယ်သူ ငွေလွှဲလက်ခံရရှိမှသာ လွှဲပြောင်းပေးပါသည်',
+        simulateTrade: 'Escrow စမ်းသပ်မှု စတင်မည်',
+        tradeLocked: 'ငွေကြေးများကို Escrow Vault တွင် သော့ခတ်ထားပါပြီ',
+        tradeCompleted: 'အရောင်းအဝယ် အောင်မြင်စွာ ပြီးမြောက်ပါပြီ!',
       }
     : {
-        heroTitle: 'PeThar P2P - Peer-to-Peer Financial Services',
-        heroSubtitle: 'Lending, borrowing, and collaborative finance directly between individuals',
-        feature1Title: 'Peer-to-Peer Lending',
-        feature1Desc: 'Lend money to earn interest or borrow funds at competitive rates',
-        feature2Title: 'Group Savings & Pools',
-        feature2Desc: 'Create savings groups and money pools with friends, family, or community',
-        feature3Title: 'Invoice Factoring',
-        feature3Desc: 'Sell outstanding invoices for immediate cash flow at a discount',
-        feature4Title: 'Crowdfunding',
-        feature4Desc: 'Raise funds for personal projects, community initiatives, or business ideas',
-        ctaLearnMore: 'How P2P Finance Works',
-        ctaGetStarted: 'Start P2P Transactions',
+        badge: 'PeThar Direct Peer-to-Peer Protocol · Zero Platform Fees',
+        heroTitle: 'Decentralized Peer-to-Peer Trading Desk',
+        heroSubtitle: 'Trade Arakan Dollars directly with verified diaspora and regional merchants with 100% smart contract escrow protection',
+        tabBuy: 'Buy ₳ (AKD)',
+        tabSell: 'Sell ₳ (AKD)',
+        trader: 'Merchant',
+        rate: 'Unit Rate',
+        limits: 'Trading Limits',
+        paymentMethods: 'Payment Rails',
+        actionTrade: 'Initiate P2P Swap',
+        escrowNoticeTitle: 'Cryptographic Multi-Sig Escrow Lock',
+        escrowNoticeDesc: 'The seller\'s Arakan Dollars are locked into an on-chain escrow contract before you transfer fiat. Funds are only released upon mutual confirmation or dispute arbitration.',
+        simulateTrade: 'Simulate Escrow Trade',
+        tradeLocked: 'Escrow Lock Engaged: Funds Secured in Vault',
+        tradeCompleted: 'Trade Successfully Settled to Wallet!',
       };
+
+  const handleStartTrade = (offer: P2POffer) => {
+    setSelectedOffer(offer);
+    setEscrowStep('locked');
+    setTimeout(() => {
+      setEscrowStep('confirmed');
+    }, 1500);
+  };
 
   return (
     <BaseLayout
@@ -43,228 +127,174 @@ export const P2PPage = ({ lang }: P2PPageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-16 max-w-6xl mx-auto">
+        
+        {/* Hero Section */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <Users className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.badge}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
-            >
-              {t.ctaGetStarted}
-            </button>
-            <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
-            >
-              {t.ctaLearnMore}
-            </button>
-          </div>
-        </div>
-      </section>
 
-      {/* How It Works Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar P2P အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar P2P Works'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Financial services powered by the community, for the community'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">1. Connect & Transact</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Find trusted peers in the PeThar network for lending, borrowing, or collaborating
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">2. Set Terms</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Negotiate interest rates, repayment terms, and collateral directly with your peer
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">3. Secure & Track</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Smart contracts ensure terms are followed and provide transparent tracking
-              </p>
+          <div className="flex justify-center pt-2">
+            <div className="inline-flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200">
+              <button
+                onClick={() => { setActiveTab('buy'); setSelectedOffer(null); setEscrowStep('idle'); }}
+                className={`px-6 py-2.5 rounded-xl font-mono text-xs font-bold transition-all ${
+                  activeTab === 'buy'
+                    ? 'bg-amber-400 text-slate-950 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {t.tabBuy}
+              </button>
+              <button
+                onClick={() => { setActiveTab('sell'); setSelectedOffer(null); setEscrowStep('idle'); }}
+                className={`px-6 py-2.5 rounded-xl font-mono text-xs font-bold transition-all ${
+                  activeTab === 'sell'
+                    ? 'bg-amber-400 text-slate-950 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {t.tabSell}
+              </button>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar P2P အင်္ဂါရပ်များ' : 'PeThar P2P Features'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                </svg>
+        {/* Escrow Active Modal / Simulation Banner */}
+        {selectedOffer && (
+          <div className="p-6 rounded-3xl bg-slate-950 text-white border border-slate-800 shadow-xl space-y-4 animate-in fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-amber-400 font-mono text-xs font-bold uppercase">
+                  <Lock className="w-4 h-4" />
+                  <span>Escrow Active · Order #P2P-90148</span>
+                </div>
+                <h3 className="text-lg font-black text-white">Trading with {selectedOffer.trader}</h3>
+                <p className="text-xs text-slate-400 font-mono">Rate: {selectedOffer.rate} • Limit: {selectedOffer.limit}</p>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature1Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature1Desc}
-              </p>
+              <div className="flex items-center gap-2">
+                {escrowStep === 'locked' && (
+                  <span className="px-3.5 py-1.5 rounded-xl bg-amber-400/20 text-amber-300 font-mono text-xs font-bold border border-amber-400/30 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                    <span>{t.tradeLocked}</span>
+                  </span>
+                )}
+                {escrowStep === 'confirmed' && (
+                  <span className="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold border border-emerald-500/30 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>{t.tradeCompleted}</span>
+                  </span>
+                )}
+              </div>
             </div>
+          </div>
+        )}
 
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
+        {/* P2P Order Book Listing */}
+        <div className="space-y-4">
+          <div className="divide-y divide-slate-100 rounded-3xl border border-slate-200/80 bg-white overflow-hidden shadow-xs">
+            {filteredOffers.map((offer) => (
+              <div
+                key={offer.id}
+                className="p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:bg-slate-50/60 transition-colors"
+              >
+                {/* Trader Info */}
+                <div className="space-y-1.5 max-w-xs">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-black text-slate-950">{offer.trader}</h3>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
+                      <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                      {offer.rating}
+                    </span>
+                  </div>
+                  <p className="text-xs font-mono text-slate-400">{offer.tradesCount} completed settlements (100% dispute free)</p>
+                </div>
+
+                {/* Rate & Limits */}
+                <div className="space-y-1">
+                  <p className="text-xs font-mono text-slate-500">{t.rate}</p>
+                  <p className="text-lg font-black text-slate-950 font-mono">{offer.rate}</p>
+                  <p className="text-[11px] font-mono text-slate-400">{t.limits}: {offer.limit}</p>
+                </div>
+
+                {/* Payment Methods */}
+                <div className="space-y-1.5">
+                  <p className="text-xs font-mono text-slate-500">{t.paymentMethods}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {offer.methods.map((method, idx) => (
+                      <span key={idx} className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-mono text-[11px] font-bold">
+                        {method}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Button */}
+                <button
+                  onClick={() => handleStartTrade(offer)}
+                  className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-95 shrink-0"
+                >
+                  <span>{t.actionTrade}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature2Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature2Desc}
-              </p>
+            ))}
+          </div>
+        </div>
+
+        {/* Escrow Guarantee Banner */}
+        <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-900 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6 text-amber-600" />
             </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature3Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature3Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature4Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature4Desc}
+            <div>
+              <h3 className="text-lg font-black text-slate-950">{t.escrowNoticeTitle}</h3>
+              <p className="text-xs text-slate-600 max-w-3xl leading-relaxed mt-0.5">
+                {t.escrowNoticeDesc}
               </p>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Use Cases Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'P2P အသုံးပြုနိုင်သည့် နယ်ပယ်များ' : 'P2P Use Cases'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'လက်တွေ့နယ်ပယ်အသီးသီးတွင် အကျိုးရှိစွာ အသုံးချနိုင်သည့် နည်းလမ်းများ'
-              : 'Ideal scenarios for Peer-to-Peer financial services with PeThar'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Personal Lending</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Lend money to friends or family members earn interest while helping them out
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Better returns than traditional savings with flexible terms
-              </p>
-            </div>
+        {/* P2P Value Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <Zap className="w-6 h-6 text-amber-600 mb-2" />
+            <h4 className="text-base font-black text-slate-950">Zero Platform Gas</h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Neither buyer nor seller pays transaction commission. Network operates peer-to-peer at true zero fee.
+            </p>
+          </div>
 
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Community Savings Groups</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Traditional rotating savings and credit associations (ROSCAs) made digital
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Secure, transparent, and accessible group saving mechanisms
-              </p>
-            </div>
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <Lock className="w-6 h-6 text-emerald-600 mb-2" />
+            <h4 className="text-base font-black text-slate-950">Timelock Protection</h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Trades are protected by 15-minute countdown locks with automatic dispute referral to sovereign arbiters if needed.
+            </p>
+          </div>
 
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Freelancer Income Smoothing</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Access funds between projects or during slow periods using invoice factoring
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Sell outstanding invoices for immediate cash rather than waiting for payment
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Community Projects</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Crowdfunding for local initiatives, community improvements, or social causes
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Raise funds directly from community members who believe in your vision
-              </p>
-            </div>
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <Users className="w-6 h-6 text-sky-600 mb-2" />
+            <h4 className="text-base font-black text-slate-950">Diaspora Mesh</h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Direct settlement liquidity between Arakan, Thailand, Malaysia, Singapore, and Europe without banking friction.
+            </p>
           </div>
         </div>
-      </section>
 
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'P2P ဘဏ္ဍာရေးကို စတင်လေ့လာရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Explore P2P Finance?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Access lending, borrowing, and collaborative finance directly through PeThar'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Start P2P Transactions
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
-          >
-            Learn More About P2P Features
-          </button>
-        </div>
-      </section>
+      </div>
     </BaseLayout>
   );
 };

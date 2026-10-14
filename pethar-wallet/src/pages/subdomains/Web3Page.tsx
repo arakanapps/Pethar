@@ -1,40 +1,57 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  Layers, ShieldCheck, ArrowRight, CheckCircle2, Play,
+  Cpu, Globe, Lock, ExternalLink
+} from 'lucide-react';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface Web3PageProps {
   lang: Language;
 }
 
 export const Web3Page = ({ lang }: Web3PageProps) => {
+  const [bridgeSimulating, setBridgeSimulating] = useState(false);
+  const [bridgeComplete, setBridgeComplete] = useState(false);
+  const [selectedChain, setSelectedChain] = useState<'ethereum' | 'bsc' | 'polygon' | 'arbitrum'>('ethereum');
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Web3 - Decentralized Financial Services',
-        heroSubtitle: 'Blockchain-based financial services including DeFi, NFTs, and smart contracts',
-        feature1Title: 'DeFi Services',
-        feature1Desc: 'Access decentralized lending, borrowing, and yield farming opportunities',
-        feature2Title: 'NFT Marketplace',
-        feature2Desc: 'Create, buy, sell, and trade non-fungible tokens for art, collectibles, and more',
-        feature3Title: 'Smart Contracts',
-        feature3Desc: 'Create and deploy programmable financial agreements and automated services',
-        feature4Title: 'Cross-Chain Bridge',
-        feature4Desc: 'Transfer assets between different blockchain networks securely and efficiently',
-        ctaLearnMore: 'How Web3 Works',
-        ctaGetStarted: 'Explore Web3 Services',
+        badge: 'PeThar Web3 တံတား · EVM & Multi-Chain Bridge Protocol',
+        heroTitle: 'ဗဟိုမဲ့ ဘဏ္ဍာရေးနှင့် Multi-Chain ချိတ်ဆက်မှု စနစ်',
+        heroSubtitle: 'Ethereum, BNB Chain, Polygon တို့မှ USDT နှင့် ပိုင်ဆိုင်မှုများကို PeThar အချုပ်အခြာအာဏာပိုင် Ledger သို့ 1:1 တန်းတူ လဲလှယ်ကူးပြောင်းနိုင်ပါသည်',
+        ctaBridge: 'Cross-Chain Bridge စမ်းသပ်မည်',
+        ctaExplorer: 'Ledger Explorer ကြည့်မည်',
+        bridgeTitle: 'Cross-Chain တံတား စမ်းသပ်မှု Simulator',
+        bridgeDesc: 'EVM ကွင်းဆက်မှ USDT ပမာဏကို PeThar Sovereign AKD အဖြစ် စမတ်ကန်ထရိုက်ဖြင့် သော့ခတ်လဲလှယ်ခြင်း',
+        runBridge: 'Bridge လဲလှယ်မှု အတည်ပြုမည်',
+        bridgeSuccess: 'Bridge အောင်မြင်စွာ ကူးပြောင်းပြီးပါပြီ! (1:1 AKD Minted to Enclave Wallet)',
+        didTitle: 'Zero-Knowledge နိုင်ငံသား အထောက်အထား (zk-DID)',
+        didDesc: 'ကိုယ်ရေးအချက်အလက် မဖော်ပြဘဲ အာရက္ခနိုင်ငံသားဖြစ်ကြောင်း သင်္ချာနည်းအရ သက်သေပြနိုင်သော W3C စံချိန်မီ DID စနစ်',
       }
     : {
-        heroTitle: 'PeThar Web3 - Decentralized Financial Services',
-        heroSubtitle: 'Blockchain-based financial services including DeFi, NFTs, and smart contracts',
-        feature1Title: 'DeFi Services',
-        feature1Desc: 'Access decentralized lending, borrowing, and yield farming opportunities',
-        feature2Title: 'NFT Marketplace',
-        feature2Desc: 'Create, buy, sell, and trade non-fungible tokens for art, collectibles, and more',
-        feature3Title: 'Smart Contracts',
-        feature3Desc: 'Create and deploy programmable financial agreements and automated services',
-        feature4Title: 'Cross-Chain Bridge',
-        feature4Desc: 'Transfer assets between different blockchain networks securely and efficiently',
-        ctaLearnMore: 'How Web3 Works',
-        ctaGetStarted: 'Explore Web3 Services',
+        badge: 'PeThar Web3 Bridge Protocol · EVM & Multi-Chain Rails',
+        heroTitle: 'Decentralized Liquidity & Sovereign DeFi Rails',
+        heroSubtitle: 'Seamlessly bridge USDT and stable assets between Ethereum, BNB Chain, Polygon, Arbitrum and PeThar\'s high-speed zero-gas ledger',
+        ctaBridge: 'Simulate Cross-Chain Bridge',
+        ctaExplorer: 'Explore Sovereign Ledger',
+        bridgeTitle: 'Live Cross-Chain Peg-In Bridge Simulator',
+        bridgeDesc: 'Lock standard ERC-20 / BEP-20 USDT into multi-sig smart contracts and receive instant 1:1 Arakan Dollars (AKD) with zero slippage',
+        runBridge: 'Execute Cross-Chain Bridge Call',
+        bridgeSuccess: 'Bridge Transit Settled! (500.00 AKD Minted & Verified on Block #2,491,048)',
+        didTitle: 'Zero-Knowledge Sovereign Identity (zk-DID)',
+        didDesc: 'W3C-compliant Decentralized Identifiers allowing cryptographic citizen verification without exposing real names or private coordinates',
       };
+
+  const handleSimulateBridge = () => {
+    setBridgeSimulating(true);
+    setBridgeComplete(false);
+    setTimeout(() => {
+      setBridgeSimulating(false);
+      setBridgeComplete(true);
+    }, 1100);
+  };
 
   return (
     <BaseLayout
@@ -43,228 +60,161 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-16 max-w-6xl mx-auto">
+        
+        {/* Hero Section */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <Layers className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.badge}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
+
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={handleSimulateBridge}
+              className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono shadow-xs transition-all active:scale-[0.98] flex items-center gap-2"
             >
-              {t.ctaGetStarted}
+              <span>{t.ctaBridge}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
             <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={() => redirectToSubdomain('developer')}
+              className="px-6 py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs font-mono shadow-2xs transition-all flex items-center gap-2"
             >
-              {t.ctaLearnMore}
+              <span>{t.ctaExplorer}</span>
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
             </button>
           </div>
         </div>
-      </section>
 
-      {/* How It Works Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Web3 အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Web3 Works'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Access decentralized financial services through secure blockchain integration'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        {/* Cross-Chain Bridge Visualizer */}
+        <div className="p-8 rounded-3xl bg-slate-950 text-white border border-slate-800 shadow-2xl space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-xs font-mono text-amber-400 font-bold uppercase">{t.bridgeTitle}</span>
+              <h3 className="text-xl font-black text-white">EVM Liquidity Peg-In (0% Slippage)</h3>
+              <p className="text-xs text-slate-400 max-w-xl">{t.bridgeDesc}</p>
+            </div>
+            
+            {/* Chain Selector */}
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono">
+              {(['ethereum', 'bsc', 'polygon', 'arbitrum'] as const).map((chain) => (
+                <button
+                  key={chain}
+                  onClick={() => setSelectedChain(chain)}
+                  className={`px-3 py-1 rounded-lg capitalize transition-colors ${
+                    selectedChain === chain
+                      ? 'bg-amber-400 text-slate-950 font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {chain === 'bsc' ? 'BNB Chain' : chain}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Bridge Transfer Diagram */}
+          <div className="grid grid-cols-1 md:grid-cols-11 gap-4 items-center pt-2">
+            
+            {/* Source Chain */}
+            <div className="md:col-span-5 p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-slate-300 capitalize">{selectedChain} Mainnet</span>
+                <span className="text-[10px] font-mono text-slate-400">Lock Contract</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">1. Connect Wallet</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Connect your PeThar Wallet or compatible Web3 wallet to access decentralized services
-              </p>
+              <div className="flex items-baseline justify-between font-mono">
+                <span className="text-xl font-black text-white">500.00</span>
+                <span className="text-xs font-bold text-emerald-400">USDT</span>
+              </div>
+              <p className="text-[10px] font-mono text-slate-500">Contract: 0xdAC17F958D2ee523a2206206994597C13D831ec7</p>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">2. Choose Service</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Select from DeFi protocols, NFT marketplaces, or smart contract services
-              </p>
+            {/* Bridge Transit Arrow */}
+            <div className="md:col-span-1 text-center">
+              <ArrowRight className="w-5 h-5 text-amber-400 mx-auto transform rotate-90 md:rotate-0" />
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
+            {/* Destination Chain */}
+            <div className="md:col-span-5 p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-slate-300">PeThar Sovereign Ledger</span>
+                <span className="text-[10px] font-mono text-amber-400">1:1 Mint Guarantee</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">3. Transact Securely</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Execute transactions with blockchain security while maintaining regulatory compliance
-              </p>
+              <div className="flex items-baseline justify-between font-mono">
+                <span className="text-xl font-black text-amber-400">500.00</span>
+                <span className="text-xs font-bold text-amber-400">₳ (AKD)</span>
+              </div>
+              <p className="text-[10px] font-mono text-slate-500">Recipient: akd_node_7f81a92e10bc (Enclave Wallet)</p>
+            </div>
+
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-slate-900">
+            <div className="font-mono text-xs text-slate-400 space-y-0.5">
+              <p>Bridge Gas Fee: <span className="text-emerald-400 font-bold">$0.00 (Sponsored by Sovereign Reserve)</span></p>
+              <p>Estimated Finality: <span className="text-white">~ 12 Seconds (EVM Block Confirms)</span></p>
+            </div>
+
+            <button
+              onClick={handleSimulateBridge}
+              disabled={bridgeSimulating}
+              className="px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 font-mono font-bold text-xs flex items-center gap-2 shadow-xs transition-transform active:scale-95 shrink-0"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              <span>{bridgeSimulating ? 'Validating Proofs...' : t.runBridge}</span>
+            </button>
+          </div>
+
+          {bridgeComplete && (
+            <div className="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-xs font-mono font-bold flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{t.bridgeSuccess}</span>
+            </div>
+          )}
+        </div>
+
+        {/* zk-DID Sovereign Identity Section */}
+        <div className="p-8 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 text-amber-700 font-mono font-bold text-xs uppercase">
+              <Lock className="w-4 h-4" />
+              <span>{t.didTitle}</span>
+            </div>
+            <h3 className="text-xl font-black text-slate-950">Self-Sovereign Identity Without Surveillance</h3>
+            <p className="text-xs text-slate-600 leading-relaxed max-w-3xl">
+              {t.didDesc}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 mb-2" />
+              <h4 className="font-bold text-slate-950">Zero-Knowledge Proofs</h4>
+              <p className="text-[11px] text-slate-500 mt-1">Prove you are a verified citizen over 18 without revealing birthdate or name.</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
+              <Cpu className="w-5 h-5 text-amber-600 mb-2" />
+              <h4 className="font-bold text-slate-950">W3C Verifiable Credentials</h4>
+              <p className="text-[11px] text-slate-500 mt-1">Interoperable with international digital passport and visa verification standards.</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
+              <Globe className="w-5 h-5 text-sky-600 mb-2" />
+              <h4 className="font-bold text-slate-950">Decentralized Storage</h4>
+              <p className="text-[11px] text-slate-500 mt-1">Identity documents are encrypted with your Ed25519 key on IPFS and local hardware.</p>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Web3 အင်္ဂါရပ်များ' : 'PeThar Web3 Features'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature1Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature1Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature2Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature2Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature3Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature3Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature4Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature4Desc}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Use Cases Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'Web3 အသုံးပြုနိုင်သည့် နယ်ပယ်များ' : 'Web3 Use Cases'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'လက်တွေ့နယ်ပယ်အသီးသီးတွင် အကျိုးရှိစွာ အသုံးချနိုင်သည့် နည်းလမ်းများ'
-              : 'Ideal scenarios for decentralized financial services with PeThar'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Yield Farming</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Earn passive income by providing liquidity to decentralized finance protocols
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Competitive returns with automated compounding and risk management
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">NFT Creation & Trading</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Create digital art, collectibles, or utility tokens and trade them in our marketplace
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Support creators and creators while exploring new forms of digital ownership
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Automated Financial Services</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Use smart contracts for recurring payments, escrow services, or conditional transfers
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Programmable money that executes automatically based on predefined conditions
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Cross-Chain Transfers</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Move assets between Ethereum, Binance Smart Chain, Polygon, and other networks
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Access the best rates and opportunities across different blockchain ecosystems
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'Web3 ကို စတင်လေ့လာရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Explore Web3?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Access decentralized financial services while maintaining security and compliance'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Explore Web3 Services
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
-          >
-            Learn More About Web3 Features
-          </button>
-        </div>
-      </section>
+      </div>
     </BaseLayout>
   );
 };

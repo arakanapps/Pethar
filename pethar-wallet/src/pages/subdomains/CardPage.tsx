@@ -1,40 +1,61 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import { ArakanEmblem } from '../../components/ArakanEmblem';
 import type { Language } from '../../i18n';
+import {
+  CreditCard, ShieldCheck, Zap, Globe, Radio,
+  Lock, ArrowRight, Eye, EyeOff
+} from 'lucide-react';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface CardPageProps {
   lang: Language;
 }
 
 export const CardPage = ({ lang }: CardPageProps) => {
+  const [cardType, setCardType] = useState<'virtual' | 'physical'>('virtual');
+  const [isFrozen, setIsFrozen] = useState(false);
+  const [showNumber, setShowNumber] = useState(false);
+  const [spendingLimit, setSpendingLimit] = useState(3000);
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Card - Global Debit Card',
-        heroSubtitle: 'Spend your Arakan Dollars anywhere in the world',
-        feature1Title: 'Global Acceptance',
-        feature1Desc: 'Works wherever Visa is accepted worldwide',
-        feature2Title: 'Instant Conversion',
-        feature2Desc: 'Automatic AKD to local currency conversion',
-        feature3Title: 'Real-time Controls',
-        feature3Desc: 'Freeze/unfreeze card instantly from app',
-        feature4Title: 'Virtual & Physical',
-        feature4Desc: 'Instant virtual card + optional physical card',
-        ctaOrderNow: 'Order Your Card',
-        ctaLearnMore: 'Card Features',
+        heroTitle: 'PeThar ဒစ်ဂျစ်တယ်နှင့် ရုပ်ပိုင်းဆိုင်ရာ ကတ်များ',
+        heroSubtitle: 'ကမ္ဘာတစ်ဝှမ်း မည်သည့်နေရာတွင်မဆို အာရက္ခဒေါ်လာဖြင့် လွယ်ကူစွာ သုံးစွဲနိုင်သော ဒက်ဘစ်ကတ်စနစ်',
+        orderVirtual: 'ဒစ်ဂျစ်တယ်ကတ် ချက်ချင်းရယူမည်',
+        orderPhysical: 'ရုပ်ပိုင်းဆိုင်ရာကတ် မှာယူမည်',
+        cardHolder: 'ကတ်ပိုင်ရှင် အမည်',
+        validThru: 'သက်တမ်းကုန်ဆုံးရက်',
+        freezeLabel: 'ကတ် လုံခြုံရေး ပိတ်ထားခြင်း (Freeze)',
+        unfreezeLabel: 'ကတ် ပုံမှန် အသုံးပြုနိုင်ခြင်း (Active)',
+        limitLabel: 'လစဉ် အွန်လိုင်း သုံးစွဲခွင့် ကန့်သတ်ချက်',
+        feature1Title: 'နိုင်ငံတကာ သုံးစွဲနိုင်မှု',
+        feature1Desc: 'Apple Pay, Google Pay နှင့် ကမ္ဘာတစ်ဝှမ်း Visa ကုန်သည်များတွင် တိုက်ရိုက်ငွေပေးချေနိုင်ပါသည်',
+        feature2Title: 'အလိုအလျောက် ငွေလဲလှယ်နှုန်း',
+        feature2Desc: 'AKD မှ ဒေသတွင်းငွေကြေးများ (THB, SGD, USD, EUR) သို့ အနိမ့်ဆုံး စရိတ်ဖြင့် အလိုအလျောက် တွက်ချက်ပေးပါသည်',
+        feature3Title: 'အက်ပ်အတွင်း ချက်ချင်းထိန်းချုပ်မှု',
+        feature3Desc: 'ကတ် ပျောက်ဆုံးပါက စက္ကန့်ပိုင်းအတွင်း Freeze လုပ်နိုင်ပြီး သုံးစွဲခွင့် ပမာဏကို စိတ်ကြိုက် ပြင်ဆင်နိုင်ပါသည်',
+        feature4Title: 'ချက်ချင်းထုတ်ပေးသော ဒစ်ဂျစ်တယ်ကတ်',
+        feature4Desc: 'အကောင့်ဖွင့်ပြီးသည်နှင့် ချက်ချင်း စတင်သုံးစွဲနိုင်ပြီး လိပ်စာသို့ ရုပ်ပိုင်းဆိုင်ရာ ကတ်ကိုလည်း ပို့ဆောင်ပေးပါသည်',
       }
     : {
-        heroTitle: 'PeThar Card - Global Debit Card',
-        heroSubtitle: 'Spend your Arakan Dollars anywhere in the world',
+        heroTitle: 'PeThar Global Debit & Virtual Cards',
+        heroSubtitle: 'Spend your Arakan Dollars anywhere in the world with Visa acceptance and Apple Pay',
+        orderVirtual: 'Issue Instant Virtual Card',
+        orderPhysical: 'Order Physical Card',
+        cardHolder: 'CARD HOLDER NAME',
+        validThru: 'VALID THRU',
+        freezeLabel: 'Card Security Freeze',
+        unfreezeLabel: 'Card Active & Protected',
+        limitLabel: 'Monthly Spending Ceiling',
         feature1Title: 'Global Acceptance',
-        feature1Desc: 'Works wherever Visa is accepted worldwide',
-        feature2Title: 'Instant Conversion',
-        feature2Desc: 'Automatic AKD to local currency conversion',
-        feature3Title: 'Real-time Controls',
-        feature3Desc: 'Freeze/unfreeze card instantly from app',
-        feature4Title: 'Virtual & Physical',
-        feature4Desc: 'Instant virtual card + optional physical card',
-        ctaOrderNow: 'Order Your Card',
-        ctaLearnMore: 'Card Features',
+        feature1Desc: 'Accepted at over 80 million Visa terminals, online websites, and global ATMs worldwide',
+        feature2Title: 'Dynamic FX Conversion',
+        feature2Desc: 'Automatic real-time conversion from AKD to local currencies with zero hidden markups',
+        feature3Title: 'In-App Security Controls',
+        feature3Desc: 'Freeze and unfreeze in 1 click, toggle contactless payments, and adjust spending limits instantly',
+        feature4Title: 'Instant Issuance + Physical Card',
+        feature4Desc: 'Create ready-to-use virtual cards in 5 seconds and receive sleek NFC physical cards delivered to your door',
       };
 
   return (
@@ -44,244 +65,241 @@ export const CardPage = ({ lang }: CardPageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-12 max-w-6xl mx-auto">
+        
+        {/* Header Hero */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <CreditCard className="w-3.5 h-3.5 text-amber-600" />
+            <span>PeThar Card rails · Visa & Apple Pay</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
+
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={() => redirectToSubdomain('wallet')}
+              className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono shadow-xs transition-all active:scale-[0.98] flex items-center gap-2"
             >
-              {t.ctaOrderNow}
+              <span>{t.orderVirtual}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
             <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={() => redirectToSubdomain('app')}
+              className="px-6 py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs font-mono shadow-2xs transition-all"
             >
-              {t.ctaLearnMore}
+              {t.orderPhysical}
             </button>
           </div>
         </div>
-      </section>
 
-      {/* Card Graphic Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <div className="relative h-96 w-full rounded-2xl overflow-hidden shadow-2xl">
-            {/* Card Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#990000] via-[#590000] to-[#1a080c]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]" />
+        {/* Interactive Card Canvas (SxDx Bank & Revolut style) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-sm">
+          
+          {/* Left: 3D Iridescent Card Visualizer */}
+          <div className="lg:col-span-7 flex flex-col items-center">
+            {/* Card Type Selector Pills */}
+            <div className="flex p-1 bg-slate-100 rounded-xl mb-6 text-xs font-mono font-bold">
+              <button
+                onClick={() => setCardType('virtual')}
+                className={`px-4 py-1.5 rounded-lg transition-all ${
+                  cardType === 'virtual' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Virtual Card (Apple Pay)
+              </button>
+              <button
+                onClick={() => setCardType('physical')}
+                className={`px-4 py-1.5 rounded-lg transition-all ${
+                  cardType === 'physical' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Physical Platinum Card
+              </button>
             </div>
 
-            {/* Arakan Emblem Watermark */}
-            <div className="absolute -top-16 -right-16 w-32 h-32 opacity-10 pointer-events-none">
-              <ArakanEmblem size={64} variant="emblem-only" className="text-white/20" />
-            </div>
-
-            {/* Card Content */}
-            <div className="relative z-10 flex h-full flex-col items-end p-6">
-              <div className="flex items-baseline mb-4">
-                <ArakanEmblem size={24} variant="badge" className="mr-2" />
-                <span className="text-xs font-bold text-amber-300">PeThar Platinum</span>
-              </div>
-
-              <div className="flex items-baseline mb-2">
-                <span className="font-mono text-xs font-bold text-amber-200">DEBIT</span>
-              </div>
-
-              <div className="mb-4">
-                <div className="text-[10px] font-mono text-white/50 uppercase tracking-widest">CARD NUMBER</div>
-                <div className="text-2xl font-bold font-mono tracking-[0.2em] text-white">
-                  4109 •••• •••• 8842
+            {/* The SxDx Iridescent Credit Card */}
+            <div className={`w-full max-w-[420px] rounded-3xl p-6 sm:p-7 text-white shadow-2xl transition-all duration-300 relative min-h-[240px] flex flex-col justify-between ${
+              isFrozen
+                ? 'bg-slate-800 grayscale opacity-80'
+                : cardType === 'virtual'
+                  ? 'sxdx-credit-card'
+                  : 'bg-gradient-to-tr from-slate-950 via-slate-900 to-amber-950 border border-amber-500/30'
+            }`}>
+              {/* Card Header: Chip, Contactless, Logo */}
+              <div className="flex items-center justify-between relative z-10">
+                <div className="flex items-center gap-3">
+                  {/* EMV Chip */}
+                  <div className="w-10 h-7 rounded-md bg-gradient-to-tr from-amber-200 to-amber-400 border border-amber-300 shadow-inner flex items-center justify-center">
+                    <div className="w-7 h-4 border border-amber-600/50 rounded-xs" />
+                  </div>
+                  <Radio size={20} className="text-white/90 rotate-90" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <ArakanEmblem size={26} variant="badge" />
+                  <span className="font-mono text-xs font-extrabold tracking-wider text-white">PeThar Pay</span>
                 </div>
               </div>
 
-              <div className="flex justify-between w-full">
-                <div className="flex items-baseline">
-                  <div className="text-[9px] font-mono text-white/50 uppercase">CARDHOLDER</div>
-                  <div className="font-bold text-xs text-white">USER NAME</div>
-                </div>
-                <div className="flex items-baseline">
-                  <div className="text-[9px] font-mono text-white/50 uppercase">EXPIRES</div>
-                  <div className="font-bold text-xs text-white">12/27</div>
-                </div>
+              {/* Card Number with Reveal Toggle */}
+              <div className="my-5 flex items-center justify-between">
+                <span className="font-mono text-lg sm:text-xl font-bold tracking-widest text-white drop-shadow-sm">
+                  {showNumber ? '3829 4820 4629 5025' : '•••• •••• •••• 5025'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowNumber(!showNumber)}
+                  className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition"
+                  title="Toggle card number visibility"
+                >
+                  {showNumber ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
               </div>
 
-              <div className="mt-4 text-base font-bold italic text-white tracking-tighter">
-                VISA
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {lang === 'ak'
-                ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-                : 'Your PeThar Card details will be available instantly in the app upon approval'}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar ကတ် အင်္ဂါရပ်များနှင့် အကျိုးကျေးဇူးများ' : 'Card Features & Benefits'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature1Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature1Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature2Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature2Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature3Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature3Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature4Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature4Desc}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Security Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'ကတ်လုံခြုံရေး စနစ်နှင့် အကာအကွယ်များ' : 'Card Security Features'}
-          </h2>
-          <p className="text-lg text-center mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'အဆင့်မြင့် လုံခြုံရေးစနစ်ဖြင့် အပြည့်အဝ ကာကွယ်ပေးထားပါသည်'
-              : 'Advanced security features protect your card and account'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                  </svg>
-                </div>
+              {/* Card Footer: Holder & Expiry */}
+              <div className="flex items-end justify-between text-xs font-mono relative z-10">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Instant Freeze</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Freeze or unfreeze your card instantly from the app
-                  </p>
+                  <div className="text-[9px] text-white/70 uppercase">{t.cardHolder}</div>
+                  <div className="font-bold tracking-wider uppercase text-sm mt-0.5">JACK HALDER</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[9px] text-white/70 uppercase">{t.validThru}</div>
+                  <div className="font-bold tracking-wider mt-0.5">09/28</div>
+                </div>
+                <div className="text-base font-black italic tracking-tighter text-white">
+                  VISA
                 </div>
               </div>
             </div>
 
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2.25c-1.236 0-2.242 1.01-2.709 2.25a.75.75 0 010 1.207c2.756.007 4.987 2.244 4.987 5v.75c0 .414-.336.75-.75.75h-4.5a.75.75 0 010-1.5h4.5a.75.75 0 010-1.5h4.5c.414 0 .75-.336.75-.75v-2.25c0-2.757-2.243-4.992-4.987-5-.467 0-.888.221-1.082.582z" />
-                  </svg>
+            {/* Frozen Notice */}
+            {isFrozen && (
+              <div className="mt-3 px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-mono font-bold flex items-center gap-1.5">
+                <Lock size={12} />
+                <span>Card is temporarily frozen</span>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Interactive Security & Spending Controls */}
+          <div className="lg:col-span-5 space-y-5">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 font-sans">
+                Real-Time Card Governance
+              </h3>
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
+                Instant cryptographic enclave parameter controls
+              </p>
+            </div>
+
+            {/* Freeze Toggle Control */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div>
+                <div className="font-bold text-xs text-slate-900">
+                  {isFrozen ? t.freezeLabel : t.unfreezeLabel}
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Transaction Alerts</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Real-time notifications for all card activity
-                  </p>
+                <div className="text-[11px] font-mono text-slate-400 mt-0.5">
+                  Block online and physical POS usage
                 </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsFrozen(!isFrozen)}
+                className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors ${
+                  isFrozen ? 'bg-red-500' : 'bg-emerald-500'
+                }`}
+              >
+                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                  isFrozen ? 'translate-x-5' : ''
+                }`} />
+              </button>
+            </div>
+
+            {/* Spending Ceiling Slider */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-slate-500 font-bold">{t.limitLabel}</span>
+                <span className="font-black text-slate-900">${spendingLimit} AKD</span>
+              </div>
+              <input
+                type="range"
+                min="500"
+                max="10000"
+                step="250"
+                value={spendingLimit}
+                onChange={(e) => setSpendingLimit(Number(e.target.value))}
+                className="w-full accent-amber-500 h-2 bg-slate-200 rounded-lg cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] font-mono text-slate-400">
+                <span>$500 min</span>
+                <span>$10,000 max</span>
               </div>
             </div>
 
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Virtual Card Numbers</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Generate temporary card numbers for online shopping
-                  </p>
-                </div>
+            {/* Security Badges */}
+            <div className="space-y-2 text-xs font-mono text-slate-600">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>Apple Secure Enclave & Android Keystore Binding</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-500" />
+                <span>Zero Foreign Transaction Surcharges</span>
               </div>
             </div>
+
+            <button
+              onClick={() => redirectToSubdomain('wallet')}
+              className="w-full py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs font-mono transition shadow-sm text-center"
+            >
+              Manage Card in Web Banking
+            </button>
+          </div>
+
+        </div>
+
+        {/* 4 Feature Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-2xs space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+              <Globe className="w-5 h-5" />
+            </div>
+            <h4 className="font-bold text-sm text-slate-900">{t.feature1Title}</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">{t.feature1Desc}</p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-2xs space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              <Zap className="w-5 h-5" />
+            </div>
+            <h4 className="font-bold text-sm text-slate-900">{t.feature2Title}</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">{t.feature2Desc}</p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-2xs space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <h4 className="font-bold text-sm text-slate-900">{t.feature3Title}</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">{t.feature3Desc}</p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-2xs space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+              <CreditCard className="w-5 h-5" />
+            </div>
+            <h4 className="font-bold text-sm text-slate-900">{t.feature4Title}</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">{t.feature4Desc}</p>
           </div>
         </div>
-      </section>
 
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'သုံးစွဲမှု စတင်ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Start Spending?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Order your PeThar Card today and start spending your Arakan Dollars globally'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Order Card - Free
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
-          >
-            Learn About Limits & Fees
-          </button>
-        </div>
-      </section>
+      </div>
     </BaseLayout>
   );
 };

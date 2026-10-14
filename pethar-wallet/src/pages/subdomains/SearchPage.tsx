@@ -1,40 +1,119 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  Search, ShieldCheck, CheckCircle2, ArrowRight,
+  User, Hash, Box
+} from 'lucide-react';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface SearchPageProps {
   lang: Language;
 }
 
+interface SearchResultItem {
+  id: string;
+  type: 'tx' | 'node' | 'block' | 'gold_serial';
+  title: string;
+  subtitle: string;
+  timestamp: string;
+  status: string;
+  link: string;
+}
+
 export const SearchPage = ({ lang }: SearchPageProps) => {
+  const [query, setQuery] = useState('');
+  const [activeType, setActiveType] = useState<'all' | 'tx' | 'node' | 'block'>('all');
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Search - Find What You Need',
-        heroSubtitle: 'Search across accounts, transactions, contacts, and financial services',
-        feature1Title: 'Universal Search',
-        feature1Desc: 'Search across your entire PeThar experience with one search bar',
-        feature2Title: 'Smart Filters',
-        feature2Desc: 'Filter results by date, amount, type, and category for precise findings',
-        feature3Title: 'Saved Searches',
-        feature3Desc: 'Save frequently used searches and get alerts for new matching results',
-        feature4Title: 'Voice & Natural Language',
-        feature4Desc: 'Search using voice commands or natural language phrases',
-        ctaLearnMore: 'Search Features',
-        ctaGetStarted: 'Start Searching',
+        badge: 'PeThar Universal Explorer & Search · Sovereign Ledger',
+        heroTitle: 'အာရက္ခ ဒစ်ဂျစ်တယ် Ledger အချက်အလက် ရှာဖွေရေး',
+        heroSubtitle: 'ငွေလွှဲပြေစာ Hash၊ နိုင်ငံသား အကောင့်နံပါတ်၊ ရွှေတုံး အမှတ်စဉ်နှင့် Ledger Block များကို ပွင့်လင်းမြင်သာစွာ တိုက်ရိုက် ရှာဖွေပါ',
+        placeholder: 'Transaction Hash, Node ID (akd_...), Block #, သို့မဟုတ် ရွှေအမှတ်စဉ်...',
+        filterAll: 'အားလုံး',
+        filterTx: 'ငွေလွှဲပြေစာများ (Tx)',
+        filterNodes: 'အကောင့်များ (Nodes)',
+        filterBlocks: 'Blocks',
+        noResults: 'ရှာဖွေမှု မတွေ့ရှိပါ။ ကျေးဇူးပြု၍ Hash သို့မဟုတ် အကောင့် ID ကို ပြန်လည်စစ်ဆေးပါ',
       }
     : {
-        heroTitle: 'PeThar Search - Find What You Need',
-        heroSubtitle: 'Search across accounts, transactions, contacts, and financial services',
-        feature1Title: 'Universal Search',
-        feature1Desc: 'Search across your entire PeThar experience with one search bar',
-        feature2Title: 'Smart Filters',
-        feature2Desc: 'Filter results by date, amount, type, and category for precise findings',
-        feature3Title: 'Saved Searches',
-        feature3Desc: 'Save frequently used searches and get alerts for new matching results',
-        feature4Title: 'Voice & Natural Language',
-        feature4Desc: 'Search using voice commands or natural language phrases',
-        ctaLearnMore: 'Search Features',
-        ctaGetStarted: 'Start Searching',
+        badge: 'PeThar Universal Explorer & Search · Sovereign Ledger',
+        heroTitle: 'Universal Sovereign Ledger Search',
+        heroSubtitle: 'Search any transaction hash, citizen enclave node, bullion custody certificate, or ledger block with deterministic proof verification',
+        placeholder: 'Search Transaction Hash, Node ID (akd_...), Block #, or Bullion Serial...',
+        filterAll: 'All Categories',
+        filterTx: 'Transactions (Tx)',
+        filterNodes: 'Citizen Nodes',
+        filterBlocks: 'Ledger Blocks',
+        noResults: 'No records matched your search term. Verify the hash or node identifier.',
       };
+
+  const sampleData: SearchResultItem[] = [
+    {
+      id: 'tx-1',
+      type: 'tx',
+      title: '0x8fa912c00e1b77a28109ca429188a10b',
+      subtitle: 'Transfer 450.00 ₳ to Daw Nilar Win (Mae Sot Hub)',
+      timestamp: '2 mins ago',
+      status: 'Settled (Block #2491032)',
+      link: 'wallet'
+    },
+    {
+      id: 'tx-2',
+      type: 'tx',
+      title: '0x3fe1901a88b199042b8744ce091a4fa8',
+      subtitle: 'Merchant POS Settlement: Sittwe Seafood Market 128.50 ₳',
+      timestamp: '18 mins ago',
+      status: 'Settled (Block #2491029)',
+      link: 'merchant'
+    },
+    {
+      id: 'node-1',
+      type: 'node',
+      title: 'akd_node_sittwe_port_treasury',
+      subtitle: 'Sittwe Port Regional Clearing & Logistics Pool',
+      timestamp: 'Active Node',
+      status: 'Verified National Tier-2',
+      link: 'accounts'
+    },
+    {
+      id: 'node-2',
+      type: 'node',
+      title: 'akd_node_7f81a92e10bc_bangkok',
+      subtitle: 'Bangkok Diaspora Remittance Clearing Node',
+      timestamp: 'Active Node',
+      status: 'Verified Merchant Tier-2',
+      link: 'global'
+    },
+    {
+      id: 'block-1',
+      type: 'block',
+      title: 'Block Height #2,491,032',
+      subtitle: 'Contains 142 atomic transfers · Validator: Sovereign Node A1',
+      timestamp: '2 mins ago',
+      status: 'Finalized (Ed25519 Quorum)',
+      link: 'api'
+    },
+    {
+      id: 'gold-1',
+      type: 'gold_serial',
+      title: 'Bullion Serial #BOE-AU-999-4081',
+      subtitle: 'Allocated 1.000 kg Fine Gold 999.9 (London Depository Vault)',
+      timestamp: 'Audited Oct 2026',
+      status: '100% Backed Collateral',
+      link: 'trade'
+    }
+  ];
+
+  const filteredResults = sampleData.filter((item) => {
+    const matchesCategory = activeType === 'all' || item.type === activeType;
+    const matchesQuery = query === '' || 
+      item.title.toLowerCase().includes(query.toLowerCase()) ||
+      item.subtitle.toLowerCase().includes(query.toLowerCase()) ||
+      item.status.toLowerCase().includes(query.toLowerCase());
+    return matchesCategory && matchesQuery;
+  });
 
   return (
     <BaseLayout
@@ -43,173 +122,118 @@ export const SearchPage = ({ lang }: SearchPageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-16 max-w-6xl mx-auto">
+        
+        {/* Hero Section */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <Search className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.badge}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
+
+          {/* Search Box */}
+          <div className="pt-2 max-w-2xl mx-auto">
+            <div className="relative flex items-center">
+              <Search className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t.placeholder}
+                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs text-sm text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400 transition-all font-mono"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Filter Badges */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {(['all', 'tx', 'node', 'block'] as const).map((type) => (
             <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              key={type}
+              onClick={() => setActiveType(type)}
+              className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
+                activeType === type
+                  ? 'bg-amber-400 text-slate-950 shadow-xs'
+                  : 'bg-white hover:bg-slate-100 text-slate-600 border border-slate-200'
+              }`}
             >
-              {t.ctaGetStarted}
+              {type === 'all' && t.filterAll}
+              {type === 'tx' && t.filterTx}
+              {type === 'node' && t.filterNodes}
+              {type === 'block' && t.filterBlocks}
             </button>
-            <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
-            >
-              {t.ctaLearnMore}
-            </button>
-          </div>
+          ))}
         </div>
-      </section>
 
-      {/* How It Works Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Search အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Search Works'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Find what you need quickly and easily across your PeThar experience'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">1. Search Everything</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Search across accounts, transactions, contacts, documents, and more
-              </p>
+        {/* Results List */}
+        <div className="space-y-3">
+          {filteredResults.length === 0 ? (
+            <div className="p-12 text-center rounded-3xl bg-white border border-slate-200 text-slate-500 font-mono text-xs">
+              {t.noResults}
             </div>
+          ) : (
+            filteredResults.map((item) => (
+              <div
+                key={item.id}
+                className="p-5 rounded-3xl bg-white border border-slate-200/80 hover:border-amber-400/50 shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                    {item.type === 'tx' && <Hash className="w-5 h-5" />}
+                    {item.type === 'node' && <User className="w-5 h-5" />}
+                    {item.type === 'block' && <Box className="w-5 h-5" />}
+                    {item.type === 'gold_serial' && <ShieldCheck className="w-5 h-5" />}
+                  </div>
+                  <div className="space-y-0.5">
+                    <h3 className="text-xs font-mono font-bold text-slate-950 group-hover:text-amber-600 transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs text-slate-600">{item.subtitle}</p>
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="text-[10px] font-mono text-slate-400">{item.timestamp}</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> {item.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
+                <button
+                  onClick={() => redirectToSubdomain(item.link)}
+                  className="px-4 py-2 rounded-xl bg-slate-100 group-hover:bg-amber-400 group-hover:text-slate-950 text-slate-700 font-mono font-bold text-xs flex items-center gap-1.5 transition-all shrink-0 self-end sm:self-center"
+                >
+                  <span>Inspect</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">2. Filter & Refine</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Use smart filters to narrow down results by date, amount, type, and category
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">3. Save & Get Alerts</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Save searches and get notified when new results match your criteria
-              </p>
-            </div>
-          </div>
+            ))
+          )}
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Search အင်္ဂါရပ်များ' : 'PeThar Search Features'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature1Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature1Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature2Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature2Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature3Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature3Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature4Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature4Desc}
-              </p>
-            </div>
+        {/* Verification Guarantee */}
+        <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="space-y-1 text-center sm:text-left">
+            <h4 className="text-sm font-black text-slate-950">100% Cryptographic Traceability</h4>
+            <p className="text-xs text-slate-500">Every ledger transaction is provably signed by the sender's local hardware enclave.</p>
           </div>
-        </div>
-      </section>
-
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ရှာဖွေမှု စတင်ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Search?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Find what you need quickly with powerful search across your PeThar experience'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
           <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
+            onClick={() => redirectToSubdomain('developer')}
+            className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-mono font-bold text-xs shrink-0"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Start Searching
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
-          >
-            Learn More About Search
+            Ledger RPC Docs
           </button>
         </div>
-      </section>
+
+      </div>
     </BaseLayout>
   );
 };

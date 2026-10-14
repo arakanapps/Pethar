@@ -1,40 +1,56 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  WifiOff, Radio, Smartphone, ShieldCheck, CheckCircle2,
+  ArrowRight, Zap, RefreshCw, Cpu, Layers
+} from 'lucide-react';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface OfflinePageProps {
   lang: Language;
 }
 
 export const OfflinePage = ({ lang }: OfflinePageProps) => {
+  const [pulseActive, setPulseActive] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'pulsing' | 'synced'>('idle');
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Offline - Payments Without Internet',
-        heroSubtitle: 'Secure offline payments using Bluetooth Low Energy and NFC technology',
-        feature1Title: 'BLE & NFC Technology',
-        feature1Desc: 'Transact without internet using device-to-device communication',
-        feature2Title: 'Secure Offline Vouchers',
-        feature2Desc: 'Cryptographically signed payment vouchers with expiry and replay protection',
-        feature3Title: 'Automatic Sync',
-        feature3Desc: 'Transactions sync automatically when internet connection is restored',
-        feature4Title: 'Works Everywhere',
-        feature4Desc: 'Ideal for areas with poor connectivity or during network outages',
-        ctaLearnMore: 'How Offline Works',
-        ctaGetStarted: 'Try Offline Payments',
+        badge: 'PeThar အော့ဖ်လိုင်း BLE/NFC ကွန်ရက် · Mesh Protocol v2.4',
+        heroTitle: 'အင်တာနက်မရှိဘဲ လုံးဝအော့ဖ်လိုင်း ငွေလွှဲပေးချေနိုင်သည့် စနစ်',
+        heroSubtitle: 'ဆက်သွယ်ရေးလိုင်းများ ပြတ်တောက်နေချိန်တွင်လည်း Bluetooth Low Energy (BLE) နှင့် NFC နည်းပညာဖြင့် ဖုန်းအချင်းချင်း ထိတွေ့ငွေလွှဲနိုင်ပါသည်',
+        ctaTryMesh: 'အော့ဖ်လိုင်းစနစ် စမ်းသပ်မည်',
+        ctaDownloadApp: 'မိုဘိုင်းလ်အက်ပ် ရယူမည်',
+        simulatorTitle: 'အော့ဖ်လိုင်း Mesh ငွေလွှဲခြင်း စမ်းသပ်မှု Simulator',
+        simulatorDesc: 'ဖုန်းအချင်းချင်း အင်တာနက်မပါဘဲ စက္ကန့်ပိုင်းအတွင်း သော့လက်မှတ်ရေးထိုးပြီး ငွေလွှဲပြေစာ ဖလှယ်ခြင်း',
+        triggerPulse: 'BLE / NFC ဖုန်းအချင်းချင်း ထိတွေ့မည်',
+        pulseRunning: 'အော့ဖ်လိုင်း Cryptographic Pulse ထုတ်လွှင့်နေသည်...',
+        pulseComplete: 'အော့ဖ်လိုင်း ပြေစာ အောင်မြင်စွာ ဖလှယ်ပြီးပါပြီ! (အင်တာနက်ရချိန်တွင် အလိုအလျောက် စာရင်းရှင်းပါမည်)',
+        protocolTitle: 'အော့ဖ်လိုင်း လုံခြုံရေး ဗိသုကာနှင့် တားဆီးကာကွယ်မှုများ',
       }
     : {
-        heroTitle: 'PeThar Offline - Payments Without Internet',
-        heroSubtitle: 'Secure offline payments using Bluetooth Low Energy and NFC technology',
-        feature1Title: 'BLE & NFC Technology',
-        feature1Desc: 'Transact without internet using device-to-device communication',
-        feature2Title: 'Secure Offline Vouchers',
-        feature2Desc: 'Cryptographically signed payment vouchers with expiry and replay protection',
-        feature3Title: 'Automatic Sync',
-        feature3Desc: 'Transactions sync automatically when internet connection is restored',
-        feature4Title: 'Works Everywhere',
-        feature4Desc: 'Ideal for areas with poor connectivity or during network outages',
-        ctaLearnMore: 'How Offline Works',
-        ctaGetStarted: 'Try Offline Payments',
+        badge: 'Offline BLE/NFC Mesh Engine · Zero-Internet Protocol',
+        heroTitle: 'Transact Without Internet. Unstoppable Sovereign Mesh.',
+        heroSubtitle: 'Complete resilience during telecommunication blackouts. Broadcast cryptographic payment vouchers peer-to-peer using localized Bluetooth Low Energy and NFC pulses',
+        ctaTryMesh: 'Simulate Offline Mesh Tap',
+        ctaDownloadApp: 'Download Offline App',
+        simulatorTitle: 'Interactive Peer-to-Peer Mesh Simulator',
+        simulatorDesc: 'Experience how two disconnected smartphones sign, exchange, and store cryptographic payment receipts locally',
+        triggerPulse: 'Initiate Offline Device Tap (BLE/NFC)',
+        pulseRunning: 'Broadcasting Signed Local Voucher...',
+        pulseComplete: 'Offline Receipt Signed & Cached! (Queued for Ledger Reconciliation)',
+        protocolTitle: 'Cryptographic Guarantees of Offline Settlements',
       };
+
+  const handleSimulatePulse = () => {
+    setPulseActive(true);
+    setSyncStatus('pulsing');
+    setTimeout(() => {
+      setPulseActive(false);
+      setSyncStatus('synced');
+    }, 1200);
+  };
 
   return (
     <BaseLayout
@@ -43,228 +59,217 @@ export const OfflinePage = ({ lang }: OfflinePageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-16 max-w-6xl mx-auto">
+        
+        {/* Hero Section */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <WifiOff className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.badge}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
+
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={handleSimulatePulse}
+              className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono shadow-xs transition-all active:scale-[0.98] flex items-center gap-2"
             >
-              {t.ctaGetStarted}
+              <span>{t.ctaTryMesh}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
             <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={() => redirectToSubdomain('download')}
+              className="px-6 py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs font-mono shadow-2xs transition-all"
             >
-              {t.ctaLearnMore}
+              {t.ctaDownloadApp}
             </button>
           </div>
         </div>
-      </section>
 
-      {/* How It Works Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Offline အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Offline Works'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Secure offline transactions in three simple steps'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        {/* Interactive Device-to-Device Simulator Box */}
+        <div className="p-8 rounded-3xl bg-slate-950 text-white border border-slate-800 shadow-2xl space-y-8">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-amber-400 font-bold">
+              <Radio className="w-3.5 h-3.5 animate-pulse text-amber-400" />
+              <span>{t.simulatorTitle}</span>
+            </div>
+            <p className="text-xs text-slate-400">{t.simulatorDesc}</p>
+          </div>
+
+          {/* Dual Phone Wire Diagram */}
+          <div className="grid grid-cols-1 md:grid-cols-11 gap-6 items-center">
+            
+            {/* Phone A (Sender) */}
+            <div className="md:col-span-4 p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="w-4 h-4 text-amber-400" />
+                  <span className="font-mono text-xs font-bold text-white">Citizen Node #A</span>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-800">
+                  Offline • No 4G
+                </span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">1. Create Voucher</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Create a cryptographically signed payment voucher offline
+              <div className="space-y-1 font-mono text-xs">
+                <p className="text-slate-400 text-[11px]">Local Balance in Secure Enclave:</p>
+                <p className="text-lg font-bold text-white">450.00 ₳</p>
+                <p className="text-[10px] text-slate-500">Hardware Monotonic Nonce: #4012</p>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-mono text-amber-300">
+                Voucher: Send 50.00 ₳ to Merchant
+              </div>
+            </div>
+
+            {/* Mesh Beam Transfer Effect */}
+            <div className="md:col-span-3 text-center space-y-3">
+              <div className="relative flex items-center justify-center">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
+                  pulseActive
+                    ? 'bg-amber-400 text-slate-950 scale-110 shadow-lg shadow-amber-400/50'
+                    : 'bg-slate-900 text-slate-400 border border-slate-800'
+                }`}>
+                  <Radio className={`w-8 h-8 ${pulseActive ? 'animate-bounce' : ''}`} />
+                </div>
+              </div>
+              <p className="text-[11px] font-mono text-slate-400">
+                {pulseActive ? 'BLE Mesh Pulse Active (2.4 GHz)' : 'Offline Proximity Range: 10m'}
               </p>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
+            {/* Phone B (Merchant Node) */}
+            <div className="md:col-span-4 p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="w-4 h-4 text-emerald-400" />
+                  <span className="font-mono text-xs font-bold text-white">Merchant Node #B</span>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-800">
+                  Offline • No Internet
+                </span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">2. Transfer Offline</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Transfer the voucher to another device via BLE/NFC
+              <div className="space-y-1 font-mono text-xs">
+                <p className="text-slate-400 text-[11px]">Received Offline Invoices:</p>
+                <p className="text-lg font-bold text-emerald-400">
+                  {syncStatus === 'synced' ? '+50.00 ₳ (Cached)' : '0.00 ₳ Pending'}
+                </p>
+                <p className="text-[10px] text-slate-500">Signature: Ed25519 Verified Locally</p>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-mono text-emerald-300">
+                Status: {syncStatus === 'synced' ? 'Receipt Cryptographically Valid' : 'Listening for Pulse...'}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Interactive Trigger Button */}
+          <div className="text-center pt-2">
+            <button
+              onClick={handleSimulatePulse}
+              disabled={pulseActive}
+              className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 font-mono font-bold text-xs inline-flex items-center gap-2 shadow-xs transition-transform active:scale-95"
+            >
+              <Zap className="w-4 h-4 fill-current" />
+              <span>{pulseActive ? t.pulseRunning : t.triggerPulse}</span>
+            </button>
+          </div>
+
+          {syncStatus === 'synced' && (
+            <div className="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-xs font-mono font-bold flex items-center justify-center gap-2 text-center">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{t.pulseComplete}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Security Pillars */}
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black text-slate-950">{t.protocolTitle}</h2>
+            <p className="text-xs text-slate-600">
+              How PeThar prevents double spending and fraudulent replays without requiring access to an online blockchain or server.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold">
+                <Cpu className="w-6 h-6 text-amber-600" />
+              </div>
+              <h3 className="text-base font-black text-slate-950">Hardware Monotonic Nonce</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                The Secure Enclave guarantees the voucher counter can only strictly increment. It is physically impossible to duplicate or roll back an offline voucher.
               </p>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
+                <ShieldCheck className="w-6 h-6 text-emerald-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">3. Sync Online</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Voucher settles automatically when back online
+              <h3 className="text-base font-black text-slate-950">Slashing & Collateral Bond</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Any attempted double-spend is automatically detected during reconciliation, resulting in immediate liquidation of the sender's bullion bond.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-sky-100 text-sky-900 flex items-center justify-center font-bold">
+                <RefreshCw className="w-6 h-6 text-sky-600" />
+              </div>
+              <h3 className="text-base font-black text-slate-950">Opportunistic Sync Hops</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                When any device in the mesh reconnects via satellite (Starlink) or cellular, it carries and gossips pending offline blocks to the main ledger.
               </p>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Offline အင်္ဂါရပ်များ' : 'PeThar Offline Features'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                </svg>
+        {/* Townships Field Deployment Map Strip */}
+        <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-slate-500 font-mono text-xs uppercase font-bold">
+                <Layers className="w-4 h-4 text-amber-600" />
+                <span>Field Deployment Status</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature1Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature1Desc}
-              </p>
+              <h3 className="text-lg font-black text-slate-950">Active Relay Coverage in Arakan</h3>
             </div>
+            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-mono font-bold">
+              50+ Townships & Villages Online
+            </span>
+          </div>
 
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature2Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature2Desc}
-              </p>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2 font-mono text-xs text-slate-700">
+            <div className="p-3 rounded-xl bg-white border border-slate-200">
+              <p className="font-bold text-slate-900">Sittwe Central</p>
+              <p className="text-[11px] text-emerald-600">34 Relay Beacons</p>
             </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature3Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature3Desc}
-              </p>
+            <div className="p-3 rounded-xl bg-white border border-slate-200">
+              <p className="font-bold text-slate-900">Mrauk-U Heritage</p>
+              <p className="text-[11px] text-emerald-600">22 Relay Beacons</p>
             </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature4Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature4Desc}
-              </p>
+            <div className="p-3 rounded-xl bg-white border border-slate-200">
+              <p className="font-bold text-slate-900">Kyaukphyu Deep Port</p>
+              <p className="text-[11px] text-emerald-600">18 Relay Beacons</p>
+            </div>
+            <div className="p-3 rounded-xl bg-white border border-slate-200">
+              <p className="font-bold text-slate-900">Maungdaw Border</p>
+              <p className="text-[11px] text-emerald-600">15 Relay Beacons</p>
+            </div>
+            <div className="p-3 rounded-xl bg-white border border-slate-200">
+              <p className="font-bold text-slate-900">Thandwe Airport</p>
+              <p className="text-[11px] text-emerald-600">12 Relay Beacons</p>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Use Cases Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'အော့ဖ်လိုင်း ငွေပေးချေမှု အသုံးပြုနိုင်သည့် နယ်ပယ်များ' : 'Offline Payment Use Cases'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'လက်တွေ့နယ်ပယ်အသီးသီးတွင် အကျိုးရှိစွာ အသုံးချနိုင်သည့် နည်းလမ်းများ'
-              : 'Ideal scenarios for using PeThar Offline payments'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Rural Areas</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Perfect for villages and communities with limited internet connectivity
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Enables financial inclusion for underserved populations
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Emergency Situations</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Works during natural disasters, network outages, or power failures
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Critical for emergency response and humanitarian aid distribution
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Travel & Remote Work</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Ideal for travelers, remote workers, and digital nomads
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                No need to worry about roaming charges or finding WiFi
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Market & Street Vendors</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Perfect for market stalls, street food vendors, and informal businesses
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Enables cashless transactions in cash-only environments
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'အော့ဖ်လိုင်း ငွေပေးချေမှုကို စမ်းသပ်ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Try Offline Payments?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Experience the freedom of making payments anywhere, even without internet'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Try Offline Demo
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
-          >
-            Learn More About Offline Tech
-          </button>
-        </div>
-      </section>
+      </div>
     </BaseLayout>
   );
 };

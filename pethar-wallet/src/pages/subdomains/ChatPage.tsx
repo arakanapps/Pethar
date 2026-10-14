@@ -1,40 +1,100 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  MessageSquare, ShieldCheck, Send, CheckCircle2, Lock,
+  ArrowRight, Clock
+} from 'lucide-react';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface ChatPageProps {
   lang: Language;
 }
 
+interface MessageItem {
+  id: string;
+  sender: 'user' | 'agent';
+  text: string;
+  time: string;
+}
+
 export const ChatPage = ({ lang }: ChatPageProps) => {
+  const [messages, setMessages] = useState<MessageItem[]>([
+    {
+      id: 'm1',
+      sender: 'agent',
+      text: lang === 'ak'
+        ? 'မင်္ဂလာပါ။ PeThar တရားဝင် သတင်းအချက်အလက်နှင့် နည်းပညာအကူအညီပေးရေးမှ ကြိုဆိုပါသည်။ မည်သည့်အရာကို သိရှိလိုပါသလဲခင်ဗျာ။'
+        : 'Welcome to PeThar Sovereign Support. All communications are end-to-end encrypted with your hardware Ed25519 key. How may we assist you today?',
+      time: '14:30'
+    }
+  ]);
+  const [inputText, setInputText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Chat - Secure Messaging & Support',
-        heroSubtitle: 'Encrypted communication for customer support and peer-to-peer messaging',
-        feature1Title: 'Secure Customer Support',
-        feature1Desc: 'Chat with our support team using end-to-end encrypted messaging',
-        feature2Title: 'Peer-to-Peer Messaging',
-        feature2Desc: 'Send encrypted messages to friends, family, and contacts',
-        feature3Title: 'Business Messaging',
-        feature3Desc: 'Secure communication channels for businesses and their customers',
-        feature4Title: 'Multi-Media Support',
-        feature4Desc: 'Send text, images, files, and voice messages securely',
-        ctaLearnMore: 'Chat Features',
-        ctaGetStarted: 'Start Chatting',
+        badge: 'PeThar လုံခြုံရေးမြင့်မားသော စကားပြောခန်း · End-to-End Encrypted',
+        heroTitle: 'လုံခြုံစိတ်ချရသော ၂၄/၇ PeThar အကူအညီနှင့် ဆက်သွယ်ရေး',
+        heroSubtitle: 'Signal Protocol စံနှုန်းအတိုင်း သော့ခတ်ထားသော ဆက်သွယ်ရေးစနစ်ဖြင့် PeThar အဖွဲ့သားများနှင့် တိုက်ရိုက် စကားပြောဆိုနိုင်ပါသည်',
+        ctaWebWallet: 'ပိုက်ဆံအိတ်သို့ သွားမည်',
+        activeChannel: 'PeThar တရားဝင် အကူအညီပေးရေး ဗဟိုဌာန',
+        onlineStatus: 'အွန်လိုင်းရှိသည် • ပျမ်းမျှ ပြန်ကြားချိန် < ၁ မိနစ်',
+        placeholder: 'မေးခွန်း သို့မဟုတ် မက်ဆေ့ခ်ျ ရိုက်ထည့်ပါ...',
+        quickQ1: 'ရွှေအရန်ငွေကြေး မည်သို့ စစ်ဆေးရမလဲ?',
+        quickQ2: 'အော့ဖ်လိုင်း BLE ငွေလွှဲခြင်း ဘယ်လို အလုပ်လုပ်သလဲ?',
       }
     : {
-        heroTitle: 'PeThar Chat - Secure Messaging & Support',
-        heroSubtitle: 'Encrypted communication for customer support and peer-to-peer messaging',
-        feature1Title: 'Secure Customer Support',
-        feature1Desc: 'Chat with our support team using end-to-end encrypted messaging',
-        feature2Title: 'Peer-to-Peer Messaging',
-        feature2Desc: 'Send encrypted messages to friends, family, and contacts',
-        feature3Title: 'Business Messaging',
-        feature3Desc: 'Secure communication channels for businesses and their customers',
-        feature4Title: 'Multi-Media Support',
-        feature4Desc: 'Send text, images, files, and voice messages securely',
-        ctaLearnMore: 'Chat Features',
-        ctaGetStarted: 'Start Chatting',
+        badge: 'End-to-End Encrypted Support Rails · Signal Protocol',
+        heroTitle: 'Sovereign 24/7 Support & Direct Messaging',
+        heroSubtitle: 'Direct cryptographic channels protected by Ed25519 authentication with zero server-side plaintext logging',
+        ctaWebWallet: 'Open PeThar Wallet',
+        activeChannel: 'PeThar Sovereign Support Desk',
+        onlineStatus: 'Online • Average Response Time < 60s',
+        placeholder: 'Type your inquiry or transaction ID...',
+        quickQ1: 'How do I audit the 100% Gold Reserves?',
+        quickQ2: 'How does offline BLE mesh function?',
       };
+
+  const handleSend = (textToSend?: string) => {
+    const text = textToSend || inputText;
+    if (!text.trim()) return;
+
+    const newMsg: MessageItem = {
+      id: `m-${Date.now()}`,
+      sender: 'user',
+      text,
+      time: 'Just now'
+    };
+
+    setMessages(prev => [...prev, newMsg]);
+    if (!textToSend) setInputText('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      setIsTyping(false);
+      let reply = lang === 'ak'
+        ? 'ကျေးဇူးပြု၍ စောင့်ဆိုင်းပေးပါ။ သင်၏ မေးမြန်းချက်ကို စိစစ်ပြီး လိုအပ်သော အချက်အလက်များကို ချက်ချင်း ဖြေကြားပေးပါမည်။'
+        : 'Thank you for your message. Your inquiry has been matched with our verification ledger. You can inspect continuous audits directly on /trade and /accounts.';
+
+      if (text.includes('Gold') || text.includes('ရွှေ')) {
+        reply = lang === 'ak'
+          ? 'ဖေ့သာရှိ AKD တိုင်းသည် လန်ဒန်နှင့် ဘန်ကောက်ရှိ စစ်ဆေးပြီး ရွှေတုံး 999.9 နှင့် 1:1 USDT အပြည့်အဝ အာမခံထားရှိပါသည်။ /accounts စာမျက်နှာတွင် စစ်ဆေးနိုင်ပါသည်။'
+          : 'All Arakan Dollars (AKD) maintain verifiable 100% reserve backing in London allocated bullion (999.9 Fine Gold) and 1:1 USDT reserves. View certificates under /accounts.';
+      } else if (text.includes('BLE') || text.includes('အော့ဖ်လိုင်း')) {
+        reply = lang === 'ak'
+          ? 'အော့ဖ်လိုင်း BLE ငွေလွှဲခြင်းသည် အင်တာနက်မလိုဘဲ ဖုန်းအချင်းချင်း 10m အကွာအဝေးအတွင်း Cryptographic Vouchers ဖလှယ်ပြီး အင်တာနက်ရချိန်တွင် ပြန်လည်စာရင်းရှင်းပေးပါသည်။'
+          : 'PeThar Offline BLE Mesh uses peer-to-peer 2.4GHz pulses up to 10 meters. Signed receipts are cached in the Secure Enclave and reconciled when connectivity returns.';
+      }
+
+      setMessages(prev => [...prev, {
+        id: `m-reply-${Date.now()}`,
+        sender: 'agent',
+        text: reply,
+        time: 'Just now'
+      }]);
+    }, 700);
+  };
 
   return (
     <BaseLayout
@@ -43,173 +103,154 @@ export const ChatPage = ({ lang }: ChatPageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-16 max-w-6xl mx-auto">
+        
+        {/* Hero Section */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <MessageSquare className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.badge}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
+
+          <div className="flex justify-center pt-2">
             <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={() => redirectToSubdomain('wallet')}
+              className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono shadow-xs transition-all active:scale-[0.98] flex items-center gap-2"
             >
-              {t.ctaGetStarted}
-            </button>
-            <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
-            >
-              {t.ctaLearnMore}
+              <span>{t.ctaWebWallet}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
-      </section>
 
-      {/* How It Works Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Chat အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Chat Works'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Secure messaging for support, friends, family, and business'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        {/* Live Encrypted Messenger Sandbox */}
+        <div className="max-w-3xl mx-auto rounded-3xl bg-white border border-slate-200/90 shadow-xl overflow-hidden">
+          
+          {/* Messenger Header Bar */}
+          <div className="px-6 py-4 bg-slate-950 text-white flex items-center justify-between border-b border-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center font-black text-sm">
+                PT
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">1. Open Chat</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Open a chat with support, a contact, or start a business conversation
-              </p>
+              <div>
+                <h3 className="text-xs font-black text-white">{t.activeChannel}</h3>
+                <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>{t.onlineStatus}</span>
+                </div>
+              </div>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">2. Send Message</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Type your message, attach files if needed, and send securely
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-12 h-12 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">3. Secure Delivery</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Messages delivered with end-to-end encryption and read receipts
-              </p>
+            <div className="flex items-center gap-2 text-slate-400 text-xs font-mono">
+              <Lock className="w-3.5 h-3.5 text-amber-400" />
+              <span>E2EE 256-bit</span>
             </div>
           </div>
+
+          {/* Chat Messages Body */}
+          <div className="p-6 space-y-4 min-h-[320px] max-h-[440px] overflow-y-auto bg-slate-50/50">
+            {messages.map((m) => (
+              <div
+                key={m.id}
+                className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`max-w-md p-4 rounded-2xl text-xs leading-relaxed space-y-1 ${
+                  m.sender === 'user'
+                    ? 'bg-amber-400 text-slate-950 font-medium rounded-br-xs shadow-xs'
+                    : 'bg-white text-slate-800 border border-slate-200/80 rounded-bl-xs shadow-xs'
+                }`}>
+                  <p>{m.text}</p>
+                  <p className={`text-[10px] font-mono text-right ${
+                    m.sender === 'user' ? 'text-amber-900/60' : 'text-slate-400'
+                  }`}>
+                    {m.time}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="p-3 bg-white border border-slate-200/80 rounded-2xl rounded-bl-xs text-xs font-mono text-slate-400 flex items-center gap-1.5 shadow-xs">
+                  <Clock className="w-3.5 h-3.5 animate-spin text-amber-600" />
+                  <span>PeThar Support is typing...</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Questions Strip */}
+          <div className="px-6 py-2.5 bg-white border-t border-slate-100 flex flex-wrap gap-2">
+            <button
+              onClick={() => handleSend(t.quickQ1)}
+              className="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-mono transition-colors"
+            >
+              {t.quickQ1}
+            </button>
+            <button
+              onClick={() => handleSend(t.quickQ2)}
+              className="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-mono transition-colors"
+            >
+              {t.quickQ2}
+            </button>
+          </div>
+
+          {/* Chat Input Field */}
+          <div className="p-4 bg-white border-t border-slate-200 flex items-center gap-3">
+            <input
+              type="text"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder={t.placeholder}
+              className="flex-1 px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400 font-mono"
+            />
+            <button
+              onClick={() => handleSend()}
+              className="p-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-xs transition-transform active:scale-95 shrink-0"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Chat အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar Chat Features'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature1Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature1Desc}
-              </p>
-            </div>
+        {/* Security Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <ShieldCheck className="w-6 h-6 text-emerald-600 mb-2" />
+            <h4 className="text-base font-black text-slate-950">Zero Plaintext Logging</h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Messages are encrypted on your local device before transmission. No employee or server administrator can inspect chat content.
+            </p>
+          </div>
 
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature2Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature2Desc}
-              </p>
-            </div>
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <Lock className="w-6 h-6 text-amber-600 mb-2" />
+            <h4 className="text-base font-black text-slate-950">Disappearing Messages</h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Set ephemeral timers on peer-to-peer discussions to ensure sensitive settlement negotiations evaporate after completion.
+            </p>
+          </div>
 
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature3Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature3Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature4Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature4Desc}
-              </p>
-            </div>
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <CheckCircle2 className="w-6 h-6 text-sky-600 mb-2" />
+            <h4 className="text-base font-black text-slate-950">Direct Arbiter Escalation</h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              If an escrow dispute arises, bring certified chamber arbiters into a cryptographically signed multi-party thread instantly.
+            </p>
           </div>
         </div>
-      </section>
 
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'စကားစတင်ပြောဆိုရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Chat?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Start secure conversations with support, friends, family, or businesses'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Start Chatting
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
-          >
-            Learn More About Chat
-          </button>
-        </div>
-      </section>
+      </div>
     </BaseLayout>
   );
 };
