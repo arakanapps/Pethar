@@ -17,13 +17,11 @@ import { DeveloperPage } from './pages/subdomains/DeveloperPage'
 import { ApiPage } from './pages/subdomains/ApiPage'
 import { DocsPage } from './pages/subdomains/DocsPage'
 import { WalletPage } from './pages/subdomains/WalletPage'
-import LandingPage from './pages/LandingPage'
-import WebBankingDashboard from './pages/WebBankingDashboard'
-import petharLanding from './pages/pethar/petharLanding'
+import Main from './pages/Main'
+import DashboardPage from './pages/DashboardPage'
 // New subdomain pages
 import { OfflinePage } from './pages/subdomains/OfflinePage'
 import { OnlinePage } from './pages/subdomains/OnlinePage'
-import { PlatformPage } from './pages/subdomains/PlatformPage'
 import { AdminPage } from './pages/subdomains/AdminPage'
 import { CloudPage } from './pages/subdomains/CloudPage'
 import { BetaPage } from './pages/subdomains/BetaPage'
@@ -131,9 +129,9 @@ export default function App() {
   }
 
   // Subdomain-based routing for public pages
-  // pethar landing page (design preview) at /pethar
+  // pethar landing page at /pethar
   if (location.pathname === '/pethar' || location.pathname.startsWith('/pethar/')) {
-    return <petharLanding />
+    return <Main lang={currentLang} setLang={handleSetLang} />
   }
 
   if (!isBanking) {
@@ -147,7 +145,7 @@ export default function App() {
         )
       case 'app':
         return (
-          <WebBankingDashboard
+          <DashboardPage
             lang={currentLang}
             setLang={handleSetLang}
             theme="light"
@@ -266,8 +264,11 @@ export default function App() {
         )
       case 'platform':
         return (
-          <PlatformPage
+          <DashboardPage
             lang={currentLang}
+            setLang={handleSetLang}
+            initialTab="treasury"
+            onExit={() => redirectToSubdomain('', { search: '' })}
           />
         )
       case 'admin':
@@ -391,9 +392,9 @@ export default function App() {
       case 'www':
       case '':
       default:
-        // Main domain pethar.co.uk & www - public landing page for everyone to see about PeThar
+        // Main domain pethar.co.uk & www - public landing page
         return (
-          <LandingPage
+          <Main
             lang={currentLang}
             setLang={handleSetLang}
           />
@@ -401,9 +402,9 @@ export default function App() {
     }
   }
 
-  // Banking/authenticated route - show the web banking dashboard
+  // Banking/authenticated route - show the unified dashboard
   return (
-    <WebBankingDashboard
+    <DashboardPage
       lang={currentLang}
       setLang={handleSetLang}
       theme="light"

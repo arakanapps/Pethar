@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pe Thar (ဖေ့သာ) — Download for iOS</title>
+    <link rel="icon" type="image/png" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Padauk', 'Noto Sans Myanmar', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(145deg, #0b0f19 0%, #151d2f 50%, #0d121e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        /* Ambient Glow */
+        .ambient-glow {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 500px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 80%);
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            z-index: 10;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #f59e0b;
+            transform: translateY(-1px);
+        }
+
+        .language-switcher {
+            position: relative;
+        }
+
+        .lang-toggle-btn {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .lang-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #f59e0b;
+        }
+
+        .lang-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: #172033;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            min-width: 160px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.25s ease;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .lang-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .lang-option {
+            padding: 12px 18px;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .lang-option:hover {
+            background: rgba(245, 158, 11, 0.15);
+            color: #ffffff;
+        }
+
+        .lang-option.active {
+            background: rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+        }
+
+        /* Hero / Logo Section */
+        .hero-section {
+            position: relative;
+            text-align: center;
+            margin: 30px 0 20px;
+            z-index: 5;
+        }
+
+        .app-logo-wrap {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 18px;
+        }
+
+        .app-logo {
+            width: 116px;
+            height: 116px;
+            filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.55));
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+        }
+
+        .app-logo:hover {
+            transform: scale(1.05) translateY(-2px);
+            filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.65));
+        }
+
+        /* Interactive Device Theme Selector */
+        .theme-selector-wrap {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .theme-pill-group {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+            padding: 3px;
+            gap: 2px;
+            backdrop-filter: blur(12px);
+        }
+
+        .theme-pill-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .theme-pill-btn:hover {
+            color: #ffffff;
+        }
+
+        .theme-pill-btn.active {
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+        }
+
+        .theme-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .theme-dot.dark {
+            background: #18181b;
+            border: 1px solid #71717a;
+        }
+
+        .theme-dot.light {
+            background: #ffffff;
+            border: 1px solid #d4d4d8;
+        }
+
+        .theme-dot.tinted {
+            background: linear-gradient(135deg, #e2e8f0, #64748b);
+        }
+
+        .tint-swatches {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .tint-swatches.active {
+            display: inline-flex;
+        }
+
+        .swatch-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+            padding: 0;
+        }
+
+        .swatch-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .swatch-btn.active {
+            border-color: #ffffff;
+            transform: scale(1.15);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Adaptive Theme Showcase Section */
+        .adaptive-theme-section {
+            margin: 50px 0 35px;
+            padding: 36px 28px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            backdrop-filter: blur(16px);
+        }
+
+        .adaptive-theme-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .adaptive-theme-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .adaptive-theme-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .adaptive-theme-desc {
+            font-size: 14px;
+            color: #94a3b8;
+            max-width: 620px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .adaptive-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .adaptive-cards-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+
+        .adaptive-card {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            padding: 26px 20px;
+            text-align: center;
+            transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .adaptive-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(245, 158, 11, 0.35);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .adaptive-icon-img {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 16px;
+            display: block;
+            filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.5));
+            transition: transform 0.25s ease;
+        }
+
+        .adaptive-card:hover .adaptive-icon-img {
+            transform: scale(1.06);
+        }
+
+        .adaptive-card-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .tag-light {
+            background: rgba(255, 255, 255, 0.15);
+            color: #f1f5f9;
+        }
+
+        .tag-dark {
+            background: rgba(24, 24, 27, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f87171;
+        }
+
+        .tag-tinted {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #c7d2fe;
+        }
+
+        .adaptive-card-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .adaptive-card-caption {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .app-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 30px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
+        }
+
+        .app-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+        }
+
+        .app-description {
+            font-size: 15px;
+            color: #94a3b8;
+            max-width: 580px;
+            margin: 0 auto 28px;
+            line-height: 1.6;
+        }
+
+        /* Download Section */
+        .download-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0 45px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            color: #0f172a;
+            padding: 16px 36px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 16px;
+            transition: all 0.25s ease;
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15), 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(255, 255, 255, 0.25);
+            background: #ffffff;
+        }
+
+        .download-icon {
+            width: 22px;
+            height: 22px;
+        }
+
+        .download-subtext {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Installation Guide Section */
+        .guide-section {
+            margin: 30px 0 60px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 28px;
+            padding: 36px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            z-index: 5;
+        }
+
+        .guide-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .guide-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .guide-card {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.25s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .guide-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .step-badge {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #f59e0b;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .step-desc {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        /* Mockup Preview Box inside step */
+        .mockup-box {
+            background: #090d16;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 12px;
+            color: #cbd5e1;
+            position: relative;
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .mockup-alert {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .mockup-alert b {
+            display: block;
+            color: #ffffff;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .mockup-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .mockup-btn {
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .mockup-btn-primary {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        .mockup-btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+
+        /* Lightbox modal */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-card {
+            background: #151d2f;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox-nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lightbox-nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .lightbox-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            padding-bottom: 30px;
+            position: relative;
+            z-index: 5;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 16px;
+            }
+            .app-title {
+                font-size: 26px;
+            }
+            .guide-section {
+                padding: 24px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-glow"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <a href="/" class="back-btn" id="backBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                <span id="backText">ပင်မစာမျက်နှာ</span>
+            </a>
+
+            <div class="language-switcher">
+                <button class="lang-toggle-btn" id="langToggle">
+                    <span id="langText">AK</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+                <div class="lang-dropdown" id="langDropdown">
+                    <div class="lang-option" data-lang="ak">ရခိုင် (AK)</div>
+                    <div class="lang-option" data-lang="my">မြန်မာ (MY)</div>
+                    <div class="lang-option" data-lang="en">English (EN)</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="app-logo-wrap">
+                <img src="/icon-dark.png" alt="Pe Thar Logo" id="mainAppLogo" class="app-logo" onerror="this.src='/apple-touch-icon.png'">
+                
+                <!-- Interactive Theme Switcher Pills -->
+                <div class="theme-selector-wrap">
+                    <div class="theme-pill-group">
+                        <button type="button" class="theme-pill-btn active" id="pillDark" onclick="switchDeviceTheme('dark')">
+                            <span class="theme-dot dark"></span>
+                            <span>Dark</span>
+                        </button>
+                        <button type="button" class="theme-pill-btn" id="pillLight" onclick="switchDeviceTheme('light')">
+                            <span class="theme-dot light"></span>
+                            <span>Light</span>
+                        </button>
+                        <button type="button" class="theme-pill-btn" id="pillTinted" onclick="switchDeviceTheme('tinted')">
+                            <span class="theme-dot tinted"></span>
+                            <span>Tinted</span>
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Accent Swatches for Tinted Mode -->
+                    <div class="tint-swatches" id="tintSwatches">
+                        <button type="button" class="swatch-btn active" style="background: linear-gradient(135deg, #e2e8f0, #94a3b8);" title="Platinum / Silver" onclick="setCustomTint('default')"></button>
+                        <button type="button" class="swatch-btn" style="background: #f59e0b;" title="Amber Gold" onclick="setCustomTint('amber')"></button>
+                        <button type="button" class="swatch-btn" style="background: #3b82f6;" title="Cyber Blue" onclick="setCustomTint('blue')"></button>
+                        <button type="button" class="swatch-btn" style="background: #10b981;" title="Emerald" onclick="setCustomTint('emerald')"></button>
+                        <button type="button" class="swatch-btn" style="background: #a855f7;" title="Purple" onclick="setCustomTint('purple')"></button>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 6px;">
+                <span class="app-badge-pill">● 1 ₳ = 1 $  ·  Online + Offline Mode</span>
+            </div>
+            <h1 class="app-title" id="appTitle">Pe Thar (ဖေ့သာ) iOS အက်ပ်</h1>
+            <p class="app-description" id="appDesc">
+                App Store မလိုဘဲ တိုက်ရိုက် Configuration Profile ဖြင့် ထည့်သွင်းပါ။ အင်တာနက်မရှိချိန်တွင်လည်း အော့ဖ်လိုင်းမုဒ် (Offline Mode) ကို အသုံးပြုနိုင်ပါသည်။
+            </p>
+        </div>
+
+        <!-- Download Action -->
+        <div class="download-section">
+            <a href="/pethar.mobileconfig" class="download-btn" id="iosDownloadBtn" download>
+                <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.07,6.7 11.95,6.61C11.8,5.46 12.36,4.26 13,3.5Z"/>
+                </svg>
+                <span id="downloadBtnText">iOS Profile ဒေါင်းလုဒ်လုပ်မည်</span>
+            </a>
+            <div class="download-subtext" id="downloadSubtext">
+                Safari ဘရောက်ဇာတွင် တိုက်ရိုက်နှိပ်ပြီး အတည်ပြုပါ
+            </div>
+        </div>
+
+        <!-- Step-by-Step Installation Guide -->
+        <section class="guide-section">
+            <h2 class="guide-title" id="guideTitle">iOS တွင် အလွယ်တကူ ထည့်သွင်းနည်း (၇ ဆင့်)</h2>
+            <p class="guide-subtitle" id="guideSubtitle">
+                အောက်ပါ အဆင့်အတိုင်း လုပ်ဆောင်ရုံဖြင့် သင့် iPhone/iPad မျက်နှာပြင်တွင် Pe Thar အက်ပ် ချက်ချင်းပေါ်လာပါမည်။
+            </p>
+
+            <div class="guide-grid" id="guideGrid">
+                <!-- Step 1 -->
+                <div class="guide-card" onclick="openStep(0)">
+                    <div>
+                        <div class="step-header">
+                            <span class="step-badge">1</span>
+                            <span class="step-title" id="s1t">Download ခလုတ်ကို နှိပ်ပါ</span>
+                        </div>
+                        <p class="step-desc" id="s1d">Safari တွင် "Configuration profile available" ဟု မေးလျှင် Continue (သို့မဟုတ် Allow) ကို နှိပ်ပါ။</p>
+                    </div>
+                    <div class="mockup-box">
+                        <div class="mockup-alert">
+                            <b>Configuration profile available</b>
+                            <span>Continue downloading a configuration profile from pethar.co.uk?</span>
+                            <div class="mockup-actions">
+                                <span class="mockup-btn mockup-btn-secondary">Cancel</span>
+                                <span class="mockup-btn mockup-btn-primary">Continue</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="guide-card" onclick="openStep(1)">
+                    <div>
+                        <div class="step-header">
+                            <span class="step-badge">2</span>
+                            <span class="step-title" id="s2t">Profile Downloaded ကို ပိတ်ပါ</span>
+                        </div>
+                        <p class="step-desc" id="s2d">"Profile Downloaded" ဟု ပေါ်လာပါက Close ခလုတ်ကို နှိပ်လိုက်ပါ။</p>
+                    </div>
+                    <div class="mockup-box">
+                        <div class="mockup-alert">
+                            <b>Profile Downloaded</b>
+                            <span>Review the profile in Settings app if you want to install it.</span>
+                            <div class="mockup-actions">
+                                <span class="mockup-btn mockup-btn-primary">Close</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="guide-card" onclick="openStep(2)">
+                    <div>
+                        <div class="step-header">
+                            <span class="step-badge">3</span>
+                            <span class="step-title" id="s3t">iPhone "Settings" သို့ သွားပါ</span>
+                        </div>
+                        <p class="step-desc" id="s3d">သင့် iPhone ပင်မမျက်နှာပြင်မှ Settings (ဆက်တင်) အက်ပ်ကို ဖွင့်ပါ။</p>
+                    </div>
+                    <div class="mockup-box">
+                        <div style="background: rgba(255,255,255,0.08); padding: 10px; border-radius: 8px;">
+                            <span style="color:#94a3b8;">⚙️ Settings</span><br>
+                            <b style="color:#fff;">Apple ID &amp; iCloud</b>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="guide-card" onclick="openStep(3)">
+                    <div>
+                        <div class="step-header">
+                            <span class="step-badge">4</span>
+                            <span class="step-title" id="s4t">"Profile Downloaded" ကို နှိပ်ပါ</span>
+                        </div>
+                        <p class="step-desc" id="s4d">Settings ထဲတွင် သင့်အကောင့်အောက်နားရှိ "Profile Downloaded" စာတန်းကို နှိပ်ပါ။</p>
+                    </div>
+                    <div class="mockup-box">
+                        <div style="background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); padding: 10px; border-radius: 8px; color: #60a5fa;">
+                            <b>📥 Profile Downloaded</b>
+                            <span style="font-size:11px; display:block; color:#94a3b8;">Pe Thar (ဖေ့သာ)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="guide-card" onclick="openStep(4)">
+                    <div>
+                        <div class="step-header">
+                            <span class="step-badge">5</span>
+                            <span class="step-title" id="s5t">Install (ထည့်သွင်းမည်) နှိပ်ပါ</span>
+                        </div>
+                        <p class="step-desc" id="s5d">ညာဘက်ထိပ်ထောင့်ရှိ "Install" ခလုတ်အပြာရောင်ကို နှိပ်ပါ။</p>
+                    </div>
+                    <div class="mockup-box">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:#94a3b8;">Cancel</span>
+                            <b style="color:#fff;">Install Profile</b>
+                            <b style="color:#3b82f6;">Install</b>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="guide-card" onclick="openStep(5)">
+                    <div>
+                        <div class="step-header">
+                            <span class="step-badge">6</span>
+                            <span class="step-title" id="s6t">Passcode ရိုက်ထည့်ပါ</span>
+                        </div>
+                        <p class="step-desc" id="s6d">သင့် iPhone စခရင်သော့ဖွင့် Passcode ရိုက်ထည့်ပြီး ထပ်မံ Install နှိပ်ပါ။</p>
+                    </div>
+                    <div class="mockup-box">
+                        <div style="text-align:center;">
+                            <span style="color:#94a3b8;">Enter Passcode</span>
+                            <div style="letter-spacing:6px; font-size:16px; margin-top:4px;">••••••</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 7 -->
+                <div class="guide-card" onclick="openStep(6)">
+                    <div>
+                        <div class="step-header">
+                            <span class="step-badge">7</span>
+                            <span class="step-title" id="s7t">ပြီးပါပြီ! Pe Thar စတင်သုံးစွဲပါ</span>
+                        </div>
+                        <p class="step-desc" id="s7d">သင့် Home Screen တွင် Pe Thar ပေါ်လာပါမည်။ အော့ဖ်လိုင်းရော အွန်လိုင်းပါ ငွေလွှဲနိုင်ပါပြီ။</p>
+                    </div>
+                    <div class="mockup-box" style="text-align:center;">
+                        <span style="font-size:24px;">🎉</span><br>
+                        <b style="color:#fbbf24;">Pe Thar Installed!</b>
+                        <span style="font-size:11px; color:#10b981;">Offline Mode Ready</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lightbox Modal -->
+        <div class="lightbox" id="lightbox">
+            <div class="lightbox-card">
+                <button class="lightbox-close" onclick="closeLightbox()">×</button>
+                <div id="lightboxContent"></div>
+                <div class="lightbox-nav-bar">
+                    <button class="lightbox-nav-btn" onclick="prevStep()">‹ အရင်</button>
+                    <span id="lightboxCounter" style="font-size: 12px; color: #94a3b8; font-weight:700;">1 / 7</span>
+                    <button class="lightbox-nav-btn" onclick="nextStep()">ရှေ့သို့ ›</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adaptive Device Themes Showcase (iOS 18 & Android) -->
+        <section class="adaptive-theme-section">
+            <div class="adaptive-theme-header">
+                <span class="adaptive-theme-badge">iOS 18 &amp; Android 14+ Ready</span>
+                <h2 class="adaptive-theme-title">Device-Adaptive App Icons</h2>
+                <p class="adaptive-theme-desc">
+                    Pe Thar သည် သင့်ဖုန်း၏ စနစ်အလင်းအမှောင် (System Appearance) နှင့် Home Screen Themes အလိုက် အလိုအလျောက် ပုံစံပြောင်းလဲပေးပါသည်။
+                </p>
+            </div>
+
+            <div class="adaptive-cards-grid">
+                <!-- Light Theme -->
+                <div class="adaptive-card">
+                    <img src="/icon-light.png" alt="Pe Thar Light Theme Icon" class="adaptive-icon-img">
+                    <span class="adaptive-card-tag tag-light">Light Mode</span>
+                    <h3 class="adaptive-card-name">Clean Daylight</h3>
+                    <p class="adaptive-card-caption">ဖြူစင်တောက်ပသော မျက်နှာပြင်ပေါ်တွင် အနီရောင် သရဖူအမှတ်တံဆိပ်ဖြင့် ရှင်းလင်းစွာ မြင်တွေ့ရမည့် ပုံစံ။</p>
+                </div>
+
+                <!-- Dark Theme -->
+                <div class="adaptive-card">
+                    <img src="/icon-dark.png" alt="Pe Thar Dark Theme Icon" class="adaptive-icon-img">
+                    <span class="adaptive-card-tag tag-dark">Dark Mode</span>
+                    <h3 class="adaptive-card-name">OLED Obsidian</h3>
+                    <p class="adaptive-card-caption">ညဘက်မျက်စိအေးစေရန် အနက်ရောင်မျက်နှာပြင်နှင့် တောက်ပသောအမှတ်တံဆိပ် ပေါင်းစပ်ထားသော ပုံစံ။</p>
+                </div>
+
+                <!-- Tinted Theme -->
+                <div class="adaptive-card">
+                    <img src="/icon-tinted.png" alt="Pe Thar Tinted Theme Icon" class="adaptive-icon-img">
+                    <span class="adaptive-card-tag tag-tinted">Tinted Mode</span>
+                    <h3 class="adaptive-card-name">iOS 18 Metallic Tint</h3>
+                    <p class="adaptive-card-caption">သင့် iPhone စိတ်ကြိုက် အရောင်ရွေးချယ်မှု (Accent Color) နှင့် လိုက်လျောညီထွေစွာ ပြောင်းလဲပေးသည့် ပုံစံ။</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Pe Thar (ဖေ့သာ) · pethar.co.uk · 1 ₳ = 1 $ · Online + Offline Mode</p>
+        </footer>
+    </div>
+
+    <script>
+        const i18n = {
+            ak: {
+                back: 'ပင်မစာမျက်နှာ',
+                title: 'Pe Thar (ဖေ့သာ) iOS အက်ပ်',
+                desc: 'App Store မလိုဘဲ တိုက်ရိုက် Configuration Profile ဖြင့် ထည့်သွင်းပါ။ အင်တာနက်မရှိချိန်တွင်လည်း အော့ဖ်လိုင်းမုဒ် (Offline Mode) ကို အသုံးပြုနိုင်ပါသည်။',
+                btn: 'iOS Profile ဒေါင်းလုဒ်လုပ်မည်',
+                subtext: 'Safari ဘရောက်ဇာတွင် တိုက်ရိုက်နှိပ်ပြီး အတည်ပြုပါ',
+                guideTitle: 'iOS တွင် အလွယ်တကူ ထည့်သွင်းနည်း (၇ ဆင့်)',
+                guideSubtitle: 'အောက်ပါ အဆင့်အတိုင်း လုပ်ဆောင်ရုံဖြင့် သင့် iPhone/iPad မျက်နှာပြင်တွင် Pe Thar အက်ပ် ချက်ချင်းပေါ်လာပါမည်။',
+                steps: [
+                    { t: 'Download ခလုတ်ကို နှိပ်ပါ', d: 'Safari တွင် "Configuration profile available" ဟု မေးလျှင် Continue (သို့မဟုတ် Allow) ကို နှိပ်ပါ။' },
+                    { t: 'Profile Downloaded ကို ပိတ်ပါ', d: '"Profile Downloaded" ဟု ပေါ်လာပါက Close ခလုတ်ကို နှိပ်လိုက်ပါ။' },
+                    { t: 'iPhone "Settings" သို့ သွားပါ', d: 'သင့် iPhone ပင်မမျက်နှာပြင်မှ Settings (ဆက်တင်) အက်ပ်ကို ဖွင့်ပါ။' },
+                    { t: '"Profile Downloaded" ကို နှိပ်ပါ', d: 'Settings ထဲတွင် သင့်အကောင့်အောက်နားရှိ "Profile Downloaded" စာတန်းကို နှိပ်ပါ။' },
+                    { t: 'Install (ထည့်သွင်းမည်) နှိပ်ပါ', d: 'ညာဘက်ထိပ်ထောင့်ရှိ "Install" ခလုတ်အပြာရောင်ကို နှိပ်ပါ။' },
+                    { t: 'Passcode ရိုက်ထည့်ပါ', d: 'သင့် iPhone စခရင်သော့ဖွင့် Passcode ရိုက်ထည့်ပြီး ထပ်မံ Install နှိပ်ပါ။' },
+                    { t: 'ပြီးပါပြီ! Pe Thar စတင်သုံးစွဲပါ', d: 'သင့် Home Screen တွင် Pe Thar ပေါ်လာပါမည်။ အော့ဖ်လိုင်းရော အွန်လိုင်းပါ ငွေလွှဲနိုင်ပါပြီ။' }
+                ]
+            },
+            my: {
+                back: 'ပင်မစာမျက်နှာသို့',
+                title: 'Pe Thar (ဖေ့သာ) iOS အက်ပ် ထည့်သွင်းရန်',
+                desc: 'App Store မလိုဘဲ တိုက်ရိုက် Configuration Profile ဖြင့် ထည့်သွင်းပါ။ အင်တာနက်မရှိချိန်တွင် အော့ဖ်လိုင်းမုဒ်ဖြင့် အသုံးပြုနိုင်ပါသည်။',
+                btn: 'iOS Profile ဒေါင်းလုဒ်ရယူရန်',
+                subtext: 'Safari ဘရောက်ဇာတွင် တိုက်ရိုက်နှိပ်ပြီး ဆက်သွားပါ',
+                guideTitle: 'iPhone တွင် အလွယ်တကူ ထည့်သွင်းနည်း (၇ ဆင့်)',
+                guideSubtitle: 'အောက်ပါ အဆင့်အတိုင်း လိုက်နာရုံဖြင့် သင့် iPhone မျက်နှာပြင်တွင် Pe Thar အက်ပ် ပေါ်လာပါမည်။',
+                steps: [
+                    { t: 'Download ခလုတ်ကို နှိပ်ပါ', d: 'Safari တွင် "Configuration profile available" ဟု မေးလျှင် Continue (သို့မဟုတ် Allow) ကို နှိပ်ပါ။' },
+                    { t: 'Profile Downloaded ကို ပိတ်ပါ', d: '"Profile Downloaded" ဟု ပေါ်လာပါက Close ခလုတ်ကို နှိပ်လိုက်ပါ။' },
+                    { t: 'iPhone "Settings" သို့ သွားပါ', d: 'သင့် iPhone ပင်မမျက်နှာပြင်မှ Settings (ဆက်တင်) အက်ပ်ကို ဖွင့်ပါ။' },
+                    { t: '"Profile Downloaded" ကို နှိပ်ပါ', d: 'Settings ထဲတွင် သင့်အကောင့်အောက်နားရှိ "Profile Downloaded" စာတန်းကို နှိပ်ပါ။' },
+                    { t: 'Install (ထည့်သွင်းမည်) နှိပ်ပါ', d: 'ညာဘက်ထိပ်ထောင့်ရှိ "Install" ခလုတ်အပြာရောင်ကို နှိပ်ပါ။' },
+                    { t: 'Passcode ရိုက်ထည့်ပါ', d: 'သင့် iPhone စခရင်သော့ဖွင့် Passcode ရိုက်ထည့်ပြီး ထပ်မံ Install နှိပ်ပါ။' },
+                    { t: 'ပြီးပါပြီ! Pe Thar စတင်သုံးစွဲပါ', d: 'သင့် Home Screen တွင် Pe Thar ပေါ်လာပါမည်။ အော့ဖ်လိုင်းရော အွန်လိုင်းပါ ငွေလွှဲနိုင်ပါပြီ။' }
+                ]
+            },
+            en: {
+                back: '← Back to Home',
+                title: 'Download Pe Thar for iOS',
+                desc: 'Install directly via Apple Configuration Profile (.mobileconfig) without App Store restrictions. Fully equipped with 1 ₳ = 1 $ and Offline Mode.',
+                btn: 'Download iOS Profile',
+                subtext: 'Tap inside Safari browser and tap Continue when prompted',
+                guideTitle: '7 Simple Steps to Install on iOS',
+                guideSubtitle: 'Follow the visual steps below to add Pe Thar directly to your iPhone Home Screen.',
+                steps: [
+                    { t: 'Tap Download for iOS', d: 'When Safari asks "Configuration profile available", tap Continue (or Allow).' },
+                    { t: 'Close Download Notice', d: 'When Safari says "Profile Downloaded", tap Close.' },
+                    { t: 'Open iPhone Settings', d: 'Go to your iPhone Home Screen and open the native "Settings" app.' },
+                    { t: 'Tap "Profile Downloaded"', d: 'Right beneath your Apple ID card, tap on the "Profile Downloaded" row.' },
+                    { t: 'Tap "Install"', d: 'In the top right corner of the screen, tap the blue "Install" button.' },
+                    { t: 'Enter Device Passcode', d: 'Enter your iPhone lock screen passcode and confirm "Install".' },
+                    { t: 'Done! Open Pe Thar', d: 'Pe Thar is now on your Home Screen, ready for both Online and Offline Mode.' }
+                ]
+            }
+        };
+
+        let currentLang = 'ak';
+        let currentStepIndex = 0;
+
+        function setLang(lang) {
+            currentLang = lang;
+            const data = i18n[lang] || i18n.ak;
+
+            document.getElementById('backText').textContent = data.back;
+            document.getElementById('appTitle').textContent = data.title;
+            document.getElementById('appDesc').textContent = data.desc;
+            document.getElementById('downloadBtnText').textContent = data.btn;
+            document.getElementById('downloadSubtext').textContent = data.subtext;
+            document.getElementById('guideTitle').textContent = data.guideTitle;
+            document.getElementById('guideSubtitle').textContent = data.guideSubtitle;
+            document.getElementById('langText').textContent = lang.toUpperCase();
+
+            data.steps.forEach((s, idx) => {
+                const titleEl = document.getElementById(`s${idx + 1}t`);
+                const descEl = document.getElementById(`s${idx + 1}d`);
+                if (titleEl) titleEl.textContent = s.t;
+                if (descEl) descEl.textContent = s.d;
+            });
+
+            // Update dropdown active state
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.lang === lang);
+            });
+
+            document.getElementById('langDropdown').classList.remove('active');
+        }
+
+        // Toggle dropdown
+        document.getElementById('langToggle').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('langDropdown').classList.toggle('active');
+        });
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                setLang(opt.dataset.lang);
+            });
+        });
+
+        document.addEventListener('click', () => {
+            document.getElementById('langDropdown').classList.remove('active');
+        });
+
+        // Lightbox
+        function openStep(idx) {
+            currentStepIndex = idx;
+            renderLightbox();
+            document.getElementById('lightbox').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        function nextStep() {
+            currentStepIndex = (currentStepIndex + 1) % 7;
+            renderLightbox();
+        }
+
+        function prevStep() {
+            currentStepIndex = (currentStepIndex - 1 + 7) % 7;
+            renderLightbox();
+        }
+
+        function renderLightbox() {
+            const data = i18n[currentLang] || i18n.ak;
+            const step = data.steps[currentStepIndex];
+            const content = document.getElementById('lightboxContent');
+            document.getElementById('lightboxCounter').textContent = `${currentStepIndex + 1} / 7`;
+
+            content.innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <span class="step-badge">${currentStepIndex + 1}</span>
+                    <h3 style="font-size:18px; font-weight:800; color:#fff;">${step.t}</h3>
+                </div>
+                <p style="font-size:14px; color:#94a3b8; line-height:1.6; margin-bottom:20px;">${step.d}</p>
+                <div style="background:#090d16; border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:24px; text-align:center;">
+                    <div style="font-size:36px; margin-bottom:8px;">${['📱', '📥', '⚙️', '🔍', '↗️', '🔒', '✨'][currentStepIndex]}</div>
+                    <b style="color:#f59e0b; font-size:15px; display:block;">Step ${currentStepIndex + 1}</b>
+                    <span style="font-size:13px; color:#cbd5e1; margin-top:4px; display:block;">${step.t}</span>
+                </div>
+            `;
+        }
+
+        // Device Theme Switching Logic
+        let currentDeviceTheme = 'dark';
+        let currentCustomTint = 'default';
+
+        function switchDeviceTheme(theme) {
+            currentDeviceTheme = theme;
+            const logoEl = document.getElementById('mainAppLogo');
+            const swatchesEl = document.getElementById('tintSwatches');
+            
+            document.getElementById('pillDark').classList.toggle('active', theme === 'dark');
+            document.getElementById('pillLight').classList.toggle('active', theme === 'light');
+            document.getElementById('pillTinted').classList.toggle('active', theme === 'tinted');
+            
+            if (theme === 'tinted') {
+                swatchesEl.classList.add('active');
+                setCustomTint(currentCustomTint);
+            } else {
+                swatchesEl.classList.remove('active');
+                if (theme === 'light') {
+                    logoEl.src = '/icon-light.png';
+                } else {
+                    logoEl.src = '/icon-dark.png';
+                }
+            }
+        }
+
+        function setCustomTint(tint) {
+            currentCustomTint = tint;
+            const logoEl = document.getElementById('mainAppLogo');
+            
+            // Update swatch buttons active state
+            const swatches = document.querySelectorAll('.swatch-btn');
+            const tints = ['default', 'amber', 'blue', 'emerald', 'purple'];
+            swatches.forEach((btn, idx) => {
+                btn.classList.toggle('active', tints[idx] === tint);
+            });
+
+            if (tint === 'default') {
+                logoEl.src = '/icon-tinted.png';
+            } else {
+                logoEl.src = `/icon-tinted-${tint}.png`;
+            }
+        }
+
+        // Initialize from URL param
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramLang = urlParams.get('lang');
+        if (paramLang && (paramLang === 'en' || paramLang === 'my' || paramLang === 'ak')) {
+            setLang(paramLang);
+        } else {
+            setLang('ak');
+        }
+    </script>
+</body>
+</html>
