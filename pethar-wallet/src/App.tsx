@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import type { Language } from './i18n'
 import { getSubdomain, getRedirectMap, redirectToSubdomain } from './utils/subdomain'
-import { auth, signOutFirebase } from './lib/firebase'
+import { signOutFirebase } from './lib/firebase'
 
 // Import all subdomain pages
 import { LoginPage } from './pages/subdomains/LoginPage'
@@ -53,7 +53,7 @@ export default function App() {
   const navigate = useNavigate()
 
   // Get current subdomain
-  const subdomain = useMemo(() => getSubdomain(), [location.pathname, location.search])
+  const subdomain = useMemo(() => getSubdomain(), [])
 
   // Enforce Light Mode across all pages
   useEffect(() => {
@@ -169,22 +169,6 @@ export default function App() {
       case 'auth':
       case 'login':
       case 'signup': {
-        const isLoggedIn =
-          typeof window !== 'undefined' &&
-          (localStorage.getItem('pethar_logged_in') === 'true' || !!auth.currentUser)
-
-        if (isLoggedIn) {
-          return (
-            <DashboardPage
-              lang={currentLang}
-              setLang={handleSetLang}
-              theme="light"
-              setTheme={() => {}}
-              onExit={() => redirectToSubdomain('', { path: '/', search: '' })}
-            />
-          )
-        }
-
         const authMode = new URLSearchParams(location.search).get('mode')
         const showSignup =
           subdomain === 'signup' || authMode === 'signup'
