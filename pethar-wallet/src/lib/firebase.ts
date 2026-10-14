@@ -69,11 +69,10 @@ if (typeof window !== 'undefined') {
 // ── Authentication Methods ──
 
 /**
- * Sign in with Google using Firebase Auth popup
+ * Sign in with Google using Firebase Auth popup (instant single-click authentication)
  */
 export async function signInWithGooglePopup() {
   const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: 'select_account' });
   const result = await signInWithPopup(auth, provider);
   if (result.user) {
     createOrUpdateUserProfile(result.user).catch((err) => {
