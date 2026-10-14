@@ -22,14 +22,13 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
 
   // Auto-redirect to dashboard if user is authenticated with Google or email
   useEffect(() => {
-    if (auth.currentUser || (typeof window !== 'undefined' && localStorage.getItem('pethar_logged_in') === 'true')) {
+    if (auth.currentUser) {
       goToDashboard(lang, navigate)
       return
     }
 
     const unsubscribe = onAuthStateChange((user) => {
       if (user) {
-        localStorage.setItem('pethar_logged_in', 'true')
         goToDashboard(lang, navigate)
       }
     })
@@ -69,18 +68,20 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
       }
 
   const finish = () => {
-    localStorage.setItem('pethar_logged_in', 'true')
     setLoginSuccess(true)
-    goToDashboard(lang, navigate)
+    setTimeout(() => goToDashboard(lang, navigate), 300)
   }
 
   const handleGoogle = async () => {
     setIsLoading(true)
     setErrorMsg('')
     try {
-      await signInWithGooglePopup()
-      localStorage.setItem('pethar_logged_in', 'true')
-      goToDashboard(lang, navigate)
+      const res = await signInWithGooglePopup()
+      if (res?.user) {
+        finish()
+      } else {
+        finish()
+      }
     } catch (err: unknown) {
       console.warn('Google sign in note:', err)
       const code = (err as { code?: string })?.code
@@ -90,8 +91,7 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
         setErrorMsg(ak ? 'Browser Popup ပိတ်ထားပါသည် (Popup ဖွင့်ပေးပါ)' : 'Popup was blocked by your browser. Please allow popups.')
       } else {
         if (auth.currentUser) {
-          localStorage.setItem('pethar_logged_in', 'true')
-          goToDashboard(lang, navigate)
+          finish()
         } else {
           setErrorMsg(ak ? 'ဝင်၍မရပါ။ အချက်အလက် ပြန်စစ်ပါ' : 'Sign in failed. Check your connection or retry.')
         }
