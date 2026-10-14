@@ -1,891 +1,1126 @@
 import React, { useState, useMemo } from 'react'
 import { ArakanEmblem } from '../components/ArakanEmblem'
+import { TransactionSlip } from '../components/TransactionSlip'
+import { ReceiveQRCard } from '../components/ReceiveQRCard'
 import {
-  Send, QrCode, Coins, Search, LogOut, CheckCircle,
-  Copy, Eye, EyeOff, X, RefreshCw, Zap
+  Send, QrCode, Search, CheckCircle2,
+  Eye, EyeOff, Zap, Bell,
+  ShieldCheck, Sparkles, Smartphone,
+  Wallet, TrendingUp, History,
+  User, Download, Globe, Radio,
+  CreditCard, Store, Layers
 } from 'lucide-react'
-import {
-  transactions, initialUserProfile,
-  type UserProfile
-} from '../data'
+import { transactions as initialTransactions, initialUserProfile, type UserProfile, type Txn } from '../data'
 import type { Language } from '../i18n'
 
-export type DashboardTabType =
-  | 'overview'
-  | 'transfers'
-  | 'cards'
-  | 'pos'
-  | 'remittance'
-  | 'treasury'
-  | 'nodes'
-  | 'compliance'
-  | 'security'
-  | 'settings'
+export type NavTabType = 'home' | 'financial' | 'history' | 'account'
 
 export interface DashboardPageProps {
-  lang: Language
+  lang?: Language
   setLang?: (lang: Language) => void
-  theme?: 'dark' | 'light'
-  setTheme?: (theme: 'dark' | 'light') => void
+  initialTab?: string
+  theme?: string
+  setTheme?: (theme: string) => void
   onExit?: () => void
-  initialTab?: DashboardTabType
-}
-
-interface KycItem {
-  id: string
-  name: string
-  petharId: string
-  township: string
-  docType: string
-  status: 'APPROVED' | 'UNDER_REVIEW'
-  riskScore: string
-  submittedAt: string
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({
   lang = 'ak',
   setLang,
+  initialTab,
+  theme = 'light',
+  setTheme,
   onExit,
-  initialTab = 'overview',
 }) => {
   const ak = lang === 'ak'
 
-  const [activeTab, setActiveTab] = useState<DashboardTabType>(initialTab)
+  // Navigation Tab State (Home, Financial, History, Account)
+  const [navTab, setNavTab] = useState<NavTabType>(() => {
+    if (initialTab === 'treasury' || initialTab === 'financial') return 'financial'
+    if (initialTab === 'history') return 'history'
+    if (initialTab === 'account') return 'account'
+    return 'home'
+  })
   const [profile] = useState<UserProfile>(initialUserProfile)
   const [balanceVisible, setBalanceVisible] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Internet payment limit slider
-  const [paymentLimit, setPaymentLimit] = useState(2500)
+  // Balance & Vault State
+  const [walletBalance, setWalletBalance] = useState(1250.0)
+  const [offlineBalance] = useState(240.0)
+  const [coinsBalance, setCoinsBalance] = useState<number>(14)
+  void theme
+  void setTheme
+  void onExit
 
-  // Savings Tracker State
-  const [savingsBalance, setSavingsBalance] = useState(2400.0)
-  const [saveModalOpen, setSaveModalOpen] = useState(false)
-  const [saveDepositAmount, setSaveDepositAmount] = useState('200')
-  const [saveSuccess, setSaveSuccess] = useState(false)
-
-  // Modals
-  const [sendModalOpen, setSendModalOpen] = useState(false)
-  const [receiveModalOpen, setReceiveModalOpen] = useState(false)
-  const [copiedId, setCopiedId] = useState(false)
-
-  // Send Money form state
-  const [recipient, setRecipient] = useState('')
-  const [sendAmount, setSendAmount] = useState('')
-  const [sendMemo, setSendMemo] = useState('')
-  const [sendSuccess, setSendSuccess] = useState(false)
-  const [isSending, setIsSending] = useState(false)
-
-  // Platform State (from PlatformPage)
-  const [isPinging, setIsPinging] = useState(false)
-  const [kycFilter, setKycFilter] = useState<'all' | 'UNDER_REVIEW' | 'APPROVED'>('all')
-  const [kycQueue, setKycQueue] = useState<KycItem[]>([
+  // Transactions State
+  const [txList, setTxList] = useState<Txn[]>([
     {
-      id: 'ACC-8891',
-      name: 'Jack Halder',
-      petharId: 'AKD-8891-JACK',
-      township: 'Sittwe Central',
-      docType: 'Verified Identity + Secure Enclave',
-      status: 'APPROVED',
-      riskScore: 'Low (0.02)',
-      submittedAt: 'Today · 09:15',
+      id: 'TX-5001',
+      refId: '50059261069021',
+      title: 'Transfer to MR. MYAT S***',
+      titleMm: 'ဦးမြတ်စိုး သို့ ငွေလွှဲခြင်း',
+      category: 'p2p',
+      amount: -5.0,
+      currency: 'AKD',
+      time: '11 Oct 2026 02:01:08',
+      status: 'VERIFIED',
+      counterparty: 'MR. MYAT SOE PAI**** (004-********* -689)',
+      counterpartyMm: 'ဦးမြတ်စိုးပိုင် (PromptPay/PeThar)',
+      fee: 0.0,
+      hash: '0x8a91f4c2901bfa829471de990c7412ae8b7244ef0182c81',
     },
     {
-      id: 'ACC-9042',
-      name: 'Daw Nilar Win',
-      petharId: 'AKD-9042-NLW',
-      township: 'Mrauk-U District',
-      docType: 'Merchant Account Registration',
-      status: 'UNDER_REVIEW',
-      riskScore: 'Low (0.05)',
-      submittedAt: 'Today · 11:40',
+      id: 'TX-5002',
+      refId: '50059261069022',
+      title: 'Receive money from MR. MYAT S...',
+      titleMm: 'ဦးမြတ်စိုး ထံမှ ငွေလက်ခံရရှိခြင်း',
+      category: 'p2p',
+      amount: 20.0,
+      currency: 'AKD',
+      time: '11 Oct 2026 14:50:22',
+      status: 'SETTLED',
+      counterparty: 'MR. MYAT SOE PAING',
+      counterpartyMm: 'ဦးမြတ်စိုးပိုင်',
+      fee: 0.0,
+      hash: '0x3e11f0a829141bfa829471de990c7412ae8b7244ef',
     },
     {
-      id: 'ACC-3811',
-      name: 'U Kyaw Zan Hla',
-      petharId: 'AKD-3811-KZH',
-      township: 'Kyaukphyu Port Zone',
-      docType: 'Business Agent Credential',
-      status: 'APPROVED',
-      riskScore: 'Low (0.01)',
-      submittedAt: 'Yesterday · 16:20',
+      id: 'TX-5003',
+      refId: '50059261069023',
+      title: 'Grab Local Transportation',
+      titleMm: 'Grab ယာဉ်စီးခ ပေးချေခြင်း',
+      category: 'pos',
+      amount: -94.0,
+      currency: 'AKD',
+      time: '11 Oct 2026 02:00:15',
+      status: 'SETTLED',
+      counterparty: 'Grab Merchant Connect',
+      counterpartyMm: 'Grab ကုန်သည်ဝန်ဆောင်မှု',
+      fee: 0.0,
+      hash: '0x4981fa12048bfa829471de990c7412ae8b7244ef',
     },
-    {
-      id: 'ACC-4402',
-      name: 'Ma Khin Hla',
-      petharId: 'AKD-4402-MKH',
-      township: 'Thandwe Market',
-      docType: 'Basic Account Verification',
-      status: 'UNDER_REVIEW',
-      riskScore: 'Medium (0.12)',
-      submittedAt: 'Today · 13:05',
-    },
+    ...initialTransactions,
   ])
 
-  // Filtered transactions
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter((tx) => {
-      const matchesSearch =
-        tx.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tx.titleMm.includes(searchQuery) ||
-        tx.counterparty.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tx.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tx.refId.toLowerCase().includes(searchQuery.toLowerCase())
-      return matchesSearch
-    })
-  }, [searchQuery])
+  // Modals
+  const [selectedTx, setSelectedTx] = useState<Txn | null>(null)
+  const [receiptModalOpen, setReceiptModalOpen] = useState(false)
+  const [receiveModalOpen, setReceiveModalOpen] = useState(false)
+  const [sendModalOpen, setSendModalOpen] = useState(false)
+  const [topUpModalOpen, setTopUpModalOpen] = useState(false)
+  const [offlineBeamModalOpen, setOfflineBeamModalOpen] = useState(false)
+  const [allServicesModalOpen, setAllServicesModalOpen] = useState(false)
 
-  const handleCopyId = () => {
-    navigator.clipboard?.writeText(profile.petharId)
-    setCopiedId(true)
-    setTimeout(() => setCopiedId(false), 2500)
+  // Send Money form state
+  const [recipientInput, setRecipientInput] = useState('')
+  const [sendAmountInput, setSendAmountInput] = useState('')
+  const [sendMemoInput, setSendMemoInput] = useState('')
+  const [isSending, setIsSending] = useState(false)
+
+  // Top Up form state
+  const [topUpAmount, setTopUpAmount] = useState('100')
+  const [topUpAsset, setTopUpAsset] = useState<'USDT' | 'USDC' | 'USD1'>('USDT')
+
+  // Filtered transactions for search
+  const filteredTransactions = useMemo(() => {
+    return txList.filter((tx) => {
+      const q = searchQuery.toLowerCase()
+      return (
+        tx.title.toLowerCase().includes(q) ||
+        tx.titleMm.includes(q) ||
+        tx.counterparty.toLowerCase().includes(q) ||
+        tx.refId.toLowerCase().includes(q)
+      )
+    })
+  }, [txList, searchQuery])
+
+  // Handle open transaction receipt
+  const handleOpenReceipt = (tx: Txn) => {
+    setSelectedTx(tx)
+    setReceiptModalOpen(true)
   }
 
+  // Handle Send Money execution -> Immediately displays the verified receipt with QR!
   const handleExecuteSend = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!recipient || !sendAmount) return
+    const amt = parseFloat(sendAmountInput)
+    if (!recipientInput || isNaN(amt) || amt <= 0 || amt > walletBalance) return
+
     setIsSending(true)
     setTimeout(() => {
       setIsSending(false)
-      setSendSuccess(true)
-      setTimeout(() => {
-        setSendSuccess(false)
-        setSendModalOpen(false)
-        setRecipient('')
-        setSendAmount('')
-        setSendMemo('')
-      }, 1500)
+      const newRef = `${Math.floor(50000000000000 + Math.random() * 900000000000)}`
+      const newTx: Txn = {
+        id: `TX-${Date.now().toString().slice(-4)}`,
+        refId: newRef,
+        title: `Transfer to ${recipientInput}`,
+        titleMm: `${recipientInput} သို့ ငွေလွှဲခြင်း`,
+        category: 'p2p',
+        amount: -amt,
+        currency: 'AKD',
+        time: new Date().toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }),
+        status: 'VERIFIED',
+        counterparty: `${recipientInput} (Pe Thar Instant)`,
+        counterpartyMm: `${recipientInput} (ဖေ့သာ)`,
+        fee: 0.0,
+        hash: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`,
+      }
+
+      setWalletBalance((prev) => prev - amt)
+      setTxList((prev) => [newTx, ...prev])
+      setSendModalOpen(false)
+      setRecipientInput('')
+      setSendAmountInput('')
+      setSendMemoInput('')
+
+      // Automatically open the verified receipt with QR!
+      setSelectedTx(newTx)
+      setReceiptModalOpen(true)
     }, 600)
   }
 
-  const handleApproveKyc = (id: string) => {
-    setKycQueue(prev => prev.map(item => item.id === id ? { ...item, status: 'APPROVED' } : item))
-  }
-
-  const handlePingNodes = () => {
-    setIsPinging(true)
-    setTimeout(() => setIsPinging(false), 800)
-  }
-
-  const handleSaveDeposit = () => {
-    const amt = parseFloat(saveDepositAmount) || 0
+  // Handle Top Up execution
+  const handleExecuteTopUp = () => {
+    const amt = parseFloat(topUpAmount) || 0
     if (amt > 0) {
-      setSavingsBalance(prev => prev + amt)
-      setSaveSuccess(true)
-      setTimeout(() => {
-        setSaveSuccess(false)
-        setSaveModalOpen(false)
-      }, 1200)
+      setWalletBalance((prev) => prev + amt)
+      setTopUpModalOpen(false)
+      const newTx: Txn = {
+        id: `TX-${Date.now().toString().slice(-4)}`,
+        refId: `${Math.floor(50000000000000 + Math.random() * 900000000000)}`,
+        title: `Top Up via ${topUpAsset}`,
+        titleMm: `${topUpAsset} မှ ငွေသွင်းခြင်း`,
+        category: 'crypto',
+        amount: amt,
+        currency: 'AKD',
+        time: 'Just now',
+        status: 'SETTLED',
+        counterparty: `Treasury Gateway (${amt} ${topUpAsset})`,
+        counterpartyMm: `ဘဏ္ဍာတိုက်ငွေသွင်း`,
+        fee: 0.0,
+        hash: `0x${Math.random().toString(16).slice(2, 12)}`,
+      }
+      setTxList((prev) => [newTx, ...prev])
     }
   }
 
-  const labels = ak
-    ? {
-        portalTitle: 'Pe Thar (ဖေ့သာ) ဘဏ္ဍာရေးနှင့် ပလက်ဖောင်း စီမံခန့်ခွဲမှု',
-        tabOverview: 'အကျဉ်းချုပ်',
-        tabTransfers: 'ငွေလွှဲ / ငွေပို့',
-        tabCards: 'ဒစ်ဂျစ်တယ်ကတ်',
-        tabPos: 'ကုန်သည် POS',
-        tabRemittance: 'နိုင်ငံတကာငွေလွှဲ',
-        tabTreasury: 'ဘဏ္ဍာတိုက် (Reserves)',
-        tabNodes: 'ကွန်ရက် နုတ်ဒ်များ',
-        tabCompliance: 'စိစစ်အတည်ပြုချက် (KYC)',
-        tabSecurity: 'လုံခြုံရေး & Multi-Sig',
-        tabSettings: 'ဆက်တင်',
-        availableBalance: 'လက်ရှိ ရရှိနိုင်သော လက်ကျန်',
-        currencyPeg: '၁ ₳ = ၁ $ USD · ၁၀၀% အရန်ငွေ',
-        sendMoney: 'ငွေလွှဲမည်',
-        receiveMoney: 'ငွေလက်ခံမည်',
-        saveMoney: 'စုဘူးထဲထည့်မည်',
-        activityTitle: 'ငွေလွှဲမှတ်တမ်းနှင့် စာရင်းရှင်းတမ်း',
-        searchPlaceholder: 'အမည်၊ မှတ်တမ်းအိုင်ဒီဖြင့် ရှာဖွေပါ...',
-        offlineCardTitle: 'မိုဘိုင်းဖုန်းတွင် အော့ဖ်လိုင်းမုဒ် သုံးမည်',
-        offlineCardDesc: 'Android APK နှင့် iPhone Configuration Profile ဖြင့် အင်တာနက်မရှိချိန်တွင်လည်း ငွေလွှဲနိုင်ပါသည်။',
-      }
-    : {
-        portalTitle: 'Pe Thar Financial & Platform Dashboard',
-        tabOverview: 'Overview',
-        tabTransfers: 'Transfers',
-        tabCards: 'Cards',
-        tabPos: 'Merchant POS',
-        tabRemittance: 'Remittance',
-        tabTreasury: 'Treasury & Reserves',
-        tabNodes: 'Network Nodes',
-        tabCompliance: 'Verification Queue',
-        tabSecurity: 'Multi-Sig & HSM',
-        tabSettings: 'Settings',
-        availableBalance: 'Total Available Balance',
-        currencyPeg: '1 ₳ = $1.00 USD · 100% Backed',
-        sendMoney: 'Send ₳',
-        receiveMoney: 'Receive',
-        saveMoney: 'Add to Vault',
-        activityTitle: 'Recent Cashflow & Transactions',
-        searchPlaceholder: 'Search by name, ID, or reference...',
-        offlineCardTitle: 'Offline Mode on Mobile',
-        offlineCardDesc: 'Carry bearer cash with our direct Android APK and iOS Configuration Profile without internet.',
-      }
-
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans flex flex-col">
-      {/* Top Application Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-[#F4F6F9] text-slate-900 font-sans flex flex-col pb-24 md:pb-8">
+      {/* ── TOP ORANGE GRADIENT FINTECH HEADER (Matching TrueMoney ref_04.jpg) ── */}
+      <div className="bg-gradient-to-r from-[#FF6B00] via-[#FA5A00] to-[#FF8500] text-white pt-3 pb-24 px-4 sm:px-6 relative overflow-hidden shadow-lg">
+        {/* Ambient background glow */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-2xl mx-auto space-y-4">
+          {/* Top Status & Brand Row */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => (onExit ? onExit() : (window.location.href = '/'))}
+                className="flex items-center gap-2 bg-black/15 hover:bg-black/25 px-2.5 py-1 rounded-full transition-colors"
+                title="Back to Landing Page"
+              >
+                <ArakanEmblem size={24} variant="badge" />
+                <span className="font-black text-sm tracking-tight text-white">Pe Thar</span>
+              </button>
+              <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded-full bg-white/20 text-white">
+                1 ₳ = 1 $
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Coin Badge (ref_04.jpg) */}
+              <button
+                onClick={() => setCoinsBalance((c) => c + 1)}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/20 hover:bg-black/30 text-amber-300 text-xs font-bold transition shadow-xs"
+              >
+                <span className="text-amber-300 font-black">🪙</span>
+                <span>{coinsBalance} ₳</span>
+              </button>
+
+              {/* Notification Bell with Badge (ref_04.jpg) */}
+              <button className="relative w-8 h-8 rounded-full bg-black/20 hover:bg-black/30 flex items-center justify-center transition">
+                <Bell size={16} />
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-[9px] font-bold flex items-center justify-center shadow-xs">
+                  4
+                </span>
+              </button>
+
+              {/* Language Switcher */}
+              {setLang && (
+                <button
+                  onClick={() => setLang(ak ? 'en' : 'ak')}
+                  className="px-2 py-1 rounded-full bg-black/20 text-[11px] font-bold"
+                >
+                  {ak ? 'AK' : 'EN'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Search Bar (Matching ref_04.jpg) */}
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/70 w-4 h-4" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={ak ? 'ရှာဖွေရန် (ငွေလွှဲ၊ ဝန်ဆောင်မှု၊ အမည်)...' : 'Search services, transactions, contacts...'}
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/15 backdrop-blur-md text-white placeholder-white/70 text-xs font-medium border border-white/20 focus:outline-none focus:bg-white/25 focus:border-white transition-all shadow-inner"
+            />
+          </div>
+
+          {/* 4 CORE ACTION BUTTONS (Transfer, Receive, Tap to Pay, Pay - ref_04.jpg) */}
+          <div className="grid grid-cols-4 gap-2 pt-2 text-center">
+            {/* Transfer */}
             <button
-              onClick={() => onExit ? onExit() : (window.location.href = '/')}
-              className="flex items-center gap-2.5 font-black text-slate-950 text-base"
+              onClick={() => setSendModalOpen(true)}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
             >
-              <ArakanEmblem size={32} variant="badge" />
-              <span>Pe Thar</span>
+              <div className="w-13 h-13 rounded-2xl bg-white/20 group-hover:bg-white/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-sm transition-transform active:scale-95">
+                <Send size={22} className="group-hover:translate-x-0.5 transition-transform" />
+              </div>
+              <span className="text-[11px] font-bold tracking-tight text-white/95">
+                {ak ? 'ငွေလွှဲ' : 'Transfer'}
+              </span>
             </button>
-            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-800 text-[11px] font-mono font-bold">
-              1 ₳ = 1 $
+
+            {/* Receive (ref_03.jpg) */}
+            <button
+              onClick={() => setReceiveModalOpen(true)}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-13 h-13 rounded-2xl bg-white/20 group-hover:bg-white/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-sm transition-transform active:scale-95">
+                <Download size={22} className="rotate-180" />
+              </div>
+              <span className="text-[11px] font-bold tracking-tight text-white/95">
+                {ak ? 'ငွေလက်ခံ' : 'Receive'}
+              </span>
+            </button>
+
+            {/* Tap to Pay (Offline NFC/BLE) */}
+            <button
+              onClick={() => setOfflineBeamModalOpen(true)}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-13 h-13 rounded-2xl bg-white/20 group-hover:bg-white/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-sm transition-transform active:scale-95">
+                <Radio size={22} className="text-amber-200" />
+              </div>
+              <span className="text-[11px] font-bold tracking-tight text-white/95">
+                {ak ? 'တိုက်ရိုက်ပေး' : 'Tap to Pay'}
+              </span>
+            </button>
+
+            {/* Pay / Scan QR */}
+            <button
+              onClick={() => setReceiveModalOpen(true)}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-13 h-13 rounded-2xl bg-white/20 group-hover:bg-white/30 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-sm transition-transform active:scale-95">
+                <QrCode size={22} />
+              </div>
+              <span className="text-[11px] font-bold tracking-tight text-white/95">
+                {ak ? 'QR ရှင်းမည်' : 'Pay'}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MAIN CONTENT CONTAINER (Overlapping Floating Card) ── */}
+      <main className="max-w-2xl mx-auto w-full px-4 sm:px-6 -mt-16 space-y-5 z-10 flex-1">
+        {/* ── 1. FLOATING WALLET BALANCE CARD (ref_04.jpg) ── */}
+        <div className="rounded-3xl bg-white p-5 sm:p-6 shadow-xl border border-slate-200/80 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-slate-600 font-bold text-xs">
+              <Wallet size={16} className="text-[#FF6B00]" />
+              <span>{ak ? 'ဖေ့သာ ပိုက်ဆံအိတ်' : 'Pe Thar Wallet'}</span>
+              <button
+                onClick={() => setBalanceVisible((v) => !v)}
+                className="text-slate-400 hover:text-slate-700"
+              >
+                {balanceVisible ? <Eye size={14} /> : <EyeOff size={14} />}
+              </button>
+            </div>
+
+            <button
+              onClick={() => setTopUpModalOpen(true)}
+              className="px-4 py-1.5 rounded-full bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition shadow-xs active:scale-95 flex items-center gap-1"
+            >
+              <Sparkles size={12} />
+              <span>{ak ? 'ငွေဖြည့်မည်' : 'Top Up'}</span>
+            </button>
+          </div>
+
+          <div>
+            <div className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-slate-950 flex items-baseline gap-1.5">
+              <span className="text-2xl text-slate-400 font-bold">₳</span>
+              <span>
+                {balanceVisible
+                  ? walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                  : '••••••'}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+              1 ₳ = $1.00 USD · 100% USDT/USDC Backed
+            </p>
+          </div>
+
+          {/* Secondary Offline Balance Row */}
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-medium">
+            <div className="flex items-center gap-1.5 text-slate-600">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>{ak ? 'အော့ဖ်လိုင်း လက်ကျန်' : 'Offline Bearer Tokens'}:</span>
+              <b className="font-mono text-slate-900">₳ {offlineBalance.toFixed(2)}</b>
+            </div>
+            <button
+              onClick={() => setOfflineBeamModalOpen(true)}
+              className="text-[#FF6B00] hover:underline font-bold text-[11px]"
+            >
+              {ak ? 'စီမံမည် ›' : 'Manage ›'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── 2. QUICK SERVICES GRID (8 Tiles matching ref_04.jpg) ── */}
+        <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 space-y-4">
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2 text-center">
+            {/* Tile 1: Tap to Pay */}
+            <button
+              onClick={() => setOfflineBeamModalOpen(true)}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-orange-50 text-[#FF6B00] group-hover:bg-orange-100 flex items-center justify-center transition shadow-2xs">
+                <Radio size={20} />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-700 leading-tight">
+                {ak ? 'အော့ဖ်လိုင်း' : 'Tap to Pay'}
+              </span>
+            </button>
+
+            {/* Tile 2: Redeem Coin */}
+            <button
+              onClick={() => alert(ak ? '၁ ₳ = ၁ $ အမှတ်များ စုဆောင်းပါ' : 'Redeem Pe Thar Reward Coins')}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-100 flex items-center justify-center transition shadow-2xs">
+                <span className="text-xl">🪙</span>
+              </div>
+              <span className="text-[11px] font-semibold text-slate-700 leading-tight">
+                {ak ? 'အမှတ်လဲ' : 'Redeem Coin'}
+              </span>
+            </button>
+
+            {/* Tile 3: Merchant Shop */}
+            <button
+              onClick={() => setNavTab('financial')}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 group-hover:bg-rose-100 flex items-center justify-center transition shadow-2xs">
+                <Store size={20} />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-700 leading-tight">
+                {ak ? 'ကုန်သည်ဆိုင်' : 'SME Shop'}
+              </span>
+            </button>
+
+            {/* Tile 4: Transfer to Myanmar */}
+            <button
+              onClick={() => setSendModalOpen(true)}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-100 flex items-center justify-center transition shadow-2xs">
+                <Globe size={20} />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-700 leading-tight">
+                {ak ? 'မြန်မာသို့လွှဲ' : 'Myanmar Pay'}
+              </span>
+            </button>
+
+            {/* Tile 5: Crypto Gateway */}
+            <button
+              onClick={() => setTopUpModalOpen(true)}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100 flex items-center justify-center transition shadow-2xs">
+                <Zap size={20} />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-700 leading-tight">
+                {ak ? 'ဒေါ်လာလဲ' : 'USDT Swap'}
+              </span>
+            </button>
+
+            {/* Tile 6: E-Receipt Verifier */}
+            <button
+              onClick={() => {
+                if (txList.length > 0) handleOpenReceipt(txList[0])
+              }}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100 flex items-center justify-center transition shadow-2xs">
+                <ShieldCheck size={20} />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-700 leading-tight">
+                {ak ? 'ပြေစာစစ်' : 'E-Receipt'}
+              </span>
+            </button>
+
+            {/* Tile 7: Security & Keys */}
+            <button
+              onClick={() => setNavTab('account')}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 group-hover:bg-purple-100 flex items-center justify-center transition shadow-2xs">
+                <CreditCard size={20} />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-700 leading-tight">
+                {ak ? 'ကတ်/လုံခြုံရေး' : 'Security'}
+              </span>
+            </button>
+
+            {/* Tile 8: See All (ref_07.jpg & ref_08.jpg) */}
+            <button
+              onClick={() => setAllServicesModalOpen(true)}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 group-hover:bg-slate-200 flex items-center justify-center transition shadow-2xs">
+                <Layers size={20} />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-700 leading-tight">
+                {ak ? 'အားလုံး' : 'See All'}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ── 3. SMART ALERT BANNER (Matching ref_04.jpg) ── */}
+        <div className="p-4 rounded-2xl bg-[#FFF5EB] border border-[#FFD9B3] flex items-center gap-3.5 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-[#FF6B00] text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-xs">
+            📢
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-extrabold text-xs text-slate-900">
+              {ak ? 'အော့ဖ်လိုင်းမုဒ် အသင့်ရှိသည်' : 'Offline Mode Standby Ready'}
+            </h4>
+            <p className="text-[11px] text-slate-600 leading-snug mt-0.5">
+              {ak
+                ? 'အင်တာနက် လုံးဝပြတ်တောက်နေချိန်တွင်လည်း Bluetooth နှင့် NFC ဖြင့် ငွေလွှဲနိုင်ပါသည်။'
+                : 'Transact without internet via bearer token beam on Android & iOS.'}
+            </p>
+          </div>
+          <button
+            onClick={() => setOfflineBeamModalOpen(true)}
+            className="text-xs font-bold text-[#FF6B00] hover:underline shrink-0"
+          >
+            {ak ? 'စမ်းမည် ›' : 'Try ›'}
+          </button>
+        </div>
+
+        {/* ── 4. FINANCIAL SERVICES CAROUSEL (Matching ref_05.jpg) ── */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-black text-sm text-slate-900 tracking-tight">
+              {ak ? 'မြန်မာနှင့် ရခိုင်ဒေသအတွက် ဝန်ဆောင်မှုများ' : 'Services for Myanmar & Arakan Users'}
+            </h3>
+            <span className="text-[11px] font-bold text-[#FF6B00] hover:underline cursor-pointer">
+              {ak ? 'အားလုံးကြည့်ရန်' : 'See All'}
             </span>
           </div>
 
-          {/* Center Tab Navigation */}
-          <nav className="hidden lg:flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-mono font-bold">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === 'overview' ? 'bg-white text-slate-950 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
+          <div className="grid grid-cols-2 gap-3">
+            {/* KBZPay Bridge Card */}
+            <div
+              onClick={() => setSendModalOpen(true)}
+              className="p-4 rounded-2xl bg-linear-to-br from-blue-900 to-blue-950 text-white cursor-pointer hover:shadow-md transition space-y-2 border border-blue-800"
             >
-              {labels.tabOverview}
-            </button>
-            <button
-              onClick={() => setActiveTab('transfers')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === 'transfers' ? 'bg-white text-slate-950 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {labels.tabTransfers}
-            </button>
-            <button
-              onClick={() => setActiveTab('cards')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === 'cards' ? 'bg-white text-slate-950 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {labels.tabCards}
-            </button>
-            <button
-              onClick={() => setActiveTab('treasury')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === 'treasury' ? 'bg-amber-400 text-slate-950 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {labels.tabTreasury}
-            </button>
-            <button
-              onClick={() => setActiveTab('nodes')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === 'nodes' ? 'bg-white text-slate-950 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {labels.tabNodes}
-            </button>
-            <button
-              onClick={() => setActiveTab('compliance')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === 'compliance' ? 'bg-white text-slate-950 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {labels.tabCompliance}
-            </button>
-          </nav>
-
-          {/* Right Controls */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setLang?.(ak ? 'en' : 'ak')}
-              className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"
-            >
-              {ak ? 'EN' : 'AK'}
-            </button>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="hidden sm:inline text-slate-600 font-bold">ONLINE</span>
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 rounded-md bg-blue-600 text-[10px] font-bold">KBZPay</span>
+                <span className="text-xs font-mono font-bold text-blue-300">1 ₳ = 1 $</span>
+              </div>
+              <h4 className="font-extrabold text-xs">KBZPay သို့ငွေလွှဲပါ</h4>
+              <p className="text-[10px] text-blue-200">လွယ်ကူမြန်ဆန် စိတ်ချရ</p>
             </div>
-            {onExit && (
-              <button
-                onClick={onExit}
-                className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100"
-                title="Log out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            )}
+
+            {/* Offline Starlink Card */}
+            <div
+              onClick={() => setOfflineBeamModalOpen(true)}
+              className="p-4 rounded-2xl bg-linear-to-br from-amber-600 to-orange-700 text-white cursor-pointer hover:shadow-md transition space-y-2 border border-amber-500"
+            >
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 rounded-md bg-amber-800 text-[10px] font-bold">Offline</span>
+                <span className="text-xs font-mono font-bold text-amber-200">Zero Internet</span>
+              </div>
+              <h4 className="font-extrabold text-xs">အော့ဖ်လိုင်းငွေသားလွှဲ</h4>
+              <p className="text-[10px] text-amber-100">လူချင်းတိုက်ရိုက်လွှဲမည်</p>
+            </div>
           </div>
         </div>
-      </header>
 
-      {/* Main Container */}
-      <main className="max-w-[1440px] w-full mx-auto p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
-
-        {/* Top Responsive Tab Pills for Mobile */}
-        <div className="lg:hidden flex gap-2 overflow-x-auto pb-2 text-xs font-mono font-bold">
-          {(['overview', 'transfers', 'cards', 'treasury', 'nodes', 'compliance'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-xl whitespace-nowrap transition-all ${
-                activeTab === tab
-                  ? 'bg-slate-950 text-white'
-                  : 'bg-white border border-slate-200 text-slate-600'
-              }`}
-            >
-              {tab.toUpperCase()}
-            </button>
-          ))}
-        </div>
-
-        {/* TAB 1: OVERVIEW & WALLET CASHFLOW */}
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
-            {/* Left Column: Hero Balance & Actions */}
-            <div className="lg:col-span-8 space-y-6">
-              
-              {/* Balance Card */}
-              <div className="p-6 sm:p-8 rounded-3xl bg-slate-950 text-white relative overflow-hidden shadow-xl border border-slate-800">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-                
-                <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                  <div>
-                    <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
-                      <span>{labels.availableBalance}</span>
-                      <button
-                        onClick={() => setBalanceVisible(!balanceVisible)}
-                        className="text-slate-400 hover:text-white"
-                      >
-                        {balanceVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                    <div className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1 text-white">
-                      {balanceVisible ? '₳ 1,248.50' : '₳ ••••••'}
-                    </div>
-                    <div className="text-xs font-mono text-amber-400 mt-1">
-                      {labels.currencyPeg}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleCopyId}
-                      className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-mono text-slate-200 flex items-center gap-1.5 transition-all"
-                    >
-                      <Copy className="w-3 h-3 text-amber-400" />
-                      <span>{copiedId ? 'COPIED!' : profile.petharId}</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Primary Action Buttons */}
-                <div className="relative z-10 grid grid-cols-3 gap-3 pt-4 border-t border-slate-800/80">
-                  <button
-                    onClick={() => setSendModalOpen(true)}
-                    className="py-3 px-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>{labels.sendMoney}</span>
-                  </button>
-                  <button
-                    onClick={() => setReceiveModalOpen(true)}
-                    className="py-3 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all"
-                  >
-                    <QrCode className="w-4 h-4" />
-                    <span>{labels.receiveMoney}</span>
-                  </button>
-                  <button
-                    onClick={() => setSaveModalOpen(true)}
-                    className="py-3 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all"
-                  >
-                    <Coins className="w-4 h-4 text-amber-400" />
-                    <span>{labels.saveMoney}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Transactions Ledger */}
-              <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <h3 className="font-extrabold text-slate-950 text-base">
-                    {labels.activityTitle}
-                  </h3>
-                  <div className="relative flex items-center max-w-xs w-full">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={labels.searchPlaceholder}
-                      className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-1 focus:ring-amber-400 font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left font-mono text-xs">
-                    <thead className="bg-slate-50 text-slate-500 border-y border-slate-100">
-                      <tr>
-                        <th className="py-2.5 px-3">Transaction</th>
-                        <th className="py-2.5 px-3">Counterparty</th>
-                        <th className="py-2.5 px-3">Reference</th>
-                        <th className="py-2.5 px-3 text-right">Amount (AKD)</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
-                      {filteredTransactions.slice(0, 7).map((tx) => (
-                        <tr
-                          key={tx.id}
-                          className="hover:bg-slate-50/80 transition-colors"
-                        >
-                          <td className="py-3 px-3">
-                            <div className="font-bold text-slate-950">{ak ? tx.titleMm : tx.title}</div>
-                            <div className="text-[10px] text-slate-400">{tx.time}</div>
-                          </td>
-                          <td className="py-3 px-3 text-slate-600">{tx.counterparty}</td>
-                          <td className="py-3 px-3 text-slate-400 font-mono text-[11px]">{tx.refId}</td>
-                          <td className="py-3 px-3 text-right font-bold">
-                            <span className={tx.amount > 0 ? 'text-emerald-600' : 'text-slate-900'}>
-                              {tx.amount > 0 ? `+ ₳ ${tx.amount.toFixed(2)}` : `- ₳ ${Math.abs(tx.amount).toFixed(2)}`}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
+        {/* ── 5. RECENT TRANSACTIONS (Matching ref_10.jpg with E-Receipt click) ── */}
+        <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div>
+              <h3 className="font-black text-sm text-slate-900 tracking-tight">
+                {ak ? 'ငွေလွှဲမှတ်တမ်း' : 'Transaction History'}
+              </h3>
+              <p className="text-[10px] text-slate-400">
+                {ak ? 'ပြေစာနှင့် QR Code စစ်ဆေးရန် နှိပ်ပါ' : 'Tap any transaction to view Verified E-Receipt'}
+              </p>
             </div>
+            <button
+              onClick={() => setNavTab('history')}
+              className="text-xs font-bold text-[#FF6B00] hover:underline"
+            >
+              {ak ? 'အားလုံးကြည့်မည်' : 'See All'}
+            </button>
+          </div>
 
-            {/* Right Column: Offline Mode Card & Quick Insights */}
-            <div className="lg:col-span-4 space-y-6">
-              
-              {/* Mobile Offline Card */}
-              <div className="p-6 rounded-3xl bg-linear-to-br from-amber-500/10 via-amber-500/5 to-slate-100 border border-amber-500/20 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold shadow-xs">
-                    <Zap className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-slate-950 text-sm">{labels.offlineCardTitle}</h4>
-                    <span className="text-[10px] font-mono font-bold text-amber-700">CASHU BEARER P2P</span>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {labels.offlineCardDesc}
-                </p>
-                <div className="grid grid-cols-2 gap-2 pt-2">
-                  <a
-                    href="/ios.html"
-                    className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-center font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-all"
-                  >
-                    <span> iOS Profile</span>
-                  </a>
-                  <a
-                    href="/pethar-release.apk"
-                    download
-                    className="p-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-center font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-all"
-                  >
-                    <span>Android APK</span>
-                  </a>
-                </div>
-              </div>
-
-              {/* Savings Vault Summary */}
-              <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Coins className="w-5 h-5 text-amber-500" />
-                    <h4 className="font-extrabold text-slate-950 text-sm">Emergency Vault</h4>
-                  </div>
-                  <span className="text-xs font-mono font-bold text-emerald-600">4.5% APY</span>
-                </div>
-                <div>
-                  <div className="text-2xl font-black text-slate-950 font-mono">
-                    ₳ {savingsBalance.toFixed(2)}
-                  </div>
-                  <div className="text-xs text-slate-400 font-mono mt-0.5">Automated compounding daily</div>
-                </div>
-                <button
-                  onClick={() => setSaveModalOpen(true)}
-                  className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-mono font-bold text-xs transition-all"
+          <div className="divide-y divide-slate-100">
+            {filteredTransactions.slice(0, 5).map((tx) => {
+              const isPositive = tx.amount > 0
+              return (
+                <div
+                  key={tx.id}
+                  onClick={() => handleOpenReceipt(tx)}
+                  className="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/80 rounded-xl px-2 cursor-pointer transition-colors group"
                 >
-                  Deposit into Vault
-                </button>
-              </div>
-
-            </div>
-          </div>
-        )}
-
-        {/* TAB 2: TREASURY & RESERVES (from PlatformPage) */}
-        {activeTab === 'treasury' && (
-          <div className="space-y-6">
-            <div className="p-6 sm:p-8 rounded-3xl bg-slate-950 text-white relative overflow-hidden shadow-xl border border-slate-800">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 font-mono text-xs font-bold uppercase mb-2">
-                    100% Backed Reserves
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-black text-white">Central Treasury Collateral</h2>
-                  <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl">
-                    Every 1 ₳ in circulation is fully collateralized by audited USD stablecoins (USDT, USDC, USD1).
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-mono text-slate-400">Total Treasury Collateral</div>
-                  <div className="text-3xl font-black text-amber-400 font-mono mt-0.5">$2,450,000 USD</div>
-                  <div className="text-xs font-mono text-emerald-400">Coverage: 100.00%</div>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                  <div className="text-xs text-slate-400 font-mono">USDT (TRC-20 / ERC-20)</div>
-                  <div className="text-xl font-black text-white font-mono mt-1">$1,470,000</div>
-                  <div className="text-[10px] text-slate-500 font-mono">60% of total backing</div>
-                </div>
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                  <div className="text-xs text-slate-400 font-mono">USDC (Solana / Base)</div>
-                  <div className="text-xl font-black text-white font-mono mt-1">$735,000</div>
-                  <div className="text-[10px] text-slate-500 font-mono">30% of total backing</div>
-                </div>
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                  <div className="text-xs text-slate-400 font-mono">USD1 / Cash Reserves</div>
-                  <div className="text-xl font-black text-white font-mono mt-1">$245,000</div>
-                  <div className="text-[10px] text-slate-500 font-mono">10% of total backing</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: NETWORK NODES (from PlatformPage) */}
-        {activeTab === 'nodes' && (
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-black text-slate-950">Core Settlement Nodes Telemetry</h3>
-                <p className="text-xs text-slate-500 font-mono">Low-latency cluster nodes for cloud ledger replication</p>
-              </div>
-              <button
-                onClick={handlePingNodes}
-                className="px-4 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-mono font-bold text-xs flex items-center gap-2"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isPinging ? 'animate-spin' : ''}`} />
-                <span>{isPinging ? 'Pinging...' : 'Ping Cluster'}</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-950 text-sm">Node-SIT-01 (Sittwe)</span>
-                  <span className="text-[10px] font-mono text-emerald-600 font-bold">ACTIVE · 14ms</span>
-                </div>
-                <div className="text-xs text-slate-500 font-mono mt-2">Block #2,491,012 · 99.98% Uptime</div>
-              </div>
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-950 text-sm">Node-MRK-02 (Mrauk-U)</span>
-                  <span className="text-[10px] font-mono text-emerald-600 font-bold">ACTIVE · 18ms</span>
-                </div>
-                <div className="text-xs text-slate-500 font-mono mt-2">Block #2,491,012 · 99.95% Uptime</div>
-              </div>
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-950 text-sm">Node-KYK-03 (Kyaukphyu)</span>
-                  <span className="text-[10px] font-mono text-emerald-600 font-bold">ACTIVE · 22ms</span>
-                </div>
-                <div className="text-xs text-slate-500 font-mono mt-2">Block #2,491,012 · 99.99% Uptime</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: COMPLIANCE & VERIFICATION QUEUE (from PlatformPage) */}
-        {activeTab === 'compliance' && (
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-black text-slate-950">Identity &amp; Account Governance</h3>
-                <p className="text-xs text-slate-500 font-mono">Review agent and merchant account applications</p>
-              </div>
-              <div className="flex items-center gap-2">
-                {(['all', 'UNDER_REVIEW', 'APPROVED'] as const).map(f => (
-                  <button
-                    key={f}
-                    onClick={() => setKycFilter(f)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
-                      kycFilter === f ? 'bg-slate-950 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left font-mono text-xs">
-                <thead className="bg-slate-50 text-slate-500 border-y border-slate-100">
-                  <tr>
-                    <th className="py-2.5 px-3">Applicant Name</th>
-                    <th className="py-2.5 px-3">ID / Handle</th>
-                    <th className="py-2.5 px-3">Township</th>
-                    <th className="py-2.5 px-3">Status</th>
-                    <th className="py-2.5 px-3 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {kycQueue.filter(item => kycFilter === 'all' || item.status === kycFilter).map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50/80">
-                      <td className="py-3 px-3 font-bold text-slate-950">{item.name}</td>
-                      <td className="py-3 px-3 text-slate-500">{item.petharId}</td>
-                      <td className="py-3 px-3 text-slate-600">{item.township}</td>
-                      <td className="py-3 px-3">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          item.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                        }`}>
-                          {item.status}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs ${
+                        isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-700'
+                      }`}
+                    >
+                      {isPositive ? '↓' : '↑'}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-extrabold text-xs text-slate-900 truncate group-hover:text-[#FF6B00] transition-colors">
+                        {ak ? tx.titleMm || tx.title : tx.title}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-1.5">
+                        <span>{tx.time}</span>
+                        <span>•</span>
+                        <span className="text-emerald-600 font-bold flex items-center gap-0.5">
+                          <CheckCircle2 size={10} /> QR Verified
                         </span>
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        {item.status !== 'APPROVED' ? (
-                          <button
-                            onClick={() => handleApproveKyc(item.id)}
-                            className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px]"
-                          >
-                            Approve
-                          </button>
-                        ) : (
-                          <span className="text-slate-400 text-[11px]">Verified ✓</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 5: CARDS & LIMITS */}
-        {activeTab === 'cards' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div className="lg:col-span-6 space-y-6">
-              {/* Virtual Card Rendering */}
-              <div className="p-8 rounded-3xl bg-linear-to-tr from-slate-950 via-slate-900 to-amber-900/60 text-white border border-slate-800 shadow-2xl relative min-h-[220px] flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ArakanEmblem size={28} variant="badge" />
-                    <span className="font-extrabold text-sm">Pe Thar Card</span>
+                      </div>
+                    </div>
                   </div>
-                  <span className="font-mono text-xs text-amber-400 font-bold">AKD DEBIT</span>
-                </div>
 
-                <div className="font-mono text-lg tracking-widest text-slate-200 my-4">
-                  4921 •••• •••• 8892
-                </div>
-
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <div>
-                    <div className="text-[10px] text-slate-400">CARDHOLDER</div>
-                    <div className="font-bold">{profile.name}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[10px] text-slate-400">EXPIRES</div>
-                    <div className="font-bold">12/29</div>
+                  <div className="text-right shrink-0">
+                    <div
+                      className={`font-mono font-black text-sm ${
+                        isPositive ? 'text-emerald-600' : 'text-slate-950'
+                      }`}
+                    >
+                      {isPositive ? '+' : ''}₳{' '}
+                      {Math.abs(tx.amount).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </div>
+                    <div className="text-[9px] font-mono text-slate-400">Ref: {tx.refId.slice(-6)}</div>
                   </div>
                 </div>
-              </div>
-
-              {/* Spending Limit Slider */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-slate-950 text-sm">Online Spending Limit</h4>
-                  <span className="font-mono font-bold text-amber-600 text-sm">₳ {paymentLimit}</span>
-                </div>
-                <input
-                  type="range"
-                  min="100"
-                  max="5000"
-                  step="100"
-                  value={paymentLimit}
-                  onChange={(e) => setPaymentLimit(parseInt(e.target.value))}
-                  className="w-full accent-amber-500 cursor-pointer"
-                />
-                <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                  <span>₳ 100</span>
-                  <span>₳ 5,000</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-200 p-6 space-y-4">
-              <h4 className="font-bold text-slate-950 text-base">Card Security &amp; Controls</h4>
-              <div className="space-y-3">
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                  <div>
-                    <b className="text-slate-950 text-sm block">Contactless NFC Payments</b>
-                    <span className="text-xs text-slate-500">Allow tap payments on mobile terminals</span>
-                  </div>
-                  <span className="text-emerald-600 font-mono font-bold text-xs">ENABLED</span>
-                </div>
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                  <div>
-                    <b className="text-slate-950 text-sm block">Offline ATM Withdrawals</b>
-                    <span className="text-xs text-slate-500">Withdraw physical cash at authorized agents</span>
-                  </div>
-                  <span className="text-emerald-600 font-mono font-bold text-xs">ENABLED</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-      </main>
-
-      {/* SEND MODAL */}
-      {sendModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-extrabold text-slate-950 text-base">Send AKD (1 ₳ = 1 $)</h3>
-              <button onClick={() => setSendModalOpen(false)} className="text-slate-400 hover:text-slate-900">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {sendSuccess ? (
-              <div className="py-8 text-center space-y-2">
-                <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto" />
-                <h4 className="font-bold text-slate-950">Transfer Successful</h4>
-                <p className="text-xs text-slate-500">₳ {sendAmount} sent to {recipient}</p>
-              </div>
-            ) : (
-              <form onSubmit={handleExecuteSend} className="space-y-3">
-                <div>
-                  <label className="text-xs font-mono font-bold text-slate-600 block mb-1">Recipient ID / Handle</label>
-                  <input
-                    type="text"
-                    required
-                    value={recipient}
-                    onChange={(e) => setRecipient(e.target.value)}
-                    placeholder="e.g. AKD-8891-JACK or email"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-mono font-bold text-slate-600 block mb-1">Amount (₳)</label>
-                  <input
-                    type="number"
-                    required
-                    min="0.01"
-                    step="0.01"
-                    value={sendAmount}
-                    onChange={(e) => setSendAmount(e.target.value)}
-                    placeholder="0.00"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-900 font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-mono font-bold text-slate-600 block mb-1">Memo (Optional)</label>
-                  <input
-                    type="text"
-                    value={sendMemo}
-                    onChange={(e) => setSendMemo(e.target.value)}
-                    placeholder="e.g. Lunch or supplies"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900"
-                  />
-                </div>
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={isSending}
-                    className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 font-bold text-xs text-slate-950 font-mono transition-all"
-                  >
-                    {isSending ? 'Sending Transfer...' : 'Confirm & Send ₳'}
-                  </button>
-                </div>
-              </form>
-            )}
+              )
+            })}
           </div>
         </div>
-      )}
 
-      {/* RECEIVE MODAL */}
-      {receiveModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4">
-            <div className="flex justify-end">
-              <button onClick={() => setReceiveModalOpen(false)} className="text-slate-400 hover:text-slate-900">
-                <X className="w-5 h-5" />
-              </button>
+        {/* ── 6. WEEKLY SPENDING CHART (Matching ref_10.jpg) ── */}
+        <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-black text-sm text-slate-900 tracking-tight">
+                {ak ? 'ဤအပတ် သုံးစွဲမှု' : "This week's spending"}
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                {ak ? 'မနေ့ကအထိ စာရင်းတွက်ချက်ထားပါသည်' : 'Spending data updated in real-time'}
+              </p>
             </div>
-            <div className="w-48 h-48 mx-auto bg-slate-900 p-4 rounded-2xl flex flex-col items-center justify-center text-white">
-              <QrCode className="w-24 h-24 text-amber-400 mb-2" />
-              <span className="text-[10px] font-mono text-slate-300">SCAN TO PAY</span>
+            <span className="text-xs font-bold text-[#FF6B00] hover:underline cursor-pointer">
+              {ak ? 'အသေးစိတ်' : 'See All'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold uppercase">{ak ? 'စုစုပေါင်း' : 'Total spending'}</span>
+              <div className="text-lg font-black font-mono text-slate-900 mt-0.5">₳ 99.00</div>
             </div>
             <div>
-              <div className="text-xs font-mono text-slate-400">Your Wallet Address</div>
-              <div className="text-sm font-black text-slate-950 font-mono mt-0.5">{profile.petharId}</div>
+              <span className="text-[10px] text-slate-400 font-bold uppercase">{ak ? 'ပျမ်းမျှ' : 'Average spending'}</span>
+              <div className="text-lg font-black font-mono text-slate-900 mt-0.5">₳ 14.14</div>
             </div>
+          </div>
+
+          {/* Bar Chart Bars (Mon to Sun) */}
+          <div className="grid grid-cols-7 gap-2 pt-2 items-end h-28 text-center text-[10px] font-mono text-slate-500">
+            {[
+              { day: 'Mon', h: '35%', amt: '₳ 5' },
+              { day: 'Tue', h: '20%', amt: '₳ 0' },
+              { day: 'Wed', h: '80%', amt: '₳ 94' },
+              { day: 'Thu', h: '15%', amt: '₳ 0' },
+              { day: 'Fri', h: '25%', amt: '₳ 0' },
+              { day: 'Sat', h: '10%', amt: '₳ 0' },
+              { day: 'Sun', h: '10%', amt: '₳ 0' },
+            ].map((col, idx) => (
+              <div key={col.day} className="flex flex-col items-center gap-1.5 h-full justify-end">
+                <div
+                  style={{ height: col.h }}
+                  className={`w-full rounded-full transition-all ${
+                    idx === 2 ? 'bg-[#FF6B00]' : 'bg-slate-200 hover:bg-slate-300'
+                  }`}
+                />
+                <span className="font-bold text-[10px]">{col.day}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+
+      {/* ── BOTTOM NAVIGATION BAR (Matching ref_04.jpg, ref_09.jpg, ref_10.jpg) ── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200/90 shadow-2xl py-2 px-4 max-w-2xl mx-auto">
+        <div className="flex items-center justify-around relative">
+          {/* Home */}
+          <button
+            onClick={() => setNavTab('home')}
+            className={`flex flex-col items-center gap-1 text-[10px] font-bold transition-colors ${
+              navTab === 'home' ? 'text-[#FF6B00]' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <Wallet size={20} />
+            <span>{ak ? 'ပင်မ' : 'Home'}</span>
+          </button>
+
+          {/* Financial / Treasury (ref_09.jpg) */}
+          <button
+            onClick={() => setNavTab('financial')}
+            className={`flex flex-col items-center gap-1 text-[10px] font-bold transition-colors ${
+              navTab === 'financial' ? 'text-[#FF6B00]' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <TrendingUp size={20} />
+            <span>{ak ? 'ဘဏ္ဍာရေး' : 'Financial'}</span>
+          </button>
+
+          {/* CENTER FLOATING ACTION BUTTON (SCAN QR / PAY - ref_04.jpg) */}
+          <div className="relative -top-5">
             <button
-              onClick={handleCopyId}
-              className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-mono font-bold text-xs"
+              onClick={() => setReceiveModalOpen(true)}
+              className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#FF6B00] to-[#FF8500] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform border-4 border-[#F4F6F9]"
+              title="Pay / Scan QR"
             >
-              {copiedId ? 'Copied to Clipboard!' : 'Copy Wallet ID'}
+              <QrCode size={26} />
+            </button>
+          </div>
+
+          {/* History (ref_10.jpg) */}
+          <button
+            onClick={() => setNavTab('history')}
+            className={`flex flex-col items-center gap-1 text-[10px] font-bold transition-colors ${
+              navTab === 'history' ? 'text-[#FF6B00]' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <History size={20} />
+            <span>{ak ? 'မှတ်တမ်း' : 'History'}</span>
+          </button>
+
+          {/* Account */}
+          <button
+            onClick={() => setNavTab('account')}
+            className={`flex flex-col items-center gap-1 text-[10px] font-bold transition-colors ${
+              navTab === 'account' ? 'text-[#FF6B00]' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <User size={20} />
+            <span>{ak ? 'အကောင့်' : 'Account'}</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* ══════════════════════════════════════════════════════════════
+          MODAL 1: VERIFIED E-RECEIPT WITH SCANNABLE QR (ref_01 & ref_02)
+         ══════════════════════════════════════════════════════════════ */}
+      {receiptModalOpen && selectedTx && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in"
+          onClick={() => setReceiptModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm my-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <TransactionSlip
+              lang={lang}
+              refId={selectedTx.refId}
+              amount={Math.abs(selectedTx.amount)}
+              recipientName={selectedTx.counterparty}
+              recipientId={selectedTx.id}
+              recipientType={selectedTx.category === 'p2p' ? 'Pe Thar Instant Pay' : 'Offline Mode Token'}
+              senderName={profile.name || 'MYAT SOE P****'}
+              senderId={`Pe Thar Wallet ${profile.petharId}`}
+              fee={selectedTx.fee}
+              timestamp={selectedTx.time}
+              location="Sittwe, Arakan"
+              notes="Payment"
+              autoSaved={true}
+              onClose={() => setReceiptModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          MODAL 2: RECEIVE QR PAYMENT CARD (ref_03.jpg)
+         ══════════════════════════════════════════════════════════════ */}
+      {receiveModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in"
+          onClick={() => setReceiveModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm my-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ReceiveQRCard
+              lang={lang}
+              name={profile.name || 'MYAT SOE PAING'}
+              petharId={profile.petharId || '140-********* -295'}
+              onClose={() => setReceiveModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          MODAL 3: TRANSFER / SEND MONEY FORM (Generates Verified Receipt!)
+         ══════════════════════════════════════════════════════════════ */}
+      {sendModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"
+          onClick={() => setSendModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 text-slate-900 space-y-4 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Send className="w-5 h-5 text-[#FF6B00]" />
+                <h3 className="font-black text-base text-slate-950">
+                  {ak ? 'ငွေလွှဲမည် (Transfer ₳)' : 'Send Money'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSendModalOpen(false)}
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleExecuteSend} className="space-y-4">
+              <div>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1">
+                  {ak ? 'လက်ခံသူ အကောင့် / ဖုန်း / အိုင်ဒီ' : 'Recipient Name / Phone / ID'}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={recipientInput}
+                  onChange={(e) => setRecipientInput(e.target.value)}
+                  placeholder="e.g. MR. MYAT SOE PAING / 004-9812"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono font-bold focus:border-[#FF6B00] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1">
+                  {ak ? 'လွှဲပို့ငွေပမာဏ (₳ AKD)' : 'Amount (1 ₳ = 1 $ USD)'}
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₳</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    max={walletBalance}
+                    required
+                    value={sendAmountInput}
+                    onChange={(e) => setSendAmountInput(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full pl-8 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono font-black focus:border-[#FF6B00] focus:outline-none"
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+                  <span>{ak ? 'ရရှိနိုင်သော လက်ကျန်' : 'Available'}: ₳ {walletBalance.toFixed(2)}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSendAmountInput('50')}
+                    className="text-[#FF6B00] font-bold hover:underline"
+                  >
+                    Quick 50
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1">
+                  {ak ? 'မှတ်ချက် (ရွေးချယ်နိုင်သည်)' : 'Notes / Memo'}
+                </label>
+                <input
+                  type="text"
+                  value={sendMemoInput}
+                  onChange={(e) => setSendMemoInput(e.target.value)}
+                  placeholder="e.g. Payment for solar kit"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:border-[#FF6B00] focus:outline-none"
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 font-medium">
+                {ak
+                  ? 'ငွေလွှဲပြီးပါက တရားဝင်စစ်ဆေးနိုင်သော QR Code ပါသည့် E-Receipt ချက်ချင်း ထွက်လာပါမည်။'
+                  : 'Upon transfer, a verified E-Receipt with scannable QR code will be generated.'}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSending}
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#FF6B00] to-[#FF8500] text-white font-black text-xs shadow-md transition-transform active:scale-98 disabled:opacity-50"
+              >
+                {isSending ? (ak ? 'ငွေလွှဲနေပါသည်...' : 'Processing...') : ak ? 'အတည်ပြုလွှဲမည်' : 'Confirm & Send'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          MODAL 4: TOP UP (USDT / USDC / USD1 Stablecoin Gateway)
+         ══════════════════════════════════════════════════════════════ */}
+      {topUpModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"
+          onClick={() => setTopUpModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 text-slate-900 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-[#FF6B00]" />
+                <h3 className="font-black text-base text-slate-950">
+                  {ak ? 'ဒေါ်လာ အရန်ငွေဖြင့် ငွေဖြည့်မည်' : 'Top Up (1 ₳ = 1 $ USD)'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setTopUpModalOpen(false)}
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1">
+                  {ak ? 'အရန်ငွေကြေး ရွေးချယ်ပါ' : 'Select Stablecoin Collateral'}
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['USDT', 'USDC', 'USD1'] as const).map((coin) => (
+                    <button
+                      key={coin}
+                      type="button"
+                      onClick={() => setTopUpAsset(coin)}
+                      className={`py-2 px-3 rounded-xl border text-xs font-mono font-bold transition ${
+                        topUpAsset === coin
+                          ? 'bg-[#FF6B00] border-[#FF6B00] text-white shadow-xs'
+                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      {coin}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1">
+                  {ak ? 'ဖြည့်သွင်းငွေပမာဏ' : 'Deposit Amount'}
+                </label>
+                <input
+                  type="number"
+                  value={topUpAmount}
+                  onChange={(e) => setTopUpAmount(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono font-black"
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 font-mono text-[11px] space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Deposit:</span>
+                  <span className="font-bold text-slate-900">${topUpAmount} {topUpAsset}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Credit:</span>
+                  <span className="font-bold text-[#FF6B00]">₳ {topUpAmount} AKD</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Rate:</span>
+                  <span className="text-emerald-600 font-bold">1 ₳ = 1.00 USD (0% fee)</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleExecuteTopUp}
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#FF6B00] to-[#FF8500] text-white font-black text-xs shadow-md active:scale-98"
+              >
+                {ak ? 'ချက်ချင်း ငွေဖြည့်မည်' : 'Deposit Now'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          MODAL 5: TAP TO PAY / OFFLINE BEAM MODAL
+         ══════════════════════════════════════════════════════════════ */}
+      {offlineBeamModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"
+          onClick={() => setOfflineBeamModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl bg-slate-900 border border-slate-700 p-6 text-white space-y-4 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-3xl animate-pulse">
+              📶
+            </div>
+            <div>
+              <h3 className="font-black text-lg text-white">
+                {ak ? 'အော့ဖ်လိုင်းမုဒ် (Offline Mode)' : 'Tap to Pay (Offline)'}
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                {ak
+                  ? 'အင်တာနက်လုံးဝ မလိုအပ်ဘဲ Bluetooth သို့မဟုတ် NFC ဖြင့် ငွေလွှဲနိုင်ပါသည်။'
+                  : 'Bearer Cashu token beam via Bluetooth Low Energy & NFC.'}
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs text-left space-y-2">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Bearer Tokens:</span>
+                <span className="text-emerald-400 font-bold">₳ {offlineBalance.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Transport:</span>
+                <span className="text-slate-200">BLE + NFC Tap</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Security:</span>
+                <span className="text-slate-200">Chaumian Blind Mint</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                alert(ak ? 'ဖုန်းနှစ်လုံးကို အနီးကပ်ထားပြီး ငွေလွှဲနိုင်ပါပြီ!' : 'Ready! Bring devices close to transfer offline.')
+                setOfflineBeamModalOpen(false)
+              }}
+              className="w-full py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs"
+            >
+              {ak ? 'အော့ဖ်လိုင်းငွေလွှဲ စတင်မည်' : 'Initiate Offline Transfer'}
             </button>
           </div>
         </div>
       )}
 
-      {/* SAVE / VAULT DEPOSIT MODAL */}
-      {saveModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      {/* ══════════════════════════════════════════════════════════════
+          MODAL 6: ALL SERVICES SHEET (Matching ref_07.jpg & ref_08.jpg)
+         ══════════════════════════════════════════════════════════════ */}
+      {allServicesModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in"
+          onClick={() => setAllServicesModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg rounded-t-3xl sm:rounded-3xl bg-white max-h-[85vh] overflow-y-auto p-6 text-slate-900 space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-extrabold text-slate-950 text-base">Add to Vault</h3>
-              <button onClick={() => setSaveModalOpen(false)} className="text-slate-400 hover:text-slate-900">
-                <X className="w-5 h-5" />
+              <h3 className="font-black text-lg text-slate-950">{ak ? 'ဝန်ဆောင်မှု အားလုံး' : 'All Services'}</h3>
+              <button
+                onClick={() => setAllServicesModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"
+              >
+                ×
               </button>
             </div>
-            {saveSuccess ? (
-              <div className="py-6 text-center space-y-2">
-                <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto" />
-                <h4 className="font-bold text-slate-950">Deposited into Vault</h4>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-xs text-slate-500">
-                  Earn 4.5% APY while maintaining instant liquidity in ₳ (1 ₳ = 1 $).
-                </p>
-                <div>
-                  <label className="text-xs font-mono font-bold text-slate-600 block mb-1">Deposit Amount (₳)</label>
-                  <input
-                    type="number"
-                    value={saveDepositAmount}
-                    onChange={(e) => setSaveDepositAmount(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-900 font-bold"
-                  />
+
+            {/* Category 1: Services for Merchant and Business */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                {ak ? 'ကုန်သည်နှင့် စီးပွားရေး ဝန်ဆောင်မှုများ' : 'Services for Merchant and Business'}
+              </h4>
+              <div className="grid grid-cols-4 gap-3 text-center">
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center gap-1.5 cursor-pointer hover:bg-slate-100">
+                  <Store size={22} className="text-[#FF6B00]" />
+                  <span className="text-[10px] font-semibold">Pe Thar Shop</span>
                 </div>
-                <button
-                  onClick={handleSaveDeposit}
-                  className="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono"
-                >
-                  Confirm Vault Deposit
-                </button>
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center gap-1.5 cursor-pointer hover:bg-slate-100">
+                  <Download size={22} className="text-emerald-600" />
+                  <span className="text-[10px] font-semibold">Receive Fee</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center gap-1.5 cursor-pointer hover:bg-slate-100">
+                  <Sparkles size={22} className="text-amber-600" />
+                  <span className="text-[10px] font-semibold">Top Up Fee</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center gap-1.5 cursor-pointer hover:bg-slate-100">
+                  <Send size={22} className="text-blue-600" />
+                  <span className="text-[10px] font-semibold">Transfer Fee</span>
+                </div>
               </div>
-            )}
+            </div>
+
+            {/* Category 2: Travel & Cross Border */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                {ak ? 'နယ်စပ်ဖြတ်ကျော်နှင့် ခရီးသွား' : 'Travel & Remittance'}
+              </h4>
+              <div className="grid grid-cols-4 gap-3 text-center">
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center gap-1.5 cursor-pointer hover:bg-slate-100">
+                  <Globe size={22} className="text-indigo-600" />
+                  <span className="text-[10px] font-semibold">Overseas Pay</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center gap-1.5 cursor-pointer hover:bg-slate-100">
+                  <Smartphone size={22} className="text-cyan-600" />
+                  <span className="text-[10px] font-semibold">Roaming Pack</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center gap-1.5 cursor-pointer hover:bg-slate-100">
+                  <CreditCard size={22} className="text-rose-600" />
+                  <span className="text-[10px] font-semibold">Travel+</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center gap-1.5 cursor-pointer hover:bg-slate-100">
+                  <Radio size={22} className="text-amber-600" />
+                  <span className="text-[10px] font-semibold">Starlink Mesh</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
-
     </div>
   )
 }
