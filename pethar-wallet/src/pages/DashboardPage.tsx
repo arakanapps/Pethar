@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { ArakanEmblem } from '../components/ArakanEmblem'
 import { TransactionSlip } from '../components/TransactionSlip'
 import { ReceiveQRCard } from '../components/ReceiveQRCard'
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { transactions as initialTransactions, initialUserProfile, contacts, type UserProfile, type Txn } from '../data'
 import type { Language } from '../i18n'
+import { auth, onAuthStateChange } from '../lib/firebase'
 
 export type NavTabType = 'home' | 'wallet' | 'cards' | 'transactions' | 'financial' | 'offline' | 'settings'
 
@@ -49,7 +50,46 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [isDarkMode, setIsDarkMode] = useState(false)
 
   // User Profile
-  const [profile] = useState<UserProfile>(initialUserProfile)
+  const [profile, setProfile] = useState<UserProfile>(() => {
+    if (typeof window !== 'undefined' && auth.currentUser) {
+      const u = auth.currentUser
+      return {
+        ...initialUserProfile,
+        name: u.displayName || initialUserProfile.name,
+        email: u.email || initialUserProfile.email,
+        phone: u.phoneNumber || initialUserProfile.phone,
+        avatarUrl: u.photoURL || initialUserProfile.avatarUrl,
+      }
+    }
+    return initialUserProfile
+  })
+
+  // Sync profile when Google or email login completes
+  useEffect(() => {
+    if (auth.currentUser) {
+      const u = auth.currentUser
+      setProfile((prev) => ({
+        ...prev,
+        name: u.displayName || prev.name,
+        email: u.email || prev.email,
+        phone: u.phoneNumber || prev.phone,
+        avatarUrl: u.photoURL || prev.avatarUrl,
+      }))
+    }
+
+    const unsubscribe = onAuthStateChange((u) => {
+      if (u) {
+        setProfile((prev) => ({
+          ...prev,
+          name: u.displayName || prev.name,
+          email: u.email || prev.email,
+          phone: u.phoneNumber || prev.phone,
+          avatarUrl: u.photoURL || prev.avatarUrl,
+        }))
+      }
+    })
+    return () => unsubscribe()
+  }, [])
   const [balanceVisible, setBalanceVisible] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [txCategoryFilter, setTxCategoryFilter] = useState<'all' | 'transfer' | 'inflow' | 'merchant' | 'offline'>('all')

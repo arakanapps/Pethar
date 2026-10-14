@@ -1,5 +1,6 @@
 export type Subdomain =
   | 'app'
+  | 'dashboard'
   | 'wallet'
   | 'login'
   | 'signup'
@@ -49,6 +50,7 @@ export type Subdomain =
 
 export const KNOWN_SUBDOMAINS: string[] = [
   'app',
+  'dashboard',
   'wallet',
   'login',
   'signup',
@@ -101,13 +103,16 @@ export const getSubdomain = (): Subdomain => {
   const searchParams = new URLSearchParams(window.location.search);
   const paramSubdomain = searchParams.get('subdomain') || searchParams.get('sd');
   if (paramSubdomain) {
-    return paramSubdomain.toLowerCase().trim() as Subdomain;
+    const clean = paramSubdomain.toLowerCase().trim();
+    if (clean === 'dashboard') return 'app';
+    return clean as Subdomain;
   }
 
-  // 2. Check path-based routing (e.g. /login, /signup, /wallet, /app, /platform, /en/wallet, /ak/login)
+  // 2. Check path-based routing (e.g. /login, /signup, /wallet, /app, /dashboard, /platform, /en/wallet, /ak/login)
   const pathSegments = window.location.pathname.split('/').filter(Boolean);
   for (const segment of pathSegments) {
     const s = segment.toLowerCase().trim();
+    if (s === 'dashboard') return 'app';
     if (KNOWN_SUBDOMAINS.includes(s)) {
       return s as Subdomain;
     }
@@ -125,6 +130,7 @@ export const getSubdomain = (): Subdomain => {
 
   // Support local dev subdomains like wallet.localhost
   if (parts.length === 2 && parts[1] === 'localhost') {
+    if (parts[0] === 'dashboard') return 'app';
     return parts[0] as Subdomain;
   }
 
@@ -138,7 +144,10 @@ export const getSubdomain = (): Subdomain => {
     if (parts[0] === 'www') {
       return '';
     }
-    // wallet.pethar.co.uk -> 'wallet'
+    // dashboard.pethar.co.uk -> 'app'
+    if (parts[0] === 'dashboard') {
+      return 'app';
+    }
     return parts[0] as Subdomain;
   }
 
@@ -146,6 +155,9 @@ export const getSubdomain = (): Subdomain => {
   if (parts.length >= 2) {
     if (parts[0] === 'www' || parts[0] === 'pethar') {
       return '';
+    }
+    if (parts[0] === 'dashboard') {
+      return 'app';
     }
     return parts[0] as Subdomain;
   }
@@ -159,53 +171,101 @@ export const isSubdomain = (subdomain: string): boolean => {
 
 export const redirectToSubdomain = (
   subdomain: string,
-  options?: { search?: string }
+  options?: { path?: string; search?: string }
 ) => {
   if (typeof window === 'undefined') return;
 
   const hostname = window.location.hostname;
   const port = window.location.port ? `:${window.location.port}` : '';
-  const pathname = window.location.pathname;
   const search =
     options?.search !== undefined ? options.search : window.location.search;
 
-  // Localhost or preview hosts: switch via path
-  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.vercel.app')) {
-    if (!subdomain) {
-      window.location.href = `${window.location.protocol}//${hostname}${port}/${search}`;
+  // Sanitize target path:
+  // When switching away from auth/login/signup to app/dashboard, NEVER carry over /auth, /login, or /signup!
+  let targetPath = options?.path;
+  if (!targetPath) {
+    const currentPath = window.location.pathname;
+    const isCurrentAuth =
+      currentPath.includes('/login') ||
+      currentPath.includes('/signup') ||
+      currentPath.includes('/auth');
+
+    if (isCurrentAuth && (subdomain === 'app' || subdomain === 'dashboard' || subdomain === 'wallet' || !subdomain)) {
+      targetPath = subdomain === 'app' || subdomain === 'dashboard' ? '/dashboard' : '/';
+    } else {
+      targetPath = currentPath;
+    }
+  }
+
+  // Ensure targetPath starts with '/'
+  if (!targetPath.startsWith('/')) {
+    targetPath = `/${targetPath}`;
+  }
+
+  const isPetharDomain = hostname.endsWith('pethar.co.uk');
+
+  // 1. Single-origin routing (localhost, 127.0.0.1, Vercel preview, Firebase web.app, etc.)
+  if (!isPetharDomain) {
+    if (!subdomain || subdomain === 'www') {
+      window.location.href = `${window.location.protocol}//${hostname}${port}${targetPath}${search}`;
+    } else if (subdomain === 'app' || subdomain === 'dashboard') {
+      window.location.href = `${window.location.protocol}//${hostname}${port}/dashboard${search}`;
     } else {
       window.location.href = `${window.location.protocol}//${hostname}${port}/${subdomain}${search}`;
     }
     return;
   }
 
-  // Official production domain (*.pethar.co.uk)
-  if (hostname.endsWith('pethar.co.uk')) {
-    const targetHost = subdomain ? `${subdomain}.pethar.co.uk` : 'www.pethar.co.uk';
-    window.location.href = `${window.location.protocol}//${targetHost}${port}${pathname}${search}`;
+  // 2. Official production domain (*.pethar.co.uk)
+  // Ensure we map 'dashboard' to 'app.pethar.co.uk'
+  const normalizedSubdomain = subdomain === 'dashboard' ? 'app' : subdomain;
+  const targetHost = normalizedSubdomain && normalizedSubdomain !== 'www'
+    ? `${normalizedSubdomain}.pethar.co.uk`
+    : 'pethar.co.uk';
+
+  window.location.href = `${window.location.protocol}//${targetHost}${port}${targetPath}${search}`;
+};
+
+export const goToDashboard = (lang?: string, navigate?: (path: string) => void) => {
+  if (typeof window === 'undefined') return;
+
+  const targetLang = lang === 'en' ? 'en' : 'ak';
+  localStorage.setItem('pethar_logged_in', 'true');
+
+  const hostname = window.location.hostname;
+  const isPetharDomain = hostname.endsWith('pethar.co.uk');
+
+  // If on a dedicated auth subdomain on production (auth.pethar.co.uk, login.pethar.co.uk):
+  if (
+    isPetharDomain &&
+    (hostname.startsWith('auth.') || hostname.startsWith('login.') || hostname.startsWith('signup.'))
+  ) {
+    const port = window.location.port ? `:${window.location.port}` : '';
+    window.location.href = `${window.location.protocol}//app.pethar.co.uk${port}/${targetLang}/dashboard`;
     return;
   }
 
-  // Generic domain fallback
-  const baseDomain = hostname.replace(/^[^.]+\./, '');
-  const targetHost = subdomain ? `${subdomain}.${baseDomain}` : baseDomain;
-  window.location.href = `${window.location.protocol}//${targetHost}${port}${pathname}${search}`;
+  // If navigate function is passed from React Router, perform fast SPA transition
+  if (navigate) {
+    navigate(`/${targetLang}/dashboard`);
+    return;
+  }
+
+  // Otherwise perform full navigation
+  redirectToSubdomain('app', { path: `/${targetLang}/dashboard`, search: '' });
 };
 
 export const goToAuth = (mode: 'login' | 'signup' = 'login') => {
-  redirectToSubdomain('auth', { search: `?mode=${mode}` });
+  redirectToSubdomain('auth', { path: '/auth', search: `?mode=${mode}` });
 };
 
-export const goToApp = () => {
-  redirectToSubdomain('app', { search: '' });
+export const goToApp = (lang?: string, navigate?: (path: string) => void) => {
+  goToDashboard(lang, navigate);
 };
 
 export const getRedirectMap = (): Record<string, string> => {
   return {
-    // Note: '' (root domain pethar.co.uk) and 'www' must NOT redirect to app!
-    // They serve the public landing page for everyone to see.
-
-    // Typo corrections & aliases
+    'dashboard': 'app',
     'esearch': 'search',
     'carreers': 'careers',
     'dev': 'developer',

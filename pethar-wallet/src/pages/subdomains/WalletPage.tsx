@@ -19,7 +19,7 @@ export const WalletPage = ({ lang }: WalletPageProps) => {
         theme="light"
         setTheme={() => {}}
         onExit={() => {
-          redirectToSubdomain('');
+          redirectToSubdomain('', { path: '/', search: '' });
         }}
       />
     </div>
