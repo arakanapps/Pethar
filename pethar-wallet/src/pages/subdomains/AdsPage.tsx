@@ -8,7 +8,7 @@ interface AdsPageProps {
 export const AdsPage = ({ lang }: AdsPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Ads - Advertising & Promotion Services',
+        heroTitle: 'Péthar Ads - Advertising & Promotion Services',
         heroSubtitle: 'Reach the Arakan community and beyond with targeted advertising solutions',
         feature1Title: 'Targeted Advertising',
         feature1Desc: 'Reach specific demographics, interests, and locations with precision targeting',
@@ -22,7 +22,7 @@ export const AdsPage = ({ lang }: AdsPageProps) => {
         ctaGetStarted: 'Create Your First Campaign',
       }
     : {
-        heroTitle: 'PeThar Ads - Advertising & Promotion Services',
+        heroTitle: 'Péthar Ads - Advertising & Promotion Services',
         heroSubtitle: 'Reach the Arakan community and beyond with targeted advertising solutions',
         feature1Title: 'Targeted Advertising',
         feature1Desc: 'Reach specific demographics, interests, and locations with precision targeting',
@@ -71,7 +71,7 @@ export const AdsPage = ({ lang }: AdsPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Ads အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Ads Works'}
+            {lang === 'ak' ? 'Péthar Ads အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar Ads Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
@@ -122,7 +122,7 @@ export const AdsPage = ({ lang }: AdsPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Ads အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar Ads Features'}
+            {lang === 'ak' ? 'Péthar Ads အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'Péthar Ads Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -192,7 +192,7 @@ export const AdsPage = ({ lang }: AdsPageProps) => {
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
             ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Start promoting your business to the PeThar community today'}
+            : 'Start promoting your business to the Péthar community today'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <button

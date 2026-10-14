@@ -200,7 +200,7 @@ class AppState extends ChangeNotifier {
         currency: 'AKD',
         time: 'Just now',
         status: 'SETTLED',
-        counterparty: 'PeThar Online Ledger',
+        counterparty: 'Péthar Online Ledger',
         counterpartyMm: 'ဖေ့သာ အွန်လိုင်းစာရင်း',
         hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}...reconcile',
         amount: amount,

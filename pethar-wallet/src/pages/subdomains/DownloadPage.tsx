@@ -26,8 +26,8 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
 
   const t = ak
     ? {
-        badge: 'Pe Thar တရားဝင် ဆော့ဖ်ဝဲ · 1 ₳ = 1 $ · Online + Offline Mode',
-        heroTitle: 'Pe Thar (ဖေ့သာ) ဆော့ဖ်ဝဲ တိုက်ရိုက် ရယူပါ',
+        badge: 'Péthar တရားဝင် ဆော့ဖ်ဝဲ · 1 ₳ = 1 $ · Online + Offline Mode',
+        heroTitle: 'Péthar (ဖေ့သာ) ဆော့ဖ်ဝဲ တိုက်ရိုက် ရယူပါ',
         heroSubtitle: 'App Store နှင့် Play Store အားမကိုးဘဲ Android တွင် တိုက်ရိုက် APK၊ iPhone တွင် Configuration Profile ဖြင့် ထည့်သွင်းနိုင်ပါသည်။',
         tabMobile: 'မိုဘိုင်းလ် (iOS & Android)',
         tabDesktop: 'ဒက်စ်တော့ပ် (Mac & PC)',
@@ -44,8 +44,8 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
         openWebWallet: 'ဝဘ်ပိုက်ဆံအိတ် ဖွင့်မည် (app.pethar.co.uk)',
       }
     : {
-        badge: 'Official Pe Thar Suite · 1 ₳ = 1 $ · Online + Offline Mode',
-        heroTitle: 'Download Pe Thar Direct Across Devices',
+        badge: 'Official Péthar Suite · 1 ₳ = 1 $ · Online + Offline Mode',
+        heroTitle: 'Download Péthar Direct Across Devices',
         heroSubtitle: 'Direct installation via Android APK and Apple Configuration Profile (.mobileconfig) without App Store restrictions.',
         tabMobile: 'Mobile (iOS & Android)',
         tabDesktop: 'Desktop (macOS & Windows)',
@@ -58,7 +58,7 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
         downloadLinux: 'Download Linux AppImage',
         checksumTitle: 'Cryptographic Checksum & Signature Verification',
         checksumSubtitle: 'Verify the authenticity and integrity of all client binaries using our official SHA-256 hashes',
-        scanQr: 'Scan with your smartphone camera to install Pe Thar mobile app',
+        scanQr: 'Scan with your smartphone camera to install Péthar mobile app',
         openWebWallet: 'Open Web Wallet (app.pethar.co.uk)',
       };
 
@@ -80,14 +80,14 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
     {
       platform: 'macOS (Universal DMG)',
       version: 'v1.0.4',
-      filename: 'PeThar-macOS-universal.dmg',
+      filename: 'Péthar-macOS-universal.dmg',
       size: '64.2 MB',
       sha256: '5f33e08119a71bd670c538bc9a022ee719283f089693998b5a19149f12ab7834',
     },
     {
       platform: 'Windows 10/11 x64',
       version: 'v1.0.4',
-      filename: 'PeThar-Setup-x64.msi',
+      filename: 'Péthar-Setup-x64.msi',
       size: '58.1 MB',
       sha256: '10bc931288fa719245bbcca910817349182390a887198ba16894aa9203847599',
     },
@@ -187,7 +187,7 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
                       
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-slate-950">Pe Thar for iOS</h3>
+                      <h3 className="text-lg font-black text-slate-950">Péthar for iOS</h3>
                       <p className="text-xs text-slate-500 font-mono">Apple Configuration Profile (.mobileconfig) • iPhone & iPad</p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-mono font-bold">
@@ -254,7 +254,7 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
                       <Smartphone className="w-7 h-7" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-slate-950">Pe Thar for Android</h3>
+                      <h3 className="text-lg font-black text-slate-950">Péthar for Android</h3>
                       <p className="text-xs text-slate-500 font-mono">Direct APK • Android 9.0+ • Offline Bearer Mesh</p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-mono font-bold">
@@ -324,7 +324,7 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
                   <p className="text-xs text-slate-400 mt-1 max-w-xl">
                     {ak
                       ? 'သင့်ဖုန်းမျက်နှာပြင်၏ Light၊ Dark နှင့် Tinted မုဒ်များအလိုက် အလိုအလျောက် သဟဇာတဖြစ်အောင် ချိန်ညှိပေးပါသည်။'
-                      : 'Pe Thar dynamically adapts to your OS home screen mode: Light, Dark, or iOS 18 Tinted with custom accent styling.'}
+                      : 'Péthar dynamically adapts to your OS home screen mode: Light, Dark, or iOS 18 Tinted with custom accent styling.'}
                   </p>
                 </div>
 

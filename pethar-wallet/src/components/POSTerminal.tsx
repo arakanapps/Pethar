@@ -257,10 +257,10 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'light',
               <p className="text-xs text-gray-400">
                 {lang === 'ak'
                   ? 'ဝယ်ယူသူ၏ ဖေ့သာ အက်ပ်မှ Scan ကို ဖွင့်၍ ငွေပေးချေပါ'
-                  : 'Customer should open PeThar Camera / QR scanner to complete'}
+                  : 'Customer should open Péthar Camera / QR scanner to complete'}
               </p>
 
-              {/* Cashu / PeThar Offline eCash Redeem Option */}
+              {/* Cashu / Péthar Offline eCash Redeem Option */}
               <div className="pt-2 border-t border-white/10 text-left">
                 <button
                   type="button"

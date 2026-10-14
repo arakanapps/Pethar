@@ -35,7 +35,7 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
         failed: 'ဝင်၍မရပါ။ အချက်အလက် ပြန်စစ်ပါ',
       }
     : {
-        title: 'Log in to Pe Thar',
+        title: 'Log in to Péthar',
         subtitle: 'Email and password, or Google',
         google: 'Continue with Google',
         or: 'or',
@@ -99,7 +99,7 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
     <div className="min-h-screen bg-[#F4F1EA] flex flex-col items-center justify-center px-4 py-12">
       <button type="button" onClick={() => (window.location.href = '/')} className="mb-8 flex items-center gap-2">
         <ArakanEmblem size={36} variant="badge" />
-        <span className="font-extrabold text-lg">Pe Thar</span>
+        <span className="font-extrabold text-lg">Péthar</span>
       </button>
       <div className="w-full max-w-md bg-white rounded-[1.75rem] border border-stone-200 p-7 shadow-sm">
         <h1 className="text-2xl font-extrabold text-center">{t.title}</h1>

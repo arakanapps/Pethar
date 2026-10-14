@@ -20,8 +20,8 @@ export const SupportPage = ({ lang }: SupportPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar တရားဝင် အကူအညီပေးရေး ဝန်ဆောင်မှု · Global Assistance',
-        heroTitle: 'အာရက္ခ PeThar သုံးစွဲသူများအတွက် တိုက်ရိုက်အကူအညီ',
+        badge: 'Péthar တရားဝင် အကူအညီပေးရေး ဝန်ဆောင်မှု · Global Assistance',
+        heroTitle: 'အာရက္ခ Péthar သုံးစွဲသူများအတွက် တိုက်ရိုက်အကူအညီ',
         heroSubtitle: 'အကောင့်လုံခြုံရေး၊ ငွေလွှဲပြောင်းမှုနှင့် နည်းပညာဆိုင်ရာ အခက်အခဲများကို ၂၄ နာရီပတ်လုံး ဖြေရှင်းပေးရန် အဆင်သင့်ရှိပါသည်',
         ctaChat: '၂၄/၇ Live Chat စတင်မည်',
         channelChatTitle: 'အက်ပ်အတွင်း တိုက်ရိုက် Chat',
@@ -35,7 +35,7 @@ export const SupportPage = ({ lang }: SupportPageProps) => {
         ticketSuccess: 'သင်၏ အကူအညီတောင်းဆိုလွှာကို လက်ခံရရှိပါပြီ! လက်မှတ်နံပါတ်:',
       }
     : {
-        badge: 'Official PeThar Support & Sovereign Assistance · 24/7 Rails',
+        badge: 'Official Péthar Support & Sovereign Assistance · 24/7 Rails',
         heroTitle: 'How Can Our Global Support Assist You?',
         heroSubtitle: 'Dedicated assistance for enclave security, remittance tracking, merchant POS hardware, and physical gold audits',
         ctaChat: 'Launch Live Encrypted Chat',
@@ -211,7 +211,7 @@ export const SupportPage = ({ lang }: SupportPageProps) => {
         {/* Security & Confidentiality Guarantee */}
         <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-4 text-xs font-mono text-slate-600">
           <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-          <span>PeThar support agents will NEVER ask for your private seed phrase, enclave pin, or password.</span>
+          <span>Péthar support agents will NEVER ask for your private seed phrase, enclave pin, or password.</span>
         </div>
 
       </div>

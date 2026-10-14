@@ -41,7 +41,7 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
         failed: 'ဖွင့်၍မရပါ။ အချက်အလက် ပြန်စစ်ပါ',
       }
     : {
-        title: 'Create a Pe Thar account',
+        title: 'Create a Péthar account',
         subtitle: 'Name, email, password — or Google',
         google: 'Continue with Google',
         or: 'or',
@@ -117,7 +117,7 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
     <div className="min-h-screen bg-[#F4F1EA] flex flex-col items-center justify-center px-4 py-12">
       <button type="button" onClick={() => (window.location.href = '/')} className="mb-8 flex items-center gap-2">
         <ArakanEmblem size={36} variant="badge" />
-        <span className="font-extrabold text-lg">Pe Thar</span>
+        <span className="font-extrabold text-lg">Péthar</span>
       </button>
       <div className="w-full max-w-md bg-white rounded-[1.75rem] border border-stone-200 p-7 shadow-sm">
         <h1 className="text-2xl font-extrabold text-center">{t.title}</h1>

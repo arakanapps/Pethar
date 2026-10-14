@@ -71,7 +71,7 @@ export const AccountsPage = ({ lang }: AccountsPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar အဖွဲ့အစည်းဆိုင်ရာ ငွေစာရင်းများ · Institutional Treasury',
+        badge: 'Péthar အဖွဲ့အစည်းဆိုင်ရာ ငွေစာရင်းများ · Institutional Treasury',
         heroTitle: 'အာရက္ခ အဖွဲ့အစည်းနှင့် စီးပွားရေး ငွေစာရင်းများ စီမံခန့်ခွဲမှု',
         heroSubtitle: 'Multi-Sig 3-of-5 လုံခြုံရေး၊ ရွှေတုံး အရန်ငွေကြေးများနှင့် နယ်စပ်ဖြတ်ကျော် ငွေစာရင်းများကို တစ်နေရာတည်းတွင် ကြည့်ရှုစစ်ဆေးပါ',
         ctaOpenAccount: 'ငွေစာရင်းအသစ် ဖွင့်လှစ်မည်',

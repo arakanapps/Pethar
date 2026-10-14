@@ -17,7 +17,7 @@ export const IBankingPage = ({ lang }: IBankingPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar ကော်ပိုရိတ် အင်တာနက်ဘဏ်လုပ်ငန်း · Corporate Banking Portal',
+        badge: 'Péthar ကော်ပိုရိတ် အင်တာနက်ဘဏ်လုပ်ငန်း · Corporate Banking Portal',
         heroTitle: 'အာရက္ခ စီးပွားရေးလုပ်ငန်းများအတွက် အင်တာနက်ဘဏ်စနစ်',
         heroSubtitle: 'လစာပေးချေမှု အစုလိုက်ဆောင်ရွက်ခြင်း၊ ဝန်ထမ်းများ၏ ဝင်ရောက်ခွင့် အဆင့်ဆင့်သတ်မှတ်ခြင်းနှင့် နိုင်ငံတကာ ငွေလွှဲမှုများကို တစ်နေရာတည်းတွင် စီမံပါ',
         ctaLogin: 'ကော်ပိုရိတ် အကောင့်ဝင်ရောက်မည်',
@@ -231,7 +231,7 @@ export const IBankingPage = ({ lang }: IBankingPageProps) => {
             <Building2 className="w-6 h-6 text-sky-600 mb-2" />
             <h4 className="text-base font-black text-slate-950">Virtual IBANs & Routing</h4>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Dedicated dedicated Euro and UK clearing accounts to receive international settlements directly into PeThar.
+              Dedicated dedicated Euro and UK clearing accounts to receive international settlements directly into Péthar.
             </p>
           </div>
         </div>

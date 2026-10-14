@@ -243,8 +243,8 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 <div className="w-full mt-4 space-y-2">
                   <div className="text-[10px] text-gray-400 text-center font-medium">
                     {lang === 'ak'
-                      ? `သင်၏ PeThar ${selectedChain} USDT ငွေသွင်းလိပ်စာ`
-                      : `Your Verified PeThar ${selectedChain} USDT Vault Address`}
+                      ? `သင်၏ Péthar ${selectedChain} USDT ငွေသွင်းလိပ်စာ`
+                      : `Your Verified Péthar ${selectedChain} USDT Vault Address`}
                   </div>
                   <div className="font-mono text-xs text-white bg-white/5 p-2.5 rounded-xl border border-white/10 break-all select-all text-center">
                     {chainAddresses[selectedChain]}
@@ -287,7 +287,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
 
               <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between text-xs font-mono">
                 <div>
-                  <div className="text-[9px] text-gray-400 font-sans">PeThar Binance Pay ID</div>
+                  <div className="text-[9px] text-gray-400 font-sans">Péthar Binance Pay ID</div>
                   <div className="text-white font-bold">294819024</div>
                 </div>
                 <button
@@ -326,7 +326,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
 
               <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between text-xs font-mono">
                 <div>
-                  <div className="text-[9px] text-gray-400 font-sans">PeThar MEXC Deposit UID</div>
+                  <div className="text-[9px] text-gray-400 font-sans">Péthar MEXC Deposit UID</div>
                   <div className="text-white font-bold">81920448</div>
                 </div>
                 <button

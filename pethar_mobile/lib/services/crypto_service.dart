@@ -1,4 +1,4 @@
-/// PeThar Cryptographic Service
+/// Péthar Cryptographic Service
 /// 
 /// Provides Ed25519 digital signature operations for offline vouchers.
 /// Uses platform-native keystores (iOS Secure Enclave / Android Keystore)

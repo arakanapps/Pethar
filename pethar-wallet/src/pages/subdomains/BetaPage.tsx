@@ -8,8 +8,8 @@ interface BetaPageProps {
 export const BetaPage = ({ lang }: BetaPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Beta - Early Access Program',
-        heroSubtitle: 'Get early access to new features and help shape the future of PeThar',
+        heroTitle: 'Péthar Beta - Early Access Program',
+        heroSubtitle: 'Get early access to new features and help shape the future of Péthar',
         feature1Title: 'New Features Preview',
         feature1Desc: 'Try upcoming features before they are released to the general public',
         feature2Title: 'Influence Development',
@@ -17,13 +17,13 @@ export const BetaPage = ({ lang }: BetaPageProps) => {
         feature3Title: 'Exclusive Rewards',
         feature3Desc: 'Earn special rewards, bonuses, and recognition for your participation',
         feature4Title: 'Community Access',
-        feature4Desc: 'Connect with other beta testers and the PeThar development team',
+        feature4Desc: 'Connect with other beta testers and the Péthar development team',
         ctaLearnMore: 'How Beta Program Works',
         ctaGetStarted: 'Join the Beta Program',
       }
     : {
-        heroTitle: 'PeThar Beta - Early Access Program',
-        heroSubtitle: 'Get early access to new features and help shape the future of PeThar',
+        heroTitle: 'Péthar Beta - Early Access Program',
+        heroSubtitle: 'Get early access to new features and help shape the future of Péthar',
         feature1Title: 'New Features Preview',
         feature1Desc: 'Try upcoming features before they are released to the general public',
         feature2Title: 'Influence Development',
@@ -31,7 +31,7 @@ export const BetaPage = ({ lang }: BetaPageProps) => {
         feature3Title: 'Exclusive Rewards',
         feature3Desc: 'Earn special rewards, bonuses, and recognition for your participation',
         feature4Title: 'Community Access',
-        feature4Desc: 'Connect with other beta testers and the PeThar development team',
+        feature4Desc: 'Connect with other beta testers and the Péthar development team',
         ctaLearnMore: 'How Beta Program Works',
         ctaGetStarted: 'Join the Beta Program',
       };
@@ -76,7 +76,7 @@ export const BetaPage = ({ lang }: BetaPageProps) => {
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Get early access to new features and help us improve PeThar'}
+              : 'Get early access to new features and help us improve Péthar'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-6">
@@ -111,7 +111,7 @@ export const BetaPage = ({ lang }: BetaPageProps) => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">3. Earn Rewards & Influence</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Get exclusive rewards and help shape the future development of PeThar based on your feedback
+                Get exclusive rewards and help shape the future development of Péthar based on your feedback
               </p>
             </div>
           </div>
@@ -247,7 +247,7 @@ export const BetaPage = ({ lang }: BetaPageProps) => {
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
             ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Get early access to new features and help us build the future of PeThar'}
+            : 'Get early access to new features and help us build the future of Péthar'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <button

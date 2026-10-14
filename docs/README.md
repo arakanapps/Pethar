@@ -1,6 +1,6 @@
-# PeThar documentation
+# Péthar documentation
 
-This directory is the working product and engineering record for PeThar. Documents should describe decisions, controls, and user-visible behavior in plain language.
+This directory is the working product and engineering record for Péthar. Documents should describe decisions, controls, and user-visible behavior in plain language.
 
 ## Suggested document set
 

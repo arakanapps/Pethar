@@ -8,7 +8,7 @@ interface RootPageProps {
 export const RootPage = ({ lang }: RootPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar - Financial Services for the Arakan Community',
+        heroTitle: 'Péthar - Financial Services for the Arakan Community',
         heroSubtitle: 'Building inclusive financial infrastructure for economic empowerment',
         feature1Title: 'Financial Inclusion',
         feature1Desc: 'Providing access to banking services for unbanked and underbanked populations',
@@ -18,11 +18,11 @@ export const RootPage = ({ lang }: RootPageProps) => {
         feature3Desc: 'Leveraging blockchain and mobile technology for accessible financial services',
         feature4Title: 'Trust & Security',
         feature4Desc: 'Banking-grade security with transparent operations and customer protection',
-        ctaLearnMore: 'About PeThar',
-        ctaGetStarted: 'Get Started with PeThar',
+        ctaLearnMore: 'About Péthar',
+        ctaGetStarted: 'Get Started with Péthar',
       }
     : {
-        heroTitle: 'PeThar - Financial Services for the Arakan Community',
+        heroTitle: 'Péthar - Financial Services for the Arakan Community',
         heroSubtitle: 'Building inclusive financial infrastructure for economic empowerment',
         feature1Title: 'Financial Inclusion',
         feature1Desc: 'Providing access to banking services for unbanked and underbanked populations',
@@ -32,8 +32,8 @@ export const RootPage = ({ lang }: RootPageProps) => {
         feature3Desc: 'Leveraging blockchain and mobile technology for accessible financial services',
         feature4Title: 'Trust & Security',
         feature4Desc: 'Banking-grade security with transparent operations and customer protection',
-        ctaLearnMore: 'About PeThar',
-        ctaGetStarted: 'Get Started with PeThar',
+        ctaLearnMore: 'About Péthar',
+        ctaGetStarted: 'Get Started with Péthar',
       };
 
   return (
@@ -71,7 +71,7 @@ export const RootPage = ({ lang }: RootPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'ဖေ့သာ အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Works'}
+            {lang === 'ak' ? 'ဖေ့သာ အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
@@ -197,7 +197,7 @@ export const RootPage = ({ lang }: RootPageProps) => {
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
             ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Join thousands in the Arakan community who are building better financial futures with PeThar'}
+            : 'Join thousands in the Arakan community who are building better financial futures with Péthar'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <button
@@ -206,7 +206,7 @@ export const RootPage = ({ lang }: RootPageProps) => {
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
             </svg>
-            Get Started with PeThar
+            Get Started with Péthar
           </button>
           <button
             className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"

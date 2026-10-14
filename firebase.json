@@ -3,7 +3,7 @@
     "providers": {
       "emailPassword": true,
       "googleSignIn": {
-        "oAuthBrandDisplayName": "PeThar",
+        "oAuthBrandDisplayName": "Péthar",
         "supportEmail": "contact@pethar.co.uk",
         "authorizedRedirectUris": [
           "https://pe-thar.firebaseapp.com/__/auth/handler",

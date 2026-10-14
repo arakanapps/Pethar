@@ -65,7 +65,7 @@ export const ReceiveQRCard: React.FC<ReceiveQRCardProps> = ({
           <div className="flex items-center gap-2.5">
             <ArakanEmblem size={32} variant="badge" />
             <span className="text-white font-black text-xl tracking-tight">
-              pethar<span className="text-amber-200 text-xs ml-1 font-bold">pay</span>
+              péthar<span className="text-amber-200 text-xs ml-1 font-bold">pay</span>
             </span>
           </div>
           {onClose && (
@@ -84,11 +84,11 @@ export const ReceiveQRCard: React.FC<ReceiveQRCardProps> = ({
             ₳
           </div>
           <span className="font-extrabold text-xs tracking-wider uppercase">
-            PE THAR QR PAYMENT
+            PÉTHAR QR PAYMENT
           </span>
         </div>
 
-        {/* 3. Center QR Code Container with Pe Thar Logo */}
+        {/* 3. Center QR Code Container with Péthar Logo */}
         <div className="p-6 text-center bg-white space-y-4">
           <div className="inline-block px-3 py-1 rounded-md border border-slate-300 font-extrabold text-[11px] text-[#0A2540] tracking-wide">
             AKD Instant Pay
@@ -122,7 +122,7 @@ export const ReceiveQRCard: React.FC<ReceiveQRCardProps> = ({
         {/* 4. Footer Security Shield (Matching ref_03.jpg) */}
         <div className="bg-[#FFF4E5] border-t border-amber-200/80 px-4 py-3 flex items-center justify-center gap-2 text-amber-900 text-xs font-semibold">
           <ShieldCheck size={16} className="text-[#FF6B00] shrink-0" />
-          <span>Pay with confidence. Secured by Pe Thar.</span>
+          <span>Pay with confidence. Secured by Péthar.</span>
         </div>
       </div>
 

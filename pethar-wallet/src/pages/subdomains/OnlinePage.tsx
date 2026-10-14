@@ -8,7 +8,7 @@ interface OnlinePageProps {
 export const OnlinePage = ({ lang }: OnlinePageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Online - Complete Digital Banking',
+        heroTitle: 'Péthar Online - Complete Digital Banking',
         heroSubtitle: 'Your full suite of financial services accessible through our secure web portal',
         feature1Title: 'Unified Dashboard',
         feature1Desc: 'View all your accounts, cards, and transactions in one place',
@@ -22,7 +22,7 @@ export const OnlinePage = ({ lang }: OnlinePageProps) => {
         ctaGetStarted: 'Login to Your Account',
       }
     : {
-        heroTitle: 'PeThar Online - Complete Digital Banking',
+        heroTitle: 'Péthar Online - Complete Digital Banking',
         heroSubtitle: 'Your full suite of financial services accessible through our secure web portal',
         feature1Title: 'Unified Dashboard',
         feature1Desc: 'View all your accounts, cards, and transactions in one place',
@@ -71,7 +71,7 @@ export const OnlinePage = ({ lang }: OnlinePageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Online အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Online Works'}
+            {lang === 'ak' ? 'Péthar Online အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar Online Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
@@ -122,7 +122,7 @@ export const OnlinePage = ({ lang }: OnlinePageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Online အင်္ဂါရပ်များ' : 'PeThar Online Features'}
+            {lang === 'ak' ? 'Péthar Online အင်္ဂါရပ်များ' : 'Péthar Online Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">

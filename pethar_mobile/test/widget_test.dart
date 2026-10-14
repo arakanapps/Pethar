@@ -11,14 +11,14 @@ import 'package:pethar_mobile/app_state.dart';
 import 'package:pethar_mobile/main.dart';
 
 void main() {
-  testWidgets('PeTharApp initial smoke test', (WidgetTester tester) async {
+  testWidgets('PetharApp initial smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (context) => AppState(),
-        child: const PeTharApp(),
+        child: const PetharApp(),
       ),
     );
 
-    expect(find.byType(PeTharApp), findsOneWidget);
+    expect(find.byType(PetharApp), findsOneWidget);
   });
 }

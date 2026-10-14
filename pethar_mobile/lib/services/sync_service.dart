@@ -1,4 +1,4 @@
-/// PeThar Synchronization Service
+/// Péthar Synchronization Service
 /// 
 /// Handles bidirectional sync between the device and Supabase server:
 ///   1. Upload: Push locally-created vouchers and transactions to server

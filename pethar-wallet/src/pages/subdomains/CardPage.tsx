@@ -20,7 +20,7 @@ export const CardPage = ({ lang }: CardPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar ဒစ်ဂျစ်တယ်နှင့် ရုပ်ပိုင်းဆိုင်ရာ ကတ်များ',
+        heroTitle: 'Péthar ဒစ်ဂျစ်တယ်နှင့် ရုပ်ပိုင်းဆိုင်ရာ ကတ်များ',
         heroSubtitle: 'ကမ္ဘာတစ်ဝှမ်း မည်သည့်နေရာတွင်မဆို အာရက္ခဒေါ်လာဖြင့် လွယ်ကူစွာ သုံးစွဲနိုင်သော ဒက်ဘစ်ကတ်စနစ်',
         orderVirtual: 'ဒစ်ဂျစ်တယ်ကတ် ချက်ချင်းရယူမည်',
         orderPhysical: 'ရုပ်ပိုင်းဆိုင်ရာကတ် မှာယူမည်',
@@ -39,7 +39,7 @@ export const CardPage = ({ lang }: CardPageProps) => {
         feature4Desc: 'အကောင့်ဖွင့်ပြီးသည်နှင့် ချက်ချင်း စတင်သုံးစွဲနိုင်ပြီး လိပ်စာသို့ ရုပ်ပိုင်းဆိုင်ရာ ကတ်ကိုလည်း ပို့ဆောင်ပေးပါသည်',
       }
     : {
-        heroTitle: 'PeThar Global Debit & Virtual Cards',
+        heroTitle: 'Péthar Global Debit & Virtual Cards',
         heroSubtitle: 'Spend your Arakan Dollars anywhere in the world with Visa acceptance and Apple Pay',
         orderVirtual: 'Issue Instant Virtual Card',
         orderPhysical: 'Order Physical Card',
@@ -71,7 +71,7 @@ export const CardPage = ({ lang }: CardPageProps) => {
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
             <CreditCard className="w-3.5 h-3.5 text-amber-600" />
-            <span>PeThar Card rails · Visa & Apple Pay</span>
+            <span>Péthar Card rails · Visa & Apple Pay</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
@@ -143,7 +143,7 @@ export const CardPage = ({ lang }: CardPageProps) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <ArakanEmblem size={26} variant="badge" />
-                  <span className="font-mono text-xs font-extrabold tracking-wider text-white">PeThar Pay</span>
+                  <span className="font-mono text-xs font-extrabold tracking-wider text-white">Péthar Pay</span>
                 </div>
               </div>
 

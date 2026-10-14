@@ -8,7 +8,7 @@ interface ConnectPageProps {
 export const ConnectPage = ({ lang }: ConnectPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Connect - Business & Developer Integration',
+        heroTitle: 'Péthar Connect - Business & Developer Integration',
         heroSubtitle: 'APIs, webhooks, and integration tools for businesses and developers',
         feature1Title: 'API Integration',
         feature1Desc: 'RESTful and GraphQL APIs for seamless integration with existing systems',
@@ -22,7 +22,7 @@ export const ConnectPage = ({ lang }: ConnectPageProps) => {
         ctaGetStarted: 'Get API Access',
       }
     : {
-        heroTitle: 'PeThar Connect - Business & Developer Integration',
+        heroTitle: 'Péthar Connect - Business & Developer Integration',
         heroSubtitle: 'APIs, webhooks, and integration tools for businesses and developers',
         feature1Title: 'API Integration',
         feature1Desc: 'RESTful and GraphQL APIs for seamless integration with existing systems',
@@ -71,12 +71,12 @@ export const ConnectPage = ({ lang }: ConnectPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Connect အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Connect Works'}
+            {lang === 'ak' ? 'Péthar Connect အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar Connect Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Connect your business or application to PeThar financial services'}
+              : 'Connect your business or application to Péthar financial services'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-6">
@@ -99,7 +99,7 @@ export const ConnectPage = ({ lang }: ConnectPageProps) => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">2. Integrate & Test</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Use our APIs and SDKs to integrate PeThar services into your application
+                Use our APIs and SDKs to integrate Péthar services into your application
               </p>
             </div>
 
@@ -122,7 +122,7 @@ export const ConnectPage = ({ lang }: ConnectPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Connect အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar Connect Features'}
+            {lang === 'ak' ? 'Péthar Connect အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'Péthar Connect Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -192,7 +192,7 @@ export const ConnectPage = ({ lang }: ConnectPageProps) => {
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
             ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Start integrating PeThar financial services into your business or application'}
+            : 'Start integrating Péthar financial services into your business or application'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <button

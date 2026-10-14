@@ -8,30 +8,30 @@ interface P2CPageProps {
 export const P2CPage = ({ lang }: P2CPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar P2C - Person to Consumer Payments',
+        heroTitle: 'Péthar P2C - Person to Consumer Payments',
         heroSubtitle: 'Send money to friends, family, and contacts instantly and securely',
         feature1Title: 'Instant P2C Transfers',
-        feature1Desc: 'Send money to any PeThar user in real-time with just their phone number or username',
+        feature1Desc: 'Send money to any Péthar user in real-time with just their phone number or username',
         feature2Title: 'Bill Splitting & Group Payments',
         feature2Desc: 'Easily split bills, collect money for group gifts, and manage shared expenses',
         feature3Title: 'Payment Requests',
         feature3Desc: 'Send and track payment requests with reminders and automatic follow-ups',
         feature4Title: 'Zero Fees',
-        feature4Desc: 'No fees for sending money to other PeThar users within the network',
+        feature4Desc: 'No fees for sending money to other Péthar users within the network',
         ctaLearnMore: 'How P2C Works',
         ctaGetStarted: 'Send Money Now',
       }
     : {
-        heroTitle: 'PeThar P2C - Person to Consumer Payments',
+        heroTitle: 'Péthar P2C - Person to Consumer Payments',
         heroSubtitle: 'Send money to friends, family, and contacts instantly and securely',
         feature1Title: 'Instant P2C Transfers',
-        feature1Desc: 'Send money to any PeThar user in real-time with just their phone number or username',
+        feature1Desc: 'Send money to any Péthar user in real-time with just their phone number or username',
         feature2Title: 'Bill Splitting & Group Payments',
         feature2Desc: 'Easily split bills, collect money for group gifts, and manage shared expenses',
         feature3Title: 'Payment Requests',
         feature3Desc: 'Send and track payment requests with reminders and automatic follow-ups',
         feature4Title: 'Zero Fees',
-        feature4Desc: 'No fees for sending money to other PeThar users within the network',
+        feature4Desc: 'No fees for sending money to other Péthar users within the network',
         ctaLearnMore: 'How P2C Works',
         ctaGetStarted: 'Send Money Now',
       };
@@ -71,12 +71,12 @@ export const P2CPage = ({ lang }: P2CPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar P2C အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar P2C Works'}
+            {lang === 'ak' ? 'Péthar P2C အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar P2C Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Send money to friends and family instantly with PeThar Wallet'}
+              : 'Send money to friends and family instantly with Péthar Wallet'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-6">
@@ -122,7 +122,7 @@ export const P2CPage = ({ lang }: P2CPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar P2C အင်္ဂါရပ်များ' : 'PeThar P2C Features'}
+            {lang === 'ak' ? 'Péthar P2C အင်္ဂါရပ်များ' : 'Péthar P2C Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -193,7 +193,7 @@ export const P2CPage = ({ lang }: P2CPageProps) => {
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'လက်တွေ့နယ်ပယ်အသီးသီးတွင် အကျိုးရှိစွာ အသုံးချနိုင်သည့် နည်းလမ်းများ'
-              : 'Ideal scenarios for Person-to-Consumer payments with PeThar'}
+              : 'Ideal scenarios for Person-to-Consumer payments with Péthar'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">

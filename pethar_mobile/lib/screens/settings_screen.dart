@@ -547,7 +547,7 @@ class SettingsScreen extends StatelessWidget {
                             TranslationStrings.tr('legalTerms', lang),
                             lang == 'ak'
                                 ? 'ဖေ့သာသည် အာရက္ခပြည်သူများအတွက် ဖွဲ့စည်းတည်ထောင်ထားသော ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်ဖြစ်ပါသည်။ တရားဝင်ငွေကြေးမှာ အာရက္ခဒေါ်လာ (AKD) ဖြစ်ပြီး အမေရိကန်ဒေါ်လာနှင့် ရွှေအာမခံဘဏ္ဍာတိုက်ဖြင့် ကျောထောက်နောက်ခံပြုထားပါသည်။'
-                                : 'PeThar is the institutional national financial technology infrastructure for Arakan. The official unit of account is the Arakan Dollar (AKD), pegged 1:1 against USD value reserves with double-entry cryptographic ledger.',
+                                : 'Péthar is the institutional national financial technology infrastructure for Arakan. The official unit of account is the Arakan Dollar (AKD), pegged 1:1 against USD value reserves with double-entry cryptographic ledger.',
                           ),
                         ),
                         Divider(height: 1, color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[100]),

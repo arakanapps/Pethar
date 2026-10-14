@@ -27,8 +27,8 @@ export default function Main({ lang = 'ak', setLang }: MainProps) {
 
   useEffect(() => {
     document.title = ak
-      ? 'Pe Thar (ဖေ့သာ) — 1 ₳ = 1 $ · Online + Offline Mode'
-      : 'Pe Thar (ဖေ့သာ) — 1 ₳ = 1 $ · Online + Offline Mode'
+      ? 'Péthar (ဖေ့သာ) — 1 ₳ = 1 $ · Online + Offline Mode'
+      : 'Péthar (ဖေ့သာ) — 1 ₳ = 1 $ · Online + Offline Mode'
     document.documentElement.lang = ak ? 'my' : 'en'
   }, [ak])
 
@@ -46,7 +46,7 @@ export default function Main({ lang = 'ak', setLang }: MainProps) {
         eyebrow: '● ၁ ₳ = ၁ $  ·  အွန်လိုင်း + အော့ဖ်လိုင်းမုဒ်',
         headline: 'အာရက္ခဒေါ်လာ (AKD) ဖြင့် ငွေကိုင်၊ ငွေလွှဲ။ အွန်လိုင်းရော အော့ဖ်လိုင်းမုဒ်ပါ သုံးနိုင်သည်။',
         subhead:
-          'ဖေ့သာ (Pe Thar) သည် ၁ ₳ = ၁ $ တည်ငြိမ်ဒစ်ဂျစ်တယ်ပိုက်ဆံအိတ်ဖြစ်သည်။ ဝဘ်ဘရောက်ဆာတွင် အွန်လိုင်းသုံးနိုင်ပြီး Android နှင့် iOS ဖုန်းများတွင် အင်တာနက်မရှိဘဲ အော့ဖ်လိုင်းမုဒ်ဖြင့် ငွေလွှဲနိုင်သည်။',
+          'ဖေ့သာ (Péthar) သည် ၁ ₳ = ၁ $ တည်ငြိမ်ဒစ်ဂျစ်တယ်ပိုက်ဆံအိတ်ဖြစ်သည်။ ဝဘ်ဘရောက်ဆာတွင် အွန်လိုင်းသုံးနိုင်ပြီး Android နှင့် iOS ဖုန်းများတွင် အင်တာနက်မရှိဘဲ အော့ဖ်လိုင်းမုဒ်ဖြင့် ငွေလွှဲနိုင်သည်။',
         getStarted: 'စတင်အသုံးပြုမည်',
         downloadApk: 'Android APK ရယူမည်',
         downloadIos: 'iOS Profile ထည့်သွင်းမည်',
@@ -86,14 +86,14 @@ export default function Main({ lang = 'ak', setLang }: MainProps) {
           { q: 'အော့ဖ်လိုင်းမုဒ်ကို ဘယ်မှာ သုံးနိုင်သလဲ?', a: 'Android နှင့် iOS မိုဘိုင်းအက်ပ်များတွင် သီးသန့် အသုံးပြုနိုင်သည်။' },
           { q: 'အကောင့်ဖွင့်ရန် မှတ်ပုံတင်လိုသလား?', a: 'စတင်အသုံးပြုရန် မှတ်ပုံတင်၊ နိုင်ငံသားကတ် သို့မဟုတ် ဖုန်းနံပါတ် မလိုသေးပါ။' },
         ],
-        ctaTitle: 'Pe Thar (ဖေ့သာ) ကို ယခုပင် စတင်သုံးစွဲပါ',
+        ctaTitle: 'Péthar (ဖေ့သာ) ကို ယခုပင် စတင်သုံးစွဲပါ',
         ctaBody: 'Google ဖြင့် အလွယ်တကူ ဝင်ရောက်ပါ၊ သို့မဟုတ် မိုဘိုင်းအက်ပ်ကို တိုက်ရိုက် ဒေါင်းလုဒ်လုပ်ပါ။',
         mockWelcome: 'ပြန်လည်ကြိုဆိုပါသည်',
         mockAvail: 'ရရှိနိုင်သော လက်ကျန်',
         mockSend: 'ငွေပို့',
         mockRequest: 'ငွေတောင်း',
         mockOffline: 'အော့ဖ်လိုင်း အသင့်ရှိ',
-        footer: 'Pe Thar (ဖေ့သာ) · pethar.co.uk · 1 ₳ = 1 $ · Online + Offline Mode',
+        footer: 'Péthar (ဖေ့သာ) · pethar.co.uk · 1 ₳ = 1 $ · Online + Offline Mode',
       }
     : {
         tagline: 'Digital Cash for Arakan',
@@ -108,11 +108,11 @@ export default function Main({ lang = 'ak', setLang }: MainProps) {
         eyebrow: '● 1 ₳ = 1 $  ·  Online + Offline Mode',
         headline: 'Hold and send money in AKD. Online and in Offline Mode.',
         subhead:
-          'Pe Thar (ဖေ့သာ) is a stable digital wallet pegged 1 ₳ = 1 $. Manage your wallet online on the web, or use our mobile apps for Android and iOS with Offline Mode to transfer cash person-to-person.',
+          'Péthar (ဖေ့သာ) is a stable digital wallet pegged 1 ₳ = 1 $. Manage your wallet online on the web, or use our mobile apps for Android and iOS with Offline Mode to transfer cash person-to-person.',
         getStarted: 'Open Wallet',
         downloadApk: 'Download Android APK',
         downloadIos: 'Install iOS Profile',
-        howTitle: 'How Pe Thar Works',
+        howTitle: 'How Péthar Works',
         howIntro: 'Four simple steps. Zero paperwork or identity friction to start.',
         s1t: 'Create an Account',
         s1d: 'One-tap with Google or Name, Email, and Password in seconds.',
@@ -134,7 +134,7 @@ export default function Main({ lang = 'ak', setLang }: MainProps) {
         statSecurity: 'Google Cloud Security Standards',
         privTitle: 'Privacy and Security Standards',
         privLead:
-          'Pe Thar uses Firebase Authentication on Google Cloud. Minimal scopes (openid, email, profile), zero advertising use, and no data reselling.',
+          'Péthar uses Firebase Authentication on Google Cloud. Minimal scopes (openid, email, profile), zero advertising use, and no data reselling.',
         p1t: 'What We Access',
         p1d: 'Basic profile identity (Name, Email, Google UID). We never request or access Gmail, Google Drive, or Calendar.',
         p2t: 'How We Protect Data',
@@ -143,19 +143,19 @@ export default function Main({ lang = 'ak', setLang }: MainProps) {
         p3d: 'Request complete account and data purging at privacy@pethar.co.uk anytime.',
         faqTitle: 'Frequently Asked Questions',
         faqs: [
-          { q: 'What is AKD?', a: 'The Arakan Dollar. In Pe Thar, 1 ₳ = $1.00 USD at all times.' },
+          { q: 'What is AKD?', a: 'The Arakan Dollar. In Péthar, 1 ₳ = $1.00 USD at all times.' },
           { q: 'How is the value guaranteed?', a: 'Backed internally 1:1 by audited institutional USD stablecoin reserves (USDT, USDC, USD1).' },
-          { q: 'Where does Offline Mode work?', a: 'Offline Mode is an exclusive feature of the Pe Thar mobile apps on Android and iOS.' },
+          { q: 'Where does Offline Mode work?', a: 'Offline Mode is an exclusive feature of the Péthar mobile apps on Android and iOS.' },
           { q: 'Is citizenship or ID required?', a: 'No citizenship documents, ID cards, or photo KYC required to start.' },
         ],
-        ctaTitle: 'Get Started with Pe Thar Today',
+        ctaTitle: 'Get Started with Péthar Today',
         ctaBody: 'Open your wallet on the web or download the mobile app for Android and iOS.',
         mockWelcome: 'Welcome back',
         mockAvail: 'Available Balance',
         mockSend: 'Send ₳',
         mockRequest: 'Receive',
         mockOffline: 'Offline Ready',
-        footer: 'Pe Thar (ဖေ့သာ) · pethar.co.uk · 1 ₳ = 1 $ · Online + Offline Mode',
+        footer: 'Péthar (ဖေ့သာ) · pethar.co.uk · 1 ₳ = 1 $ · Online + Offline Mode',
       }
 
   return (
@@ -169,7 +169,7 @@ export default function Main({ lang = 'ak', setLang }: MainProps) {
       <nav className="glass nav z">
         <a href="#home" className="logo">
           <ArakanEmblem size={32} variant="badge" />
-          <span>Pe Thar</span>
+          <span>Péthar</span>
         </a>
 
         <div className="navl">
@@ -255,7 +255,7 @@ export default function Main({ lang = 'ak', setLang }: MainProps) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <ArakanEmblem size={22} variant="badge" />
-                    <span style={{ fontWeight: 800, fontSize: 12 }}>Pe Thar</span>
+                    <span style={{ fontWeight: 800, fontSize: 12 }}>Péthar</span>
                   </div>
                   <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: 'rgba(16, 185, 129, 0.2)', color: '#34d399' }}>
                     {copy.mockOffline}
@@ -369,7 +369,7 @@ export default function Main({ lang = 'ak', setLang }: MainProps) {
           <h2>{lang === 'ak' ? 'စနစ်အလိုက် အလိုအလျောက် ပြောင်းလဲသော အက်ပ်ပုံစံ' : 'Adaptive App Icon Theming'}</h2>
           <p className="muted" style={{ marginBottom: 32, maxWidth: 640 }}>
             {lang === 'ak'
-              ? 'iOS 18 နှင့် Android 14+ တို့၏ Light Mode၊ Dark Mode နှင့် Tinted Theme များနှင့် လိုက်လျောညီထွေစွာ ပြောင်းလဲပေးသည့် Pe Thar တံဆိပ်။'
+              ? 'iOS 18 နှင့် Android 14+ တို့၏ Light Mode၊ Dark Mode နှင့် Tinted Theme များနှင့် လိုက်လျောညီထွေစွာ ပြောင်းလဲပေးသည့် Péthar တံဆိပ်။'
               : 'Seamlessly matching your OS appearance in iOS 18 and Android Material You: Light, Dark, and Tinted monochrome.'}
           </p>
 

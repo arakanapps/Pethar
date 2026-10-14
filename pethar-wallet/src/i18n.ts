@@ -226,7 +226,7 @@ export const translations: Record<Language, TranslationStrings> = {
     fullName: 'အမည်အပြည့်အစုံ',
     emailAddress: 'အီးမေးလ်လိပ်စာ',
     phoneNumber: 'ဖုန်းနံပါတ်',
-    petharId: 'ဖေ့သာ အိုင်ဒီ (PeThar ID)',
+    petharId: 'ဖေ့သာ အိုင်ဒီ (Péthar ID)',
     locationTownship: 'နေရပ်မြို့နယ်',
     billingManagement: 'ဘေလ်နှင့် ကတ်များ စီမံခန့်ခွဲမှု',
     languageSetting: 'ဘာသာစကား ရွေးချယ်မှု',
@@ -246,7 +246,7 @@ export const translations: Record<Language, TranslationStrings> = {
   },
 
   en: {
-    appName: 'PeThar',
+    appName: 'Péthar',
     appSubtitle: 'Arakan National Financial Infrastructure',
     currencyLabel: 'Arakan Dollar',
     currencySymbol: '₳',
@@ -273,7 +273,7 @@ export const translations: Record<Language, TranslationStrings> = {
 
     // Send Screen
     sendTitle: 'Send Money',
-    sendRecipientPlaceholder: 'Enter Phone or PeThar ID (e.g. ARAK-0842)',
+    sendRecipientPlaceholder: 'Enter Phone or Péthar ID (e.g. ARAK-0842)',
     sendRecentContacts: 'Frequent Recipients',
     sendAmountLabel: 'Transfer Amount',
     sendNotePlaceholder: 'Transaction memo / reference (optional)',
@@ -287,8 +287,8 @@ export const translations: Record<Language, TranslationStrings> = {
     // Receive Screen
     receiveTitle: 'Receive Money',
     receiveMyQr: 'My Arakan QR (AK QR)',
-    receiveCopyId: 'Copy PeThar ID',
-    receiveIdCopied: 'PeThar ID Copied to Clipboard!',
+    receiveCopyId: 'Copy Péthar ID',
+    receiveIdCopied: 'Péthar ID Copied to Clipboard!',
     receiveSetAmount: 'Specify Amount to Request',
     receiveShareQr: 'Share Payment QR',
 
@@ -309,7 +309,7 @@ export const translations: Record<Language, TranslationStrings> = {
     intlRemittance: 'Global Inward Corridors (Thailand, Malaysia, Singapore, USA, Europe)',
     intlSendAbroad: 'Send Outward International Wire',
     intlTopUpCard: 'Top Up with Global Cards (Visa / Mastercard / AMEX)',
-    intlDebitCard: 'PeThar Multi-Currency Debit Card',
+    intlDebitCard: 'Péthar Multi-Currency Debit Card',
     intlFreezeCard: 'Freeze Card Instantly',
     intlCardDetails: 'View Card Credentials',
 
@@ -348,7 +348,7 @@ export const translations: Record<Language, TranslationStrings> = {
     fullName: 'Full Name',
     emailAddress: 'Email Address',
     phoneNumber: 'Phone Number',
-    petharId: 'PeThar Citizen ID',
+    petharId: 'Péthar Citizen ID',
     locationTownship: 'Township / Region',
     billingManagement: 'Billing Management',
     languageSetting: 'Language',

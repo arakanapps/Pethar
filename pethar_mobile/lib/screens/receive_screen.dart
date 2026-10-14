@@ -88,7 +88,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                 child: Text(
                   lang == 'ak'
                       ? 'ဤ QR ကုဒ်ကို ပေးပို့သူအား ပြသ၍ အာရက္ခဒေါ်လာ တိုက်ရိုက်လက်ခံပါ'
-                      : 'Scan with PeThar Mobile to send Arakan Dollars instantly',
+                      : 'Scan with Péthar Mobile to send Arakan Dollars instantly',
                   style: TextStyle(fontSize: 12, color: Colors.grey[500], height: 1.4),
                   textAlign: TextAlign.center,
                 ),

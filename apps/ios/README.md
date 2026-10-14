@@ -1,6 +1,6 @@
-# PeThar iOS (အိုင်ဖုန်း မိုဘိုင်းလ်)
+# Péthar iOS (အိုင်ဖုန်း မိုဘိုင်းလ်)
 
-The **iOS (iPhone & iPad) Native Client** for PeThar.
+The **iOS (iPhone & iPad) Native Client** for Péthar.
 
 ## Native Project Location
 The native iOS Xcode workspace is located at:

@@ -44,7 +44,7 @@ export const GlobalPage = ({ lang }: GlobalPageProps) => {
 
   return (
     <BaseLayout
-      title={lang === 'ak' ? 'ဖေ့သာ နိုင်ငံတကာငွေလွှဲကွန်ရက်' : 'PeThar Global Cross-Border Remittance'}
+      title={lang === 'ak' ? 'ဖေ့သာ နိုင်ငံတကာငွေလွှဲကွန်ရက်' : 'Péthar Global Cross-Border Remittance'}
       lang={lang}
     >
       <div className="space-y-10 max-w-[1300px] mx-auto pb-16">
@@ -184,7 +184,7 @@ export const GlobalPage = ({ lang }: GlobalPageProps) => {
                             : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                         }`}
                       >
-                        <div className="font-bold">PeThar Wallet</div>
+                        <div className="font-bold">Péthar Wallet</div>
                         <div className="text-[10px] text-slate-400 font-normal">Instant (&lt; 0.8s)</div>
                       </button>
 
@@ -245,13 +245,13 @@ export const GlobalPage = ({ lang }: GlobalPageProps) => {
               </div>
 
               <div className="space-y-4">
-                {/* PeThar Box (Hero Winner) */}
+                {/* Péthar Box (Hero Winner) */}
                 <div className="p-4 rounded-2xl bg-indigo-900 text-white border-2 border-indigo-500 shadow-lg relative">
                   <span className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[9px] uppercase tracking-wider">
                     Highest Value
                   </span>
                   <div className="flex justify-between items-baseline mb-2">
-                    <span className="font-bold text-sm">PeThar Global Wire</span>
+                    <span className="font-bold text-sm">Péthar Global Wire</span>
                     <span className="text-xl font-black font-mono text-amber-300">₳ {calculatedAkd}</span>
                   </div>
                   <div className="space-y-1 text-xs font-mono text-indigo-200">

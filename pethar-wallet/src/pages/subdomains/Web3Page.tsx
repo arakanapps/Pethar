@@ -18,22 +18,22 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar Web3 တံတား · EVM & Multi-Chain Bridge Protocol',
+        badge: 'Péthar Web3 တံတား · EVM & Multi-Chain Bridge Protocol',
         heroTitle: 'ဗဟိုမဲ့ ဘဏ္ဍာရေးနှင့် Multi-Chain ချိတ်ဆက်မှု စနစ်',
-        heroSubtitle: 'Ethereum, BNB Chain, Polygon တို့မှ USDT နှင့် ပိုင်ဆိုင်မှုများကို PeThar အချုပ်အခြာအာဏာပိုင် Ledger သို့ 1:1 တန်းတူ လဲလှယ်ကူးပြောင်းနိုင်ပါသည်',
+        heroSubtitle: 'Ethereum, BNB Chain, Polygon တို့မှ USDT နှင့် ပိုင်ဆိုင်မှုများကို Péthar အချုပ်အခြာအာဏာပိုင် Ledger သို့ 1:1 တန်းတူ လဲလှယ်ကူးပြောင်းနိုင်ပါသည်',
         ctaBridge: 'Cross-Chain Bridge စမ်းသပ်မည်',
         ctaExplorer: 'Ledger Explorer ကြည့်မည်',
         bridgeTitle: 'Cross-Chain တံတား စမ်းသပ်မှု Simulator',
-        bridgeDesc: 'EVM ကွင်းဆက်မှ USDT ပမာဏကို PeThar Sovereign AKD အဖြစ် စမတ်ကန်ထရိုက်ဖြင့် သော့ခတ်လဲလှယ်ခြင်း',
+        bridgeDesc: 'EVM ကွင်းဆက်မှ USDT ပမာဏကို Péthar Sovereign AKD အဖြစ် စမတ်ကန်ထရိုက်ဖြင့် သော့ခတ်လဲလှယ်ခြင်း',
         runBridge: 'Bridge လဲလှယ်မှု အတည်ပြုမည်',
         bridgeSuccess: 'Bridge အောင်မြင်စွာ ကူးပြောင်းပြီးပါပြီ! (1:1 AKD Minted to Enclave Wallet)',
         didTitle: 'Zero-Knowledge နိုင်ငံသား အထောက်အထား (zk-DID)',
         didDesc: 'ကိုယ်ရေးအချက်အလက် မဖော်ပြဘဲ အာရက္ခနိုင်ငံသားဖြစ်ကြောင်း သင်္ချာနည်းအရ သက်သေပြနိုင်သော W3C စံချိန်မီ DID စနစ်',
       }
     : {
-        badge: 'PeThar Web3 Bridge Protocol · EVM & Multi-Chain Rails',
+        badge: 'Péthar Web3 Bridge Protocol · EVM & Multi-Chain Rails',
         heroTitle: 'Decentralized Liquidity & Sovereign DeFi Rails',
-        heroSubtitle: 'Seamlessly bridge USDT and stable assets between Ethereum, BNB Chain, Polygon, Arbitrum and PeThar\'s high-speed zero-gas ledger',
+        heroSubtitle: 'Seamlessly bridge USDT and stable assets between Ethereum, BNB Chain, Polygon, Arbitrum and Péthar\'s high-speed zero-gas ledger',
         ctaBridge: 'Simulate Cross-Chain Bridge',
         ctaExplorer: 'Explore Sovereign Ledger',
         bridgeTitle: 'Live Cross-Chain Peg-In Bridge Simulator',
@@ -146,7 +146,7 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
             {/* Destination Chain */}
             <div className="md:col-span-5 p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-slate-300">PeThar Sovereign Ledger</span>
+                <span className="text-xs font-mono font-bold text-slate-300">Péthar Sovereign Ledger</span>
                 <span className="text-[10px] font-mono text-amber-400">1:1 Mint Guarantee</span>
               </div>
               <div className="flex items-baseline justify-between font-mono">

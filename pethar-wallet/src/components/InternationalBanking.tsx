@@ -106,7 +106,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            {lang === 'ak' ? 'ဖေ့သာကတ်' : 'PeThar Card'}
+            {lang === 'ak' ? 'ဖေ့သာကတ်' : 'Péthar Card'}
           </button>
         </div>
       </div>
@@ -293,7 +293,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
           </div>
         )}
 
-        {/* Tab 4: PeThar Debit Card Management */}
+        {/* Tab 4: Péthar Debit Card Management */}
         {activeTab === 'card' && (
           <div className="space-y-4">
             {/* Card Graphic */}
@@ -309,7 +309,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 <div className="flex items-center gap-2">
                   <ArakanEmblem size={32} variant="badge" />
                   <span className="font-bold text-white text-sm tracking-wide">
-                    {lang === 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar'}
+                    {lang === 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'Péthar'}
                   </span>
                 </div>
                 <span className="font-mono text-xs text-amber-300 tracking-wider">VISA DEBIT</span>

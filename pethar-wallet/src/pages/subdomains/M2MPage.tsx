@@ -8,7 +8,7 @@ interface M2MPageProps {
 export const M2MPage = ({ lang }: M2MPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar M2M - Machine-to-Machine Payments',
+        heroTitle: 'Péthar M2M - Machine-to-Machine Payments',
         heroSubtitle: 'Automated payments and financial transactions between devices and systems',
         feature1Title: 'IoT Device Payments',
         feature1Desc: 'Enable smart devices to automatically pay for services, data, or resources',
@@ -22,7 +22,7 @@ export const M2MPage = ({ lang }: M2MPageProps) => {
         ctaGetStarted: 'Enable M2M Payments',
       }
     : {
-        heroTitle: 'PeThar M2M - Machine-to-Machine Payments',
+        heroTitle: 'Péthar M2M - Machine-to-Machine Payments',
         heroSubtitle: 'Automated payments and financial transactions between devices and systems',
         feature1Title: 'IoT Device Payments',
         feature1Desc: 'Enable smart devices to automatically pay for services, data, or resources',
@@ -71,12 +71,12 @@ export const M2MPage = ({ lang }: M2MPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar M2M အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar M2M Works'}
+            {lang === 'ak' ? 'Péthar M2M အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar M2M Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Enable machines and devices to transact autonomously with PeThar'}
+              : 'Enable machines and devices to transact autonomously with Péthar'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-6">
@@ -87,7 +87,7 @@ export const M2MPage = ({ lang }: M2MPageProps) => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">1. Register Device</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Register your IoT device, machine, or system with a PeThar Machine Wallet
+                Register your IoT device, machine, or system with a Péthar Machine Wallet
               </p>
             </div>
 
@@ -122,7 +122,7 @@ export const M2MPage = ({ lang }: M2MPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar M2M အင်္ဂါရပ်များ' : 'PeThar M2M Features'}
+            {lang === 'ak' ? 'Péthar M2M အင်္ဂါရပ်များ' : 'Péthar M2M Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -193,7 +193,7 @@ export const M2MPage = ({ lang }: M2MPageProps) => {
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'လက်တွေ့နယ်ပယ်အသီးသီးတွင် အကျိုးရှိစွာ အသုံးချနိုင်သည့် နည်းလမ်းများ'
-              : 'Ideal scenarios for Machine-to-Machine payments with PeThar'}
+              : 'Ideal scenarios for Machine-to-Machine payments with Péthar'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">

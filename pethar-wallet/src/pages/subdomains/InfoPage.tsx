@@ -8,7 +8,7 @@ interface InfoPageProps {
 export const InfoPage = ({ lang }: InfoPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Info - About PeThar Financial Services',
+        heroTitle: 'Péthar Info - About Péthar Financial Services',
         heroSubtitle: 'Learn about our mission, team, and commitment to financial inclusion',
         feature1Title: 'Our Mission',
         feature1Desc: 'Building accessible financial services for the Arakan community and beyond',
@@ -19,10 +19,10 @@ export const InfoPage = ({ lang }: InfoPageProps) => {
         feature4Title: 'Our Commitment',
         feature4Desc: 'Commitment to transparency, security, and customer service excellence',
         ctaLearnMore: 'Our Story',
-        ctaGetStarted: 'Get Started with PeThar',
+        ctaGetStarted: 'Get Started with Péthar',
       }
     : {
-        heroTitle: 'PeThar Info - About PeThar Financial Services',
+        heroTitle: 'Péthar Info - About Péthar Financial Services',
         heroSubtitle: 'Learn about our mission, team, and commitment to financial inclusion',
         feature1Title: 'Our Mission',
         feature1Desc: 'Building accessible financial services for the Arakan community and beyond',
@@ -33,7 +33,7 @@ export const InfoPage = ({ lang }: InfoPageProps) => {
         feature4Title: 'Our Commitment',
         feature4Desc: 'Commitment to transparency, security, and customer service excellence',
         ctaLearnMore: 'Our Story',
-        ctaGetStarted: 'Get Started with PeThar',
+        ctaGetStarted: 'Get Started with Péthar',
       };
 
   return (
@@ -71,7 +71,7 @@ export const InfoPage = ({ lang }: InfoPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Info အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Info Works'}
+            {lang === 'ak' ? 'Péthar Info အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar Info Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
@@ -122,12 +122,12 @@ export const InfoPage = ({ lang }: InfoPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'ဖေ့သာ အကြောင်း သိကောင်းစရာ' : 'About PeThar'}
+            {lang === 'ak' ? 'ဖေ့သာ အကြောင်း သိကောင်းစရာ' : 'About Péthar'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'ကျွန်ုပ်တို့၏ အခွင့်အလမ်းများနှင့် အကြောင်းအရာများကို လေ့လာစူးစမ်းပါ'
-              : 'Key information about PeThar Financial Services'}
+              : 'Key information about Péthar Financial Services'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -197,7 +197,7 @@ export const InfoPage = ({ lang }: InfoPageProps) => {
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
             ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Discover how PeThar is building better financial services for everyone'}
+            : 'Discover how Péthar is building better financial services for everyone'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <button
@@ -206,7 +206,7 @@ export const InfoPage = ({ lang }: InfoPageProps) => {
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
             </svg>
-            Get Started with PeThar
+            Get Started with Péthar
           </button>
           <button
             className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"

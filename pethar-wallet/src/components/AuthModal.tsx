@@ -200,7 +200,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <ArakanEmblem size={32} variant="badge" />
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-slate-900 tracking-tight text-lg">PeThar</span>
+              <span className="font-extrabold text-slate-900 tracking-tight text-lg">Péthar</span>
               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-200">
                 FINTECH
               </span>
@@ -480,8 +480,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     />
                     <span>
                       {lang === 'ak'
-                        ? 'PeThar ၏ ဝန်ဆောင်မှုစည်းကမ်းများနှင့် ကိုယ်ရေးအချက်အလက်မူဝါဒကို သဘောတူပါသည်'
-                        : "I agree to PeThar's Terms of Service and Privacy Policy"}
+                        ? 'Péthar ၏ ဝန်ဆောင်မှုစည်းကမ်းများနှင့် ကိုယ်ရေးအချက်အလက်မူဝါဒကို သဘောတူပါသည်'
+                        : "I agree to Péthar's Terms of Service and Privacy Policy"}
                     </span>
                   </label>
                 </div>

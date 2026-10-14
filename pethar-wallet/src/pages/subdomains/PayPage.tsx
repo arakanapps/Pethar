@@ -37,7 +37,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
   const t = lang === 'ak'
     ? {
         badge: 'လျင်မြန်သော ငွေပေးချေမှုစနစ်',
-        heroTitle: 'ဖေ့သာ ပေး (PeThar Pay) - တစ်ချက်နှိပ် ချက်ချင်းငွေပေးချေမှု',
+        heroTitle: 'ဖေ့သာ ပေး (Péthar Pay) - တစ်ချက်နှိပ် ချက်ချင်းငွေပေးချေမှု',
         heroSubtitle: 'ဖုန်း၊ ဝဘ်ဆိုက်နှင့် ဆိုင်များတွင် အာရက္ခဒေါ်လာဖြင့် ၀% ဝန်ဆောင်ခ အခမဲ့ စက္ကန့်ပိုင်းအတွင်း ငွေပေးချေနိုင်ပါသည်',
         demoTitle: 'ဖေ့သာ ပေး ငွေပေးချေမှု စမ်းသပ်ခန်း',
         demoDesc: 'အွန်လိုင်းစတိုးများတွင် ဖေ့သာဖြင့် လွယ်ကူလျင်မြန်စွာ ငွေရှင်းနည်းကို စမ်းသပ်ပါ',
@@ -54,7 +54,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
         resetDemo: 'နောက်ထပ် ငွေပေးချေမှု စမ်းသပ်ရန်',
         pillarsTitle: 'ဖေ့သာ ပေး ၏ အဓိက အင်္ဂါရပ် ၄ ချက်',
         p1Title: 'အခမဲ့ P2P ငွေလွှဲခြင်း',
-        p1Desc: 'ဖုန်းနံပါတ် သို့မဟုတ် PeThar ID ဖြင့် မည်သည့်အခကြေးငွေမျှမရှိဘဲ ချက်ချင်းလွှဲပို့နိုင်ပါသည်',
+        p1Desc: 'ဖုန်းနံပါတ် သို့မဟုတ် Péthar ID ဖြင့် မည်သည့်အခကြေးငွေမျှမရှိဘဲ ချက်ချင်းလွှဲပို့နိုင်ပါသည်',
         p2Title: 'နိုင်ငံတကာမှ တိုက်ရိုက်လက်ခံခြင်း',
         p2Desc: 'ထိုင်း (PromptPay)၊ မလေးရှားနှင့် ကမ္ဘာအရပ်ရပ်မှ အာရက္ခဒေါ်လာသို့ တိုက်ရိုက်ရောက်ရှိပါသည်',
         p3Title: 'လစဉ်ကြေးနှင့် အသုံးစရိတ်များ အလိုအလျောက်ပေးချေခြင်း',
@@ -65,22 +65,22 @@ export const PayPage = ({ lang }: PayPageProps) => {
       }
     : {
         badge: 'Instant Digital Checkout',
-        heroTitle: 'PeThar Pay - Frictionless One-Click Payments',
+        heroTitle: 'Péthar Pay - Frictionless One-Click Payments',
         heroSubtitle: 'Instant, zero-fee payment processing for web checkouts, mobile apps, and physical points of sale',
-        demoTitle: 'PeThar Pay Interactive Checkout Demo',
+        demoTitle: 'Péthar Pay Interactive Checkout Demo',
         demoDesc: 'Experience how consumers pay merchants effortlessly across the Arakan digital economy',
         merchantName: 'Arakan Solar & Satellite Infrastructure Co.',
         orderDesc: 'Starlink High-Speed Satellite Monthly Access',
         totalDue: 'Total Amount Due',
-        methodBalance: 'PeThar Account Balance (Instant · 0 Fee)',
-        methodCard: 'PeThar Virtual Visa (•••• 0921)',
+        methodBalance: 'Péthar Account Balance (Instant · 0 Fee)',
+        methodCard: 'Péthar Virtual Visa (•••• 0921)',
         methodQr: 'Arakan QR Scanner',
-        payButton: 'Pay with PeThar',
+        payButton: 'Pay with Péthar',
         authorizing: 'Authenticating Biometrics & Enclave...',
         paidSuccess: 'Payment Authorized & Settled!',
         downloadReceipt: 'Download Tax Invoice',
         resetDemo: 'Simulate Another Checkout',
-        pillarsTitle: 'The 4 Pillars of PeThar Pay',
+        pillarsTitle: 'The 4 Pillars of Péthar Pay',
         p1Title: 'Zero-Fee Citizen P2P',
         p1Desc: 'Instant person-to-person money transfers with zero network commissions using phone number or ID.',
         p2Title: 'Direct Inward Remittances',
@@ -94,7 +94,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
 
   const faqs = [
     {
-      qEn: 'How quickly are payments settled with PeThar Pay?',
+      qEn: 'How quickly are payments settled with Péthar Pay?',
       qMm: 'ဖေ့သာ ပေး ဖြင့် ငွေပေးချေပါက မည်မျှမြန်ဆန်ပါသနည်း?',
       aEn: 'Every payment is finalized in under 1 second directly on the Byzantine-consensus ledger, providing immediate cleared funds to the merchant.',
       aMm: 'ငွေပေးချေမှုတိုင်းသည် ၁ စက္ကန့်အတွင်း ဗဟိုငွေစာရင်းတွင် ချက်ချင်းပြီးစီးပြီး ကုန်သည်ထံ တိုက်ရိုက်ငွေရောက်ရှိပါသည်။'
@@ -108,7 +108,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
     {
       qEn: 'Can I pay merchants if there is an internet or telecommunication outage?',
       qMm: 'အင်တာနက်လိုင်း ပြတ်တောက်နေချိန်တွင် ငွေပေးချေနိုင်ပါသလား?',
-      aEn: 'Yes. PeThar Pay includes an encrypted Bluetooth/NFC offline mesh protocol allowing signed transaction vouchers to clear as soon as either device re-connects.',
+      aEn: 'Yes. Péthar Pay includes an encrypted Bluetooth/NFC offline mesh protocol allowing signed transaction vouchers to clear as soon as either device re-connects.',
       aMm: 'ပေးချေနိုင်ပါသည်။ အော့ဖ်လိုင်း ဘလူးတုသ်နှင့် NFC စနစ်ပါဝင်သောကြောင့် အင်တာနက်လိုင်းမရှိချိန်တွင်လည်း လုံခြုံစွာ ငွေရှင်းနိုင်ပါသည်။'
     }
   ];
@@ -261,7 +261,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
                   <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-2">
                       <ArakanEmblem size={28} variant="badge" />
-                      <span className="font-black text-sm tracking-wider text-slate-900 dark:text-white">PeThar Pay</span>
+                      <span className="font-black text-sm tracking-wider text-slate-900 dark:text-white">Péthar Pay</span>
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold">
                       256-BIT ENCLAVE
@@ -386,7 +386,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
           </div>
         </div>
 
-        {/* 4 Pillars of PeThar Pay */}
+        {/* 4 Pillars of Péthar Pay */}
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-6">
             {t.pillarsTitle}

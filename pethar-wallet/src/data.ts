@@ -1,4 +1,4 @@
-// ── PeThar Arakan Design Tokens & Core Data ─────────────────────
+// ── Péthar Arakan Design Tokens & Core Data ─────────────────────
 
 export const colors = {
   // Arakan Royal Crimson & Ruby
@@ -315,7 +315,7 @@ export const legalDocs = {
       {
         hEn: '1. Legal Status & Arakan Currency',
         hMm: '၁။ ဥပဒေရေးရာ အဆင့်အတန်းနှင့် အမျိုးသားဒစ်ဂျစ်တယ် ငွေကြေး',
-        pEn: 'PeThar is the institutional national financial technology infrastructure for the Arakan nation. The platform operates under the authority of the Arakan Digital Financial Regulatory Commission. The official unit of account is the Arakan Dollar, pegged 1:1 against USD value reserves. Myanmar Kyat (MMK) is completely deprecated and non-circulating on this ledger.',
+        pEn: 'Péthar is the institutional national financial technology infrastructure for the Arakan nation. The platform operates under the authority of the Arakan Digital Financial Regulatory Commission. The official unit of account is the Arakan Dollar, pegged 1:1 against USD value reserves. Myanmar Kyat (MMK) is completely deprecated and non-circulating on this ledger.',
         pMm: 'ဖေ့သာသည် အာရက္ခပြည်သူများအတွက် ဖွဲ့စည်းတည်ထောင်ထားသော အမျိုးသားအဆင့် ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်ဖြစ်ပါသည်။ တရားဝင်သုံးစွဲငွေကြေးမှာ "အာရက္ခဒေါ်လာ" ဖြစ်ပြီး ၁၀၀% အမေရိကန်ဒေါ်လာနှင့် ရွှေအာမခံဘဏ္ဍာတိုက်ဖြင့် ကျောထောက်နောက်ခံပြုထားပါသည်။ မြန်မာကျပ်ငွေ (MMK) အဟောင်း/ပြတ်လပ်မှုများကို လုံးဝအသုံးမပြုတော့ဘဲ စာရင်းစနစ်မှ ဖယ်ထုတ်ထားပြီးဖြစ်ပါသည်။',
       },
       {
@@ -327,7 +327,7 @@ export const legalDocs = {
       {
         hEn: '3. Agent Network & Physical Cash Operations',
         hMm: '၃။ တရားဝင် အေးဂျင့်ဆိုင်များနှင့် ငွေသားကိုင်တွယ်မှု စည်းကမ်းများ',
-        pEn: 'Authorized PeThar Agents must maintain physical currency liquidity and adhere to anti-gouging fee ceilings (maximum 0.5% fee on cash-out). All agent withdrawals require dynamic 6-digit cryptographic Time-based One-Time Passwords (TOTP) from the consumer.',
+        pEn: 'Authorized Péthar Agents must maintain physical currency liquidity and adhere to anti-gouging fee ceilings (maximum 0.5% fee on cash-out). All agent withdrawals require dynamic 6-digit cryptographic Time-based One-Time Passwords (TOTP) from the consumer.',
         pMm: 'တရားဝင် အာရက္ခဖေ့သာအေးဂျင့်များသည် သတ်မှတ်ထားသော ဝန်ဆောင်ခ နှုန်းထားထက် ပိုမိုတောင်းခံခြင်းမပြုရပါ။ စားသုံးသူများ ငွေထုတ်ယူရာတွင် မိမိဖုန်းထဲရှိ တစ်ခါသုံး လျှို့ဝှက်ကုဒ် (TOTP) ကို အေးဂျင့်အား ပြသ၍သာ ထုတ်ယူရမည်ဖြစ်သဖြင့် မသမာသူများ ခိုးယူထုတ်ယူနိုင်ခြင်းမရှိပါ။',
       },
     ],
@@ -357,7 +357,7 @@ export const legalDocs = {
       {
         hEn: '1. How to Protect Your 6-Digit PIN',
         hMm: '၁။ မိမိ၏ လုံခြုံရေး PIN နံပါတ် ၆ လုံးကို မည်သူ့ကိုမျှ မပြောပြရန်',
-        pEn: 'Never share your 6-digit PIN with anyone, including individuals claiming to be PeThar customer support or official agents. PeThar staff will never ask for your PIN, seed phrase, or OTP.',
+        pEn: 'Never share your 6-digit PIN with anyone, including individuals claiming to be Péthar customer support or official agents. Péthar staff will never ask for your PIN, seed phrase, or OTP.',
         pMm: 'ဖေ့သာဝန်ထမ်း သို့မဟုတ် အေးဂျင့်ဟု ပြောဆိုသူများ အပါအဝင် မည်သူ့ကိုမျှ သင်၏ လျှို့ဝှက် PIN နံပါတ် (၆) လုံးကို ပေးမသိပါနှင့်။ အမှန်တကယ် ပြဿနာဖြစ်ပါက အက်ပ်အတွင်းရှိ အတည်ပြုထားသော Support Chat တွင်သာ ဆက်သွယ်ပါ။',
       },
       {

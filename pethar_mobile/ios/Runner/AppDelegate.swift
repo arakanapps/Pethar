@@ -5,7 +5,7 @@ import CryptoKit
 import CoreNFC
 import Security
 
-/// PeThar Native Security Bridge for iOS
+/// Péthar Native Security Bridge for iOS
 ///
 /// Implements hardware-level cryptographic isolation:
 /// 1. Apple Secure Enclave (CryptoKit) for non-exportable hardware key generation & signing
@@ -44,7 +44,7 @@ import Security
 
       case "authenticateWithBiometrics":
         let reason = (call.arguments as? [String: Any])?["reason"] as? String
-          ?? "Authenticate with Face ID / Touch ID to authorize PeThar transaction"
+          ?? "Authenticate with Face ID / Touch ID to authorize Péthar transaction"
         self.authenticateWithBiometrics(reason: reason, result: result)
 
       case "generateHardwareKey":

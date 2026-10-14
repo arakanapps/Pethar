@@ -8,8 +8,8 @@ interface P2MPageProps {
 export const P2MPage = ({ lang }: P2MPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar P2M - Person to Merchant Payments',
-        heroSubtitle: 'Seamless payments from individuals to businesses with PeThar Wallet',
+        heroTitle: 'Péthar P2M - Person to Merchant Payments',
+        heroSubtitle: 'Seamless payments from individuals to businesses with Péthar Wallet',
         feature1Title: 'Instant Merchant Payments',
         feature1Desc: 'Pay for goods and services instantly with zero fees for customers',
         feature2Title: 'QR Code & NFC Payments',
@@ -22,8 +22,8 @@ export const P2MPage = ({ lang }: P2MPageProps) => {
         ctaGetStarted: 'Start Accepting Payments',
       }
     : {
-        heroTitle: 'PeThar P2M - Person to Merchant Payments',
-        heroSubtitle: 'Seamless payments from individuals to businesses with PeThar Wallet',
+        heroTitle: 'Péthar P2M - Person to Merchant Payments',
+        heroSubtitle: 'Seamless payments from individuals to businesses with Péthar Wallet',
         feature1Title: 'Instant Merchant Payments',
         feature1Desc: 'Pay for goods and services instantly with zero fees for customers',
         feature2Title: 'QR Code & NFC Payments',
@@ -71,7 +71,7 @@ export const P2MPage = ({ lang }: P2MPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar P2M အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar P2M Works'}
+            {lang === 'ak' ? 'Péthar P2M အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar P2M Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
@@ -87,7 +87,7 @@ export const P2MPage = ({ lang }: P2MPageProps) => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">1. Customer Pays</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Customer uses PeThar Wallet to scan QR code, tap NFC, or click payment link
+                Customer uses Péthar Wallet to scan QR code, tap NFC, or click payment link
               </p>
             </div>
 
@@ -99,7 +99,7 @@ export const P2MPage = ({ lang }: P2MPageProps) => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">2. Merchant Receives</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Payment settles instantly in merchant's PeThar Business account with real-time notification
+                Payment settles instantly in merchant's Péthar Business account with real-time notification
               </p>
             </div>
 
@@ -122,7 +122,7 @@ export const P2MPage = ({ lang }: P2MPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar P2M အင်္ဂါရပ်များ' : 'PeThar P2M Features'}
+            {lang === 'ak' ? 'Péthar P2M အင်္ဂါရပ်များ' : 'Péthar P2M Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -193,7 +193,7 @@ export const P2MPage = ({ lang }: P2MPageProps) => {
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'လက်တွေ့နယ်ပယ်အသီးသီးတွင် အကျိုးရှိစွာ အသုံးချနိုင်သည့် နည်းလမ်းများ'
-              : 'Ideal scenarios for Person-to-Merchant payments with PeThar'}
+              : 'Ideal scenarios for Person-to-Merchant payments with Péthar'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -247,7 +247,7 @@ export const P2MPage = ({ lang }: P2MPageProps) => {
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
             ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Start accepting payments from PeThar Wallet users with zero setup costs'}
+            : 'Start accepting payments from Péthar Wallet users with zero setup costs'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <button

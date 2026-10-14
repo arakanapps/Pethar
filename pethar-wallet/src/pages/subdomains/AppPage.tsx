@@ -64,7 +64,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
         tier: 'အကောင့်အဆင့်',
         logout: 'အကောင့်ထွက်မည်',
         sendModalTitle: 'သုံးစွဲသူ အချင်းချင်း ငွေလွှဲပို့ခြင်း',
-        recipientPlaceholder: 'ဖုန်း သို့မဟုတ် PeThar ID (ဥပမာ ARAK-8891)',
+        recipientPlaceholder: 'ဖုန်း သို့မဟုတ် Péthar ID (ဥပမာ ARAK-8891)',
         amountPlaceholder: 'ငွေပမာဏ (AKD)',
         sendButton: 'ချက်ချင်းငွေလွှဲမည်',
         sendSuccessNotice: 'ငွေလွှဲခြင်း အောင်မြင်ပြီးစီးပါသည်!',
@@ -81,10 +81,10 @@ export const AppPage = ({ lang }: AppPageProps) => {
         receiptTitle: 'ငွေလွှဲပြေစာ',
       }
     : {
-        portalTitle: 'PeThar Customer Portal',
+        portalTitle: 'Péthar Customer Portal',
         customerBadge: 'Verified Citizen Customer',
         welcome: 'Welcome back',
-        idLabel: 'PeThar ID',
+        idLabel: 'Péthar ID',
         balanceLabel: 'Total Arakan Dollar (AKD) Balance',
         reserveVerified: '100% Backed by Tier-1 Gold & USD Reserves',
         quickActions: 'Quick Financial Services',
@@ -97,7 +97,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
         allCategories: 'All Categories',
         searchPlaceholder: 'Search transactions...',
         noTransactions: 'No transactions found',
-        connectedCard: 'PeThar International Card',
+        connectedCard: 'Péthar International Card',
         cardHolder: 'Cardholder',
         accountOverview: 'Customer Account Details',
         township: 'Township / Region',
@@ -106,7 +106,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
         tier: 'Citizen Tier',
         logout: 'Log Out',
         sendModalTitle: 'Transfer to Customer',
-        recipientPlaceholder: 'Enter Phone or PeThar ID',
+        recipientPlaceholder: 'Enter Phone or Péthar ID',
         amountPlaceholder: 'Amount in AKD',
         sendButton: 'Transfer Immediately',
         sendSuccessNotice: 'Transfer settled successfully!',
@@ -396,7 +396,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <ArakanEmblem size={28} variant="badge" />
-                  <span className="font-black tracking-wider text-sm">PeThar Debit</span>
+                  <span className="font-black tracking-wider text-sm">Péthar Debit</span>
                 </div>
                 <button
                   onClick={() => setIsCardFrozen(!isCardFrozen)}

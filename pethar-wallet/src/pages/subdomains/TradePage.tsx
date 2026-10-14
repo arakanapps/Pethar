@@ -27,7 +27,7 @@ export const TradePage = ({ lang }: TradePageProps) => {
 
   return (
     <BaseLayout
-      title={lang === 'ak' ? 'ဖေ့သာ ကုန်စည်နှင့် ဒစ်ဂျစ်တယ် အရောင်းအဝယ်' : 'PeThar Sovereign Trade & Commodities Terminal'}
+      title={lang === 'ak' ? 'ဖေ့သာ ကုန်စည်နှင့် ဒစ်ဂျစ်တယ် အရောင်းအဝယ်' : 'Péthar Sovereign Trade & Commodities Terminal'}
       lang={lang}
     >
       <div className="space-y-8 max-w-[1300px] mx-auto pb-16">
