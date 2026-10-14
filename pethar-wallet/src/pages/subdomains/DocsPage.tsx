@@ -1,40 +1,105 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  BookOpen, Search, ShieldCheck, Terminal, Cpu, ArrowRight,
+  Layers, Globe
+} from 'lucide-react';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface DocsPageProps {
   lang: Language;
 }
 
 export const DocsPage = ({ lang }: DocsPageProps) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'basics' | 'crypto' | 'mesh' | 'merchant'>('all');
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Documentation',
-        heroSubtitle: 'Comprehensive guides, API references, and tutorials',
-        feature1Title: 'Getting Started Guides',
-        feature1Desc: 'Step-by-step tutorials for new users and developers',
-        feature2Title: 'API Reference',
-        feature2Desc: 'Complete documentation of all available endpoints',
-        feature3Title: 'SDK Documentation',
-        feature3Desc: 'Guides for using our official libraries and frameworks',
-        feature4Title: 'Integration Tutorials',
-        feature4Desc: 'Learn how to integrate PeThar into your applications',
-        ctaGetStarted: 'Start Reading',
-        ctaSearch: 'Search Documentation',
+        badge: 'PeThar တရားဝင် နည်းပညာ စာရွက်စာတမ်းများ · Knowledge Base',
+        heroTitle: 'အာရက္ခ ဒစ်ဂျစ်တယ် စီးပွားရေး လမ်းညွှန်နှင့် နည်းပညာဗဟုသုတ',
+        heroSubtitle: 'အသုံးပြုသူများ၊ ကုန်သည်များနှင့် တည်ဆောက်သူများအတွက် အသေးစိတ် လမ်းညွှန်ချက်များ၊ Cryptographic protocols များနှင့် API နမူနာများ',
+        searchPlaceholder: 'လမ်းညွှန်များ၊ သော့များ၊ APIs နှင့် Protocols ရှာဖွေပါ...',
+        filterAll: 'အားလုံး',
+        filterBasics: 'အခြေခံ အသုံးပြုနည်း',
+        filterCrypto: 'Ed25519 လုံခြုံရေး',
+        filterMesh: 'အော့ဖ်လိုင်း Mesh စနစ်',
+        filterMerchant: 'ကုန်သည် စနစ်များ',
+        readGuide: 'လမ်းညွှန်ဖတ်မည်',
       }
     : {
-        heroTitle: 'PeThar Documentation',
-        heroSubtitle: 'Comprehensive guides, API references, and tutorials',
-        feature1Title: 'Getting Started Guides',
-        feature1Desc: 'Step-by-step tutorials for new users and developers',
-        feature2Title: 'API Reference',
-        feature2Desc: 'Complete documentation of all available endpoints',
-        feature3Title: 'SDK Documentation',
-        feature3Desc: 'Guides for using our official libraries and frameworks',
-        feature4Title: 'Integration Tutorials',
-        feature4Desc: 'Learn how to integrate PeThar into your applications',
-        ctaGetStarted: 'Start Reading',
-        ctaSearch: 'Search Documentation',
+        badge: 'Official PeThar Knowledge Base · Protocol Spec v2.6',
+        heroTitle: 'Comprehensive Protocol & Engineering Docs',
+        heroSubtitle: 'Deep-dive architectural specifications, non-custodial key custody guides, offline mesh protocols, and institutional treasury APIs',
+        searchPlaceholder: 'Search topics: Ed25519, BLE Mesh, Bullion Escrow, Webhooks...',
+        filterAll: 'All Docs',
+        filterBasics: 'Core Basics',
+        filterCrypto: 'Cryptography',
+        filterMesh: 'Offline Mesh',
+        filterMerchant: 'Merchant Rails',
+        readGuide: 'Read Specification',
       };
+
+  const docArticles = [
+    {
+      id: 'doc-1',
+      category: 'basics',
+      title: 'Wallet Initialization & Biometric Enclave',
+      desc: 'How PeThar derives Ed25519 keypairs inside iOS Secure Enclave and Android StrongBox with zero cloud exposure.',
+      tag: 'Architecture',
+      readTime: '6 min read'
+    },
+    {
+      id: 'doc-2',
+      category: 'crypto',
+      title: 'Ed25519 Signature Standards & Verification',
+      desc: 'Cryptographic proof mechanics, deterministic nonces, and sub-second validation across sovereign validator nodes.',
+      tag: 'Security',
+      readTime: '8 min read'
+    },
+    {
+      id: 'doc-3',
+      category: 'mesh',
+      title: 'Store-and-Forward Offline BLE/NFC Protocol',
+      desc: 'Transacting in disconnected environments: packet serialization, relay node incentives, and double-spend collision resolution.',
+      tag: 'Protocol',
+      readTime: '12 min read'
+    },
+    {
+      id: 'doc-4',
+      category: 'merchant',
+      title: 'Merchant POS Integration & Dynamic QR Pay',
+      desc: 'Integrating PeThar Terminal X1, EMV contactless rails, and generating instant settlement invoices with 0% merchant fees.',
+      tag: 'Merchant',
+      readTime: '5 min read'
+    },
+    {
+      id: 'doc-5',
+      category: 'basics',
+      title: '1:1 USDT Parity & London Bullion Proof-of-Reserves',
+      desc: 'Mathematical backing model ensuring Arakan Dollar (AKD) remains strictly redeemable 1:1 for USDT or physical gold grams.',
+      tag: 'Economics',
+      readTime: '7 min read'
+    },
+    {
+      id: 'doc-6',
+      category: 'merchant',
+      title: 'Corporate Multi-Sig Treasury & Quorum Policies',
+      desc: 'Configuring M-of-N signature rules, approval tiers, automated payroll dispatches, and immutable audit exports.',
+      tag: 'Enterprise',
+      readTime: '10 min read'
+    }
+  ];
+
+  const filteredArticles = docArticles.filter(art => {
+    const matchesCategory = activeCategory === 'all' || art.category === activeCategory;
+    const matchesQuery = searchQuery === '' || 
+      art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      art.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      art.tag.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesQuery;
+  });
 
   return (
     <BaseLayout
@@ -43,195 +108,141 @@ export const DocsPage = ({ lang }: DocsPageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-16 max-w-6xl mx-auto">
+        
+        {/* Hero Section */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <BookOpen className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.badge}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
+
+          {/* Search Box */}
+          <div className="pt-2 max-w-xl mx-auto">
+            <div className="relative flex items-center">
+              <Search className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t.searchPlaceholder}
+                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs text-sm text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400 transition-all font-mono"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Category Filters */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {(['all', 'basics', 'crypto', 'mesh', 'merchant'] as const).map((cat) => (
             <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
+                activeCategory === cat
+                  ? 'bg-amber-400 text-slate-950 shadow-xs'
+                  : 'bg-white hover:bg-slate-100 text-slate-600 border border-slate-200'
+              }`}
             >
-              {t.ctaGetStarted}
+              {cat === 'all' && t.filterAll}
+              {cat === 'basics' && t.filterBasics}
+              {cat === 'crypto' && t.filterCrypto}
+              {cat === 'mesh' && t.filterMesh}
+              {cat === 'merchant' && t.filterMerchant}
             </button>
-            <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
+          ))}
+        </div>
+
+        {/* Documentation Articles Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredArticles.map((art) => (
+            <div
+              key={art.id}
+              className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-amber-400/50 hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
             >
-              {t.ctaSearch}
-            </button>
-          </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 text-[10px] font-mono font-bold uppercase">
+                    {art.tag}
+                  </span>
+                  <span className="text-[11px] font-mono text-slate-400">{art.readTime}</span>
+                </div>
+                <h3 className="text-base font-black text-slate-950 group-hover:text-amber-600 transition-colors">
+                  {art.title}
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {art.desc}
+                </p>
+              </div>
+
+              <button
+                onClick={() => redirectToSubdomain('developer')}
+                className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-mono font-bold text-slate-800 group-hover:text-amber-600 transition-colors"
+              >
+                <span>{t.readGuide}</span>
+                <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          ))}
         </div>
-      </section>
 
-      {/* Documentation Sections */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'စာရွက်စာတမ်း ကဏ္ဍများ' : 'Documentation Sections'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    {t.feature1Title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {t.feature1Desc}
-                  </p>
-                </div>
-              </div>
+        {/* Quick Links Footer Banner */}
+        <div className="p-8 rounded-3xl bg-slate-950 text-white relative overflow-hidden">
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 text-center md:text-left">
+              <span className="px-2.5 py-1 rounded bg-amber-400/20 text-amber-400 text-[10px] font-mono font-bold uppercase">
+                Developer Fast Track
+              </span>
+              <h3 className="text-xl font-black text-white">Need Live Endpoint Testing?</h3>
+              <p className="text-xs text-slate-400 max-w-xl">
+                Jump directly into our interactive REST API playground with real-time response inspector and sandbox credentials.
+              </p>
             </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    {t.feature2Title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {t.feature2Desc}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    {t.feature3Title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {t.feature3Desc}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    {t.feature4Title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {t.feature4Desc}
-                  </p>
-                </div>
-              </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                onClick={() => redirectToSubdomain('api')}
+                className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-mono font-bold text-xs flex items-center gap-2 shadow-xs transition-transform active:scale-95"
+              >
+                <Terminal className="w-4 h-4" />
+                <span>Open API Explorer</span>
+              </button>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Popular Guides Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'လူကြိုက်များသော လမ်းညွှန်နှင့် သင်ခန်းစာများ' : 'Popular Guides & Tutorials'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'အသုံးများသော လမ်းညွှန်ချက်များနှင့် အထောက်အကူပြု စာရွက်စာတမ်းများ'
-              : 'Most viewed documentation and tutorials'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Wallet Setup Guide</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Step-by-step guide to creating and securing your PeThar Wallet
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Developer Quickstart</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Build your first application with PeThar API in 15 minutes
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Merchant Integration</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Accept PeThar payments in your online store or POS system
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Security Best Practices</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Keep your funds and data secure with these essential practices
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">API Reference</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Complete reference for all PeThar API endpoints and webhooks
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Mobile SDK Guide</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Integrate PeThar Wallet functionality into your mobile apps
-              </p>
-            </div>
+        {/* Architectural Principles */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
+            <ShieldCheck className="w-5 h-5 text-emerald-600 mb-2" />
+            <h4 className="font-bold text-slate-950">Non-Custodial</h4>
+            <p className="text-[11px] text-slate-500 mt-1">Users retain 100% control of private keys on-device.</p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
+            <Globe className="w-5 h-5 text-sky-600 mb-2" />
+            <h4 className="font-bold text-slate-950">Censorship Resistant</h4>
+            <p className="text-[11px] text-slate-500 mt-1">Direct peer-to-peer ledger propagation without centralized gateway choke points.</p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
+            <Layers className="w-5 h-5 text-amber-600 mb-2" />
+            <h4 className="font-bold text-slate-950">100% Backed</h4>
+            <p className="text-[11px] text-slate-500 mt-1">Every Arakan Dollar has verifiable 1:1 collateral in audited bullion & USDT.</p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
+            <Cpu className="w-5 h-5 text-purple-600 mb-2" />
+            <h4 className="font-bold text-slate-950">Offline Resilient</h4>
+            <p className="text-[11px] text-slate-500 mt-1">Bluetooth Low Energy mesh allows transacting during power and internet outages.</p>
           </div>
         </div>
-      </section>
 
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'လေ့လာသင်ယူရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Learn?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Explore our comprehensive documentation to get the most out of PeThar'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Getting Started Guide
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
-          >
-            Browse All Documentation
-          </button>
-        </div>
-      </section>
+      </div>
     </BaseLayout>
   );
 };

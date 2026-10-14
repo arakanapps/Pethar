@@ -1,68 +1,72 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  HelpCircle, Search, ChevronDown, ChevronUp, MessageSquare,
+  ArrowRight, ShieldCheck, Zap
+} from 'lucide-react';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface HelpPageProps {
   lang: Language;
 }
 
 export const HelpPage = ({ lang }: HelpPageProps) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Help Center',
-        heroSubtitle: 'Find answers to common questions about PeThar Wallet and services',
-        feature1Title: 'Getting Started',
-        feature1Desc: 'How to create your account and verify your identity',
-        feature2Title: 'Sending & Receiving',
-        feature2Desc: 'Learn how to send and receive funds with PeThar',
-        feature3Title: 'Security & Safety',
-        feature3Desc: 'How we protect your funds and personal information',
-        feature4Title: 'Business Solutions',
-        feature4Desc: 'Using PeThar for your business and merchant needs',
-        ctaSearch: 'Search Help Center',
-        ctaContact: 'Contact Support',
+        badge: 'PeThar အကူအညီနှင့် မေးလေ့ရှိသော မေးခွန်းများ · 24/7 Knowledge Base',
+        heroTitle: 'အာရက္ခ PeThar အသုံးပြုသူ အကူအညီပေးရေး ဗဟိုဌာန',
+        heroSubtitle: 'ပိုက်ဆံအိတ် လုံခြုံရေး၊ အော့ဖ်လိုင်း ငွေလွှဲခြင်း၊ ရွှေအာမခံစနစ်နှင့် အကောင့်စီမံခန့်ခွဲမှု ဆိုင်ရာ မေးခွန်းများ၏ အဖြေများကို ရှာဖွေပါ',
+        searchPlaceholder: 'မေးခွန်း သို့မဟုတ် အကြောင်းအရာ ရှာဖွေပါ...',
+        faqTitle: 'မကြာခဏ မေးလေ့ရှိသော မေးခွန်းများနှင့် အဖြေများ',
+        askSupport: 'အကူအညီ တိုက်ရိုက်ရယူမည်',
+        contactUs: '၂၄/၇ Support Chat စတင်မည်',
       }
     : {
-        heroTitle: 'PeThar Help Center',
-        heroSubtitle: 'Find answers to common questions about PeThar Wallet and services',
-        feature1Title: 'Getting Started',
-        feature1Desc: 'How to create your account and verify your identity',
-        feature2Title: 'Sending & Receiving',
-        feature2Desc: 'Learn how to send and receive funds with PeThar',
-        feature3Title: 'Security & Safety',
-        feature3Desc: 'How we protect your funds and personal information',
-        feature4Title: 'Business Solutions',
-        feature4Desc: 'Using PeThar for your business and merchant needs',
-        ctaSearch: 'Search Help Center',
-        ctaContact: 'Contact Support',
+        badge: 'PeThar Help Center & Sovereign Knowledge Base · 24/7 FAQ',
+        heroTitle: 'How Can We Assist You Today?',
+        heroSubtitle: 'Instant answers to cryptographic key recovery, 1:1 bullion reserve audits, offline BLE mesh payments, and corporate treasury management',
+        searchPlaceholder: 'Search FAQs, offline mesh, gold audits, debit cards...',
+        faqTitle: 'Frequently Answered Questions',
+        askSupport: 'Need Direct Assistance?',
+        contactUs: 'Launch Live 24/7 Chat',
       };
 
-  const faqItems = lang === 'ak' ? [
+  const faqItems = [
     {
-      question: 'PeThar ပိုက်ဆံအိတ်ကို မည်သို့ ဒေါင်းလုဒ်ရယူပြီး စတင်အသုံးပြုရမည်နည်း။',
-      answer: 'PeThar Wallet ကို App Store သို့မဟုတ် Google Play မှ ဒေါင်းလုဒ်ရယူနိုင်ပါသည်။ ထည့်သွင်းပြီးပါက မျက်နှာပြင်ပေါ်ရှိ လမ်းညွှန်ချက်များအတိုင်း အကောင့်ဖွင့်ပြီး လွယ်ကူလျင်မြန်စွာ အတည်ပြုနိုင်ပါသည်။'
+      q: lang === 'ak' ? 'PeThar ပိုက်ဆံအိတ်ကို မည်သို့ စတင်အသုံးပြုရမည်နည်း။' : 'How do I initialize and secure my PeThar Wallet?',
+      a: lang === 'ak'
+        ? 'PeThar အက်ပ်ကို ဒေါင်းလုဒ်လုပ်ပြီး မိနစ်ပိုင်းအတွင်း အကောင့်ဖွင့်နိုင်ပါသည်။ သင့်ဖုန်း၏ Hardware Secure Enclave ထဲတွင် Ed25519 သော့တွဲကို အလိုအလျောက် ထုတ်ယူပေးပြီး ဆာဗာသို့ သော့မပို့သောကြောင့် ၁၀၀% လုံခြုံမှုရှိပါသည်။'
+        : 'Download PeThar from the official App Store, Google Play, or direct signed APK. During setup, your smartphone\'s Secure Enclave locally generates an Ed25519 keypair. Your private keys never touch PeThar servers.'
     },
     {
-      question: 'အင်တာနက်လိုင်းမရှိဘဲ ဖေ့သာကို အသုံးပြုနိုင်ပါသလား။',
-      answer: 'ဟုတ်ကဲ့၊ အသုံးပြုနိုင်ပါသည်။ ဖေ့သာတွင် BLE နှင့် NFC နည်းပညာသုံး အော့ဖ်လိုင်း ငွေပေးချေမှုစနစ် ပါဝင်သောကြောင့် အင်တာနက်မရှိသည့်အချိန်တွင်လည်း လုံခြုံစွာ ငွေလွှဲပေးချေနိုင်ပါသည်။'
+      q: lang === 'ak' ? 'အင်တာနက်နှင့် ဖုန်းလိုင်း ပြတ်တောက်နေချိန်တွင် မည်သို့ ငွေလွှဲနိုင်ပါသလဲ။' : 'How do offline payments function during internet blackouts?',
+      a: lang === 'ak'
+        ? 'PeThar တွင် Bluetooth Low Energy (BLE) နှင့် NFC mesh နည်းပညာ ပါဝင်သောကြောင့် အင်တာနက်မရှိချိန်တွင်လည်း ဖုန်းအချင်းချင်း ထိတွေ့ကာ သော့လက်မှတ်ထိုးထားသော ပြေစာများ ဖလှယ်နိုင်ပါသည်။ အင်တာနက် ပြန်လည်ရရှိချိန်တွင် Ledger နှင့် အလိုအလျောက် စာရင်းရှင်းပေးပါသည်။'
+        : 'PeThar uses localized BLE (2.4GHz) and NFC pulses to broadcast cryptographically signed payment vouchers up to 10 meters. The recipient\'s hardware validates the monotonic counter locally, and the transaction is automatically gossiped to the main ledger once any nearby node connects to satellite or cell signals.'
     },
     {
-      question: 'PeThar ပိုက်ဆံအိတ်မှ ငွေသားကို မည်သို့ ထုတ်ယူနိုင်ပါသလဲ။',
-      answer: 'တရားဝင်ခွင့်ပြုထားသော ဖေ့သာကိုယ်စားလှယ်များ သို့မဟုတ် ချိတ်ဆက်ထားသော ဘဏ်အကောင့်များမှတစ်ဆင့် ငွေထုတ်ယူနိုင်ပါသည်။ ငွေထုတ်ယူမှုများကို ပုံမှန်အားဖြင့် ၁-၂ နာရီအတွင်း ဆောင်ရွက်ပေးပါသည်။'
-    }
-  ] : [
-    {
-      question: 'How do I download and set up the PeThar Wallet?',
-      answer: 'You can download the PeThar Wallet from the App Store or Google Play. After installation, follow the on-screen instructions to create your account and complete the quick verification process.'
+      q: lang === 'ak' ? 'Arakan Dollar (AKD) ၏ တန်ဖိုးတည်ငြိမ်မှုနှင့် ရွှေအာမခံစနစ်က မည်သို့ရှိသနည်း။' : 'How does the 1:1 parity and gold bullion backing work?',
+      a: lang === 'ak'
+        ? 'ဖေ့သာရှိ AKD တိုင်းသည် 1:1 USDT အရန်ငွေကြေးနှင့် လန်ဒန်/ဘန်ကောက်ရှိ စစ်ဆေးပြီး ရွှေစင်ရွှေတုံး 999.9 တို့ဖြင့် အပြည့်အဝ အာမခံထားရှိပါသည်။ နိုင်ငံတကာ စစ်ဆေးရေးအဖွဲ့များ၏ Audit အထောက်အထားများကို /accounts နှင့် /data တွင် ပွင့်လင်းမြင်သာစွာ ကြည့်ရှုနိုင်ပါသည်။'
+        : 'Every minted Arakan Dollar (AKD) is mathematically anchored 1:1 to audited USDT reserves and London physical gold bullion (999.9 purity). Real-time custody certificates and proof-of-reserves can be publicly inspected at any time on /data and /accounts.'
     },
     {
-      question: 'Can I use PeThar without internet connection?',
-      answer: 'Yes! PeThar features an offline payment protocol using Bluetooth Low Energy (BLE) and NFC technology, allowing you to transact even when you don\'t have internet access.'
-    },
-    {
-      question: 'How do I withdraw money from my PeThar Wallet?',
-      answer: 'You can withdraw funds through authorized PeThar agents or by transferring to a connected bank account. Withdrawals are typically processed within 1-2 business hours.'
+      q: lang === 'ak' ? 'ထိုင်း၊ မလေးရှား၊ စင်ကာပူမှ မိသားစုထံသို့ ငွေလွှဲပေးပို့ရာတွင် မည်မျှကြာသနည်း။' : 'How fast are remittances from Thailand, Singapore, and Europe?',
+      a: lang === 'ak'
+        ? 'PeThar ကွန်ရက်တွင် PromptPay, KPay, PayNow တို့ဖြင့် ချိတ်ဆက်ထားသောကြောင့် နယ်စပ်ဖြတ်ကျော် ငွေလွှဲမှုများသည် စက္ကန့် ၆၀ အတွင်း မိသားစု၏ ပိုက်ဆံအိတ်ထဲသို့ ကော်မရှင်ခ အနိမ့်ဆုံးဖြင့် တိုက်ရိုက်ရောက်ရှိပါသည်။'
+        : 'Cross-border corridors (THB PromptPay, SGD PayNow, GBP FPS) settle into the recipient\'s PeThar Wallet in under 60 seconds with 0% hidden FX spread and instantaneous Arakan Dollar parity.'
     }
   ];
+
+  const filteredFaqs = faqItems.filter(f => 
+    searchQuery === '' ||
+    f.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    f.a.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <BaseLayout
@@ -71,151 +75,118 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-16 max-w-4xl mx-auto">
+        
+        {/* Hero Section */}
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <HelpCircle className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.badge}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
-            >
-              {t.ctaSearch}
-            </button>
-            <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
-            >
-              {t.ctaContact}
-            </button>
-          </div>
-        </div>
-      </section>
 
-      {/* FAQ Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'မကြာခဏ မေးလေ့ရှိသော မေးခွန်းများ' : 'Frequently Asked Questions'}
-          </h2>
-          <div className="space-y-4">
-            {faqItems.map((faq, index) => (
-              <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-b-0 last:pb-0">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                  {faq.question}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                  {faq.answer}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Categories Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'အကူအညီ ကဏ္ဍများ' : 'Help Categories'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Getting Started</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Account setup, verification, and basic usage guides
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Transactions</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Sending, receiving, and managing your payments
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Security</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Keeping your funds and personal information safe
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Business</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Using PeThar for your business and merchant needs
-                  </p>
-                </div>
-              </div>
+          {/* Search Box */}
+          <div className="pt-2 max-w-xl mx-auto">
+            <div className="relative flex items-center">
+              <Search className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t.searchPlaceholder}
+                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs text-sm text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400 transition-all font-mono"
+              />
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'အကူအညီ ထပ်မံလိုအပ်ပါသလား' : 'Still Need Help?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Our support team is available 24/7 to help you with any questions or issues'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
+        {/* Quick Category Action Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div
+            onClick={() => redirectToSubdomain('wallet')}
+            className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-amber-400/50 cursor-pointer transition-all space-y-2 group"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Live Chat Support
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
+            <ShieldCheck className="w-6 h-6 text-amber-600 group-hover:scale-110 transition-transform" />
+            <h4 className="text-xs font-bold text-slate-950">Keys & Security</h4>
+            <p className="text-[11px] text-slate-500">How to backup your seed phrase and enclave biometrics.</p>
+          </div>
+
+          <div
+            onClick={() => redirectToSubdomain('offline')}
+            className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-amber-400/50 cursor-pointer transition-all space-y-2 group"
           >
-            Browse All Help Articles
+            <Zap className="w-6 h-6 text-emerald-600 group-hover:scale-110 transition-transform" />
+            <h4 className="text-xs font-bold text-slate-950">Offline Mesh</h4>
+            <p className="text-[11px] text-slate-500">Transacting during network blackouts via BLE pulses.</p>
+          </div>
+
+          <div
+            onClick={() => redirectToSubdomain('chat')}
+            className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-amber-400/50 cursor-pointer transition-all space-y-2 group"
+          >
+            <MessageSquare className="w-6 h-6 text-sky-600 group-hover:scale-110 transition-transform" />
+            <h4 className="text-xs font-bold text-slate-950">Live Support</h4>
+            <p className="text-[11px] text-slate-500">Chat with a verified sovereign support officer 24/7.</p>
+          </div>
+        </div>
+
+        {/* Accordion FAQ Section */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-black text-slate-950">{t.faqTitle}</h2>
+
+          <div className="divide-y divide-slate-100 rounded-3xl border border-slate-200/80 bg-white overflow-hidden shadow-xs">
+            {filteredFaqs.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div key={idx} className="transition-colors">
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className="w-full text-left p-6 flex items-center justify-between gap-4 font-bold text-xs text-slate-900 hover:text-amber-600 transition-colors"
+                  >
+                    <span className="text-sm font-black">{faq.q}</span>
+                    {isOpen ? (
+                      <ChevronUp className="w-4 h-4 text-amber-600 shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                    )}
+                  </button>
+                  {isOpen && (
+                    <div className="px-6 pb-6 text-xs text-slate-600 leading-relaxed font-sans border-t border-slate-50 pt-2 animate-in fade-in">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 24/7 Contact Banner */}
+        <div className="p-8 rounded-3xl bg-slate-950 text-white flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="space-y-1 text-center sm:text-left">
+            <h3 className="text-lg font-black text-white">{t.askSupport}</h3>
+            <p className="text-xs text-slate-400 max-w-md">
+              Need immediate resolution for a payment, card authorization, or account verification inquiry?
+            </p>
+          </div>
+          <button
+            onClick={() => redirectToSubdomain('chat')}
+            className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono shadow-xs transition-transform active:scale-95 flex items-center gap-2 shrink-0"
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span>{t.contactUs}</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
-      </section>
+
+      </div>
     </BaseLayout>
   );
 };

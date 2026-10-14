@@ -1,40 +1,156 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  Terminal, Play, Copy, Check, CheckCircle2, ArrowRight,
+  ShieldCheck, Zap, Globe, BookOpen
+} from 'lucide-react';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface ApiPageProps {
   lang: Language;
 }
 
+interface Endpoint {
+  id: string;
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  path: string;
+  category: string;
+  description: string;
+  requestBody?: string;
+  responseBody: string;
+  latency: string;
+}
+
 export const ApiPage = ({ lang }: ApiPageProps) => {
+  const endpoints: Endpoint[] = [
+    {
+      id: 'transfers',
+      method: 'POST',
+      path: '/v1/transfers',
+      category: 'Payments',
+      description: 'Execute instant atomic transfer between two citizen or merchant accounts with Ed25519 cryptographic authorization.',
+      requestBody: JSON.stringify({
+        recipient: "akd_node_99a820fc",
+        amount: 320.00,
+        currency: "AKD",
+        memo: "Inventory Batch #109",
+        idempotency_key: "idem_901248102"
+      }, null, 2),
+      responseBody: JSON.stringify({
+        id: "tx_01ja892e01",
+        status: "settled",
+        amount: 320.00,
+        currency: "AKD",
+        fee: 0.00,
+        sender: "akd_node_self",
+        recipient: "akd_node_99a820fc",
+        block_height: 2491032,
+        block_hash: "0x4fe8a0...12ca",
+        settled_at: "2026-10-14T07:30:12Z"
+      }, null, 2),
+      latency: '24ms'
+    },
+    {
+      id: 'rates',
+      method: 'GET',
+      path: '/v1/rates/live',
+      category: 'Market',
+      description: 'Stream continuous institutional FX quotes backed by 1:1 USDT reserves and London physical gold bullion.',
+      responseBody: JSON.stringify({
+        base: "AKD",
+        timestamp: 1728901200,
+        pairs: {
+          "USDT": { rate: 1.0000, spread_bps: 0, status: "pegged" },
+          "THB": { rate: 36.85, spread_bps: 2, status: "live" },
+          "GBP": { rate: 0.7720, spread_bps: 3, status: "live" },
+          "XAU_GRAM": { rate: 0.01234, spread_bps: 0, status: "bullion_backed" }
+        }
+      }, null, 2),
+      latency: '12ms'
+    },
+    {
+      id: 'escrow',
+      method: 'POST',
+      path: '/v1/escrow/create',
+      category: 'Escrow',
+      description: 'Lock fiat or gold collateral into an immutable 2-of-3 multisig smart escrow contract for cross-border trade.',
+      requestBody: JSON.stringify({
+        buyer_id: "akd_node_buyer",
+        seller_id: "akd_node_seller",
+        arbiter: "pethar_sovereign_chamber",
+        collateral_asset: "GOLD_GRAMS",
+        collateral_amount: 15.0,
+        timelock_hours: 72
+      }, null, 2),
+      responseBody: JSON.stringify({
+        escrow_id: "esc_88201a4f",
+        state: "funded_locked",
+        multisig_contract: "0x7a819b...44de",
+        timelock_expires_at: "2026-10-17T07:30:12Z",
+        required_signatures: 2
+      }, null, 2),
+      latency: '36ms'
+    },
+    {
+      id: 'mesh',
+      method: 'POST',
+      path: '/v1/mesh/relay',
+      category: 'Offline Mesh',
+      description: 'Ingest store-and-forward BLE/NFC transaction packets signed during telecom blackouts.',
+      requestBody: JSON.stringify({
+        raw_packet: "base64_packet_pulse_99014...",
+        mesh_hop_count: 3,
+        signature: "ed25519_sig_901aef..."
+      }, null, 2),
+      responseBody: JSON.stringify({
+        status: "reconciled",
+        reconciled_transactions: 14,
+        conflict_detected: false,
+        chain_merged_at_height: 2491033
+      }, null, 2),
+      latency: '45ms'
+    }
+  ];
+
+  const [activeEndpoint, setActiveEndpoint] = useState<Endpoint>(endpoints[0]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [copiedRes, setCopiedRes] = useState(false);
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar API - Financial Infrastructure',
-        heroSubtitle: 'Programmatic access to PeThar\'s payment and banking services',
-        feature1Title: 'RESTful API',
-        feature1Desc: 'Industry-standard REST API with JSON responses',
-        feature2Title: 'Real-time Webhooks',
-        feature2Desc: 'Instant notifications for transactions and account events',
-        feature3Title: 'SDK Libraries',
-        feature3Desc: 'Official libraries for popular programming languages',
-        feature4Title: 'Sandbox Environment',
-        feature4Desc: 'Test environment with fake data for development',
-        ctaGetStarted: 'Get API Access',
-        ctaDocs: 'View Documentation',
+        badge: 'PeThar တရားဝင် REST API · v1 Core Reference',
+        heroTitle: 'အာရက္ခ ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေး စနစ်၏ API ဗဟိုချက်',
+        heroSubtitle: 'စီးပွားရေးလုပ်ငန်းများနှင့် အက်ပ်များအတွက် တိုက်ရိုက်ချိတ်ဆက်နိုင်သော လုံခြုံစိတ်ချရသည့် ငွေပေးချေမှုနှင့် ငွေလဲလှယ်မှု API များ',
+        tryCall: 'API စမ်းသပ်မှု ပြုလုပ်မည်',
+        copied: 'ကူးယူပြီးပါပြီ!',
+        requestHeader: 'တောင်းဆိုမှု Request',
+        responseHeader: 'တုံ့ပြန်မှု Response (200 OK)',
+        rateLimitTitle: 'Rate Limits နှင့် စွမ်းဆောင်ရည်',
+        uptimeStat: '99.995% Uptime SLA',
+        tpsStat: '1,000 req/sec Tier-1 Quota',
+        latencyStat: '< 40ms Median Latency',
       }
     : {
-        heroTitle: 'PeThar API - Financial Infrastructure',
-        heroSubtitle: 'Programmatic access to PeThar\'s payment and banking services',
-        feature1Title: 'RESTful API',
-        feature1Desc: 'Industry-standard REST API with JSON responses',
-        feature2Title: 'Real-time Webhooks',
-        feature2Desc: 'Instant notifications for transactions and account events',
-        feature3Title: 'SDK Libraries',
-        feature3Desc: 'Official libraries for popular programming languages',
-        feature4Title: 'Sandbox Environment',
-        feature4Desc: 'Test environment with fake data for development',
-        ctaGetStarted: 'Get API Access',
-        ctaDocs: 'View Documentation',
+        badge: 'Official PeThar REST API · v1 Core Reference',
+        heroTitle: 'The Sovereign Financial API Reference',
+        heroSubtitle: 'Programmatic high-speed access to atomic transfers, bullion custody, real-time FX order books, and store-and-forward mesh rails',
+        tryCall: 'Simulate API Call',
+        copied: 'Copied!',
+        requestHeader: 'HTTP Request Body',
+        responseHeader: 'Live Response Payload (200 OK)',
+        rateLimitTitle: 'Global Performance & Rate Limits',
+        uptimeStat: '99.995% Uptime SLA',
+        tpsStat: '1,000 req/sec Tier-1 Quota',
+        latencyStat: '< 40ms Median Latency',
       };
+
+  const handleSimulate = () => {
+    setIsRunning(true);
+    setTimeout(() => {
+      setIsRunning(false);
+    }, 450);
+  };
 
   return (
     <BaseLayout
@@ -43,187 +159,214 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-16 max-w-6xl mx-auto">
+        
+        {/* Hero Section */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <Terminal className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.badge}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
+
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={() => redirectToSubdomain('developer')}
+              className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono shadow-xs transition-all active:scale-[0.98] flex items-center gap-2"
             >
-              {t.ctaGetStarted}
+              <span>Get API Credentials</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
             <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={() => redirectToSubdomain('docs')}
+              className="px-6 py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs font-mono shadow-2xs transition-all flex items-center gap-2"
             >
-              {t.ctaDocs}
+              <BookOpen className="w-4 h-4 text-slate-500" />
+              <span>Integration Guides</span>
             </button>
           </div>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar API အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar API Features'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature1Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature1Desc}
-              </p>
+        {/* Global SLA Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-6 h-6" />
             </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature2Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature2Desc}
-              </p>
+            <div>
+              <p className="text-xs font-mono text-slate-500">Service Level Guarantee</p>
+              <p className="text-sm font-black text-slate-950">{t.uptimeStat}</p>
             </div>
+          </div>
 
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature3Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature3Desc}
-              </p>
+          <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              <Zap className="w-6 h-6" />
             </div>
+            <div>
+              <p className="text-xs font-mono text-slate-500">Global Throughput</p>
+              <p className="text-sm font-black text-slate-950">{t.tpsStat}</p>
+            </div>
+          </div>
 
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature4Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature4Desc}
-              </p>
+          <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+              <Globe className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs font-mono text-slate-500">Ledger Finality</p>
+              <p className="text-sm font-black text-slate-950">{t.latencyStat}</p>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* API Endpoints Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'အဓိက API အင်ပွိုင့်များ' : 'Core API Endpoints'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Accounts</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                GET /accounts - List accounts<br/>
-                GET /accounts/&#123;id&#125; - Get account details<br/>
-                POST /accounts - Create account
-              </p>
+        {/* Interactive API Explorer */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Endpoint List Navigation */}
+          <div className="lg:col-span-4 space-y-3">
+            <div className="p-3 bg-slate-100/80 rounded-2xl border border-slate-200/60 font-mono text-xs font-bold text-slate-700">
+              CORE REST ENDPOINTS
             </div>
 
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Transactions</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                GET /transactions - List transactions<br/>
-                POST /transactions - Create transaction<br/>
-                GET /transactions/&#123;id&#125; - Get transaction details
-              </p>
+            <div className="space-y-2">
+              {endpoints.map((ep) => (
+                <button
+                  key={ep.id}
+                  onClick={() => setActiveEndpoint(ep)}
+                  className={`w-full text-left p-4 rounded-2xl border transition-all ${
+                    activeEndpoint.id === ep.id
+                      ? 'bg-white border-amber-400 shadow-xs ring-2 ring-amber-400/20'
+                      : 'bg-white/80 border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-black ${
+                      ep.method === 'POST' ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900'
+                    }`}>
+                      {ep.method}
+                    </span>
+                    <span className="font-mono text-xs font-bold text-slate-900">{ep.path}</span>
+                  </div>
+                  <p className="text-xs text-slate-500 line-clamp-2">{ep.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Interactive Console & Playground */}
+          <div className="lg:col-span-8 rounded-3xl bg-slate-950 border border-slate-800 text-slate-200 shadow-2xl overflow-hidden space-y-0">
+            {/* Console Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 bg-slate-900 border-b border-slate-800 gap-3">
+              <div className="flex items-center gap-3">
+                <span className={`px-2.5 py-1 rounded text-xs font-mono font-black ${
+                  activeEndpoint.method === 'POST' ? 'bg-amber-400 text-slate-950' : 'bg-emerald-400 text-slate-950'
+                }`}>
+                  {activeEndpoint.method}
+                </span>
+                <span className="font-mono text-sm font-bold text-white">
+                  https://api.pethar.co.uk{activeEndpoint.path}
+                </span>
+              </div>
+
+              <button
+                onClick={handleSimulate}
+                disabled={isRunning}
+                className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-mono font-bold text-xs flex items-center gap-2 shadow-xs transition-transform active:scale-95 disabled:opacity-50 shrink-0"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>{isRunning ? 'Processing...' : t.tryCall}</span>
+              </button>
             </div>
 
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Payments</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                POST /payments - Initiate payment<br/>
-                GET /payments/&#123;id&#125; - Get payment status<br/>
-                POST /payments/&#123;id&#125;/cancel - Cancel payment
-              </p>
+            {/* Headers Preview */}
+            <div className="px-6 py-3 bg-slate-900/40 border-b border-slate-800/80 font-mono text-[11px] text-slate-400 flex flex-wrap items-center gap-4">
+              <span>Authorization: Bearer sec_live_...</span>
+              <span>X-Ed25519-Sig: sig_7f...</span>
+              <span>Accept: application/json</span>
             </div>
 
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Exchange Rates</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                GET /fx/rates - Get current rates<br/>
-                GET /fx/convert - Convert currencies<br/>
-                GET /fx/history - Get historical rates
-              </p>
-            </div>
+            {/* Request Body (if POST) */}
+            {activeEndpoint.requestBody && (
+              <div className="p-6 border-b border-slate-800/60 font-mono text-xs space-y-2">
+                <div className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                  {t.requestHeader}
+                </div>
+                <pre className="text-slate-300 overflow-x-auto leading-relaxed bg-slate-900/60 p-4 rounded-xl">
+                  {activeEndpoint.requestBody}
+                </pre>
+              </div>
+            )}
 
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Webhooks</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                POST /webhooks - Register webhook<br/>
-                GET /webhooks - List webhooks<br/>
-                DELETE /webhooks/&#123;id&#125; - Delete webhook
-              </p>
-            </div>
+            {/* Response Body */}
+            <div className="p-6 font-mono text-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span className="text-[11px] uppercase tracking-wider font-bold">
+                    {t.responseHeader}
+                  </span>
+                  <span className="text-[10px] bg-emerald-950/80 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800">
+                    HTTP 200 OK • {activeEndpoint.latency}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(activeEndpoint.responseBody);
+                    setCopiedRes(true);
+                    setTimeout(() => setCopiedRes(false), 2000);
+                  }}
+                  className="p-1 text-slate-400 hover:text-white transition-colors"
+                  title="Copy JSON"
+                >
+                  {copiedRes ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
 
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Cards</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                GET /cards - List cards<br/>
-                POST /cards - Issue card<br/>
-                GET /cards/&#123;id&#125; - Get card details<br/>
-                POST /cards/&#123;id&#125;/freeze - Freeze card
-              </p>
+              <pre className="text-emerald-400 overflow-x-auto leading-relaxed bg-slate-900/80 p-4 rounded-xl text-[11px]">
+                {activeEndpoint.responseBody}
+              </pre>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'စနစ်တည်ဆောက်မှု စတင်ရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Start Building?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Access our comprehensive API documentation and start building today'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Get API Keys - Free
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
-          >
-            View API Documentation
-          </button>
+        {/* Security & Authentication Protocol */}
+        <div className="p-8 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 text-amber-700 font-mono font-bold text-xs uppercase">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Authentication Architecture</span>
+            </div>
+            <h3 className="text-xl font-black text-slate-950">Ed25519 Asymmetric Signatures & Replay Prevention</h3>
+            <p className="text-xs text-slate-600 leading-relaxed max-w-3xl">
+              All mutating API requests require an asymmetric Ed25519 signature generated with your hardware key. Each request must contain an ISO-8601 millisecond timestamp and a unique idempotency key. Any replay attempt outside a 30-second window is rejected at the edge gateway.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
+              <p className="font-bold text-slate-900 mb-1">1. Generate Nonce</p>
+              <p className="text-[11px] text-slate-500">Unique cryptographic nonce prevents double executions</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
+              <p className="font-bold text-slate-900 mb-1">2. Sign Canonical Body</p>
+              <p className="text-[11px] text-slate-500">Sign payload using ed25519_sign(privateKey, payload)</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
+              <p className="font-bold text-slate-900 mb-1">3. Transmit in Headers</p>
+              <p className="text-[11px] text-slate-500">Deliver signature via X-PeThar-Signature header</p>
+            </div>
+          </div>
         </div>
-      </section>
+
+      </div>
     </BaseLayout>
   );
 };

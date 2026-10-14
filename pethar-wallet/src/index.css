@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 210 60% 98%;
+    --background: 210 40% 98%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 222 47% 11%;
     --secondary: 214 32% 91%;
     --secondary-foreground: 222 47% 11%;
-    --muted: 214 32% 91%;
+    --muted: 214 32% 95%;
     --muted-foreground: 215 16% 47%;
-    --accent: 214 32% 91%;
+    --accent: 214 32% 93%;
     --accent-foreground: 222 47% 11%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 214 32% 88%;
-    --input: 214 32% 88%;
-    --ring: 217 91% 60%;
+    --border: 214 32% 90%;
+    --input: 214 32% 90%;
+    --ring: 38 92% 50%;
     --radius: 1.25rem;
   }
 }
@@ -36,9 +36,10 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
   }
   body {
-    background: linear-gradient(180deg, #CFE5FC 0%, #E3F0FD 25%, #F0F6FD 60%, #F8FBFE 100%) fixed;
+    background: #F8FAFC;
     color: #0F172A;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     min-height: 100vh;
@@ -50,48 +51,77 @@
   }
 }
 
-/* ─── PAYNO SKY-BLUE CLOUD & GLASS DESIGN SYSTEM ───────────────────────── */
-.payno-glass-bg {
-  background: linear-gradient(180deg, #CFE5FC 0%, #E3F0FD 28%, #EFF6FD 65%, #F7FAFE 100%);
-}
-
-.payno-card {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 16px 36px -10px rgba(37, 99, 235, 0.06), 0 2px 6px rgba(15, 23, 42, 0.02), inset 0 1px 1px 0 rgba(255, 255, 255, 1);
-  border-radius: 1.75rem;
+/* ─── PETHAR LUXURY FINTECH GLASS & CARDS DESIGN SYSTEM ─────────────────── */
+.liquid-glass-card-light {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.05), 0 2px 8px -2px rgba(15, 23, 42, 0.02);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.payno-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 24px 48px -12px rgba(37, 99, 235, 0.1), 0 4px 12px rgba(15, 23, 42, 0.03);
+.liquid-glass-card-light:hover {
+  box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
 }
 
-.payno-pill {
-  background: #ffffff;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 6px 20px -4px rgba(37, 99, 235, 0.08), inset 0 1px 1px rgba(255, 255, 255, 1);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.payno-pill:hover {
-  transform: translateY(-1.5px);
-  box-shadow: 0 10px 25px -4px rgba(37, 99, 235, 0.12);
-}
-
-.payno-floating-widget {
+.liquid-glass-pill-light {
   background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 20px 40px -12px rgba(30, 64, 115, 0.12), inset 0 1px 1px rgba(255, 255, 255, 1);
-  border-radius: 1.5rem;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.04);
 }
 
+.liquid-glass-modal-light {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.12);
+}
+
+/* ─── SXDX BANK GRADIENT CREDIT CARD ───────────────────────────────────── */
+.sxdx-credit-card {
+  background: linear-gradient(135deg, #7C3AED 0%, #A855F7 35%, #EC4899 75%, #F43F5E 100%);
+  box-shadow: 0 20px 45px -10px rgba(168, 85, 247, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.sxdx-credit-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.35) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.sxdx-credit-card-dark {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 45%, #090D14 100%);
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ─── DNA PAYMENTS CLEAN WHITE CARD ────────────────────────────────────── */
+.dna-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.dna-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.06);
+}
+
+/* ─── ANIMATIONS & SHIMMER ─────────────────────────────────────────────── */
 @keyframes floatSlow {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-8px); }
@@ -99,13 +129,108 @@
 
 @keyframes floatReverse {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(6px); }
+  50% { transform: translateY(8px); }
 }
 
-.animate-payno-float {
-  animation: floatSlow 6s ease-in-out infinite;
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
 }
 
-.animate-payno-float-reverse {
-  animation: floatReverse 7s ease-in-out infinite;
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
+
+.animate-float-slow {
+  animation: floatSlow 7s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: floatReverse 8s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.shimmer-mask {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-mask::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.25) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 3s infinite;
+}
+
+/* ─── BANK ONE & PAYNO LUXURY DESIGN TOKENS ────────────────────────────── */
+.bankone-hero-gradient {
+  background: radial-gradient(circle at 75% 25%, rgba(224, 231, 255, 0.85) 0%, rgba(243, 232, 255, 0.6) 28%, rgba(254, 243, 199, 0.35) 55%, #F8FAFC 100%);
+}
+
+.payno-sky-gradient {
+  background: linear-gradient(180deg, #E6F2FE 0%, #F1F7FD 35%, #F8FAFC 100%);
+}
+
+.phone-frame {
+  border: 11px solid #1E293B;
+  border-radius: 46px;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+  background: #090D14;
+  overflow: hidden;
+}
+
+.glass-widget {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+}
+
+.card-stack-item {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-stack-item:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+.footer-watermark {
+  font-size: clamp(3.5rem, 14vw, 15rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: rgba(148, 163, 184, 0.12);
+  user-select: none;
+  pointer-events: none;
+  line-height: 0.8;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+

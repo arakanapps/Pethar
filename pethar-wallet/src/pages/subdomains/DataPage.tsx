@@ -1,40 +1,62 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  BarChart3, TrendingUp, ShieldCheck, Download, ArrowRight,
+  Activity, DollarSign, Layers
+} from 'lucide-react';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface DataPageProps {
   lang: Language;
 }
 
 export const DataPage = ({ lang }: DataPageProps) => {
+  const [timeframe, setTimeframe] = useState<'24h' | '7d' | '30d' | '1y'>('30d');
+  const [downloading, setDownloading] = useState(false);
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Data - Financial Intelligence & Analytics',
-        heroSubtitle: 'Financial data, analytics, and insights for informed decision making',
-        feature1Title: 'Market Data',
-        feature1Desc: 'Real-time and historical financial market data and analytics',
-        feature2Title: 'Transaction Analytics',
-        feature2Desc: 'Insights into spending patterns, income trends, and financial behavior',
-        feature3Title: 'Economic Indicators',
-        feature3Desc: 'Local and regional economic data for business planning and investment',
-        feature4Title: 'API Access',
-        feature4Desc: 'Programmatic access to financial data for developers and businesses',
-        ctaGetStarted: 'Access Data Services',
-        ctaLearnMore: 'Data Platform Features',
+        badge: 'PeThar ပွင့်လင်းမြင်သာသော စီးပွားရေး စာရင်းအင်း · On-Chain Analytics',
+        heroTitle: 'အာရက္ခ ဒစ်ဂျစ်တယ် စီးပွားရေးနှင့် စာရင်းအင်း အချက်အလက်များ',
+        heroSubtitle: 'စုစုပေါင်း အာမခံထားသော ပိုင်ဆိုင်မှုများ၊ နေ့စဉ် ငွေလွှဲပြောင်းမှု ပမာဏနှင့် ဒေသတွင်း စီးပွားရေး တိုးတက်မှု ညွှန်းကိန်းများကို အချိန်နှင့်တပြေးညီ ကြည့်ရှုနိုင်ပါသည်',
+        ctaApi: 'Data API စာရွက်စာတမ်း',
+        ctaDownload: 'CSV စာရင်းအင်း အချက်အလက် ရယူမည်',
+        tvlLabel: 'လည်ပတ်နေသော စုစုပေါင်း အာမခံပိုင်ဆိုင်မှု (TVL)',
+        volumeLabel: '၂၄ နာရီ ငွေလွှဲပြောင်းမှု ပမာဏ (24h Volume)',
+        goldLabel: 'သီးသန့်သိမ်းဆည်းထားသော ရွှေတုံး အရန်ပမာဏ',
+        circulatingLabel: 'လည်ပတ်နေသော ဖေ့သာဒေါ်လာ (AKD Supply)',
+        parityLabel: '1:1 USDT Peg တည်ငြိမ်မှု',
+        townshipTitle: 'မြို့နယ်အလိုက် ဒစ်ဂျစ်တယ် စီးပွားရေး တိုးတက်မှု ညွှန်းကိန်း',
       }
     : {
-        heroTitle: 'PeThar Data - Financial Intelligence & Analytics',
-        heroSubtitle: 'Financial data, analytics, and insights for informed decision making',
-        feature1Title: 'Market Data',
-        feature1Desc: 'Real-time and historical financial market data and analytics',
-        feature2Title: 'Transaction Analytics',
-        feature2Desc: 'Insights into spending patterns, income trends, and financial behavior',
-        feature3Title: 'Economic Indicators',
-        feature3Desc: 'Local and regional economic data for business planning and investment',
-        feature4Title: 'API Access',
-        feature4Desc: 'Programmatic access to financial data for developers and businesses',
-        ctaGetStarted: 'Access Data Services',
-        ctaLearnMore: 'Data Platform Features',
+        badge: 'Public Economic Intelligence & Macro Ledger Analytics',
+        heroTitle: 'Sovereign Macroeconomic & On-Chain Intelligence',
+        heroSubtitle: 'Real-time transparent verification of physical bullion reserves, 1:1 USDT peg stability, transaction velocity, and regional commerce indices',
+        ctaApi: 'Developer Data API',
+        ctaDownload: 'Download Open Data CSV',
+        tvlLabel: 'Total Value Locked & Reserve Assets (TVL)',
+        volumeLabel: '24-Hour Settlement Volume',
+        goldLabel: 'Allocated Physical Bullion Custody',
+        circulatingLabel: 'Circulating Arakan Dollars (AKD)',
+        parityLabel: '1:1 USDT Peg Stability Index',
+        townshipTitle: 'Regional Commerce Velocity by Township',
       };
+
+  const townshipMetrics = [
+    { name: 'Sittwe Commercial & Logistics Port', growth: '+14.2%', volume: '$680,400', status: 'high' },
+    { name: 'Kyaukphyu Deep Water Hub', growth: '+18.7%', volume: '$420,100', status: 'high' },
+    { name: 'Mrauk-U Cultural & Agriculture District', growth: '+6.4%', volume: '$215,800', status: 'steady' },
+    { name: 'Maungdaw Border Trade Station', growth: '+11.1%', volume: '$345,900', status: 'steady' },
+    { name: 'Thandwe & Ngapali Coastline', growth: '+4.8%', volume: '$178,200', status: 'steady' },
+  ];
+
+  const handleDownloadCsv = () => {
+    setDownloading(true);
+    setTimeout(() => {
+      setDownloading(false);
+    }, 1000);
+  };
 
   return (
     <BaseLayout
@@ -43,177 +65,163 @@ export const DataPage = ({ lang }: DataPageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-16 max-w-6xl mx-auto">
+        
+        {/* Hero Section */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <BarChart3 className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.badge}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
+
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={() => redirectToSubdomain('api')}
+              className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono shadow-xs transition-all active:scale-[0.98] flex items-center gap-2"
             >
-              {t.ctaGetStarted}
+              <span>{t.ctaApi}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
             <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={handleDownloadCsv}
+              disabled={downloading}
+              className="px-6 py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs font-mono shadow-2xs transition-all flex items-center gap-2 disabled:opacity-50"
             >
-              {t.ctaLearnMore}
+              <Download className="w-4 h-4 text-slate-500" />
+              <span>{downloading ? 'Preparing CSV...' : t.ctaDownload}</span>
             </button>
           </div>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Data အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar Data Features'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature1Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature1Desc}
-              </p>
+        {/* Top 4 Core Macro Metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-xs font-mono font-bold">{t.tvlLabel}</span>
+              <DollarSign className="w-4 h-4 text-amber-600" />
             </div>
+            <p className="text-2xl font-black text-slate-950 font-mono">$38,450,810</p>
+            <p className="text-[11px] font-mono text-emerald-600 font-bold flex items-center gap-1">
+              <TrendingUp className="w-3.5 h-3.5" /> +12.4% this quarter
+            </p>
+          </div>
 
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature2Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature2Desc}
-              </p>
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-xs font-mono font-bold">{t.volumeLabel}</span>
+              <Activity className="w-4 h-4 text-emerald-600" />
             </div>
+            <p className="text-2xl font-black text-slate-950 font-mono">$1,840,290</p>
+            <p className="text-[11px] font-mono text-slate-500">
+              18,412 transactions settled today
+            </p>
+          </div>
 
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature3Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature3Desc}
-              </p>
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-xs font-mono font-bold">{t.goldLabel}</span>
+              <ShieldCheck className="w-4 h-4 text-amber-600" />
             </div>
+            <p className="text-2xl font-black text-slate-950 font-mono">84.50 kg Au</p>
+            <p className="text-[11px] font-mono text-amber-700 font-bold">
+              100% Fine Gold 999.9 Audited
+            </p>
+          </div>
 
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature4Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature4Desc}
-              </p>
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-xs font-mono font-bold">{t.parityLabel}</span>
+              <Layers className="w-4 h-4 text-sky-600" />
+            </div>
+            <p className="text-2xl font-black text-slate-950 font-mono">1.0000 ₳ = $1.00</p>
+            <p className="text-[11px] font-mono text-emerald-600 font-bold">
+              0.00% Peg Deviation
+            </p>
+          </div>
+        </div>
+
+        {/* Volume & Settlement Chart Mockup */}
+        <div className="p-8 rounded-3xl bg-slate-950 text-white space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-xs font-mono text-amber-400 font-bold uppercase">Macro Settlement History</span>
+              <h3 className="text-xl font-black text-white">Consolidated Ledger Volume</h3>
+            </div>
+            
+            {/* Timeframe Selector */}
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono">
+              {(['24h', '7d', '30d', '1y'] as const).map((tf) => (
+                <button
+                  key={tf}
+                  onClick={() => setTimeframe(tf)}
+                  className={`px-3 py-1 rounded-lg uppercase transition-colors ${
+                    timeframe === tf
+                      ? 'bg-amber-400 text-slate-950 font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {tf}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Bar Chart Visualization */}
+          <div className="pt-6 pb-2">
+            <div className="flex items-end justify-between gap-2 h-48 border-b border-slate-800 pb-2">
+              {[45, 62, 58, 80, 72, 95, 88, 110, 105, 128, 140, 165].map((val, idx) => (
+                <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
+                  <div
+                    style={{ height: `${(val / 165) * 100}%` }}
+                    className="w-full rounded-t-lg bg-linear-to-t from-amber-500/20 to-amber-400 group-hover:to-amber-300 transition-all duration-300"
+                  ></div>
+                  <span className="text-[10px] font-mono text-slate-500">{`W${idx + 1}`}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Data Categories Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'ဒေတာ အမျိုးအစားများနှင့် ဝန်ဆောင်မှုများ' : 'Data Categories & Services'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? 'ရရှိနိုင်သော ဝန်ဆောင်မှုနှင့် ကဏ္ဍအသီးသီးကို လေ့လာပါ'
-              : 'Comprehensive financial data services for individuals, businesses, and developers'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Market Data</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Real-time prices, historical data, and charts for AKD, USDT, major currencies
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Available via API and web interface for trading and analysis
-              </p>
-            </div>
+        {/* Township Velocity Index Table */}
+        <div className="p-8 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-4">
+          <div className="space-y-1">
+            <h3 className="text-xl font-black text-slate-950">{t.townshipTitle}</h3>
+            <p className="text-xs text-slate-500">
+              Aggregated settlement volume and commerce velocity across primary townships.
+            </p>
+          </div>
 
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Transaction Analytics</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Spending insights, income analysis, and financial behavior patterns
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Personal and business financial dashboards with export capabilities
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Economic Indicators</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Local economic data, inflation rates, employment statistics, and more
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Essential for business planning, investment decisions, and policy making
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Developer API</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                RESTful API with comprehensive documentation and SDK support
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Programmatic access to all PeThar data services for integration
-              </p>
-            </div>
+          <div className="divide-y divide-slate-100 rounded-2xl border border-slate-200 overflow-hidden">
+            {townshipMetrics.map((town, idx) => (
+              <div key={idx} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/60 transition-colors">
+                <div className="space-y-0.5">
+                  <h4 className="text-xs font-bold text-slate-900">{town.name}</h4>
+                  <p className="text-[10px] font-mono text-slate-400">Township Sovereign Commerce Node</p>
+                </div>
+                <div className="flex items-center gap-6 sm:text-right font-mono text-xs">
+                  <div>
+                    <p className="text-[10px] text-slate-400">Monthly Volume</p>
+                    <p className="font-bold text-slate-900">{town.volume}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400">MoM Growth</p>
+                    <p className="font-bold text-emerald-600">{town.growth}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </section>
 
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဘဏ္ဍာရေးဒေတာများကို ကြည့်ရှုအသုံးပြုရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Access Financial Data?'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Access comprehensive financial data services to power your decisions and applications'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Get Started - Free
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
-          >
-            Explore Data Services
-          </button>
-        </div>
-      </section>
+      </div>
     </BaseLayout>
   );
 };

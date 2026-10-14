@@ -1,40 +1,68 @@
+import { useState } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
+import {
+  LifeBuoy, MessageSquare, Mail, MapPin, CheckCircle2,
+  ArrowRight, ShieldCheck, Send
+} from 'lucide-react';
+import { redirectToSubdomain } from '../../utils/subdomain';
 
 interface SupportPageProps {
   lang: Language;
 }
 
 export const SupportPage = ({ lang }: SupportPageProps) => {
+  const [ticketSubject, setTicketSubject] = useState('');
+  const [ticketEmail, setTicketEmail] = useState('');
+  const [ticketDesc, setTicketDesc] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submittedTicketId, setSubmittedTicketId] = useState<string | null>(null);
+
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Support',
-        heroSubtitle: 'Get help with your PeThar Wallet and financial services',
-        feature1Title: '24/7 Live Chat',
-        feature1Desc: 'Instant support via Telegram and in-app chat',
-        feature2Title: 'Knowledge Base',
-        feature2Desc: 'Comprehensive guides, tutorials, and FAQs',
-        feature3Title: 'Email Support',
-        feature3Desc: 'Dedicated support team via secure email',
-        feature4Title: 'Community Forums',
-        feature4Desc: 'Connect with other users and share experiences',
-        ctaGetHelp: 'Get Support',
-        ctaLearnMore: 'Support Options',
+        badge: 'PeThar တရားဝင် အကူအညီပေးရေး ဝန်ဆောင်မှု · Global Assistance',
+        heroTitle: 'အာရက္ခ PeThar သုံးစွဲသူများအတွက် တိုက်ရိုက်အကူအညီ',
+        heroSubtitle: 'အကောင့်လုံခြုံရေး၊ ငွေလွှဲပြောင်းမှုနှင့် နည်းပညာဆိုင်ရာ အခက်အခဲများကို ၂၄ နာရီပတ်လုံး ဖြေရှင်းပေးရန် အဆင်သင့်ရှိပါသည်',
+        ctaChat: '၂၄/၇ Live Chat စတင်မည်',
+        channelChatTitle: 'အက်ပ်အတွင်း တိုက်ရိုက် Chat',
+        channelChatDesc: 'ပျမ်းမျှ တုံ့ပြန်ချိန် < ၆၀ စက္ကန့်၊ End-to-End Encrypted လုံခြုံရေး',
+        channelEmailTitle: 'တရားဝင် အီးမေးလ် ပံ့ပိုးမှု',
+        channelEmailDesc: 'support@pethar.co.uk (PGP လက်မှတ်ဖြင့် စစ်ဆေးနိုင်ပါသည်)',
+        channelDeskTitle: 'ကိုယ်စားလှယ် ရုံးခန်းများ',
+        channelDeskDesc: 'စစ်တွေ၊ မဲဆောက် နှင့် ဘန်ကောက်မြို့များရှိ လူကိုယ်တိုင် ဆက်သွယ်နိုင်သော ဗဟိုဌာနများ',
+        ticketTitle: 'အကူအညီ တောင်းဆိုလွှာ (Support Ticket) တင်သွင်းရန်',
+        submitBtn: 'တောင်းဆိုလွှာ ပေးပို့မည်',
+        ticketSuccess: 'သင်၏ အကူအညီတောင်းဆိုလွှာကို လက်ခံရရှိပါပြီ! လက်မှတ်နံပါတ်:',
       }
     : {
-        heroTitle: 'PeThar Support',
-        heroSubtitle: 'Get help with your PeThar Wallet and financial services',
-        feature1Title: '24/7 Live Chat',
-        feature1Desc: 'Instant support via Telegram and in-app chat',
-        feature2Title: 'Knowledge Base',
-        feature2Desc: 'Comprehensive guides, tutorials, and FAQs',
-        feature3Title: 'Email Support',
-        feature3Desc: 'Dedicated support team via secure email',
-        feature4Title: 'Community Forums',
-        feature4Desc: 'Connect with other users and share experiences',
-        ctaGetHelp: 'Get Support',
-        ctaLearnMore: 'Support Options',
+        badge: 'Official PeThar Support & Sovereign Assistance · 24/7 Rails',
+        heroTitle: 'How Can Our Global Support Assist You?',
+        heroSubtitle: 'Dedicated assistance for enclave security, remittance tracking, merchant POS hardware, and physical gold audits',
+        ctaChat: 'Launch Live Encrypted Chat',
+        channelChatTitle: 'In-App Live Chat',
+        channelChatDesc: 'Average response time < 60 seconds with hardware-encrypted privacy',
+        channelEmailTitle: 'Official Support Email',
+        channelEmailDesc: 'support@pethar.co.uk (PGP key: 0x48FA_ED25519)',
+        channelDeskTitle: 'Physical Assistance Hubs',
+        channelDeskDesc: 'Walk-in desks in Sittwe, Mae Sot, Bangkok, and London',
+        ticketTitle: 'Submit an Escalated Support Ticket',
+        submitBtn: 'Submit Priority Ticket',
+        ticketSuccess: 'Ticket successfully logged to sovereign support dispatch! Ticket ID:',
       };
+
+  const handleSubmitTicket = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ticketSubject || !ticketEmail) return;
+
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      setSubmittedTicketId(`PT-TICK-${Math.floor(100000 + Math.random() * 900000)}`);
+      setTicketSubject('');
+      setTicketEmail('');
+      setTicketDesc('');
+    }, 800);
+  };
 
   return (
     <BaseLayout
@@ -43,161 +71,150 @@ export const SupportPage = ({ lang }: SupportPageProps) => {
       showHeader={true}
       showFooter={true}
     >
-      {/* Hero Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <div className="space-y-16 max-w-5xl mx-auto">
+        
+        {/* Hero Section */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <LifeBuoy className="w-3.5 h-3.5 text-amber-600" />
+            <span>{t.badge}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
             {t.heroTitle}
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
+
+          <div className="flex justify-center pt-2">
             <button
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              onClick={() => redirectToSubdomain('chat')}
+              className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono shadow-xs transition-all active:scale-[0.98] flex items-center gap-2"
             >
-              {t.ctaGetHelp}
+              <MessageSquare className="w-4 h-4" />
+              <span>{t.ctaChat}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
+          </div>
+        </div>
+
+        {/* Support Channels 3 Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            onClick={() => redirectToSubdomain('chat')}
+            className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-amber-400/50 cursor-pointer transition-all space-y-3 group"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+              <MessageSquare className="w-6 h-6 text-amber-600 group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-base font-black text-slate-950">{t.channelChatTitle}</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">{t.channelChatDesc}</p>
+            <p className="text-xs font-mono font-bold text-amber-600 flex items-center gap-1 pt-1">
+              <span>Start Instant Session</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+              <Mail className="w-6 h-6 text-emerald-600" />
+            </div>
+            <h3 className="text-base font-black text-slate-950">{t.channelEmailTitle}</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">{t.channelEmailDesc}</p>
+            <p className="text-xs font-mono text-emerald-700 font-bold pt-1">Response time: ~ 2 Hours</p>
+          </div>
+
+          <div
+            onClick={() => redirectToSubdomain('global')}
+            className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-amber-400/50 cursor-pointer transition-all space-y-3 group"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-700 flex items-center justify-center font-bold">
+              <MapPin className="w-6 h-6 text-sky-600 group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-base font-black text-slate-950">{t.channelDeskTitle}</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">{t.channelDeskDesc}</p>
+            <p className="text-xs font-mono font-bold text-sky-700 flex items-center gap-1 pt-1">
+              <span>View Physical Hubs</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </p>
+          </div>
+        </div>
+
+        {/* Priority Ticket Dispatch Form */}
+        <div className="p-8 rounded-3xl bg-white border border-slate-200/90 shadow-xs space-y-6">
+          <div className="space-y-1">
+            <h3 className="text-xl font-black text-slate-950">{t.ticketTitle}</h3>
+            <p className="text-xs text-slate-500">
+              For complex transaction reconciliations or institutional onboarding inquiries.
+            </p>
+          </div>
+
+          {submittedTicketId && (
+            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-mono font-bold flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{t.ticketSuccess} <span className="text-emerald-950 underline">{submittedTicketId}</span></span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmitTicket} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-xs font-mono font-bold text-slate-700">Your Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={ticketEmail}
+                  onChange={(e) => setTicketEmail(e.target.value)}
+                  placeholder="citizen@pethar.co.uk"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-400 font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-mono font-bold text-slate-700">Subject / Category</label>
+                <input
+                  type="text"
+                  required
+                  value={ticketSubject}
+                  onChange={(e) => setTicketSubject(e.target.value)}
+                  placeholder="e.g. Card Authorization or Merchant POS Setup"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-400 font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-mono font-bold text-slate-700">Detailed Message / Transaction Hash</label>
+              <textarea
+                rows={4}
+                required
+                value={ticketDesc}
+                onChange={(e) => setTicketDesc(e.target.value)}
+                placeholder="Include transaction ID (0x...), wallet address, or specific questions..."
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-400 font-mono leading-relaxed"
+              ></textarea>
+            </div>
+
             <button
-              className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-300 text-gray-700 dark:text-gray-300 py-3 px-8 rounded-lg transition-transform hover:scale-105"
+              type="submit"
+              disabled={submitting}
+              className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 font-mono font-bold text-xs flex items-center gap-2 shadow-xs transition-transform active:scale-95"
             >
-              {t.ctaLearnMore}
+              <Send className="w-3.5 h-3.5" />
+              <span>{submitting ? 'Submitting...' : t.submitBtn}</span>
             </button>
-          </div>
+          </form>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'အကူအညီနှင့် ဝန်ဆောင်မှု အင်္ဂါရပ်များ' : 'Support Features'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2.07L18 5a2 2 0 00-1.41-.59L12 1l-1.41.59A2 2 0 0010 5l-2 12a2 2 0 00-.59 1.41z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature1Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature1Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-red-50 dark:bg-red-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .891-3 2s1.343 2 3 2 3-.891 3-2-1.343-2-3-2zm0-2.5c1.378 0 2.5 1.122 2.5 2.5S15.878 13 12 13s-2.5-1.122-2.5-2.5S10.622 8 12 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature2Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature2Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-green-50 dark:bg-green-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature3Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature3Desc}
-              </p>
-            </div>
-
-            <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <div className="w-16 h-16 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.049 2.927c.3-.921 1.603-.921 1.902 0L13.732 7.868l7.746 7.746c.3.921-.3 1.902-1.244 1.902H4.244c-.944 0-1.544-.98-1.244-1.902L3.303 7.868l7.746-7.746z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {t.feature4Title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.feature4Desc}
-              </p>
-            </div>
-          </div>
+        {/* Security & Confidentiality Guarantee */}
+        <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-4 text-xs font-mono text-slate-600">
+          <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span>PeThar support agents will NEVER ask for your private seed phrase, enclave pin, or password.</span>
         </div>
-      </section>
 
-      {/* Contact Section */}
-      <section className="mb-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'ကျွန်ုပ်တို့ထံ ဆက်သွယ်ရန်' : 'Contact Support'}
-          </h2>
-          <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
-            {lang === 'ak'
-              ? '၂၄/၇ အချိန်မရွေး ကျွန်ုပ်တို့၏ အကူအညီပေးရေး အဖွဲ့ထံ ဆက်သွယ်နိုင်ပါသည်'
-              : 'Reach out to our support team through any of these channels'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Telegram Support</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                <a href="https://t.me/petharsupport" className="text-amber-600 hover:text-amber-400 underline">
-                  @petharsupport
-                </a>
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Available 24/7 for instant assistance
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Email Support</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                <a href="mailto:pethar-app@protonmail.com" className="text-amber-600 hover:text-amber-400 underline">
-                  pethar-app@protonmail.com
-                </a>
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Secure, encrypted communication for sensitive inquiries
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action Section */}
-      <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဖေ့သာနှင့်အတူ ယနေ့ပင် စတင်လိုက်ပါ' : 'Need Help? We\'re Here for You'}
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-          {lang === 'ak'
-            ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Our support team is ready to assist you with any questions or issues'}
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <button
-            className="bg-white hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-bold py-3 px-8 rounded-lg border border-gray-300 dark:border-gray-600"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-8 4v-8" />
-            </svg>
-            Start Live Chat
-          </button>
-          <button
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg"
-          >
-            Visit Help Center
-          </button>
-        </div>
-      </section>
+      </div>
     </BaseLayout>
   );
 };
