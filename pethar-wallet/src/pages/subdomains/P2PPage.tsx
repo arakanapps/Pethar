@@ -78,7 +78,7 @@ export const P2PPage = ({ lang }: P2PPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar P2P လွတ်လပ်သော ငွေလဲလှယ်ရေးကွန်ရက် · 0% Intermediary Fee',
+        badge: 'Péthar P2P လွတ်လပ်သော ငွေလဲလှယ်ရေးကွန်ရက် · 0% Intermediary Fee',
         heroTitle: 'အာရက္ခသား အချင်းချင်း တိုက်ရိုက် အရောင်းအဝယ် ပြုလုပ်ပါ',
         heroSubtitle: 'ကြားခံပွဲစားမလိုဘဲ ရွှေအာမခံ multi-sig escrow စနစ်ဖြင့် လုံခြုံစိတ်ချစွာ ဘတ်၊ ကျပ်၊ စင်ကာပူဒေါ်လာများဖြင့် တိုက်ရိုက် လဲလှယ်နိုင်ပါသည်',
         tabBuy: '₳ (AKD) ဝယ်ယူမည်',
@@ -95,7 +95,7 @@ export const P2PPage = ({ lang }: P2PPageProps) => {
         tradeCompleted: 'အရောင်းအဝယ် အောင်မြင်စွာ ပြီးမြောက်ပါပြီ!',
       }
     : {
-        badge: 'PeThar Direct Peer-to-Peer Protocol · Zero Platform Fees',
+        badge: 'Péthar Direct Peer-to-Peer Protocol · Zero Platform Fees',
         heroTitle: 'Decentralized Peer-to-Peer Trading Desk',
         heroSubtitle: 'Trade Arakan Dollars directly with verified diaspora and regional merchants with 100% smart contract escrow protection',
         tabBuy: 'Buy ₳ (AKD)',

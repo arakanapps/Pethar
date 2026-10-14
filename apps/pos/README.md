@@ -1,4 +1,4 @@
-# PeThar Merchant POS (ကုန်သည် အရောင်းကောင်တာ POS စနစ်)
+# Péthar Merchant POS (ကုန်သည် အရောင်းကောင်တာ POS စနစ်)
 
 The **Merchant Point-of-Sale Register Terminal** for physical Arakan retailers, pharmacies, solar vendors, and grocery stores.
 

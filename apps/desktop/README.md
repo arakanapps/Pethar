@@ -1,4 +1,4 @@
-# PeThar Desktop (ဒက်စ်တော့ အက်ပ်)
+# Péthar Desktop (ဒက်စ်တော့ အက်ပ်)
 
 The **Desktop Banking & Operations Application** for macOS, Windows, and Linux.
 
@@ -25,5 +25,5 @@ The **Desktop Banking & Operations Application** for macOS, Windows, and Linux.
 ./apps/desktop/run-electron.sh
 
 # 3. Or install as PWA from Chrome:
-# Open http://localhost:3000 in Chrome and click "Install PeThar" in address bar.
+# Open http://localhost:3000 in Chrome and click "Install Péthar" in address bar.
 ```

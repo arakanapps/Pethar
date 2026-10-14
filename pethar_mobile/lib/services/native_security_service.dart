@@ -1,4 +1,4 @@
-/// PeThar Native Hardware Security Service
+/// Péthar Native Hardware Security Service
 ///
 /// Bridges Flutter to platform-native hardware security capabilities:
 /// - iOS: Apple Secure Enclave & CryptoKit via MethodChannel (`AppDelegate.swift`)

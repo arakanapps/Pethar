@@ -1,6 +1,6 @@
-# PeThar Android (အန်းဒရွိုက် မိုဘိုင်းလ်)
+# Péthar Android (အန်းဒရွိုက် မိုဘိုင်းလ်)
 
-The **Android Mobile Client** for PeThar.
+The **Android Mobile Client** for Péthar.
 
 ## Native Project Location
 The native Android Gradle project is located at:

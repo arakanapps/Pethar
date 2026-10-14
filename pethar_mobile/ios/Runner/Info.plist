@@ -66,14 +66,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<!-- PeThar iOS Hardware Capabilities -->
+	<!-- Péthar iOS Hardware Capabilities -->
 	<key>NSFaceIDUsageDescription</key>
-	<string>PeThar uses Face ID to securely authenticate offline transaction signing and decrypt your local ledger vault.</string>
+	<string>Péthar uses Face ID to securely authenticate offline transaction signing and decrypt your local ledger vault.</string>
 	<key>NFCReaderUsageDescription</key>
-	<string>PeThar uses NFC to execute tap-to-pay offline vouchers and communicate with merchant point-of-sale terminals.</string>
+	<string>Péthar uses NFC to execute tap-to-pay offline vouchers and communicate with merchant point-of-sale terminals.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>PeThar uses Bluetooth Low Energy to exchange signed offline payment vouchers during telecommunication outages.</string>
+	<string>Péthar uses Bluetooth Low Energy to exchange signed offline payment vouchers during telecommunication outages.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>PeThar broadcasts verified offline payment vouchers to nearby authorized merchant registers via BLE.</string>
+	<string>Péthar broadcasts verified offline payment vouchers to nearby authorized merchant registers via BLE.</string>
 </dict>
 </plist>

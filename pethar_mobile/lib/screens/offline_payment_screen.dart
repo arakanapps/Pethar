@@ -720,7 +720,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
     setState(() => _isTransmitting = true);
 
     // Create Cashu-inspired offline bearer token
-    final token = PeTharOfflineToken.createMockMintedToken(
+    final token = PetharOfflineToken.createMockMintedToken(
       amount: amount.round(),
       recipientPubkey: _recipientId.isNotEmpty ? _recipientId : null,
       memo: 'P2P Offline Transfer',
@@ -796,7 +796,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
                 const Icon(Icons.bluetooth_searching_rounded, color: gold, size: 22),
                 const SizedBox(width: 8),
                 Text(
-                  lang == 'ak' ? 'အနီးအနားရှိ PeThar စက်များ (BitChat BLE)' : 'Nearby PeThar Wallets (BLE Mesh)',
+                  lang == 'ak' ? 'အနီးအနားရှိ Péthar စက်များ (BitChat BLE)' : 'Nearby Péthar Wallets (BLE Mesh)',
                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ],
@@ -840,7 +840,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
 
   // ── Dialogs: QR Modal, Paste Token, Load Pocket, Deposit ──
 
-  void _showQrTokenModal(BuildContext context, PeTharOfflineToken token, String serialized, String lang) {
+  void _showQrTokenModal(BuildContext context, PetharOfflineToken token, String serialized, String lang) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -979,7 +979,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               final input = textCtrl.text.trim();
               if (input.isEmpty) return;
               try {
-                final token = PeTharOfflineToken.deserialize(input);
+                final token = PetharOfflineToken.deserialize(input);
                 Navigator.pop(ctx);
                 appState.receiveOfflineCash(
                   amount: token.totalAmount.toDouble(),
@@ -1020,7 +1020,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               final payload = utf8.decode(record.payload);
               if (payload.contains('petharA')) {
                 final tokenStr = payload.substring(payload.indexOf('petharA'));
-                final token = PeTharOfflineToken.deserialize(tokenStr);
+                final token = PetharOfflineToken.deserialize(tokenStr);
                 appState.receiveOfflineCash(
                   amount: token.totalAmount.toDouble(),
                   sender: 'NFC Peer',
@@ -1042,7 +1042,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
   void _simulateBleMeshListen(AppState appState, String lang) async {
     await Future.delayed(const Duration(seconds: 4));
     if (mounted && _isScanning) {
-      final sample = PeTharOfflineToken.createMockMintedToken(amount: 15, memo: 'BitChat Relay');
+      final sample = PetharOfflineToken.createMockMintedToken(amount: 15, memo: 'BitChat Relay');
       appState.receiveOfflineCash(amount: 15.0, sender: 'Relay Node ARAK-102', tokenStr: sample.serialize());
       setState(() => _isScanning = false);
       _showSuccessSnackBar(
@@ -1200,7 +1200,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
             const Divider(color: Colors.white10),
             Text(
               lang == 'ak'
-                  ? 'အင်တာနက်ပြန်ရသည့်အခါ PeThar ဆာဗာသို့ အလိုအလျောက် သတင်းပို့ပြီး စာရင်းရှင်းပါမည်။'
+                  ? 'အင်တာနက်ပြန်ရသည့်အခါ Péthar ဆာဗာသို့ အလိုအလျောက် သတင်းပို့ပြီး စာရင်းရှင်းပါမည်။'
                   : 'Proofs are preserved in SQLCipher and will settle with the Arakan central ledger on internet reconnect.',
               style: TextStyle(color: Colors.grey[500], fontSize: 11),
             ),

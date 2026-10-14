@@ -1,6 +1,6 @@
-# PeThar Mobile (ဖေ့သာ မိုဘိုင်းလ်) — Flutter App
+# Péthar Mobile (ဖေ့သာ မိုဘိုင်းလ်) — Flutter App
 
-This is the complete cross-platform mobile application for **PeThar (ဖေ့သာ)**, the Arakan national digital financial infrastructure, built with Flutter for **Android** and **iOS (iPhone)**.
+This is the complete cross-platform mobile application for **Péthar (ဖေ့သာ)**, the Arakan national digital financial infrastructure, built with Flutter for **Android** and **iOS (iPhone)**.
 
 ---
 
@@ -10,12 +10,12 @@ This is the complete cross-platform mobile application for **PeThar (ဖေ့�
 - **Dark & Light Mode**: Complete royal Arakan theme (Royal Crimson `#D91624`, Arakan Gold `#D4AF37`, Obsidian `#090D14`).
 - **5-Dock Navigation with Elevated Scan Button**:
   - **Home**: Krungthai NEXT inspired top header, balance eye masking, 8 quick services, favorites horizontal scroll, announcement notice, and live ledger transaction feed.
-  - **Account**: Primary Arakan Dollar account card, PeThar Visa Debit card widget with freeze/unfreeze and CVV reveal.
+  - **Account**: Primary Arakan Dollar account card, Péthar Visa Debit card widget with freeze/unfreeze and CVV reveal.
   - **Scan / My QR / QR to Pay**: Animated camera viewfinder with laser scan line, authentic Arakan QR card with Save and Share, and Merchant QR to Pay.
   - **Services**: Full directory for Money Movement, Global Banking & Remittance, and Digital Assets.
   - **Settings**: Vibrant gradient hero banner, Edit Personal Profile dialog, Auto-save slip toggle, Security (PIN reset, 2FA toggle), and Legal policies.
 - **P2P Send Money**: 4-step wizard with recipient search, amount keypad with quick preset chips, 6-digit PIN authorization, and auto-saved Electronic Transaction Slip (e-Slip).
-- **Receive Money**: Dynamic Arakan QR (AK QR) code (`pethar://pay...`) with one-tap PeThar ID copy.
+- **Receive Money**: Dynamic Arakan QR (AK QR) code (`pethar://pay...`) with one-tap Péthar ID copy.
 - **Agent Cash-Out**: Verified physical agent branch directory with distance and float indicators, plus 30-second dynamic TOTP withdrawal codes.
 - **International Banking & Wire**: Wise global corridors (THB, MYR, SGD, USD) with zero-fee calculation.
 - **Crypto & Stablecoin Gateway**: Proof of Reserves audit view (105% coverage) and multi-chain USDT deposit addresses (TRC-20, ERC-20, TON, Polygon).
@@ -86,7 +86,7 @@ pethar_mobile/
 └── lib/
     ├── main.dart           # App entry point with Provider and theme switcher
     ├── app_state.dart      # Reactive AppState (balance, notifications, language, theme)
-    ├── theme.dart          # PeThar color tokens (Crimson, Gold, Obsidian)
+    ├── theme.dart          # Péthar color tokens (Crimson, Gold, Obsidian)
     ├── i18n.dart           # Complete Arakanese and English translation dictionary
     ├── models/
     │   └── data.dart       # UserProfile, WalletBalance, Contacts, Agents, Transactions

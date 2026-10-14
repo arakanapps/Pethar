@@ -8,7 +8,7 @@ interface CloudPageProps {
 export const CloudPage = ({ lang }: CloudPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Cloud - Financial Services Infrastructure',
+        heroTitle: 'Péthar Cloud - Financial Services Infrastructure',
         heroSubtitle: 'Secure, scalable cloud infrastructure for banking and fintech applications',
         feature1Title: 'Banking-Grade Security',
         feature1Desc: 'HIPAA, SOC 2, ISO 27001 compliant infrastructure with end-to-end encryption',
@@ -22,7 +22,7 @@ export const CloudPage = ({ lang }: CloudPageProps) => {
         ctaGetStarted: 'Request Cloud Access',
       }
     : {
-        heroTitle: 'PeThar Cloud - Financial Services Infrastructure',
+        heroTitle: 'Péthar Cloud - Financial Services Infrastructure',
         heroSubtitle: 'Secure, scalable cloud infrastructure for banking and fintech applications',
         feature1Title: 'Banking-Grade Security',
         feature1Desc: 'HIPAA, SOC 2, ISO 27001 compliant infrastructure with end-to-end encryption',
@@ -71,7 +71,7 @@ export const CloudPage = ({ lang }: CloudPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Cloud အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Cloud Works'}
+            {lang === 'ak' ? 'Péthar Cloud အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar Cloud Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
@@ -122,7 +122,7 @@ export const CloudPage = ({ lang }: CloudPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Cloud အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar Cloud Features'}
+            {lang === 'ak' ? 'Péthar Cloud အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'Péthar Cloud Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -193,7 +193,7 @@ export const CloudPage = ({ lang }: CloudPageProps) => {
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'လက်တွေ့နယ်ပယ်အသီးသီးတွင် အကျိုးရှိစွာ အသုံးချနိုင်သည့် နည်းလမ်းများ'
-              : 'Ideal scenarios for leveraging PeThar Cloud infrastructure'}
+              : 'Ideal scenarios for leveraging Péthar Cloud infrastructure'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">

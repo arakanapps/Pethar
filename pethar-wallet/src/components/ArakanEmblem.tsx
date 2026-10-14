@@ -9,7 +9,7 @@ interface EmblemProps {
 export const ArakanEmblem: React.FC<EmblemProps> = ({ className = '', size = 40 }) => (
   <img
     src="/apple-touch-icon-removebg-preview.png"
-    alt="PeThar logo"
+    alt="Péthar logo"
     className={`object-contain select-none shrink-0 ${className}`}
     style={{ width: size, height: size }}
   />

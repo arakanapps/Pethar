@@ -21,7 +21,7 @@ export const DocsPage = ({ lang }: DocsPageProps) => {
 
   const t = ak
     ? {
-        badge: 'Pe Thar နည်းပညာ စာရွက်စာတမ်းများ · Knowledge Base',
+        badge: 'Péthar နည်းပညာ စာရွက်စာတမ်းများ · Knowledge Base',
         heroTitle: 'ဖေ့သာ နည်းပညာနှင့် စနစ်အသုံးပြုမှု လမ်းညွှန်',
         heroSubtitle: '၁ ₳ = ၁ $ ငွေကြေးပုံစံ၊ Android နှင့် iOS အော့ဖ်လိုင်းမုဒ်၊ Direct APK/iOS Profile ထည့်သွင်းနည်းနှင့် လုံခြုံရေး စည်းမျဉ်းများ',
         searchPlaceholder: 'စာရွက်စာတမ်းများ၊ အော့ဖ်လိုင်းမုဒ်၊ APK၊ APIs ရှာဖွေပါ...',
@@ -37,8 +37,8 @@ export const DocsPage = ({ lang }: DocsPageProps) => {
         copy: 'ကူးယူရန်',
       }
     : {
-        badge: 'Pe Thar Technical Docs · System Architecture v2.0',
-        heroTitle: 'Pe Thar System & Developer Documentation',
+        badge: 'Péthar Technical Docs · System Architecture v2.0',
+        heroTitle: 'Péthar System & Developer Documentation',
         heroSubtitle: 'Complete architecture for 1 ₳ = 1 $, offline mode for Android & iOS, direct APK/iOS profile installation, and security standards',
         searchPlaceholder: 'Search topics: 1 ₳ = 1 $, Offline Mode, APK install, Firebase Auth, APIs...',
         filterAll: 'All Docs',
@@ -60,13 +60,13 @@ export const DocsPage = ({ lang }: DocsPageProps) => {
       title: ak ? '၁ ₳ = ၁ $ ငွေကြေးတည်ငြိမ်မှု စနစ်' : '1 ₳ = 1 $ Currency Peg & Reserve Mechanics',
       desc: ak 
         ? 'ဖေ့သာတွင် ၁ ₳ (AKD) သည် ၁ US Dollar နှင့် ညီမျှပုံ၊ Backend တွင် USDT/USDC/USD1 တို့ဖြင့် ၁:၁ အပြည့်အဝ ထိန်းကျောင်းထားပုံ။'
-        : 'How Pe Thar maintains 1 ₳ AKD = $1.00 USD parity, backed 1:1 internally by institutional stablecoin reserves (USDT, USDC, USD1).',
+        : 'How Péthar maintains 1 ₳ AKD = $1.00 USD parity, backed 1:1 internally by institutional stablecoin reserves (USDT, USDC, USD1).',
       tag: ak ? 'ငွေကြေး' : 'Economics',
       readTime: '5 min read',
       content: {
         overview: ak
-          ? 'ဖေ့သာ (Pe Thar) သည် သုံးစွဲသူများအတွက် ၁ ₳ (AKD) = ၁ USD ဖြင့် သတ်မှတ်ထားသော တည်ငြိမ်ဒစ်ဂျစ်တယ်ငွေကြေးစနစ် ဖြစ်သည်။'
-          : 'Pe Thar operates on an absolute 1:1 parity where 1 ₳ (Arakan Dollar) equals $1.00 USD. Retail users hold stable purchasing power without cryptocurrency volatility.',
+          ? 'ဖေ့သာ (Péthar) သည် သုံးစွဲသူများအတွက် ၁ ₳ (AKD) = ၁ USD ဖြင့် သတ်မှတ်ထားသော တည်ငြိမ်ဒစ်ဂျစ်တယ်ငွေကြေးစနစ် ဖြစ်သည်။'
+          : 'Péthar operates on an absolute 1:1 parity where 1 ₳ (Arakan Dollar) equals $1.00 USD. Retail users hold stable purchasing power without cryptocurrency volatility.',
         points: ak ? [
           '၁ ₳ သည် အမြဲတမ်း ၁ USD နှင့် တန်ဖိုးတူညီသည်။',
           'သုံးစွဲသူများဘက်တွင် Crypto နည်းပညာ ရှုပ်ထွေးမှုများ မမြင်ရဘဲ ရိုးရှင်းသော ဒစ်ဂျစ်တယ်ဒေါ်လာအဖြစ် သုံးနိုင်သည်။',
@@ -99,7 +99,7 @@ const Invariant = {
       content: {
         overview: ak
           ? 'အော့ဖ်လိုင်းမုဒ်သည် Android နှင့် iOS မိုဘိုင်းအက်ပ်များတွင်သာ သီးသန့် အလုပ်လုပ်သည်။ အင်တာနက်လုံးဝမရှိသည့် အခြေအနေတွင်ပင် ဖုန်းနှစ်လုံးအကြား ငွေလွှဲနိုင်သည်။'
-          : 'Offline Mode is an exclusive capability of Pe Thar on native Android and iOS apps. It empowers citizens and merchants to transact during network blackouts.',
+          : 'Offline Mode is an exclusive capability of Péthar on native Android and iOS apps. It empowers citizens and merchants to transact during network blackouts.',
         points: ak ? [
           'Cashu e-cash စနစ်ကဲ့သို့ ငွေကြေးတန်ဖိုးကို စက်ထဲတွင် လုံခြုံသော Bearer Token အဖြစ် သိမ်းဆည်းသည်။',
           'ဖုန်းအချင်းချင်း Bluetooth Low Energy (BLE)၊ NFC Tap သို့မဟုတ် Animated QR ကုဒ်ဖြင့် ဒေတာပို့နိုင်သည်။',
@@ -113,7 +113,7 @@ const Invariant = {
         ],
         codeSnippet: `// Offline Bearer Envelope Payload
 {
-  "protocol": "PeThar-Bearer-v1",
+  "protocol": "Péthar-Bearer-v1",
   "amount_akd": 20.00,
   "currency": "AKD",
   "nonce": "9a7f3b8c2d1e0f4a",
@@ -128,17 +128,17 @@ const Invariant = {
       title: ak ? 'Direct APK နှင့် iOS Configuration Profile ထည့်သွင်းနည်း' : 'Direct Mobile Installation (Android APK & iOS Profile)',
       desc: ak
         ? 'App Store နှင့် Play Store အားမကိုးဘဲ Android တွင် တိုက်ရိုက် APK၊ iPhone တွင် Configuration Profile ဖြင့် ထည့်သွင်းနည်း။'
-        : 'Step-by-step guides for installing Pe Thar via direct Android APK and iOS Configuration Profile (.mobileconfig) without app store friction.',
+        : 'Step-by-step guides for installing Péthar via direct Android APK and iOS Configuration Profile (.mobileconfig) without app store friction.',
       tag: ak ? 'ထည့်သွင်းနည်း' : 'Installation',
       readTime: '4 min read',
       content: {
         overview: ak
-          ? 'ဒေသတွင်း အင်တာနက် အကန့်အသတ်များနှင့် App Store အတားအဆီးများကို ကျော်လွှားရန် Pe Thar ကို တိုက်ရိုက် ရယူနိုင်အောင် စီစဉ်ထားသည်။'
-          : 'To bypass app store censorship, regional sanctions, or connectivity delays, Pe Thar provides direct installation packages.',
+          ? 'ဒေသတွင်း အင်တာနက် အကန့်အသတ်များနှင့် App Store အတားအဆီးများကို ကျော်လွှားရန် Péthar ကို တိုက်ရိုက် ရယူနိုင်အောင် စီစဉ်ထားသည်။'
+          : 'To bypass app store censorship, regional sanctions, or connectivity delays, Péthar provides direct installation packages.',
         points: ak ? [
           'Android: pethar.co.uk/download မှ တိုက်ရိုက် APK ကို ဒေါင်းလုဒ်ဆွဲပြီး Install လုပ်နိုင်သည်။',
           'Android Integrity: အတုအပ ကာကွယ်ရန် တရားဝင် SHA-256 Checksum ကို တိုက်ဆိုင်စစ်ဆေးနိုင်သည်။',
-          'iOS: Safari မှတဆင့် Pe Thar Configuration Profile (.mobileconfig) ကို ဒေါင်းလုဒ်ဆွဲပြီး Settings > Profile Downloaded > Install ဖြင့် ထည့်သွင်းနိုင်သည်။',
+          'iOS: Safari မှတဆင့် Péthar Configuration Profile (.mobileconfig) ကို ဒေါင်းလုဒ်ဆွဲပြီး Settings > Profile Downloaded > Install ဖြင့် ထည့်သွင်းနိုင်သည်။',
           'Web App: ကွန်ပျူတာ သို့မဟုတ် ဘရောက်ဇာများတွင် app.pethar.co.uk သို့ တိုက်ရိုက်ဝင်ရောက် သုံးစွဲနိုင်သည်။',
         ] : [
           'Android: Download the universal APK directly from pethar.co.uk/download with one tap.',
@@ -162,8 +162,8 @@ SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
       readTime: '6 min read',
       content: {
         overview: ak
-          ? 'Pe Thar သည် သုံးစွဲသူများ၏ လွတ်လပ်မှုနှင့် ကိုယ်ရေးအချက်အလက် လုံခြုံရေးကို အမြင့်ဆုံး ကာကွယ်ထားသည်။'
-          : 'Pe Thar follows strict data minimization principles and Google API Services User Data Policy standards.',
+          ? 'Péthar သည် သုံးစွဲသူများ၏ လွတ်လပ်မှုနှင့် ကိုယ်ရေးအချက်အလက် လုံခြုံရေးကို အမြင့်ဆုံး ကာကွယ်ထားသည်။'
+          : 'Péthar follows strict data minimization principles and Google API Services User Data Policy standards.',
         points: ak ? [
           'အကောင့်ဖွင့်ရာတွင် Google Sign-In သို့မဟုတ် နာမည်၊ အီးမေးလ်၊ စကားဝှက်ဖြင့် စက္ကန့်ပိုင်းအတွင်း ဖွင့်နိုင်သည်။',
           'စတင်သုံးစွဲရန် မှတ်ပုံတင်၊ နိုင်ငံသားကတ်၊ ဖုန်းနံပါတ် သို့မဟုတ် ဓာတ်ပုံ KYC မလိုသေးပါ။',
@@ -195,8 +195,8 @@ provider.addScope('email');`
       readTime: '7 min read',
       content: {
         overview: ak
-          ? 'Pe Thar စနစ်တစ်ခုလုံးကို အဆင့်မြင့် Enterprise အဆင့် subdomain များနှင့် ခွဲခြား ထိန်းချုပ်ထားသည်။'
-          : 'Pe Thar partitions services across dedicated subdomains for high availability, security isolation, and clean routing.',
+          ? 'Péthar စနစ်တစ်ခုလုံးကို အဆင့်မြင့် Enterprise အဆင့် subdomain များနှင့် ခွဲခြား ထိန်းချုပ်ထားသည်။'
+          : 'Péthar partitions services across dedicated subdomains for high availability, security isolation, and clean routing.',
         points: ak ? [
           'pethar.co.uk: အများပြည်သူသုံး ပင်မစာမျက်နှာ၊ ၁ ₳ = ၁ $ နှင့် စနစ်မိတ်ဆက်။',
           'auth.pethar.co.uk: အကောင့်ဝင်ရန်နှင့် အကောင့်ဖွင့်ရန် သီးသန့် Gateway (ပြီးလျှင် app. သို့ ပို့သည်)။',
@@ -226,14 +226,14 @@ const SubdomainRoutes = {
       category: 'api',
       title: ak ? 'Merchant API နှင့် QR Invoicing စနစ်' : 'Merchant Integration & Rapid Invoicing APIs',
       desc: ak
-        ? 'ဒေသတွင်း ဆိုင်များနှင့် ကုန်သည်များ Pe Thar ဖြင့် ငွေလက်ခံနိုင်ရန် REST API နှင့် Dynamic QR စနစ်များ။'
+        ? 'ဒေသတွင်း ဆိုင်များနှင့် ကုန်သည်များ Péthar ဖြင့် ငွေလက်ခံနိုင်ရန် REST API နှင့် Dynamic QR စနစ်များ။'
         : 'Accepting ₳ payments, generating dynamic QR invoices, webhook notifications, and automated cashflow reporting.',
       tag: ak ? 'ကုန်သည်' : 'Merchant Rails',
       readTime: '6 min read',
       content: {
         overview: ak
-          ? 'ဒေသတွင်း ကုန်သည်များသည် Pe Thar ငွေပေးချေမှုများကို အလွယ်တကူ လက်ခံနိုင်ပြီး အင်တာနက်မရှိချိန်တွင်လည်း အော့ဖ်လိုင်း လက်ခံနိုင်သည်။'
-          : 'Merchants can integrate Pe Thar checkout flows online or process payments offline using the merchant mobile terminal.',
+          ? 'ဒေသတွင်း ကုန်သည်များသည် Péthar ငွေပေးချေမှုများကို အလွယ်တကူ လက်ခံနိုင်ပြီး အင်တာနက်မရှိချိန်တွင်လည်း အော့ဖ်လိုင်း လက်ခံနိုင်သည်။'
+          : 'Merchants can integrate Péthar checkout flows online or process payments offline using the merchant mobile terminal.',
         points: ak ? [
           'REST API မှတဆင့် စက္ကန့်ပိုင်းအတွင်း ₳ ငွေပေးချေမှု Invoice များ ထုတ်ပေးနိုင်သည်။',
           'အွန်လိုင်းရော အော့ဖ်လိုင်းပါ အသုံးပြုနိုင်သော Dynamic QR ကုဒ် စနစ်။',
@@ -455,7 +455,7 @@ POST https://api.pethar.co.uk/v1/invoices
                 {ak ? 'တိုက်ရိုက် ဒေါင်းလုဒ်စင်တာ' : 'Direct Mobile Installation'}
               </span>
               <h3 className="text-xl font-black text-white">
-                {ak ? 'Pe Thar မိုဘိုင်းအက်ပ် ရယူလိုပါသလား?' : 'Get Pe Thar on Android & iOS'}
+                {ak ? 'Péthar မိုဘိုင်းအက်ပ် ရယူလိုပါသလား?' : 'Get Péthar on Android & iOS'}
               </h3>
               <p className="text-xs text-slate-400 max-w-xl">
                 {ak 

@@ -37,7 +37,7 @@ class FirebaseService {
       if (!kIsWeb) {
         await GoogleSignIn.instance.initialize();
       }
-      debugPrint('Firebase initialized successfully for PeThar.');
+      debugPrint('Firebase initialized successfully for Péthar.');
     } catch (e) {
       debugPrint('Firebase initialization notice: $e');
     }

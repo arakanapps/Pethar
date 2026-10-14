@@ -8,7 +8,7 @@ interface CareersPageProps {
 export const CareersPage = ({ lang }: CareersPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Careers - Join Our Team',
+        heroTitle: 'Péthar Careers - Join Our Team',
         heroSubtitle: 'Help us build the future of financial services in Arakan and beyond',
         feature1Title: 'Impactful Work',
         feature1Desc: 'Build financial services that empower communities and drive economic inclusion',
@@ -22,7 +22,7 @@ export const CareersPage = ({ lang }: CareersPageProps) => {
         ctaGetStarted: 'View Open Positions',
       }
     : {
-        heroTitle: 'PeThar Careers - Join Our Team',
+        heroTitle: 'Péthar Careers - Join Our Team',
         heroSubtitle: 'Help us build the future of financial services in Arakan and beyond',
         feature1Title: 'Impactful Work',
         feature1Desc: 'Build financial services that empower communities and drive economic inclusion',
@@ -71,7 +71,7 @@ export const CareersPage = ({ lang }: CareersPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Careers အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Careers Works'}
+            {lang === 'ak' ? 'Péthar Careers အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar Careers Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
@@ -99,7 +99,7 @@ export const CareersPage = ({ lang }: CareersPageProps) => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">2. Learn About Us</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Discover our mission, values, and what it's like to work at PeThar
+                Discover our mission, values, and what it's like to work at Péthar
               </p>
             </div>
 
@@ -122,12 +122,12 @@ export const CareersPage = ({ lang }: CareersPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'ဖေ့သာတွင် အဘယ်ကြောင့် လက်တွဲလုပ်ကိုင်သင့်သနည်း' : 'Why Join PeThar?'}
+            {lang === 'ak' ? 'ဖေ့သာတွင် အဘယ်ကြောင့် လက်တွဲလုပ်ကိုင်သင့်သနည်း' : 'Why Join Péthar?'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'ကျွန်ုပ်တို့၏ အခွင့်အလမ်းများနှင့် အကြောင်းအရာများကို လေ့လာစူးစမ်းပါ'
-              : 'Reasons to build your career with PeThar'}
+              : 'Reasons to build your career with Péthar'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">

@@ -83,7 +83,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       time: '14 Oct 2026 17:35:10',
       status: 'VERIFIED',
       counterparty: 'MR. MYAT SOE PAI**** (004-********* -689)',
-      counterpartyMm: 'ဦးမြတ်စိုးပိုင် (PromptPay/PeThar)',
+      counterpartyMm: 'ဦးမြတ်စိုးပိုင် (PromptPay/Péthar)',
       fee: 0.0,
       hash: '0x8a91f4c2901bfa829471de990c7412ae8b7244ef0182c81',
     },
@@ -298,7 +298,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-black text-xl tracking-tight text-slate-950 dark:text-white">
-                Pe Thar
+                Péthar
               </span>
               <span className="text-xs font-bold text-[#FF6B00]">₳</span>
             </div>
@@ -507,7 +507,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   <ArakanEmblem size={24} />
                 </div>
                 <div>
-                  <div className="font-black text-sm tracking-tight">Pe Thar (ဖေ့သာ)</div>
+                  <div className="font-black text-sm tracking-tight">Péthar (ဖေ့သာ)</div>
                   <div className="text-[10px] text-white/80 font-mono">1 ₳ = $1.00 USD</div>
                 </div>
               </div>
@@ -1043,7 +1043,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <div className="flex items-center gap-2">
                       <ArakanEmblem size={24} />
                       <span className="font-mono text-xs font-bold tracking-widest text-amber-300">
-                        PE THAR
+                        PÉTHAR
                       </span>
                     </div>
                     <Radio size={18} className="text-white/80" />
@@ -1246,9 +1246,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               amount={Math.abs(selectedTx.amount)}
               recipientName={selectedTx.counterparty}
               recipientId={selectedTx.id}
-              recipientType={selectedTx.category === 'p2p' ? 'Pe Thar Instant Pay' : 'Offline Mode Token'}
+              recipientType={selectedTx.category === 'p2p' ? 'Péthar Instant Pay' : 'Offline Mode Token'}
               senderName={profile.name || 'MYAT SOE P****'}
-              senderId={`Pe Thar Wallet ${profile.petharId}`}
+              senderId={`Péthar Wallet ${profile.petharId}`}
               fee={selectedTx.fee}
               timestamp={selectedTx.time}
               location="Sittwe, Arakan"
@@ -1333,7 +1333,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               {/* Recipient Input */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  {ak ? 'ငွေလက်ခံသူ (Pe Thar ID သို့မဟုတ် အမည်)' : 'Recipient Pe Thar ID or Name'}
+                  {ak ? 'ငွေလက်ခံသူ (Péthar ID သို့မဟုတ် အမည်)' : 'Recipient Péthar ID or Name'}
                 </label>
                 <input
                   type="text"

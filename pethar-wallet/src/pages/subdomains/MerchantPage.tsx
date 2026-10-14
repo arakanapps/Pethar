@@ -29,7 +29,7 @@ export const MerchantPage = ({ lang }: MerchantPageProps) => {
 
   // Traditional fee: 3.5% + $0.30 per transaction (assuming ~300 transactions)
   const traditionalFees = monthlyVolume * 0.035 + (monthlyVolume / 50) * 0.30;
-  const petharFees = 0; // 0% on PeThar QR domestic settlement
+  const petharFees = 0; // 0% on Péthar QR domestic settlement
   const annualSavings = (traditionalFees - petharFees) * 12;
 
   const handleSimulatePayment = () => {
@@ -55,9 +55,9 @@ export const MerchantPage = ({ lang }: MerchantPageProps) => {
     "order_id": "ORD-2026-9014",
     "customer_note": "${invoiceNote}"
   }'`,
-    node: `import { PeTharClient } from '@pethar/sdk';
+    node: `import { PétharClient } from '@pethar/sdk';
 
-const pethar = new PeTharClient({ apiKey: process.env.PETHAR_KEY });
+const pethar = new PétharClient({ apiKey: process.env.PETHAR_KEY });
 
 const invoice = await pethar.invoices.create({
   amount: ${invoiceAmount},
@@ -67,9 +67,9 @@ const invoice = await pethar.invoices.create({
 });
 
 console.log('Arakan QR Code URL:', invoice.qrCodeUrl);`,
-    python: `from pethar import PeTharClient
+    python: `from pethar import PétharClient
 
-client = PeTharClient(api_key="sec_live_9014arakan")
+client = PétharClient(api_key="sec_live_9014arakan")
 
 invoice = client.invoices.create(
     amount=${invoiceAmount},
@@ -120,7 +120,7 @@ print(f"Arakan QR Payload: {invoice.qr_payload}")`
       }
     : {
         badge: 'For Retailers & Enterprises',
-        heroTitle: 'PeThar Merchant & Smart POS Suite',
+        heroTitle: 'Péthar Merchant & Smart POS Suite',
         heroSubtitle: 'Zero transaction fees, unified Arakan QR terminals, and instant settlement for local & international commerce',
         simulatorTitle: 'Arakan QR POS Cashier Simulator',
         simulatorDesc: 'Enter a bill amount to generate an instant dynamic QR invoice and test simulated settlement',
@@ -132,10 +132,10 @@ print(f"Arakan QR Payload: {invoice.qr_payload}")`
         receiptTitle: 'Merchant Sales Slip',
         resetBtn: 'New Sale',
         calcTitle: 'Merchant Processing Cost Savings Calculator',
-        calcDesc: 'Compare legacy card processors (3.5% + $0.30) against PeThar zero-fee domestic rails',
+        calcDesc: 'Compare legacy card processors (3.5% + $0.30) against Péthar zero-fee domestic rails',
         monthlyTurnover: 'Estimated Monthly Card Sales',
         traditionalCost: 'Legacy Processor Fees',
-        petharCost: 'PeThar QR Processing Fee',
+        petharCost: 'Péthar QR Processing Fee',
         annualSavings: 'Net Annual Business Savings',
         featuresTitle: 'Enterprise Merchant Benefits',
         f1Title: 'Zero Commission',
@@ -403,7 +403,7 @@ print(f"Arakan QR Payload: {invoice.qr_payload}")`
 
                   <div className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5 font-mono">
                     <QrCode className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Scan with PeThar Wallet, Visa, or PromptPay</span>
+                    <span>Scan with Péthar Wallet, Visa, or PromptPay</span>
                   </div>
                 </div>
               )}

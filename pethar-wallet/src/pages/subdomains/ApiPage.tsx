@@ -119,7 +119,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar တရားဝင် REST API · v1 Core Reference',
+        badge: 'Péthar တရားဝင် REST API · v1 Core Reference',
         heroTitle: 'အာရက္ခ ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေး စနစ်၏ API ဗဟိုချက်',
         heroSubtitle: 'စီးပွားရေးလုပ်ငန်းများနှင့် အက်ပ်များအတွက် တိုက်ရိုက်ချိတ်ဆက်နိုင်သော လုံခြုံစိတ်ချရသည့် ငွေပေးချေမှုနှင့် ငွေလဲလှယ်မှု API များ',
         tryCall: 'API စမ်းသပ်မှု ပြုလုပ်မည်',
@@ -132,7 +132,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
         latencyStat: '< 40ms Median Latency',
       }
     : {
-        badge: 'Official PeThar REST API · v1 Core Reference',
+        badge: 'Official Péthar REST API · v1 Core Reference',
         heroTitle: 'The Sovereign Financial API Reference',
         heroSubtitle: 'Programmatic high-speed access to atomic transfers, bullion custody, real-time FX order books, and store-and-forward mesh rails',
         tryCall: 'Simulate API Call',
@@ -361,7 +361,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
             </div>
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
               <p className="font-bold text-slate-900 mb-1">3. Transmit in Headers</p>
-              <p className="text-[11px] text-slate-500">Deliver signature via X-PeThar-Signature header</p>
+              <p className="text-[11px] text-slate-500">Deliver signature via X-Péthar-Signature header</p>
             </div>
           </div>
         </div>

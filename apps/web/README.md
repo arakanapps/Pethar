@@ -1,6 +1,6 @@
-# PeThar Web (ကွန်ရက် ဘဏ်လုပ်ငန်း ပေါ်တယ်)
+# Péthar Web (ကွန်ရက် ဘဏ်လုပ်ငန်း ပေါ်တယ်)
 
-The **Customer Web App & Operations Console** for PeThar.
+The **Customer Web App & Operations Console** for Péthar.
 
 ## Features
 - **Institutional Treasury & Net Worth Overview**: Live AKD balance, USD equivalence ($21,526.00), and reserve audit status.

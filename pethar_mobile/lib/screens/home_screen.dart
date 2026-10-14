@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              lang == 'ak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of PeThar?',
+              lang == 'ak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of Péthar?',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
             ),
             const SizedBox(height: 8),
@@ -394,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(
                             lang == 'ak'
                                 ? 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀-၀၆:၀၀ တွင် စာရင်းစနစ် အဆင့်မြှင့်ပါမည်။ အော့ဖ်လိုင်းဘောက်ချာများ အသုံးပြုနိုင်ပါသည်။'
-                                : 'PeThar will undergo an Arakan ledger upgrade on 24 Sep 2026. Offline vouchers remain active.',
+                                : 'Péthar will undergo an Arakan ledger upgrade on 24 Sep 2026. Offline vouchers remain active.',
                             style: TextStyle(
                               color: isDark ? Colors.white70 : Colors.black87,
                               fontSize: 10,

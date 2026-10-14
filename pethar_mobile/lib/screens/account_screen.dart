@@ -159,7 +159,7 @@ class AccountScreen extends StatelessWidget {
                     const Icon(Icons.credit_card, size: 16, color: gold),
                     const SizedBox(width: 8),
                     Text(
-                      lang == 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar Debit Card',
+                      lang == 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'Péthar Debit Card',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,

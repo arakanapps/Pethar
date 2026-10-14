@@ -1,0 +1,82 @@
+name: Péthar Enterprise CI
+
+on:
+  push:
+    branches: [ main, develop, 'release/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web-audit-and-build:
+    name: Web App — Lint, Typecheck & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: pethar-wallet/package-lock.json
+
+      - name: Install Web Dependencies
+        working-directory: pethar-wallet
+        run: npm ci
+
+      - name: Run TypeScript Check & Production Build
+        working-directory: pethar-wallet
+        run: npm run build
+
+      - name: Verify Build Artifacts
+        working-directory: pethar-wallet
+        run: |
+          test -f dist/index.html || exit 1
+          test -f dist/404.html || exit 1
+          echo "Web build passed verification."
+
+  mobile-verify:
+    name: Mobile Engine — Flutter Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Flutter Dependencies
+        working-directory: pethar_mobile
+        run: flutter pub get
+
+      - name: Run Flutter Static Analysis
+        working-directory: pethar_mobile
+        run: flutter analyze --no-fatal-infos
+
+  security-compliance:
+    name: Security & Rebranding Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check for Unencrypted Secrets
+        run: |
+          echo "Scanning codebase for hardcoded private keys..."
+          ! grep -rn "BEGIN PRIVATE KEY" --exclude-dir={.git,node_modules} . || exit 1
+          echo "No exposed private keys found."

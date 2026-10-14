@@ -1,13 +1,13 @@
-# PeThar (ဖေ့သာ) — Multi-Platform Architecture Guide
+# Péthar (ဖေ့သာ) — Multi-Platform Architecture Guide
 
-This document provides a clean overview of how all files in the PeThar codebase are structured across the 5 platforms: **Web**, **Android**, **iOS**, **Merchant POS**, and **Desktop**.
+This document provides a clean overview of how all files in the Péthar codebase are structured across the 5 platforms: **Web**, **Android**, **iOS**, **Merchant POS**, and **Desktop**.
 
 ---
 
 ## 🗂️ Platform Directory Map (`apps/`)
 
 ```text
-PeThar/
+Péthar/
 ├── package.json                 # Master platform runner (npm run web, android, ios, pos, desktop)
 ├── apps/
 │   ├── web/                     # 🌐 WEB PLATFORM (Customer Portal & Operations Console)
@@ -48,7 +48,7 @@ PeThar/
 
 ## ⚡ Quick Run Reference
 
-From the root directory (`/Users/jack/Documents/PeThar`):
+From the root directory (`/Users/jack/Documents/Péthar`):
 
 | Target Platform | Command | What it does |
 |---|---|---|

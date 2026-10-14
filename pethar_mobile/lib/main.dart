@@ -40,20 +40,20 @@ Future<void> main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppState(),
-      child: const PeTharApp(),
+      child: const PetharApp(),
     ),
   );
 }
 
-class PeTharApp extends StatelessWidget {
-  const PeTharApp({Key? key}) : super(key: key);
+class PetharApp extends StatelessWidget {
+  const PetharApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, appState, child) {
         return MaterialApp(
-          title: 'PeThar (ဖေ့သာ)',
+          title: 'Péthar (ဖေ့သာ)',
           debugShowCheckedModeBanner: false,
           theme: lightTheme(),
           darkTheme: darkTheme(),

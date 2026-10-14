@@ -1,8 +1,24 @@
-# Pe Thar (ဖေ့သာ) — Resilient Digital Cash Infrastructure
+# Péthar (ဖေ့သာ) — Sovereign Digital Cash & Financial Infrastructure
 
-**ခေတ်မီ ဒစ်ဂျစ်တယ်ငွေကြေးစနစ်နှင့် လုံခြုံစိတ်ချရသော ပိုက်ဆံအိတ်**
+<div align="center">
 
-**Pe Thar (ဖေ့သာ)** is the Arakanese word for *money* or *currency*. It is an enterprise-grade digital cash and wallet platform designed for resilient community commerce and borderless financial transactions.
+**ခေတ်မီ ဒစ်ဂျစ်တယ်ငွေကြေးစနစ်နှင့် လုံခြုံစိတ်ချရသော အချုပ်အခြာ ပိုက်ဆံအိတ်**
+
+[![Péthar Enterprise CI](https://github.com/realjackhalder/pethar/actions/workflows/ci.yml/badge.svg)](https://github.com/realjackhalder/pethar/actions/workflows/ci.yml)
+[![Security Audit](https://github.com/realjackhalder/pethar/actions/workflows/security-audit.yml/badge.svg)](https://github.com/realjackhalder/pethar/actions/workflows/security-audit.yml)
+[![Peg Standard](https://img.shields.io/badge/Currency%20Peg-1%20%E2%82%B3%20%3D%20%241.00%20USD-FF6B00.svg)](https://pethar.co.uk)
+[![Connectivity](https://img.shields.io/badge/Mode-Online%20%2B%20Offline%20BLE%2FNFC-10B981.svg)](https://download.pethar.co.uk)
+[![License](https://img.shields.io/badge/License-Proprietary%20Enterprise-blue.svg)](LICENSE)
+
+[Platform](https://pethar.co.uk) • [Download](https://download.pethar.co.uk) • [Wallet App](https://app.pethar.co.uk) • [Documentation](https://docs.pethar.co.uk) • [Architecture](ARCHITECTURE.md) • [Compliance](COMPLIANCE.md)
+
+</div>
+
+---
+
+## Executive Overview
+
+**Péthar (ဖေ့သာ)** is the Arakanese word for *money* or *currency*. It represents an enterprise-grade digital cash platform and financial infrastructure designed to provide resilient, censorship-resistant community commerce and stable digital transactions both online and during complete telecommunication cutoffs.
 
 ```
                            [ pethar.co.uk ]
@@ -10,7 +26,7 @@
                                   │
                  ┌────────────────┴────────────────┐
                  ▼                                 ▼
-       [ auth.pethar.co.uk ]             [ Mobile Installation ]
+       [ auth.pethar.co.uk ]             [ Direct Mobile Hub ]
      Firebase Identity Gateway           • Android: Direct APK
       (Google / Email + Pass)            • iOS: Config Profile (.mobileconfig)
                  │
@@ -19,76 +35,68 @@
 [ app.pethar.co.uk ]    [ admin.pethar.co.uk ]
 Customer Wallet Hub     Internal Treasury Ops
 • 1 ₳ = 1 $ Cashflow    • USDT / USDC / USD1 Reserves
-• Online Cloud Sync     • Offline Batch Reconciliation
-• Mobile Download Link  • Ledger Telemetry
+• Online Cloud Sync     • Offline Batch Settlement
+• Verified QR Receipts  • Node Telemetry
 ```
 
 ---
 
-## Core System Architecture
+## Core Pillars & Technological Innovations
 
-### 1. Stable Peg: 1 ₳ = 1 $ (AKD to USD Parity)
-* **User-Facing Simplicity:** Balances are held and denominated in **₳** (Arakan Dollar). $1\ \text{₳} = \$1.00\ \text{USD}$. Users enjoy stable digital cash without exposure to market volatility or complex blockchain mechanics.
-* **Internal Stablecoin Backing:** In the backend treasury, all circulating ₳ is collateralized 1:1 by audited USD reserves and major crypto stablecoins (**USDT, USDC, USD1**). Crypto complexities and gas fees are handled invisibly by internal infrastructure.
+### 1. Stable Currency Peg: 1 ₳ = $1.00 USD
+* **User-Facing Simplicity:** Balances are held and denominated in **₳** (Arakan Dollar). $1\ \text{₳} = \$1.00\ \text{USD}$. Users enjoy stable digital cash without exposure to market volatility or complex gas calculations.
+* **Internal Stablecoin Backing:** In the backend treasury, all circulating ₳ is collateralized 1:1 by audited USD reserves and major crypto stablecoins (**USDT, USDC, USD1**). Gas fees and blockchain routing are abstracted completely.
 
 ### 2. Dual Connectivity: Online + Offline Mode
 * **Online Mode (Web & Mobile):** Instant cloud-ledger settlement, live balance updates, real-time transaction history, and multi-user transfers powered by Google Cloud and Firebase.
 * **Offline Mode (Exclusively on Android & iOS):** Built into the native Flutter mobile client (`pethar_mobile`). Powered by a Cashu-inspired Chaumian e-cash bearer token model:
   * **Device-to-Device Data Handshake:** Transact phone-to-phone without cellular networks, internet connections, or SIM cards.
   * **Native Transport Channels:** Supports Bluetooth Low Energy (BLE), NFC tap-to-pay, and offline dynamic animated QR codes.
-  * **Contextual Permission Handling:** The app prompts for device permissions (Nearby Devices / Bluetooth / Camera) only when initiating a transfer.
+  * **Contextual Permission Handling:** The app prompts for device permissions (Nearby Devices / Bluetooth / Camera) only when initiating an offline transfer.
   * **Automatic Reconciliation:** When either device reconnects to internet or Starlink, the signed transaction envelope syncs and finalizes against the central ledger.
 
-### 3. Direct Mobile Distribution (Zero Store Gatekeeping)
-To ensure reliable access independent of app store delays or regional restrictions:
-* **Android:** Direct APK download (`pethar-latest.apk`) with published SHA-256 integrity checksums.
-* **iOS:** Direct Configuration Profile (`pethar.mobileconfig` / OTA Profile) for instantaneous home screen installation without App Store friction.
-* **Web:** Universal online wallet accessible across all desktop and mobile browsers at `app.pethar.co.uk`.
+### 3. Cryptographically Verifiable e-Receipts with Scannable QR Codes
+* Replicates official commercial e-Slips with perforated dashed cut-lines, scalloped circular edge punch notches, and sender-to-recipient flow.
+* Generates mathematically valid, high-resolution QR codes encoding `https://app.pethar.co.uk/verify/${refId}` that any phone camera can read.
+* On-ledger verification modal displaying Merkle tree inclusion proof, block height, and collateral status.
 
-### 4. Device-Adaptive App Icon Theming (iOS 18 & Android Material You)
-Pe Thar features full, native adaptive icon theming matching modern operating system design guidelines:
-* **Light Theme (`icon-light.png`):** Clean white continuous-curvature squircle with vivid crimson brand emblem for standard daylight mode.
-* **Dark Theme (`icon-dark.png`):** Deep matte obsidian squircle (`#18181B`) with high-contrast crimson emblem matching iOS 18 dark theme and OLED battery-saving standards.
-* **Tinted Theme (`icon-tinted.png`):** Deep graphite squircle (`#22232D`) with a metallic silver-grey luminance gradient emblem, engineered for iOS 18 dynamic tinting and Android Material You dynamic color palettes.
+### 4. Direct Mobile Distribution (Zero App Store Friction)
+* **Android:** Direct APK download (`pethar-latest.apk`) with published SHA-256 integrity checksums.
+* **iOS:** Direct Configuration Profile (`pethar.mobileconfig` / OTA Profile) for instantaneous home screen installation without App Store delays.
+* **Universal Web:** Full-featured responsive wallet accessible across all desktop and mobile browsers at `app.pethar.co.uk`.
 
 ---
 
-## Subdomain Matrix
+## Subdomain Topology
 
 | Domain | Role & Audience | Key Capabilities |
 | :--- | :--- | :--- |
 | **`pethar.co.uk`** | Global Public | Public homepage, `1 ₳ = 1 $` presentation, Online + Offline Mode showcase, direct download buttons. |
 | **`download.pethar.co.uk`** | Mobile Visitors | Direct APK installer for Android, Configuration Profile installer for iOS, and verification hashes. |
 | **`auth.pethar.co.uk`** | All Users | Unified authentication gateway: Google Sign-In & Email/Password. No web biometrics required. |
-| **`app.pethar.co.uk`** | Registered Customers | Online wallet hub: balance management, payments, cashflow statements, and mobile app download bridge. |
+| **`app.pethar.co.uk`** | Registered Customers | Online wallet hub: balance management, payments, cashflow statements, and verified QR receipts. |
 | **`admin.pethar.co.uk`** | Internal Finance & Ops | Multi-sig treasury reserve management (USDT/USDC/USD1), offline batch settlement queue, and node telemetry. |
+| **`docs.pethar.co.uk`** | Developers & Partners | API specifications, cryptographic proofs, and SDK integration guides. |
 | **`privacy.pethar.co.uk`** | Public & Compliance | Google Cloud Console OAuth 2.0 compliant privacy policy, data protection, and self-service deletion rights. |
 
 ---
 
-## Authentication & Privacy Standards
-
-1. **Frictionless Entry:** Sign up in seconds with **Continue with Google** (Firebase Auth) or **Name + Email + Password**.
-2. **Progressive Identity:** No citizenship documents, national ID cards, phone SMS gates, or photo KYC required to open and use a standard wallet.
-3. **Google API Compliance:** 
-   * Requests only standard identity scopes: `openid`, `email`, and `profile`.
-   * No access to sensitive user data (no Gmail, Drive, Contacts, or Calendar).
-   * User data is never sold, brokered, or used for advertising.
-4. **Account & Data Deletion:** Users can request full deletion of personal records and wallet profiles at `privacy@pethar.co.uk`.
-
----
-
-## Repository Structure
+## Monorepo Architecture
 
 ```text
 PeThar/
-├── pethar-wallet/               # 🌐 Web Application (React 19 + TypeScript + Vite + Tailwind CSS)
+├── .github/                     # 🛡️ Enterprise CI/CD, Security Scanning, and PR Workflows
+│   ├── workflows/ci.yml         # Automated Lint, TypeScript Check & Build
+│   ├── workflows/security.yml   # Dependency and Secret Scanning
+│   └── pull_request_template.md # PR Review Checklist
+│
+├── pethar-wallet/               # 🌐 Enterprise Web Application (React 19 + TypeScript + Vite)
 │   ├── src/pages/Main.tsx       # Unified enterprise landing page
 │   ├── src/pages/DashboardPage.tsx # Unified app.pethar.co.uk wallet & platform dashboard
 │   ├── src/pages/subdomains/    # Subdomain pages (Auth, Admin, Privacy, Download, Docs)
+│   ├── src/components/          # TransactionSlip (QR Receipt), ReceiveQRCard, ArakanEmblem
 │   ├── public/                  # Static assets & Adaptive App Icons (Light, Dark, Tinted)
-│   ├── src/utils/subdomain.ts   # Subdomain routing and multi-tenancy helper
-│   └── src/lib/firebase.ts      # Firebase Authentication & Google Cloud integration
+│   └── src/utils/subdomain.ts   # Subdomain routing and multi-tenancy helper
 │
 ├── pethar_mobile/               # 📱 Native Mobile Engine (Flutter 3.x / Dart 3.x)
 │   ├── android/                 # Native Android Gradle configuration (Direct APK build)
@@ -97,67 +105,42 @@ PeThar/
 │   ├── lib/services/            # Offline payment service (Cashu bearer tokens, BLE, NFC)
 │   └── lib/app_state.dart       # State management and local secure storage
 │
-├── db/                          # 🗄️ Database & Ledger Migrations
-│   └── migrations/              # Double-entry append-only accounting schema
+├── docs/                        # 📚 Enterprise Documentation & ADRs
+│   ├── architecture/            # System Architecture and Topology
+│   ├── compliance/              # Privacy, Google OAuth, and Regulatory Policies
+│   └── security/                # Threat Model and Cryptographic Specs
 │
-├── docs/                        # 📚 Architecture, Threat Models & Product Guides
-│   ├── pethar-landing-outline.md# Design specifications
-│   └── product-principles.md   # Customer and compliance standards
-│
-└── package.json                 # Monorepo task orchestration
+├── db/                          # 🗄️ Database & Ledger Migrations (PostgreSQL)
+├── drizzle/                     # ⚡ Drizzle ORM Schema & Migrations
+└── vercel.json                  # 🚀 Enterprise Edge Deployment Configuration
 ```
 
 ---
 
-## Quick Start & Local Development
+## Getting Started
 
-### 1. Web Ecosystem (`pethar-wallet`)
+### Prerequisites
+* **Node.js:** v20.x or later
+* **npm:** v10.x or later
+* **Flutter SDK:** v3.29.x (for mobile development)
 
+### Quick Start
 ```bash
-# Navigate to web project
+# Clone the repository
+git clone https://github.com/realjackhalder/pethar.git
+cd pethar
+
+# Install and start the web wallet
 cd pethar-wallet
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
-```
 
-To test subdomains locally, use query parameters:
-* Landing Page: `http://localhost:5173/`
-* Customer Wallet: `http://localhost:5173/?subdomain=app`
-* Auth Portal: `http://localhost:5173/?subdomain=auth`
-* Admin Treasury: `http://localhost:5173/?subdomain=admin`
-* Privacy & Security: `http://localhost:5173/?subdomain=privacy`
-
-### 2. Mobile Client (`pethar_mobile`)
-
-```bash
-# Navigate to mobile project
-cd pethar_mobile
-
-# Fetch Flutter dependencies
-flutter pub get
-
-# Run on connected Android / iOS device
-flutter run
-
-# Build release Android APK (for direct download)
-flutter build apk --release
+# Run full typecheck and production build
+npm run build
 ```
 
 ---
 
-## Security & Operational Principles
+## Security & Compliance
 
-1. **Append-Only Double-Entry Ledger:** All accounting transactions follow double-entry debit/credit rules. Balances are derived from cryptographic ledgers, never cached states.
-2. **Cryptographic Bearer Integrity:** Offline tokens are protected by cryptographic signatures and nonce checks to prevent replay attacks and double-spending upon reconnection.
-3. **Segregated Treasury Reserves:** Customer balances, operational fees, and reserve collateral (USDT/USDC/USD1) remain strictly isolated in segregated accounts.
-4. **Responsible Disclosure:** For vulnerability reports and security inquiries, contact `privacy@pethar.co.uk`.
-
----
-
-## License
-
-All rights reserved © 2026 Pe Thar (`pethar.co.uk`).
+Péthar is engineered for defense-in-depth and compliance with Google API Services Limited Use requirements. For security disclosures or bug bounty inquiries, refer to [SECURITY.md](SECURITY.md) or contact `security@pethar.co.uk`.

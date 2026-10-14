@@ -285,7 +285,7 @@ export function Home({
             </strong>
             {lang === 'ak'
               ? 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀-၀၆:၀၀ တွင် စာရင်းစနစ် အဆင့်မြှင့်မည်ဖြစ်ပါသည်။ အော့ဖ်လိုင်းဘောက်ချာများ အသုံးပြုနိုင်ပါသည်။'
-              : 'PeThar will undergo an Arakan ledger upgrade on 24 Sep 2026 from 01:00-06:00 AM. Offline vouchers remain active.'}
+              : 'Péthar will undergo an Arakan ledger upgrade on 24 Sep 2026 from 01:00-06:00 AM. Offline vouchers remain active.'}
           </div>
           <button onClick={() => setBannerVisible(false)} className="text-amber-400/80 hover:text-white">
             <X size={14} />
@@ -364,7 +364,7 @@ export function Home({
             </div>
             <div>
               <h3 className="font-bold text-base text-white">
-                {lang === 'ak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of PeThar?'}
+                {lang === 'ak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of Péthar?'}
               </h3>
               <p className="text-xs text-gray-400 mt-1">
                 {lang === 'ak'
@@ -464,12 +464,12 @@ export function AccountScreen({
           </div>
         </div>
 
-        {/* PeThar Visa Debit Card Widget */}
+        {/* Péthar Visa Debit Card Widget */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className={`text-xs font-bold flex items-center gap-1.5 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
               <CreditCard size={14} className="text-amber-400" />
-              {lang === 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'PeThar Debit Card'}
+              {lang === 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'Péthar Debit Card'}
             </span>
             <span className="text-[10px] text-amber-400 font-mono">VISA DEBIT</span>
           </div>
@@ -581,7 +581,7 @@ export function ServicesScreen({
     <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
       <ScreenHeader
         title={lang === 'ak' ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services'}
-        subtitle="PeThar Platform Directory"
+        subtitle="Péthar Platform Directory"
         theme={theme}
       />
 
@@ -1291,7 +1291,7 @@ export function Receive({ lang, theme = 'light' }: { lang: Language; theme?: The
           <p className="text-[11px] text-gray-400 mt-1 max-w-xs">
             {lang === 'ak'
               ? 'ဤ QR ကုဒ်ကို ပေးပို့သူအား ပြသ၍ အာရက္ခဒေါ်လာ တိုက်ရိုက်လက်ခံပါ'
-              : 'Scan with PeThar Mobile to send Arakan Dollars instantly'}
+              : 'Scan with Péthar Mobile to send Arakan Dollars instantly'}
           </p>
         </div>
 

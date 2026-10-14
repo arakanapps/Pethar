@@ -17,8 +17,8 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar အကူအညီနှင့် မေးလေ့ရှိသော မေးခွန်းများ · 24/7 Knowledge Base',
-        heroTitle: 'အာရက္ခ PeThar အသုံးပြုသူ အကူအညီပေးရေး ဗဟိုဌာန',
+        badge: 'Péthar အကူအညီနှင့် မေးလေ့ရှိသော မေးခွန်းများ · 24/7 Knowledge Base',
+        heroTitle: 'အာရက္ခ Péthar အသုံးပြုသူ အကူအညီပေးရေး ဗဟိုဌာန',
         heroSubtitle: 'ပိုက်ဆံအိတ် လုံခြုံရေး၊ အော့ဖ်လိုင်း ငွေလွှဲခြင်း၊ ရွှေအာမခံစနစ်နှင့် အကောင့်စီမံခန့်ခွဲမှု ဆိုင်ရာ မေးခွန်းများ၏ အဖြေများကို ရှာဖွေပါ',
         searchPlaceholder: 'မေးခွန်း သို့မဟုတ် အကြောင်းအရာ ရှာဖွေပါ...',
         faqTitle: 'မကြာခဏ မေးလေ့ရှိသော မေးခွန်းများနှင့် အဖြေများ',
@@ -26,7 +26,7 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
         contactUs: '၂၄/၇ Support Chat စတင်မည်',
       }
     : {
-        badge: 'PeThar Help Center & Sovereign Knowledge Base · 24/7 FAQ',
+        badge: 'Péthar Help Center & Sovereign Knowledge Base · 24/7 FAQ',
         heroTitle: 'How Can We Assist You Today?',
         heroSubtitle: 'Instant answers to cryptographic key recovery, 1:1 bullion reserve audits, offline BLE mesh payments, and corporate treasury management',
         searchPlaceholder: 'Search FAQs, offline mesh, gold audits, debit cards...',
@@ -37,16 +37,16 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
 
   const faqItems = [
     {
-      q: lang === 'ak' ? 'PeThar ပိုက်ဆံအိတ်ကို မည်သို့ စတင်အသုံးပြုရမည်နည်း။' : 'How do I initialize and secure my PeThar Wallet?',
+      q: lang === 'ak' ? 'Péthar ပိုက်ဆံအိတ်ကို မည်သို့ စတင်အသုံးပြုရမည်နည်း။' : 'How do I initialize and secure my Péthar Wallet?',
       a: lang === 'ak'
-        ? 'PeThar အက်ပ်ကို ဒေါင်းလုဒ်လုပ်ပြီး မိနစ်ပိုင်းအတွင်း အကောင့်ဖွင့်နိုင်ပါသည်။ သင့်ဖုန်း၏ Hardware Secure Enclave ထဲတွင် Ed25519 သော့တွဲကို အလိုအလျောက် ထုတ်ယူပေးပြီး ဆာဗာသို့ သော့မပို့သောကြောင့် ၁၀၀% လုံခြုံမှုရှိပါသည်။'
-        : 'Download PeThar from the official App Store, Google Play, or direct signed APK. During setup, your smartphone\'s Secure Enclave locally generates an Ed25519 keypair. Your private keys never touch PeThar servers.'
+        ? 'Péthar အက်ပ်ကို ဒေါင်းလုဒ်လုပ်ပြီး မိနစ်ပိုင်းအတွင်း အကောင့်ဖွင့်နိုင်ပါသည်။ သင့်ဖုန်း၏ Hardware Secure Enclave ထဲတွင် Ed25519 သော့တွဲကို အလိုအလျောက် ထုတ်ယူပေးပြီး ဆာဗာသို့ သော့မပို့သောကြောင့် ၁၀၀% လုံခြုံမှုရှိပါသည်။'
+        : 'Download Péthar from the official App Store, Google Play, or direct signed APK. During setup, your smartphone\'s Secure Enclave locally generates an Ed25519 keypair. Your private keys never touch Péthar servers.'
     },
     {
       q: lang === 'ak' ? 'အင်တာနက်နှင့် ဖုန်းလိုင်း ပြတ်တောက်နေချိန်တွင် မည်သို့ ငွေလွှဲနိုင်ပါသလဲ။' : 'How do offline payments function during internet blackouts?',
       a: lang === 'ak'
-        ? 'PeThar တွင် Bluetooth Low Energy (BLE) နှင့် NFC mesh နည်းပညာ ပါဝင်သောကြောင့် အင်တာနက်မရှိချိန်တွင်လည်း ဖုန်းအချင်းချင်း ထိတွေ့ကာ သော့လက်မှတ်ထိုးထားသော ပြေစာများ ဖလှယ်နိုင်ပါသည်။ အင်တာနက် ပြန်လည်ရရှိချိန်တွင် Ledger နှင့် အလိုအလျောက် စာရင်းရှင်းပေးပါသည်။'
-        : 'PeThar uses localized BLE (2.4GHz) and NFC pulses to broadcast cryptographically signed payment vouchers up to 10 meters. The recipient\'s hardware validates the monotonic counter locally, and the transaction is automatically gossiped to the main ledger once any nearby node connects to satellite or cell signals.'
+        ? 'Péthar တွင် Bluetooth Low Energy (BLE) နှင့် NFC mesh နည်းပညာ ပါဝင်သောကြောင့် အင်တာနက်မရှိချိန်တွင်လည်း ဖုန်းအချင်းချင်း ထိတွေ့ကာ သော့လက်မှတ်ထိုးထားသော ပြေစာများ ဖလှယ်နိုင်ပါသည်။ အင်တာနက် ပြန်လည်ရရှိချိန်တွင် Ledger နှင့် အလိုအလျောက် စာရင်းရှင်းပေးပါသည်။'
+        : 'Péthar uses localized BLE (2.4GHz) and NFC pulses to broadcast cryptographically signed payment vouchers up to 10 meters. The recipient\'s hardware validates the monotonic counter locally, and the transaction is automatically gossiped to the main ledger once any nearby node connects to satellite or cell signals.'
     },
     {
       q: lang === 'ak' ? 'Arakan Dollar (AKD) ၏ တန်ဖိုးတည်ငြိမ်မှုနှင့် ရွှေအာမခံစနစ်က မည်သို့ရှိသနည်း။' : 'How does the 1:1 parity and gold bullion backing work?',
@@ -57,8 +57,8 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
     {
       q: lang === 'ak' ? 'ထိုင်း၊ မလေးရှား၊ စင်ကာပူမှ မိသားစုထံသို့ ငွေလွှဲပေးပို့ရာတွင် မည်မျှကြာသနည်း။' : 'How fast are remittances from Thailand, Singapore, and Europe?',
       a: lang === 'ak'
-        ? 'PeThar ကွန်ရက်တွင် PromptPay, KPay, PayNow တို့ဖြင့် ချိတ်ဆက်ထားသောကြောင့် နယ်စပ်ဖြတ်ကျော် ငွေလွှဲမှုများသည် စက္ကန့် ၆၀ အတွင်း မိသားစု၏ ပိုက်ဆံအိတ်ထဲသို့ ကော်မရှင်ခ အနိမ့်ဆုံးဖြင့် တိုက်ရိုက်ရောက်ရှိပါသည်။'
-        : 'Cross-border corridors (THB PromptPay, SGD PayNow, GBP FPS) settle into the recipient\'s PeThar Wallet in under 60 seconds with 0% hidden FX spread and instantaneous Arakan Dollar parity.'
+        ? 'Péthar ကွန်ရက်တွင် PromptPay, KPay, PayNow တို့ဖြင့် ချိတ်ဆက်ထားသောကြောင့် နယ်စပ်ဖြတ်ကျော် ငွေလွှဲမှုများသည် စက္ကန့် ၆၀ အတွင်း မိသားစု၏ ပိုက်ဆံအိတ်ထဲသို့ ကော်မရှင်ခ အနိမ့်ဆုံးဖြင့် တိုက်ရိုက်ရောက်ရှိပါသည်။'
+        : 'Cross-border corridors (THB PromptPay, SGD PayNow, GBP FPS) settle into the recipient\'s Péthar Wallet in under 60 seconds with 0% hidden FX spread and instantaneous Arakan Dollar parity.'
     }
   ];
 

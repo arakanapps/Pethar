@@ -14,11 +14,11 @@ iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAr9klEQVR4nO2dCZwsVX3vzzm1dPVaVd09
             <key>IsRemovable</key>
             <true/>
             <key>Label</key>
-            <string>Pe Thar</string>
+            <string>Péthar</string>
             <key>PayloadDescription</key>
-            <string>Configures Pe Thar Digital Cash Wallet WebClip</string>
+            <string>Configures Péthar Digital Cash Wallet WebClip</string>
             <key>PayloadDisplayName</key>
-            <string>Pe Thar (ဖေ့သာ)</string>
+            <string>Péthar (ဖေ့သာ)</string>
             <key>PayloadIdentifier</key>
             <string>uk.co.pethar.ios.webclip</string>
             <key>PayloadType</key>
@@ -34,11 +34,11 @@ iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAr9klEQVR4nO2dCZwsVX3vzzm1dPVaVd09
         </dict>
     </array>
     <key>PayloadDisplayName</key>
-    <string>Pe Thar (ဖေ့သာ)</string>
+    <string>Péthar (ဖေ့သာ)</string>
     <key>PayloadIdentifier</key>
     <string>uk.co.pethar.ios.profile</string>
     <key>PayloadOrganization</key>
-    <string>Pe Thar Digital Cash</string>
+    <string>Péthar Digital Cash</string>
     <key>PayloadRemovalDisallowed</key>
     <false/>
     <key>PayloadType</key>
@@ -48,6 +48,6 @@ iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAr9klEQVR4nO2dCZwsVX3vzzm1dPVaVd09
     <key>PayloadVersion</key>
     <integer>1</integer>
     <key>PayloadDescription</key>
-    <string>Pe Thar (ဖေ့သာ) 1 ₳ = 1 $ Digital Cash Wallet with Offline Mode</string>
+    <string>Péthar (ဖေ့သာ) 1 ₳ = 1 $ Digital Cash Wallet with Offline Mode</string>
 </dict>
 </plist>

@@ -1,4 +1,4 @@
-// File generated for PeThar Firebase Project (pe-thar)
+// File generated for Péthar Firebase Project (pe-thar)
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;

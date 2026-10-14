@@ -23,7 +23,7 @@ export const DeveloperPage = ({ lang }: DeveloperPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar ဆော့ဖ်ဝဲလ် အင်ဂျင်နီယာများ ဗဟိုဌာန · v1.4.0 Engine',
+        badge: 'Péthar ဆော့ဖ်ဝဲလ် အင်ဂျင်နီယာများ ဗဟိုဌာန · v1.4.0 Engine',
         heroTitle: 'အာရက္ခ ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေး စနစ်အတွက် API နှင့် SDK များ',
         heroSubtitle: 'Ed25519 cryptographic authentication နှင့် ပေါ့ပါးသော REST & WebSocket APIs များဖြင့် သင်၏ ငွေပေးချေမှုစနစ်များကို အဆင်သင့်ချိတ်ဆက်ပါ',
         ctaConsole: 'Developer Console သို့ ဝင်မည်',
@@ -37,8 +37,8 @@ export const DeveloperPage = ({ lang }: DeveloperPageProps) => {
         webhookDesc: 'ငွေလွှဲခြင်းနှင့် လဲလှယ်မှု အခြေအနေများကို HMAC-SHA256 လုံခြုံရေးဖြင့် လက်ခံရယူပါ',
       }
     : {
-        badge: 'PeThar Developer Core · v1.4.0 Engine · Ed25519 Native',
-        heroTitle: 'Build Sovereign Financial Rails on PeThar',
+        badge: 'Péthar Developer Core · v1.4.0 Engine · Ed25519 Native',
+        heroTitle: 'Build Sovereign Financial Rails on Péthar',
         heroSubtitle: 'Next-generation payment infrastructure powered by Ed25519 hardware cryptography, sub-second settlements, and offline-first mesh APIs',
         ctaConsole: 'Open Developer Console',
         ctaDocs: 'Read Full Documentation',
@@ -52,9 +52,9 @@ export const DeveloperPage = ({ lang }: DeveloperPageProps) => {
       };
 
   const codeSnippets = {
-    ts: `import { PeTharClient } from '@pethar/sdk';
+    ts: `import { PétharClient } from '@pethar/sdk';
 
-const pethar = new PeTharClient({
+const pethar = new PétharClient({
   apiKey: process.env.PETHAR_SECRET_KEY,
   environment: 'sandbox' // or 'production'
 });
@@ -71,9 +71,9 @@ const transfer = await pethar.transfers.create({
 console.log('Transit Hash:', transfer.txHash);
 console.log('Settlement State:', transfer.status); // 'settled_instant'`,
 
-    python: `from pethar import PeTharClient
+    python: `from pethar import PétharClient
 
-client = PeTharClient(
+client = PétharClient(
     api_key="pk_sandbox_akd_89a02fbca837102e",
     network="sandbox"
 )
@@ -116,7 +116,7 @@ func main() {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = PeTharClient::builder()
+    let client = PétharClient::builder()
         .api_key("pk_sandbox_akd_89a02fbca837102e")
         .sandbox()
         .build()?;
@@ -401,7 +401,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             <div className="lg:col-span-8 p-6 rounded-3xl bg-slate-950 text-slate-300 font-mono text-xs border border-slate-800 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800 text-[11px] text-slate-400">
                 <span>POST https://yourdomain.com/api/pethar-webhook</span>
-                <span className="text-amber-400">X-PeThar-Signature: v1,hmac_sha256_...</span>
+                <span className="text-amber-400">X-Péthar-Signature: v1,hmac_sha256_...</span>
               </div>
               <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px]">
                 {JSON.stringify(webhookPayloads[selectedEvent], null, 2)}

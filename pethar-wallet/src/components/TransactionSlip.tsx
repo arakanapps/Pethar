@@ -30,9 +30,9 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
   amount,
   recipientName,
   recipientId,
-  recipientType = 'Pe Thar Pay',
+  recipientType = 'Péthar Pay',
   senderName = 'MYAT SOE P****',
-  senderId = 'Pe Thar Wallet ***-***-8295',
+  senderId = 'Péthar Wallet ***-***-8295',
   fee = 0.0,
   timestamp = '14 Oct 2026 17:35:10',
   location = 'Sittwe, Arakan',
@@ -88,8 +88,8 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
     if (navigator.share) {
       navigator
         .share({
-          title: 'Pe Thar Transaction E-Receipt',
-          text: `Pe Thar E-Receipt: ₳ ${amount.toFixed(2)} to ${recipientName}. Ref: ${refId}. Verify at ${verificationUrl}`,
+          title: 'Péthar Transaction E-Receipt',
+          text: `Péthar E-Receipt: ₳ ${amount.toFixed(2)} to ${recipientName}. Ref: ${refId}. Verify at ${verificationUrl}`,
           url: verificationUrl,
         })
         .catch(() => {})
@@ -121,7 +121,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
           <div className="flex items-center gap-2">
             <ArakanEmblem size={30} variant="badge" />
             <span className="font-black text-lg tracking-tight text-[#ff2e37]">
-              pethar<span className="text-slate-900 font-extrabold text-xs ml-1">wallet</span>
+              péthar<span className="text-slate-900 font-extrabold text-xs ml-1">wallet</span>
             </span>
           </div>
           <span className="text-[11px] font-mono font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600">

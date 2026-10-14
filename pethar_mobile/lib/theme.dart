@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// ── Payno & PeThar Modern Sky-Blue Light Fintech Design Tokens ──
+// ── Payno & Péthar Modern Sky-Blue Light Fintech Design Tokens ──
 const Color paynoSkyTop = Color(0xFFCFE5FC);
 const Color paynoSkyMid = Color(0xFFE3F0FD);
 const Color paynoSkyBottom = Color(0xFFF5FAFE);
@@ -14,10 +14,12 @@ const Color crimsonDark = Color(0xFF990000);
 const Color gold = Color(0xFFD4AF37);
 const Color goldLight = Color(0xFFF5E6A3);
 
-// Surfaces
+// Surfaces & Accents
 const Color obsidian = Color(0xFF090D14);
 const Color surfaceDark = Color(0xFF101724);
 const Color surfaceCard = Color(0xFF172235);
+const Color slateBorder = Color(0xFF1E293B);
+const Color cyanNeon = Color(0xFF00F0FF);
 const Color paper = Color(0xFFF0F6FD);
 const Color paperCard = Color(0xFFFFFFFF);
 const Color emeraldSuccess = Color(0xFF10B981);
@@ -52,7 +54,7 @@ ThemeData lightTheme() {
       surface: paperCard,
       surfaceContainerHighest: Color(0xFFF0F7FE),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.white.withValues(alpha: 0.9),
       elevation: 0,
       shape: RoundedRectangleBorder(

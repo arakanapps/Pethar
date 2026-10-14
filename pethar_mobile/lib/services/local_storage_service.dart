@@ -1,4 +1,4 @@
-/// PeThar Local Encrypted Storage Service
+/// Péthar Local Encrypted Storage Service
 /// 
 /// Provides encrypted SQLite storage for:
 ///   - Offline vouchers (pending sync)

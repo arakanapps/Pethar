@@ -8,8 +8,8 @@ interface C2CPageProps {
 export const C2CPage = ({ lang }: C2CPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar C2C - Consumer to Consumer Marketplace',
-        heroSubtitle: 'Buy and sell goods and services directly with other PeThar users',
+        heroTitle: 'Péthar C2C - Consumer to Consumer Marketplace',
+        heroSubtitle: 'Buy and sell goods and services directly with other Péthar users',
         feature1Title: 'Peer-to-Peer Marketplace',
         feature1Desc: 'Buy and sell items, services, and digital goods with trusted users',
         feature2Title: 'Escrow Protection',
@@ -22,8 +22,8 @@ export const C2CPage = ({ lang }: C2CPageProps) => {
         ctaGetStarted: 'Buy or Sell Something',
       }
     : {
-        heroTitle: 'PeThar C2C - Consumer to Consumer Marketplace',
-        heroSubtitle: 'Buy and sell goods and services directly with other PeThar users',
+        heroTitle: 'Péthar C2C - Consumer to Consumer Marketplace',
+        heroSubtitle: 'Buy and sell goods and services directly with other Péthar users',
         feature1Title: 'Peer-to-Peer Marketplace',
         feature1Desc: 'Buy and sell items, services, and digital goods with trusted users',
         feature2Title: 'Escrow Protection',
@@ -71,12 +71,12 @@ export const C2CPage = ({ lang }: C2CPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar C2C အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar C2C Works'}
+            {lang === 'ak' ? 'Péthar C2C အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar C2C Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Buy and sell safely with other PeThar users in our secure marketplace'}
+              : 'Buy and sell safely with other Péthar users in our secure marketplace'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-6">
@@ -122,7 +122,7 @@ export const C2CPage = ({ lang }: C2CPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar C2C အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar C2C Features'}
+            {lang === 'ak' ? 'Péthar C2C အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'Péthar C2C Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -193,7 +193,7 @@ export const C2CPage = ({ lang }: C2CPageProps) => {
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'လက်တွေ့နယ်ပယ်အသီးသီးတွင် အကျိုးရှိစွာ အသုံးချနိုင်သည့် နည်းလမ်းများ'
-              : 'Ideal scenarios for Consumer-to-Consumer transactions with PeThar'}
+              : 'Ideal scenarios for Consumer-to-Consumer transactions with Péthar'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -223,12 +223,12 @@ export const C2CPage = ({ lang }: C2CPageProps) => {
         <section className="mb-16">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-              {lang === 'ak' ? 'PeThar C2C ၏ အကျိုးကျေးဇူးများ' : 'Benefits of PeThar C2C'}
+              {lang === 'ak' ? 'Péthar C2C ၏ အကျိုးကျေးဇူးများ' : 'Benefits of Péthar C2C'}
             </h2>
             <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
               {lang === 'ak'
                 ? 'အသုံးပြုသူများအတွက် အထူးသင့်လျော်သော အကျိုးကျေးဇူးများ'
-                : 'Why choose PeThar for your Consumer-to-Consumer transactions'}
+                : 'Why choose Péthar for your Consumer-to-Consumer transactions'}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">

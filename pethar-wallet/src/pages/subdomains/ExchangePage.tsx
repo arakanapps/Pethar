@@ -70,7 +70,7 @@ export const ExchangePage = ({ lang }: ExchangePageProps) => {
 
   return (
     <BaseLayout
-      title={lang === 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ငွေကြေး ဖလှယ်ရေးစနစ်' : 'PeThar Exchange & Liquidity Terminal'}
+      title={lang === 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ငွေကြေး ဖလှယ်ရေးစနစ်' : 'Péthar Exchange & Liquidity Terminal'}
       lang={lang}
     >
       <div className="space-y-8 max-w-[1300px] mx-auto pb-12">
@@ -105,7 +105,7 @@ export const ExchangePage = ({ lang }: ExchangePageProps) => {
               <span>{lang === 'ak' ? 'အာရက္ခဒစ်ဂျစ်တယ် ရင်းနှီးငွေကြေးဖလှယ်မှု' : 'Zero-Spread Institutional Order Book'}</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight font-sans">
-              {lang === 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ငွေကြေး ဖလှယ်ရေး' : 'PeThar Exchange & Instant Swap'}
+              {lang === 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ငွေကြေး ဖလှယ်ရေး' : 'Péthar Exchange & Instant Swap'}
             </h1>
             <p className="text-sm text-slate-500 font-mono mt-1">
               {lang === 'ak'
@@ -384,7 +384,7 @@ export const ExchangePage = ({ lang }: ExchangePageProps) => {
             </div>
             <h3 className="font-bold text-sm text-slate-900 font-sans">Zero Hidden Markups</h3>
             <p className="text-xs text-slate-500 leading-relaxed font-sans">
-              Unlike legacy wire houses charging 5% to 8%, PeThar provides exact mid-market foreign exchange rates.
+              Unlike legacy wire houses charging 5% to 8%, Péthar provides exact mid-market foreign exchange rates.
             </p>
           </div>
 

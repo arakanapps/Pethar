@@ -31,7 +31,7 @@ export const BaseLayout = ({
 
   useEffect(() => {
     if (typeof document !== 'undefined' && title) {
-      document.title = `${title} | PeThar (ဖေ့သာ)`;
+      document.title = `${title} | Péthar (ဖေ့သာ)`;
     }
   }, [title]);
 
@@ -107,7 +107,7 @@ export const BaseLayout = ({
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-xl font-black tracking-tight text-slate-950 font-sans">
-                        PeThar
+                        Péthar
                       </span>
                       <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200/60 uppercase">
                         {currentSubdomain ? currentSubdomain : 'PAY'}
@@ -348,7 +348,7 @@ export const BaseLayout = ({
                 <div className="flex items-center gap-2.5">
                   <ArakanEmblem size={30} variant="badge" />
                   <span className="font-extrabold text-base tracking-tight text-slate-900 font-sans">
-                    PeThar (ဖေ့သာ)
+                    Péthar (ဖေ့သာ)
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
@@ -374,7 +374,7 @@ export const BaseLayout = ({
                   {lang === 'ak' ? 'သုံးစွဲသူ ဝန်ဆောင်မှု' : 'Consumer Rails'}
                 </h4>
                 <ul className="space-y-2">
-                  <li><button onClick={() => redirectToSubdomain('')} className="hover:text-amber-700 transition">About PeThar</button></li>
+                  <li><button onClick={() => redirectToSubdomain('')} className="hover:text-amber-700 transition">About Péthar</button></li>
                   <li><button onClick={() => redirectToSubdomain('wallet')} className="hover:text-amber-700 transition">Web Banking</button></li>
                   <li><button onClick={() => redirectToSubdomain('app')} className="hover:text-amber-700 transition">Mobile App Portal</button></li>
                   <li><button onClick={() => redirectToSubdomain('card')} className="hover:text-amber-700 transition">Virtual & Physical Card</button></li>
@@ -413,7 +413,7 @@ export const BaseLayout = ({
             </div>
 
             <div className="pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-mono text-slate-500">
-              <div>© 2026 PeThar (ဖေ့သာ) · Arakan Unified Digital Payment Infrastructure · pethar.co.uk</div>
+              <div>© 2026 Péthar (ဖေ့သာ) · Arakan Unified Digital Payment Infrastructure · pethar.co.uk</div>
               <div className="flex items-center gap-4">
                 <span>Domain: pethar.co.uk</span>
                 <span>•</span>

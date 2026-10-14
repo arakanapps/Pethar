@@ -24,8 +24,8 @@ export const ChatPage = ({ lang }: ChatPageProps) => {
       id: 'm1',
       sender: 'agent',
       text: lang === 'ak'
-        ? 'မင်္ဂလာပါ။ PeThar တရားဝင် သတင်းအချက်အလက်နှင့် နည်းပညာအကူအညီပေးရေးမှ ကြိုဆိုပါသည်။ မည်သည့်အရာကို သိရှိလိုပါသလဲခင်ဗျာ။'
-        : 'Welcome to PeThar Sovereign Support. All communications are end-to-end encrypted with your hardware Ed25519 key. How may we assist you today?',
+        ? 'မင်္ဂလာပါ။ Péthar တရားဝင် သတင်းအချက်အလက်နှင့် နည်းပညာအကူအညီပေးရေးမှ ကြိုဆိုပါသည်။ မည်သည့်အရာကို သိရှိလိုပါသလဲခင်ဗျာ။'
+        : 'Welcome to Péthar Sovereign Support. All communications are end-to-end encrypted with your hardware Ed25519 key. How may we assist you today?',
       time: '14:30'
     }
   ]);
@@ -34,11 +34,11 @@ export const ChatPage = ({ lang }: ChatPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar လုံခြုံရေးမြင့်မားသော စကားပြောခန်း · End-to-End Encrypted',
-        heroTitle: 'လုံခြုံစိတ်ချရသော ၂၄/၇ PeThar အကူအညီနှင့် ဆက်သွယ်ရေး',
-        heroSubtitle: 'Signal Protocol စံနှုန်းအတိုင်း သော့ခတ်ထားသော ဆက်သွယ်ရေးစနစ်ဖြင့် PeThar အဖွဲ့သားများနှင့် တိုက်ရိုက် စကားပြောဆိုနိုင်ပါသည်',
+        badge: 'Péthar လုံခြုံရေးမြင့်မားသော စကားပြောခန်း · End-to-End Encrypted',
+        heroTitle: 'လုံခြုံစိတ်ချရသော ၂၄/၇ Péthar အကူအညီနှင့် ဆက်သွယ်ရေး',
+        heroSubtitle: 'Signal Protocol စံနှုန်းအတိုင်း သော့ခတ်ထားသော ဆက်သွယ်ရေးစနစ်ဖြင့် Péthar အဖွဲ့သားများနှင့် တိုက်ရိုက် စကားပြောဆိုနိုင်ပါသည်',
         ctaWebWallet: 'ပိုက်ဆံအိတ်သို့ သွားမည်',
-        activeChannel: 'PeThar တရားဝင် အကူအညီပေးရေး ဗဟိုဌာန',
+        activeChannel: 'Péthar တရားဝင် အကူအညီပေးရေး ဗဟိုဌာန',
         onlineStatus: 'အွန်လိုင်းရှိသည် • ပျမ်းမျှ ပြန်ကြားချိန် < ၁ မိနစ်',
         placeholder: 'မေးခွန်း သို့မဟုတ် မက်ဆေ့ခ်ျ ရိုက်ထည့်ပါ...',
         quickQ1: 'ရွှေအရန်ငွေကြေး မည်သို့ စစ်ဆေးရမလဲ?',
@@ -48,8 +48,8 @@ export const ChatPage = ({ lang }: ChatPageProps) => {
         badge: 'End-to-End Encrypted Support Rails · Signal Protocol',
         heroTitle: 'Sovereign 24/7 Support & Direct Messaging',
         heroSubtitle: 'Direct cryptographic channels protected by Ed25519 authentication with zero server-side plaintext logging',
-        ctaWebWallet: 'Open PeThar Wallet',
-        activeChannel: 'PeThar Sovereign Support Desk',
+        ctaWebWallet: 'Open Péthar Wallet',
+        activeChannel: 'Péthar Sovereign Support Desk',
         onlineStatus: 'Online • Average Response Time < 60s',
         placeholder: 'Type your inquiry or transaction ID...',
         quickQ1: 'How do I audit the 100% Gold Reserves?',
@@ -84,7 +84,7 @@ export const ChatPage = ({ lang }: ChatPageProps) => {
       } else if (text.includes('BLE') || text.includes('အော့ဖ်လိုင်း')) {
         reply = lang === 'ak'
           ? 'အော့ဖ်လိုင်း BLE ငွေလွှဲခြင်းသည် အင်တာနက်မလိုဘဲ ဖုန်းအချင်းချင်း 10m အကွာအဝေးအတွင်း Cryptographic Vouchers ဖလှယ်ပြီး အင်တာနက်ရချိန်တွင် ပြန်လည်စာရင်းရှင်းပေးပါသည်။'
-          : 'PeThar Offline BLE Mesh uses peer-to-peer 2.4GHz pulses up to 10 meters. Signed receipts are cached in the Secure Enclave and reconciled when connectivity returns.';
+          : 'Péthar Offline BLE Mesh uses peer-to-peer 2.4GHz pulses up to 10 meters. Signed receipts are cached in the Secure Enclave and reconciled when connectivity returns.';
       }
 
       setMessages(prev => [...prev, {
@@ -181,7 +181,7 @@ export const ChatPage = ({ lang }: ChatPageProps) => {
               <div className="flex justify-start">
                 <div className="p-3 bg-white border border-slate-200/80 rounded-2xl rounded-bl-xs text-xs font-mono text-slate-400 flex items-center gap-1.5 shadow-xs">
                   <Clock className="w-3.5 h-3.5 animate-spin text-amber-600" />
-                  <span>PeThar Support is typing...</span>
+                  <span>Péthar Support is typing...</span>
                 </div>
               </div>
             )}

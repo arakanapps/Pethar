@@ -8,10 +8,10 @@ interface DemoPageProps {
 export const DemoPage = ({ lang }: DemoPageProps) => {
   const t = lang === 'ak'
     ? {
-        heroTitle: 'PeThar Demo - Try Our Features',
-        heroSubtitle: 'Experience PeThar Wallet and services with no risk or commitment',
+        heroTitle: 'Péthar Demo - Try Our Features',
+        heroSubtitle: 'Experience Péthar Wallet and services with no risk or commitment',
         feature1Title: 'Risk-Free Trial',
-        feature1Desc: 'Try all PeThar features with virtual money in a safe environment',
+        feature1Desc: 'Try all Péthar features with virtual money in a safe environment',
         feature2Title: 'Guided Walkthroughs',
         feature2Desc: 'Step-by-step tutorials showing how to use each feature',
         feature3Title: 'No Account Needed',
@@ -22,10 +22,10 @@ export const DemoPage = ({ lang }: DemoPageProps) => {
         ctaGetStarted: 'Start Demo',
       }
     : {
-        heroTitle: 'PeThar Demo - Try Our Features',
-        heroSubtitle: 'Experience PeThar Wallet and services with no risk or commitment',
+        heroTitle: 'Péthar Demo - Try Our Features',
+        heroSubtitle: 'Experience Péthar Wallet and services with no risk or commitment',
         feature1Title: 'Risk-Free Trial',
-        feature1Desc: 'Try all PeThar features with virtual money in a safe environment',
+        feature1Desc: 'Try all Péthar features with virtual money in a safe environment',
         feature2Title: 'Guided Walkthroughs',
         feature2Desc: 'Step-by-step tutorials showing how to use each feature',
         feature3Title: 'No Account Needed',
@@ -71,12 +71,12 @@ export const DemoPage = ({ lang }: DemoPageProps) => {
       <section className="mb-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Demo အလုပ်လုပ်ဆောင်ပုံ' : 'How PeThar Demo Works'}
+            {lang === 'ak' ? 'Péthar Demo အလုပ်လုပ်ဆောင်ပုံ' : 'How Péthar Demo Works'}
           </h2>
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'အဆင့်ဆင့် အလုပ်လုပ်ဆောင်ပုံနှင့် အသုံးပြုနည်း ရှင်းလင်းချက်'
-              : 'Explore PeThar features risk-free with virtual money'}
+              : 'Explore Péthar features risk-free with virtual money'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-6">
@@ -122,7 +122,7 @@ export const DemoPage = ({ lang }: DemoPageProps) => {
       <section className="mb-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">
-            {lang === 'ak' ? 'PeThar Demo အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'PeThar Demo Features'}
+            {lang === 'ak' ? 'Péthar Demo အင်္ဂါရပ်များနှင့် လုပ်ဆောင်ချက်များ' : 'Péthar Demo Features'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -193,7 +193,7 @@ export const DemoPage = ({ lang }: DemoPageProps) => {
           <p className="text-center text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
             {lang === 'ak'
               ? 'ဒီမိုစနစ်တွင် ငွေကြေးအစစ်အမှန် မလိုအပ်ဘဲ စမ်းသပ်ကြည့်ရှုနိုင်ပါသည်'
-              : 'Popular features you can try in the PeThar Demo'}
+              : 'Popular features you can try in the Péthar Demo'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -242,12 +242,12 @@ export const DemoPage = ({ lang }: DemoPageProps) => {
       {/* Call to Action Section */}
       <section className="text-center py-16 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          {lang === 'ak' ? 'ဖေ့သာကို စမ်းသပ်အသုံးပြုရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Try PeThar?'}
+          {lang === 'ak' ? 'ဖေ့သာကို စမ်းသပ်အသုံးပြုရန် အဆင်သင့်ဖြစ်ပြီလား' : 'Ready to Try Péthar?'}
         </h2>
         <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
           {lang === 'ak'
             ? 'ဖေ့သာအကောင့်ကို လွယ်ကူလျင်မြန်စွာ ဖွင့်လှစ်ပြီး လုံခြုံစိတ်ချစွာ စတင်အသုံးပြုနိုင်ပါသည်'
-            : 'Experience PeThar risk-free and see how it can work for you'}
+            : 'Experience Péthar risk-free and see how it can work for you'}
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <button

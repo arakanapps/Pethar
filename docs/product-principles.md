@@ -1,10 +1,10 @@
-# PeThar (ဖေ့သာ) Product Principles
+# Péthar (ဖေ့သာ) Product Principles
 
 ## Mission
 
 **အာရက္ခပြည်သူများအတွက် ငွေပေးချေမှု၊ ငွေလွှဲမှုနှင့် နိုင်ငံတကာဘဏ္ဍာရေး ဆက်သွယ်မှုများကို လုံခြုံ၊ ရိုးရှင်းပြီး ခေတ်မီ ဒစ်ဂျစ်တယ်စနစ်ဖြင့် ဖြေရှင်းရန်။**
 
-Empower the people of Arakan with resilient digital financial infrastructure. PeThar eliminates reliance on scarce, worn, or deprecated Myanmar Kyat (MMK) by instituting the **Arakan Dollar (AKD)**, backed 100% by liquid reserves and gold.
+Empower the people of Arakan with resilient digital financial infrastructure. Péthar eliminates reliance on scarce, worn, or deprecated Myanmar Kyat (MMK) by instituting the **Arakan Dollar (AKD)**, backed 100% by liquid reserves and gold.
 
 ## Core Architectural Pillars
 
@@ -14,14 +14,14 @@ Empower the people of Arakan with resilient digital financial infrastructure. Pe
 - **Complete MMK Deprecation**: Myanmar Kyat is non-circulating and excluded from the Arakan ledger.
 
 ### 2. Domestic Mobile Money (bKash / TrueMoney / KPay Benchmark)
-- **Peer-to-Peer (P2P)**: Free instant transfers using Phone numbers, PeThar IDs (`ARAK-XXXX`), or Arakan QR (AK QR) codes.
+- **Peer-to-Peer (P2P)**: Free instant transfers using Phone numbers, Péthar IDs (`ARAK-XXXX`), or Arakan QR (AK QR) codes.
 - **Physical Agent Network**: Verified branch counters across Sittwe, Mrauk-U, Kyaukpyu, Thandwe, Ramree, Minbya, and Ponnagyun.
 - **Dynamic Cash-Out Security**: Time-based One-Time Passwords (TOTP) refreshed every 30 seconds to prevent unauthorized withdrawals.
 
 ### 3. International Banking & Corridors (Wise / Payoneer / Card Rails)
 - **Global Receiving Account**: Multi-currency receiving accounts for global freelance, corporate payroll, and remittances with SWIFT code `ARAKMMXX`.
 - **Card Top-Up Gateway**: Simulated 3D-Secure gateway for Visa, Mastercard, American Express, and PayPal.
-- **PeThar Debit Card**: Virtual and physical Visa-compatible cards with instant in-app freeze/unfreeze controls.
+- **Péthar Debit Card**: Virtual and physical Visa-compatible cards with instant in-app freeze/unfreeze controls.
 
 ### 4. Crypto & Fiat Stablecoin Bridge (Binance / MEXC / Multi-Chain)
 - **Direct Exchange Bridges**: 0% fee integration via Binance Pay and MEXC Global UID.

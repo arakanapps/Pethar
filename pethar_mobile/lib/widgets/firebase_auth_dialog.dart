@@ -224,7 +224,7 @@ class _FirebaseAuthDialogState extends State<FirebaseAuthDialog> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          lang == 'ak' ? 'ဖေ့သာ Firebase ဘဏ္ဍာရေးအကောင့်' : 'PeThar Firebase Backend',
+                          lang == 'ak' ? 'ဖေ့သာ Firebase ဘဏ္ဍာရေးအကောင့်' : 'Péthar Firebase Backend',
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         const Text(

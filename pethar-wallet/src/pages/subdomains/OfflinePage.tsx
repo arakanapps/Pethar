@@ -17,7 +17,7 @@ export const OfflinePage = ({ lang }: OfflinePageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar အော့ဖ်လိုင်း BLE/NFC ကွန်ရက် · Mesh Protocol v2.4',
+        badge: 'Péthar အော့ဖ်လိုင်း BLE/NFC ကွန်ရက် · Mesh Protocol v2.4',
         heroTitle: 'အင်တာနက်မရှိဘဲ လုံးဝအော့ဖ်လိုင်း ငွေလွှဲပေးချေနိုင်သည့် စနစ်',
         heroSubtitle: 'ဆက်သွယ်ရေးလိုင်းများ ပြတ်တောက်နေချိန်တွင်လည်း Bluetooth Low Energy (BLE) နှင့် NFC နည်းပညာဖြင့် ဖုန်းအချင်းချင်း ထိတွေ့ငွေလွှဲနိုင်ပါသည်',
         ctaTryMesh: 'အော့ဖ်လိုင်းစနစ် စမ်းသပ်မည်',
@@ -193,7 +193,7 @@ export const OfflinePage = ({ lang }: OfflinePageProps) => {
           <div className="space-y-1">
             <h2 className="text-2xl font-black text-slate-950">{t.protocolTitle}</h2>
             <p className="text-xs text-slate-600">
-              How PeThar prevents double spending and fraudulent replays without requiring access to an online blockchain or server.
+              How Péthar prevents double spending and fraudulent replays without requiring access to an online blockchain or server.
             </p>
           </div>
 

@@ -1,4 +1,4 @@
-/// PeThar Offline Payment Service
+/// Péthar Offline Payment Service
 /// 
 /// Implements cryptographically signed, replay-resistant, expiry-aware
 /// offline vouchers for P2P and P2M payments via NFC and Bluetooth.
@@ -207,10 +207,10 @@ class OfflinePaymentConfig {
   /// Maximum number of unsynced vouchers per device
   static const int maxUnsyncedVouchers = 50;
 
-  /// NFC NDEF record type for PeThar vouchers
+  /// NFC NDEF record type for Péthar vouchers
   static const String nfcRecordType = 'pethar.io:voucher';
 
-  /// BLE service UUID for PeThar offline payments
+  /// BLE service UUID for Péthar offline payments
   static const String bleServiceUuid = 'e7b3f4a0-1234-5678-abcd-pethar000001';
 
   /// BLE characteristic UUID for voucher data
@@ -245,14 +245,14 @@ class VoucherSyncResult {
 
 /// Discrete bearer ecash proof.
 /// Represents a pre-minted coin locked in the SUSPENSE reserve account.
-class PeTharProof {
+class PetharProof {
   final int amount;        // Discrete power-of-two (1, 2, 4, 8, 16, 32, 64 AKD)
-  final String keysetId;   // Keyset identifier for PeThar Mint
+  final String keysetId;   // Keyset identifier for Péthar Mint
   final String secret;     // Random entropy or P2PK locked secret
   final String c;          // Mint blind signature (unblinded)
   final String? dleqProof; // Offline DLEQ proof for client-side verification
 
-  PeTharProof({
+  PetharProof({
     required this.amount,
     required this.keysetId,
     required this.secret,
@@ -268,7 +268,7 @@ class PeTharProof {
     if (dleqProof != null) 'dl': dleqProof,
   };
 
-  factory PeTharProof.fromJson(Map<String, dynamic> json) => PeTharProof(
+  factory PetharProof.fromJson(Map<String, dynamic> json) => PetharProof(
     amount: (json['a'] as num).toInt(),
     keysetId: json['id'] as String,
     secret: json['s'] as String,
@@ -278,14 +278,14 @@ class PeTharProof {
 }
 
 /// Token bundle transmitted P2P over NFC, BLE, or QR code ("petharA...").
-class PeTharOfflineToken {
+class PetharOfflineToken {
   final String mintUrl;
-  final List<PeTharProof> proofs;
+  final List<PetharProof> proofs;
   final String? memo;
   final String? recipientPubkey; // NUT-11 P2PK recipient lock
   final DateTime createdAt;
 
-  PeTharOfflineToken({
+  PetharOfflineToken({
     required this.mintUrl,
     required this.proofs,
     this.memo,
@@ -309,17 +309,17 @@ class PeTharOfflineToken {
   }
 
   /// Parse from "petharA..." string
-  static PeTharOfflineToken deserialize(String tokenStr) {
+  static PetharOfflineToken deserialize(String tokenStr) {
     final clean = tokenStr.trim();
     if (!clean.startsWith('petharA')) {
-      throw const FormatException('Invalid PeThar token header. Must start with petharA');
+      throw const FormatException('Invalid Péthar token header. Must start with petharA');
     }
     final raw = base64Url.decode(clean.substring(7));
     final data = jsonDecode(utf8.decode(raw)) as Map<String, dynamic>;
     final list = (data['t'] as List).cast<Map<String, dynamic>>();
-    return PeTharOfflineToken(
+    return PetharOfflineToken(
       mintUrl: data['m'] as String? ?? 'https://mint.pethar.co.uk',
-      proofs: list.map((m) => PeTharProof.fromJson(m)).toList(),
+      proofs: list.map((m) => PetharProof.fromJson(m)).toList(),
       memo: data['d'] as String?,
       recipientPubkey: data['pk'] as String?,
       createdAt: data['ts'] != null
@@ -342,7 +342,7 @@ class PeTharOfflineToken {
   }
 
   /// Creates a synthetic mint-signed offline token for a requested amount
-  static PeTharOfflineToken createMockMintedToken({
+  static PetharOfflineToken createMockMintedToken({
     required int amount,
     String? recipientPubkey,
     String? memo,
@@ -351,16 +351,16 @@ class PeTharOfflineToken {
     final now = DateTime.now().millisecondsSinceEpoch;
     final proofs = denominations.map((denomination) {
       final secretEntropy = 'sec_${now}_${denomination}_${(denomination * 997) % 10000}';
-      return PeTharProof(
+      return PetharProof(
         amount: denomination,
         keysetId: 'arakan_akd_v1',
         secret: recipientPubkey != null ? 'P2PK:$recipientPubkey:$secretEntropy' : secretEntropy,
         c: 'c_mint_sig_${denomination}_${secretEntropy.hashCode.toRadixString(16)}',
-        dleqProof: 'dleq_valid_${denomination}',
+        dleqProof: 'dleq_valid_$denomination',
       );
     }).toList();
 
-    return PeTharOfflineToken(
+    return PetharOfflineToken(
       mintUrl: 'https://mint.pethar.co.uk',
       proofs: proofs,
       memo: memo,

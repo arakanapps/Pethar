@@ -27,7 +27,7 @@ export const SearchPage = ({ lang }: SearchPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'PeThar Universal Explorer & Search · Sovereign Ledger',
+        badge: 'Péthar Universal Explorer & Search · Sovereign Ledger',
         heroTitle: 'အာရက္ခ ဒစ်ဂျစ်တယ် Ledger အချက်အလက် ရှာဖွေရေး',
         heroSubtitle: 'ငွေလွှဲပြေစာ Hash၊ နိုင်ငံသား အကောင့်နံပါတ်၊ ရွှေတုံး အမှတ်စဉ်နှင့် Ledger Block များကို ပွင့်လင်းမြင်သာစွာ တိုက်ရိုက် ရှာဖွေပါ',
         placeholder: 'Transaction Hash, Node ID (akd_...), Block #, သို့မဟုတ် ရွှေအမှတ်စဉ်...',
@@ -38,7 +38,7 @@ export const SearchPage = ({ lang }: SearchPageProps) => {
         noResults: 'ရှာဖွေမှု မတွေ့ရှိပါ။ ကျေးဇူးပြု၍ Hash သို့မဟုတ် အကောင့် ID ကို ပြန်လည်စစ်ဆေးပါ',
       }
     : {
-        badge: 'PeThar Universal Explorer & Search · Sovereign Ledger',
+        badge: 'Péthar Universal Explorer & Search · Sovereign Ledger',
         heroTitle: 'Universal Sovereign Ledger Search',
         heroSubtitle: 'Search any transaction hash, citizen enclave node, bullion custody certificate, or ledger block with deterministic proof verification',
         placeholder: 'Search Transaction Hash, Node ID (akd_...), Block #, or Bullion Serial...',

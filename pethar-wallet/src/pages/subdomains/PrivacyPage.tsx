@@ -14,8 +14,8 @@ export const PrivacyPage = ({ lang: initialLang = 'en' }: PrivacyPageProps) => {
     if (window.location.pathname.startsWith('/ak')) setLang('ak')
     else if (window.location.pathname.startsWith('/en')) setLang('en')
     document.title = ak
-      ? 'ကိုယ်ရေးအချက်အလက်နှင့် လုံခြုံရေး — Pe Thar'
-      : 'Privacy and security — Pe Thar'
+      ? 'ကိုယ်ရေးအချက်အလက်နှင့် လုံခြုံရေး — Péthar'
+      : 'Privacy and security — Péthar'
   }, [ak])
 
   return (
@@ -23,7 +23,7 @@ export const PrivacyPage = ({ lang: initialLang = 'en' }: PrivacyPageProps) => {
       <header className="max-w-3xl mx-auto px-4 py-8 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2">
           <ArakanEmblem size={32} variant="badge" />
-          <span className="font-extrabold">Pe Thar</span>
+          <span className="font-extrabold">Péthar</span>
         </a>
         <button
           type="button"
@@ -42,8 +42,8 @@ export const PrivacyPage = ({ lang: initialLang = 'en' }: PrivacyPageProps) => {
           </h1>
           <p className="mt-4 text-stone-600 leading-relaxed">
             {ak
-              ? 'ဤစာမျက်နှာသည် သုံးစွဲသူများအတွက်ဖြစ်ပြီး၊ Google Cloud Console တွင် Pe Thar အက်ပ်အမည်၊ ဒိုမိန်းနှင့် ကိုယ်ရေးမူဝါဒ URL နှင့် ကိုက်ညီစေရန် ရေးထားသည်။'
-              : 'This page is for customers. It is also the privacy policy URL for Pe Thar on Google Cloud Console (OAuth branding): app name Pe Thar, homepage pethar.co.uk.'}
+              ? 'ဤစာမျက်နှာသည် သုံးစွဲသူများအတွက်ဖြစ်ပြီး၊ Google Cloud Console တွင် Péthar အက်ပ်အမည်၊ ဒိုမိန်းနှင့် ကိုယ်ရေးမူဝါဒ URL နှင့် ကိုက်ညီစေရန် ရေးထားသည်။'
+              : 'This page is for customers. It is also the privacy policy URL for Péthar on Google Cloud Console (OAuth branding): app name Péthar, homepage pethar.co.uk.'}
           </p>
         </div>
 
@@ -51,8 +51,8 @@ export const PrivacyPage = ({ lang: initialLang = 'en' }: PrivacyPageProps) => {
           <h2 className="font-bold text-lg">{ak ? 'ဘယ်သူလဲ' : 'Who we are'}</h2>
           <p className="text-sm text-stone-600 leading-relaxed">
             {ak
-              ? 'Pe Thar (ဖေ့သာ) သည် AKD ပိုက်ဆံအိတ်ဖြစ်သည်။ ဝက်ဘ်ဆိုက် pethar.co.uk။ အကောင့်ဝင်ခြင်းကို Firebase Authentication (Google Cloud) ဖြင့် လုပ်သည်။'
-              : 'Pe Thar (ဖေ့သာ) is an AKD wallet at pethar.co.uk. Sign-in is Firebase Authentication on Google Cloud.'}
+              ? 'Péthar (ဖေ့သာ) သည် AKD ပိုက်ဆံအိတ်ဖြစ်သည်။ ဝက်ဘ်ဆိုက် pethar.co.uk။ အကောင့်ဝင်ခြင်းကို Firebase Authentication (Google Cloud) ဖြင့် လုပ်သည်။'
+              : 'Péthar (ဖေ့သာ) is an AKD wallet at pethar.co.uk. Sign-in is Firebase Authentication on Google Cloud.'}
           </p>
         </section>
 

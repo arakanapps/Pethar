@@ -38,7 +38,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
         tabNodes: 'ကွန်ရက်နုတ်ဒ် ကျန်းမာရေး',
       }
     : {
-        title: 'PeThar Operations & Administration Hub',
+        title: 'Péthar Operations & Administration Hub',
         badge: 'Authorized Personnel Only (Super-Admin)',
         subtitle: 'Central ledger audit trails, citizen Tier-2 KYC governance, and network consensus orchestration',
         tabAudit: 'Ledger Audit Trails',
