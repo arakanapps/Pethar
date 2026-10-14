@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router'
 import { ArakanEmblem } from '../../components/ArakanEmblem'
 import type { Language } from '../../i18n'
-import { signInWithGooglePopup, signUpWithEmail } from '../../lib/firebase'
-import { goToApp, goToAuth } from '../../utils/subdomain'
+import { auth, onAuthStateChange, signInWithGooglePopup, signUpWithEmail } from '../../lib/firebase'
+import { goToDashboard, goToAuth } from '../../utils/subdomain'
 import { Eye, EyeOff, CheckCircle } from 'lucide-react'
 
 interface SignupPageProps {
@@ -10,6 +11,7 @@ interface SignupPageProps {
 }
 
 export const SignupPage = ({ lang }: SignupPageProps) => {
+  const navigate = useNavigate()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,6 +21,21 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
   const [errorMsg, setErrorMsg] = useState('')
   const [signupSuccess, setSignupSuccess] = useState(false)
   const ak = lang === 'ak'
+
+  // Auto-redirect to dashboard if user is authenticated with Google or email
+  useEffect(() => {
+    if (auth.currentUser) {
+      goToDashboard(lang, navigate)
+      return
+    }
+
+    const unsubscribe = onAuthStateChange((user) => {
+      if (user) {
+        goToDashboard(lang, navigate)
+      }
+    })
+    return () => unsubscribe()
+  }, [lang, navigate])
 
   const t = ak
     ? {
@@ -33,7 +50,7 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
         submit: 'အကောင့်ဖွင့်ရန်',
         haveAccount: 'အကောင့်ရှိပြီးသား?',
         login: 'အကောင့်ဝင်ရန်',
-        success: 'ဖွင့်ပြီးပါပြီ။ ပိုက်ဆံအိတ်သို့ ပို့နေသည်...',
+        success: 'ဖွင့်ပြီးပါပြီ။ ဒက်ရှ်ဘုတ်သို့ ပို့နေသည်...',
         emptyName: 'နာမည် ရိုက်ထည့်ပါ',
         emptyEmail: 'အီးမေးလ် ရိုက်ထည့်ပါ',
         shortPw: 'စကားဝှက် အနည်းဆုံး ၈ လုံး',
@@ -52,7 +69,7 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
         submit: 'Sign up',
         haveAccount: 'Already have an account?',
         login: 'Log in',
-        success: 'Account created. Opening your wallet…',
+        success: 'Account created. Redirecting to dashboard…',
         emptyName: 'Enter your name',
         emptyEmail: 'Enter your email',
         shortPw: 'Password must be at least 8 characters',
@@ -62,21 +79,32 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
 
   const finish = () => {
     setSignupSuccess(true)
-    setTimeout(() => goToApp(), 600)
+    setTimeout(() => goToDashboard(lang, navigate), 300)
   }
 
   const handleGoogle = async () => {
     setIsLoading(true)
     setErrorMsg('')
     try {
-      await signInWithGooglePopup()
-      finish()
+      const res = await signInWithGooglePopup()
+      if (res?.user) {
+        finish()
+      } else {
+        finish()
+      }
     } catch (err: unknown) {
+      console.warn('Google sign up note:', err)
       const code = (err as { code?: string })?.code
       if (code === 'auth/popup-closed-by-user') {
         setErrorMsg(ak ? 'Google ဝင်ရောက်မှု ပယ်ဖျက်လိုက်ပါသည်' : 'Google sign-up was cancelled')
+      } else if (code === 'auth/popup-blocked') {
+        setErrorMsg(ak ? 'Browser Popup ပိတ်ထားပါသည် (Popup ဖွင့်ပေးပါ)' : 'Popup was blocked by your browser. Please allow popups.')
       } else {
-        finish()
+        if (auth.currentUser) {
+          finish()
+        } else {
+          setErrorMsg(ak ? 'ဖွင့်၍မရပါ။ အချက်အလက် ပြန်စစ်ပါ' : 'Sign up could not complete. Check your connection or retry.')
+        }
       }
     } finally {
       setIsLoading(false)

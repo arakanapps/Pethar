@@ -76,7 +76,9 @@ export async function signInWithGooglePopup() {
   provider.setCustomParameters({ prompt: 'select_account' });
   const result = await signInWithPopup(auth, provider);
   if (result.user) {
-    await createOrUpdateUserProfile(result.user);
+    createOrUpdateUserProfile(result.user).catch((err) => {
+      console.warn('Firestore profile sync notice (non-fatal):', err);
+    });
   }
   return result;
 }
@@ -95,7 +97,9 @@ export async function signInWithGoogleRedirect() {
 export async function signInWithEmail(email: string, pass: string) {
   const result = await signInWithEmailAndPassword(auth, email, pass);
   if (result.user) {
-    await createOrUpdateUserProfile(result.user);
+    createOrUpdateUserProfile(result.user).catch((err) => {
+      console.warn('Firestore profile sync notice (non-fatal):', err);
+    });
   }
   return result;
 }
@@ -107,9 +111,11 @@ export async function signUpWithEmail(email: string, pass: string, displayName?:
   const result = await createUserWithEmailAndPassword(auth, email, pass);
   if (result.user) {
     if (displayName) {
-      await updateProfile(result.user, { displayName });
+      updateProfile(result.user, { displayName }).catch(() => {});
     }
-    await createOrUpdateUserProfile(result.user, { displayName });
+    createOrUpdateUserProfile(result.user, { displayName }).catch((err) => {
+      console.warn('Firestore profile sync notice (non-fatal):', err);
+    });
   }
   return result;
 }

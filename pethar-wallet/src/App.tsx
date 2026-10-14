@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import type { Language } from './i18n'
 import { getSubdomain, getRedirectMap, redirectToSubdomain } from './utils/subdomain'
+import { signOutFirebase } from './lib/firebase'
 
 // Import all subdomain pages
 import { LoginPage } from './pages/subdomains/LoginPage'
@@ -92,8 +93,17 @@ export default function App() {
     const paramBanking =
       searchParams.get('app') === 'true' ||
       searchParams.get('banking') === 'true' ||
-      searchParams.get('portal') === 'true'
-    return location.pathname.includes('/banking') || paramBanking
+      searchParams.get('portal') === 'true' ||
+      searchParams.get('dashboard') === 'true' ||
+      searchParams.get('subdomain') === 'app' ||
+      searchParams.get('subdomain') === 'dashboard'
+    return (
+      location.pathname.includes('/banking') ||
+      location.pathname.includes('/dashboard') ||
+      location.pathname.endsWith('/app') ||
+      location.pathname.startsWith('/app') ||
+      paramBanking
+    )
   }, [location.pathname, location.search])
 
   // Handle root redirect or normalization: / -> /ak or /en
@@ -106,7 +116,7 @@ export default function App() {
     } else if (pathname === '/banking') {
       const saved = localStorage.getItem('pethar_lang') as Language | null
       const targetLang = saved === 'en' ? 'en' : 'ak'
-      navigate(`/${targetLang}/banking${location.search}${location.hash}`, { replace: true })
+      navigate(`/${targetLang}/dashboard${location.search}${location.hash}`, { replace: true })
     }
   }, [location.pathname, location.search, location.hash, navigate])
 
@@ -120,11 +130,13 @@ export default function App() {
   // 4. Change language handler: updates URL path to /en or /ak
   const handleSetLang = (newLang: Language) => {
     localStorage.setItem('pethar_lang', newLang)
-    const viewSuffix = isBanking ? '/banking' : ''
+    const viewSuffix = isBanking ? '/dashboard' : ''
     navigate(`/${newLang}${viewSuffix}${location.search}${location.hash}`)
   }
 
   const handleExitBanking = () => {
+    localStorage.removeItem('pethar_logged_in')
+    signOutFirebase().catch(() => {})
     navigate(`/${currentLang}${location.search}${location.hash}`)
   }
 
@@ -143,6 +155,7 @@ export default function App() {
             lang={currentLang}
           />
         )
+      case 'dashboard':
       case 'app':
         return (
           <DashboardPage
@@ -150,7 +163,7 @@ export default function App() {
             setLang={handleSetLang}
             theme="light"
             setTheme={() => {}}
-            onExit={() => redirectToSubdomain('', { search: '' })}
+            onExit={() => redirectToSubdomain('', { path: '/', search: '' })}
           />
         )
       case 'auth':
