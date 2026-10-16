@@ -48,6 +48,7 @@ export type Subdomain =
   | 'www'
   | string;
 
+// Note: 'privacy' and 'terms' are main website routes (domain/privacy, domain/terms), so they are excluded from path-based subdomain hijacking
 export const KNOWN_SUBDOMAINS: string[] = [
   'app',
   'dashboard',
@@ -90,16 +91,13 @@ export const KNOWN_SUBDOMAINS: string[] = [
   'download',
   'info',
   'search',
-  'privacy',
   'security',
-  'legal',
-  'terms',
 ];
 
 export const getSubdomain = (): Subdomain => {
   if (typeof window === 'undefined') return '';
 
-  // 1. Check URL query parameter (essential for preview and local development)
+  // 1. Check URL query parameter
   const searchParams = new URLSearchParams(window.location.search);
   const paramSubdomain = searchParams.get('subdomain') || searchParams.get('sd');
   if (paramSubdomain) {
@@ -108,7 +106,7 @@ export const getSubdomain = (): Subdomain => {
     return clean as Subdomain;
   }
 
-  // 2. Check path-based routing (e.g. /login, /signup, /wallet, /app, /dashboard, /platform, /en/wallet, /ak/login)
+  // 2. Check path-based routing (e.g. /download/en/ios, /download/ak/android, /login, /signup, /wallet)
   const pathSegments = window.location.pathname.split('/').filter(Boolean);
   for (const segment of pathSegments) {
     const s = segment.toLowerCase().trim();
@@ -121,37 +119,33 @@ export const getSubdomain = (): Subdomain => {
   const hostname = window.location.hostname;
   const hostnameWithoutPort = hostname.split(':')[0].toLowerCase();
 
-  // If localhost or IP address without subdomain
   if (hostnameWithoutPort === 'localhost' || hostnameWithoutPort === '127.0.0.1') {
     return '';
   }
 
   const parts = hostnameWithoutPort.split('.');
 
-  // Support local dev subdomains like wallet.localhost
+  // Support local dev subdomains like download.localhost or wallet.localhost
   if (parts.length === 2 && parts[1] === 'localhost') {
     if (parts[0] === 'dashboard') return 'app';
     return parts[0] as Subdomain;
   }
 
-  // Handle .co.uk domain (e.g. pethar.co.uk or wallet.pethar.co.uk)
+  // Handle .co.uk domain (e.g. pethar.co.uk or download.pethar.co.uk)
   if (parts.length >= 3 && parts[parts.length - 2] === 'co' && parts[parts.length - 1] === 'uk') {
-    // pethar.co.uk -> main domain
     if (parts.length === 3 && parts[0] === 'pethar') {
       return '';
     }
-    // www.pethar.co.uk -> main domain
     if (parts[0] === 'www') {
       return '';
     }
-    // dashboard.pethar.co.uk -> 'app'
     if (parts[0] === 'dashboard') {
       return 'app';
     }
     return parts[0] as Subdomain;
   }
 
-  // Handle standard domains (e.g. pethar.com, wallet.pethar.com)
+  // Handle standard domains (e.g. pethar.com, download.pethar.com)
   if (parts.length >= 2) {
     if (parts[0] === 'www' || parts[0] === 'pethar') {
       return '';
@@ -180,8 +174,6 @@ export const redirectToSubdomain = (
   const search =
     options?.search !== undefined ? options.search : window.location.search;
 
-  // Sanitize target path:
-  // When switching away from auth/login/signup to app/dashboard, NEVER carry over /auth, /login, or /signup!
   let targetPath = options?.path;
   if (!targetPath) {
     const currentPath = window.location.pathname;
@@ -197,27 +189,26 @@ export const redirectToSubdomain = (
     }
   }
 
-  // Ensure targetPath starts with '/'
   if (!targetPath.startsWith('/')) {
     targetPath = `/${targetPath}`;
   }
 
   const isPetharDomain = hostname.endsWith('pethar.co.uk');
 
-  // 1. Single-origin routing (localhost, 127.0.0.1, Vercel preview, Firebase web.app, etc.)
+  // 1. Single-origin routing (localhost, 127.0.0.1, preview URLs)
   if (!isPetharDomain) {
     if (!subdomain || subdomain === 'www') {
       window.location.href = `${window.location.protocol}//${hostname}${port}${targetPath}${search}`;
     } else if (subdomain === 'app' || subdomain === 'dashboard') {
       window.location.href = `${window.location.protocol}//${hostname}${port}/dashboard${search}`;
     } else {
-      window.location.href = `${window.location.protocol}//${hostname}${port}/${subdomain}${search}`;
+      const subSuffix = targetPath === '/' ? '' : targetPath;
+      window.location.href = `${window.location.protocol}//${hostname}${port}/${subdomain}${subSuffix}${search}`;
     }
     return;
   }
 
-  // 2. Official production domain (*.pethar.co.uk)
-  // Ensure we map 'dashboard' to 'app.pethar.co.uk'
+  // 2. Official production domain (*.pethar.co.uk) -> e.g. download.pethar.co.uk/en/ios or download.pethar.co.uk/ak/android
   const normalizedSubdomain = subdomain === 'dashboard' ? 'app' : subdomain;
   const targetHost = normalizedSubdomain && normalizedSubdomain !== 'www'
     ? `${normalizedSubdomain}.pethar.co.uk`
@@ -235,7 +226,6 @@ export const goToDashboard = (lang?: string, navigate?: (path: string) => void) 
   const hostname = window.location.hostname;
   const isPetharDomain = hostname.endsWith('pethar.co.uk');
 
-  // If on a dedicated auth subdomain on production (auth.pethar.co.uk, login.pethar.co.uk):
   if (
     isPetharDomain &&
     (hostname.startsWith('auth.') || hostname.startsWith('login.') || hostname.startsWith('signup.'))
@@ -245,13 +235,11 @@ export const goToDashboard = (lang?: string, navigate?: (path: string) => void) 
     return;
   }
 
-  // If navigate function is passed from React Router, perform fast SPA transition
   if (navigate) {
     navigate(`/${targetLang}/dashboard`);
     return;
   }
 
-  // Otherwise perform full navigation
   redirectToSubdomain('app', { path: `/${targetLang}/dashboard`, search: '' });
 };
 
@@ -269,8 +257,5 @@ export const getRedirectMap = (): Record<string, string> => {
     'esearch': 'search',
     'carreers': 'careers',
     'dev': 'developer',
-    'faq': 'help',
-    'legal': 'privacy',
-    'terms': 'privacy',
   };
 };

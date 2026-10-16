@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import type { Language } from './i18n'
 import { getSubdomain, getRedirectMap, redirectToSubdomain } from './utils/subdomain'
@@ -20,7 +20,6 @@ import { DocsPage } from './pages/subdomains/DocsPage'
 import { WalletPage } from './pages/subdomains/WalletPage'
 import Main from './pages/Main'
 import DashboardPage from './pages/DashboardPage'
-// New subdomain pages
 import { OfflinePage } from './pages/subdomains/OfflinePage'
 import { OnlinePage } from './pages/subdomains/OnlinePage'
 import { AdminPage } from './pages/subdomains/AdminPage'
@@ -37,7 +36,6 @@ import { TradePage } from './pages/subdomains/TradePage'
 import { ExchangePage } from './pages/subdomains/ExchangePage'
 import { GlobalPage } from './pages/subdomains/GlobalPage'
 import { DataPage } from './pages/subdomains/DataPage'
-// Additional subdomain pages
 import { SearchPage } from './pages/subdomains/SearchPage'
 import { InfoPage } from './pages/subdomains/InfoPage'
 import { CareersPage } from './pages/subdomains/CareersPage'
@@ -52,42 +50,70 @@ export default function App() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  // Get current subdomain
-  const subdomain = useMemo(() => getSubdomain(), [])
-
-  // Enforce Light Mode across all pages
+  // Dynamically force browser tab favicon refresh to the new 3D White & Crimson Péthar icon
   useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.classList.remove('dark')
-      document.body.classList.remove('dark')
-    }
+    if (typeof document === 'undefined') return
+    const cacheBust = '20261017-2'
+    const existingIcons = document.head.querySelectorAll(
+      'link[rel="icon"], link[rel="shortcut icon"], link[rel="alternate icon"], link[rel="apple-touch-icon"]'
+    )
+    existingIcons.forEach((el) => el.parentNode?.removeChild(el))
+
+    const favicons: Array<{ rel: string; type?: string; sizes?: string; href: string }> = [
+      { rel: 'icon', type: 'image/svg+xml', href: `/pethar-logo-red-white.svg?v=${cacheBust}` },
+      { rel: 'icon', type: 'image/png', sizes: '32x32', href: `/favicon-32x32.png?v=${cacheBust}` },
+      { rel: 'icon', type: 'image/png', sizes: '16x16', href: `/favicon-16x16.png?v=${cacheBust}` },
+      { rel: 'shortcut icon', type: 'image/x-icon', href: `/favicon.ico?v=${cacheBust}` },
+      { rel: 'apple-touch-icon', sizes: '180x180', href: `/apple-touch-icon.png?v=${cacheBust}` },
+    ]
+
+    favicons.forEach(({ rel, type, sizes, href }) => {
+      const link = document.createElement('link')
+      link.rel = rel
+      if (type) link.type = type
+      if (sizes) link.sizes = sizes
+      link.href = href
+      document.head.appendChild(link)
+    })
   }, [])
 
-  // Check for redirects
+  // Reactively determine current subdomain from URL or hostname
+  const subdomain = useMemo(
+    () => getSubdomain(),
+    [location.pathname, location.search]
+  )
+
+  const [savedLang, setSavedLang] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('pethar_lang') as Language | null
+      if (stored === 'en' || stored === 'ak') return stored
+    }
+    return 'en'
+  })
+
+  // Check for subdomain redirects (only for actual hostname subdomains)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const redirectMap = getRedirectMap()
       const redirectTarget = redirectMap[subdomain]
-
-      if (redirectTarget && redirectTarget !== subdomain) {
-        // Perform redirect
+      const hostParts = window.location.hostname.split('.')
+      if (redirectTarget && redirectTarget !== subdomain && hostParts[0] === subdomain) {
         const currentHost = window.location.hostname
         const newHostname = currentHost.replace(/^[^.]+\./, `${redirectTarget}.`)
-        window.location.href = `${window.location.protocol}//${newHostname}${window.location.pathname}${window.location.search}`
+        window.location.href = `${window.location.protocol}//${newHostname}${location.pathname}${location.search}`
       }
     }
-  }, [subdomain, navigate])
+  }, [subdomain, location.pathname, location.search])
 
-  // Determine language from URL pathname: /en, /ak
+  // Determine language from URL pathname segments (/en/..., /ak/..., /download/en/..., /download/ak/...)
   const currentLang: Language = useMemo(() => {
-    if (location.pathname.startsWith('/en')) return 'en'
-    if (location.pathname.startsWith('/ak')) return 'ak'
-    const saved = typeof window !== 'undefined' ? (localStorage.getItem('pethar_lang') as Language | null) : null
-    return saved === 'en' ? 'en' : 'ak'
-  }, [location.pathname])
+    const segments = location.pathname.split('/').filter(Boolean)
+    if (segments.includes('en')) return 'en'
+    if (segments.includes('ak')) return 'ak'
+    return savedLang
+  }, [location.pathname, savedLang])
 
   // Determine view ('landing' or 'banking') from URL pathname or search params
-  // Keep backward compatibility with existing ?app=true etc. parameters
   const isBanking = useMemo(() => {
     const searchParams = new URLSearchParams(location.search)
     const paramBanking =
@@ -106,32 +132,58 @@ export default function App() {
     )
   }, [location.pathname, location.search])
 
-  // Handle root redirect or normalization: / -> /ak or /en
+  // Normalize unprefixed main landing routes to /en/... or /ak/... while allowing /privacy and /terms at domain/privacy and domain/terms
   useEffect(() => {
     const pathname = location.pathname
-    if (pathname === '/' || pathname === '') {
-      const saved = localStorage.getItem('pethar_lang') as Language | null
-      const targetLang = saved === 'en' ? 'en' : 'ak'
-      navigate(`/${targetLang}${location.search}${location.hash}`, { replace: true })
-    } else if (pathname === '/banking') {
-      const saved = localStorage.getItem('pethar_lang') as Language | null
-      const targetLang = saved === 'en' ? 'en' : 'ak'
-      navigate(`/${targetLang}/dashboard${location.search}${location.hash}`, { replace: true })
+    if (pathname === '/banking') {
+      navigate(`/${currentLang}/dashboard${location.search}${location.hash}`, { replace: true })
+      return
     }
-  }, [location.pathname, location.search, location.hash, navigate])
+    if (!subdomain || subdomain === 'www') {
+      if (pathname === '/' || pathname === '') {
+        navigate(`/${currentLang}${location.search}${location.hash}`, { replace: true })
+      } else if (
+        pathname.startsWith('/features') ||
+        pathname.startsWith('/about') ||
+        pathname.startsWith('/faq')
+      ) {
+        navigate(`/${currentLang}${pathname}${location.search}${location.hash}`, { replace: true })
+      }
+    }
+  }, [location.pathname, location.search, location.hash, subdomain, currentLang, navigate])
 
   // Sync currentLang to localStorage
   useEffect(() => {
-    if (location.pathname.startsWith('/en') || location.pathname.startsWith('/ak')) {
+    const segments = location.pathname.split('/').filter(Boolean)
+    if (segments.includes('en') || segments.includes('ak')) {
       localStorage.setItem('pethar_lang', currentLang)
+      setSavedLang(currentLang)
     }
   }, [currentLang, location.pathname])
 
-  // 4. Change language handler: updates URL path to /en or /ak
+  // Change language handler: updates /en <-> /ak in the current URL path (or in place on /privacy and /terms)
   const handleSetLang = (newLang: Language) => {
     localStorage.setItem('pethar_lang', newLang)
-    const viewSuffix = isBanking ? '/dashboard' : ''
-    navigate(`/${newLang}${viewSuffix}${location.search}${location.hash}`)
+    setSavedLang(newLang)
+    if (isBanking) {
+      navigate(`/${newLang}/dashboard${location.search}${location.hash}`)
+      return
+    }
+    const pathname = location.pathname
+    if (pathname === '/privacy' || pathname === '/terms') {
+      return
+    }
+    if (pathname === '/en' || pathname === '/ak' || pathname === '/') {
+      navigate(`/${newLang}${location.search}${location.hash}`)
+    } else if (/^\/(en|ak)(\/|$)/.test(pathname)) {
+      const updated = pathname.replace(/^\/(en|ak)(?=\/|$)/, `/${newLang}`)
+      navigate(`${updated}${location.search}${location.hash}`)
+    } else if (/\/(en|ak)(\/|$)/.test(pathname)) {
+      const updated = pathname.replace(/\/(en|ak)(?=\/|$)/, `/${newLang}`)
+      navigate(`${updated}${location.search}${location.hash}`)
+    } else {
+      navigate(`/${newLang}${pathname}${location.search}${location.hash}`)
+    }
   }
 
   const handleExitBanking = () => {
@@ -140,21 +192,14 @@ export default function App() {
     navigate(`/${currentLang}${location.search}${location.hash}`)
   }
 
-  // Subdomain-based routing for public pages
-  // pethar landing page at /pethar
   if (location.pathname === '/pethar' || location.pathname.startsWith('/pethar/')) {
     return <Main lang={currentLang} setLang={handleSetLang} />
   }
 
   if (!isBanking) {
-    // Route based on subdomain
     switch (subdomain) {
       case 'wallet':
-        return (
-          <WalletPage
-            lang={currentLang}
-          />
-        )
+        return <WalletPage lang={currentLang} />
       case 'dashboard':
       case 'app':
         return (
@@ -163,118 +208,48 @@ export default function App() {
             setLang={handleSetLang}
             theme="light"
             setTheme={() => {}}
-            onExit={() => redirectToSubdomain('', { path: '/', search: '' })}
+            onExit={() => redirectToSubdomain('', { path: `/${currentLang}`, search: '' })}
           />
         )
       case 'auth':
       case 'login':
       case 'signup': {
         const authMode = new URLSearchParams(location.search).get('mode')
-        const showSignup =
-          subdomain === 'signup' || authMode === 'signup'
-        return showSignup ? (
-          <SignupPage lang={currentLang} />
-        ) : (
-          <LoginPage lang={currentLang} />
-        )
+        const showSignup = subdomain === 'signup' || authMode === 'signup'
+        return showSignup ? <SignupPage lang={currentLang} /> : <LoginPage lang={currentLang} />
       }
       case 'pay':
-        return (
-          <PayPage
-            lang={currentLang}
-          />
-        )
+        return <PayPage lang={currentLang} />
       case 'card':
-        return (
-          <CardPage
-            lang={currentLang}
-          />
-        )
+        return <CardPage lang={currentLang} />
       case 'merchant':
-        return (
-          <MerchantPage
-            lang={currentLang}
-          />
-        )
+        return <MerchantPage lang={currentLang} />
       case 'ibanking':
-        return (
-          <IBankingPage
-            lang={currentLang}
-          />
-        )
+        return <IBankingPage lang={currentLang} />
       case 'accounts':
-        return (
-          <AccountsPage
-            lang={currentLang}
-          />
-        )
+        return <AccountsPage lang={currentLang} />
       case 'support':
-        return (
-          <SupportPage
-            lang={currentLang}
-          />
-        )
+        return <SupportPage lang={currentLang} />
       case 'help':
-      case 'faq':
-        return (
-          <HelpPage
-            lang={currentLang}
-          />
-        )
+        return <HelpPage lang={currentLang} />
       case 'developer':
-        return (
-          <DeveloperPage
-            lang={currentLang}
-          />
-        )
+        return <DeveloperPage lang={currentLang} />
       case 'api':
-        return (
-          <ApiPage
-            lang={currentLang}
-          />
-        )
+        return <ApiPage lang={currentLang} />
       case 'trade':
-        return (
-          <TradePage
-            lang={currentLang}
-          />
-        )
+        return <TradePage lang={currentLang} />
       case 'data':
-        return (
-          <DataPage
-            lang={currentLang}
-          />
-        )
+        return <DataPage lang={currentLang} />
       case 'exchange':
-        return (
-          <ExchangePage
-            lang={currentLang}
-          />
-        )
+        return <ExchangePage lang={currentLang} />
       case 'global':
-        return (
-          <GlobalPage
-            lang={currentLang}
-          />
-        )
+        return <GlobalPage lang={currentLang} />
       case 'docs':
-        return (
-          <DocsPage
-            lang={currentLang}
-          />
-        )
+        return <DocsPage lang={currentLang} />
       case 'offline':
-        return (
-          <OfflinePage
-            lang={currentLang}
-          />
-        )
+        return <OfflinePage lang={currentLang} />
       case 'online':
-        return (
-          <OnlinePage
-            lang={currentLang}
-          />
-        )
+        return <OnlinePage lang={currentLang} />
       case 'platform':
         return (
           <DashboardPage
@@ -285,137 +260,51 @@ export default function App() {
           />
         )
       case 'admin':
-        return (
-          <AdminPage
-            lang={currentLang}
-          />
-        )
+        return <AdminPage lang={currentLang} />
       case 'cloud':
-        return (
-          <CloudPage
-            lang={currentLang}
-          />
-        )
+        return <CloudPage lang={currentLang} />
       case 'beta':
-        return (
-          <BetaPage
-            lang={currentLang}
-          />
-        )
+        return <BetaPage lang={currentLang} />
       case 'root':
-        return (
-          <RootPage
-            lang={currentLang}
-          />
-        )
+        return <RootPage lang={currentLang} />
       case 'p2m':
-        return (
-          <P2MPage
-            lang={currentLang}
-          />
-        )
+        return <P2MPage lang={currentLang} />
       case 'p2c':
-        return (
-          <P2CPage
-            lang={currentLang}
-          />
-        )
+        return <P2CPage lang={currentLang} />
       case 'c2c':
-        return (
-          <C2CPage
-            lang={currentLang}
-          />
-        )
+        return <C2CPage lang={currentLang} />
       case 'p2p':
-        return (
-          <P2PPage
-            lang={currentLang}
-          />
-        )
+        return <P2PPage lang={currentLang} />
       case 'm2m':
-        return (
-          <M2MPage
-            lang={currentLang}
-          />
-        )
+        return <M2MPage lang={currentLang} />
       case 'web3':
-        return (
-          <Web3Page
-            lang={currentLang}
-          />
-        )
-      // Additional subdomain pages
+        return <Web3Page lang={currentLang} />
       case 'ads':
-        return (
-          <AdsPage
-            lang={currentLang}
-          />
-        )
+        return <AdsPage lang={currentLang} />
       case 'chat':
-        return (
-          <ChatPage
-            lang={currentLang}
-          />
-        )
+        return <ChatPage lang={currentLang} />
       case 'connect':
-        return (
-          <ConnectPage
-            lang={currentLang}
-          />
-        )
+        return <ConnectPage lang={currentLang} />
       case 'careers':
-        return (
-          <CareersPage
-            lang={currentLang}
-          />
-        )
+        return <CareersPage lang={currentLang} />
       case 'demo':
-        return (
-          <DemoPage
-            lang={currentLang}
-          />
-        )
+        return <DemoPage lang={currentLang} />
       case 'download':
-        return (
-          <DownloadPage
-            lang={currentLang}
-          />
-        )
+        return <DownloadPage lang={currentLang} />
       case 'info':
-        return (
-          <InfoPage
-            lang={currentLang}
-          />
-        )
+        return <InfoPage lang={currentLang} />
       case 'search':
-        return (
-          <SearchPage
-            lang={currentLang}
-          />
-        )
-      case 'privacy':
+        return <SearchPage lang={currentLang} />
       case 'security':
-      case 'legal':
-      case 'terms':
-        return (
-          <PrivacyPage
-            lang={currentLang}
-          />
-        )
+        return <PrivacyPage lang={currentLang} />
       case 'www':
       case '':
       default:
-        // Main domain pethar.co.uk & www - public landing page
-        return (
-          <Main
-            lang={currentLang}
-            setLang={handleSetLang}
-          />
-        )
+        // Main domain - public multi-page website (/en, /ak, /en/features, /ak/features, /en/about, /ak/about, /en/faq, /ak/faq, /privacy, /terms)
+        return <Main lang={currentLang} setLang={handleSetLang} />
     }
   }
 
-  // Banking/authenticated route - show the unified dashboard
   return (
     <DashboardPage
       lang={currentLang}

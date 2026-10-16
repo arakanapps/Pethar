@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
 import {
@@ -13,8 +14,26 @@ interface DownloadPageProps {
 }
 
 export const DownloadPage = ({ lang }: DownloadPageProps) => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<'mobile' | 'desktop' | 'pos'>('mobile');
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
+
+  const pathLower = location.pathname.toLowerCase();
+  const targetPlatform: 'ios' | 'android' | 'all' = pathLower.includes('/ios')
+    ? 'ios'
+    : pathLower.includes('/android') || pathLower.includes('/andrioid')
+      ? 'android'
+      : 'all';
+
+  useEffect(() => {
+    if (targetPlatform === 'ios' || targetPlatform === 'android') {
+      setActiveTab('mobile');
+      const el = document.getElementById(`download-${targetPlatform}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [targetPlatform]);
 
   const ak = lang === 'ak';
 
@@ -27,8 +46,13 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
   const t = ak
     ? {
         badge: 'Péthar တရားဝင် ဆော့ဖ်ဝဲ · 1 ₳ = 1 $ · Online + Offline Mode',
-        heroTitle: 'Péthar (ဖေ့သာ) ဆော့ဖ်ဝဲ တိုက်ရိုက် ရယူပါ',
-        heroSubtitle: 'App Store နှင့် Play Store အားမကိုးဘဲ Android တွင် တိုက်ရိုက် APK၊ iPhone တွင် Configuration Profile ဖြင့် ထည့်သွင်းနိုင်ပါသည်။',
+        heroTitle:
+          targetPlatform === 'ios'
+            ? 'Péthar (ဖေ့သာ) iOS အက်ပ် ဒေါင်းလုဒ်ရယူရန်'
+            : targetPlatform === 'android'
+              ? 'Péthar (ဖေ့သာ) Android အက်ပ် ဒေါင်းလုဒ်ရယူရန်'
+              : 'Péthar (ဖေ့သာ) ဆော့ဖ်ဝဲ တိုက်ရိုက် ရယူပါ',
+        heroSubtitle: 'Android တွင် တိုက်ရိုက် APK၊ iPhone တွင် Configuration Profile ဖြင့် အလွယ်တကူ ထည့်သွင်းနိုင်ပါသည်။',
         tabMobile: 'မိုဘိုင်းလ် (iOS & Android)',
         tabDesktop: 'ဒက်စ်တော့ပ် (Mac & PC)',
         tabPOS: 'ကုန်သည် POS & ဟာ့ဒ်ဝဲ',
@@ -45,8 +69,13 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
       }
     : {
         badge: 'Official Péthar Suite · 1 ₳ = 1 $ · Online + Offline Mode',
-        heroTitle: 'Download Péthar Direct Across Devices',
-        heroSubtitle: 'Direct installation via Android APK and Apple Configuration Profile (.mobileconfig) without App Store restrictions.',
+        heroTitle:
+          targetPlatform === 'ios'
+            ? 'Download Péthar for iOS'
+            : targetPlatform === 'android'
+              ? 'Download Péthar for Android'
+              : 'Download Péthar Direct Across Devices',
+        heroSubtitle: 'Direct installation via Android APK and Apple Configuration Profile (.mobileconfig).',
         tabMobile: 'Mobile (iOS & Android)',
         tabDesktop: 'Desktop (macOS & Windows)',
         tabPOS: 'Merchant POS & Terminals',
@@ -101,11 +130,9 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
       showFooter={true}
     >
       <div className="space-y-16 max-w-6xl mx-auto py-6">
-        
-        {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-xs font-mono font-bold uppercase tracking-wider">
-            <Download className="w-3.5 h-3.5 text-amber-600" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/10 text-slate-900 border border-slate-900/20 text-xs font-mono font-bold uppercase tracking-wider">
+            <Download className="w-3.5 h-3.5" />
             <span>{t.badge}</span>
           </div>
 
@@ -120,27 +147,26 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
               onClick={() => redirectToSubdomain('app')}
-              className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono shadow-xs transition-all active:scale-[0.98] flex items-center gap-2"
+              className="px-6 py-3 rounded-2xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs font-mono shadow-xs transition-all active:scale-[0.98] flex items-center gap-2 cursor-pointer"
             >
               <span>{t.openWebWallet}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <a
               href="/ios.html"
-              className="px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs font-mono shadow-xs transition-all flex items-center gap-2"
+              className="px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300 font-bold text-xs font-mono shadow-xs transition-all flex items-center gap-2"
             >
               <span> {ak ? 'iOS တိုက်ရိုက် စာမျက်နှာ' : 'Dedicated iOS Portal'}</span>
-              <ExternalLink className="w-3.5 h-3.5 text-amber-400" />
+              <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
         </div>
 
-        {/* Tab Controls */}
         <div className="flex justify-center">
           <div className="inline-flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200 shadow-inner">
             <button
               onClick={() => setActiveTab('mobile')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs font-mono transition-all ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs font-mono transition-all cursor-pointer ${
                 activeTab === 'mobile'
                   ? 'bg-white text-slate-950 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -151,7 +177,7 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
             </button>
             <button
               onClick={() => setActiveTab('desktop')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs font-mono transition-all ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs font-mono transition-all cursor-pointer ${
                 activeTab === 'desktop'
                   ? 'bg-white text-slate-950 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -162,7 +188,7 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
             </button>
             <button
               onClick={() => setActiveTab('pos')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs font-mono transition-all ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs font-mono transition-all cursor-pointer ${
                 activeTab === 'pos'
                   ? 'bg-white text-slate-950 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -174,13 +200,18 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
           </div>
         </div>
 
-        {/* Mobile Tab Content */}
         {activeTab === 'mobile' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-7 space-y-6">
-              
               {/* iOS Direct Card */}
-              <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:border-amber-400/50 transition-all space-y-5">
+              <div
+                id="download-ios"
+                className={`p-6 sm:p-7 rounded-3xl bg-white border transition-all space-y-5 ${
+                  targetPlatform === 'ios'
+                    ? 'border-slate-950 ring-2 ring-slate-950/15 shadow-lg'
+                    : 'border-slate-200/90 shadow-sm'
+                }`}
+              >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-2xl bg-slate-950 text-white flex items-center justify-center font-black text-2xl shadow-md">
@@ -188,18 +219,18 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
                     </div>
                     <div>
                       <h3 className="text-lg font-black text-slate-950">Péthar for iOS</h3>
-                      <p className="text-xs text-slate-500 font-mono">Apple Configuration Profile (.mobileconfig) • iPhone & iPad</p>
+                      <p className="text-xs text-slate-500 font-mono">Apple Configuration Profile (.mobileconfig) • iPhone &amp; iPad</p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-mono font-bold">
-                          <CheckCircle2 className="w-3 h-3" /> No App Store Lock
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[10px] font-mono font-bold">
+                          <CheckCircle2 className="w-3 h-3" /> Direct Install
                         </span>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[10px] font-mono font-bold">
-                          <Zap className="w-3 h-3 text-amber-600" /> Offline Mode
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[10px] font-mono font-bold">
+                          <Zap className="w-3 h-3" /> Offline Mode
                         </span>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-2 shrink-0">
                     <a
                       href="/pethar.mobileconfig"
@@ -218,50 +249,31 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
                     </a>
                   </div>
                 </div>
-
-                {/* iOS Step-by-Step Visual Banner */}
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-                  <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-700">
-                    <span>{ak ? 'iOS တိုက်ရိုက် ထည့်သွင်းနည်း အကျဉ်းချုပ်' : 'iOS Installation Preview (Safari)'}</span>
-                    <span className="text-amber-600 font-bold">7 Steps</span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono text-slate-600">
-                    <div className="p-2.5 rounded-xl bg-white border border-slate-200">
-                      <b className="text-amber-600 block">1. Download</b>
-                      <span>Tap Continue on Safari prompt</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-white border border-slate-200">
-                      <b className="text-amber-600 block">2. Settings</b>
-                      <span>Open iPhone Settings app</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-white border border-slate-200">
-                      <b className="text-amber-600 block">3. Profile</b>
-                      <span>Tap Profile Downloaded</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-white border border-slate-200">
-                      <b className="text-emerald-600 block">4. Install</b>
-                      <span>Enter Passcode & Confirm</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Android Card */}
-              <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:border-amber-400/50 transition-all">
+              <div
+                id="download-android"
+                className={`p-6 sm:p-7 rounded-3xl bg-white border transition-all ${
+                  targetPlatform === 'android'
+                    ? 'border-slate-950 ring-2 ring-slate-950/15 shadow-lg'
+                    : 'border-slate-200/90 shadow-sm'
+                }`}
+              >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black shadow-md">
+                    <div className="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black shadow-md">
                       <Smartphone className="w-7 h-7" />
                     </div>
                     <div>
                       <h3 className="text-lg font-black text-slate-950">Péthar for Android</h3>
-                      <p className="text-xs text-slate-500 font-mono">Direct APK • Android 9.0+ • Offline Bearer Mesh</p>
+                      <p className="text-xs text-slate-500 font-mono">Direct APK • Android 9.0+ • Google Play Ready</p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-mono font-bold">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[10px] font-mono font-bold">
                           <CheckCircle2 className="w-3 h-3" /> Signed Release
                         </span>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[10px] font-mono font-bold">
-                          <Zap className="w-3 h-3 text-amber-600" /> Offline Mode
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[10px] font-mono font-bold">
+                          <Zap className="w-3 h-3" /> Offline Mode
                         </span>
                       </div>
                     </div>
@@ -270,7 +282,7 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
                     <a
                       href="/pethar-release.apk"
                       download
-                      className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-95"
+                      className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-95"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>{t.downloadApk}</span>
@@ -278,13 +290,12 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
                   </div>
                 </div>
               </div>
-
             </div>
 
             {/* QR Code Panel */}
             <div className="lg:col-span-5">
-              <div className="p-8 rounded-3xl bg-linear-to-br from-amber-500/10 via-amber-500/5 to-slate-100 border border-amber-500/20 text-center space-y-4">
-                <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center shadow-md">
+              <div className="p-8 rounded-3xl bg-slate-100 border border-slate-200 text-center space-y-4">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-slate-950 text-white flex items-center justify-center shadow-md">
                   <QrCode className="w-8 h-8" />
                 </div>
                 <h3 className="text-lg font-black text-slate-950">
@@ -293,104 +304,10 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
                 <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
                   {t.scanQr}
                 </p>
-                <div className="w-48 h-48 mx-auto bg-white p-3 rounded-2xl border-2 border-dashed border-amber-300 shadow-sm flex items-center justify-center">
-                  <div className="w-full h-full bg-slate-900 rounded-xl flex flex-col items-center justify-center text-white p-4 text-center">
-                    <QrCode className="w-20 h-20 text-amber-400 mb-2" />
+                <div className="w-48 h-48 mx-auto bg-white p-3 rounded-2xl border border-slate-300 shadow-sm flex items-center justify-center">
+                  <div className="w-full h-full bg-slate-950 rounded-xl flex flex-col items-center justify-center text-white p-4 text-center">
+                    <QrCode className="w-20 h-20 text-white mb-2" />
                     <span className="text-[10px] font-mono text-slate-300">SCAN TO INSTALL</span>
-                  </div>
-                </div>
-                <div className="pt-2">
-                  <a
-                    href="/ios.html"
-                    className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-amber-700 hover:text-amber-800 underline"
-                  >
-                    <span> {ak ? 'iOS တိုက်ရိုက် Install စာမျက်နှာဖွင့်မည်' : 'Open iOS Installation Page'}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Adaptive Device Themes (iOS 18 & Android) */}
-            <div className="lg:col-span-12 mt-4 p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[11px] font-mono font-bold uppercase tracking-wider mb-2">
-                    <span>iOS 18 &amp; Android Material You</span>
-                  </div>
-                  <h3 className="text-xl font-black text-white">
-                    {ak ? 'စနစ်အလင်းအမှောင်အလိုက် ပြောင်းလဲသော အက်ပ်ပုံစံ' : 'Device-Adaptive App Icon Theming'}
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1 max-w-xl">
-                    {ak
-                      ? 'သင့်ဖုန်းမျက်နှာပြင်၏ Light၊ Dark နှင့် Tinted မုဒ်များအလိုက် အလိုအလျောက် သဟဇာတဖြစ်အောင် ချိန်ညှိပေးပါသည်။'
-                      : 'Péthar dynamically adapts to your OS home screen mode: Light, Dark, or iOS 18 Tinted with custom accent styling.'}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <a
-                    href="/ios.html"
-                    className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-mono font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs"
-                  >
-                    <span>{ak ? 'iOS စမ်းသပ်ကြည့်မည်' : 'Interactive iOS Preview'}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </a>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {/* Light Mode */}
-                <div className="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-center space-y-3 hover:border-slate-700 transition-all">
-                  <img
-                    src="/icon-light.png"
-                    alt="Light Theme Icon"
-                    className="w-20 h-20 mx-auto drop-shadow-xl hover:scale-105 transition-transform"
-                  />
-                  <div>
-                    <span className="inline-block px-2 py-0.5 rounded-md bg-white/10 text-white text-[10px] font-mono font-bold uppercase">
-                      Light Mode
-                    </span>
-                    <h4 className="font-bold text-sm text-white mt-1.5">{ak ? 'နေ့ခင်းအလင်းရောင်မုဒ်' : 'Clean Daylight'}</h4>
-                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                      {ak ? 'ဖြူစင်ကြည်လင်သော မျက်နှာပြင်ပေါ်တွင် မူရင်းအနီရောင် သရဖူတံဆိပ်' : 'Pure white surface with vivid crimson emblem'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Dark Mode */}
-                <div className="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-center space-y-3 hover:border-rose-500/40 transition-all">
-                  <img
-                    src="/icon-dark.png"
-                    alt="Dark Theme Icon"
-                    className="w-20 h-20 mx-auto drop-shadow-xl hover:scale-105 transition-transform"
-                  />
-                  <div>
-                    <span className="inline-block px-2 py-0.5 rounded-md bg-rose-500/20 border border-rose-500/30 text-rose-300 text-[10px] font-mono font-bold uppercase">
-                      Dark Mode
-                    </span>
-                    <h4 className="font-bold text-sm text-white mt-1.5">{ak ? 'အမှောင်ရောင်စဉ်မုဒ်' : 'OLED Obsidian'}</h4>
-                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                      {ak ? 'OLED မျက်နှာပြင်များအတွက် နက်မှောင်သောအနက်နှင့် တောက်ပသောအနီ' : 'Deep obsidian with luminous high-contrast mark'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Tinted Mode */}
-                <div className="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-center space-y-3 hover:border-indigo-500/40 transition-all">
-                  <img
-                    src="/icon-tinted.png"
-                    alt="Tinted Theme Icon"
-                    className="w-20 h-20 mx-auto drop-shadow-xl hover:scale-105 transition-transform"
-                  />
-                  <div>
-                    <span className="inline-block px-2 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[10px] font-mono font-bold uppercase">
-                      Tinted (iOS 18)
-                    </span>
-                    <h4 className="font-bold text-sm text-white mt-1.5">{ak ? 'စနစ်ကာလာအရောင်တင်မုဒ်' : 'Metallic Monochrome'}</h4>
-                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                      {ak ? 'သင့်ဖုန်း စိတ်ကြိုက်အရောင်အလိုက် လိုက်ဖက်ညီစွာ ပြောင်းလဲပေးသည့် ပုံစံ' : 'Metallic silver gradient adapting to custom OS tints'}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -398,94 +315,76 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
           </div>
         )}
 
-        {/* Desktop Tab Content */}
         {activeTab === 'desktop' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {/* macOS */}
-            <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-amber-400/40 transition-all flex flex-col justify-between space-y-6">
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-6">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-slate-950 text-white flex items-center justify-center font-bold text-2xl shadow-md">
                   
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-slate-950">macOS</h3>
-                  <p className="text-xs text-slate-500 font-mono mt-0.5">Universal Binary • Apple Silicon M1-M4 & Intel</p>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5">Universal Binary • Apple Silicon &amp; Intel</p>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Fast desktop wallet workstation with local encrypted vault and multi-monitor support.
-                </p>
               </div>
               <button
                 onClick={() => redirectToSubdomain('app')}
-                className="w-full py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-98"
+                className="w-full py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Download className="w-4 h-4" />
                 <span>{t.downloadMac}</span>
               </button>
             </div>
 
-            {/* Windows */}
-            <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-amber-400/40 transition-all flex flex-col justify-between space-y-6">
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-6">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-md">
                   <Monitor className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-slate-950">Windows</h3>
                   <p className="text-xs text-slate-500 font-mono mt-0.5">Windows 10 / 11 (64-bit)</p>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Native Windows desktop financial terminal with instant background notifications.
-                </p>
               </div>
               <button
                 onClick={() => redirectToSubdomain('app')}
-                className="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-98"
+                className="w-full py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Download className="w-4 h-4" />
                 <span>{t.downloadWin}</span>
               </button>
             </div>
 
-            {/* Linux */}
-            <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:border-amber-400/40 transition-all flex flex-col justify-between space-y-6">
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-6">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-md">
                   <Terminal className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-slate-950">Linux</h3>
-                  <p className="text-xs text-slate-500 font-mono mt-0.5">AppImage & Debian (.deb)</p>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5">AppImage &amp; Debian (.deb)</p>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Standalone sandbox AppImage with verified GPG developer signatures.
-                </p>
               </div>
               <button
                 onClick={() => redirectToSubdomain('app')}
-                className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-98"
+                className="w-full py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Download className="w-4 h-4" />
                 <span>{t.downloadLinux}</span>
               </button>
             </div>
-
           </div>
         )}
 
-        {/* Checksum Verification Table */}
         <div id="checksum-table" className="space-y-4 pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-black text-slate-950 flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                <span>{t.checksumTitle}</span>
-              </h3>
-              <p className="text-xs text-slate-500 font-mono mt-0.5">
-                {t.checksumSubtitle}
-              </p>
-            </div>
+          <div>
+            <h3 className="text-lg font-black text-slate-950 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-slate-900" />
+              <span>{t.checksumTitle}</span>
+            </h3>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">
+              {t.checksumSubtitle}
+            </p>
           </div>
 
           <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs">
@@ -512,11 +411,11 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
                           </code>
                           <button
                             onClick={() => copyToClipboard(rel.sha256)}
-                            className="p-1 hover:bg-slate-200 rounded text-slate-500 transition-colors"
+                            className="p-1 hover:bg-slate-200 rounded text-slate-500 transition-colors cursor-pointer"
                             title="Copy SHA-256"
                           >
                             {copiedHash === rel.sha256 ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              <Check className="w-3.5 h-3.5 text-slate-950" />
                             ) : (
                               <Copy className="w-3.5 h-3.5" />
                             )}
@@ -530,7 +429,6 @@ export const DownloadPage = ({ lang }: DownloadPageProps) => {
             </div>
           </div>
         </div>
-
       </div>
     </BaseLayout>
   );
