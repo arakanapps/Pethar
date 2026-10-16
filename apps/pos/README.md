@@ -4,7 +4,7 @@ The **Merchant Point-of-Sale Register Terminal** for physical Arakan retailers, 
 
 ## Source Implementations
 - Web POS: `apps/pos/POSTerminal.tsx` (React component in `pethar-wallet`)
-- Flutter POS: `apps/pos/pos_terminal_screen.dart` (Flutter screen in `pethar_mobile`)
+- Flutter POS: `apps/pos/pos_terminal_screen.dart` (Flutter screen in `pethar-wallet`)
 
 ## Features
 - **Fast Touchscreen Catalog**: One-tap item presets for common commodities (Rice, Fuel, Solar Battery, Antibiotics, Starlink, Cooking Oil).
@@ -20,7 +20,7 @@ The **Merchant Point-of-Sale Register Terminal** for physical Arakan retailers, 
 ./apps/pos/run.sh
 
 # 2. Or run native Flutter POS Terminal:
-cd pethar_mobile
+cd pethar-wallet
 flutter run -d macos # or -d chrome
 ```
 

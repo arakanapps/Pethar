@@ -15,8 +15,8 @@
  ┌───────────────────────────────┐
  │       Péthar Monorepo         │
  ├───────────────────────────────┤
- │ 🌐 pethar-wallet (Web App)    │ ◄── React 19 + TypeScript + Vite + Tailwind CSS
- │ 📱 pethar_mobile (Mobile Core)│ ◄── Flutter 3.x / Dart 3.x (Android APK & iOS Profile)
+ │ 🌐 pethar-wallet (Web & PWA)  │ ◄── React 19 + TypeScript + Vite + Tailwind CSS (m.pethar.co.uk)
+ │ 📱 pethar-wallet (Mobile Core)│ ◄── Flutter 3.x / Swift / Kotlin (android/, ios/, macos/, lib/)
  │ 🗄️ Database & Cloud Firestore  │ ◄── Drizzle ORM + PostgreSQL + Firebase Auth
  └───────────────────────────────┘
 ```

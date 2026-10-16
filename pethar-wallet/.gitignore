@@ -12,6 +12,22 @@ dist
 dist-ssr
 *.local
 
+# Flutter / Dart / Native Mobile Build Artifacts
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+app.*.symbols
+app.*.map.json
+/android/app/debug
+/android/app/profile
+/android/app/release
+.widget_preview/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -27,4 +43,3 @@ dist-ssr
 .env
 .env.*
 !.env.example
-

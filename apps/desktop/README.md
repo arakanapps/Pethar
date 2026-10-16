@@ -4,7 +4,7 @@ The **Desktop Banking & Operations Application** for macOS, Windows, and Linux.
 
 ## Native Project Locations
 1. **Flutter Native macOS Desktop App**:
-   - `apps/desktop/macos-project` ➔ points to `pethar_mobile/macos/`
+   - `apps/desktop/macos-project` ➔ points to `pethar-wallet/macos/`
    - Native Cocoa/Swift window with native menus and hardware acceleration.
 2. **Electron Standalone Desktop App**:
    - `apps/desktop/electron-project` ➔ points to `pethar-wallet/electron/`

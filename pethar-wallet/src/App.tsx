@@ -44,6 +44,7 @@ const ConnectPage = lazy(() => import('./pages/subdomains/ConnectPage').then((m)
 const DownloadPage = lazy(() => import('./pages/subdomains/DownloadPage').then((m) => ({ default: m.DownloadPage })))
 const DemoPage = lazy(() => import('./pages/subdomains/DemoPage').then((m) => ({ default: m.DemoPage })))
 const PrivacyPage = lazy(() => import('./pages/subdomains/PrivacyPage').then((m) => ({ default: m.PrivacyPage })))
+const MobileWalletPage = lazy(() => import('./pages/subdomains/MobileWalletPage').then((m) => ({ default: m.MobileWalletPage })))
 
 function PageFallback() {
   return (
@@ -179,6 +180,17 @@ export default function App() {
   const renderPage = () => {
     if (!isBanking) {
       switch (subdomain) {
+        case 'm': {
+          const pathLower = location.pathname.toLowerCase()
+          if (
+            pathLower.includes('/ios') ||
+            pathLower.includes('/android') ||
+            pathLower.includes('/andriod')
+          ) {
+            return <DownloadPage lang={currentLang} />
+          }
+          return <MobileWalletPage lang={currentLang} setLang={handleSetLang} />
+        }
         case 'wallet':
           return <WalletPage lang={currentLang} />
         case 'dashboard':
