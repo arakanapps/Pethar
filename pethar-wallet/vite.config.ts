@@ -4,11 +4,6 @@ import react from "@vitejs/plugin-react"
 import { defineConfig, type Plugin } from "vite"
 import { inspectAttr } from 'kimi-plugin-inspect-react'
 
-/**
- * Enterprise SPA Fallback Plugin
- * Generates dist/404.html as a duplicate of dist/index.html after build.
- * Guarantees zero-404 page refreshes on Vercel, Cloudflare, Netlify, and static CDNs.
- */
 function generate404FallbackPlugin(): Plugin {
   return {
     name: 'generate-404-fallback',
@@ -20,7 +15,6 @@ function generate404FallbackPlugin(): Plugin {
 
         if (fs.existsSync(indexHtml)) {
           fs.copyFileSync(indexHtml, notFoundHtml)
-          console.log('✓ Successfully mirrored dist/index.html -> dist/404.html for 100% reliable deep route reloads')
         }
       } catch (err) {
         console.warn('Notice: Could not copy 404.html fallback:', err)
@@ -29,7 +23,6 @@ function generate404FallbackPlugin(): Plugin {
   }
 }
 
-// https://vite.dev/config/
 export default defineConfig({
   base: '/',
   plugins: [
@@ -50,6 +43,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "framer-motion": path.resolve(__dirname, "./src/lib/framer-motion.tsx"),
     },
   },
 });
