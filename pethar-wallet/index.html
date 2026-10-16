@@ -3,7 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#09090B" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Péthar" />
     <!-- New White & Crimson 3D Péthar Logo & Favicon (Active across all browsers with cache-busting) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="/pethar-logo-red-white.svg?v=20261017-2" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20261017-2" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=20261017-2" />
@@ -15,6 +21,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=Noto+Sans+Myanmar:wght@300;400;500;600;700;800;900&family=Noto+Serif+Myanmar:wght@400;600;700&family=Padauk:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+      window.__petharDeferredInstallPrompt = null;
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        window.__petharDeferredInstallPrompt = e;
+        window.dispatchEvent(new CustomEvent('pethar-install-ready'));
+      });
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js').catch(function () {});
+        });
+      }
+    </script>
   </head>
   <body class="bg-[#09090B] text-white antialiased font-sans selection:bg-white selection:text-[#09090B]">
     <div id="root"></div>

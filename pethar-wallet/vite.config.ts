@@ -4,6 +4,33 @@ import react from "@vitejs/plugin-react"
 import { defineConfig, type Plugin } from "vite"
 import { inspectAttr } from 'kimi-plugin-inspect-react'
 
+function mobileInstallHeadersPlugin(): Plugin {
+  const applyHeaders = (req: { url?: string }, res: { setHeader: (k: string, v: string) => void }, next: () => void) => {
+    const cleanUrl = (req.url || '').split('?')[0]
+    if (cleanUrl.endsWith('.mobileconfig')) {
+      res.setHeader('Content-Type', 'application/x-apple-aspen-config')
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+    } else if (cleanUrl.endsWith('.apk')) {
+      res.setHeader('Content-Type', 'application/vnd.android.package-archive')
+      res.setHeader('Content-Disposition', 'attachment; filename="Pethar.apk"')
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+    } else if (cleanUrl.endsWith('.webmanifest')) {
+      res.setHeader('Content-Type', 'application/manifest+json')
+    }
+    next()
+  }
+
+  return {
+    name: 'mobile-install-headers',
+    configureServer(server) {
+      server.middlewares.use(applyHeaders)
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(applyHeaders)
+    },
+  }
+}
+
 function generate404FallbackPlugin(): Plugin {
   return {
     name: 'generate-404-fallback',
@@ -26,6 +53,7 @@ function generate404FallbackPlugin(): Plugin {
 export default defineConfig({
   base: '/',
   plugins: [
+    mobileInstallHeadersPlugin(),
     inspectAttr(),
     react(),
     generate404FallbackPlugin()
