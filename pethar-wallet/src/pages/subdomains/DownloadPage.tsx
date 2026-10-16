@@ -1,7 +1,58 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
+import { ChevronDown } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { Language } from '../../i18n'
 import { redirectToSubdomain } from '../../utils/subdomain'
+
+/* ─── NON-DRAGGABLE ARAKAN FLAG & UK FLAG ICONS (MATCHING HOME PAGE) ──────── */
+function NonDraggableArakanFlag({ size = 20 }: { size?: number }) {
+  return (
+    <span
+      role="img"
+      aria-label="ရခိုင်"
+      onDragStart={(e) => e.preventDefault()}
+      onContextMenu={(e) => e.preventDefault()}
+      className="inline-block rounded-full overflow-hidden shrink-0 border border-current/20 select-none pointer-events-none bg-[#ec201c]"
+      style={
+        {
+          width: size,
+          height: size,
+          backgroundImage: 'url(/united-league-of-arakan-flag.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          WebkitUserDrag: 'none',
+          userSelect: 'none',
+        } as React.CSSProperties
+      }
+    />
+  )
+}
+
+function NonDraggableEnglishFlag({ size = 20 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 60 60"
+      className="rounded-full shrink-0 overflow-hidden border border-current/20 select-none pointer-events-none"
+      style={{ width: size, height: size }}
+      aria-label="English"
+    >
+      <rect width="60" height="60" fill="#012169" />
+      <path d="M0,0 L60,60 M60,0 L0,60" stroke="#fff" strokeWidth="10" />
+      <path d="M0,0 L60,60 M60,0 L0,60" stroke="#C8102E" strokeWidth="5" />
+      <path d="M30,0 v60 M0,30 h60" stroke="#fff" strokeWidth="16" />
+      <path d="M30,0 v60 M0,30 h60" stroke="#C8102E" strokeWidth="9" />
+    </svg>
+  )
+}
+
+const LANGUAGES: {
+  code: Language
+  label: string
+}[] = [
+  { code: 'en', label: 'English' },
+  { code: 'ak', label: 'ရခိုင်' },
+]
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -29,6 +80,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ lang }) => {
     pathLower.includes('/andrioid')
 
   const [currentLang, setCurrentLang] = useState<Language>(lang === 'ak' ? 'ak' : 'en')
+  const [langMenuOpen, setLangMenuOpen] = useState<boolean>(false)
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(
     typeof window !== 'undefined' ? window.__petharDeferredInstallPrompt || null : null
   )
@@ -42,6 +94,8 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ lang }) => {
   }, [lang])
 
   const isAk = currentLang === 'ak'
+  const currentLangItem =
+    LANGUAGES.find((l) => l.code === currentLang) || LANGUAGES[0]
 
   // Listen for Android Chrome/WebAPK beforeinstallprompt event
   useEffect(() => {
@@ -130,10 +184,10 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ lang }) => {
     window.location.href = '/pethar.mobileconfig'
   }
 
-  const toggleLanguage = () => {
-    const nextLang: Language = isAk ? 'en' : 'ak'
+  const selectLanguage = (nextLang: Language) => {
     localStorage.setItem('pethar_lang', nextLang)
     setCurrentLang(nextLang)
+    setLangMenuOpen(false)
     const updatedPath = location.pathname.replace(/\/(en|ak)(?=\/|$)/, `/${nextLang}`)
     if (updatedPath !== location.pathname) {
       navigate(`${updatedPath}${location.search}`)
@@ -152,6 +206,66 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ lang }) => {
       ? window.location.hostname
       : 'download.pethar.co.uk'
 
+  const renderLanguageButton = () => (
+    <div
+      className="relative select-none"
+      onDragStart={(e) => e.preventDefault()}
+    >
+      <button
+        type="button"
+        onClick={() => setLangMenuOpen(!langMenuOpen)}
+        aria-label="Change Language"
+        className="h-11 px-4 rounded-full backdrop-blur-2xl border inline-flex items-center gap-2.5 text-xs sm:text-sm font-semibold transition-all cursor-pointer select-none bg-zinc-900/70 hover:bg-zinc-800 border-white/15 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.4)]"
+      >
+        {currentLang === 'ak' ? (
+          <NonDraggableArakanFlag size={20} />
+        ) : (
+          <NonDraggableEnglishFlag size={20} />
+        )}
+        <span>{currentLangItem.label}</span>
+        <ChevronDown
+          className={`w-3.5 h-3.5 opacity-75 transition-transform ${
+            langMenuOpen ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {langMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute right-0 mt-2.5 w-44 rounded-2xl p-1.5 backdrop-blur-2xl border z-50 select-none bg-[#18181B]/95 border-white/15 shadow-2xl text-white"
+          >
+            {LANGUAGES.map((item) => {
+              const isSelected = currentLang === item.code
+              return (
+                <button
+                  key={item.code}
+                  type="button"
+                  onDragStart={(e) => e.preventDefault()}
+                  onClick={() => selectLanguage(item.code)}
+                  className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors cursor-pointer text-left select-none ${
+                    isSelected
+                      ? 'bg-white text-zinc-950'
+                      : 'text-white/85 hover:bg-white/10'
+                  }`}
+                >
+                  {item.code === 'ak' ? (
+                    <NonDraggableArakanFlag size={18} />
+                  ) : (
+                    <NonDraggableEnglishFlag size={18} />
+                  )}
+                  <span>{item.label}</span>
+                </button>
+              )
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+
   /* ═══════════════════════════════════════════════════════════════════════════
      ANDROID INSTANT DOWNLOAD & INSTALL APP VIEW (/en/android, /ak/android, /andriod)
   ═══════════════════════════════════════════════════════════════════════════ */
@@ -159,25 +273,18 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ lang }) => {
     return (
       <div className="min-h-screen bg-[#0c0c0e] text-white font-sans selection:bg-white selection:text-black pb-16">
         <div className="max-w-[540px] mx-auto px-4 pt-5 space-y-8">
-          {/* Top Bar: Back + Language Switcher */}
+          {/* Top Bar: Back + Home Page Language Switcher */}
           <div className="flex items-center justify-between">
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#1a1a1e] hover:bg-[#242429] border border-white/15 text-xs font-semibold text-white transition-colors cursor-pointer"
+              className="h-11 px-4 rounded-full backdrop-blur-2xl border inline-flex items-center gap-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer select-none bg-zinc-900/70 hover:bg-zinc-800 border-white/15 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.4)]"
             >
               <span>←</span>
               <span>{isAk ? 'နောက်သို့' : 'Back'}</span>
             </button>
 
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1a1a1e] hover:bg-[#242429] border border-white/15 text-xs font-bold text-white transition-colors cursor-pointer"
-            >
-              <span className="text-xs opacity-80">文A</span>
-              <span>{isAk ? 'AK' : 'EN'}</span>
-            </button>
+            {renderLanguageButton()}
           </div>
 
           {/* App Icon & Hero */}
@@ -357,25 +464,18 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ lang }) => {
   return (
     <div className="min-h-screen bg-[#0c0c0e] text-white font-sans selection:bg-white selection:text-black pb-16">
       <div className="max-w-[540px] mx-auto px-4 pt-5 space-y-7">
-        {/* Top Bar: Left Back Button & Right Language Switcher */}
+        {/* Top Bar: Left Back Button & Right Home Page Language Switcher */}
         <div className="flex items-center justify-between">
           <button
             type="button"
             onClick={handleBack}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#1a1a1e] hover:bg-[#242429] border border-white/15 text-xs font-semibold text-white transition-colors cursor-pointer"
+            className="h-11 px-4 rounded-full backdrop-blur-2xl border inline-flex items-center gap-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer select-none bg-zinc-900/70 hover:bg-zinc-800 border-white/15 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.4)]"
           >
             <span>←</span>
             <span>{isAk ? 'နောက်သို့' : 'Back'}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1a1a1e] hover:bg-[#242429] border border-white/15 text-xs font-bold text-white transition-colors cursor-pointer"
-          >
-            <span className="text-xs opacity-80">文A</span>
-            <span>{isAk ? 'AK' : 'EN'}</span>
-          </button>
+          {renderLanguageButton()}
         </div>
 
         {/* Center Hero: App Icon + Title + Subtitle + White Pill Download Button */}
