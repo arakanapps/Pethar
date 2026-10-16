@@ -405,20 +405,15 @@ export const BaseLayout = ({
                   <li><button onClick={() => redirectToSubdomain('developer')} className="hover:text-amber-700 transition">Developer Docs</button></li>
                   <li><button onClick={() => redirectToSubdomain('api')} className="hover:text-amber-700 transition">API Reference</button></li>
                   <li><button onClick={() => redirectToSubdomain('privacy')} className="hover:text-amber-700 transition">Privacy & Security</button></li>
-                  <li><a href="https://t.me/petharsupport" target="_blank" rel="noreferrer" className="text-sky-700 font-bold hover:underline">Telegram: @petharsupport</a></li>
-                  <li><a href="mailto:pethar-app@protonmail.com" className="text-amber-800 font-bold hover:underline">pethar-app@protonmail.com</a></li>
+                  <li><a href="https://t.me/petharsupport" target="_blank" rel="noreferrer" className="text-sky-700 font-bold no-underline hover:opacity-80 transition-opacity">Telegram: @petharsupport</a></li>
+                  <li><a href="mailto:pethar-app@protonmail.com" className="text-amber-800 font-bold no-underline hover:opacity-80 transition-opacity">Contact: pethar-app@protonmail.com</a></li>
                 </ul>
               </div>
 
             </div>
 
-            <div className="pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-mono text-slate-500">
-              <div>© 2026 Péthar (ဖေ့သာ) · Arakan Unified Digital Payment Infrastructure · pethar.co.uk</div>
-              <div className="flex items-center gap-4">
-                <span>Domain: pethar.co.uk</span>
-                <span>•</span>
-                <span>Sub-Second Finality</span>
-              </div>
+            <div className="pt-6 border-t border-slate-200/80 flex items-center justify-center text-center text-[11px] font-mono text-slate-500">
+              <div>© {new Date().getFullYear()} Péthar (ဖေ့သာ). All rights reserved.</div>
             </div>
           </div>
         </footer>

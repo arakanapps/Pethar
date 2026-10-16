@@ -3088,63 +3088,235 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
             </div>
           </div>
 
-          {/* Footer Navigation & Legal Links (Privacy Policy & Terms and Conditions in Footer Only) */}
+          {/* Multi-Column Institutional Footer (Navigation, Legal, Contact & Centered Copyright) */}
           <div
-            className={`flex flex-col md:flex-row items-center justify-between gap-6 pt-4 border-t text-xs ${
+            className={`pt-10 border-t text-xs ${
               isDark ? 'border-white/10 text-zinc-400' : 'border-zinc-200 text-zinc-600'
             }`}
           >
-            <PetharLogo size={36} showText={true} isDark={isDark} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 pb-10 text-left">
+              {/* Left Corner: Brand Summary (2 cols) */}
+              <div className="sm:col-span-2 space-y-3.5">
+                <button
+                  type="button"
+                  onClick={() => goToPath('/')}
+                  className="inline-flex items-center gap-3 focus:outline-none cursor-pointer group"
+                >
+                  <PetharLogo size={34} showText={false} isDark={isDark} />
+                  <span
+                    className={`font-extrabold text-base sm:text-lg tracking-tight ${
+                      isDark ? 'text-white' : 'text-zinc-950'
+                    }`}
+                  >
+                    Péthar (ဖေ့သာ)
+                  </span>
+                </button>
 
-            <div className="flex flex-wrap items-center justify-center gap-6 font-semibold">
-              <button
-                type="button"
-                onClick={() => goToPath('/')}
-                className="hover:opacity-100 opacity-80 cursor-pointer"
-              >
-                {isAk ? 'ပင်မ' : 'Home'}
-              </button>
-              <button
-                type="button"
-                onClick={() => goToPath('/features')}
-                className="hover:opacity-100 opacity-80 cursor-pointer"
-              >
-                {isAk ? 'လုပ်ဆောင်ချက်များ' : 'Features'}
-              </button>
-              <button
-                type="button"
-                onClick={() => goToPath('/about')}
-                className="hover:opacity-100 opacity-80 cursor-pointer"
-              >
-                {isAk ? 'ကျွန်ုပ်တို့အကြောင်း' : 'About Us'}
-              </button>
-              <button
-                type="button"
-                onClick={() => goToPath('/faq')}
-                className="hover:opacity-100 opacity-80 cursor-pointer"
-              >
-                {isAk ? 'အမေးအဖြေ' : 'FAQ'}
-              </button>
-              <button
-                type="button"
-                onClick={() => goToPath('/privacy')}
-                className="hover:opacity-100 opacity-80 cursor-pointer"
-              >
-                {isAk ? 'ကိုယ်ရေးအချက်အလက် မူဝါဒ' : 'Privacy Policy'}
-              </button>
-              <button
-                type="button"
-                onClick={() => goToPath('/terms')}
-                className="hover:opacity-100 opacity-80 cursor-pointer"
-              >
-                {isAk ? 'စည်းကမ်းသတ်မှတ်ချက်များ' : 'Terms and Conditions'}
-              </button>
+                <p className={`text-xs max-w-sm leading-relaxed ${mutedText}`}>
+                  {isAk
+                    ? 'အာရက္ခဒေသတွင်း နေ့စဉ်သုံး ဒစ်ဂျစ်တယ်ပိုက်ဆံအိတ် — စက္ကန့်ပိုင်းအတွင်း အခမဲ့ P2P ငွေလွှဲမှု၊ ပုံသေ ၁ အာရက္ခဒေါ်လာ = $1.00 USD တန်ဖိုးနှင့် လုံခြုံစိတ်ချရသော ငွေထုတ်ယူမှုစနစ်။'
+                    : 'Your everyday digital wallet for Arakan. Fixed 1 Arakan Dollar = $1.00 USD parity, instant 0%-fee user-to-user transfers, and self-custodial mobile security.'}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-4 pt-1 text-[11px] font-mono font-bold">
+                  <span
+                    className={`inline-flex items-center gap-1.5 ${
+                      isDark ? 'text-zinc-200' : 'text-zinc-800'
+                    }`}
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 opacity-80" />
+                    <span>{isAk ? '100% အာမခံ 1:1 USD' : '100% Reserve Backed'}</span>
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1.5 ${
+                      isDark ? 'text-zinc-300' : 'text-zinc-700'
+                    }`}
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 opacity-80" />
+                    <span>AES-256 Encrypted</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Col 1: Navigation */}
+              <div>
+                <h4
+                  className={`font-bold mb-3.5 text-xs uppercase tracking-wider font-mono ${
+                    isDark ? 'text-white' : 'text-zinc-950'
+                  }`}
+                >
+                  {isAk ? 'ပင်မ လမ်းညွှန်' : 'Navigation'}
+                </h4>
+                <ul className="space-y-2.5">
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => goToPath('/')}
+                      className={`transition-colors cursor-pointer ${
+                        isDark ? 'hover:text-white' : 'hover:text-zinc-950'
+                      }`}
+                    >
+                      {isAk ? 'ပင်မစာမျက်နှာ' : 'Home'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => goToPath('/features')}
+                      className={`transition-colors cursor-pointer ${
+                        isDark ? 'hover:text-white' : 'hover:text-zinc-950'
+                      }`}
+                    >
+                      {isAk ? 'လုပ်ဆောင်ချက်များ' : 'Features'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => goToPath('/about')}
+                      className={`transition-colors cursor-pointer ${
+                        isDark ? 'hover:text-white' : 'hover:text-zinc-950'
+                      }`}
+                    >
+                      {isAk ? 'ကျွန်ုပ်တို့အကြောင်း' : 'About Péthar'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => goToPath('/faq')}
+                      className={`transition-colors cursor-pointer ${
+                        isDark ? 'hover:text-white' : 'hover:text-zinc-950'
+                      }`}
+                    >
+                      {isAk ? 'အမေးများသော မေးခွန်းများ' : 'FAQ'}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Col 2: Company & Ecosystem */}
+              <div>
+                <h4
+                  className={`font-bold mb-3.5 text-xs uppercase tracking-wider font-mono ${
+                    isDark ? 'text-white' : 'text-zinc-950'
+                  }`}
+                >
+                  {isAk ? 'ကုမ္ပဏီနှင့် နည်းပညာ' : 'Company & Tech'}
+                </h4>
+                <ul className="space-y-2.5">
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => goToPath('/about/technology')}
+                      className={`transition-colors cursor-pointer ${
+                        isDark ? 'hover:text-white' : 'hover:text-zinc-950'
+                      }`}
+                    >
+                      {isAk ? 'နည်းပညာ' : 'Technology'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => goToPath('/about/products')}
+                      className={`transition-colors cursor-pointer ${
+                        isDark ? 'hover:text-white' : 'hover:text-zinc-950'
+                      }`}
+                    >
+                      {isAk ? 'ထုတ်ကုန်များ' : 'Products'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => goToPath('/about/awards')}
+                      className={`transition-colors cursor-pointer ${
+                        isDark ? 'hover:text-white' : 'hover:text-zinc-950'
+                      }`}
+                    >
+                      {isAk ? 'ဆုတံဆိပ်နှင့် အသိအမှတ်ပြုမှု' : 'Award & Recognition'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => goToPath('/about/roadmap')}
+                      className={`transition-colors cursor-pointer ${
+                        isDark ? 'hover:text-white' : 'hover:text-zinc-950'
+                      }`}
+                    >
+                      {isAk ? 'ရှေ့လုပ်ငန်းစဉ်' : 'Roadmap'}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Right Column: Legal & Contact (No Underline on Email & Telegram) */}
+              <div>
+                <h4
+                  className={`font-bold mb-3.5 text-xs uppercase tracking-wider font-mono ${
+                    isDark ? 'text-white' : 'text-zinc-950'
+                  }`}
+                >
+                  {isAk ? 'မူဝါဒနှင့် ဆက်သွယ်ရန်' : 'Legal & Contact'}
+                </h4>
+                <ul className="space-y-2.5">
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => goToPath('/privacy')}
+                      className={`transition-colors cursor-pointer ${
+                        isDark ? 'hover:text-white' : 'hover:text-zinc-950'
+                      }`}
+                    >
+                      {isAk ? 'ကိုယ်ရေးအချက်အလက် မူဝါဒ' : 'Privacy Policy'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => goToPath('/terms')}
+                      className={`transition-colors cursor-pointer ${
+                        isDark ? 'hover:text-white' : 'hover:text-zinc-950'
+                      }`}
+                    >
+                      {isAk ? 'စည်းကမ်းသတ်မှတ်ချက်များ' : 'Terms and Conditions'}
+                    </button>
+                  </li>
+                  <li>
+                    <a
+                      href="https://t.me/petharsupport"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`font-bold no-underline transition-opacity hover:opacity-80 ${
+                        isDark ? 'text-sky-400' : 'text-sky-700'
+                      }`}
+                    >
+                      Telegram: @petharsupport
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="mailto:pethar-app@protonmail.com"
+                      className={`font-bold no-underline transition-opacity hover:opacity-80 ${
+                        isDark ? 'text-amber-300' : 'text-amber-800'
+                      }`}
+                    >
+                      Contact: pethar-app@protonmail.com
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
 
-            <div className="text-xs opacity-70">
-              {isAk
-                ? '© 2026 Péthar (ဖေ့သာ). မူပိုင်ခွင့်အားလုံး လက်ဝယ်ရှိသည်။'
-                : '© 2026 Péthar (ဖေ့သာ). All rights reserved.'}
+            {/* Bottom Divider: Only Copyright Text Centered */}
+            <div
+              className={`pt-6 border-t flex items-center justify-center text-center text-xs ${
+                isDark ? 'border-white/10 text-zinc-500' : 'border-zinc-200/80 text-zinc-500'
+              }`}
+            >
+              <div>© {new Date().getFullYear()} Péthar (ဖေ့သာ). All rights reserved.</div>
             </div>
           </div>
         </div>
