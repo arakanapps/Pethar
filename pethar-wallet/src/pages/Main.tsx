@@ -681,12 +681,12 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
       {/* ─── SUBTLE MONOCHROME AMBIENT GLOW & GRID OVERLAY ─────────────────── */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div
-          className={`absolute -top-40 -left-40 w-[620px] h-[620px] rounded-full blur-[140px] ${
+          className={`hidden md:block absolute -top-40 -left-40 w-[620px] h-[620px] rounded-full blur-[120px] ${
             isDark ? 'bg-white/[0.05]' : 'bg-zinc-400/20'
           }`}
         />
         <div
-          className={`absolute top-20 right-[-10%] w-[680px] h-[680px] rounded-full blur-[150px] ${
+          className={`hidden md:block absolute top-20 right-[-10%] w-[680px] h-[680px] rounded-full blur-[120px] ${
             isDark ? 'bg-zinc-400/[0.06]' : 'bg-zinc-300/30'
           }`}
         />

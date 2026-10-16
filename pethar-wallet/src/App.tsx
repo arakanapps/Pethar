@@ -1,81 +1,61 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import type { Language } from './i18n'
 import { getSubdomain, getRedirectMap, redirectToSubdomain } from './utils/subdomain'
-import { signOutFirebase } from './lib/firebase'
-
-// Import all subdomain pages
-import { LoginPage } from './pages/subdomains/LoginPage'
-import { SignupPage } from './pages/subdomains/SignupPage'
-import { PayPage } from './pages/subdomains/PayPage'
-import { CardPage } from './pages/subdomains/CardPage'
-import { MerchantPage } from './pages/subdomains/MerchantPage'
-import { IBankingPage } from './pages/subdomains/IBankingPage'
-import { AccountsPage } from './pages/subdomains/AccountsPage'
-import { SupportPage } from './pages/subdomains/SupportPage'
-import { HelpPage } from './pages/subdomains/HelpPage'
-import { DeveloperPage } from './pages/subdomains/DeveloperPage'
-import { ApiPage } from './pages/subdomains/ApiPage'
-import { DocsPage } from './pages/subdomains/DocsPage'
-import { WalletPage } from './pages/subdomains/WalletPage'
 import Main from './pages/Main'
-import DashboardPage from './pages/DashboardPage'
-import { OfflinePage } from './pages/subdomains/OfflinePage'
-import { OnlinePage } from './pages/subdomains/OnlinePage'
-import { AdminPage } from './pages/subdomains/AdminPage'
-import { CloudPage } from './pages/subdomains/CloudPage'
-import { BetaPage } from './pages/subdomains/BetaPage'
-import { RootPage } from './pages/subdomains/RootPage'
-import { P2MPage } from './pages/subdomains/P2MPage'
-import { P2CPage } from './pages/subdomains/P2CPage'
-import { C2CPage } from './pages/subdomains/C2CPage'
-import { P2PPage } from './pages/subdomains/P2PPage'
-import { M2MPage } from './pages/subdomains/M2MPage'
-import { Web3Page } from './pages/subdomains/Web3Page'
-import { TradePage } from './pages/subdomains/TradePage'
-import { ExchangePage } from './pages/subdomains/ExchangePage'
-import { GlobalPage } from './pages/subdomains/GlobalPage'
-import { DataPage } from './pages/subdomains/DataPage'
-import { SearchPage } from './pages/subdomains/SearchPage'
-import { InfoPage } from './pages/subdomains/InfoPage'
-import { CareersPage } from './pages/subdomains/CareersPage'
-import { AdsPage } from './pages/subdomains/AdsPage'
-import { ChatPage } from './pages/subdomains/ChatPage'
-import { ConnectPage } from './pages/subdomains/ConnectPage'
-import { DownloadPage } from './pages/subdomains/DownloadPage'
-import { DemoPage } from './pages/subdomains/DemoPage'
-import { PrivacyPage } from './pages/subdomains/PrivacyPage'
+
+// Lazy-load secondary & subdomain pages so the main landing page loads fast on mobile browsers
+const DashboardPage = lazy(() => import('./pages/DashboardPage'))
+const LoginPage = lazy(() => import('./pages/subdomains/LoginPage').then((m) => ({ default: m.LoginPage })))
+const SignupPage = lazy(() => import('./pages/subdomains/SignupPage').then((m) => ({ default: m.SignupPage })))
+const PayPage = lazy(() => import('./pages/subdomains/PayPage').then((m) => ({ default: m.PayPage })))
+const CardPage = lazy(() => import('./pages/subdomains/CardPage').then((m) => ({ default: m.CardPage })))
+const MerchantPage = lazy(() => import('./pages/subdomains/MerchantPage').then((m) => ({ default: m.MerchantPage })))
+const IBankingPage = lazy(() => import('./pages/subdomains/IBankingPage').then((m) => ({ default: m.IBankingPage })))
+const AccountsPage = lazy(() => import('./pages/subdomains/AccountsPage').then((m) => ({ default: m.AccountsPage })))
+const SupportPage = lazy(() => import('./pages/subdomains/SupportPage').then((m) => ({ default: m.SupportPage })))
+const HelpPage = lazy(() => import('./pages/subdomains/HelpPage').then((m) => ({ default: m.HelpPage })))
+const DeveloperPage = lazy(() => import('./pages/subdomains/DeveloperPage').then((m) => ({ default: m.DeveloperPage })))
+const ApiPage = lazy(() => import('./pages/subdomains/ApiPage').then((m) => ({ default: m.ApiPage })))
+const DocsPage = lazy(() => import('./pages/subdomains/DocsPage').then((m) => ({ default: m.DocsPage })))
+const WalletPage = lazy(() => import('./pages/subdomains/WalletPage').then((m) => ({ default: m.WalletPage })))
+const OfflinePage = lazy(() => import('./pages/subdomains/OfflinePage').then((m) => ({ default: m.OfflinePage })))
+const OnlinePage = lazy(() => import('./pages/subdomains/OnlinePage').then((m) => ({ default: m.OnlinePage })))
+const AdminPage = lazy(() => import('./pages/subdomains/AdminPage').then((m) => ({ default: m.AdminPage })))
+const CloudPage = lazy(() => import('./pages/subdomains/CloudPage').then((m) => ({ default: m.CloudPage })))
+const BetaPage = lazy(() => import('./pages/subdomains/BetaPage').then((m) => ({ default: m.BetaPage })))
+const RootPage = lazy(() => import('./pages/subdomains/RootPage').then((m) => ({ default: m.RootPage })))
+const P2MPage = lazy(() => import('./pages/subdomains/P2MPage').then((m) => ({ default: m.P2MPage })))
+const P2CPage = lazy(() => import('./pages/subdomains/P2CPage').then((m) => ({ default: m.P2CPage })))
+const C2CPage = lazy(() => import('./pages/subdomains/C2CPage').then((m) => ({ default: m.C2CPage })))
+const P2PPage = lazy(() => import('./pages/subdomains/P2PPage').then((m) => ({ default: m.P2PPage })))
+const M2MPage = lazy(() => import('./pages/subdomains/M2MPage').then((m) => ({ default: m.M2MPage })))
+const Web3Page = lazy(() => import('./pages/subdomains/Web3Page').then((m) => ({ default: m.Web3Page })))
+const TradePage = lazy(() => import('./pages/subdomains/TradePage').then((m) => ({ default: m.TradePage })))
+const ExchangePage = lazy(() => import('./pages/subdomains/ExchangePage').then((m) => ({ default: m.ExchangePage })))
+const GlobalPage = lazy(() => import('./pages/subdomains/GlobalPage').then((m) => ({ default: m.GlobalPage })))
+const DataPage = lazy(() => import('./pages/subdomains/DataPage').then((m) => ({ default: m.DataPage })))
+const SearchPage = lazy(() => import('./pages/subdomains/SearchPage').then((m) => ({ default: m.SearchPage })))
+const InfoPage = lazy(() => import('./pages/subdomains/InfoPage').then((m) => ({ default: m.InfoPage })))
+const CareersPage = lazy(() => import('./pages/subdomains/CareersPage').then((m) => ({ default: m.CareersPage })))
+const AdsPage = lazy(() => import('./pages/subdomains/AdsPage').then((m) => ({ default: m.AdsPage })))
+const ChatPage = lazy(() => import('./pages/subdomains/ChatPage').then((m) => ({ default: m.ChatPage })))
+const ConnectPage = lazy(() => import('./pages/subdomains/ConnectPage').then((m) => ({ default: m.ConnectPage })))
+const DownloadPage = lazy(() => import('./pages/subdomains/DownloadPage').then((m) => ({ default: m.DownloadPage })))
+const DemoPage = lazy(() => import('./pages/subdomains/DemoPage').then((m) => ({ default: m.DemoPage })))
+const PrivacyPage = lazy(() => import('./pages/subdomains/PrivacyPage').then((m) => ({ default: m.PrivacyPage })))
+
+function PageFallback() {
+  return (
+    <div className="min-h-screen bg-[#09090B] text-white flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+    </div>
+  )
+}
 
 export default function App() {
   const location = useLocation()
   const navigate = useNavigate()
-
-  // Dynamically force browser tab favicon refresh to the new 3D White & Crimson Péthar icon
-  useEffect(() => {
-    if (typeof document === 'undefined') return
-    const cacheBust = '20261017-2'
-    const existingIcons = document.head.querySelectorAll(
-      'link[rel="icon"], link[rel="shortcut icon"], link[rel="alternate icon"], link[rel="apple-touch-icon"]'
-    )
-    existingIcons.forEach((el) => el.parentNode?.removeChild(el))
-
-    const favicons: Array<{ rel: string; type?: string; sizes?: string; href: string }> = [
-      { rel: 'icon', type: 'image/svg+xml', href: `/pethar-logo-red-white.svg?v=${cacheBust}` },
-      { rel: 'icon', type: 'image/png', sizes: '32x32', href: `/favicon-32x32.png?v=${cacheBust}` },
-      { rel: 'icon', type: 'image/png', sizes: '16x16', href: `/favicon-16x16.png?v=${cacheBust}` },
-      { rel: 'shortcut icon', type: 'image/x-icon', href: `/favicon.ico?v=${cacheBust}` },
-      { rel: 'apple-touch-icon', sizes: '180x180', href: `/apple-touch-icon.png?v=${cacheBust}` },
-    ]
-
-    favicons.forEach(({ rel, type, sizes, href }) => {
-      const link = document.createElement('link')
-      link.rel = rel
-      if (type) link.type = type
-      if (sizes) link.sizes = sizes
-      link.href = href
-      document.head.appendChild(link)
-    })
-  }, [])
 
   // Reactively determine current subdomain from URL or hostname
   const subdomain = useMemo(
@@ -141,7 +121,7 @@ export default function App() {
     }
     if (!subdomain || subdomain === 'www') {
       if (pathname === '/' || pathname === '') {
-        navigate(`/${currentLang}${location.search}${location.hash}`, { replace: true })
+        window.history.replaceState(null, '', `/${currentLang}${location.search}${location.hash}`)
       } else if (
         pathname.startsWith('/features') ||
         pathname.startsWith('/about') ||
@@ -188,7 +168,7 @@ export default function App() {
 
   const handleExitBanking = () => {
     localStorage.removeItem('pethar_logged_in')
-    signOutFirebase().catch(() => {})
+    import('./lib/firebase').then((m) => m.signOutFirebase()).catch(() => {})
     navigate(`/${currentLang}${location.search}${location.hash}`)
   }
 
@@ -196,122 +176,125 @@ export default function App() {
     return <Main lang={currentLang} setLang={handleSetLang} />
   }
 
-  if (!isBanking) {
-    switch (subdomain) {
-      case 'wallet':
-        return <WalletPage lang={currentLang} />
-      case 'dashboard':
-      case 'app':
-        return (
-          <DashboardPage
-            lang={currentLang}
-            setLang={handleSetLang}
-            theme="light"
-            setTheme={() => {}}
-            onExit={() => redirectToSubdomain('', { path: `/${currentLang}`, search: '' })}
-          />
-        )
-      case 'auth':
-      case 'login':
-      case 'signup': {
-        const authMode = new URLSearchParams(location.search).get('mode')
-        const showSignup = subdomain === 'signup' || authMode === 'signup'
-        return showSignup ? <SignupPage lang={currentLang} /> : <LoginPage lang={currentLang} />
+  const renderPage = () => {
+    if (!isBanking) {
+      switch (subdomain) {
+        case 'wallet':
+          return <WalletPage lang={currentLang} />
+        case 'dashboard':
+        case 'app':
+          return (
+            <DashboardPage
+              lang={currentLang}
+              setLang={handleSetLang}
+              theme="light"
+              setTheme={() => {}}
+              onExit={() => redirectToSubdomain('', { path: `/${currentLang}`, search: '' })}
+            />
+          )
+        case 'auth':
+        case 'login':
+        case 'signup': {
+          const authMode = new URLSearchParams(location.search).get('mode')
+          const showSignup = subdomain === 'signup' || authMode === 'signup'
+          return showSignup ? <SignupPage lang={currentLang} /> : <LoginPage lang={currentLang} />
+        }
+        case 'pay':
+          return <PayPage lang={currentLang} />
+        case 'card':
+          return <CardPage lang={currentLang} />
+        case 'merchant':
+          return <MerchantPage lang={currentLang} />
+        case 'ibanking':
+          return <IBankingPage lang={currentLang} />
+        case 'accounts':
+          return <AccountsPage lang={currentLang} />
+        case 'support':
+          return <SupportPage lang={currentLang} />
+        case 'help':
+          return <HelpPage lang={currentLang} />
+        case 'developer':
+          return <DeveloperPage lang={currentLang} />
+        case 'api':
+          return <ApiPage lang={currentLang} />
+        case 'trade':
+          return <TradePage lang={currentLang} />
+        case 'data':
+          return <DataPage lang={currentLang} />
+        case 'exchange':
+          return <ExchangePage lang={currentLang} />
+        case 'global':
+          return <GlobalPage lang={currentLang} />
+        case 'docs':
+          return <DocsPage lang={currentLang} />
+        case 'offline':
+          return <OfflinePage lang={currentLang} />
+        case 'online':
+          return <OnlinePage lang={currentLang} />
+        case 'platform':
+          return (
+            <DashboardPage
+              lang={currentLang}
+              setLang={handleSetLang}
+              initialTab="treasury"
+              onExit={() => redirectToSubdomain('', { search: '' })}
+            />
+          )
+        case 'admin':
+          return <AdminPage lang={currentLang} />
+        case 'cloud':
+          return <CloudPage lang={currentLang} />
+        case 'beta':
+          return <BetaPage lang={currentLang} />
+        case 'root':
+          return <RootPage lang={currentLang} />
+        case 'p2m':
+          return <P2MPage lang={currentLang} />
+        case 'p2c':
+          return <P2CPage lang={currentLang} />
+        case 'c2c':
+          return <C2CPage lang={currentLang} />
+        case 'p2p':
+          return <P2PPage lang={currentLang} />
+        case 'm2m':
+          return <M2MPage lang={currentLang} />
+        case 'web3':
+          return <Web3Page lang={currentLang} />
+        case 'ads':
+          return <AdsPage lang={currentLang} />
+        case 'chat':
+          return <ChatPage lang={currentLang} />
+        case 'connect':
+          return <ConnectPage lang={currentLang} />
+        case 'careers':
+          return <CareersPage lang={currentLang} />
+        case 'demo':
+          return <DemoPage lang={currentLang} />
+        case 'download':
+          return <DownloadPage lang={currentLang} />
+        case 'info':
+          return <InfoPage lang={currentLang} />
+        case 'search':
+          return <SearchPage lang={currentLang} />
+        case 'security':
+          return <PrivacyPage lang={currentLang} />
+        case 'www':
+        case '':
+        default:
+          return <Main lang={currentLang} setLang={handleSetLang} />
       }
-      case 'pay':
-        return <PayPage lang={currentLang} />
-      case 'card':
-        return <CardPage lang={currentLang} />
-      case 'merchant':
-        return <MerchantPage lang={currentLang} />
-      case 'ibanking':
-        return <IBankingPage lang={currentLang} />
-      case 'accounts':
-        return <AccountsPage lang={currentLang} />
-      case 'support':
-        return <SupportPage lang={currentLang} />
-      case 'help':
-        return <HelpPage lang={currentLang} />
-      case 'developer':
-        return <DeveloperPage lang={currentLang} />
-      case 'api':
-        return <ApiPage lang={currentLang} />
-      case 'trade':
-        return <TradePage lang={currentLang} />
-      case 'data':
-        return <DataPage lang={currentLang} />
-      case 'exchange':
-        return <ExchangePage lang={currentLang} />
-      case 'global':
-        return <GlobalPage lang={currentLang} />
-      case 'docs':
-        return <DocsPage lang={currentLang} />
-      case 'offline':
-        return <OfflinePage lang={currentLang} />
-      case 'online':
-        return <OnlinePage lang={currentLang} />
-      case 'platform':
-        return (
-          <DashboardPage
-            lang={currentLang}
-            setLang={handleSetLang}
-            initialTab="treasury"
-            onExit={() => redirectToSubdomain('', { search: '' })}
-          />
-        )
-      case 'admin':
-        return <AdminPage lang={currentLang} />
-      case 'cloud':
-        return <CloudPage lang={currentLang} />
-      case 'beta':
-        return <BetaPage lang={currentLang} />
-      case 'root':
-        return <RootPage lang={currentLang} />
-      case 'p2m':
-        return <P2MPage lang={currentLang} />
-      case 'p2c':
-        return <P2CPage lang={currentLang} />
-      case 'c2c':
-        return <C2CPage lang={currentLang} />
-      case 'p2p':
-        return <P2PPage lang={currentLang} />
-      case 'm2m':
-        return <M2MPage lang={currentLang} />
-      case 'web3':
-        return <Web3Page lang={currentLang} />
-      case 'ads':
-        return <AdsPage lang={currentLang} />
-      case 'chat':
-        return <ChatPage lang={currentLang} />
-      case 'connect':
-        return <ConnectPage lang={currentLang} />
-      case 'careers':
-        return <CareersPage lang={currentLang} />
-      case 'demo':
-        return <DemoPage lang={currentLang} />
-      case 'download':
-        return <DownloadPage lang={currentLang} />
-      case 'info':
-        return <InfoPage lang={currentLang} />
-      case 'search':
-        return <SearchPage lang={currentLang} />
-      case 'security':
-        return <PrivacyPage lang={currentLang} />
-      case 'www':
-      case '':
-      default:
-        // Main domain - public multi-page website (/en, /ak, /en/features, /ak/features, /en/about, /ak/about, /en/faq, /ak/faq, /privacy, /terms)
-        return <Main lang={currentLang} setLang={handleSetLang} />
     }
+
+    return (
+      <DashboardPage
+        lang={currentLang}
+        setLang={handleSetLang}
+        theme="light"
+        setTheme={() => {}}
+        onExit={handleExitBanking}
+      />
+    )
   }
 
-  return (
-    <DashboardPage
-      lang={currentLang}
-      setLang={handleSetLang}
-      theme="light"
-      setTheme={() => {}}
-      onExit={handleExitBanking}
-    />
-  )
+  return <Suspense fallback={<PageFallback />}>{renderPage()}</Suspense>
 }

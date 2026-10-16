@@ -74,4 +74,17 @@ export default defineConfig({
       "framer-motion": path.resolve(__dirname, "./src/lib/framer-motion.tsx"),
     },
   },
+  build: {
+    target: 'es2020',
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router'],
+          'icons': ['lucide-react'],
+          'firebase-vendor': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/analytics'],
+        },
+      },
+    },
+  },
 });
