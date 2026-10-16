@@ -1,4 +1,5 @@
 export type Subdomain =
+  | 'm'
   | 'app'
   | 'dashboard'
   | 'wallet'
@@ -50,6 +51,7 @@ export type Subdomain =
 
 // Note: 'privacy' and 'terms' are main website routes (domain/privacy, domain/terms), so they are excluded from path-based subdomain hijacking
 export const KNOWN_SUBDOMAINS: string[] = [
+  'm',
   'app',
   'dashboard',
   'wallet',

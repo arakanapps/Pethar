@@ -16,32 +16,31 @@ Péthar/
 │   │   └── README.md
 │   │
 │   ├── android/                 # 🤖 ANDROID PLATFORM (Mobile Client)
-│   │   ├── project              # ➔ symlink to pethar_mobile/android/ (Gradle & Manifest)
+│   │   ├── project              # ➔ symlink to pethar-wallet/android/ (Gradle & Manifest)
 │   │   ├── run.sh               # Runs app on connected Android phone or emulator
-│   │   ├── build-apk.sh         # Compiles release APK for direct installation
+│   │   ├── build-apk.sh         # Compiles release APK and syncs to pethar-wallet/public/
 │   │   └── README.md
 │   │
 │   ├── ios/                     # 🍎 iOS PLATFORM (iPhone / iPad Client)
-│   │   ├── project              # ➔ symlink to pethar_mobile/ios/ (Xcode Workspace)
+│   │   ├── project              # ➔ symlink to pethar-wallet/ios/ (Xcode / Swift Workspace)
 │   │   ├── run.sh               # Runs app on iOS Simulator or physical iPhone
 │   │   ├── open-xcode.sh        # Opens Runner.xcworkspace in Xcode
 │   │   └── README.md
 │   │
 │   ├── pos/                     # 🛒 MERCHANT POS PLATFORM (Retailer Cashier Register)
 │   │   ├── POSTerminal.tsx      # ➔ Web POS component (pethar-wallet/src/components/POSTerminal.tsx)
-│   │   ├── pos_terminal_screen.dart # ➔ Flutter POS screen (pethar_mobile/lib/screens/pos_terminal_screen.dart)
+│   │   ├── pos_terminal_screen.dart # ➔ Flutter POS screen (pethar-wallet/lib/screens/pos_terminal_screen.dart)
 │   │   ├── run.sh               # Starts POS Terminal on http://localhost:3000/?platform=pos
 │   │   └── README.md
 │   │
 │   └── desktop/                 # 💻 DESKTOP PLATFORM (macOS, Windows, Linux)
-│       ├── macos-project        # ➔ symlink to pethar_mobile/macos/ (Native Cocoa/Swift)
+│       ├── macos-project        # ➔ symlink to pethar-wallet/macos/ (Native Cocoa/Swift)
 │       ├── electron-project     # ➔ symlink to pethar-wallet/electron/ (Electron process)
 │       ├── run-macos.sh         # Runs native Flutter macOS Desktop App
 │       ├── run-electron.sh      # Launches standalone Electron Desktop Window
 │       └── README.md
 │
-├── pethar-wallet/               # React 19 + TypeScript + Vite Web Engine & Simulator
-└── pethar_mobile/               # Flutter 3.47.5 Cross-Platform Mobile/Desktop/Web Engine
+└── pethar-wallet/               # Unified Web (React 19 + Vite) & Native Mobile/Desktop (Flutter + Swift) Engine
 ```
 
 ---

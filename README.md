@@ -49,7 +49,7 @@ Customer Wallet Hub     Internal Treasury Ops
 
 ### 2. Dual Connectivity: Online + Offline Mode
 * **Online Mode (Web & Mobile):** Instant cloud-ledger settlement, live balance updates, real-time transaction history, and multi-user transfers powered by Google Cloud and Firebase.
-* **Offline Mode (Exclusively on Android & iOS):** Built into the native Flutter mobile client (`pethar_mobile`). Powered by a Cashu-inspired Chaumian e-cash bearer token model:
+* **Offline Mode (Exclusively on Android & iOS):** Built into the native Flutter mobile client (`pethar-wallet`). Powered by a Cashu-inspired Chaumian e-cash bearer token model:
   * **Device-to-Device Data Handshake:** Transact phone-to-phone without cellular networks, internet connections, or SIM cards.
   * **Native Transport Channels:** Supports Bluetooth Low Energy (BLE), NFC tap-to-pay, and offline dynamic animated QR codes.
   * **Contextual Permission Handling:** The app prompts for device permissions (Nearby Devices / Bluetooth / Camera) only when initiating an offline transfer.
@@ -98,7 +98,7 @@ PeThar/
 │   ├── public/                  # Static assets & Adaptive App Icons (Light, Dark, Tinted)
 │   └── src/utils/subdomain.ts   # Subdomain routing and multi-tenancy helper
 │
-├── pethar_mobile/               # 📱 Native Mobile Engine (Flutter 3.x / Dart 3.x)
+├── pethar-wallet/               # 📱 Native Mobile Engine (Flutter 3.x / Dart 3.x)
 │   ├── android/                 # Native Android Gradle configuration (Direct APK build)
 │   ├── ios/                     # Native iOS Runner (Configuration Profile & OTA ready)
 │   ├── lib/screens/             # Mobile screens including offline_payment_screen.dart

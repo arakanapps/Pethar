@@ -3,6 +3,6 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$DIR/../.."
 
-echo "🤖 Launching PeThar on Android..."
-cd "$ROOT/pethar_mobile"
+echo "🤖 Launching PeThar Wallet on Android..."
+cd "$ROOT/pethar-wallet"
 flutter run -d android
