@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../theme.dart';
+import '../widgets/support_and_kyc_modals.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({Key? key}) : super(key: key);
@@ -9,12 +10,11 @@ class ServicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final lang = appState.language;
 
     final categories = [
       {
-        'titleEn': 'Money Movement & Cash',
+        'titleEn': 'MONEY MOVEMENT & CASH',
         'titleMm': 'ငွေလွှဲနှင့် ငွေသားဝန်ဆောင်မှုများ',
         'items': [
           {
@@ -23,8 +23,8 @@ class ServicesScreen extends StatelessWidget {
             'nameMm': 'ဖေ့သာအချင်းချင်း ငွေလွှဲ',
             'descEn': 'Instant 0-fee domestic transfers',
             'descMm': 'အခမဲ့ ချက်ချင်း ပြည်တွင်းငွေလွှဲ',
-            'icon': Icons.arrow_outward,
-            'color': Colors.blueAccent,
+            'icon': Icons.arrow_outward_rounded,
+            'color': const Color(0xFF3B82F6),
           },
           {
             'screen': Screen.cashout,
@@ -32,22 +32,22 @@ class ServicesScreen extends StatelessWidget {
             'nameMm': 'အေးဂျင့်မှ ငွေသားထုတ်ယူ',
             'descEn': 'Physical cash at Sittwe, Mrauk-U, Kyaukpyu',
             'descMm': 'စစ်တွေ၊ မြောက်ဦး၊ ကျောက်ဖြူ ငွေသားထုတ်ယူ',
-            'icon': Icons.storefront,
+            'icon': Icons.storefront_rounded,
             'color': emeraldSuccess,
           },
           {
             'screen': Screen.receive,
             'nameEn': 'My Arakan QR (AK QR)',
             'nameMm': 'မိမိ QR ဖြင့် ငွေလက်ခံ',
-            'descEn': 'Personal and merchant AK QR receiving code',
+            'descEn': 'Personal and merchant receiving code',
             'descMm': 'မိမိ၏ ငွေလက်ခံ QR ကုဒ်',
-            'icon': Icons.qr_code,
-            'color': gold,
+            'icon': Icons.qr_code_2_rounded,
+            'color': const Color(0xFFD97706),
           },
         ],
       },
       {
-        'titleEn': 'Global Banking & Remittance',
+        'titleEn': 'GLOBAL BANKING & REMITTANCE',
         'titleMm': 'နိုင်ငံတကာငွေလွှဲနှင့် ဘဏ်လုပ်ငန်း',
         'items': [
           {
@@ -56,8 +56,8 @@ class ServicesScreen extends StatelessWidget {
             'nameMm': 'Wise ပြည်ပငွေလွှဲ',
             'descEn': 'Thailand, Malaysia, Singapore, USA, Europe',
             'descMm': 'ထိုင်း၊ မလေး၊ စင်ကာပူ၊ အမေရိကန်',
-            'icon': Icons.public,
-            'color': Colors.cyanAccent,
+            'icon': Icons.public_rounded,
+            'color': const Color(0xFF06B6D4),
           },
           {
             'screen': Screen.intl,
@@ -65,13 +65,13 @@ class ServicesScreen extends StatelessWidget {
             'nameMm': 'နိုင်ငံတကာကတ်ဖြင့် ငွေသွင်း',
             'descEn': 'Top up with Visa, Master, AMEX, PayPal',
             'descMm': 'Visa, Master, AMEX ဖြင့် ငွေသွင်းရန်',
-            'icon': Icons.credit_card,
-            'color': Colors.redAccent,
+            'icon': Icons.credit_card_rounded,
+            'color': const Color(0xFFEF4444),
           },
         ],
       },
       {
-        'titleEn': 'Digital Assets & Arakan Retail',
+        'titleEn': 'DIGITAL ASSETS & ARAKAN RETAIL',
         'titleMm': 'ဒစ်ဂျစ်တယ်ဒင်္ဂါးနှင့် အရောင်းစနစ်',
         'items': [
           {
@@ -80,8 +80,8 @@ class ServicesScreen extends StatelessWidget {
             'nameMm': 'Binance / MEXC ချိတ်ဆက်မှု',
             'descEn': 'Direct 0-fee crypto deposit and withdrawal',
             'descMm': 'အခမဲ့ USDT တိုက်ရိုက်သွင်း/ထုတ်',
-            'icon': Icons.currency_bitcoin,
-            'color': Colors.purpleAccent,
+            'icon': Icons.monetization_on_outlined,
+            'color': const Color(0xFFA855F7),
           },
           {
             'screen': Screen.crypto,
@@ -89,8 +89,8 @@ class ServicesScreen extends StatelessWidget {
             'nameMm': 'USDT မှ ချက်ချင်းလဲလှယ်',
             'descEn': '1:1 Guaranteed liquidity parity',
             'descMm': '၁:၁ တိကျသော လဲလှယ်နှုန်းထား',
-            'icon': Icons.swap_horiz,
-            'color': gold,
+            'icon': Icons.autorenew_rounded,
+            'color': const Color(0xFFD97706),
           },
           {
             'screen': Screen.pos,
@@ -98,13 +98,13 @@ class ServicesScreen extends StatelessWidget {
             'nameMm': 'ကုန်သည် POS အရောင်းစနစ်',
             'descEn': 'Register with dynamic QR and thermal receipt',
             'descMm': 'အရောင်းဆိုင်သုံး POS စနစ်',
-            'icon': Icons.point_of_sale,
-            'color': Colors.orangeAccent,
+            'icon': Icons.point_of_sale_rounded,
+            'color': const Color(0xFFF97316),
           },
         ],
       },
       {
-        'titleEn': 'Resilient & Offline Payment Rails',
+        'titleEn': 'RESILIENT & OFFLINE PAYMENT RAILS',
         'titleMm': 'အော့ဖ်လိုင်း ဆက်သွယ်ရေးပြတ်တောက်မှု ကာကွယ်ရေး',
         'items': [
           {
@@ -113,114 +113,165 @@ class ServicesScreen extends StatelessWidget {
             'nameMm': 'အော့ဖ်လိုင်း NFC / ဘလူးတုသ် ငွေပေးချေမှု',
             'descEn': 'Tap-to-pay & BLE mesh during blackout',
             'descMm': 'အင်တာနက်မရှိဘဲ NFC ဖြင့် ထိ၍ ငွေပေးချေပါ',
-            'icon': Icons.contactless,
-            'color': cyanNeon,
+            'icon': Icons.contactless_rounded,
+            'color': const Color(0xFF0284C7),
           },
         ],
       },
     ];
 
     return Scaffold(
-      backgroundColor: isDark ? obsidian : paper,
-      appBar: AppBar(
-        title: Text(
-          lang == 'ak' ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        backgroundColor: isDark ? surfaceDark : Colors.white,
-        elevation: 0,
-        centerTitle: false,
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: categories.length,
-        itemBuilder: (context, catIdx) {
-          final cat = categories[catIdx];
-          final items = cat['items'] as List<Map<String, dynamic>>;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 4, bottom: 10, top: catIdx == 0 ? 0 : 16),
-                child: Text(
-                  (lang == 'ak' ? cat['titleMm'] : cat['titleEn']) as String,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                    color: gold,
-                  ),
-                ),
+      backgroundColor: const Color(0xFFF4F5F8),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Shared Header matching iOS ScreenHeader
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
               ),
-              ...items.map((item) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: Material(
-                    color: isDark ? surfaceCard : Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(18),
-                      onTap: () {
-                        final screen = item['screen'] as Screen;
-                        appState.navigate(screen);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: (item['color'] as Color).withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Icon(
-                                item['icon'] as IconData,
-                                color: item['color'] as Color,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    (lang == 'ak' ? item['nameMm'] : item['nameEn']) as String,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                      color: isDark ? Colors.white : Colors.black87,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 3),
-                                  Text(
-                                    (lang == 'ak' ? item['descMm'] : item['descEn']) as String,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey[500],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Icon(
-                              Icons.chevron_right,
-                              color: Colors.grey[600],
-                              size: 18,
-                            ),
-                          ],
-                        ),
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    lang == 'ak' ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                      color: Color(0xFF111827),
                     ),
                   ),
-                );
-              }),
-            ],
-          );
-        },
+                  const SizedBox(height: 2),
+                  const Text(
+                    'Péthar Platform Directory',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFD97706),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
+                itemCount: categories.length,
+                itemBuilder: (context, catIdx) {
+                  final cat = categories[catIdx];
+                  final items = cat['items'] as List<Map<String, dynamic>>;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: 4, bottom: 8, top: catIdx == 0 ? 0 : 14),
+                        child: Text(
+                          (lang == 'ak' ? cat['titleMm'] : cat['titleEn']) as String,
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
+                            fontFamily: 'monospace',
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                      ),
+                      ...items.map((item) {
+                        final name = (lang == 'ak' ? item['nameMm'] : item['nameEn']) as String;
+                        final color = item['color'] as Color;
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.02),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(18),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(18),
+                              onTap: () {
+                                final screen = item['screen'] as Screen;
+                                if (!appState.isVerified) {
+                                  showVerificationRequiredDialog(context, appState, name);
+                                  return;
+                                }
+                                appState.navigate(screen);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(13),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 42,
+                                      height: 42,
+                                      decoration: BoxDecoration(
+                                        color: color.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      child: Icon(
+                                        item['icon'] as IconData,
+                                        color: color,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            name,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 13,
+                                              color: Color(0xFF111827),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            (lang == 'ak' ? item['descMm'] : item['descEn']) as String,
+                                            style: const TextStyle(
+                                              fontSize: 10.5,
+                                              color: Color(0xFF9CA3AF),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: Color(0xFF6B7280),
+                                      size: 18,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
