@@ -5,6 +5,11 @@
 
 # OS files
 .DS_Store
+.DS_Store?
+._*
+**/.DS_Store
+.Spotlight-V100
+.Trashes
 
 # Editor directories
 .vscode/
@@ -16,4 +21,8 @@ node_modules/
 # Logs
 *.log
 
-.DS_Store
+# Large Android binaries
+*-debug.apk
+pethar-wallet/public/pethar.apk
+pethar-wallet/public/*-debug.apk
+

@@ -13,6 +13,7 @@ import {
 import { transactions as initialTransactions, initialUserProfile, contacts, type UserProfile, type Txn } from '../data'
 import type { Language } from '../i18n'
 import { auth, onAuthStateChange } from '../lib/firebase'
+import { supabase } from '../lib/supabase'
 
 export type NavTabType = 'home' | 'wallet' | 'cards' | 'transactions' | 'financial' | 'offline' | 'settings'
 
@@ -64,8 +65,34 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     return initialUserProfile
   })
 
-  // Sync profile when Google or email login completes
+  // Sync profile when Supabase or Firebase login completes
   useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const u = data?.user
+      if (u) {
+        setProfile((prev) => ({
+          ...prev,
+          name: (u.user_metadata?.full_name as string) || u.email?.split('@')[0] || prev.name,
+          email: u.email || prev.email,
+          phone: u.phone || prev.phone,
+          avatarUrl: (u.user_metadata?.avatar_url as string) || prev.avatarUrl,
+        }))
+      }
+    }).catch(() => {})
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const u = session?.user
+      if (u) {
+        setProfile((prev) => ({
+          ...prev,
+          name: (u.user_metadata?.full_name as string) || u.email?.split('@')[0] || prev.name,
+          email: u.email || prev.email,
+          phone: u.phone || prev.phone,
+          avatarUrl: (u.user_metadata?.avatar_url as string) || prev.avatarUrl,
+        }))
+      }
+    })
+
     if (auth.currentUser) {
       const u = auth.currentUser
       setProfile((prev) => ({
@@ -88,7 +115,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         }))
       }
     })
-    return () => unsubscribe()
+
+    return () => {
+      subscription.unsubscribe()
+      unsubscribe()
+    }
   }, [])
   const [balanceVisible, setBalanceVisible] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')

@@ -74,6 +74,35 @@ class SupabaseService {
     );
   }
 
+  /// Sign in with Email and Password
+  Future<AuthResponse> signInWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    return await client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+  }
+
+  /// Sign up with Email and Password
+  Future<AuthResponse> signUpWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    return await client.auth.signUp(
+      email: email,
+      password: password,
+    );
+  }
+
+  /// Sign in with OAuth (Google)
+  Future<bool> signInWithGoogle() async {
+    return await client.auth.signInWithOAuth(
+      OAuthProvider.google,
+    );
+  }
+
   /// Sign out
   Future<void> signOut() async {
     await client.auth.signOut();

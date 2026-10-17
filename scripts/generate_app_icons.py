@@ -4,10 +4,10 @@ from PIL import Image, ImageDraw, ImageFilter
 def create_icons():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     public_dir = os.path.join(base_dir, "pethar-wallet", "public")
-    mobile_ios_dir = os.path.join(base_dir, "pethar_mobile", "ios", "Runner", "Assets.xcassets", "AppIcon.appiconset")
-    mobile_android_res = os.path.join(base_dir, "pethar_mobile", "android", "app", "src", "main", "res")
+    mobile_ios_dir = os.path.join(base_dir, "pethar-wallet", "ios", "Runner", "Assets.xcassets", "AppIcon.appiconset")
+    mobile_android_res = os.path.join(base_dir, "pethar-wallet", "android", "app", "src", "main", "res")
     
-    src_logo_path = os.path.join(public_dir, "apple-touch-icon-removebg-preview.png")
+    src_logo_path = os.path.join(public_dir, "pethar-logo-red-white.png")
     if not os.path.exists(src_logo_path):
         src_logo_path = os.path.join(public_dir, "logo.png")
         

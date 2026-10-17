@@ -33,6 +33,11 @@ app.*.map.json
 !.vscode/extensions.json
 .idea
 .DS_Store
+.DS_Store?
+._*
+**/.DS_Store
+.Spotlight-V100
+.Trashes
 *.suo
 *.ntvs*
 *.njsproj
@@ -43,3 +48,8 @@ app.*.map.json
 .env
 .env.*
 !.env.example
+
+# Large Android binaries
+*-debug.apk
+public/pethar.apk
+public/*-debug.apk

@@ -15,6 +15,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   void _runVerifiedAction(BuildContext context, AppState appState, String label, VoidCallback onAllowed) {
+    if (!appState.isAuthenticated) {
+      showSignInSignUpModal(context, appState);
+      return;
+    }
     if (!appState.isVerified) {
       showVerificationRequiredDialog(context, appState, label);
       return;
@@ -171,151 +175,75 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 14),
 
-                // Welcome Back Card with Verified / Unverified Pill
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(26),
-                    border: Border.all(color: const Color(0xFFF4F4F5)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0F172A).withValues(alpha: 0.05),
-                        blurRadius: 26,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFF38BDF8), Color(0xFF0284C7)],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                appState.profile.name.isNotEmpty ? appState.profile.name[0].toUpperCase() : 'J',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    isAk ? 'ပြန်လည်ကြိုဆိုပါသည်၊' : 'Welcome back,',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFFA1A1AA),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    appState.profile.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Color(0xFF18181B),
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () => showKycVerificationModal(context, appState),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: appState.isVerified ? const Color(0xFFF0F9FF) : const Color(0xFFFFF1F2),
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: appState.isVerified
-                                  ? const Color(0xFF0284C7).withValues(alpha: 0.5)
-                                  : crimson,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                appState.isVerified ? Icons.check_circle_rounded : Icons.error_outline_rounded,
-                                size: 15,
-                                color: appState.isVerified ? const Color(0xFF0284C7) : crimson,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                appState.isVerified
-                                    ? (isAk ? 'အတည်ပြုပြီး' : 'Verified')
-                                    : (isAk ? 'အတည်မပြုရသေး' : 'Unverified'),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: appState.isVerified ? const Color(0xFF0284C7) : crimson,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Unverified Warning Banner matching iOS
-                if (!appState.isVerified) ...[
-                  const SizedBox(height: 14),
+                // Logged-in Welcome Back Card (only shown when authenticated)
+                if (appState.isAuthenticated) ...[
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF1F2),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFFECDD3)),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(26),
+                      border: Border.all(color: const Color(0xFFF4F4F5)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+                          blurRadius: 26,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Icon(Icons.error_outline_rounded, color: crimson, size: 20),
-                        const SizedBox(width: 10),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Row(
                             children: [
-                              Text(
-                                isAk ? 'အကောင့်အတည်ပြုရန် လိုအပ်ပါသည်' : 'Account Verification Required',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  color: crimson,
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [Color(0xFF38BDF8), Color(0xFF0284C7)],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  appState.profile.name.isNotEmpty ? appState.profile.name[0].toUpperCase() : 'J',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 18,
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                isAk
-                                    ? 'ငွေပေးချေခြင်း၊ လက်ခံခြင်း၊ ငွေသွင်း/ငွေထုတ် လုပ်ဆောင်ချက်များကို အသုံးပြုရန် သင့်အကောင့်ကို အတည်ပြုပေးပါ။'
-                                    : 'Please verify your identity to unlock Pay, Receive, Deposit, and Withdraw.',
-                                style: const TextStyle(fontSize: 11.5, color: Color(0xFF27272A), height: 1.35),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isAk ? 'ပြန်လည်ကြိုဆိုပါသည်၊' : 'Welcome back,',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFFA1A1AA),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      appState.profile.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFF18181B),
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -324,29 +252,104 @@ class _HomeScreenState extends State<HomeScreen> {
                         GestureDetector(
                           onTap: () => showKycVerificationModal(context, appState),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
                             decoration: BoxDecoration(
-                              color: crimson,
+                              color: appState.isVerified ? const Color(0xFFF0F9FF) : const Color(0xFFFFF1F2),
                               borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              isAk ? 'အတည်ပြုမည်' : 'Verify',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
+                              border: Border.all(
+                                color: appState.isVerified
+                                    ? const Color(0xFF0284C7).withValues(alpha: 0.5)
+                                    : crimson,
                               ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  appState.isVerified ? Icons.check_circle_rounded : Icons.error_outline_rounded,
+                                  size: 15,
+                                  color: appState.isVerified ? const Color(0xFF0284C7) : crimson,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  appState.isVerified
+                                      ? (isAk ? 'အတည်ပြုပြီး' : 'Verified')
+                                      : (isAk ? 'အတည်မပြုရသေး' : 'Unverified'),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: appState.isVerified ? const Color(0xFF0284C7) : crimson,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
+                  if (!appState.isVerified) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF1F2),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: const Color(0xFFFECDD3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline_rounded, color: crimson, size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isAk ? 'အကောင့်အတည်ပြုရန် လိုအပ်ပါသည်' : 'Account Verification Required',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: crimson,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  isAk
+                                      ? 'ငွေပေးချေခြင်း၊ လက်ခံခြင်း၊ ငွေသွင်း/ငွေထုတ် လုပ်ဆောင်ချက်များကို အသုံးပြုရန် သင့်အကောင့်ကို အတည်ပြုပေးပါ။'
+                                      : 'Please verify your identity to unlock Pay, Receive, Deposit, and Withdraw.',
+                                  style: const TextStyle(fontSize: 11.5, color: Color(0xFF27272A), height: 1.35),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => showKycVerificationModal(context, appState),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: crimson,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                isAk ? 'အတည်ပြုမည်' : 'Verify',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 18),
                 ],
 
-                const SizedBox(height: 18),
-
-                // Unified 4-Action Card (Pay | Receive | Deposit | Withdraw) + AKD Balance (₳)
+                // Unified 4-Action Card (Pay | Receive | Deposit | Withdraw) + AKD Balance OR "Welcome to Péthar / Sign in/Sign up"
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -399,75 +402,78 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const Divider(height: 1, color: Color(0xFFF4F4F5)),
-                      Container(
-                        width: double.infinity,
-                        color: const Color(0xFFFAFAFA),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  isAk ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)' : 'Wallet Balance (AKD)',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0xFF71717A),
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                GestureDetector(
-                                  onTap: () => appState.toggleBalance(),
-                                  child: Icon(
-                                    appState.balanceHidden ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                    size: 16,
-                                    color: const Color(0xFF71717A),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            if (appState.balanceHidden)
-                              const Text(
-                                '******',
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w900,
-                                  color: Color(0xFF18181B),
-                                  fontFamily: 'monospace',
-                                  letterSpacing: 3,
-                                ),
-                              )
-                            else
+                      if (appState.isAuthenticated)
+                        Container(
+                          width: double.infinity,
+                          color: const Color(0xFFFAFAFA),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Row(
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
                                 children: [
-                                  const Text(
-                                    '₳ ',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w900,
-                                      color: crimson,
-                                      fontFamily: 'monospace',
+                                  Text(
+                                    isAk ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)' : 'Wallet Balance (AKD)',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF71717A),
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  Text(
-                                    currencyFmt.format(appState.wallet.balance),
-                                    style: const TextStyle(
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.w900,
-                                      color: Color(0xFF09090B),
-                                      fontFamily: 'monospace',
-                                      letterSpacing: -0.5,
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () => appState.toggleBalance(),
+                                    child: Icon(
+                                      appState.balanceHidden ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                      size: 16,
+                                      color: const Color(0xFF71717A),
                                     ),
                                   ),
                                 ],
                               ),
-                          ],
-                        ),
-                      ),
+                              const SizedBox(height: 6),
+                              if (appState.balanceHidden)
+                                const Text(
+                                  '******',
+                                  style: TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF18181B),
+                                    fontFamily: 'monospace',
+                                    letterSpacing: 3,
+                                  ),
+                                )
+                              else
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: [
+                                    const Text(
+                                      '₳ ',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w900,
+                                        color: crimson,
+                                        fontFamily: 'monospace',
+                                      ),
+                                    ),
+                                    Text(
+                                      currencyFmt.format(appState.wallet.balance),
+                                      style: const TextStyle(
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFF09090B),
+                                        fontFamily: 'monospace',
+                                        letterSpacing: -0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        )
+                      else
+                        buildWelcomeSignInCard(context, appState, embedded: true),
                     ],
                   ),
                 ),

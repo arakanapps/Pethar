@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArakanEmblem } from '../../components/ArakanEmblem'
 import type { Language } from '../../i18n'
-import { auth, onAuthStateChange, signInWithGooglePopup, signInWithEmail } from '../../lib/firebase'
+import { supabase, onAuthStateChange as onSupabaseAuthStateChange, signInWithEmail as supabaseSignInEmail, signInWithGoogle as supabaseSignInGoogle } from '../../lib/supabase'
+import { auth as fbAuth, onAuthStateChange as onFbAuthStateChange, signInWithGooglePopup as fbSignInGoogle, signInWithEmail as fbSignInEmail } from '../../lib/firebase'
 import { goToDashboard, goToAuth } from '../../utils/subdomain'
 import { Eye, EyeOff, CheckCircle } from 'lucide-react'
 
@@ -20,19 +21,35 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
   const [loginSuccess, setLoginSuccess] = useState(false)
   const ak = lang === 'ak'
 
-  // Auto-redirect to dashboard if user is authenticated with Google or email
+  // Auto-redirect to dashboard if user is authenticated with Supabase or Google/email
   useEffect(() => {
-    if (auth.currentUser) {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        goToDashboard(lang, navigate)
+      }
+    }).catch(() => {})
+
+    if (fbAuth.currentUser) {
       goToDashboard(lang, navigate)
       return
     }
 
-    const unsubscribe = onAuthStateChange((user) => {
+    const { data: { subscription } } = onSupabaseAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        goToDashboard(lang, navigate)
+      }
+    })
+
+    const unsubscribeFb = onFbAuthStateChange((user) => {
       if (user) {
         goToDashboard(lang, navigate)
       }
     })
-    return () => unsubscribe()
+
+    return () => {
+      subscription.unsubscribe()
+      unsubscribeFb()
+    }
   }, [lang, navigate])
 
   const t = ak
@@ -76,25 +93,17 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
     setIsLoading(true)
     setErrorMsg('')
     try {
-      const res = await signInWithGooglePopup()
-      if (res?.user) {
-        finish()
-      } else {
-        finish()
-      }
+      await supabaseSignInGoogle()
     } catch (err: unknown) {
-      console.warn('Google sign in note:', err)
-      const code = (err as { code?: string })?.code
-      if (code === 'auth/popup-closed-by-user') {
-        setErrorMsg(ak ? 'Google ဝင်ရောက်မှု ပယ်ဖျက်လိုက်ပါသည်' : 'Google sign-in was cancelled')
-      } else if (code === 'auth/popup-blocked') {
-        setErrorMsg(ak ? 'Browser Popup ပိတ်ထားပါသည် (Popup ဖွင့်ပေးပါ)' : 'Popup was blocked by your browser. Please allow popups.')
-      } else {
-        if (auth.currentUser) {
+      try {
+        const res = await fbSignInGoogle()
+        if (res?.user) {
           finish()
-        } else {
-          setErrorMsg(ak ? 'ဝင်၍မရပါ။ အချက်အလက် ပြန်စစ်ပါ' : 'Sign in failed. Check your connection or retry.')
+          return
         }
+      } catch (fbErr: unknown) {
+        console.warn('Google sign in note:', fbErr || err)
+        setErrorMsg(ak ? 'Google ဝင်ရောက်မှု အဆင်မပြေပါ' : 'Sign in failed. Check your connection or retry.')
       }
     } finally {
       setIsLoading(false)
@@ -114,10 +123,15 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
     }
     setIsLoading(true)
     try {
-      await signInWithEmail(email.trim(), password)
+      await supabaseSignInEmail(email.trim(), password)
       finish()
     } catch {
-      setErrorMsg(t.failed)
+      try {
+        await fbSignInEmail(email.trim(), password)
+        finish()
+      } catch {
+        setErrorMsg(t.failed)
+      }
     } finally {
       setIsLoading(false)
     }
