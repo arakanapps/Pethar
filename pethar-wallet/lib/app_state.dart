@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'models/data.dart';
+import 'services/firebase_service.dart';
 
 enum Screen { home, account, services, settings, send, receive, scan, cashout, intl, crypto, pos, notifications, desktop, offlinePayment }
 
 class AppState extends ChangeNotifier {
   Screen currentScreen = Screen.home;
   List<Screen> navigationStack = [Screen.home];
-  String language = 'ak'; // Default Arakanese (ak)
-  ThemeMode themeMode = ThemeMode.dark;
+  String language = 'en'; // Default English matching iOS MobileWalletPage
+  ThemeMode themeMode = ThemeMode.light; // Strictly light theme matching iOS
+  bool isAuthenticated = true;
+  String financialSubView = 'wallet_main'; // 'wallet_main' | 'deposit' | 'withdraw' | 'tx_history' | 'spending' | 'wallet_security_phrase'
   UserProfile profile = initialUserProfile;
   WalletBalance wallet = akdWallet;
+  double usdAccountBalance = 12500.00;
   bool isVerified = true;
   bool balanceHidden = false;
+  bool walletBalanceHidden = false;
   bool autoSaveSlip = true;
-  bool twoFactorAuth = true;
+  bool twoFactorAuth = false;
   bool cardFrozen = false;
   bool showCardCvv = false;
   List<NotificationItem> notifications = List.from(sampleNotifications);
@@ -23,12 +28,22 @@ class AppState extends ChangeNotifier {
 
   int get unreadNotificationsCount => notifications.where((n) => !n.read).length;
 
-  void navigate(Screen screen) {
+  void navigate(Screen screen, {String? financialView}) {
+    if (financialView != null) {
+      financialSubView = financialView;
+    } else if (screen == Screen.notifications && currentScreen != Screen.notifications) {
+      financialSubView = 'wallet_main';
+    }
     if (currentScreen != screen) {
       navigationStack.add(screen);
       currentScreen = screen;
-      notifyListeners();
     }
+    notifyListeners();
+  }
+
+  void setFinancialSubView(String view) {
+    financialSubView = view;
+    notifyListeners();
   }
 
   void goBack() {
@@ -48,12 +63,12 @@ class AppState extends ChangeNotifier {
   }
 
   void toggleTheme() {
-    themeMode = themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    themeMode = ThemeMode.light;
     notifyListeners();
   }
 
   void setTheme(ThemeMode mode) {
-    themeMode = mode;
+    themeMode = ThemeMode.light;
     notifyListeners();
   }
 
@@ -64,6 +79,11 @@ class AppState extends ChangeNotifier {
 
   void toggleBalance() {
     balanceHidden = !balanceHidden;
+    notifyListeners();
+  }
+
+  void toggleWalletBalance() {
+    walletBalanceHidden = !walletBalanceHidden;
     notifyListeners();
   }
 
@@ -84,6 +104,32 @@ class AppState extends ChangeNotifier {
 
   void toggleCardCvv() {
     showCardCvv = !showCardCvv;
+    notifyListeners();
+  }
+
+  Future<void> signOut() async {
+    try {
+      await FirebaseService().signOut();
+    } catch (e) {
+      debugPrint('Sign out notice: $e');
+    }
+    isAuthenticated = false;
+    currentScreen = Screen.home;
+    navigationStack = [Screen.home];
+    financialSubView = 'wallet_main';
+    notifyListeners();
+  }
+
+  void signIn({String? email, String? name}) {
+    if (email != null && email.trim().isNotEmpty) {
+      profile.email = email.trim();
+    }
+    if (name != null && name.trim().isNotEmpty) {
+      profile.name = name.trim();
+    }
+    isAuthenticated = true;
+    currentScreen = Screen.home;
+    navigationStack = [Screen.home];
     notifyListeners();
   }
 
@@ -108,6 +154,72 @@ class AppState extends ChangeNotifier {
     profile.phone = phone;
     profile.petharId = petharId;
     profile.location = location;
+    notifyListeners();
+  }
+
+  void convertStablecoin({required double amount, required String fromToken, required String toToken}) {
+    if (amount <= 0) return;
+    if (toToken == 'AKD') {
+      usdAccountBalance = (usdAccountBalance - amount).clamp(0.0, double.infinity);
+      wallet.balance += amount;
+      wallet.totalBalance += amount;
+    } else if (fromToken == 'AKD') {
+      wallet.balance = (wallet.balance - amount).clamp(0.0, double.infinity);
+      wallet.totalBalance = (wallet.totalBalance - amount).clamp(0.0, double.infinity);
+      usdAccountBalance += amount;
+    }
+    txList.insert(
+      0,
+      Transaction(
+        id: 'TX-CONV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        refId: 'ARAK-CONV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        title: 'Converted $fromToken to $toToken',
+        titleMm: '$fromToken မှ $toToken သို့ လဲလှယ်ခြင်း',
+        category: 'crypto',
+        currency: toToken,
+        time: 'Just now',
+        status: 'SETTLED',
+        counterparty: 'Péthar 1:1 Liquidity Pool',
+        counterpartyMm: 'ဖေ့သာ ၁:၁ လဲလှယ်ရေးစနစ်',
+        hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}...conv',
+        amount: amount,
+        fee: 0.0,
+      ),
+    );
+    notifyListeners();
+  }
+
+  void transferBetweenAccounts({required double amount, required bool usdToAkd}) {
+    if (amount <= 0) return;
+    if (usdToAkd) {
+      if (usdAccountBalance < amount) return;
+      usdAccountBalance -= amount;
+      wallet.balance += amount;
+      wallet.totalBalance += amount;
+    } else {
+      if (wallet.balance < amount) return;
+      wallet.balance -= amount;
+      wallet.totalBalance -= amount;
+      usdAccountBalance += amount;
+    }
+    txList.insert(
+      0,
+      Transaction(
+        id: 'TX-XFER-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        refId: 'ARAK-XFER-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        title: usdToAkd ? 'USD Account → AKD Wallet' : 'AKD Wallet → USD Account',
+        titleMm: usdToAkd ? 'USD အကောင့်မှ AKD ပိုက်ဆံအိတ်သို့' : 'AKD ပိုက်ဆံအိတ်မှ USD အကောင့်သို့',
+        category: 'p2p',
+        currency: 'AKD',
+        time: 'Just now',
+        status: 'SETTLED',
+        counterparty: 'Internal Account Transfer',
+        counterpartyMm: 'မိမိအကောင့်အတွင်း လွှဲပြောင်းမှု',
+        hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}...xfer',
+        amount: usdToAkd ? amount : -amount,
+        fee: 0.0,
+      ),
+    );
     notifyListeners();
   }
 

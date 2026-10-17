@@ -16,12 +16,14 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Set system UI overlay style
+  // Set clean light system UI overlay style matching iOS
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Color(0xFF0B0F14),
-    systemNavigationBarIconBrightness: Brightness.light,
+    statusBarIconBrightness: Brightness.dark,
+    statusBarBrightness: Brightness.light,
+    systemNavigationBarColor: Color(0xFFF4F5F8),
+    systemNavigationBarIconBrightness: Brightness.dark,
+    systemNavigationBarDividerColor: Colors.transparent,
   ));
 
   // Initialize Firebase (Project: pe-thar)
@@ -53,11 +55,11 @@ class PetharApp extends StatelessWidget {
     return Consumer<AppState>(
       builder: (context, appState, child) {
         return MaterialApp(
-          title: 'Péthar (ဖေ့သာ)',
+          title: 'Péthar',
           debugShowCheckedModeBanner: false,
           theme: lightTheme(),
-          darkTheme: darkTheme(),
-          themeMode: appState.themeMode,
+          darkTheme: lightTheme(),
+          themeMode: ThemeMode.light,
           home: const MainShell(),
         );
       },
