@@ -10,6 +10,7 @@ class AppState extends ChangeNotifier {
   ThemeMode themeMode = ThemeMode.dark;
   UserProfile profile = initialUserProfile;
   WalletBalance wallet = akdWallet;
+  bool isVerified = true;
   bool balanceHidden = false;
   bool autoSaveSlip = true;
   bool twoFactorAuth = true;
@@ -53,6 +54,11 @@ class AppState extends ChangeNotifier {
 
   void setTheme(ThemeMode mode) {
     themeMode = mode;
+    notifyListeners();
+  }
+
+  void setVerified(bool value) {
+    isVerified = value;
     notifyListeners();
   }
 
