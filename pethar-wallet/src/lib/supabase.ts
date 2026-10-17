@@ -87,6 +87,34 @@ export async function signInWithGoogle(redirectTo?: string) {
 }
 
 /**
+ * Email/Password Sign In & Sign Up
+ */
+export async function signInWithEmail(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  if (error) {
+    throw error;
+  }
+  return data;
+}
+
+export async function signUpWithEmail(email: string, password: string, fullName?: string) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: fullName ? { full_name: fullName } : undefined,
+    },
+  });
+  if (error) {
+    throw error;
+  }
+  return data;
+}
+
+/**
  * Session management helpers
  */
 export async function signOut() {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/data.dart';
 import 'services/firebase_service.dart';
+import 'services/supabase_service.dart';
 
 enum Screen { home, account, services, settings, send, receive, scan, cashout, intl, crypto, pos, notifications, desktop, offlinePayment }
 
@@ -108,6 +109,9 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    try {
+      await SupabaseService().signOut();
+    } catch (_) {}
     try {
       await FirebaseService().signOut();
     } catch (e) {

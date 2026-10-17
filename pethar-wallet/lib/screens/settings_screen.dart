@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../theme.dart';
-import '../widgets/firebase_auth_dialog.dart';
+import '../widgets/support_and_kyc_modals.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -12,7 +12,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _subView = 'main'; // 'main' | 'personal_info' | 'app_settings' | 'privacy'
+  String _subView = 'main'; // 'main' | 'personal_info' | 'app_settings' | 'privacy' | 'security_checkup' | 'device_management'
   bool _showAllProfileInfo = true;
   bool _faceIdEnabled = true;
   bool _biometricLoginEnabled = true;
@@ -21,10 +21,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _biometricConsentToggle = true;
   bool _photosAccessAllowed = true;
 
-  final String _subdistrict = 'Sanam Bin Don Mueang, Bangkok 10210';
-  final String _streetAddress = '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd';
+  String _subdistrict = 'Sanam Bin Don Mueang, Bangkok 10210';
+  String _streetAddress = '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd';
 
-  void _showPassportEditModal(BuildContext context, bool isAk) {
+  void _showToast(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+        backgroundColor: const Color(0xFF059669),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _showPassportEditModal(BuildContext context, AppState appState, bool isAk) {
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -72,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(width: 10),
                   Container(
-                    width: 126,
+                    width: 136,
                     height: 108,
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
@@ -142,12 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Document Update scanner ready'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
+                    showKycVerificationModal(context, appState);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF97316),
@@ -177,6 +184,100 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEditAddressModal(BuildContext context, bool isAk) {
+    final subCtrl = TextEditingController(text: _subdistrict);
+    final streetCtrl = TextEditingController(text: _streetAddress);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isAk ? 'လက်ရှိ နေရပ်လိပ်စာ ပြင်ဆင်ရန်' : 'Edit Current Address',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Subdistrict, District, Province, Postal Code',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A)),
+              ),
+              const SizedBox(height: 6),
+              TextField(
+                controller: subCtrl,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF18181B)),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFF4F4F5),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Street / Building Address',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A)),
+              ),
+              const SizedBox(height: 6),
+              TextField(
+                controller: streetCtrl,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF18181B)),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFF4F4F5),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF3F3F46),
+                        side: const BorderSide(color: Color(0xFFD4D4D8)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                      ),
+                      child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _subdistrict = subCtrl.text.trim();
+                          _streetAddress = streetCtrl.text.trim();
+                        });
+                        Navigator.pop(ctx);
+                        _showToast(context, 'Address updated successfully');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0D9488),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                      ),
+                      child: const Text('Save Address', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -238,9 +339,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: SizedBox(
                       height: 44,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.pop(ctx);
-                          appState.navigate(Screen.home);
+                          await appState.signOut();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFF97316),
@@ -260,6 +361,199 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSecurityCheckupView(BuildContext context, bool isAk) {
+    final checks = [
+      {
+        'icon': Icons.apps_rounded,
+        'title': isAk ? 'အက်ပ်လီကေးရှင်းများ' : 'Applications',
+        'sub': isAk
+            ? 'အန္တရာယ်ရှိသော အက်ပ်များ မတွေ့ရှိပါ'
+            : 'No risky applications affecting Péthar usage found',
+      },
+      {
+        'icon': Icons.public_rounded,
+        'title': isAk ? 'ကွန်ရက် ချိတ်ဆက်မှု' : 'Network',
+        'sub': isAk
+            ? 'လုံခြုံသော ကွန်ရက်ချိတ်ဆက်မှု ဖြစ်ပါသည်'
+            : 'No risky connections according to Péthar database found',
+      },
+      {
+        'icon': Icons.smartphone_rounded,
+        'title': isAk ? 'စက်ပစ္စည်း (Device)' : 'Device',
+        'sub': isAk ? 'Péthar နှင့် အပြည့်အဝ ကိုက်ညီမှုရှိသည်' : 'Compatible with Péthar',
+      },
+    ];
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
+          onPressed: () => setState(() => _subView = 'main'),
+        ),
+        centerTitle: true,
+        title: Text(
+          isAk ? 'လုံခြုံရေး စစ်ဆေးချက်' : 'Security Checkup',
+          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
+        ),
+      ),
+      body: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
+        itemCount: checks.length,
+        separatorBuilder: (_, __) => const Divider(height: 1),
+        itemBuilder: (ctx, i) {
+          final item = checks[i];
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(item['icon'] as IconData, color: const Color(0xFF27272A), size: 22),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['title'] as String,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item['sub'] as String,
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF71717A), height: 1.4),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Icon(Icons.check_rounded, color: Color(0xFF16A34A), size: 22),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDeviceManagementView(BuildContext context, AppState appState, bool isAk, bool isAndroid) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
+          onPressed: () => setState(() => _subView = 'main'),
+        ),
+        centerTitle: true,
+        title: Text(
+          isAk ? 'စက်ပစ္စည်း စီမံခန့်ခွဲမှု' : 'Device Management',
+          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              isAk ? 'လက်ရှိ အသုံးပြုနေသော စက်' : 'Current device',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF52525B)),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFE4E4E7)),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.smartphone_rounded, color: Color(0xFF71717A), size: 22),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isAndroid ? 'Android | Pixel / Galaxy (Jack’s Phone)' : 'iOS | iPhone 14 Pro Max (Jack’s iPhone)',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: const [
+                              Icon(Icons.access_time_rounded, size: 13, color: Color(0xFF71717A)),
+                              SizedBox(width: 6),
+                              Text('Last signed in: 17 Oct 2026, 07:56', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: const [
+                              Icon(Icons.location_on_outlined, size: 13, color: Color(0xFF71717A)),
+                              SizedBox(width: 6),
+                              Text('Bangkok, Thailand', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () => _showSignOutDialog(context, appState, isAk),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          isAk ? 'အကောင့်ထွက်မည်' : 'Sign Out',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB)),
+                        ),
+                        const Icon(Icons.chevron_right_rounded, size: 16, color: Color(0xFF2563EB)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              isAk ? 'အခြားစက်များမှ ဝင်ရောက်ထားမှု' : 'Active sign-in from other devices',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF52525B)),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 44, horizontal: 24),
+            child: Column(
+              children: const [
+                Icon(Icons.smartphone_rounded, size: 28, color: Color(0xFFD4D4D8)),
+                SizedBox(height: 8),
+                Text(
+                  "No other devices are currently signed in. We'll notify you immediately and display the details here if we detect any new sign-in activity.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: Color(0xFFA1A1AA), height: 1.45),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -304,15 +598,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.black12),
+                    child: GestureDetector(
+                      onTap: () => _showToast(context, isAk ? 'ပရိုဖိုင်ပုံ ပြောင်းလဲရန် အသင့်ဖြစ်ပါပြီ' : 'Profile photo upload ready'),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.black12),
+                        ),
+                        child: const Icon(Icons.camera_alt_outlined, size: 16, color: Colors.black87),
                       ),
-                      child: const Icon(Icons.camera_alt_outlined, size: 16, color: Colors.black87),
                     ),
                   ),
                 ],
@@ -386,7 +683,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black87),
                     ),
                     GestureDetector(
-                      onTap: () => _showPassportEditModal(context, isAk),
+                      onTap: () => _showPassportEditModal(context, appState, isAk),
                       child: Text(
                         isAk ? 'ပြင်ဆင်ရန်' : 'Edit',
                         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0284C7)),
@@ -425,9 +722,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       isAk ? 'လက်ရှိ နေရပ်လိပ်စာ' : 'Current address',
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black87),
                     ),
-                    Text(
-                      isAk ? 'ပြင်ဆင်ရန်' : 'Edit',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0284C7)),
+                    GestureDetector(
+                      onTap: () => _showEditAddressModal(context, isAk),
+                      child: Text(
+                        isAk ? 'ပြင်ဆင်ရန်' : 'Edit',
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0284C7)),
+                      ),
                     ),
                   ],
                 ),
@@ -525,7 +825,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
                   ),
                   trailing: const Icon(Icons.chevron_right, color: Colors.black38),
-                  onTap: () {},
+                  onTap: () => appState.navigate(Screen.notifications, financialView: 'tx_history'),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
@@ -708,6 +1008,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_subView == 'privacy') {
       return _buildPrivacyView(context, isAk);
     }
+    if (_subView == 'security_checkup') {
+      return _buildSecurityCheckupView(context, isAk);
+    }
+    if (_subView == 'device_management') {
+      return _buildDeviceManagementView(context, appState, isAk, isAndroid);
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F5F8),
@@ -723,142 +1029,158 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
         children: [
-          // ── Top Profile Card (No Switch Account icon, No Show QR Code button) ──
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(26),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 20,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Center(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _subView = 'personal_info'),
-                    child: Stack(
-                      children: [
-                        const CircleAvatar(
-                          radius: 38,
-                          backgroundColor: Color(0xFF0288D1),
-                          child: Icon(Icons.person, size: 44, color: Colors.white),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            width: 26,
-                            height: 26,
+          // ── Top Profile Card OR Welcome to Péthar Sign in/Sign up Card ──
+          if (appState.isAuthenticated)
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: const Color(0xFFF4F4F5)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 20,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Center(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _subView = 'personal_info'),
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 78,
+                            height: 78,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF10B981),
                               shape: BoxShape.circle,
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF29B6F6), Color(0xFF0288D1)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
                               border: Border.all(color: Colors.white, width: 2),
                             ),
-                            child: const Icon(Icons.edit, size: 13, color: Colors.white),
+                            child: const Icon(Icons.person, size: 42, color: Colors.white),
                           ),
-                        ),
-                      ],
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              width: 26,
+                              height: 26,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF10B981),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: const Icon(Icons.edit, size: 13, color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      appState.profile.name,
-                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.black87),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(999),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        appState.profile.name,
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.black87),
                       ),
-                      child: const Text(
-                        'User',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black54),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  appState.profile.email.isNotEmpty ? appState.profile.email : 'realjackhalder@gmail.com',
-                  style: const TextStyle(fontSize: 13, color: Colors.black45),
-                ),
-                const SizedBox(height: 14),
-                const Divider(height: 1),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFECFDF5),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 16),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          isAk ? 'မှတ်ပုံတင် အတည်ပြုချက်' : 'ID Verification',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
-                        ),
-                      ],
-                    ),
-                    GestureDetector(
-                      onTap: () => appState.setVerified(!appState.isVerified),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                         decoration: BoxDecoration(
-                          color: appState.isVerified ? const Color(0xFFECFDF5) : const Color(0xFFFFF1F2),
+                          color: const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(999),
                         ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              appState.isVerified ? Icons.verified_rounded : Icons.error_outline_rounded,
-                              size: 14,
-                              color: appState.isVerified ? const Color(0xFF059669) : crimson,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              appState.isVerified ? 'Verified' : 'Unverified',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: appState.isVerified ? const Color(0xFF059669) : crimson,
-                              ),
-                            ),
-                          ],
+                        child: const Text(
+                          'User',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black54),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    appState.profile.email.isNotEmpty ? appState.profile.email : 'realjackhalder@gmail.com',
+                    style: const TextStyle(fontSize: 13, color: Colors.black45),
+                  ),
+                  const SizedBox(height: 14),
+                  const Divider(height: 1),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFECFDF5),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.verified_user_outlined, color: Color(0xFF059669), size: 16),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            isAk ? 'မှတ်ပုံတင် အတည်ပြုချက်' : 'ID Verification',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () => showKycVerificationModal(context, appState),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: appState.isVerified ? const Color(0xFFECFDF5) : const Color(0xFFFFF1F2),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: appState.isVerified ? const Color(0xFFA7F3D0) : const Color(0xFFFECDD3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                appState.isVerified ? Icons.check_circle_outline_rounded : Icons.error_outline_rounded,
+                                size: 14,
+                                color: appState.isVerified ? const Color(0xFF047857) : crimson,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                appState.isVerified ? 'Verified' : 'Unverified',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: appState.isVerified ? const Color(0xFF047857) : crimson,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          else
+            buildWelcomeSignInCard(context, appState),
           const SizedBox(height: 20),
 
-          // ── Wallet Settings (Dropped Supported QR Code & Credit/Debit Cards) ──
+          // ── SECTION 1: Wallet Settings ──
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
               isAk ? 'ပိုက်ဆံအိတ် ဆက်တင်များ' : 'Wallet Settings',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black54),
+              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black54),
             ),
           ),
           Container(
@@ -866,21 +1188,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: [
                 _buildSettingTile(
-                  icon: Icons.receipt_long_rounded,
+                  icon: Icons.description_outlined,
                   title: isAk ? 'ငွေလွှဲ မှတ်တမ်းများ' : 'Transaction History',
-                  onTap: () => appState.navigate(Screen.notifications),
+                  onTap: () => appState.navigate(Screen.notifications, financialView: 'tx_history'),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
 
-          // ── Security Settings (Change PIN + Face ID on iPhone / Biometric Login on Android) ──
+          // ── SECTION 2: Security Settings (Matches iOS including Security Checkup & Device Management) ──
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
               isAk ? 'လုံခြုံရေး ဆက်တင်များ' : 'Security Settings',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black54),
+              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black54),
             ),
           ),
           Container(
@@ -891,14 +1213,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   icon: Icons.lock_outline_rounded,
                   title: isAk ? 'လျှို့ဝှက် PIN ပြောင်းရန်' : 'Change PIN',
                   subtitle: 'Last changed NA',
-                  onTap: () {},
+                  onTap: () => _showToast(
+                    context,
+                    isAk
+                        ? '၆ လုံး လျှို့ဝှက် PIN ပြောင်းလဲရန် OTP ပေးပို့ပြီးပါပြီ'
+                        : '6-digit PIN reset instructions sent to your verified email',
+                  ),
                 ),
                 const Divider(height: 1),
                 if (isAndroid)
                   SwitchListTile(
                     secondary: const CircleAvatar(
+                      radius: 18,
                       backgroundColor: Color(0xFFF0FDFA),
-                      child: Icon(Icons.fingerprint_rounded, color: Color(0xFF0D9488), size: 20),
+                      child: Icon(Icons.fingerprint_rounded, color: Color(0xFF0D9488), size: 19),
                     ),
                     title: Text(
                       isAk ? 'လက်ဗွေဖြင့် ဝင်ရောက်မှု' : 'Biometric Login',
@@ -912,8 +1240,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 else
                   SwitchListTile(
                     secondary: const CircleAvatar(
+                      radius: 18,
                       backgroundColor: Color(0xFFF0FDFA),
-                      child: Icon(Icons.vpn_key_outlined, color: Color(0xFF0D9488), size: 20),
+                      child: Icon(Icons.vpn_key_outlined, color: Color(0xFF0D9488), size: 19),
                     ),
                     title: const Text('Face ID', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87)),
                     subtitle: Text(_faceIdEnabled ? 'Enabled' : 'Disabled', style: const TextStyle(fontSize: 12, color: Colors.black45)),
@@ -923,22 +1252,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 const Divider(height: 1),
                 _buildSettingTile(
-                  icon: Icons.verified_user_outlined,
+                  icon: Icons.shield_outlined,
                   title: isAk ? 'နှစ်ဆင့်ခံ လုံခြုံရေး (2FA)' : 'Two Factor Authentication',
                   subtitle: appState.twoFactorAuth ? 'Enabled' : 'Disabled',
                   onTap: () => appState.toggle2FA(),
+                ),
+                const Divider(height: 1),
+                _buildSettingTile(
+                  icon: Icons.verified_user_outlined,
+                  title: isAk ? 'လုံခြုံရေး စစ်ဆေးချက်' : 'Security Checkup',
+                  onTap: () => setState(() => _subView = 'security_checkup'),
+                ),
+                const Divider(height: 1),
+                _buildSettingTile(
+                  icon: Icons.smartphone_rounded,
+                  title: isAk ? 'စက်ပစ္စည်း စီမံခန့်ခွဲမှု' : 'Device Management',
+                  onTap: () => setState(() => _subView = 'device_management'),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
 
-          // ── Account Settings (Dropped Dark Mode) ──
+          // ── SECTION 3: Account Settings ──
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
               isAk ? 'အကောင့် ဆက်တင်များ' : 'Account Settings',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black54),
+              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black54),
             ),
           ),
           Container(
@@ -959,8 +1300,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Divider(height: 1),
                 ListTile(
                   leading: const CircleAvatar(
+                    radius: 18,
                     backgroundColor: Color(0xFFF0FDFA),
-                    child: Icon(Icons.language_rounded, color: Color(0xFF0D9488), size: 20),
+                    child: Icon(Icons.language_rounded, color: Color(0xFF0D9488), size: 19),
                   ),
                   title: Text(
                     isAk ? 'ဘာသာစကား' : 'Language',
@@ -981,9 +1323,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 _buildSettingTile(
-                  icon: Icons.support_agent_rounded,
+                  icon: Icons.headset_mic_outlined,
+                  iconBg: const Color(0xFFE0F2FE),
+                  iconColor: const Color(0xFF0284C7),
                   title: isAk ? 'Péthar အကူအညီနှင့် ချက်တင်' : 'Chat with Support',
-                  onTap: () => FirebaseAuthDialog.show(context, lang),
+                  onTap: () => showPetharSupportChatSheet(context, isAk),
                 ),
                 const Divider(height: 1),
                 _buildSettingTile(
@@ -996,24 +1340,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 20),
 
-          // ── Bottom Log Out Button (Dropped Switch Account) ──
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: TextButton.icon(
-              onPressed: () => _showSignOutDialog(context, appState, isAk),
-              icon: const Icon(Icons.logout_rounded, size: 18, color: crimson),
-              label: Text(
-                isAk ? 'အကောင့်မှ ထွက်မည်' : 'Log Out',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: crimson),
-              ),
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFFDECEC),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          // ── Bottom Log Out Button (shown only when signed in) ──
+          if (appState.isAuthenticated) ...[
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: TextButton.icon(
+                onPressed: () => _showSignOutDialog(context, appState, isAk),
+                icon: const Icon(Icons.logout_rounded, size: 18, color: crimson),
+                label: Text(
+                  isAk ? 'အကောင့်မှ ထွက်မည်' : 'Log Out',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: crimson),
+                ),
+                style: TextButton.styleFrom(
+                  backgroundColor: const Color(0xFFFDECEC),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
+          ],
           const Center(
             child: Text.rich(
               TextSpan(
@@ -1035,14 +1381,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildSettingTile({
     required IconData icon,
+    Color iconBg = const Color(0xFFF0FDFA),
+    Color iconColor = const Color(0xFF0D9488),
     required String title,
     String? subtitle,
     required VoidCallback onTap,
   }) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: const Color(0xFFF0FDFA),
-        child: Icon(icon, color: const Color(0xFF0D9488), size: 20),
+        radius: 18,
+        backgroundColor: iconBg,
+        child: Icon(icon, color: iconColor, size: 19),
       ),
       title: Text(
         title,

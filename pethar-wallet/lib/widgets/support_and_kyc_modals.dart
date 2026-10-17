@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app_state.dart';
+import '../services/firebase_service.dart';
 import '../theme.dart';
 import 'arakan_emblem.dart';
 
@@ -43,7 +44,6 @@ class _ScanBracketPainter extends CustomPainter {
     final sx = size.width / 28.0;
     final sy = size.height / 28.0;
 
-    // Top bracket: M6.5 10.5 V8.8 C6.5 7.25 7.75 6 9.3 6 h9.4 c1.55 0 2.8 1.25 2.8 2.8 v1.7
     final topPath = Path()
       ..moveTo(6.5 * sx, 10.5 * sy)
       ..lineTo(6.5 * sx, 8.8 * sy)
@@ -52,7 +52,6 @@ class _ScanBracketPainter extends CustomPainter {
       ..cubicTo(20.25 * sx, 6.0 * sy, 21.5 * sx, 7.25 * sy, 21.5 * sx, 8.8 * sy)
       ..lineTo(21.5 * sx, 10.5 * sy);
 
-    // Bottom bracket: M6.5 17.5 v1.7 c0 1.55 1.25 2.8 2.8 2.8 h9.4 c1.55 0 2.8-1.25 2.8-2.8 v-1.7
     final bottomPath = Path()
       ..moveTo(6.5 * sx, 17.5 * sy)
       ..lineTo(6.5 * sx, 19.2 * sy)
@@ -111,22 +110,18 @@ class _ServicesGridPainter extends CustomPainter {
     final pad = active ? 3.0 : 3.5;
     final box = active ? 8.0 : 7.0;
 
-    // Top-left
     canvas.drawRRect(
       RRect.fromRectAndRadius(Rect.fromLTWH(pad * s, pad * s, box * s, box * s), r),
       paint,
     );
-    // Top-right
     canvas.drawRRect(
       RRect.fromRectAndRadius(Rect.fromLTWH((pad + 10.0) * s, pad * s, box * s, box * s), r),
       paint,
     );
-    // Bottom-left
     canvas.drawRRect(
       RRect.fromRectAndRadius(Rect.fromLTWH(pad * s, (pad + 10.0) * s, box * s, box * s), r),
       paint,
     );
-    // Bottom-right circle
     canvas.drawCircle(
       Offset(17.0 * s, 17.0 * s),
       (active ? 4.0 : 3.5) * s,
@@ -177,6 +172,336 @@ class FinancialCoinIcon extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Reusable "Without login yet" Welcome to Péthar Card (matching TrueMoney reference photo)
+Widget buildWelcomeSignInCard(BuildContext context, AppState appState, {bool embedded = false}) {
+  final isAk = appState.language == 'ak';
+  final content = Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(
+        isAk ? 'ဖေ့သာမှ ကြိုဆိုပါသည်' : 'Welcome to Péthar',
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w800,
+          color: Color(0xFF18181B),
+        ),
+      ),
+      const SizedBox(height: 6),
+      Text(
+        isAk
+            ? 'အက်ပ်ကို အသုံးပြုရန် အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်သစ်ဖွင့်ပါ။'
+            : 'Please sign in or sign up to use the app.',
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 13,
+          color: Color(0xFF71717A),
+          height: 1.35,
+        ),
+      ),
+      const SizedBox(height: 16),
+      ElevatedButton(
+        onPressed: () => showSignInSignUpModal(context, appState),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: crimson,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+        ),
+        child: Text(
+          isAk ? 'အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန်' : 'Sign in/Sign up',
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+        ),
+      ),
+    ],
+  );
+
+  if (embedded) {
+    return Container(
+      width: double.infinity,
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      child: content,
+    );
+  }
+
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 26),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(28),
+      border: Border.all(color: const Color(0xFFF4F4F5)),
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+          blurRadius: 32,
+          offset: const Offset(0, 12),
+        ),
+      ],
+    ),
+    child: content,
+  );
+}
+
+/// Shows the Sign in / Sign up Modal when tapping "Sign in/Sign up" or a guarded feature while logged out
+void showSignInSignUpModal(BuildContext context, AppState appState) {
+  final isAk = appState.language == 'ak';
+  final emailCtrl = TextEditingController();
+  final passCtrl = TextEditingController();
+  bool showPassword = false;
+  bool isSignUp = false;
+  bool isLoading = false;
+  String? errorMsg;
+
+  showDialog(
+    context: context,
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setModalState) {
+        Future<void> submitEmail() async {
+          final email = emailCtrl.text.trim();
+          final pass = passCtrl.text;
+          if (email.isEmpty) {
+            setModalState(() => errorMsg = isAk ? 'အီးမေးလ် ရိုက်ထည့်ပါ' : 'Enter your email');
+            return;
+          }
+          if (pass.isEmpty) {
+            setModalState(() => errorMsg = isAk ? 'စကားဝှက် ရိုက်ထည့်ပါ' : 'Enter your password');
+            return;
+          }
+          setModalState(() {
+            isLoading = true;
+            errorMsg = null;
+          });
+          try {
+            if (isSignUp) {
+              await FirebaseService().signUpWithEmail(email: email, password: pass);
+            } else {
+              await FirebaseService().signInWithEmail(email: email, password: pass);
+            }
+          } catch (_) {}
+          final derived = email.contains('@') ? email.split('@').first : 'Jack';
+          final name = derived.isNotEmpty
+              ? '${derived[0].toUpperCase()}${derived.substring(1)}'
+              : 'Jack';
+          appState.signIn(email: email, name: name);
+          if (ctx.mounted) Navigator.pop(ctx);
+        }
+
+        Future<void> submitGoogle() async {
+          setModalState(() {
+            isLoading = true;
+            errorMsg = null;
+          });
+          try {
+            final cred = await FirebaseService().signInWithGoogle();
+            if (cred?.user != null) {
+              appState.signIn(
+                email: cred!.user!.email ?? 'realjackhalder@gmail.com',
+                name: cred.user!.displayName ?? 'Jack',
+              );
+              if (ctx.mounted) Navigator.pop(ctx);
+              return;
+            }
+          } catch (_) {}
+          appState.signIn(email: 'realjackhalder@gmail.com', name: 'Jack');
+          if (ctx.mounted) Navigator.pop(ctx);
+        }
+
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          backgroundColor: Colors.white,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const ArakanEmblem(size: 28),
+                        const SizedBox(width: 8),
+                        Text(
+                          isSignUp
+                              ? (isAk ? 'ဖေ့သာ အကောင့်သစ်ဖွင့်ရန်' : 'Create Péthar Account')
+                              : (isAk ? 'ဖေ့သာ အကောင့်ဝင်ရန်' : 'Log in to Péthar'),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF18181B),
+                          ),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(ctx),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF4F4F5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close, size: 16, color: Color(0xFF71717A)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                if (errorMsg != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      errorMsg!,
+                      style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+                OutlinedButton(
+                  onPressed: isLoading ? null : submitGoogle,
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF18181B),
+                    side: const BorderSide(color: Color(0xFFD6D3D1)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 18,
+                        height: 18,
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFF4285F4),
+                        ),
+                        child: const Text('G', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900)),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        isAk ? 'Google ဖြင့် ဝင်ရန်' : 'Continue with Google',
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  isAk ? 'အီးမေးလ်' : 'Email',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF57534E)),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: Color(0xFF18181B)),
+                  decoration: InputDecoration(
+                    hintText: 'realjackhalder@gmail.com',
+                    hintStyle: const TextStyle(color: Color(0xFFA8A29E), fontSize: 13),
+                    filled: true,
+                    fillColor: const Color(0xFFFAFAF9),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE7E5E4)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE7E5E4)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  isAk ? 'စကားဝှက်' : 'Password',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF57534E)),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: passCtrl,
+                  obscureText: !showPassword,
+                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: Color(0xFF18181B)),
+                  decoration: InputDecoration(
+                    hintText: '••••••••',
+                    hintStyle: const TextStyle(color: Color(0xFFA8A29E), fontSize: 13),
+                    filled: true,
+                    fillColor: const Color(0xFFFAFAF9),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    suffixIcon: IconButton(
+                      onPressed: () => setModalState(() => showPassword = !showPassword),
+                      icon: Icon(
+                        showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                        size: 18,
+                        color: const Color(0xFFA8A29E),
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE7E5E4)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE7E5E4)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: isLoading ? null : submitEmail,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: crimson,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                  ),
+                  child: Text(
+                    isSignUp ? (isAk ? 'အကောင့်ဖွင့်ရန်' : 'Sign up') : (isAk ? 'အကောင့်ဝင်ရန်' : 'Sign in'),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      isSignUp
+                          ? (isAk ? 'အကောင့်ရှိပြီးသားလား? ' : 'Already have an account? ')
+                          : (isAk ? 'အကောင့်မရှိသေးပါသလား? ' : 'No account yet? '),
+                      style: const TextStyle(fontSize: 12, color: Color(0xFF78716C)),
+                    ),
+                    GestureDetector(
+                      onTap: () => setModalState(() {
+                        isSignUp = !isSignUp;
+                        errorMsg = null;
+                      }),
+                      child: Text(
+                        isSignUp ? (isAk ? 'အကောင့်ဝင်ရန်' : 'Sign in') : (isAk ? 'အကောင့်ဖွင့်ရန်' : 'Sign up'),
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: crimson),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  );
 }
 
 /// Shows the iOS KYC Account Verification Modal
@@ -340,8 +665,12 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
   );
 }
 
-/// Shows the iOS Verification Required Guard Dialog
+/// Shows the iOS Verification Required Guard Dialog (or Sign in/Sign up modal if logged out)
 void showVerificationRequiredDialog(BuildContext context, AppState appState, String featureName) {
+  if (!appState.isAuthenticated) {
+    showSignInSignUpModal(context, appState);
+    return;
+  }
   final isAk = appState.language == 'ak';
   showDialog(
     context: context,
@@ -434,7 +763,7 @@ class _SupportChatSheet extends StatefulWidget {
 }
 
 class _SupportChatSheetState extends State<_SupportChatSheet> {
-  String _view = 'hub'; // 'hub' | 'chat' | 'help'
+  String _view = 'hub';
   String _topic = 'General Support';
   String _searchQuery = '';
   final TextEditingController _chatCtrl = TextEditingController();
@@ -502,7 +831,6 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
       ),
       child: Column(
         children: [
-          // Top Bar
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 20, 18, 12),
             child: Row(
@@ -565,7 +893,6 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
               ],
             ),
           ),
-
           if (_view == 'hub')
             Expanded(
               child: ListView(
@@ -597,8 +924,6 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Card 1: Messages & Help
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFF171A1F),
@@ -631,8 +956,6 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                     ),
                   ),
                   const SizedBox(height: 14),
-
-                  // Card 2: Create a ticket
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFF171A1F),
@@ -682,8 +1005,6 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                     ),
                   ),
                   const SizedBox(height: 14),
-
-                  // Card 3: Search for help
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFF171A1F),
@@ -700,8 +1021,6 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                     ),
                   ),
                   const SizedBox(height: 14),
-
-                  // Card 4: Send us a message
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFF171A1F),

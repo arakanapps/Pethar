@@ -18,9 +18,7 @@ import {
   Image as ImageIcon,
   BookUser,
   Mic,
-  CreditCard,
   Settings as SettingsIcon,
-  Link2,
   HelpCircle,
   MessageSquare,
   Info,
@@ -47,13 +45,11 @@ import {
   Landmark,
   Bell,
   Download,
-  Gift,
   Camera,
   Pencil,
   Fingerprint,
   ShieldCheck,
   User,
-  Moon,
   Search,
   X,
   Ticket,
@@ -314,8 +310,15 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     return () => window.clearTimeout(timer)
   }, [])
 
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true)
+  const [authModalOpen, setAuthModalOpen] = useState<boolean>(false)
+  const [loginEmail, setLoginEmail] = useState<string>('')
+  const [loginPassword, setLoginPassword] = useState<string>('')
+  const [showLoginPassword, setShowLoginPassword] = useState<boolean>(false)
+  const [isSignUpMode, setIsSignUpMode] = useState<boolean>(false)
+  const [loginError, setLoginError] = useState<string>('')
   const [screen, setScreen] = useState<MobileTab>('home')
-  const [theme, setTheme] = useState<ThemeMode>('light')
+  const [theme] = useState<ThemeMode>('light')
   const [profile, setProfile] = useState<UserProfile>({
     ...initialUserProfile,
     name: 'Myat Soe Paing',
@@ -407,7 +410,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [faceIdEnabled, setFaceIdEnabled] = useState<boolean>(true)
   const [biometricLoginEnabled, setBiometricLoginEnabled] = useState<boolean>(true)
   const [twoFactorEnabled, setTwoFactorEnabled] = useState<boolean>(false)
-  const [showProfileQrModal, setShowProfileQrModal] = useState<boolean>(false)
   const [settingsNoticeToast, setSettingsNoticeToast] = useState<string | null>(null)
   const [profileDetails] = useState({
     firstName: 'MYAT SOE',
@@ -431,8 +433,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const isAk = lang === 'ak'
   const isSubScreen = !DOCK_TABS.includes(screen)
 
-  // Guard helper: if user is Unverified, block function execution and tell them to verify
+  // Guard helper: if user is logged out, open Sign in/Sign up modal; if Unverified, tell them to verify
   const requireVerified = (featureName: string, action: () => void) => {
+    if (!isAuthenticated) {
+      setAuthModalOpen(true)
+      return
+    }
     if (!isVerified) {
       setVerifyPromptModal({ open: true, featureName })
       return
@@ -587,9 +593,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         onClick={() => setShowSplash(false)}
         className="min-h-screen w-full flex justify-center bg-[#E2E8F0] select-none cursor-pointer"
       >
-        <div className="w-full max-w-[480px] min-h-screen bg-white flex flex-col justify-between items-center relative overflow-hidden shadow-2xl">
-          <div className="h-12" />
-
+        <div className="w-full max-w-[480px] min-h-screen bg-white flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
           <div className="flex flex-col items-center justify-center space-y-4 px-6 animate-in fade-in zoom-in-95 duration-300">
             <div className="w-28 h-28 flex items-center justify-center">
               <img
@@ -599,40 +603,36 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               />
             </div>
             <div className="flex items-baseline tracking-tight">
-              <span className="text-4xl font-black text-[#D91624]">péthar</span>
-              <span className="text-4xl font-light text-zinc-900 ml-0.5">wallet</span>
+              <span className="text-4xl font-black text-[#D91624]">Péthar</span>
+              <span className="text-4xl font-light text-zinc-900 ml-1">wallet</span>
             </div>
-          </div>
-
-          <div className="w-full flex flex-col items-center">
-            <div className="flex items-center justify-center gap-4 pb-7 px-6">
-              <div className="px-2.5 py-1 border border-[#1E3A8A] rounded-[4px] flex items-center">
-                <span className="text-[11px] font-black tracking-tight bg-[#1E3A8A] text-white px-1 mr-1">
-                  AK
-                </span>
-                <span className="text-[11px] font-extrabold text-[#1E3A8A]">Pay</span>
-              </div>
-              <span className="text-lg font-black italic tracking-tighter text-[#1434CB]">
-                VISA
-              </span>
-              <div className="flex items-center">
-                <span className="w-5 h-5 rounded-full bg-[#EB001B] inline-block" />
-                <span className="w-5 h-5 rounded-full bg-[#F79E1B]/90 -ml-2 inline-block" />
-              </div>
-              <div className="flex items-center gap-1 text-[#00A0E9] font-extrabold text-sm">
-                <span>USDT</span>
-                <span className="text-zinc-300 font-light">|</span>
-                <span>USDC</span>
-              </div>
-            </div>
-
-            <div className="w-32 h-1.5 rounded-full bg-zinc-900 mb-2" />
-            <div className="w-full h-2 bg-gradient-to-r from-[#D91624] via-[#FF2A38] to-[#D91624]" />
           </div>
         </div>
       </div>
     )
   }
+
+  const renderWelcomeSignInCard = () => (
+    <div className="bg-white rounded-[28px] p-6 shadow-[0_12px_32px_rgba(15,23,42,0.06)] border border-zinc-100 text-center space-y-4">
+      <div className="space-y-1.5">
+        <h2 className="text-lg font-extrabold text-zinc-900">
+          {isAk ? 'ဖေ့သာမှ ကြိုဆိုပါသည်' : 'Welcome to Péthar'}
+        </h2>
+        <p className="text-xs text-zinc-500">
+          {isAk
+            ? 'အက်ပ်ကို အသုံးပြုရန် အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်သစ်ဖွင့်ပါ။'
+            : 'Please sign in or sign up to use the app.'}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={() => setAuthModalOpen(true)}
+        className="px-7 py-2.5 rounded-full bg-[#D91624] hover:bg-[#B8121E] text-white font-bold text-sm shadow-[0_6px_18px_rgba(217,22,36,0.3)] active:scale-95 transition cursor-pointer"
+      >
+        {isAk ? 'အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန်' : 'Sign in/Sign up'}
+      </button>
+    </div>
+  )
 
   /* ═══════════════════════════════════════════════════════════════════════════
      2. HOME SCREEN:
@@ -707,71 +707,72 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         {renderTopLogoHeader(true)}
 
         <div className="px-4 pt-2 space-y-5">
-          {/* Welcome Back Name + Verified / Unverified Pill Card */}
-          <div className="bg-white rounded-[26px] p-3.5 shadow-[0_8px_26px_rgba(15,23,42,0.05)] border border-zinc-100 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-b from-[#38BDF8] to-[#0284C7] flex items-center justify-center text-white font-black text-lg shrink-0 shadow-xs">
-                {profile.name.charAt(0)}
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs text-zinc-400 font-medium">
-                  {isAk ? 'ပြန်လည်ကြိုဆိုပါသည်၊' : 'Welcome back,'}
+          {/* Logged-In Welcome Card */}
+          {isAuthenticated ? (
+            <>
+              <div className="bg-white rounded-[26px] p-3.5 shadow-[0_8px_26px_rgba(15,23,42,0.05)] border border-zinc-100 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-b from-[#38BDF8] to-[#0284C7] flex items-center justify-center text-white font-black text-lg shrink-0 shadow-xs">
+                    {profile.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs text-zinc-400 font-medium">
+                      {isAk ? 'ပြန်လည်ကြိုဆိုပါသည်၊' : 'Welcome back,'}
+                    </div>
+                    <div className="text-base font-extrabold text-zinc-900 truncate mt-0.5">
+                      {profile.name}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-base font-extrabold text-zinc-900 truncate mt-0.5">
-                  {profile.name}
-                </div>
+
+                {isVerified ? (
+                  <button
+                    type="button"
+                    onClick={() => setKycFlowModalOpen(true)}
+                    className="px-3.5 py-1.5 rounded-full border border-[#0284C7]/50 bg-[#F0F9FF] text-[#0284C7] text-xs font-bold inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  >
+                    <CheckCircle2 size={15} className="fill-[#0284C7] text-white" />
+                    <span>{isAk ? 'အတည်ပြုပြီး (Verified)' : 'Verified'}</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setKycFlowModalOpen(true)}
+                    className="px-3.5 py-1.5 rounded-full border border-[#D91624] bg-[#FFF1F2] text-[#D91624] text-xs font-extrabold inline-flex items-center gap-1.5 shrink-0 shadow-[0_4px_12px_rgba(217,22,36,0.18)] animate-pulse cursor-pointer"
+                  >
+                    <AlertCircle size={15} />
+                    <span>{isAk ? 'အတည်မပြုရသေး (Unverified)' : 'Unverified'}</span>
+                  </button>
+                )}
               </div>
-            </div>
 
-            {/* Verified or Unverified Badge Button */}
-            {isVerified ? (
-              <button
-                type="button"
-                onClick={() => setKycFlowModalOpen(true)}
-                className="px-3.5 py-1.5 rounded-full border border-[#0284C7]/50 bg-[#F0F9FF] text-[#0284C7] text-xs font-bold inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
-              >
-                <CheckCircle2 size={15} className="fill-[#0284C7] text-white" />
-                <span>{isAk ? 'အတည်ပြုပြီး (Verified)' : 'Verified'}</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setKycFlowModalOpen(true)}
-                className="px-3.5 py-1.5 rounded-full border border-[#D91624] bg-[#FFF1F2] text-[#D91624] text-xs font-extrabold inline-flex items-center gap-1.5 shrink-0 shadow-[0_4px_12px_rgba(217,22,36,0.18)] animate-pulse cursor-pointer"
-              >
-                <AlertCircle size={15} />
-                <span>{isAk ? 'အတည်မပြုရသေး (Unverified)' : 'Unverified'}</span>
-              </button>
-            )}
-          </div>
-
-          {/* Unverified Warning Banner when account is not verified */}
-          {!isVerified && (
-            <div className="p-3.5 rounded-2xl bg-[#FFF1F2] border border-[#FECDD3] flex items-center justify-between gap-3">
-              <div className="flex items-start gap-2.5">
-                <AlertCircle size={18} className="text-[#D91624] shrink-0 mt-0.5" />
-                <div className="text-xs text-zinc-800 leading-relaxed">
-                  <span className="font-extrabold text-[#D91624] block">
-                    {isAk ? 'အကောင့်အတည်ပြုရန် လိုအပ်ပါသည်' : 'Account Verification Required'}
-                  </span>
-                  {isAk
-                    ? 'ငွေပေးချေခြင်း၊ လက်ခံခြင်း၊ ငွေသွင်း/ငွေထုတ် လုပ်ဆောင်ချက်များကို အသုံးပြုရန် သင့်အကောင့်ကို အတည်ပြုပေးပါ။'
-                    : 'Please verify your identity to unlock Pay, Receive, Deposit, and Withdraw.'}
+              {!isVerified && (
+                <div className="p-3.5 rounded-2xl bg-[#FFF1F2] border border-[#FECDD3] flex items-center justify-between gap-3">
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle size={18} className="text-[#D91624] shrink-0 mt-0.5" />
+                    <div className="text-xs text-zinc-800 leading-relaxed">
+                      <span className="font-extrabold text-[#D91624] block">
+                        {isAk ? 'အကောင့်အတည်ပြုရန် လိုအပ်ပါသည်' : 'Account Verification Required'}
+                      </span>
+                      {isAk
+                        ? 'ငွေပေးချေခြင်း၊ လက်ခံခြင်း၊ ငွေသွင်း/ငွေထုတ် လုပ်ဆောင်ချက်များကို အသုံးပြုရန် သင့်အကောင့်ကို အတည်ပြုပေးပါ။'
+                        : 'Please verify your identity to unlock Pay, Receive, Deposit, and Withdraw.'}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setKycFlowModalOpen(true)}
+                    className="px-3 py-1.5 rounded-full bg-[#D91624] text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                  >
+                    {isAk ? 'အတည်ပြုမည်' : 'Verify'}
+                  </button>
                 </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setKycFlowModalOpen(true)}
-                className="px-3 py-1.5 rounded-full bg-[#D91624] text-white text-[11px] font-bold shrink-0 cursor-pointer"
-              >
-                {isAk ? 'အတည်ပြုမည်' : 'Verify'}
-              </button>
-            </div>
-          )}
+              )}
+            </>
+          ) : null}
 
-          {/* Unified Action & AKD Balance Card (Pay | Receive | Deposit | Withdraw + ₳ Balance) */}
+          {/* Unified Action & Balance / Welcome Card */}
           <div className="bg-white rounded-[28px] shadow-[0_12px_32px_rgba(15,23,42,0.06)] border border-zinc-100 overflow-hidden">
-            {/* Top 4 Actions Row: Pay | Receive | Deposit | Withdraw */}
             <div className="grid grid-cols-4 gap-2 px-4 pt-6 pb-5 border-b border-zinc-100">
               {homeCoreActions.map((item) => (
                 <button
@@ -790,45 +791,66 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               ))}
             </div>
 
-            {/* Bottom AKD Wallet Balance Section */}
-            <div className="px-5 py-4 bg-zinc-50/50 flex items-end justify-between">
-              <div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-zinc-500">
-                  <span>
-                    {isAk
-                      ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)'
-                      : 'Wallet Balance (AKD)'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setHomeBalanceHidden((h) => !h)}
-                    className="text-zinc-500 hover:text-zinc-900 cursor-pointer"
-                  >
-                    {homeBalanceHidden ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
-
-                <div className="mt-1.5 flex items-baseline font-mono tracking-tight">
-                  {homeBalanceHidden ? (
-                    <span className="text-2xl font-black text-zinc-900 tracking-widest">
-                      ******
+            {isAuthenticated ? (
+              <div className="px-5 py-4 bg-zinc-50/50 flex items-end justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-zinc-500">
+                    <span>
+                      {isAk
+                        ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)'
+                        : 'Wallet Balance (AKD)'}
                     </span>
-                  ) : (
-                    <>
-                      <span className="text-2xl font-black text-[#D91624] mr-1.5">
-                        ₳
+                    <button
+                      type="button"
+                      onClick={() => setHomeBalanceHidden((h) => !h)}
+                      className="text-zinc-500 hover:text-zinc-900 cursor-pointer"
+                    >
+                      {homeBalanceHidden ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+
+                  <div className="mt-1.5 flex items-baseline font-mono tracking-tight">
+                    {homeBalanceHidden ? (
+                      <span className="text-2xl font-black text-zinc-900 tracking-widest">
+                        ******
                       </span>
-                      <span className="text-3xl font-black text-zinc-950">
-                        {akdBalance.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </>
-                  )}
+                    ) : (
+                      <>
+                        <span className="text-2xl font-black text-[#D91624] mr-1.5">
+                          ₳
+                        </span>
+                        <span className="text-3xl font-black text-zinc-950">
+                          {akdBalance.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="px-6 py-6 bg-white text-center space-y-3.5">
+                <div className="space-y-1">
+                  <h2 className="text-lg font-extrabold text-zinc-900">
+                    {isAk ? 'ဖေ့သာမှ ကြိုဆိုပါသည်' : 'Welcome to Péthar'}
+                  </h2>
+                  <p className="text-xs text-zinc-500">
+                    {isAk
+                      ? 'အက်ပ်ကို အသုံးပြုရန် အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်သစ်ဖွင့်ပါ။'
+                      : 'Please sign in or sign up to use the app.'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAuthModalOpen(true)}
+                  className="px-7 py-2.5 rounded-full bg-[#D91624] hover:bg-[#B8121E] text-white font-bold text-sm shadow-[0_6px_18px_rgba(217,22,36,0.3)] active:scale-95 transition cursor-pointer"
+                >
+                  {isAk ? 'အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန်' : 'Sign in/Sign up'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1614,24 +1636,46 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               </button>
             </div>
 
-            {/* Total USD Account Balance */}
-            <div className="flex items-center gap-2.5">
-              <div className="text-3xl font-black font-mono text-zinc-950 tracking-tight">
-                {walletBalanceHidden
-                  ? '••••••'
-                  : `$${usdAccountBalance.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}`}
+            {/* Total USD Account Balance or Logged-Out Welcome Prompt */}
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2.5">
+                <div className="text-3xl font-black font-mono text-zinc-950 tracking-tight">
+                  {walletBalanceHidden
+                    ? '••••••'
+                    : `$${usdAccountBalance.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setWalletBalanceHidden((h) => !h)}
+                  className="text-zinc-400 hover:text-zinc-700 cursor-pointer"
+                >
+                  {walletBalanceHidden ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setWalletBalanceHidden((h) => !h)}
-                className="text-zinc-400 hover:text-zinc-700 cursor-pointer"
-              >
-                {walletBalanceHidden ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
+            ) : (
+              <div className="py-2 text-center space-y-3 border-y border-zinc-100">
+                <div className="space-y-1">
+                  <div className="text-base font-extrabold text-zinc-900">
+                    {isAk ? 'ဖေ့သာမှ ကြိုဆိုပါသည်' : 'Welcome to Péthar'}
+                  </div>
+                  <div className="text-xs text-zinc-500">
+                    {isAk
+                      ? 'အက်ပ်ကို အသုံးပြုရန် အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်သစ်ဖွင့်ပါ။'
+                      : 'Please sign in or sign up to use the app.'}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAuthModalOpen(true)}
+                  className="px-6 py-2 rounded-full bg-[#D91624] hover:bg-[#B8121E] text-white font-bold text-xs shadow-[0_6px_18px_rgba(217,22,36,0.28)] active:scale-95 transition cursor-pointer"
+                >
+                  {isAk ? 'အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန်' : 'Sign in/Sign up'}
+                </button>
+              </div>
+            )}
 
             {/* 4 Functions Below Amount: Receive | Send | Convert | Transfer */}
             <div className="grid grid-cols-4 gap-2 pt-1 text-center">
@@ -2970,77 +3014,81 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         )}
 
         <div className="p-4 space-y-5">
-          {/* ── Top Profile Card (No Switch Account icon, No Show QR Code button) ── */}
-          <div className="bg-white rounded-[28px] p-5 shadow-[0_8px_28px_rgba(15,23,42,0.05)] border border-zinc-100 relative">
-            {/* Centered Avatar with Edit Pencil Badge */}
-            <div className="flex flex-col items-center text-center pt-1">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setAccountSubScreen('personal_info')}
-                  className="w-20 h-20 rounded-full bg-gradient-to-b from-[#29B6F6] to-[#0288D1] flex items-center justify-center text-white shadow-md overflow-hidden border-2 border-white cursor-pointer"
-                >
-                  {profile.avatarUrl ? (
-                    <img
-                      src={profile.avatarUrl}
-                      alt={profile.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User size={40} className="text-white" />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAccountSubScreen('personal_info')}
-                  aria-label="Edit Personal Information"
-                  className="w-7 h-7 rounded-full bg-[#10B981] text-white border-2 border-white flex items-center justify-center absolute -bottom-0.5 -right-0.5 shadow-xs cursor-pointer"
-                >
-                  <Pencil size={12} />
-                </button>
-              </div>
+          {/* ── Top Profile Card or Welcome Sign-In Card when logged out ── */}
+          {!isAuthenticated ? (
+            renderWelcomeSignInCard()
+          ) : (
+            <div className="bg-white rounded-[28px] p-5 shadow-[0_8px_28px_rgba(15,23,42,0.05)] border border-zinc-100 relative">
+              {/* Centered Avatar with Edit Pencil Badge */}
+              <div className="flex flex-col items-center text-center pt-1">
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setAccountSubScreen('personal_info')}
+                    className="w-20 h-20 rounded-full bg-gradient-to-b from-[#29B6F6] to-[#0288D1] flex items-center justify-center text-white shadow-md overflow-hidden border-2 border-white cursor-pointer"
+                  >
+                    {profile.avatarUrl ? (
+                      <img
+                        src={profile.avatarUrl}
+                        alt={profile.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User size={40} className="text-white" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAccountSubScreen('personal_info')}
+                    aria-label="Edit Personal Information"
+                    className="w-7 h-7 rounded-full bg-[#10B981] text-white border-2 border-white flex items-center justify-center absolute -bottom-0.5 -right-0.5 shadow-xs cursor-pointer"
+                  >
+                    <Pencil size={12} />
+                  </button>
+                </div>
 
-              {/* Name + User Badge */}
-              <div className="mt-3.5 flex items-center justify-center gap-2">
-                <h2 className="text-base font-extrabold text-zinc-900">
-                  {profile.name}
-                </h2>
-                <span className="px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-500 text-xs font-semibold">
-                  User
-                </span>
-              </div>
-
-              {/* Email */}
-              <p className="text-xs text-zinc-400 mt-1">
-                {profileDetails.email}
-              </p>
-
-              {/* ID Verification Status Row */}
-              <div className="mt-4 pt-3.5 border-t border-zinc-100 w-full flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                    <ShieldCheck size={16} />
-                  </div>
-                  <span className="text-sm font-bold text-zinc-900">
-                    {isAk ? 'မှတ်ပုံတင် အတည်ပြုချက်' : 'ID Verification'}
+                {/* Name + User Badge */}
+                <div className="mt-3.5 flex items-center justify-center gap-2">
+                  <h2 className="text-base font-extrabold text-zinc-900">
+                    {profile.name}
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-500 text-xs font-semibold">
+                    User
                   </span>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setKycFlowModalOpen(true)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer ${
-                    isVerified
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                      : 'bg-rose-50 text-[#D91624] border border-rose-200'
-                  }`}
-                >
-                  <CheckCircle2 size={14} />
-                  <span>{isVerified ? 'Verified' : 'Unverified'}</span>
-                </button>
+                {/* Email */}
+                <p className="text-xs text-zinc-400 mt-1">
+                  {profileDetails.email}
+                </p>
+
+                {/* ID Verification Status Row */}
+                <div className="mt-4 pt-3.5 border-t border-zinc-100 w-full flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <ShieldCheck size={16} />
+                    </div>
+                    <span className="text-sm font-bold text-zinc-900">
+                      {isAk ? 'မှတ်ပုံတင် အတည်ပြုချက်' : 'ID Verification'}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setKycFlowModalOpen(true)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer ${
+                      isVerified
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-rose-50 text-[#D91624] border border-rose-200'
+                    }`}
+                  >
+                    <CheckCircle2 size={14} />
+                    <span>{isVerified ? 'Verified' : 'Unverified'}</span>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* ── SECTION 1: Wallet Settings (Dropped Supported QR Code & Credit/Debit Cards) ── */}
           <div className="space-y-2">
@@ -3308,14 +3356,16 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
           {/* ── Bottom Log Out Button & Footer (Dropped Switch Account) ── */}
           <div className="space-y-3 pt-2">
-            <button
-              type="button"
-              onClick={() => setShowSignOutModal(true)}
-              className="w-full py-3.5 rounded-2xl bg-[#FDECEC] hover:bg-[#FBD8D8] text-[#D91624] font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer"
-            >
-              <LogOut size={17} />
-              <span>{isAk ? 'အကောင့်မှ ထွက်မည်' : 'Log Out'}</span>
-            </button>
+            {isAuthenticated && (
+              <button
+                type="button"
+                onClick={() => setShowSignOutModal(true)}
+                className="w-full py-3.5 rounded-2xl bg-[#FDECEC] hover:bg-[#FBD8D8] text-[#D91624] font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer"
+              >
+                <LogOut size={17} />
+                <span>{isAk ? 'အကောင့်မှ ထွက်မည်' : 'Log Out'}</span>
+              </button>
+            )}
 
             <div className="pt-2 text-center text-xs font-medium text-zinc-400">
               ©Péthar Super App - Version:{' '}
@@ -3350,7 +3400,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   type="button"
                   onClick={() => {
                     setShowSignOutModal(false)
-                    setShowSplash(true)
+                    localStorage.removeItem('pethar_logged_in')
+                    import('../../lib/supabase').then((m) => m.signOut()).catch(() => {})
+                    setIsAuthenticated(false)
                     setScreen('home')
                   }}
                   className="py-3 rounded-full bg-gradient-to-r from-[#FF7A00] to-[#F97316] text-white font-bold text-sm shadow-[0_6px_18px_rgba(249,115,22,0.35)] hover:brightness-105 transition cursor-pointer"
@@ -4103,6 +4155,122 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 >
                   {isAk ? 'အတည်ပြုမည် (Verify)' : 'Complete Verify'}
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            SIGN IN / SIGN UP MODAL (TRIGGERED FROM WELCOME CARD OR LOGGED-OUT ACTIONS)
+        ═══════════════════════════════════════════════════════════════════ */}
+        {authModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/55 flex items-center justify-center p-5 animate-in fade-in">
+            <div className="w-full max-w-sm bg-white rounded-3xl p-6 space-y-4 shadow-2xl relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <img
+                    src="/pethar-logo-red-white.svg"
+                    alt="Péthar"
+                    className="w-8 h-8 object-contain"
+                  />
+                  <h3 className="text-base font-extrabold text-zinc-900">
+                    {isSignUpMode
+                      ? isAk
+                        ? 'ဖေ့သာ အကောင့်သစ်ဖွင့်ရန်'
+                        : 'Create Péthar Account'
+                      : isAk
+                        ? 'ဖေ့သာ အကောင့်ဝင်ရန်'
+                        : 'Sign in to Péthar'}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAuthModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {loginError && (
+                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-semibold text-[#D91624] flex items-center gap-2">
+                  <AlertCircle size={15} className="shrink-0" />
+                  <span>{loginError}</span>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[11px] font-bold text-zinc-500 block mb-1">
+                    {isAk ? 'အီးမေးလ် သို့မဟုတ် ဖုန်းနံပါတ်' : 'Email or Phone Number'}
+                  </label>
+                  <input
+                    type="text"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="realjackhalder@gmail.com"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-sm font-semibold text-zinc-900 focus:outline-none focus:border-[#D91624]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-zinc-500 block mb-1">
+                    {isAk ? 'စကားဝှက် သို့မဟုတ် PIN' : 'Password / PIN'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showLoginPassword ? 'text' : 'password'}
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-zinc-50 border border-zinc-200 text-sm font-semibold text-zinc-900 focus:outline-none focus:border-[#D91624]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPassword((s) => !s)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer"
+                    >
+                      {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginError('')
+                    setIsAuthenticated(true)
+                    setAuthModalOpen(false)
+                  }}
+                  className="w-full py-3 rounded-full bg-[#D91624] hover:bg-[#B8121E] text-white font-bold text-sm shadow-md active:scale-95 transition cursor-pointer"
+                >
+                  {isSignUpMode
+                    ? isAk
+                      ? 'အကောင့်ဖွင့်မည်'
+                      : 'Sign Up'
+                    : isAk
+                      ? 'အကောင့်ဝင်မည်'
+                      : 'Sign In'}
+                </button>
+
+                <div className="text-center pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSignUpMode((m) => !m)
+                      setLoginError('')
+                    }}
+                    className="text-xs font-bold text-[#D91624] hover:underline cursor-pointer"
+                  >
+                    {isSignUpMode
+                      ? isAk
+                        ? 'အကောင့်ရှိပြီးသားလား? အကောင့်ဝင်ရန်'
+                        : 'Already have an account? Sign In'
+                      : isAk
+                        ? 'အကောင့်မရှိသေးဘူးလား? အကောင့်သစ်ဖွင့်ရန်'
+                        : 'New to Péthar? Create an account'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
