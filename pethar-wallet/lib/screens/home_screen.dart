@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../theme.dart';
-import '../i18n.dart';
-import '../models/data.dart';
 import '../widgets/arakan_emblem.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,39 +12,38 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _bannerVisible = true;
-
-  void _showLogoutDialog(BuildContext context, AppState appState) {
-    final lang = appState.language;
+  void _showVerificationRequiredDialog(BuildContext context, AppState appState, String featureName) {
+    final isAk = appState.language == 'ak';
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        backgroundColor: const Color(0xFF101724),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        backgroundColor: Colors.white,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
-                color: crimson.withOpacity(0.2),
+                color: const Color(0xFFFFF1F2),
                 shape: BoxShape.circle,
-                border: Border.all(color: crimson.withOpacity(0.4)),
+                border: Border.all(color: const Color(0xFFFECDD3)),
               ),
-              child: const Icon(Icons.logout, color: Colors.redAccent, size: 24),
+              child: const Icon(Icons.error_outline_rounded, color: crimson, size: 30),
             ),
             const SizedBox(height: 16),
             Text(
-              lang == 'ak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of Péthar?',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+              isAk ? 'အကောင့် အတည်ပြုရန် လိုအပ်ပါသည်' : 'Identity Verification Required',
+              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Colors.black87),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              lang == 'ak'
-                  ? 'လုံခြုံရေးအရ သင်၏ စက်တွင်း session အား ပိတ်သိမ်းပါမည်။'
-                  : 'Your active session will be ended securely.',
-              style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+              isAk
+                  ? 'သင်၏ အကောင့်သည် အတည်မပြုရသေးပါ (Unverified)။ "$featureName" နှင့် ငွေကြေးလုပ်ဆောင်ချက်များကို အသုံးပြုရန် အကောင့်အတည်ပြုပေးပါ။'
+                  : 'Your account is currently Unverified. Please verify your identity to unlock "$featureName" and all wallet functions.',
+              style: const TextStyle(fontSize: 12, color: Colors.black54, height: 1.4),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -56,31 +53,33 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(ctx),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white70,
-                      side: const BorderSide(color: Colors.white24),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      foregroundColor: Colors.black87,
+                      side: const BorderSide(color: Colors.black26),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                     ),
-                    child: Text(lang == 'ak' ? 'မထွက်ပါ' : 'Cancel'),
+                    child: Text(isAk ? 'နောက်မှ' : 'Later'),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
+                      appState.setVerified(true);
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(lang == 'ak' ? 'အကောင့်ထွက်ပြီးပါပြီ' : 'Logged out securely'),
-                          backgroundColor: crimson,
+                          content: Text(isAk ? 'အကောင့် အတည်ပြုပြီးပါပြီ (Verified)' : 'Account Verified Successfully!'),
+                          backgroundColor: emeraldSuccess,
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: crimson,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                     ),
-                    child: Text(lang == 'ak' ? 'ထွက်မည်' : 'Log Out'),
+                    child: Text(isAk ? 'အတည်ပြုမည်' : 'Verify Now'),
                   ),
                 ),
               ],
@@ -91,587 +90,330 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showChatSupportSheet(BuildContext context, bool isAk) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.headset_mic_rounded, color: crimson),
+                    const SizedBox(width: 8),
+                    Text(
+                      isAk ? 'Péthar တိုက်ရိုက် အကူအညီ' : 'Péthar Live Support',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black87),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  icon: const Icon(Icons.close, color: Colors.black54),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Text(
+                isAk
+                    ? 'မင်္ဂလာပါ! သင်၏ AKD ပိုက်ဆံအိတ် သို့မဟုတ် USD Account နှင့် ပတ်သက်၍ မည်သည့်အကူအညီ လိုအပ်ပါသလဲ?'
+                    : 'Mingalaba! How can we help with your AKD Wallet or USD Account today?',
+                style: const TextStyle(fontSize: 13, color: Colors.black87),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _runVerifiedAction(BuildContext context, AppState appState, String label, VoidCallback onAllowed) {
+    if (!appState.isVerified) {
+      _showVerificationRequiredDialog(context, appState, label);
+      return;
+    }
+    onAllowed();
+  }
+
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final lang = appState.language;
+    final isAk = lang == 'ak';
 
-    final quickServices = [
-      {
-        'id': Screen.send,
-        'label': lang == 'ak' ? 'ငွေလွှဲ' : 'Transfer',
-        'icon': Icons.arrow_outward,
-        'color': Colors.blue.withOpacity(0.2),
-        'iconColor': Colors.blueAccent,
-      },
-      {
-        'id': Screen.intl,
-        'label': lang == 'ak' ? 'ငွေဖြည့်' : 'Top Up',
-        'icon': Icons.add,
-        'color': Colors.amber.withOpacity(0.2),
-        'iconColor': gold,
-      },
-      {
-        'id': Screen.pos,
-        'label': lang == 'ak' ? 'ဘေလ်ဆောင်' : 'Pay Bills',
-        'icon': Icons.receipt,
-        'color': Colors.red.withOpacity(0.2),
-        'iconColor': Colors.redAccent,
-      },
-      {
-        'id': Screen.cashout,
-        'label': lang == 'ak' ? 'ငွေသားထုတ်' : 'Cash Out',
-        'icon': Icons.store,
-        'color': emeraldSuccess.withOpacity(0.2),
-        'iconColor': emeraldSuccess,
-      },
-      {
-        'id': Screen.crypto,
-        'label': lang == 'ak' ? 'ဒင်္ဂါးဘဏ္ဍာ' : 'Crypto Vault',
-        'icon': Icons.currency_bitcoin,
-        'color': Colors.purple.withOpacity(0.2),
-        'iconColor': Colors.purpleAccent,
-      },
-      {
-        'id': Screen.account,
-        'label': lang == 'ak' ? 'ငွေစာရင်း' : 'Account',
-        'icon': Icons.account_balance_wallet,
-        'color': Colors.cyan.withOpacity(0.2),
-        'iconColor': Colors.cyanAccent,
-      },
-      {
-        'id': Screen.offlinePayment,
-        'label': lang == 'ak' ? 'အော့ဖ်လိုင်း' : 'Offline P2P',
-        'icon': Icons.offline_bolt_rounded,
-        'color': gold.withOpacity(0.2),
-        'iconColor': gold,
-      },
-      {
-        'id': Screen.receive,
-        'label': lang == 'ak' ? 'မိမိ QR' : 'My QR',
-        'icon': Icons.qr_code,
-        'color': Colors.pink.withOpacity(0.2),
-        'iconColor': Colors.pinkAccent,
-      },
+    final homeActions = [
+      {'label': isAk ? 'ငွေပေးချေ' : 'Pay', 'icon': Icons.qr_code_scanner_rounded, 'target': Screen.scan},
+      {'label': isAk ? 'ငွေလက်ခံ' : 'Receive', 'icon': Icons.qr_code_2_rounded, 'target': Screen.receive},
+      {'label': isAk ? 'ငွေသွင်း' : 'Deposit', 'icon': Icons.account_balance_rounded, 'target': Screen.intl},
+      {'label': isAk ? 'ငွေထုတ်' : 'Withdraw', 'icon': Icons.outbox_rounded, 'target': Screen.cashout},
+    ];
+
+    final fxRates = [
+      {'code': 'AKD', 'buy': '1.00', 'sell': '1.00'},
+      {'code': 'USD', 'buy': '1.00', 'sell': '1.00'},
+      {'code': 'USDT', 'buy': '0.9985', 'sell': '1.0000'},
+      {'code': 'SGD', 'buy': '0.7420', 'sell': '0.7485'},
     ];
 
     return Scaffold(
-      backgroundColor: isDark ? obsidian : paper,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // ── TOP HEADER CARD (Krungthai NEXT Style with Rounded Bottom) ──
-            Container(
-              padding: const EdgeInsets.only(top: 45, bottom: 24, left: 20, right: 20),
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
-                gradient: isDark
-                    ? const LinearGradient(
-                        colors: [Color(0xFF2A080C), Color(0xFF1A0A10), Color(0xFF0E1522)],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      )
-                    : const LinearGradient(
-                        colors: [Color(0xFF7A1020), Color(0xFFA31220), Color(0xFFC2252F)],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black45, blurRadius: 16, offset: Offset(0, 6)),
-                ],
-              ),
-              child: Column(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 100),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Row: Clean Péthar Logo on Left + Live Chat Button on Right (No Notification Bell, No Black Box on Logo)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Top bar: Avatar, Emblem, Bell & Logout
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Avatar
-                      GestureDetector(
-                        onTap: () => appState.navigate(Screen.settings),
-                        child: Container(
-                          width: 42,
-                          height: 42,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: gold.withOpacity(0.8), width: 2),
-                          ),
-                          child: ClipOval(
-                            child: Image.network(
-                              appState.profile.avatarUrl ?? '',
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(Icons.person, color: gold),
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Center Emblem
-                      const ArakanEmblem(size: 38),
-                      // Actions: Notification & Logout
-                      Row(
-                        children: [
-                          Stack(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.notifications_outlined, color: Colors.white, size: 22),
-                                onPressed: () => appState.navigate(Screen.notifications),
-                              ),
-                              if (appState.unreadNotificationsCount > 0)
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.redAccent,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                                    child: Center(
-                                      child: Text(
-                                        '${appState.unreadNotificationsCount}',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.logout, color: Colors.white70, size: 20),
-                            onPressed: () => _showLogoutDialog(context, appState),
-                          ),
-                        ],
-                      ),
-                    ],
+                  const SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Center(child: ArakanEmblem(size: 36)),
                   ),
-                  const SizedBox(height: 18),
-
-                  // Available Balance Display
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        lang == 'ak' ? appState.wallet.labelMm : appState.wallet.labelEn,
-                        style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 11),
-                      ),
-                      const SizedBox(width: 6),
-                      GestureDetector(
-                        onTap: () => appState.toggleBalance(),
-                        child: Icon(
-                          appState.balanceHidden ? Icons.visibility_off : Icons.visibility,
-                          color: Colors.white70,
-                          size: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      const Text(
-                        '₳ ',
-                        style: TextStyle(color: gold, fontSize: 26, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        appState.balanceHidden
-                            ? '• • • • • •'
-                            : appState.wallet.balance.toStringAsFixed(2),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          fontFamily: 'monospace',
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        appState.wallet.code,
-                        style: TextStyle(color: gold.withOpacity(0.9), fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-
-                  // Total Balance Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${lang == 'ak' ? appState.wallet.totalLabelMm : appState.wallet.totalLabelEn}: ',
-                        style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11),
-                      ),
-                      Text(
-                        appState.balanceHidden
-                            ? '• • • •'
-                            : '₳ ${appState.wallet.totalBalance.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: goldLight,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11,
-                          fontFamily: 'monospace',
-                        ),
-                      ),
-                      if (!appState.balanceHidden && appState.wallet.pendingBalance > 0) ...[
-                        const SizedBox(width: 4),
-                        Text(
-                          '(${lang == 'ak' ? 'စောင့်ဆိုင်းဆဲ' : 'incl. pending'} ₳ ${appState.wallet.pendingBalance.toStringAsFixed(2)})',
-                          style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Offline Bearer Pocket indicator pill
-                  InkWell(
-                    onTap: () => appState.navigate(Screen.offlinePayment),
-                    borderRadius: BorderRadius.circular(20),
+                  GestureDetector(
+                    onTap: () => _showChatSupportSheet(context, isAk),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.25),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: gold.withOpacity(0.35)),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: Colors.black12),
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.offline_bolt_rounded, color: gold, size: 12),
-                          const SizedBox(width: 5),
+                          const Icon(Icons.headset_mic_rounded, size: 16, color: crimson),
+                          const SizedBox(width: 6),
                           Text(
-                            lang == 'ak'
-                                ? 'အော့ဖ်လိုင်း အိတ်ကပ်: ₳ ${appState.offlinePocketBalance.toStringAsFixed(2)}'
-                                : 'Offline Bearer Pocket: ₳ ${appState.offlinePocketBalance.toStringAsFixed(2)}',
-                            style: const TextStyle(color: goldLight, fontSize: 10, fontWeight: FontWeight.bold),
+                            isAk ? 'ချက်တင်' : 'Chat',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.chevron_right, color: goldLight, size: 12),
                         ],
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 14),
 
-            // ── Announcement Banner ──────────────────────────────────────
-            if (_bannerVisible)
+              // Welcome Back Card with Verified / Unverified Pill
               Container(
-                margin: const EdgeInsets.only(left: 16, right: 16, top: 12),
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: isDark ? gold.withOpacity(0.12) : const Color(0xFFFFFBEB),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: gold.withOpacity(0.35)),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(26),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 6)),
+                  ],
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.auto_awesome, color: gold, size: 18),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            lang == 'ak' ? 'အာရက္ခဗဟိုဘဏ် အသိပေးချက်' : 'Bank of Arakan Notice',
-                            style: const TextStyle(
-                              color: gold,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11,
-                            ),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: const Color(0xFF0284C7),
+                          child: Text(
+                            appState.profile.name.isNotEmpty ? appState.profile.name[0] : 'M',
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            lang == 'ak'
-                                ? 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀-၀၆:၀၀ တွင် စာရင်းစနစ် အဆင့်မြှင့်ပါမည်။ အော့ဖ်လိုင်းဘောက်ချာများ အသုံးပြုနိုင်ပါသည်။'
-                                : 'Péthar will undergo an Arakan ledger upgrade on 24 Sep 2026. Offline vouchers remain active.',
-                            style: TextStyle(
-                              color: isDark ? Colors.white70 : Colors.black87,
-                              fontSize: 10,
-                              height: 1.3,
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isAk ? 'ပြန်လည်ကြိုဆိုပါသည်၊' : 'Welcome back,',
+                              style: const TextStyle(fontSize: 12, color: Colors.black45, fontWeight: FontWeight.w500),
                             ),
-                          ),
-                        ],
-                      ),
+                            const SizedBox(height: 2),
+                            Text(
+                              appState.profile.name,
+                              style: const TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w800),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     GestureDetector(
-                      onTap: () => setState(() => _bannerVisible = false),
-                      child: const Icon(Icons.close, size: 16, color: Colors.grey),
+                      onTap: () => appState.setVerified(!appState.isVerified),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: appState.isVerified ? const Color(0xFFF0F9FF) : const Color(0xFFFFF1F2),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: appState.isVerified ? const Color(0xFF0284C7) : crimson,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              appState.isVerified ? Icons.verified_rounded : Icons.error_outline_rounded,
+                              size: 15,
+                              color: appState.isVerified ? const Color(0xFF0284C7) : crimson,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              appState.isVerified
+                                  ? (isAk ? 'အတည်ပြုပြီး' : 'Verified')
+                                  : (isAk ? 'အတည်မပြုရသေး' : 'Unverified'),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: appState.isVerified ? const Color(0xFF0284C7) : crimson,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
 
-            // ── 8 Quick Services Grid ─────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 0.9,
+              // Unified 4-Action Card (Pay | Receive | Deposit | Withdraw) + AKD Balance (₳)
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 24, offset: const Offset(0, 8)),
+                  ],
                 ),
-                itemCount: quickServices.length,
-                itemBuilder: (ctx, idx) {
-                  final qs = quickServices[idx];
-                  return InkWell(
-                    borderRadius: BorderRadius.circular(18),
-                    onTap: () {
-                      final screen = qs['id'] as Screen;
-                      appState.navigate(screen);
-                    },
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: qs['color'] as Color,
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4),
-                            ],
-                          ),
-                          child: Icon(
-                            qs['icon'] as IconData,
-                            color: qs['iconColor'] as Color,
-                            size: 22,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          qs['label'] as String,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white70 : Colors.black87,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // ── Favorites Row ─────────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        lang == 'ak' ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favorites',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => appState.navigate(Screen.send),
-                        child: Text(
-                          lang == 'ak' ? 'အားလုံး' : 'View all',
-                          style: const TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 84,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        ...favoriteContacts.map((fav) {
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 18),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: homeActions.map((act) {
+                          final label = act['label'] as String;
                           return GestureDetector(
-                            onTap: () => appState.navigate(Screen.send),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 14),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                      color: Color(fav.colorValue),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: isDark ? surfaceCard : Colors.white,
-                                        width: 2,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Color(fav.colorValue).withOpacity(0.35),
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 3),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        fav.initials,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ),
+                            onTap: () => _runVerifiedAction(context, appState, label, () {
+                              appState.navigate(act['target'] as Screen);
+                            }),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFF1F2),
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
-                                  const SizedBox(height: 6),
-                                  SizedBox(
-                                    width: 60,
-                                    child: Text(
-                                      lang == 'ak' ? fav.mm : fav.name,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark ? Colors.white70 : Colors.black87,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                  child: Icon(act['icon'] as IconData, color: crimson, size: 22),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  label,
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black87),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    isAk ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)' : 'Wallet Balance (AKD)',
+                                    style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  GestureDetector(
+                                    onTap: () => appState.toggleBalance(),
+                                    child: Icon(
+                                      appState.balanceHidden ? Icons.visibility_off : Icons.visibility,
+                                      size: 15,
+                                      color: Colors.black45,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          );
-                        }),
-                        // Add Favorite Button
-                        GestureDetector(
-                          onTap: () => appState.navigate(Screen.send),
-                          child: Column(
-                            children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey[200],
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white24, style: BorderStyle.solid),
-                                ),
-                                child: const Icon(Icons.add, color: gold, size: 22),
-                              ),
                               const SizedBox(height: 6),
                               Text(
-                                'Add',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                appState.balanceHidden ? '******' : '₳ ${appState.wallet.balance.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.black,
+                                  fontFamily: 'monospace',
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // ── Recent Ledger Postings ────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    TranslationStrings.tr('recentTransactions', lang),
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ...appState.txList.take(5).map((t) {
-                    final isNegative = t.amount < 0;
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark ? surfaceCard : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: isDark ? Colors.white.withOpacity(0.04) : Colors.grey[200]!),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              color: (isNegative ? crimson : emeraldSuccess).withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              isNegative ? Icons.arrow_outward : Icons.arrow_downward,
-                              color: isNegative ? crimson : emeraldSuccess,
-                              size: 18,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  lang == 'ak' ? t.titleMm : t.title,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                    color: isDark ? Colors.white : Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  t.time,
-                                  style: TextStyle(fontSize: 10, color: Colors.grey[500]),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            '${isNegative ? '-' : '+'} ₳ ${t.amount.abs().toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontFamily: 'monospace',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                              color: isNegative ? Colors.redAccent : emeraldSuccess,
+                          GestureDetector(
+                            onTap: () => appState.navigate(Screen.notifications),
+                            child: Text(
+                              isAk ? 'အသေးစိတ် ›' : 'View more ›',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: crimson),
                             ),
                           ),
                         ],
                       ),
-                    );
-                  }),
-                ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 30),
-          ],
+              const SizedBox(height: 20),
+
+              // Exchange Rates Section
+              Text(
+                isAk ? 'ငွေလဲလှယ်နှုန်းများ' : 'Exchange rates',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black87),
+              ),
+              const SizedBox(height: 10),
+              ...fxRates.map((fx) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(fx['code']!, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.black87)),
+                      Text('Buy: ${fx['buy']}', style: const TextStyle(fontFamily: 'monospace', fontSize: 13, color: Colors.black87)),
+                      Text('Sell: ${fx['sell']}', style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );

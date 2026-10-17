@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../app_state.dart';
 import '../theme.dart';
-import '../i18n.dart';
-import '../widgets/arakan_emblem.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({Key? key}) : super(key: key);
@@ -13,444 +11,290 @@ class ScanScreen extends StatefulWidget {
   State<ScanScreen> createState() => _ScanScreenState();
 }
 
-class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateMixin {
-  int _selectedTab = 0; // 0: Scan, 1: My QR, 2: QR to Pay
+class _ScanScreenState extends State<ScanScreen> {
+  int _bottomTab = 0; // 0: Scan, 1: Pay
   bool _flashlightOn = false;
-  late AnimationController _animController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-  }
+  String? _galleryResult;
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final lang = appState.language;
-
-    final tabs = [
-      {'label': lang == 'ak' ? 'စကင်ဖတ်' : 'Scan', 'icon': Icons.qr_code_scanner},
-      {'label': lang == 'ak' ? 'မိမိ QR' : 'My QR', 'icon': Icons.qr_code},
-      {'label': lang == 'ak' ? 'QR ဖြင့် ငွေပေးချေ' : 'QR to Pay', 'icon': Icons.payment},
-    ];
+    final isAk = appState.language == 'ak';
 
     return Scaffold(
-      backgroundColor: _selectedTab == 0 ? Colors.black : (isDark ? obsidian : paper),
-      appBar: AppBar(
-        title: Text(
-          TranslationStrings.tr('navScan', lang),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        backgroundColor: _selectedTab == 0 ? Colors.black : (isDark ? surfaceDark : Colors.white),
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          // ── Segmented Tab Selector ──────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: _selectedTab == 0
-                    ? Colors.white.withOpacity(0.12)
-                    : (isDark ? surfaceCard : Colors.grey[200]),
-                borderRadius: BorderRadius.circular(16),
-              ),
+      backgroundColor: _bottomTab == 0 ? const Color(0xFF52525B) : const Color(0xFFF8FAFC),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            // Top Overlay Header: Back (<) | Scan | Flashlight Torch Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
-                children: List.generate(tabs.length, (idx) {
-                  final active = _selectedTab == idx;
-                  final item = tabs[idx];
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => _selectedTab = idx),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: () => appState.navigate(Screen.home),
+                    icon: Icon(
+                      Icons.chevron_left,
+                      color: _bottomTab == 0 ? Colors.white : Colors.black87,
+                      size: 30,
+                    ),
+                  ),
+                  Text(
+                    _bottomTab == 0
+                        ? (isAk ? 'စကင်ဖတ်ရန်' : 'Scan')
+                        : (isAk ? 'QR ဖြင့် ငွေပေးချေရန်' : 'Pay'),
+                    style: TextStyle(
+                      color: _bottomTab == 0 ? Colors.white : Colors.black87,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (_bottomTab == 0)
+                    GestureDetector(
+                      onTap: () => setState(() => _flashlightOn = !_flashlightOn),
+                      child: Container(
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: active ? gold : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: active
-                              ? [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4)]
+                          shape: BoxShape.circle,
+                          color: _flashlightOn ? crimson : Colors.black26,
+                          border: Border.all(color: Colors.white, width: 1.4),
+                          boxShadow: _flashlightOn
+                              ? [
+                                  BoxShadow(
+                                    color: crimson.withValues(alpha: 0.8),
+                                    blurRadius: 16,
+                                  ),
+                                ]
                               : null,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              item['icon'] as IconData,
-                              size: 14,
-                              color: active ? Colors.black : Colors.grey,
+                        child: Icon(
+                          _flashlightOn ? Icons.flashlight_on_rounded : Icons.flashlight_off_outlined,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    )
+                  else
+                    const SizedBox(width: 40),
+                ],
+              ),
+            ),
+
+            // Main Viewfinder or Pay QR Body
+            Expanded(
+              child: _bottomTab == 0
+                  ? Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (_flashlightOn)
+                          Container(
+                            color: Colors.white.withValues(alpha: 0.16),
+                          ),
+                        // Horizontal glowing laser scan line matching photo 8.21.36
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Container(
+                            height: 2.5,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: crimson.withValues(alpha: 0.9),
+                                  blurRadius: 12,
+                                  spreadRadius: 2,
+                                    offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              item['label'] as String,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: active ? Colors.black : Colors.grey,
+                          ),
+                        ),
+                        if (_galleryResult != null)
+                          Positioned(
+                            top: 40,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.black87,
+                                borderRadius: BorderRadius.circular(16),
                               ),
+                              child: Text(
+                                _galleryResult!,
+                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                              ),
+                            ),
+                          ),
+                        // Bottom instruction & "Select from Gallery" pill button
+                        Positioned(
+                          bottom: 28,
+                          left: 24,
+                          right: 24,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                isAk
+                                    ? 'QR ကုဒ် သို့မဟုတ် ဘားကုဒ်ကို ဘောင်အတွင်း ထားရှိပါ'
+                                    : 'Place the QR code or barcode within the frame.',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _galleryResult = isAk
+                                        ? 'Gallery မှ QR ကုဒ်ကို ဖတ်ရှုပြီးပါပြီ'
+                                        : 'QR Code loaded from Gallery';
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.55),
+                                    borderRadius: BorderRadius.circular(999),
+                                    border: Border.all(color: Colors.white24),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.photo_library_outlined, color: Colors.white, size: 18),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        isAk ? 'ပုံပြခန်းမှ ရွေးချယ်ရန်' : 'Select from Gallery',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
+                  : Center(
+                      child: Container(
+                        width: 280,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
+                          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 24)],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            QrImageView(
+                              data: 'pethar://pay?user=${appState.profile.petharId}&cur=AKD',
+                              version: QrVersions.auto,
+                              size: 190,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              appState.profile.name,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              appState.profile.petharId,
+                              style: const TextStyle(fontSize: 12, color: Colors.black54, fontFamily: 'monospace'),
                             ),
                           ],
                         ),
                       ),
                     ),
-                  );
-                }),
-              ),
             ),
-          ),
 
-          // ── TAB 0: SCAN VIEW ──────────────────────────────────────────
-          if (_selectedTab == 0) ...[
+            // Bottom White Scan / Pay Bar matching photo 8.21.36
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: gold.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: gold.withOpacity(0.3)),
-              ),
+              height: 82,
+              color: Colors.white,
               child: Row(
                 children: [
-                  const Icon(Icons.warning_amber_rounded, color: gold, size: 18),
-                  const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      lang == 'ak'
-                          ? 'ငွေပေးချေရန်၊ ငွေလွှဲရန် သို့မဟုတ် ငွေထုတ်ရန်သာ စကင်ဖတ်ပါ။'
-                          : 'Scan to pay, transfer, or withdraw only.',
-                      style: const TextStyle(color: goldLight, fontSize: 10, height: 1.3),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => setState(() => _bottomTab = 0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.qr_code_scanner_rounded,
+                            color: _bottomTab == 0 ? crimson : Colors.black87,
+                            size: 24,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            isAk ? 'စကင်ဖတ်' : 'Scan',
+                            style: TextStyle(
+                              color: _bottomTab == 0 ? crimson : Colors.black87,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            width: 36,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              color: _bottomTab == 0 ? crimson : Colors.transparent,
+                              borderRadius: BorderRadius.circular(99),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => setState(() => _bottomTab = 1),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.qr_code_2_rounded,
+                            color: _bottomTab == 1 ? crimson : Colors.black87,
+                            size: 24,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            isAk ? 'ငွေပေးချေ' : 'Pay',
+                            style: TextStyle(
+                              color: _bottomTab == 1 ? crimson : Colors.black87,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            width: 36,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              color: _bottomTab == 1 ? crimson : Colors.transparent,
+                              borderRadius: BorderRadius.circular(99),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Viewfinder box
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          width: 240,
-                          height: 240,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white24, width: 1),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                        ),
-                        // Corner brackets
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                top: BorderSide(color: gold, width: 4),
-                                left: BorderSide(color: gold, width: 4),
-                              ),
-                              borderRadius: BorderRadius.only(topLeft: Radius.circular(24)),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                top: BorderSide(color: gold, width: 4),
-                                right: BorderSide(color: gold, width: 4),
-                              ),
-                              borderRadius: BorderRadius.only(topRight: Radius.circular(24)),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: gold, width: 4),
-                                left: BorderSide(color: gold, width: 4),
-                              ),
-                              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24)),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: gold, width: 4),
-                                right: BorderSide(color: gold, width: 4),
-                              ),
-                              borderRadius: BorderRadius.only(bottomRight: Radius.circular(24)),
-                            ),
-                          ),
-                        ),
-                        // Animated Scanning Line
-                        AnimatedBuilder(
-                          animation: _animController,
-                          builder: (ctx, child) {
-                            return Positioned(
-                              top: 20 + (200 * _animController.value),
-                              left: 20,
-                              right: 20,
-                              child: Container(
-                                height: 2,
-                                decoration: BoxDecoration(
-                                  color: gold,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: gold.withOpacity(0.8),
-                                      blurRadius: 8,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        const Icon(Icons.qr_code_scanner, color: Colors.white24, size: 54),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
-                    // Controls (Flashlight, Gallery)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          onPressed: () => setState(() => _flashlightOn = !_flashlightOn),
-                          icon: Icon(
-                            _flashlightOn ? Icons.flash_on : Icons.flash_off,
-                            color: _flashlightOn ? gold : Colors.white70,
-                          ),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.white12,
-                            padding: const EdgeInsets.all(12),
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        IconButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(lang == 'ak' ? 'ပုံပြခန်းမှ QR ရွေးပါ' : 'Select QR from Gallery'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.photo_library, color: Colors.white70),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.white12,
-                            padding: const EdgeInsets.all(12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
-
-          // ── TAB 1: MY QR CARD ─────────────────────────────────────────
-          if (_selectedTab == 1)
-            Expanded(
-              child: Center(
-                child: Container(
-                  width: 270,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 20)],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Header
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF17679A),
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                        ),
-                        child: Row(
-                          children: const [
-                            ArakanEmblem(size: 26),
-                            SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'ARAKAN QR PAYMENT',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 11,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                                Text(
-                                  'Arakan Digital Wallet',
-                                  style: TextStyle(color: Colors.white70, fontSize: 9),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      // QR Code
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: QrImageView(
-                          data: 'pethar://receive?id=${appState.profile.petharId}&cur=AKD',
-                          version: QrVersions.auto,
-                          size: 180,
-                        ),
-                      ),
-                      Text(
-                        'Scan QR to transfer to account',
-                        style: TextStyle(color: Colors.teal[700], fontSize: 11, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Name: ${appState.profile.name}',
-                        style: const TextStyle(color: Colors.black87, fontSize: 11, fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        'Account: ${appState.profile.petharId}',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 10, fontFamily: 'monospace'),
-                      ),
-                      const SizedBox(height: 16),
-                      // Footer actions
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
-                          border: Border(top: BorderSide(color: Colors.grey[200]!)),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextButton.icon(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('QR Code saved to Gallery'),
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.download, size: 16, color: Colors.teal),
-                                label: const Text('Save', style: TextStyle(color: Colors.black87, fontSize: 11)),
-                              ),
-                            ),
-                            Container(width: 1, height: 30, color: Colors.grey[300]),
-                            Expanded(
-                              child: TextButton.icon(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Sharing QR code...'),
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.share, size: 16, color: Colors.teal),
-                                label: const Text('Share', style: TextStyle(color: Colors.black87, fontSize: 11)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          // ── TAB 2: QR TO PAY ─────────────────────────────────────────
-          if (_selectedTab == 2)
-            Expanded(
-              child: Center(
-                child: Container(
-                  width: 270,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 20)],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF17679A),
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text('Pay at', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                            Text('Arakan Merchant', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: QrImageView(
-                          data: 'pethar://pay?merchant=ARAKAN&curr=AKD',
-                          version: QrVersions.auto,
-                          size: 180,
-                        ),
-                      ),
-                      Text(
-                        'ARAKAN QR PAYMENT',
-                        style: TextStyle(color: Colors.teal[700], fontSize: 11, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Scan to pay with ₳',
-                        style: TextStyle(color: Colors.grey[500], fontSize: 10),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

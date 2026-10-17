@@ -1212,61 +1212,83 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          5. MOBILE BOTTOM DOCK (Matching ref_04 & Paycent companion)
+          5. MOBILE BOTTOM DOCK (Liquid Glass Pill Navbar with Red Effect)
          ══════════════════════════════════════════════════════════════════════ */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-lg border-t border-slate-200/90 dark:border-slate-800 shadow-2xl py-2 px-4 max-w-lg mx-auto">
-        <div className="flex items-center justify-around relative">
+      <div className="lg:hidden fixed bottom-3 left-0 right-0 z-40 px-3 max-w-lg mx-auto pointer-events-none">
+        <nav
+          aria-label="Mobile Navigation"
+          className={`pointer-events-auto h-[68px] px-2 rounded-full backdrop-blur-2xl saturate-180 border flex items-center justify-between transition-all duration-300 ${
+            isDarkMode
+              ? 'bg-[#121620]/80 border-white/15 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.22),inset_0_-1px_2px_rgba(217,22,36,0.18),0_16px_40px_rgba(0,0,0,0.7)]'
+              : 'bg-white/80 border-white/90 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.95),inset_0_-1px_2px_rgba(217,22,36,0.06),0_14px_34px_rgba(15,23,42,0.14)]'
+          }`}
+        >
+          {/* 1. Home */}
           <button
             onClick={() => setNavTab('home')}
-            className={`flex flex-col items-center gap-1 text-[10px] font-bold ${
-              navTab === 'home' ? 'text-[#FF6B00]' : 'text-slate-400'
+            className={`flex-1 h-[54px] rounded-full flex flex-col items-center justify-center gap-0.5 text-[11px] transition-all cursor-pointer ${
+              navTab === 'home'
+                ? 'bg-gradient-to-b from-[#D91624]/[0.15] to-[#D91624]/[0.06] text-[#D91624] dark:text-[#FF3B47] border border-[#D91624]/25 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_4px_12px_rgba(217,22,36,0.15)] font-extrabold'
+                : 'text-slate-700 dark:text-slate-300 font-medium'
             }`}
           >
             <LayoutGrid size={20} />
             <span>{ak ? 'ပင်မ' : 'Home'}</span>
           </button>
 
+          {/* 2. Financial (Combines Financial Analytics & History) */}
           <button
-            onClick={() => setNavTab('cards')}
-            className={`flex flex-col items-center gap-1 text-[10px] font-bold ${
-              navTab === 'cards' ? 'text-[#FF6B00]' : 'text-slate-400'
+            onClick={() => setNavTab(navTab === 'financial' ? 'transactions' : 'financial')}
+            className={`flex-1 h-[54px] rounded-full flex flex-col items-center justify-center gap-0.5 text-[11px] transition-all cursor-pointer ${
+              navTab === 'financial' || navTab === 'transactions'
+                ? 'bg-gradient-to-b from-[#D91624]/[0.15] to-[#D91624]/[0.06] text-[#D91624] dark:text-[#FF3B47] border border-[#D91624]/25 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_4px_12px_rgba(217,22,36,0.15)] font-extrabold'
+                : 'text-slate-700 dark:text-slate-300 font-medium'
             }`}
           >
-            <CreditCard size={20} />
-            <span>{ak ? 'ကတ်များ' : 'Cards'}</span>
+            <span className="w-[21px] h-[21px] rounded-full border-[1.8px] border-current flex items-center justify-center text-[11px] font-extrabold leading-none">
+              ₳
+            </span>
+            <span>{ak ? 'ဘဏ္ဍာရေး' : 'Financial'}</span>
           </button>
 
-          {/* Center Floating Action Button */}
-          <div className="relative -top-5">
+          {/* 3. Center Red Scan Button */}
+          <div className="px-1.5 flex items-center justify-center">
             <button
               onClick={() => setReceiveModalOpen(true)}
-              className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#FF6B00] to-[#FF8500] text-white flex items-center justify-center shadow-lg active:scale-95 transition border-4 border-[#F4F6F9] dark:border-[#0B0F19]"
+              aria-label="Scan QR"
+              className="w-[58px] h-[58px] rounded-full bg-gradient-to-b from-[#FF2A38] via-[#D91624] to-[#B00E1A] text-white flex items-center justify-center shadow-[inset_0_2px_2px_rgba(255,255,255,0.45),0_8px_22px_rgba(217,22,36,0.55)] active:scale-95 transition border border-white/35 cursor-pointer"
             >
-              <QrCode size={26} />
+              <QrCode size={25} />
             </button>
           </div>
 
+          {/* 4. Services (Replaces History tab) */}
           <button
-            onClick={() => setNavTab('transactions')}
-            className={`flex flex-col items-center gap-1 text-[10px] font-bold ${
-              navTab === 'transactions' ? 'text-[#FF6B00]' : 'text-slate-400'
+            onClick={() => setAllServicesModalOpen(true)}
+            className={`flex-1 h-[54px] rounded-full flex flex-col items-center justify-center gap-0.5 text-[11px] transition-all cursor-pointer ${
+              allServicesModalOpen
+                ? 'bg-gradient-to-b from-[#D91624]/[0.15] to-[#D91624]/[0.06] text-[#D91624] dark:text-[#FF3B47] border border-[#D91624]/25 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_4px_12px_rgba(217,22,36,0.15)] font-extrabold'
+                : 'text-slate-700 dark:text-slate-300 font-medium'
             }`}
           >
-            <History size={20} />
-            <span>{ak ? 'မှတ်တမ်း' : 'History'}</span>
+            <Layers size={20} />
+            <span>{ak ? 'ဝန်ဆောင်မှု' : 'Services'}</span>
           </button>
 
+          {/* 5. Account */}
           <button
             onClick={() => setNavTab('settings')}
-            className={`flex flex-col items-center gap-1 text-[10px] font-bold ${
-              navTab === 'settings' ? 'text-[#FF6B00]' : 'text-slate-400'
+            className={`flex-1 h-[54px] rounded-full flex flex-col items-center justify-center gap-0.5 text-[11px] transition-all cursor-pointer ${
+              navTab === 'settings'
+                ? 'bg-gradient-to-b from-[#D91624]/[0.15] to-[#D91624]/[0.06] text-[#D91624] dark:text-[#FF3B47] border border-[#D91624]/25 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_4px_12px_rgba(217,22,36,0.15)] font-extrabold'
+                : 'text-slate-700 dark:text-slate-300 font-medium'
             }`}
           >
             <User size={20} />
             <span>{ak ? 'အကောင့်' : 'Account'}</span>
           </button>
-        </div>
-      </nav>
+        </nav>
+      </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
           MODAL 1: VERIFIED E-RECEIPT WITH SCANNABLE QR (ref_01 & ref_02)

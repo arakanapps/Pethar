@@ -129,13 +129,6 @@ function PetharLogo({
         className="relative flex items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-105 select-none pointer-events-none"
         style={{ width: size, height: size }}
       >
-        <div
-          className={`absolute inset-0 rounded-full blur-md transition-opacity ${
-            isDark
-              ? 'bg-white/15 opacity-80 group-hover:opacity-100'
-              : 'bg-zinc-900/10 opacity-75 group-hover:opacity-100'
-          }`}
-        />
         <img
           src="/pethar-logo-red-white.svg"
           alt="Péthar Logo"
