@@ -93,50 +93,223 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showChatSupportSheet(BuildContext context, bool isAk) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(ctx).size.height * 0.90,
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(34)),
+          gradient: LinearGradient(
+            colors: [Color(0xFF1CA3B8), Color(0xFF135E6B), Color(0xFF0D0F12)],
+            stops: [0.0, 0.42, 1.0],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(18, 20, 18, 36),
           children: [
+            // Top Row: App Badge + Agent Avatar & Close Button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0B252E).withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: const Center(child: ArakanEmblem(size: 28)),
+                ),
                 Row(
                   children: [
-                    const Icon(Icons.headset_mic_rounded, color: crimson),
-                    const SizedBox(width: 8),
-                    Text(
-                      isAk ? 'Péthar တိုက်ရိုက် အကူအညီ' : 'Péthar Live Support',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black87),
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF0284C7),
+                        border: Border.all(color: Colors.white38, width: 2),
+                      ),
+                      child: const Icon(Icons.support_agent_rounded, color: Colors.white, size: 22),
+                    ),
+                    const SizedBox(width: 10),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(ctx),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.15),
+                          border: Border.all(color: Colors.white30),
+                        ),
+                        child: const Icon(Icons.close, color: Colors.white, size: 22),
+                      ),
                     ),
                   ],
                 ),
-                IconButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  icon: const Icon(Icons.close, color: Colors.black54),
-                ),
               ],
             ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Text(
-                isAk
-                    ? 'မင်္ဂလာပါ! သင်၏ AKD ပိုက်ဆံအိတ် သို့မဟုတ် USD Account နှင့် ပတ်သက်၍ မည်သည့်အကူအညီ လိုအပ်ပါသလဲ?'
-                    : 'Mingalaba! How can we help with your AKD Wallet or USD Account today?',
-                style: const TextStyle(fontSize: 13, color: Colors.black87),
+            const SizedBox(height: 24),
+
+            // Greeting
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isAk ? 'မင်္ဂလာပါ 👋' : 'Hi there 👋',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white.withValues(alpha: 0.78),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isAk ? 'မည်သို့ ကူညီပေးရမလဲ?' : 'How can we help?',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+
+            // Card 1: Messages & Help
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF171A1F),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.white12),
+              ),
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text(
+                      isAk ? 'မက်ဆေ့ချ်များ (Messages)' : 'Messages',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    trailing: const Icon(Icons.chat_bubble_rounded, color: Color(0xFF29B6F6), size: 19),
+                    onTap: () {},
+                  ),
+                  const Divider(height: 1, color: Colors.white12),
+                  ListTile(
+                    title: Text(
+                      isAk ? 'အကူအညီ (Help)' : 'Help',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    trailing: const Icon(Icons.help_rounded, color: Color(0xFF29B6F6), size: 20),
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Card 2: Create a ticket
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF171A1F),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.white12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Text(
+                      isAk ? 'အကူအညီ လက်မှတ်ဖွင့်ရန်' : 'Create a ticket',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16),
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text('Mission Rewards', style: TextStyle(color: Colors.white, fontSize: 15)),
+                    trailing: const Icon(Icons.confirmation_number_rounded, color: Color(0xFF29B6F6), size: 19),
+                    onTap: () {},
+                  ),
+                  const Divider(height: 1, color: Colors.white12),
+                  ListTile(
+                    title: const Text('Scan to Pay Issues', style: TextStyle(color: Colors.white, fontSize: 15)),
+                    trailing: const Icon(Icons.error_rounded, color: Color(0xFF29B6F6), size: 19),
+                    onTap: () {},
+                  ),
+                  const Divider(height: 1, color: Colors.white12),
+                  ListTile(
+                    title: const Text('KYC Issues', style: TextStyle(color: Colors.white, fontSize: 15)),
+                    trailing: const Icon(Icons.badge_rounded, color: Color(0xFF29B6F6), size: 19),
+                    onTap: () {},
+                  ),
+                  const Divider(height: 1, color: Colors.white12),
+                  ListTile(
+                    title: const Text('Bug Report - Enhancement', style: TextStyle(color: Colors.white, fontSize: 15)),
+                    trailing: const Icon(Icons.bug_report_rounded, color: Color(0xFF29B6F6), size: 19),
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Card 3: Search for help
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF171A1F),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.white12),
+              ),
+              child: ListTile(
+                title: Text(
+                  isAk ? 'အကူအညီ ရှာဖွေရန်' : 'Search for help',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                trailing: const Icon(Icons.search_rounded, color: Color(0xFF29B6F6), size: 20),
+                onTap: () {},
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Card 4: Send us a message
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF171A1F),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.white12),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: ListTile(
+                title: Text(
+                  isAk ? 'မက်ဆေ့ချ် ပေးပို့ရန်' : 'Send us a message',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                subtitle: Text(
+                  isAk ? 'AI အေးဂျင့်နှင့် အဖွဲ့မှ ကူညီပေးပါမည်' : 'AI Agent and team can help',
+                  style: const TextStyle(color: Colors.white54, fontSize: 13),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    CircleAvatar(
+                      radius: 15,
+                      backgroundColor: Color(0xFF0284C7),
+                      child: Icon(Icons.support_agent_rounded, color: Colors.white, size: 16),
+                    ),
+                    SizedBox(width: 6),
+                    Icon(Icons.help_rounded, color: Color(0xFF29B6F6), size: 18),
+                  ],
+                ),
+                onTap: () {},
+              ),
+            ),
           ],
         ),
       ),
@@ -162,13 +335,6 @@ class _HomeScreenState extends State<HomeScreen> {
       {'label': isAk ? 'ငွေလက်ခံ' : 'Receive', 'icon': Icons.qr_code_2_rounded, 'target': Screen.receive},
       {'label': isAk ? 'ငွေသွင်း' : 'Deposit', 'icon': Icons.account_balance_rounded, 'target': Screen.intl},
       {'label': isAk ? 'ငွေထုတ်' : 'Withdraw', 'icon': Icons.outbox_rounded, 'target': Screen.cashout},
-    ];
-
-    final fxRates = [
-      {'code': 'AKD', 'buy': '1.00', 'sell': '1.00'},
-      {'code': 'USD', 'buy': '1.00', 'sell': '1.00'},
-      {'code': 'USDT', 'buy': '0.9985', 'sell': '1.0000'},
-      {'code': 'SGD', 'buy': '0.7420', 'sell': '0.7485'},
     ];
 
     return Scaffold(
@@ -339,7 +505,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,45 +539,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                           ),
-                          GestureDetector(
-                            onTap: () => appState.navigate(Screen.notifications),
-                            child: Text(
-                              isAk ? 'အသေးစိတ် ›' : 'View more ›',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: crimson),
-                            ),
-                          ),
                         ],
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-
-              // Exchange Rates Section
-              Text(
-                isAk ? 'ငွေလဲလှယ်နှုန်းများ' : 'Exchange rates',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black87),
-              ),
-              const SizedBox(height: 10),
-              ...fxRates.map((fx) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(fx['code']!, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.black87)),
-                      Text('Buy: ${fx['buy']}', style: const TextStyle(fontFamily: 'monospace', fontSize: 13, color: Colors.black87)),
-                      Text('Sell: ${fx['sell']}', style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
-                    ],
-                  ),
-                );
-              }),
             ],
           ),
         ),

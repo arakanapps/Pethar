@@ -248,22 +248,9 @@ class _MainShellState extends State<MainShell> {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 100),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
           children: [
-            // Top Bar: Clean Péthar Logo Only on Left (No Bell, No Live Chat, No Black Box on Logo)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: const [
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Center(child: ArakanEmblem(size: 36)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // USD Account Header Row:
+            // USD Account Header Row (No Logo on non-Home pages):
             // - Left: USD symbol ($) + "USD Account" (dropped "USD-Backed" text)
             // - Right: ONLY Refresh button & Setting button (for Security & Privacy with Secret Recovery Phrase)
             Row(
@@ -714,8 +701,7 @@ class _MainShellState extends State<MainShell> {
       onTap: () {
         Provider.of<AppState>(context, listen: false).navigate(target);
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
         height: 54,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(999),
@@ -729,17 +715,21 @@ class _MainShellState extends State<MainShell> {
                   end: Alignment.bottomCenter,
                 )
               : null,
-          border: isSelected
-              ? Border.all(
-                  color: crimson.withValues(alpha: isDark ? 0.38 : 0.22),
-                  width: 1,
-                )
-              : null,
+          border: Border.all(
+            color: isSelected
+                ? crimson.withValues(alpha: isDark ? 0.38 : 0.22)
+                : Colors.transparent,
+            width: 1,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 22),
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Center(child: Icon(icon, color: color, size: 22)),
+            ),
             const SizedBox(height: 2),
             Text(
               label,
@@ -748,7 +738,7 @@ class _MainShellState extends State<MainShell> {
               style: TextStyle(
                 color: color,
                 fontSize: 10.5,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
               ),
             ),
           ],
