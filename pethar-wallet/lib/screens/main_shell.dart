@@ -66,7 +66,7 @@ class _MainShellState extends State<MainShell> {
   static const String _fullWalletAddress = '0x36a8F492C109bE742819aBcD8391048291045f19';
   static const String _shortWalletAddress = '0x36...5f19';
   static const List<String> _recoveryWords = [
-    'sovereign', 'arakan', 'crimson', 'harbor',
+    'secure', 'arakan', 'crimson', 'harbor',
     'shield', 'ledger', 'velvet', 'anchor',
     'crystal', 'beacon', 'meadow', 'fortune',
   ];
@@ -2190,6 +2190,7 @@ class _MainShellState extends State<MainShell> {
     if (appState.currentScreen == Screen.topup) return const TopupScreen();
     if (appState.currentScreen == Screen.billPayment) return const BillPaymentScreen();
     if (appState.currentScreen == Screen.favourites) return const FavouritesScreen();
+    if (appState.currentScreen == Screen.account) return const AccountScreen();
 
     int currentIndex = 0;
     switch (appState.currentScreen) {
@@ -2206,7 +2207,6 @@ class _MainShellState extends State<MainShell> {
         currentIndex = 3;
         break;
       case Screen.settings:
-      case Screen.account:
         currentIndex = 4;
         break;
       default:
@@ -2225,9 +2225,7 @@ class _MainShellState extends State<MainShell> {
         body = const ServicesScreen();
         break;
       case 4:
-        body = appState.currentScreen == Screen.account
-            ? const AccountScreen()
-            : const SettingsScreen();
+        body = const SettingsScreen();
         break;
       default:
         body = const HomeScreen();

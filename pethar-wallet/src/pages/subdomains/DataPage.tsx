@@ -31,7 +31,7 @@ export const DataPage = ({ lang }: DataPageProps) => {
       }
     : {
         badge: 'Public Economic Intelligence & Macro Ledger Analytics',
-        heroTitle: 'Sovereign Macroeconomic & On-Chain Intelligence',
+        heroTitle: 'Macroeconomic & On-Chain Intelligence',
         heroSubtitle: 'Real-time transparent verification of physical bullion reserves, 1:1 USDT peg stability, transaction velocity, and regional commerce indices',
         ctaApi: 'Developer Data API',
         ctaDownload: 'Download Open Data CSV',
@@ -204,7 +204,7 @@ export const DataPage = ({ lang }: DataPageProps) => {
               <div key={idx} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/60 transition-colors">
                 <div className="space-y-0.5">
                   <h4 className="text-xs font-bold text-slate-900">{town.name}</h4>
-                  <p className="text-[10px] font-mono text-slate-400">Township Sovereign Commerce Node</p>
+                  <p className="text-[10px] font-mono text-slate-400">Township Commerce Node</p>
                 </div>
                 <div className="flex items-center gap-6 sm:text-right font-mono text-xs">
                   <div>

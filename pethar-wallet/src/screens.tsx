@@ -219,7 +219,7 @@ export function Home({
     {
       titleEn: '100% Gold-Backed AKD Vault',
       titleAk: 'ရွှေအာမခံ ၁၀၀% အပြည့်ဖြင့် ထိန်းသိမ်းထားသော ငွေကြေး',
-      descEn: 'Audited sovereign reserve backed 1:1 by gold',
+      descEn: 'Audited reserve backed 1:1 by gold',
       descAk: 'ရုပ်ပိုင်းဆိုင်ရာ ရွှေနှင့် ဒေါ်လာဖြင့် အပြည့်အဝ အာမခံထားသည်',
       gradient: 'from-amber-950 via-stone-900 to-stone-800',
       icon: ShieldCheck,
@@ -849,75 +849,6 @@ export function AccountScreen({
             >
               <Store size={14} />
               <span>{isAk ? 'ငွေထုတ်' : 'Cash Out'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* ═════════════════════════════════════════════════════════════════════
-           4. PÉTHAR VISA DEBIT CARD WIDGET
-        ═════════════════════════════════════════════════════════════════════ */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-bold flex items-center gap-1.5 text-gray-700">
-              <CreditCard size={14} className="text-amber-500" />
-              <span>{isAk ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'Péthar Debit Card'}</span>
-            </span>
-            <span className="text-[10px] text-amber-600 font-mono font-bold">VISA DEBIT</span>
-          </div>
-
-          <div
-            className={`p-4 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden ${cardFrozen
-                ? 'bg-gray-800 border-gray-600 grayscale'
-                : 'bg-gradient-to-br from-[#730A12] via-[#A8131F] to-[#3B0206] border-amber-500/50'
-              }`}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <ArakanEmblem size={28} variant="badge" />
-                <span className="font-bold text-white text-xs tracking-wider">PETHAR</span>
-              </div>
-              <span className="text-[10px] font-mono font-black text-amber-300">VISA</span>
-            </div>
-
-            <div className="my-4 font-mono text-sm tracking-widest text-white drop-shadow">
-              4219 •••• •••• 9924
-            </div>
-
-            <div className="flex items-end justify-between font-mono text-[10px] text-gray-200">
-              <div>
-                <div className="text-[8px] uppercase text-amber-200/80">Cardholder</div>
-                <div className="font-bold text-white">User</div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div>
-                  <div className="text-[8px] uppercase text-amber-200/80">Exp</div>
-                  <div>09/30</div>
-                </div>
-                <div>
-                  <div className="text-[8px] uppercase text-amber-200/80">CVV</div>
-                  <div>{showCvv ? '418' : '•••'}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setCardFrozen(!cardFrozen)}
-              className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border ${cardFrozen
-                  ? 'bg-emerald-600 text-white border-emerald-500'
-                  : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200 shadow-2xs'
-                }`}
-            >
-              <Lock size={13} />
-              <span>{cardFrozen ? 'Unfreeze Card' : 'Freeze Card'}</span>
-            </button>
-            <button
-              onClick={() => setShowCvv(!showCvv)}
-              className="py-2 px-3 rounded-xl text-xs font-bold bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-2xs flex items-center justify-center gap-1.5 transition"
-            >
-              {showCvv ? <EyeOff size={13} /> : <Eye size={13} />}
-              <span>{showCvv ? 'Hide CVV' : 'View CVV'}</span>
             </button>
           </div>
         </div>

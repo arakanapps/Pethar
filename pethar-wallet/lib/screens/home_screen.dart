@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
     {
       'titleEn': '100% Gold-Backed AKD Vault',
       'titleAk': 'ရွှေအာမခံ ၁၀၀% အပြည့်ဖြင့် ထိန်းသိမ်းထားသော ငွေကြေး',
-      'descEn': 'Audited sovereign reserve backed 1:1 by gold',
+      'descEn': 'Audited reserve backed 1:1 by gold',
       'descAk': 'ရုပ်ပိုင်းဆိုင်ရာ ရွှေနှင့် ဒေါ်လာဖြင့် အပြည့်အဝ အာမခံထားသည်',
       'bgGradient': [Color(0xFFFFFFFF), Color(0xFFFEFCE8)],
       'borderColor': Color(0xFFFDE68A),

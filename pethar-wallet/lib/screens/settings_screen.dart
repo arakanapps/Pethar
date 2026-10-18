@@ -1192,6 +1192,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onTap: () => setState(() => _subView = 'personal_info'),
                   ),
                   const Divider(height: 1),
+                  _buildSettingTile(
+                    icon: Icons.notifications_none_rounded,
+                    title: isAk ? 'အသိပေးချက်များ' : 'Notifications',
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
                   ListTile(
                     leading: const CircleAvatar(
                       radius: 18,

@@ -2,7 +2,7 @@
   "name": "pethar-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "Péthar (ဖေ့သာ) — Sovereign Multi-Platform Financial Infrastructure (Web, Android, iOS, POS, Desktop)",
+  "description": "Péthar (ဖေ့သာ) — Multi-Platform Financial Infrastructure (Web, Android, iOS, POS, Desktop)",
   "type": "module",
   "scripts": {
     "build": "cd pethar-wallet && npm install && npm run build",

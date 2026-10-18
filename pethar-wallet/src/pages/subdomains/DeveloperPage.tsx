@@ -38,7 +38,7 @@ export const DeveloperPage = ({ lang }: DeveloperPageProps) => {
       }
     : {
         badge: 'Péthar Developer Core · v1.4.0 Engine · Ed25519 Native',
-        heroTitle: 'Build Sovereign Financial Rails on Péthar',
+        heroTitle: 'Build Financial Rails on Péthar',
         heroSubtitle: 'Next-generation payment infrastructure powered by Ed25519 hardware cryptography, sub-second settlements, and offline-first mesh APIs',
         ctaConsole: 'Open Developer Console',
         ctaDocs: 'Read Full Documentation',

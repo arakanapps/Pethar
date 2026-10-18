@@ -78,7 +78,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
       requestBody: JSON.stringify({
         buyer_id: "akd_node_buyer",
         seller_id: "akd_node_seller",
-        arbiter: "pethar_sovereign_chamber",
+        arbiter: "pethar_chamber",
         collateral_asset: "GOLD_GRAMS",
         collateral_amount: 15.0,
         timelock_hours: 72
@@ -133,7 +133,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
       }
     : {
         badge: 'Official Péthar REST API · v1 Core Reference',
-        heroTitle: 'The Sovereign Financial API Reference',
+        heroTitle: 'The Financial API Reference',
         heroSubtitle: 'Programmatic high-speed access to atomic transfers, bullion custody, real-time FX order books, and store-and-forward mesh rails',
         tryCall: 'Simulate API Call',
         copied: 'Copied!',
