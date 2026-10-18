@@ -26,7 +26,7 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
         contactUs: '၂၄/၇ Support Chat စတင်မည်',
       }
     : {
-        badge: 'Péthar Help Center & Sovereign Knowledge Base · 24/7 FAQ',
+        badge: 'Péthar Help Center & Knowledge Base · 24/7 FAQ',
         heroTitle: 'How Can We Assist You Today?',
         heroSubtitle: 'Instant answers to cryptographic key recovery, 1:1 bullion reserve audits, offline BLE mesh payments, and corporate treasury management',
         searchPlaceholder: 'Search FAQs, offline mesh, gold audits, debit cards...',
@@ -133,7 +133,7 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
           >
             <MessageSquare className="w-6 h-6 text-sky-600 group-hover:scale-110 transition-transform" />
             <h4 className="text-xs font-bold text-slate-950">Live Support</h4>
-            <p className="text-[11px] text-slate-500">Chat with a verified sovereign support officer 24/7.</p>
+            <p className="text-[11px] text-slate-500">Chat with a verified support officer 24/7.</p>
           </div>
         </div>
 

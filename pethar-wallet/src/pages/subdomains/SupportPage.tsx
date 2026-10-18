@@ -35,7 +35,7 @@ export const SupportPage = ({ lang }: SupportPageProps) => {
         ticketSuccess: 'သင်၏ အကူအညီတောင်းဆိုလွှာကို လက်ခံရရှိပါပြီ! လက်မှတ်နံပါတ်:',
       }
     : {
-        badge: 'Official Péthar Support & Sovereign Assistance · 24/7 Rails',
+        badge: 'Official Péthar Support & Assistance · 24/7 Rails',
         heroTitle: 'How Can Our Global Support Assist You?',
         heroSubtitle: 'Dedicated assistance for enclave security, remittance tracking, merchant POS hardware, and physical gold audits',
         ctaChat: 'Launch Live Encrypted Chat',
@@ -47,7 +47,7 @@ export const SupportPage = ({ lang }: SupportPageProps) => {
         channelDeskDesc: 'Walk-in desks in Sittwe, Mae Sot, Bangkok, and London',
         ticketTitle: 'Submit an Escalated Support Ticket',
         submitBtn: 'Submit Priority Ticket',
-        ticketSuccess: 'Ticket successfully logged to sovereign support dispatch! Ticket ID:',
+        ticketSuccess: 'Ticket successfully logged to support dispatch! Ticket ID:',
       };
 
   const handleSubmitTicket = (e: React.FormEvent) => {

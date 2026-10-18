@@ -116,7 +116,7 @@ const SINGLE_WALLET_ACCOUNT = {
   shortAddress: '0x36...5f19',
   fullAddress: '0x36a8F492C109bE742819aBcD8391048291045f19',
   recoveryPhrase: [
-    'sovereign',
+    'secure',
     'arakan',
     'crimson',
     'harbor',
@@ -355,7 +355,7 @@ const PROMO_ADS = [
     icon: ShieldCheck,
     titleEn: '100% Gold-Backed AKD Vault',
     titleAk: 'ရွှေအာမခံ ၁၀၀% အပြည့်ဖြင့် ထိန်းသိမ်းထားသော ငွေကြေး',
-    descEn: 'Audited sovereign reserve backed 1:1 by physical gold',
+    descEn: 'Audited reserve backed 1:1 by physical gold',
     descAk: 'ရုပ်ပိုင်းဆိုင်ရာ ရွှေနှင့် ဒေါ်လာဖြင့် အပြည့်အဝ အာမခံထားသည်',
   },
 ]
