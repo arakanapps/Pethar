@@ -3,7 +3,7 @@ import 'models/data.dart';
 import 'services/firebase_service.dart';
 import 'services/supabase_service.dart';
 
-enum Screen { home, account, services, settings, send, receive, scan, cashout, intl, crypto, pos, notifications, desktop, offlinePayment, pay, history, topup }
+enum Screen { home, account, services, settings, send, receive, scan, cashout, intl, crypto, pos, notifications, desktop, offlinePayment, pay, history, topup, billPayment, favourites }
 
 class AppState extends ChangeNotifier {
   Screen currentScreen = Screen.home;
@@ -24,10 +24,30 @@ class AppState extends ChangeNotifier {
   bool showCardCvv = false;
   List<NotificationItem> notifications = List.from(sampleNotifications);
   List<Transaction> txList = List.from(transactions);
+  List<FavoriteContact> favoriteContactsList = List.from(favoriteContacts);
   double offlinePocketBalance = 150.0; // Pre-loaded offline bearer cash
   List<String> offlineTokens = [];     // Stored bearer tokens
   Map<String, dynamic>? pendingPayContact;
   bool dontShowQuickScanDialog = false;
+
+  void addFavoriteContact(FavoriteContact contact) {
+    favoriteContactsList.add(contact);
+    notifyListeners();
+  }
+
+  void updateFavoriteContact(int index, FavoriteContact updated) {
+    if (index >= 0 && index < favoriteContactsList.length) {
+      favoriteContactsList[index] = updated;
+      notifyListeners();
+    }
+  }
+
+  void deleteFavoriteContact(int index) {
+    if (index >= 0 && index < favoriteContactsList.length) {
+      favoriteContactsList.removeAt(index);
+      notifyListeners();
+    }
+  }
 
   int get unreadNotificationsCount => notifications.where((n) => !n.read).length;
 
@@ -462,6 +482,52 @@ class AppState extends ChangeNotifier {
         titleMm: '$operatorName ဖုန်းငွေဖြည့်ခြင်း အောင်မြင်ပါသည်',
         bodyEn: 'Sent $productTitle to $phone. Charged ${akdTotal.toStringAsFixed(3)} AKD (${thbTotal.toStringAsFixed(2)} THB).',
         bodyMm: '$phone သို့ $productTitle ဖြည့်သွင်းပြီးပါပြီ။ ကျသင့်ငွေ ₳ ${akdTotal.toStringAsFixed(3)} (${thbTotal.toStringAsFixed(2)} THB) ဖြစ်ပါသည်။',
+        time: 'Just now',
+        dateGroup: 'Today',
+        type: 'transaction',
+        read: false,
+      ),
+    );
+    notifyListeners();
+  }
+
+  void processBillPayment({
+    required String billerName,
+    required String billerCategory,
+    required String accountNo,
+    required double mmkAmount,
+    required double thbAmount,
+    required double akdAmount,
+  }) {
+    wallet.balance = (wallet.balance - akdAmount).clamp(0.0, double.infinity);
+    wallet.totalBalance = (wallet.totalBalance - akdAmount).clamp(0.0, double.infinity);
+    final now = DateTime.now();
+    txList.insert(
+      0,
+      Transaction(
+        id: 'TX-BILL-${now.millisecondsSinceEpoch.toString().substring(7)}',
+        refId: 'REF-BILL-${now.millisecondsSinceEpoch.toString().substring(8)}',
+        title: 'Bill: $billerName',
+        titleMm: 'ဘေလ်: $billerName',
+        category: 'Bills',
+        currency: 'AKD',
+        time: 'Just now',
+        status: 'Completed',
+        counterparty: billerName,
+        counterpartyMm: billerName,
+        hash: '0x3c8e...${now.millisecondsSinceEpoch.toString().substring(8)}',
+        amount: -akdAmount,
+        fee: 0.0,
+      ),
+    );
+    notifications.insert(
+      0,
+      NotificationItem(
+        id: 'N-BILL-${now.millisecondsSinceEpoch.toString().substring(8)}',
+        titleEn: '$billerName Bill Paid',
+        titleMm: '$billerName ဘေလ်ပေးဆောင်ပြီးပါပြီ',
+        bodyEn: 'Account $accountNo paid ${akdAmount.toStringAsFixed(3)} AKD (${mmkAmount > 0 ? "${mmkAmount.toStringAsFixed(0)} MMK" : "${thbAmount.toStringAsFixed(2)} THB"}).',
+        bodyMm: 'အကောင့် $accountNo အတွက် ₳ ${akdAmount.toStringAsFixed(3)} ပေးချေပြီးပါပြီ။',
         time: 'Just now',
         dateGroup: 'Today',
         type: 'transaction',

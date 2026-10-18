@@ -239,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final appState = Provider.of<AppState>(context);
     final lang = appState.language;
     final isAk = lang == 'ak';
-    final currencyFmt = NumberFormat('#,##0.0000', 'en_US');
+    final currencyFmt = NumberFormat('#,##0.00', 'en_US');
 
     // 3. Primary 4-Action Row: Pay | Receive | Deposit | Withdraw
     final homeActions = [
@@ -304,7 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               appState,
               isAk ? 'ဘေလ်ဆောင်ရန် (Bill payment)' : 'Bill payment',
-              () => appState.navigate(Screen.pos),
+              () => appState.navigate(Screen.billPayment),
             ),
       },
       {
@@ -319,16 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     ];
 
-    final favUsers = [
-      FavoriteContact(
-        name: 'user',
-        mm: 'အသုံးပြုသူ',
-        id: 'ARAK-1024',
-        initials: 'U',
-        colorValue: 0xFF0284C7,
-      ),
-      ...favoriteContacts.take(3),
-    ];
+    final favUsers = appState.favoriteContactsList;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -786,6 +777,27 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.info_outline_rounded,
+                            size: 13,
+                            color: Color(0xFF71717A),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isAk
+                                ? 'လွှဲပြောင်းမှု ခွင့်မပြုပါ (Transaction is not allowed)'
+                                : 'Transaction is not allowed',
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF71717A),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -860,8 +872,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () => _runVerifiedAction(
                           context,
                           appState,
-                          isAk ? 'ငွေပေးချေရန်' : 'Pay',
-                          () => appState.navigate(Screen.pay),
+                          isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites',
+                          () => appState.navigate(Screen.favourites),
                         ),
                         child: Text(
                           isAk ? 'အားလုံးကြည့်ရန်' : 'view all',
@@ -952,8 +964,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () => _runVerifiedAction(
                           context,
                           appState,
-                          isAk ? 'ငွေပေးချေရန်' : 'Pay',
-                          () => appState.navigate(Screen.pay),
+                          isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites',
+                          () => appState.navigate(Screen.favourites),
                         ),
                         child: Column(
                           children: [
