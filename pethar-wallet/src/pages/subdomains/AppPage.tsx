@@ -37,7 +37,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
 
   // Dynamic state fetched from Supabase database
   const [profile, setProfile] = useState(initialUserProfile);
-  const [balance, setBalance] = useState(12500.0);
+  const [balance, setBalance] = useState(0.00);
   const [txList, setTxList] = useState<Txn[]>([]);
   const [fxRates, setFxRates] = useState<FxRateItem[]>([]);
 

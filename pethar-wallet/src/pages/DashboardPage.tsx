@@ -186,7 +186,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [txCategoryFilter, setTxCategoryFilter] = useState<'all' | 'transfer' | 'inflow' | 'merchant' | 'offline'>('all')
 
   // Balances
-  const [walletBalance, setWalletBalance] = useState(12500.0)
+  const [walletBalance, setWalletBalance] = useState(0.00)
   const [monthlyInflow] = useState(4200.0)
   const [monthlyOutflow] = useState(1450.0)
   const [offlineBalance] = useState(240.0)
