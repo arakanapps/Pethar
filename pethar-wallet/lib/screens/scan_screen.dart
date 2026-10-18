@@ -172,13 +172,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           Container(
                             color: Colors.white.withValues(alpha: 0.16),
                           ),
-                        // Tappable Viewfinder area to scan and fetch QR
-                        Positioned.fill(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => _fetchQrAndGoToPay(appState),
-                          ),
-                        ),
+
                         // Horizontal glowing laser scan line
                         IgnorePointer(
                           child: Padding(
@@ -240,45 +234,6 @@ class _ScanScreenState extends State<ScanScreen> {
                                 ),
                               ),
                               const SizedBox(height: 14),
-                              // Instant Fetch QR & Go To Pay Action Button
-                              GestureDetector(
-                                onTap: () => _fetchQrAndGoToPay(appState),
-                                child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFFFF2A38), crimson],
-                                    ),
-                                    borderRadius: BorderRadius.circular(14),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: crimson.withValues(alpha: 0.4),
-                                        blurRadius: 14,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        isAk
-                                            ? 'QR ကုဒ်ဖတ်ပြီး ငွေလွှဲမည် (@zawmyo)'
-                                            : 'Fetch Recipient QR (@zawmyo • 882194012345)',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
                               GestureDetector(
                                 onTap: () {
                                   _fetchQrAndGoToPay(appState);

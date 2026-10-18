@@ -47,6 +47,8 @@ export type Screen =
   | 'pos'
   | 'notifications'
   | 'pay'
+  | 'history'
+  | 'topup'
 
 // ── Shared Header ───────────────────────────────────────────────────────
 export function ScreenHeader({
