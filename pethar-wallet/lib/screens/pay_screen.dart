@@ -228,10 +228,10 @@ class _PayScreenState extends State<PayScreen> {
     final note = _noteCtrl.text.trim();
 
     final isAk = appState.language == 'ak';
-    if (amount <= 0 || amount < 1.0) {
+    if (amount <= 0 || amount < 0.01) {
       setState(() => _errorMessage = isAk
-          ? 'အနည်းဆုံး 1.00 AKD လွှဲရပါမည် (At least 1.00)'
-          : 'Amount must be at least 1.00 AKD');
+          ? 'အနည်းဆုံး 0.01 AKD လွှဲရပါမည် (At least 0.01)'
+          : 'Amount must be at least 0.01 AKD');
       return;
     }
 
@@ -941,7 +941,7 @@ class _PayScreenState extends State<PayScreen> {
     final noteChips = ['Salary', 'Payment', 'Bill', 'Family & Friends'];
     final enteredAmount = double.tryParse(_amountCtrl.text.trim());
     final isOverBalance = enteredAmount != null && enteredAmount > appState.wallet.balance;
-    final isUnderMin = enteredAmount != null && enteredAmount > 0 && enteredAmount < 1.0;
+    final isUnderMin = enteredAmount != null && enteredAmount > 0 && enteredAmount < 0.01;
 
     return SingleChildScrollView(
       key: const ValueKey('screen2'),
@@ -1142,7 +1142,7 @@ class _PayScreenState extends State<PayScreen> {
                           const Icon(Icons.info_outline_rounded, size: 12, color: Color(0xFFEA580C)),
                           const SizedBox(width: 3),
                           Text(
-                            isAk ? 'အနည်းဆုံး 1.00' : 'At least 1.00',
+                            isAk ? 'အနည်းဆုံး 0.01' : 'At least 0.01',
                             style: const TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w800,
@@ -1150,15 +1150,6 @@ class _PayScreenState extends State<PayScreen> {
                             ),
                           ),
                         ],
-                      )
-                    else
-                      Text(
-                        isAk ? 'အနည်းဆုံး: 1.00' : 'At least: 1.00',
-                        style: const TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF94A3B8),
-                        ),
                       ),
                   ],
                 ),
@@ -1321,8 +1312,8 @@ class _PayScreenState extends State<PayScreen> {
                         Expanded(
                           child: Text(
                             isAk
-                                ? 'အနည်းဆုံး 1.00 AKD လွှဲရပါမည် (At least 1.00)'
-                                : 'At least 1.00: Minimum transfer amount is 1.00 AKD',
+                                ? 'အနည်းဆုံး 0.01 AKD လွှဲရပါမည် (At least 0.01)'
+                                : 'At least 0.01: Minimum transfer amount is 0.01 AKD',
                             style: const TextStyle(
                               color: Color(0xFFEA580C),
                               fontSize: 12,

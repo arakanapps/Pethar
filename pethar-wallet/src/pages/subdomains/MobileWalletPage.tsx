@@ -1216,14 +1216,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               )}
             </div>
 
-            <div className="mt-1.5 flex items-center gap-1.5 text-zinc-500 text-[11.5px] font-semibold">
-              <Info size={12} className="text-zinc-500 shrink-0" />
-              <span>
-                {isAk
-                  ? 'လွှဲပြောင်းမှု ခွင့်မပြုပါ (Transaction is not allowed)'
-                  : 'Transaction is not allowed'}
-              </span>
-            </div>
           </div>
 
           {/* 5. SECONDARY 4-SERVICE BOX: (+) Topup | (Bill) Bill payment | (Card) Account | (Clock) History */}
@@ -2714,8 +2706,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     const handleExecutePay = () => {
       const amt = parseFloat(payAmount)
-      if (isNaN(amt) || amt <= 0 || amt < 1.0) {
-        triggerSettingsToast(isAk ? 'အနည်းဆုံး 1.00 AKD လွှဲရပါမည် (At least 1.00)' : 'Amount must be at least 1.00 AKD')
+      if (isNaN(amt) || amt <= 0 || amt < 0.01) {
+        triggerSettingsToast(isAk ? 'အနည်းဆုံး 0.01 AKD လွှဲရပါမည် (At least 0.01)' : 'Amount must be at least 0.01 AKD')
         return
       }
       if (amt > usdAccountBalance) {
@@ -2856,7 +2848,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     if (payStep === 'detail') {
       const parsedAmt = parseFloat(payAmount)
       const isPayOverBalance = !isNaN(parsedAmt) && parsedAmt > usdAccountBalance
-      const isPayUnderMin = !isNaN(parsedAmt) && parsedAmt > 0 && parsedAmt < 1.0
+      const isPayUnderMin = !isNaN(parsedAmt) && parsedAmt > 0 && parsedAmt < 0.01
 
       return (
         <div className="min-h-full bg-[#F4F5F8] flex flex-col text-zinc-900 pb-16">
@@ -2931,13 +2923,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   ) : isPayUnderMin ? (
                     <span className="text-amber-600 font-extrabold flex items-center gap-1">
                       <AlertCircle size={12} />
-                      {isAk ? 'အနည်းဆုံး 1.00' : 'At least 1.00'}
+                      {isAk ? 'အနည်းဆုံး 0.01' : 'At least 0.01'}
                     </span>
-                  ) : (
-                    <span className="text-zinc-400 font-semibold">
-                      {isAk ? 'အနည်းဆုံး: 1.00' : 'At least: 1.00'}
-                    </span>
-                  )}
+                  ) : null}
                 </div>
               </div>
 
@@ -2992,8 +2980,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <AlertCircle size={14} className="shrink-0 text-amber-600" />
                   <span>
                     {isAk
-                      ? 'အနည်းဆုံး 1.00 AKD လွှဲရပါမည် (At least 1.00)'
-                      : 'At least 1.00: Minimum transfer amount is 1.00 AKD'}
+                      ? 'အနည်းဆုံး 0.01 AKD လွှဲရပါမည် (At least 0.01)'
+                      : 'At least 0.01: Minimum transfer amount is 0.01 AKD'}
                   </span>
                 </div>
               )}

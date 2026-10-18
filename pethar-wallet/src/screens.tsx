@@ -340,14 +340,6 @@ export function Home({
               </>
             )}
           </div>
-          <div className="mt-1.5 flex items-center gap-1.5 text-gray-500 text-[11.5px] font-semibold">
-            <Info size={12} className="text-gray-500 shrink-0" />
-            <span>
-              {isAk
-                ? 'လွှဲပြောင်းမှု ခွင့်မပြုပါ (Transaction is not allowed)'
-                : 'Transaction is not allowed'}
-            </span>
-          </div>
         </div>
 
         {/* 5. Secondary 4-Service Card: Topup | Bill payment | Account | History */}
