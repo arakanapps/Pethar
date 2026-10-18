@@ -3,7 +3,7 @@ import 'models/data.dart';
 import 'services/firebase_service.dart';
 import 'services/supabase_service.dart';
 
-enum Screen { home, account, services, settings, send, receive, scan, cashout, intl, crypto, pos, notifications, desktop, offlinePayment, pay }
+enum Screen { home, account, services, settings, send, receive, scan, cashout, intl, crypto, pos, notifications, desktop, offlinePayment, pay, history, topup }
 
 class AppState extends ChangeNotifier {
   Screen currentScreen = Screen.home;
@@ -417,6 +417,51 @@ class AppState extends ChangeNotifier {
         titleMm: 'အော့ဖ်လိုင်းငွေ လက်ခံရရှိပါသည်',
         bodyEn: 'Received ${amount.toStringAsFixed(2)} AKD offline from $sender.',
         bodyMm: '$sender ထံမှ ₳ ${amount.toStringAsFixed(2)} အော့ဖ်လိုင်း ရရှိပါသည်။',
+        time: 'Just now',
+        dateGroup: 'Today',
+        type: 'transaction',
+        read: false,
+      ),
+    );
+    notifyListeners();
+  }
+
+  void processTopup({
+    required String operatorName,
+    required String phone,
+    required String productTitle,
+    required double thbTotal,
+    required double akdTotal,
+  }) {
+    wallet.balance = (wallet.balance - akdTotal).clamp(0.0, double.infinity);
+    wallet.totalBalance = (wallet.totalBalance - akdTotal).clamp(0.0, double.infinity);
+    final now = DateTime.now();
+    txList.insert(
+      0,
+      Transaction(
+        id: 'TX-TOPUP-${now.millisecondsSinceEpoch.toString().substring(7)}',
+        refId: 'REF-TOP-${now.millisecondsSinceEpoch.toString().substring(8)}',
+        title: '$operatorName Top Up $phone',
+        titleMm: '$operatorName ဖုန်းငွေဖြည့်ခြင်း $phone',
+        category: 'Top Up',
+        currency: 'AKD',
+        time: 'Just now',
+        status: 'Completed',
+        counterparty: '$operatorName Myanmar',
+        counterpartyMm: '$operatorName မြန်မာ',
+        hash: '0x9b7a...${now.millisecondsSinceEpoch.toString().substring(8)}',
+        amount: -akdTotal,
+        fee: 0.0,
+      ),
+    );
+    notifications.insert(
+      0,
+      NotificationItem(
+        id: 'N-TOP-${now.millisecondsSinceEpoch.toString().substring(8)}',
+        titleEn: '$operatorName Top Up Successful',
+        titleMm: '$operatorName ဖုန်းငွေဖြည့်ခြင်း အောင်မြင်ပါသည်',
+        bodyEn: 'Sent $productTitle to $phone. Charged ${akdTotal.toStringAsFixed(3)} AKD (${thbTotal.toStringAsFixed(2)} THB).',
+        bodyMm: '$phone သို့ $productTitle ဖြည့်သွင်းပြီးပါပြီ။ ကျသင့်ငွေ ₳ ${akdTotal.toStringAsFixed(3)} (${thbTotal.toStringAsFixed(2)} THB) ဖြစ်ပါသည်။',
         time: 'Just now',
         dateGroup: 'Today',
         type: 'transaction',

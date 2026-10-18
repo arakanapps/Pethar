@@ -26,6 +26,8 @@ import 'crypto_screen.dart';
 import 'offline_payment_screen.dart';
 import 'pos_terminal_screen.dart';
 import 'desktop_portal_screen.dart';
+import 'history_screen.dart';
+import 'topup_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({Key? key}) : super(key: key);
@@ -1068,7 +1070,7 @@ class _MainShellState extends State<MainShell> {
           actions: [
             IconButton(
               icon: const Icon(Icons.description_outlined, color: Color(0xFF3F3F46), size: 20),
-              onPressed: () => appState.setFinancialSubView('tx_history'),
+              onPressed: () => appState.navigate(Screen.history),
             ),
           ],
         ),
@@ -1272,7 +1274,7 @@ class _MainShellState extends State<MainShell> {
           actions: [
             IconButton(
               icon: const Icon(Icons.description_outlined, color: Color(0xFF3F3F46), size: 20),
-              onPressed: () => appState.setFinancialSubView('tx_history'),
+              onPressed: () => appState.navigate(Screen.history),
             ),
           ],
         ),
@@ -1518,76 +1520,9 @@ class _MainShellState extends State<MainShell> {
       );
     }
 
-    // SUB-VIEW C: TRANSACTION HISTORY
+    // SUB-VIEW C: TRANSACTION HISTORY (Redirected to standalone HistoryScreen)
     if (appState.financialSubView == 'tx_history') {
-      return Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0.5,
-          leading: IconButton(
-            icon: const Icon(Icons.chevron_left, color: Color(0xFF18181B), size: 26),
-            onPressed: () => appState.setFinancialSubView('wallet_main'),
-          ),
-          centerTitle: true,
-          title: Text(
-            isAk ? 'ငွေလွှဲ မှတ်တမ်းများ' : 'Transaction History',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-          ),
-        ),
-        body: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
-          children: appState.txList.map((tx) {
-            final isPos = tx.amount > 0;
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0xFFF4F4F5)),
-              ),
-              child: ListTile(
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xFFFAFAFA),
-                    border: Border.all(color: const Color(0xFFE4E4E7)),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        tx.category == 'pos' ? 'QR' : 'USD',
-                        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF18181B)),
-                      ),
-                      Text(
-                        tx.category == 'pos' ? 'Pay' : 'USDT',
-                        style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: crimson),
-                      ),
-                    ],
-                  ),
-                ),
-                title: Text(
-                  isAk ? tx.titleMm : tx.title,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF18181B)),
-                ),
-                subtitle: Text(tx.time, style: const TextStyle(fontSize: 11, fontFamily: 'monospace', color: Color(0xFFA1A1AA))),
-                trailing: Text(
-                  '${isPos ? '+' : '-'}\$${tx.amount.abs().toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'monospace',
-                    fontSize: 13,
-                    color: isPos ? const Color(0xFF059669) : const Color(0xFF18181B),
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      );
+      return const HistoryScreen();
     }
 
     // SUB-VIEW D: TOTAL SPENDING ANALYTICS
@@ -2220,6 +2155,8 @@ class _MainShellState extends State<MainShell> {
     if (appState.currentScreen == Screen.offlinePayment) return const OfflinePaymentScreen();
     if (appState.currentScreen == Screen.scan) return const ScanScreen();
     if (appState.currentScreen == Screen.pay) return const PayScreen();
+    if (appState.currentScreen == Screen.history) return const HistoryScreen();
+    if (appState.currentScreen == Screen.topup) return const TopupScreen();
 
     int currentIndex = 0;
     switch (appState.currentScreen) {

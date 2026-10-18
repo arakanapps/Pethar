@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
@@ -107,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
     onAllowed();
   }
 
-  void _showLogoutAndCloseModal(BuildContext context, AppState appState, bool isAk) {
+  void _showQuitAppModal(BuildContext context, bool isAk) {
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -119,18 +120,18 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 54,
+                height: 54,
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF1F2),
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0xFFFECDD3)),
                 ),
-                child: const Icon(Icons.logout_rounded, color: crimson, size: 24),
+                child: const Icon(Icons.power_settings_new_rounded, color: crimson, size: 26),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               Text(
-                isAk ? 'အကောင့်မှ ထွက်လိုပါသလား?' : 'Do you want to sign out?',
+                isAk ? 'အက်ပ်မှ ထွက်လိုပါသလား?' : 'Quit Péthar App?',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 17,
@@ -138,27 +139,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Color(0xFF18181B),
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Text(
                 isAk
-                    ? 'နောက်တစ်ကြိမ် ဝန်ဆောင်မှုများကို အသုံးပြုလိုသည့်အခါ အကောင့်ပြန်လည်ဝင်ရောက်ရပါမည်။'
-                    : "The next time you want to use our services, you'll have to sign in again.",
+                    ? 'အက်ပ်ကို ပိတ်ပြီး ထွက်ခွာပါမည်။ သင့်အကောင့် ဆက်လက်ဝင်ရောက်ထားမည်ဖြစ်ပါသည်။'
+                    : 'Are you sure you want to exit and quit the app? Your account will remain logged in.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 12.5,
                   color: Color(0xFF71717A),
-                  height: 1.4,
+                  height: 1.45,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 22),
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(ctx),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFF97316),
-                        side: const BorderSide(color: Color(0xFFF97316)),
+                        foregroundColor: const Color(0xFF71717A),
+                        side: const BorderSide(color: Color(0xFFE4E4E7)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(999),
@@ -175,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(ctx);
-                        appState.signOut();
+                        SystemNavigator.pop();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: crimson,
@@ -187,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       child: Text(
-                        isAk ? 'ထွက်မည်' : 'Logout',
+                        isAk ? 'ထွက်မည်' : 'Quit App',
                         style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                       ),
                     ),
@@ -200,6 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
   Widget _buildLandmarkArrowIcon({required bool isDown}) {
     return SizedBox(
@@ -292,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               appState,
               isAk ? 'ငွေဖြည့်ရန် (Topup)' : 'Topup',
-              () => appState.navigate(Screen.intl),
+              () => appState.navigate(Screen.topup),
             ),
       },
       {
@@ -313,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
       {
         'label': isAk ? 'မှတ်တမ်း' : 'History',
         'iconWidget': const Icon(Icons.history_rounded, color: crimson, size: 21),
-        'onTap': () => appState.navigate(Screen.notifications, financialView: 'tx_history'),
+        'onTap': () => appState.navigate(Screen.history),
       },
     ];
 
@@ -459,7 +461,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(width: 8),
                               GestureDetector(
-                                onTap: () => _showLogoutAndCloseModal(context, appState, isAk),
+                                onTap: () => _showQuitAppModal(context, isAk),
                                 child: Container(
                                   width: 40,
                                   height: 40,
@@ -476,7 +478,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ],
                                   ),
-                                  child: const Icon(Icons.logout_rounded, size: 18, color: crimson),
+                                  child: const Icon(Icons.power_settings_new_rounded, size: 19, color: crimson),
                                 ),
                               ),
                             ],

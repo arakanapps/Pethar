@@ -825,7 +825,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
                   ),
                   trailing: const Icon(Icons.chevron_right, color: Colors.black38),
-                  onTap: () => appState.navigate(Screen.notifications, financialView: 'tx_history'),
+                  onTap: () => appState.navigate(Screen.notifications),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(

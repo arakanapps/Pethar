@@ -23,6 +23,7 @@ import {
   MessageSquare,
   Info,
   LogOut,
+  Power,
   Globe,
   AppWindow,
   MoreHorizontal,
@@ -36,6 +37,7 @@ import {
   Repeat,
   ExternalLink,
   AlertCircle,
+  AlertTriangle,
   CheckCircle2,
   Headphones,
   KeyRound,
@@ -45,6 +47,7 @@ import {
   Landmark,
   Bell,
   Download,
+  Filter,
   Camera,
   Pencil,
   Fingerprint,
@@ -417,6 +420,23 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [spendingPeriod, setSpendingPeriod] = useState<'weekly' | 'monthly'>('weekly')
   const [selectedSlipTxn, setSelectedSlipTxn] = useState<Txn | null>(null)
 
+  // Dedicated History Screen States
+  const [historyTab, setHistoryTab] = useState<'all' | 'inflow' | 'outflow'>('all')
+  const [historyMonth, setHistoryMonth] = useState<string>('October – 2026')
+  const [selectedHistoryTx, setSelectedHistoryTx] = useState<{
+    id: string
+    title: string
+    time: string
+    amount: number
+    type: 'bill' | 'transfer'
+    category: string
+    refNo: string
+  } | null>(null)
+  const [historyMonthModalOpen, setHistoryMonthModalOpen] = useState<boolean>(false)
+  const [historyFilterModalOpen, setHistoryFilterModalOpen] = useState<boolean>(false)
+  const [historyCategoryFilter, setHistoryCategoryFilter] = useState<'all' | 'transfer' | 'bill'>('all')
+  const [historyExportToast, setHistoryExportToast] = useState<string | null>(null)
+
   // Convert & Transfer Modals inside Financial USD Account
   const [convertModalOpen, setConvertModalOpen] = useState<boolean>(false)
   const [convertFromToken, setConvertFromToken] = useState<'USDT' | 'USDC' | 'USD1'>('USDT')
@@ -479,13 +499,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     { id: 'REC-5', name: 'U Ba Thein', username: '@bathein', uid: '550182390124', category: 'other' as const, initials: 'BT', avatarUrl: '' },
     { id: 'REC-6', name: 'Ko Kyaw Sein', username: '@kyawsein', uid: '330549123456', category: 'other' as const, initials: 'KS', avatarUrl: '' },
   ])
-  const [showQuickScanner, setShowQuickScanner] = useState<boolean>(false)
-  const [dontShowQuickScanAgain, setDontShowQuickScanAgain] = useState<boolean>(false)
   const [paySuccessTx, setPaySuccessTx] = useState<Txn | null>(null)
 
   // Account & Privacy / Security / Device Management / Sign Out States
   const [accountSubScreen, setAccountSubScreen] = useState<AccountSubScreen>('main')
   const [showSignOutModal, setShowSignOutModal] = useState<boolean>(false)
+  const [showQuitAppModal, setShowQuitAppModal] = useState<boolean>(false)
   const [hideInfoToggle, setHideInfoToggle] = useState<boolean>(true)
   const [showReceivingProfileToggle, setShowReceivingProfileToggle] = useState<boolean>(true)
   const [biometricConsentToggle, setBiometricConsentToggle] = useState<boolean>(true)
@@ -788,8 +807,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         label: isAk ? 'မှတ်တမ်း' : 'History',
         icon: () => <Clock size={20} className="text-[#D91624]" strokeWidth={2.2} />,
         action: () => {
-          setFinancialSubView('tx_history')
-          setScreen('financial')
+          setScreen('history')
         },
       },
     ]
@@ -877,12 +895,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
             <button
               type="button"
-              onClick={() => setShowSignOutModal(true)}
-              aria-label="Logout and close"
-              title={isAk ? 'အကောင့်ထွက်ရန်နှင့် ပိတ်ရန်' : 'Logout and close'}
+              onClick={() => setShowQuitAppModal(true)}
+              aria-label="Quit app"
+              title={isAk ? 'အက်ပ်မှ ထွက်ရန်' : 'Quit App'}
               className="w-10 h-10 rounded-full bg-white shadow-xs border border-zinc-200/80 hover:border-[#D91624]/40 hover:bg-[#FFF1F2] text-zinc-700 hover:text-[#D91624] flex items-center justify-center active:scale-95 transition cursor-pointer"
             >
-              <LogOut size={16} className="text-[#D91624]" />
+              <Power size={17} className="text-[#D91624]" />
             </button>
           </div>
         </div>
@@ -1730,94 +1748,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       )
     }
 
-    // SUB-VIEW C: TRANSACTION HISTORY
+    // SUB-VIEW C: TRANSACTION HISTORY (Redirect to dedicated standalone History Screen)
     if (financialSubView === 'tx_history') {
-      return (
-        <div className="min-h-full bg-white text-zinc-900 flex flex-col pb-8">
-          <div className="px-4 pt-4 pb-3 flex items-center justify-between border-b border-zinc-100">
-            <button
-              type="button"
-              onClick={() => setFinancialSubView('wallet_main')}
-              className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-700 cursor-pointer"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <h1 className="text-base font-extrabold text-zinc-900">
-              {isAk ? 'ငွေစာရင်း မှတ်တမ်း' : 'Transaction History'}
-            </h1>
-            <button
-              type="button"
-              onClick={() => setHistoryCategoryTab('all')}
-              className="w-9 h-9 rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-700 hover:bg-zinc-50 cursor-pointer"
-            >
-              <RefreshCw size={16} />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-3 border-b border-zinc-200 text-xs font-bold text-center">
-            {(
-              [
-                { id: 'all', label: isAk ? 'အားလုံး' : 'All' },
-                { id: 'wallet', label: isAk ? 'ပိုက်ဆံအိတ်' : 'Wallet' },
-                { id: 'qr_pay', label: 'QR Pay' },
-              ] as const
-            ).map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setHistoryCategoryTab(t.id)}
-                className={`py-3 border-b-2 transition cursor-pointer ${
-                  historyCategoryTab === t.id
-                    ? 'border-[#D91624] text-[#D91624]'
-                    : 'border-transparent text-zinc-500'
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="divide-y divide-zinc-100">
-            {filteredHistoryTxns.map((tx) => {
-              const isPos = tx.amount > 0
-              return (
-                <button
-                  key={tx.id}
-                  type="button"
-                  onClick={() => setSelectedSlipTxn(tx)}
-                  className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-zinc-50 text-left transition cursor-pointer"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-full border border-zinc-200 bg-zinc-50 flex flex-col items-center justify-center shrink-0">
-                      <span className="text-[9px] font-black text-zinc-900">
-                        {tx.category === 'pos' ? 'QR' : 'USD'}
-                      </span>
-                      <span className="text-[8px] font-bold text-[#D91624]">
-                        {tx.category === 'pos' ? 'Pay' : 'USDT'}
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold text-zinc-900 truncate">
-                        {isAk ? tx.titleMm : tx.title}
-                      </div>
-                      <div className="text-xs text-zinc-400 font-mono mt-0.5">
-                        {tx.time}
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className={`text-sm font-extrabold font-mono shrink-0 ${
-                      isPos ? 'text-emerald-600' : 'text-zinc-900'
-                    }`}
-                  >
-                    {isPos ? `+$${tx.amount.toFixed(2)}` : `-$${Math.abs(tx.amount).toFixed(2)}`}
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )
+      return renderHistoryScreen()
     }
 
     // SUB-VIEW D: TOTAL SPENDING ANALYTICS
@@ -2645,10 +2578,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             </h1>
             <button
               type="button"
-              onClick={() => {
-                setFinancialSubView('tx_history')
-                setScreen('financial')
-              }}
+              onClick={() => setScreen('history')}
               className="px-3.5 py-1 rounded-full border border-zinc-300 text-xs font-bold text-zinc-700 hover:bg-zinc-100 cursor-pointer"
             >
               History
@@ -2708,8 +2638,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   type="button"
                   onClick={() => {
                     setPayStep('input')
-                    setFinancialSubView('tx_history')
-                    setScreen('financial')
+                    setScreen('history')
                   }}
                   className="w-full py-2.5 rounded-xl border border-zinc-300 text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition cursor-pointer"
                 >
@@ -2758,12 +2687,13 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <span>{payRecipient.initials || payRecipient.name.charAt(0)}</span>
                 )}
               </div>
-              <h2 className="text-base font-extrabold text-zinc-900">{payRecipient.name}</h2>
+              <h2 className="text-base font-extrabold text-zinc-900 mt-1">{payRecipient.name}</h2>
               <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10.5px] font-bold border border-emerald-200/60 mt-1">
                 <CheckCircle2 size={11} className="text-emerald-600" />
                 <span>Verified Recipient</span>
               </div>
-              <p className="text-xs text-zinc-500 font-mono mt-1">{payRecipient.username} • {payRecipient.uid}</p>
+              <p className="text-xs text-zinc-500 font-mono mt-1">{payRecipient.username}</p>
+              <p className="text-xs text-zinc-500 font-mono mt-0.5">{payRecipient.uid}</p>
             </div>
 
             {/* Main Form Card */}
@@ -2836,17 +2766,27 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               </button>
             </div>
 
-            {/* Warning / Instructions Box */}
-            <div className="bg-zinc-100/80 rounded-2xl p-4 border border-zinc-200/70 text-xs text-zinc-600 space-y-2 leading-relaxed">
+            {/* Important Warning Box */}
+            <div className="bg-amber-50/80 rounded-2xl p-4 border border-amber-200/80 text-xs text-amber-950 space-y-2 leading-relaxed">
+              <div className="flex items-center gap-1.5 font-bold text-amber-900 text-xs mb-1">
+                <AlertTriangle size={14} className="text-amber-700" />
+                <span>{isAk ? 'အရေးကြီး သတိပေးချက်' : 'Important Warning'}</span>
+              </div>
               <div className="flex items-start gap-2">
-                <span className="text-zinc-500 font-bold">•</span>
+                <span className="text-amber-600 font-bold">•</span>
                 <span>
-                  Always check recipient&apos;s User Name, username, user photo, Amount, Notes to avoid incorrect transitions and fraud.
+                  {isAk
+                    ? 'ငွေမလွှဲမီ လက်ခံသူ၏ 12-digit ID သာမက username နှင့် Name of user (အမည်) ကိုပါ သေချာစွာ စစ်ဆေးပါ။ အတည်ပြုပြီးသော ငွေလွှဲမှုများကို ပြန်လည်ဖျက်သိမ်း၍ မရပါ။'
+                    : 'Verify not only the recipient\'s 12-digit ID, but also username and Name of user before sending. Transactions on Péthar cannot be reversed once confirmed.'}
                 </span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-zinc-500 font-bold">•</span>
-                <span>Please make sure to add notes to transfer.</span>
+                <span className="text-amber-600 font-bold">•</span>
+                <span>
+                  {isAk
+                    ? 'လုံခြုံရေးစည်းမျဉ်းနှင့် စာရင်းစစ်မှတ်တမ်းများအတွက် မှတ်စု (Add Notes) ရေးသားရန် မဖြစ်မနေ လိုအပ်ပါသည်။'
+                    : 'Adding a clear note is required for compliance, audit trails, and payment verification.'}
+                </span>
               </div>
             </div>
           </div>
@@ -2869,10 +2809,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           <h1 className="text-base font-extrabold text-zinc-900 tracking-tight">Pay</h1>
           <button
             type="button"
-            onClick={() => {
-              setFinancialSubView('tx_history')
-              setScreen('financial')
-            }}
+            onClick={() => setScreen('history')}
             className="px-3.5 py-1 rounded-full border border-zinc-400 text-xs font-bold text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
           >
             History
@@ -2892,12 +2829,14 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-extrabold text-zinc-900 truncate">
-                  {profile.name}
-                </div>
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 text-[10px] font-bold border border-sky-200/60 mt-0.5">
-                  <CheckCircle2 size={10} className="text-sky-600" />
-                  <span>Verified</span>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-extrabold text-zinc-900 truncate">
+                    {profile.name}
+                  </div>
+                  <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 text-[10px] font-bold border border-sky-200/60">
+                    <CheckCircle2 size={10} className="text-sky-600" />
+                    <span>Verified</span>
+                  </div>
                 </div>
                 <div className="text-xs text-zinc-500 font-medium mt-1">
                   Available balance:{' '}
@@ -2926,12 +2865,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <button
                 type="button"
                 onClick={() => {
-                  if (dontShowQuickScanAgain) {
-                    setScanBottomTab('scan')
-                    setScreen('scan')
-                  } else {
-                    setShowQuickScanner(true)
-                  }
+                  setScanBottomTab('scan')
+                  setScreen('scan')
                 }}
                 className="px-3.5 py-3 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
@@ -3065,78 +3000,402 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             </div>
           </div>
         </div>
+      </div>
+    )
+  }
 
-        {/* Quick QR Scanner Modal if user taps [Scan] */}
-        {showQuickScanner && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex flex-col items-center justify-center p-4">
-            <div className="w-full max-w-sm bg-zinc-900 rounded-3xl p-5 text-white text-center space-y-4 border border-zinc-800 shadow-2xl">
-              <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-[#D91624]/20 flex items-center justify-center">
-                    <QrCode size={16} className="text-[#D91624]" />
-                  </div>
-                  <span className="text-sm font-extrabold">{isAk ? 'လက်ခံသူအား စကင်ဖတ်ရန်' : 'Quick Scan Recipient'}</span>
+  /* ═══════════════════════════════════════════════════════════════════════════
+     4.5. DEDICATED HISTORY SCREEN (MATCHING SPECIFIED SCREENSHOT)
+  ═══════════════════════════════════════════════════════════════════════════ */
+  const renderHistoryScreen = () => {
+    const historyData = [
+      {
+        id: 'tx_01',
+        title: 'Bills: YESC',
+        time: '14/10 19:11:38',
+        amount: -65600.0,
+        type: 'bill' as const,
+        category: 'Electricity Bill',
+        refNo: '202610141911388829104',
+      },
+      {
+        id: 'tx_02',
+        title: 'Bills: ATOM Myanmar Limited',
+        time: '14/10 19:10:49',
+        amount: -32000.0,
+        type: 'bill' as const,
+        category: 'Telecom & Internet',
+        refNo: '202610141910497120349',
+      },
+      {
+        id: 'tx_03',
+        title: 'Transfer From Daw Than Nwe',
+        time: '14/10 19:09:11',
+        amount: 200000.0,
+        type: 'transfer' as const,
+        category: 'P2P Receive',
+        refNo: '202610141909115598124',
+      },
+      {
+        id: 'tx_04',
+        title: 'Transfer To Hsu Hnin Wutt Yee',
+        time: '10/10 17:44:46',
+        amount: -100000.0,
+        type: 'transfer' as const,
+        category: 'P2P Transfer',
+        refNo: '202610101744469901452',
+      },
+      {
+        id: 'tx_05',
+        title: 'Transfer To HNIN THANDAR PHYO',
+        time: '03/10 12:38:14',
+        amount: -900000.0,
+        type: 'transfer' as const,
+        category: 'P2P Transfer',
+        refNo: '202610031238148819203',
+      },
+      {
+        id: 'tx_06',
+        title: 'Transfer From Daw Than Nwe',
+        time: '02/10 14:39:47',
+        amount: 1000000.0,
+        type: 'transfer' as const,
+        category: 'P2P Receive',
+        refNo: '202610021439474412908',
+      },
+      {
+        id: 'tx_07',
+        title: 'Transfer To Myo Min Paing',
+        time: '01/10 09:37:13',
+        amount: -100000.0,
+        type: 'transfer' as const,
+        category: 'P2P Transfer',
+        refNo: '202610010937133378901',
+      },
+    ]
+
+    const filtered = historyData.filter((item) => {
+      if (historyTab === 'inflow' && item.amount <= 0) return false
+      if (historyTab === 'outflow' && item.amount >= 0) return false
+      if (historyCategoryFilter !== 'all' && item.type !== historyCategoryFilter) return false
+      return true
+    })
+
+    const formatAmount = (num: number) => {
+      const formatted = Math.abs(num).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+      return num > 0 ? `+${formatted}` : `–${formatted}`
+    }
+
+    return (
+      <div className="min-h-full bg-[#F4F5F8] text-slate-900 flex flex-col pb-12">
+        {/* Top App Bar: Deep Blue (#0B57CF) */}
+        <div className="bg-[#0B57CF] text-white px-4 pt-4 pb-3 flex items-center justify-between shadow-sm sticky top-0 z-30">
+          <button
+            type="button"
+            onClick={() => setScreen('home')}
+            className="w-9 h-9 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition cursor-pointer"
+          >
+            <ChevronLeft size={26} />
+          </button>
+          <h1 className="text-lg font-bold text-white tracking-wide">History</h1>
+          <div className="w-9" />
+        </div>
+
+        {/* Sub-header Tabs & Action Buttons (White Background) */}
+        <div className="bg-white border-b border-slate-200 px-4 flex items-center justify-between sticky top-[57px] z-20">
+          {/* Tabs: All | Inflow | Outflow */}
+          <div className="flex items-center space-x-6">
+            {(
+              [
+                { id: 'all', label: 'All' },
+                { id: 'inflow', label: 'Inflow' },
+                { id: 'outflow', label: 'Outflow' },
+              ] as const
+            ).map((tab) => {
+              const isActive = historyTab === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setHistoryTab(tab.id)}
+                  className="py-3 relative font-semibold text-[15px] cursor-pointer transition flex flex-col items-center"
+                >
+                  <span className={isActive ? 'text-slate-900 font-bold' : 'text-slate-500 font-medium'}>
+                    {tab.label}
+                  </span>
+                  {isActive && (
+                    <span className="absolute bottom-0 w-8 h-[3px] bg-[#0B57CF] rounded-full" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Right Action Icons: Filter | Calendar | Download */}
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => setHistoryFilterModalOpen(true)}
+              className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+              title="Filter"
+            >
+              <Filter size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setHistoryMonthModalOpen(true)}
+              className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+              title="Calendar"
+            >
+              <Calendar size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setHistoryExportToast(`Exported e-Statement for ${historyMonth} (PDF)`)
+                setTimeout(() => setHistoryExportToast(null), 3000)
+              }}
+              className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+              title="Download statement"
+            >
+              <Download size={15} />
+            </button>
+          </div>
+        </div>
+
+        {/* Toast */}
+        {historyExportToast && (
+          <div className="mx-4 mt-3 p-3 bg-[#0B57CF] text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg animate-in fade-in">
+            <CheckCircle2 size={16} />
+            <span>{historyExportToast}</span>
+          </div>
+        )}
+
+        {/* Scrollable Container */}
+        <div className="p-4 space-y-3 max-w-lg mx-auto w-full">
+          {/* Monthly Summary Banner Card */}
+          <div className="bg-gradient-to-br from-[#E8F1FC] to-[#F1F6FE] rounded-2xl p-4 shadow-sm relative overflow-hidden">
+            {/* Watermark circle */}
+            <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-[#0B57CF]/5 pointer-events-none" />
+
+            <h2 className="text-base font-bold text-slate-900 tracking-tight mb-3">
+              {historyMonth}
+            </h2>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs text-slate-500 font-medium">Inflow</div>
+                <div className="text-[15px] font-bold text-slate-900 mt-0.5">
+                  1,300,000.00 (Ks)
                 </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-slate-500 font-medium">Outflow</div>
+                <div className="text-[15px] font-bold text-slate-900 mt-0.5">
+                  –1,197,600.00 (Ks)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Transaction List Card */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm divide-y divide-slate-100 overflow-hidden">
+            {filtered.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => setSelectedHistoryTx(item)}
+                className="p-3.5 flex items-center justify-between hover:bg-slate-50/60 transition cursor-pointer"
+              >
+                <div className="flex items-center space-x-3.5 min-w-0">
+                  {/* Category Icon */}
+                  {item.type === 'bill' ? (
+                    <div className="w-10 h-10 rounded-xl bg-[#F0F9FF] border border-[#BAE6FD]/60 flex items-center justify-center shrink-0 relative">
+                      <FileText size={20} className="text-[#0284C7]" />
+                      <span className="absolute bottom-1.5 right-1.5 text-[8px] font-black text-[#0284C7] leading-none">$</span>
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-[#0B57CF] flex items-center justify-center shrink-0 text-white">
+                      <div className="flex items-center justify-center -space-x-0.5">
+                        <span className="text-[10px] font-bold">◀</span>
+                        <span className="w-3.5 h-3.5 rounded-full border border-white flex items-center justify-center text-[7.5px] font-black leading-none mx-0.5">$</span>
+                        <span className="text-[10px] font-bold">▶</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Title & Time */}
+                  <div className="min-w-0">
+                    <div className="text-[14px] font-semibold text-slate-900 leading-snug truncate">
+                      {item.title}
+                    </div>
+                    <div className="text-xs text-slate-400 mt-0.5 font-normal">
+                      {item.time}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Amount */}
+                <div className="text-right shrink-0 pl-3">
+                  <span className="text-[15px] font-bold text-slate-900 tracking-tight">
+                    {formatAmount(item.amount)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Transaction Detail Slip Modal */}
+        {selectedHistoryTx && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+            <div className="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">Transaction Details</h3>
                 <button
                   type="button"
-                  onClick={() => setShowQuickScanner(false)}
-                  className="p-1 text-zinc-400 hover:text-white cursor-pointer"
+                  onClick={() => setSelectedHistoryTx(null)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
                 >
                   <X size={20} />
                 </button>
               </div>
 
-              <div
-                onClick={() => {
-                  setShowQuickScanner(false)
-                  setScanBottomTab('scan')
-                  setScreen('scan')
-                }}
-                className="w-52 h-52 mx-auto rounded-2xl border-2 border-zinc-700 bg-black/60 flex flex-col items-center justify-center p-4 cursor-pointer hover:border-[#D91624] transition group"
-              >
-                <QrCode size={90} className="text-white/60 group-hover:text-white transition animate-pulse" />
-                <span className="text-[11px] text-zinc-400 mt-2 font-medium">Tap to open camera scanner</span>
+              <div className="text-center py-2">
+                <div className="w-14 h-14 rounded-full bg-[#E0F2FE] text-[#0B57CF] flex items-center justify-center mx-auto mb-2">
+                  <CheckCircle2 size={32} />
+                </div>
+                <div className="text-xs text-slate-500 font-medium">Transaction Completed</div>
+                <div className="text-2xl font-black text-slate-900 mt-1">
+                  {formatAmount(selectedHistoryTx.amount)} Ks
+                </div>
               </div>
 
-              <div className="space-y-2 pt-1">
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-xs space-y-2.5">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Recipient / Title</span>
+                  <span className="font-semibold text-slate-900">{selectedHistoryTx.title}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Category</span>
+                  <span className="font-medium text-slate-900">{selectedHistoryTx.category}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Date & Time</span>
+                  <span className="text-slate-900">{selectedHistoryTx.time}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Reference No.</span>
+                  <div className="flex items-center space-x-1.5 font-mono text-slate-900 font-medium">
+                    <span>{selectedHistoryTx.refNo}</span>
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard.writeText(selectedHistoryTx.refNo)}
+                      className="text-[#0B57CF] hover:text-[#0047AB]"
+                      title="Copy Ref"
+                    >
+                      <Copy size={12} />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Service Fee</span>
+                  <span className="font-semibold text-emerald-600">0.00 Ks (Free)</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedHistoryTx(null)}
+                className="w-full py-3 rounded-xl bg-[#0B57CF] text-white font-bold text-sm hover:bg-[#0047AB] transition cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Month Selector Modal */}
+        {historyMonthModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+            <div className="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">Select Statement Month</h3>
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowQuickScanner(false)
-                    setScanBottomTab('scan')
-                    setScreen('scan')
-                  }}
-                  className="w-full py-3 rounded-xl bg-[#D91624] hover:bg-[#B00E1A] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition shadow-md"
+                  onClick={() => setHistoryMonthModalOpen(false)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
                 >
-                  <QrCode size={16} />
-                  <span>{isAk ? 'စကင်ဖတ်စက် ဖွင့်မည်' : 'Open Camera Scanner'}</span>
+                  <X size={20} />
                 </button>
+              </div>
 
+              <div className="space-y-2">
+                {['October – 2026', 'September – 2026', 'August – 2026', 'July – 2026'].map((m) => {
+                  const isSel = historyMonth === m
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => {
+                        setHistoryMonth(m)
+                        setHistoryMonthModalOpen(false)
+                      }}
+                      className={`w-full p-3 rounded-xl flex items-center justify-between text-left transition cursor-pointer ${
+                        isSel ? 'bg-[#E8F1FC] text-[#0B57CF] font-bold' : 'hover:bg-slate-50 text-slate-800'
+                      }`}
+                    >
+                      <span className="text-sm">{m}</span>
+                      {isSel && <Check size={18} className="text-[#0B57CF]" />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Filter Category Modal */}
+        {historyFilterModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+            <div className="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">Filter Transactions</h3>
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowQuickScanner(false)
-                    const zawMyo = recentPayContacts.find((c) => c.uid.includes('882194')) || recentPayContacts[0]
-                    setPayRecipient(zawMyo)
-                    setPayToInput(zawMyo.username)
-                    setPayStep('detail')
-                  }}
-                  className="w-full py-2.5 rounded-xl border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-700 text-white font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer transition"
+                  onClick={() => setHistoryFilterModalOpen(false)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
                 >
-                  <SendIcon size={14} />
-                  <span>{isAk ? 'QR ကုဒ်ဖတ်ပြီး ငွေလွှဲမည် (@zawmyo)' : 'Fetch Recipient QR (@zawmyo • 882194012345)'}</span>
+                  <X size={20} />
                 </button>
+              </div>
 
-                {/* Do not show anymore Checkbox */}
-                <label className="flex items-center justify-center gap-2 text-xs text-zinc-400 cursor-pointer pt-2">
-                  <input
-                    type="checkbox"
-                    checked={dontShowQuickScanAgain}
-                    onChange={(e) => setDontShowQuickScanAgain(e.target.checked)}
-                    className="w-4 h-4 rounded accent-[#D91624] cursor-pointer"
-                  />
-                  <span className="text-xs text-zinc-400">{isAk ? 'နောင်တွင် ဤအဆင့်ကို မပြပါနှင့်' : 'Do not show anymore'}</span>
-                </label>
+              <div className="space-y-2">
+                {[
+                  { id: 'all', label: 'All Transactions' },
+                  { id: 'transfer', label: 'Transfers (P2P)' },
+                  { id: 'bill', label: 'Bills & Utilities' },
+                ].map((cat) => {
+                  const isSel = historyCategoryFilter === cat.id
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => {
+                        setHistoryCategoryFilter(cat.id as any)
+                        setHistoryFilterModalOpen(false)
+                      }}
+                      className={`w-full p-3 rounded-xl flex items-center justify-between text-left transition cursor-pointer ${
+                        isSel ? 'bg-[#E8F1FC] text-[#0B57CF] font-bold' : 'hover:bg-slate-50 text-slate-800'
+                      }`}
+                    >
+                      <span className="text-sm">{cat.label}</span>
+                      {isSel && <Check size={18} className="text-[#0B57CF]" />}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -4228,6 +4487,50 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           </div>
         </div>
 
+        {/* Quit App Confirmation Modal (Home Screen) */}
+        {showQuitAppModal && (
+          <div className="fixed inset-0 z-50 bg-black/55 flex items-center justify-center p-5 animate-in fade-in">
+            <div className="w-full max-w-sm bg-white rounded-3xl p-6 text-center space-y-5 shadow-2xl">
+              <div className="w-14 h-14 rounded-full bg-[#FFF1F2] border border-[#FECDD3] flex items-center justify-center mx-auto text-[#D91624]">
+                <Power size={26} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-extrabold text-zinc-900">
+                  {isAk ? 'အက်ပ်မှ ထွက်လိုပါသလား?' : 'Quit Péthar App?'}
+                </h3>
+                <p className="text-sm text-zinc-600 leading-relaxed">
+                  {isAk
+                    ? 'အက်ပ်ကို ပိတ်ပြီး ထွက်ခွာပါမည်။ သင့်အကောင့် ဆက်လက်ဝင်ရောက်ထားမည်ဖြစ်ပါသည်။'
+                    : 'Are you sure you want to exit and quit the app? Your account remains signed in.'}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowQuitAppModal(false)}
+                  className="py-3 rounded-full border border-zinc-200 text-zinc-700 font-bold text-sm hover:bg-zinc-50 transition cursor-pointer"
+                >
+                  {isAk ? 'မထွက်ပါ' : 'Cancel'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowQuitAppModal(false)
+                    if (window.history.length > 1) {
+                      window.history.back()
+                    } else {
+                      window.close()
+                    }
+                  }}
+                  className="py-3 rounded-full bg-[#D91624] text-white font-bold text-sm shadow-[0_6px_18px_rgba(217,22,36,0.3)] hover:brightness-105 transition cursor-pointer"
+                >
+                  {isAk ? 'ထွက်မည်' : 'Quit App'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Sign Out Confirmation Modal (Matching Screenshot 8.21.47 AM) */}
         {showSignOutModal && (
           <div className="fixed inset-0 z-50 bg-black/55 flex items-center justify-center p-5 animate-in fade-in">
@@ -4277,6 +4580,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
   if (screen === 'pay') {
     return renderPayInterfaceScreen()
+  }
+
+  if (screen === 'history') {
+    return renderHistoryScreen()
   }
 
   const renderScreen = () => {
