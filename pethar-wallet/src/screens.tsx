@@ -416,7 +416,6 @@ export function Home({
                 </div>
               </div>
             </div>
-            <ChevronRight size={16} className="text-white/70 shrink-0" />
           </div>
 
           {/* Dots Indicator */}

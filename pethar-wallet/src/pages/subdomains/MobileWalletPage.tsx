@@ -480,6 +480,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     { id: 'REC-6', name: 'Ko Kyaw Sein', username: '@kyawsein', uid: '330549123456', category: 'other' as const, initials: 'KS', avatarUrl: '' },
   ])
   const [showQuickScanner, setShowQuickScanner] = useState<boolean>(false)
+  const [dontShowQuickScanAgain, setDontShowQuickScanAgain] = useState<boolean>(false)
   const [paySuccessTx, setPaySuccessTx] = useState<Txn | null>(null)
 
   // Account & Privacy / Security / Device Management / Sign Out States
@@ -1148,7 +1149,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   </div>
                 </div>
               </div>
-              <ChevronRight size={16} className="text-slate-400 shrink-0" />
             </div>
 
             {/* Indicator Dots for 4 Moving Ads */}
@@ -2385,8 +2385,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         onClick={() => {
                           setScannedQrNotice(null)
                           setGalleryImagePreview(null)
-                          setFinancialSubView('withdraw')
-                          setScreen('financial')
+                          const zawMyo = recentPayContacts.find((c) => c.uid.includes('882194')) || recentPayContacts[0]
+                          setPayRecipient(zawMyo)
+                          setPayToInput(zawMyo.username)
+                          setPayStep('detail')
+                          setScreen('pay')
                         }}
                         className="flex-1 py-2 rounded-full bg-[#D91624] text-white font-bold text-xs cursor-pointer"
                       >
@@ -2397,12 +2400,28 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 )}
               </div>
 
-              <div className="relative z-10 pb-7 px-6 flex flex-col items-center gap-4">
+              <div className="relative z-10 pb-7 px-6 flex flex-col items-center gap-3">
                 <p className="text-xs sm:text-sm font-medium text-white drop-shadow text-center">
                   {isAk
                     ? 'QR ကုဒ် သို့မဟုတ် ဘားကုဒ်ကို ဘောင်အတွင်း ထားရှိပါ'
-                    : 'Place the QR code or barcode within the frame.'}
+                    : 'Place recipient QR code within the frame.'}
                 </p>
+
+                {/* Instant Fetch Recipient QR & Go to Pay */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const zawMyo = recentPayContacts.find((c) => c.uid.includes('882194')) || recentPayContacts[0]
+                    setPayRecipient(zawMyo)
+                    setPayToInput(zawMyo.username)
+                    setPayStep('detail')
+                    setScreen('pay')
+                  }}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#FF2A38] to-[#D91624] text-white font-extrabold text-xs shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition"
+                >
+                  <SendIcon size={16} />
+                  <span>{isAk ? 'QR ကုဒ်ဖတ်ပြီး ငွေလွှဲမည် (@zawmyo)' : 'Fetch Recipient QR (@zawmyo • 882194012345)'}</span>
+                </button>
 
                 <input
                   ref={galleryInputRef}
@@ -2415,9 +2434,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => galleryInputRef.current?.click()}
-                  className="px-6 py-3 rounded-full bg-black/55 hover:bg-black/70 backdrop-blur-md text-white text-sm font-bold flex items-center gap-2.5 shadow-lg border border-white/15 transition active:scale-95 cursor-pointer"
+                  className="px-6 py-2.5 rounded-full bg-black/55 hover:bg-black/70 backdrop-blur-md text-white text-xs font-bold flex items-center gap-2 shadow-lg border border-white/15 transition active:scale-95 cursor-pointer"
                 >
-                  <ImageIcon size={18} />
+                  <ImageIcon size={16} />
                   <span>
                     {isAk ? 'ပုံပြခန်းမှ ရွေးချယ်ရန် (Select from Gallery)' : 'Select from Gallery'}
                   </span>
@@ -2740,7 +2759,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 )}
               </div>
               <h2 className="text-base font-extrabold text-zinc-900">{payRecipient.name}</h2>
-              <p className="text-xs text-zinc-500 font-mono mt-0.5">{payRecipient.username} • {payRecipient.uid}</p>
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10.5px] font-bold border border-emerald-200/60 mt-1">
+                <CheckCircle2 size={11} className="text-emerald-600" />
+                <span>Verified Recipient</span>
+              </div>
+              <p className="text-xs text-zinc-500 font-mono mt-1">{payRecipient.username} • {payRecipient.uid}</p>
             </div>
 
             {/* Main Form Card */}
@@ -2872,7 +2895,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <div className="text-sm font-extrabold text-zinc-900 truncate">
                   {profile.name}
                 </div>
-                <div className="text-xs text-zinc-500 font-medium mt-0.5">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 text-[10px] font-bold border border-sky-200/60 mt-0.5">
+                  <CheckCircle2 size={10} className="text-sky-600" />
+                  <span>Verified</span>
+                </div>
+                <div className="text-xs text-zinc-500 font-medium mt-1">
                   Available balance:{' '}
                   <span className="font-mono font-bold text-zinc-900">
                     ₳ {usdAccountBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -2898,7 +2925,14 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               />
               <button
                 type="button"
-                onClick={() => setShowQuickScanner(true)}
+                onClick={() => {
+                  if (dontShowQuickScanAgain) {
+                    setScanBottomTab('scan')
+                    setScreen('scan')
+                  } else {
+                    setShowQuickScanner(true)
+                  }
+                }}
                 className="px-3.5 py-3 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <QrCode size={16} />
@@ -3032,24 +3066,78 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           </div>
         </div>
 
-        {/* Optional Quick QR Scanner Modal if user taps [Scan] */}
+        {/* Quick QR Scanner Modal if user taps [Scan] */}
         {showQuickScanner && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center p-4">
-            <div className="w-full max-w-sm bg-zinc-900 rounded-3xl p-5 text-white text-center space-y-4">
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex flex-col items-center justify-center p-4">
+            <div className="w-full max-w-sm bg-zinc-900 rounded-3xl p-5 text-white text-center space-y-4 border border-zinc-800 shadow-2xl">
               <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                <span className="text-sm font-bold">Scan QR / UID</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-[#D91624]/20 flex items-center justify-center">
+                    <QrCode size={16} className="text-[#D91624]" />
+                  </div>
+                  <span className="text-sm font-extrabold">{isAk ? 'လက်ခံသူအား စကင်ဖတ်ရန်' : 'Quick Scan Recipient'}</span>
+                </div>
                 <button
                   type="button"
                   onClick={() => setShowQuickScanner(false)}
-                  className="p-1 text-zinc-400 hover:text-white"
+                  className="p-1 text-zinc-400 hover:text-white cursor-pointer"
                 >
                   <X size={20} />
                 </button>
               </div>
-              <div className="w-56 h-56 mx-auto rounded-2xl border-2 border-dashed border-white/40 flex items-center justify-center p-4">
-                <QrCode size={120} className="text-white/60 animate-pulse" />
+
+              <div
+                onClick={() => {
+                  setShowQuickScanner(false)
+                  setScanBottomTab('scan')
+                  setScreen('scan')
+                }}
+                className="w-52 h-52 mx-auto rounded-2xl border-2 border-zinc-700 bg-black/60 flex flex-col items-center justify-center p-4 cursor-pointer hover:border-[#D91624] transition group"
+              >
+                <QrCode size={90} className="text-white/60 group-hover:text-white transition animate-pulse" />
+                <span className="text-[11px] text-zinc-400 mt-2 font-medium">Tap to open camera scanner</span>
               </div>
-              <p className="text-xs text-zinc-400">Align recipient QR in frame</p>
+
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowQuickScanner(false)
+                    setScanBottomTab('scan')
+                    setScreen('scan')
+                  }}
+                  className="w-full py-3 rounded-xl bg-[#D91624] hover:bg-[#B00E1A] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition shadow-md"
+                >
+                  <QrCode size={16} />
+                  <span>{isAk ? 'စကင်ဖတ်စက် ဖွင့်မည်' : 'Open Camera Scanner'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowQuickScanner(false)
+                    const zawMyo = recentPayContacts.find((c) => c.uid.includes('882194')) || recentPayContacts[0]
+                    setPayRecipient(zawMyo)
+                    setPayToInput(zawMyo.username)
+                    setPayStep('detail')
+                  }}
+                  className="w-full py-2.5 rounded-xl border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-700 text-white font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer transition"
+                >
+                  <SendIcon size={14} />
+                  <span>{isAk ? 'QR ကုဒ်ဖတ်ပြီး ငွေလွှဲမည် (@zawmyo)' : 'Fetch Recipient QR (@zawmyo • 882194012345)'}</span>
+                </button>
+
+                {/* Do not show anymore Checkbox */}
+                <label className="flex items-center justify-center gap-2 text-xs text-zinc-400 cursor-pointer pt-2">
+                  <input
+                    type="checkbox"
+                    checked={dontShowQuickScanAgain}
+                    onChange={(e) => setDontShowQuickScanAgain(e.target.checked)}
+                    className="w-4 h-4 rounded accent-[#D91624] cursor-pointer"
+                  />
+                  <span className="text-xs text-zinc-400">{isAk ? 'နောင်တွင် ဤအဆင့်ကို မပြပါနှင့်' : 'Do not show anymore'}</span>
+                </label>
+              </div>
             </div>
           </div>
         )}

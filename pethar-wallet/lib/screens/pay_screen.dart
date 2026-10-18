@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../theme.dart';
 import '../widgets/arakan_emblem.dart';
 
 enum PayStep {
@@ -115,37 +116,55 @@ class _PayScreenState extends State<PayScreen> {
     ];
     _selectedRecipient = _recentContacts.first;
 
-    // Check if user navigated from Favourites on Home screen
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final appState = Provider.of<AppState>(context, listen: false);
-      if (appState.pendingPayContact != null) {
-        final pending = appState.pendingPayContact!;
-        final name = pending['name'] as String;
-        final initials = pending['initials'] as String;
-        final colorVal = pending['colorValue'] as int? ?? 0xFF0284C7;
-        appState.clearPendingPayContact();
+    // Check if user navigated from Favourites or Scanner
+    final appState = Provider.of<AppState>(context, listen: false);
+    _applyPendingPayContactSynchronous(appState);
+  }
 
-        final match = _recentContacts.firstWhere(
-          (c) => c.name.toLowerCase() == name.toLowerCase(),
-          orElse: () {
-            final hash12 = ('${name.hashCode.abs()}987654321000').substring(0, 12);
-            final newContact = RecentPayContact(
-              id: 'REC-FAV-${name.toLowerCase().replaceAll(' ', '')}',
-              name: name,
-              username: '@${name.toLowerCase().replaceAll(' ', '_')}',
-              uid: hash12,
-              category: 'Friends',
-              initials: initials,
-              avatarColor: Color(colorVal),
-            );
-            _recentContacts.insert(0, newContact);
-            return newContact;
-          },
-        );
-        _navigateToDetailWithContact(match);
-      }
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final appState = Provider.of<AppState>(context, listen: false);
+    _applyPendingPayContactSynchronous(appState);
+  }
+
+  void _applyPendingPayContactSynchronous(AppState appState) {
+    if (appState.pendingPayContact != null) {
+      final pending = appState.pendingPayContact!;
+      final name = pending['name'] as String;
+      final initials = pending['initials'] as String;
+      final colorVal = pending['colorValue'] as int? ?? 0xFF0284C7;
+      final customUsername = pending['username'] as String?;
+      final customUid = pending['uid'] as String?;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        appState.clearPendingPayContact();
+      });
+
+      final match = _recentContacts.firstWhere(
+        (c) =>
+            (customUid != null && c.uid == customUid) ||
+            c.name.toLowerCase() == name.toLowerCase(),
+        orElse: () {
+          final hash12 = customUid ?? ('${name.hashCode.abs()}987654321000').substring(0, 12);
+          final newContact = RecentPayContact(
+            id: 'REC-${name.toLowerCase().replaceAll(' ', '')}',
+            name: name,
+            username: customUsername ?? '@${name.toLowerCase().replaceAll(' ', '_')}',
+            uid: hash12,
+            category: 'Friends',
+            initials: initials,
+            avatarColor: Color(colorVal),
+          );
+          _recentContacts.insert(0, newContact);
+          return newContact;
+        },
+      );
+      _selectedRecipient = match;
+      _toInputCtrl.text = match.username;
+      _errorMessage = null;
+      _step = PayStep.detail;
+    }
   }
 
   @override
@@ -241,101 +260,220 @@ class _PayScreenState extends State<PayScreen> {
   }
 
   void _showScanQrSimulationDialog() {
+    final appState = Provider.of<AppState>(context, listen: false);
+    final isAk = appState.language == 'ak';
+
+    if (appState.dontShowQuickScanDialog) {
+      appState.navigate(Screen.scan);
+      return;
+    }
+
+    bool dontShowAgain = appState.dontShowQuickScanDialog;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 44,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(999),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 44,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(999),
+                ),
               ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.qr_code_scanner_rounded, size: 20, color: Colors.black87),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'Quick Scan Recipient',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  icon: const Icon(Icons.close_rounded, size: 20),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 36),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0F172A),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
+              const SizedBox(height: 16),
+              Row(
                 children: [
                   Container(
-                    width: 130,
-                    height: 130,
+                    width: 38,
+                    height: 38,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white70, width: 2),
-                      borderRadius: BorderRadius.circular(16),
+                      color: crimson.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
                     ),
-                    child: Stack(
-                      alignment: Alignment.center,
+                    child: const Center(
+                      child: Icon(Icons.qr_code_scanner_rounded, size: 20, color: crimson),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.qr_code_2_rounded, color: Colors.white24, size: 80),
-                        Container(
-                          height: 2,
-                          width: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.redAccent.withValues(alpha: 0.8),
-                                blurRadius: 10,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
+                        Text(
+                          isAk ? 'လက်ခံသူအား စကင်ဖတ်ရန်' : 'Quick Scan Recipient',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                        ),
+                        Text(
+                          isAk ? 'QR စကင်ဖတ်စက်သို့ တိုက်ရိုက်သွားမည်' : 'Scan recipient QR or fetch recipient details',
+                          style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  const Text(
-                    'Align recipient QR in frame',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close_rounded, size: 20, color: Color(0xFF64748B)),
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              // Viewfinder Scanner Box
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(ctx);
+                  appState.navigate(Screen.scan);
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 28),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white70, width: 2),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            const Icon(Icons.qr_code_2_rounded, color: Colors.white24, size: 70),
+                            Container(
+                              height: 2,
+                              width: 90,
+                              decoration: BoxDecoration(
+                                color: crimson,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: crimson.withValues(alpha: 0.8),
+                                    blurRadius: 10,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        isAk ? 'စကင်ဖတ်စက် ဖွင့်ရန် နှိပ်ပါ' : 'Tap to open camera scanner in navbar',
+                        style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Primary Button: Go to Scan Function in Navbar Instantly
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    appState.navigate(Screen.scan);
+                  },
+                  icon: const Icon(Icons.qr_code_scanner_rounded, size: 18, color: Colors.white),
+                  label: Text(
+                    isAk ? 'စကင်ဖတ်စက်သို့ တိုက်ရိုက်သွားမည်' : 'Open Camera Scanner',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.5),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: crimson,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Quick Fetch Test Recipient Action (Zaw Myo Htet - 882194012345)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    final zawMyo = _recentContacts.firstWhere(
+                      (c) => c.uid.contains('882194'),
+                      orElse: () => _recentContacts.first,
+                    );
+                    _navigateToDetailWithContact(zawMyo);
+                  },
+                  icon: const Icon(Icons.bolt_rounded, size: 18, color: Color(0xFF0F172A)),
+                  label: Text(
+                    isAk ? 'QR ကုဒ် ချက်ချင်းဖတ်ပြီး ငွေလွှဲမည် (@zawmyo)' : 'Fetch Recipient QR (@zawmyo • 882194012345)',
+                    style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.w700, fontSize: 12.5),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFFCBD5E1)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // "Do not show anymore" Checkbox Row
+              GestureDetector(
+                onTap: () {
+                  setModalState(() {
+                    dontShowAgain = !dontShowAgain;
+                  });
+                  appState.setDontShowQuickScanDialog(dontShowAgain);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: Checkbox(
+                        value: dontShowAgain,
+                        activeColor: crimson,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                        onChanged: (val) {
+                          setModalState(() {
+                            dontShowAgain = val ?? false;
+                          });
+                          appState.setDontShowQuickScanDialog(dontShowAgain);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      isAk ? 'နောင်တွင် ဤအဆင့်ကို မပြပါနှင့်' : 'Do not show anymore',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: Color(0xFF64748B),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -443,6 +581,7 @@ class _PayScreenState extends State<PayScreen> {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final isAk = appState.language == 'ak';
+    _applyPendingPayContactSynchronous(appState);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F5F8),
@@ -640,34 +779,14 @@ class _PayScreenState extends State<PayScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            isAk ? 'လွှဲပို့သူ (FROM)' : 'From',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF94A3B8),
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: const Text(
-                              'Verified',
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF059669),
-                              ),
-                            ),
-                          ),
-                        ],
+                      Text(
+                        isAk ? 'လွှဲပို့သူ (FROM)' : 'From',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF94A3B8),
+                          letterSpacing: 0.3,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -678,7 +797,30 @@ class _PayScreenState extends State<PayScreen> {
                           color: Color(0xFF0F172A),
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.check_circle_rounded, size: 11, color: Color(0xFF0284C7)),
+                            const SizedBox(width: 3),
+                            Text(
+                              isAk ? 'အတည်ပြုပြီး' : 'Verified',
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF0284C7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
                       Text(
                         '${isAk ? 'လက်ကျန်ငွေ' : 'Balance'}: ${NumberFormat('#,##0.00').format(appState.wallet.balance)} AKD',
                         style: const TextStyle(
@@ -753,6 +895,7 @@ class _PayScreenState extends State<PayScreen> {
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: _showScanQrSimulationDialog,
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -1156,6 +1299,29 @@ class _PayScreenState extends State<PayScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2.5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF059669)),
+                      const SizedBox(width: 4),
+                      Text(
+                        isAk ? 'အတည်ပြုထားသော အကောင့်' : 'Verified Recipient',
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF059669),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
                 Text(
                   '${_selectedRecipient.username} • ${_selectedRecipient.uid}',
                   style: const TextStyle(
@@ -1163,22 +1329,6 @@ class _PayScreenState extends State<PayScreen> {
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF64748B),
                     fontFamily: 'monospace',
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: const Text(
-                    'Péthar Verified Account',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF059669),
-                    ),
                   ),
                 ),
               ],

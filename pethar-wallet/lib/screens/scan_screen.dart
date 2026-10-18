@@ -42,6 +42,22 @@ class _ScanScreenState extends State<ScanScreen> {
     });
   }
 
+  void _fetchQrAndGoToPay(AppState appState, {String? name, String? uid, String? username}) {
+    HapticFeedback.mediumImpact();
+    final targetName = name ?? 'Zaw Myo Htet';
+    final targetUid = uid ?? '882194012345';
+    final targetUsername = username ?? '@zawmyo';
+
+    appState.startPayForContact(
+      name: targetName,
+      id: 'REC-1',
+      initials: 'ZM',
+      colorValue: 0xFF10B981,
+      username: targetUsername,
+      uid: targetUid,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
@@ -156,21 +172,30 @@ class _ScanScreenState extends State<ScanScreen> {
                           Container(
                             color: Colors.white.withValues(alpha: 0.16),
                           ),
+                        // Tappable Viewfinder area to scan and fetch QR
+                        Positioned.fill(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => _fetchQrAndGoToPay(appState),
+                          ),
+                        ),
                         // Horizontal glowing laser scan line
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32),
-                          child: Container(
-                            height: 2.5,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: crimson.withValues(alpha: 0.9),
-                                  blurRadius: 12,
-                                  spreadRadius: 2,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
+                        IgnorePointer(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            child: Container(
+                              height: 2.5,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: crimson.withValues(alpha: 0.9),
+                                    blurRadius: 12,
+                                    spreadRadius: 2,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -195,38 +220,73 @@ class _ScanScreenState extends State<ScanScreen> {
                               ),
                             ),
                           ),
-                        // Bottom instruction & "Select from Gallery" pill button
+                        // Bottom instruction, Quick Scan button & "Select from Gallery" pill button
                         Positioned(
-                          bottom: 28,
-                          left: 24,
-                          right: 24,
+                          bottom: 24,
+                          left: 20,
+                          right: 20,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 isAk
                                     ? 'QR ကုဒ် သို့မဟုတ် ဘားကုဒ်ကို ဘောင်အတွင်း ထားရှိပါ'
-                                    : 'Place the QR code or barcode within the frame.',
+                                    : 'Align recipient QR code in frame to scan instantly',
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 14),
+                              // Instant Fetch QR & Go To Pay Action Button
+                              GestureDetector(
+                                onTap: () => _fetchQrAndGoToPay(appState),
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFFFF2A38), crimson],
+                                    ),
+                                    borderRadius: BorderRadius.circular(14),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: crimson.withValues(alpha: 0.4),
+                                        blurRadius: 14,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        isAk
+                                            ? 'QR ကုဒ်ဖတ်ပြီး ငွေလွှဲမည် (@zawmyo)'
+                                            : 'Fetch Recipient QR (@zawmyo • 882194012345)',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
                               GestureDetector(
                                 onTap: () {
-                                  setState(() {
-                                    _galleryResult = isAk
-                                        ? 'Gallery မှ QR ကုဒ်ကို ဖတ်ရှုပြီးပါပြီ'
-                                        : 'QR Code loaded from Gallery';
-                                  });
+                                  _fetchQrAndGoToPay(appState);
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 22,
-                                    vertical: 12,
+                                    horizontal: 20,
+                                    vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
                                     color: Colors.black.withValues(alpha: 0.55),
@@ -239,7 +299,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                       const Icon(
                                         Icons.photo_library_outlined,
                                         color: Colors.white,
-                                        size: 18,
+                                        size: 16,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
@@ -248,7 +308,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                             : 'Select from Gallery',
                                         style: const TextStyle(
                                           color: Colors.white,
-                                          fontSize: 14,
+                                          fontSize: 13,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
