@@ -451,7 +451,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                       onChanged: (_) => setModalState(() {}),
                       textCapitalization: TextCapitalization.words,
                       decoration: InputDecoration(
-                        hintText: 'e.g. Myat Soe',
+                        hintText: 'e.g. User',
                         hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         border: OutlineInputBorder(
