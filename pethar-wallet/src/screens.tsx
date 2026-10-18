@@ -5,8 +5,8 @@ import {
 import {
   ArrowUpRight, ArrowDownLeft, QrCode, Store, Eye, EyeOff,
   ChevronRight, Copy, Check,
-  Fingerprint, ScanLine, Globe, Coins, AlertTriangle, Barcode, Flashlight, ImagePlus,
-  Clock, Sparkles, Terminal, CreditCard, Lock,
+  Fingerprint, ScanLine, Globe, Coins, Flashlight, ImagePlus,
+  Clock, Terminal, CreditCard, Lock,
   Plus, X, LogOut,
   RefreshCw, Download,
   Receipt, Wallet, User, Sun, KeyRound, ShieldCheck,
@@ -19,6 +19,7 @@ import { TransactionSlip } from './components/TransactionSlip'
 import { useNotifications, markAllRead, markRead, type NotiItem } from './notifications'
 import type { Language } from './i18n'
 import { translations } from './i18n'
+import { WalletMinimalIcon } from './components/WalletMinimalIcon'
 
 export type ThemeMode = 'dark' | 'light'
 
@@ -45,6 +46,7 @@ export type Screen =
   | 'crypto'
   | 'pos'
   | 'notifications'
+  | 'pay'
 
 // ── Shared Header ───────────────────────────────────────────────────────
 export function ScreenHeader({
@@ -148,210 +150,289 @@ export function Home({
   theme?: ThemeMode
 }) {
   const [hidden, setHidden] = useState(false)
-  const [bannerVisible, setBannerVisible] = useState(true)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [loggedOutToast, setLoggedOutToast] = useState(false)
   const { unread } = useNotifications()
-  const isLight = theme === 'light'
+  const isAk = lang === 'ak'
   const w = wallets[0]
+  const currentProfile = profile || initialUserProfile
 
-  // 8 Quick Service items (mirroring Krungthai NEXT 8-service layout)
-  const quickServices = [
-    { id: 'send' as Screen, label: lang === 'ak' ? 'ငွေလွှဲ' : 'Transfer', icon: ArrowUpRight, color: 'bg-blue-600/30 text-blue-400' },
-    { id: 'intl' as Screen, label: lang === 'ak' ? 'ငွေဖြည့်' : 'Top Up', icon: Plus, color: 'bg-amber-500/30 text-amber-400' },
-    { id: 'pos' as Screen, label: lang === 'ak' ? 'ဘေလ်ဆောင်' : 'Pay Bills', icon: Receipt, color: 'bg-red-500/30 text-red-400' },
-    { id: 'cashout' as Screen, label: lang === 'ak' ? 'ငွေသားထုတ်' : 'Cash Out', icon: Store, color: 'bg-emerald-500/30 text-emerald-400' },
-    { id: 'crypto' as Screen, label: lang === 'ak' ? 'ဒင်္ဂါးဘဏ္ဍာ' : 'Crypto Vault', icon: Coins, color: 'bg-purple-500/30 text-purple-400' },
-    { id: 'account' as Screen, label: lang === 'ak' ? 'ငွေစာရင်း' : 'Account', icon: Wallet, color: 'bg-cyan-500/30 text-cyan-400' },
-    { id: 'pos' as Screen, label: lang === 'ak' ? 'ကုန်သည် POS' : 'Merchant POS', icon: Terminal, color: 'bg-orange-500/30 text-orange-400' },
-    { id: 'receive' as Screen, label: lang === 'ak' ? 'မိမိ QR' : 'My QR', icon: QrCode, color: 'bg-rose-500/30 text-rose-400' },
+  const primaryActions = [
+    { id: 'scan' as Screen, label: isAk ? 'ငွေပေးချေ' : 'Pay', icon: WalletMinimalIcon },
+    { id: 'receive' as Screen, label: isAk ? 'ငွေလက်ခံ' : 'Receive', icon: QrCode },
+    { id: 'crypto' as Screen, label: isAk ? 'ငွေသွင်း' : 'Deposit', icon: ArrowDownLeft },
+    { id: 'cashout' as Screen, label: isAk ? 'ငွေထုတ်' : 'Withdraw', icon: ArrowUpRight },
   ]
 
-  // Krungthai NEXT style favorites contacts
+  const secondaryServices = [
+    { id: 'intl' as Screen, label: isAk ? 'ငွေဖြည့်' : 'Topup', icon: Plus },
+    { id: 'pos' as Screen, label: isAk ? 'ဘေလ်ဆောင်' : 'Bill payment', icon: Receipt },
+    { id: 'account' as Screen, label: isAk ? 'ငွေစာရင်း' : 'Account', icon: CreditCard },
+    { id: 'services' as Screen, label: isAk ? 'မှတ်တမ်း' : 'History', icon: Clock },
+  ]
+
   const favorites = [
+    { name: 'user', mm: 'အသုံးပြုသူ', id: 'ARAK-1024', initials: 'U', bg: 'bg-sky-600' },
     { name: 'MYAT SOE', mm: 'မြတ်စိုး', id: 'ARAK-1024', initials: 'MS', bg: 'bg-blue-600' },
     { name: 'TONY', mm: 'တိုနီ', id: 'ARAK-9921', initials: 'TN', bg: 'bg-emerald-600' },
-    { name: 'CIMB WIRE', mm: 'စီအိုင်အမ်ဘီ', id: 'ARAK-5501', initials: 'CB', bg: 'bg-red-600' },
     { name: 'KO MIN AUNG', mm: 'မင်းအောင်', id: 'ARAK-8891', initials: 'MA', bg: 'bg-amber-600' },
   ]
 
+  const [adIdx, setAdIdx] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAdIdx((prev) => (prev + 1) % 4)
+    }, 4000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const promoAds = [
+    {
+      titleEn: 'Péthar Zero-Fee Global Remittance',
+      titleAk: 'ဖေ့သာ ၀% ဝန်ဆောင်ခ အထူးအစီအစဉ်',
+      descEn: 'Instant transfers & zero network gas fees',
+      descAk: 'နယ်စပ်ဖြတ်ကျော် ငွေလွှဲခမဲ့နှင့် လက်ငင်းလွှဲပို့ခြင်း',
+      gradient: 'from-zinc-900 via-zinc-800 to-[#7A1020]',
+      icon: ArrowLeftRight,
+      accentBg: 'bg-red-500/20 text-red-400',
+    },
+    {
+      titleEn: 'Arakan Merchant 5% Cashback',
+      titleAk: 'ကုန်သည်ဆိုင်များတွင် ၅% ပြန်အမ်းငွေ',
+      descEn: 'Earn 5% cashback at verified partner merchants',
+      descAk: 'အတည်ပြုစတိုးဆိုင်များတွင် QR ဖြင့် ပေးချေပါ',
+      gradient: 'from-slate-900 via-slate-800 to-emerald-900',
+      icon: Store,
+      accentBg: 'bg-emerald-500/20 text-emerald-400',
+    },
+    {
+      titleEn: 'Péthar Offline Bearer eCash',
+      titleAk: 'အင်တာနက်မလိုဘဲ ငွေသားကဲ့သို့ ပေးချေခြင်း',
+      descEn: 'NFC & soundwave offline tap-to-pay anywhere',
+      descAk: 'အသံလှိုင်းနှင့် NFC ဖြင့် အင်တာနက်မဲ့ သုံးစွဲနိုင်သည်',
+      gradient: 'from-indigo-950 via-slate-900 to-slate-800',
+      icon: Globe,
+      accentBg: 'bg-indigo-500/20 text-indigo-400',
+    },
+    {
+      titleEn: '100% Gold-Backed AKD Vault',
+      titleAk: 'ရွှေအာမခံ ၁၀၀% အပြည့်ဖြင့် ထိန်းသိမ်းထားသော ငွေကြေး',
+      descEn: 'Audited sovereign reserve backed 1:1 by gold',
+      descAk: 'ရုပ်ပိုင်းဆိုင်ရာ ရွှေနှင့် ဒေါ်လာဖြင့် အပြည့်အဝ အာမခံထားသည်',
+      gradient: 'from-amber-950 via-stone-900 to-stone-800',
+      icon: ShieldCheck,
+      accentBg: 'bg-amber-500/20 text-amber-400',
+    },
+  ]
+
   return (
-    <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
-      {/* Top Header Card */}
-      <div className={`px-5 pb-5 pt-3 rounded-b-[32px] border-b shadow-xl ${
-        isLight
-          ? 'bg-gradient-to-b from-[#7A1020] via-[#A31220] to-[#C2252F] border-red-200'
-          : 'bg-gradient-to-b from-[#2A080C] via-[#1A0A10] to-[#0E1522] border-red-950/60'
-      }`}>
-        <div className="relative flex items-center justify-between pt-1">
-          {/* User Photo (Left) */}
+    <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)} pb-8`}>
+      {/* 1. Top Header Row: (User Photo) | (App Logo) | (Noti Bell) | (Logout & Close) */}
+      <div className="px-4 pt-3.5 pb-2 relative flex items-center justify-between">
+        <button
+          onClick={() => go('settings')}
+          className="w-11 h-11 rounded-full overflow-hidden border-2 border-[#D91624]/30 bg-white shadow-xs flex items-center justify-center active:scale-95 transition shrink-0 z-10"
+          title={currentProfile.name || 'Profile'}
+        >
+          {currentProfile.avatarUrl ? (
+            <img
+              src={currentProfile.avatarUrl}
+              alt={currentProfile.name || 'User'}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <User size={20} className="text-[#D91624]" />
+          )}
+        </button>
+
+        <div className="absolute inset-x-0 flex items-center justify-center pointer-events-none">
           <button
-            onClick={() => go('settings')}
-            className="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-400/60 shadow-lg hover:ring-2 hover:ring-amber-400/50 transition active:scale-95 flex items-center justify-center bg-[#1A1224] shrink-0 z-10"
-            title={profile?.name || 'Profile'}
+            onClick={() => go('home')}
+            className="pointer-events-auto w-10 h-10 flex items-center justify-center active:scale-95 transition bg-transparent border-0 shadow-none hover:bg-transparent"
+            aria-label="Home"
           >
-            {profile?.avatarUrl ? (
-              <img
-                src={profile.avatarUrl}
-                alt={profile.name || 'User'}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <User size={20} className="text-amber-400" />
+            <ArakanEmblem size={34} variant="badge" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0 z-10">
+          <button
+            onClick={() => go('notifications')}
+            className="relative w-10 h-10 rounded-full bg-white border border-gray-200 shadow-xs flex items-center justify-center text-gray-700 hover:text-[#D91624] transition active:scale-95"
+            title={isAk ? 'အသိပေးချက်များ' : 'Notifications'}
+          >
+            <Bell size={17} />
+            {unread > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-0.5 rounded-full bg-[#D91624] text-white text-[9px] font-black flex items-center justify-center border border-white">
+                {unread}
+              </span>
             )}
           </button>
 
-          {/* App Logo in Middle */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="pointer-events-auto">
-              <ArakanEmblem size={38} variant="badge" />
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="w-10 h-10 rounded-full bg-white border border-gray-200 shadow-xs text-gray-700 hover:text-[#D91624] hover:border-red-200 flex items-center justify-center transition active:scale-95"
+            title={isAk ? 'အကောင့်ထွက်ရန်' : 'Logout and close'}
+            aria-label="Logout and close"
+          >
+            <LogOut size={15} className="text-[#D91624]" />
+          </button>
+        </div>
+      </div>
+
+      <div className="px-4 pt-2 space-y-3.5">
+        {/* 2. Welcome Back Card */}
+        <div className="bg-white rounded-[22px] px-4 py-3.5 border border-gray-200/80 shadow-xs flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-xs text-gray-500 font-semibold">
+              {isAk ? 'ပြန်လည်ကြိုဆိုပါသည်' : 'Welcome back'}
+            </div>
+            <div className="text-base font-extrabold text-gray-900 truncate mt-0.5">
+              {currentProfile.name}
             </div>
           </div>
+          <span className="px-3.5 py-1.5 rounded-full border border-sky-500/40 bg-sky-50 text-sky-700 text-xs font-bold inline-flex items-center gap-1.5 shrink-0">
+            <ShieldCheck size={14} className="text-sky-600" />
+            <span>{isAk ? 'အတည်ပြုပြီး' : 'Verified'}</span>
+          </span>
+        </div>
 
-          {/* Noti Bell & Logout (Right) */}
-          <div className="flex items-center gap-2 shrink-0 z-10">
-            {/* Notification Bell — badge synced with notification center state */}
-            <button
-              onClick={() => go('notifications')}
-              className="relative w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-gray-300 hover:text-white transition active:scale-95"
-              title={lang === 'ak' ? 'အသိပေးချက်များ' : 'Notifications'}
-            >
-              <Bell size={16} />
-              {unread > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center animate-pulse border border-white/40">
-                  {unread}
-                </span>
-              )}
-            </button>
-
-            {/* Logout Button */}
-            <button
-              onClick={() => setShowLogoutModal(true)}
-              className="w-8 h-8 rounded-full bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 border border-red-500/20 flex items-center justify-center transition active:scale-95"
-              title={lang === 'ak' ? 'အကောင့်ထွက်ရန်' : 'Log Out'}
-            >
-              <LogOut size={15} />
-            </button>
+        {/* 3. Primary 4-Action Card: Pay | Receive | Deposit | Withdraw */}
+        <div className="bg-white rounded-[22px] px-3 py-4 border border-gray-200/80 shadow-xs">
+          <div className="grid grid-cols-4 gap-2">
+            {primaryActions.map((act, i) => (
+              <button
+                key={i}
+                onClick={() => go(act.id)}
+                className="flex flex-col items-center gap-2 active:scale-95 transition"
+              >
+                <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200/70 text-[#D91624] flex items-center justify-center shadow-2xs">
+                  <act.icon size={20} strokeWidth={2.2} />
+                </div>
+                <span className="text-xs font-bold text-gray-900">{act.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Balance Card: Available Balance + Total Balance */}
-        <div className="pt-4 text-center">
-          <div className="flex items-center justify-center gap-2 text-[11px] text-gray-200">
-            <span>{lang === 'ak' ? w.labelMm : w.labelEn}</span>
-            <button onClick={() => setHidden(!hidden)} className="text-gray-300 hover:text-white transition">
-              {hidden ? <EyeOff size={13} /> : <Eye size={13} />}
+        {/* 4. Wallet Balance (AKD) Card */}
+        <div className="bg-white rounded-[22px] px-4 py-4 border border-gray-200/80 shadow-xs">
+          <div className="flex items-center gap-2 text-xs font-bold text-gray-600">
+            <span>{isAk ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)' : 'Wallet Balance (AKD)'}</span>
+            <button onClick={() => setHidden(!hidden)} className="text-gray-500 hover:text-gray-900 transition">
+              {hidden ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
-
-          <div className="pt-1 text-[32px] font-black text-white font-mono tracking-tight tabular-nums drop-shadow">
+          <div className="mt-2 flex items-baseline font-mono tracking-tight tabular-nums">
             {hidden ? (
-              '• • • • • •'
+              <span className="text-2xl font-black text-gray-900 tracking-widest">••••••••</span>
             ) : (
               <>
-                <span className="text-amber-400 text-2xl font-bold mr-1">{w.symbol}</span>
-                {w.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                <span className="text-xs font-bold text-amber-400/90 ml-1.5">{w.currency}</span>
+                <span className="text-2xl font-black text-[#D91624] mr-1.5">{w.symbol}</span>
+                <span className="text-2xl sm:text-3xl font-black text-gray-950">
+                  {w.balance.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 })}
+                </span>
               </>
             )}
           </div>
+        </div>
 
-          {/* Total Balance row (available + pending holds) */}
-          <div className="pt-1.5 flex items-center justify-center gap-1.5 text-[11px] text-gray-300">
-            <span>{lang === 'ak' ? w.totalLabelMm : w.totalLabelEn}:</span>
-            <span className="font-mono font-bold text-amber-200/90 tabular-nums">
-              {hidden
-                ? '• • • •'
-                : `${w.symbol}${w.totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+        {/* 5. Secondary 4-Service Card: Topup | Bill payment | Account | History */}
+        <div className="bg-white rounded-[22px] px-3 py-4 border border-gray-200/80 shadow-xs">
+          <div className="grid grid-cols-4 gap-2">
+            {secondaryServices.map((qs, i) => (
+              <button
+                key={i}
+                onClick={() => go(qs.id)}
+                className="flex flex-col items-center gap-2 active:scale-95 transition"
+              >
+                <div className="w-11 h-11 rounded-full bg-gray-50 border border-gray-200 text-[#D91624] flex items-center justify-center shadow-2xs">
+                  <qs.icon size={20} strokeWidth={2.2} />
+                </div>
+                <span className="text-[11px] font-bold text-gray-800 text-center leading-tight">
+                  {qs.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 6. Favourites Row */}
+        <div>
+          <div className="flex items-center justify-between pb-2 px-1">
+            <span className="text-xs font-extrabold text-gray-800">
+              {isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites'}
             </span>
-            {!hidden && w.pendingBalance > 0 && (
-              <span className="text-[9px] text-gray-400">
-                ({lang === 'ak' ? 'စောင့်ဆိုင်းဆဲ' : 'incl. pending'} {w.symbol}{w.pendingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })})
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Krungthai NEXT style Announcement Banner */}
-      {bannerVisible && (
-        <div className={`mx-4 mt-3 p-3 rounded-2xl border flex items-start gap-2.5 text-xs ${
-          isLight ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-amber-500/15 border-amber-500/30 text-amber-200'
-        }`}>
-          <Sparkles size={16} className={`shrink-0 mt-0.5 ${isLight ? 'text-amber-600' : 'text-amber-400'}`} />
-          <div className="flex-1 text-[11px] leading-relaxed">
-            <strong className={`font-bold block mb-0.5 ${isLight ? 'text-amber-700' : 'text-amber-300'}`}>
-              {lang === 'ak' ? 'အာရက္ခဗဟိုဘဏ် အသိပေးချက်' : 'Bank of Arakan Notice'}
-            </strong>
-            {lang === 'ak'
-              ? 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀-၀၆:၀၀ တွင် စာရင်းစနစ် အဆင့်မြှင့်မည်ဖြစ်ပါသည်။ အော့ဖ်လိုင်းဘောက်ချာများ အသုံးပြုနိုင်ပါသည်။'
-              : 'Péthar will undergo an Arakan ledger upgrade on 24 Sep 2026 from 01:00-06:00 AM. Offline vouchers remain active.'}
-          </div>
-          <button onClick={() => setBannerVisible(false)} className="text-amber-400/80 hover:text-white">
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
-      {/* Krungthai NEXT style 8-Services Grid */}
-      <div className="px-4 pt-4">
-        <div className="grid grid-cols-4 gap-2.5">
-          {quickServices.map((qs, i) => (
-            <button
-              key={i}
-              onClick={() => go(qs.id)}
-              className={`flex flex-col items-center gap-1.5 p-2 rounded-2xl active:scale-95 transition ${isLight ? 'hover:bg-gray-100' : 'hover:bg-white/5'}`}
-            >
-              <div className={`w-11 h-11 rounded-2xl ${qs.color} flex items-center justify-center shadow-md`}>
-                <qs.icon size={20} strokeWidth={2.2} />
-              </div>
-              <span className={`text-[10px] font-semibold text-center leading-tight ${isLight ? 'text-gray-700' : 'text-gray-200'}`}>
-                {qs.label}
-              </span>
+            <button onClick={() => go('pay')} className="text-xs font-bold text-[#D91624] hover:underline">
+              {isAk ? 'အားလုံးကြည့်ရန်' : 'view all'}
             </button>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {/* Krungthai NEXT style Favorites Row */}
-      <div className="px-4 pt-4">
-        <div className="flex items-center justify-between pb-2">
-          <span className={`text-xs font-bold ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
-            {lang === 'ak' ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favorites'}
-          </span>
-          <button onClick={() => go('send')} className={`text-[11px] font-bold hover:underline ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>
-            {lang === 'ak' ? 'အားလုံး' : 'View all'}
-          </button>
-        </div>
+          <div className="flex items-center gap-3.5 overflow-x-auto no-scrollbar py-1 px-1">
+            {favorites.map((fav, i) => (
+              <button
+                key={i}
+                onClick={() => go('pay')}
+                className="flex flex-col items-center gap-1.5 shrink-0 group active:scale-95 transition"
+              >
+                <div className={`w-11 h-11 rounded-full ${fav.bg} flex items-center justify-center font-bold text-xs text-white shadow-xs border-2 border-white`}>
+                  {fav.initials === 'U' ? <User size={18} /> : fav.initials}
+                </div>
+                <span className="text-[11px] font-semibold truncate w-14 text-center text-gray-700">
+                  {isAk ? fav.mm : fav.name}
+                </span>
+              </button>
+            ))}
 
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
-          {favorites.map((fav, i) => (
             <button
-              key={i}
-              onClick={() => go('send')}
+              onClick={() => go('pay')}
               className="flex flex-col items-center gap-1.5 shrink-0 group active:scale-95 transition"
             >
-              <div className={`w-12 h-12 rounded-full ${fav.bg} flex items-center justify-center font-bold text-xs text-white shadow-md border-2 ${isLight ? 'border-white' : 'border-[#131B26]'} group-hover:brightness-110`}>
-                {fav.initials}
+              <div className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-dashed bg-white hover:bg-gray-50 text-gray-600 border-gray-300">
+                <Plus size={18} />
               </div>
-              <span className={`text-[10px] font-medium truncate w-14 text-center ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>
-                {lang === 'ak' ? fav.mm : fav.name}
-              </span>
+              <span className="text-[11px] font-semibold text-gray-500">Add</span>
             </button>
-          ))}
+          </div>
+        </div>
 
-          {/* Add New Favorite Button */}
-          <button
-            onClick={() => go('send')}
-            className="flex flex-col items-center gap-1.5 shrink-0 group active:scale-95 transition"
-          >
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-dashed ${
-              isLight ? 'bg-gray-100 hover:bg-gray-200 text-gray-500 border-gray-300' : 'bg-white/10 hover:bg-white/20 text-gray-400 hover:text-white border-white/20'
-            }`}>
-              <Plus size={18} />
+        {/* 7. 4 Moving Ads Banner (NO "ADS" TEXT) */}
+        <div className="space-y-2">
+          <div className={`p-3.5 rounded-[20px] bg-gradient-to-r ${promoAds[adIdx].gradient} text-white flex items-center justify-between gap-3 shadow-xs transition-all duration-500`}>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={`w-9 h-9 rounded-full ${promoAds[adIdx].accentBg} flex items-center justify-center shrink-0`}>
+                {(() => {
+                  const Icon = promoAds[adIdx].icon
+                  return <Icon size={18} />
+                })()}
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-extrabold truncate">
+                  {isAk ? promoAds[adIdx].titleAk : promoAds[adIdx].titleEn}
+                </div>
+                <div className="text-[11px] text-gray-300 truncate mt-0.5">
+                  {isAk ? promoAds[adIdx].descAk : promoAds[adIdx].descEn}
+                </div>
+              </div>
             </div>
-            <span className={`text-[10px] font-medium ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>Add</span>
-          </button>
+            <ChevronRight size={16} className="text-white/70 shrink-0" />
+          </div>
+
+          {/* Dots Indicator */}
+          <div className="flex items-center justify-center gap-1.5 py-0.5">
+            {promoAds.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setAdIdx(i)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === adIdx ? 'w-5 bg-[#D91624]' : 'w-1.5 bg-gray-300'
+                }`}
+                aria-label={`Slide ${i + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -364,10 +445,10 @@ export function Home({
             </div>
             <div>
               <h3 className="font-bold text-base text-white">
-                {lang === 'ak' ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of Péthar?'}
+                {isAk ? 'အကောင့်မှ ထွက်မည်လား?' : 'Log out of Péthar?'}
               </h3>
               <p className="text-xs text-gray-400 mt-1">
-                {lang === 'ak'
+                {isAk
                   ? 'လုံခြုံရေးအရ သင်၏ စက်တွင်း session အား ပိတ်သိမ်းပါမည်။'
                   : 'Your active session will be ended securely.'}
               </p>
@@ -377,7 +458,7 @@ export function Home({
                 onClick={() => setShowLogoutModal(false)}
                 className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-gray-300 transition"
               >
-                {lang === 'ak' ? 'မထွက်ပါ' : 'Cancel'}
+                {isAk ? 'မထွက်ပါ' : 'Cancel'}
               </button>
               <button
                 onClick={() => {
@@ -387,7 +468,7 @@ export function Home({
                 }}
                 className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-xs font-bold text-white shadow-lg transition"
               >
-                {lang === 'ak' ? 'ထွက်မည်' : 'Log Out'}
+                {isAk ? 'ထွက်မည်' : 'Log Out'}
               </button>
             </div>
           </div>
@@ -398,7 +479,7 @@ export function Home({
       {loggedOutToast && (
         <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-red-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-red-400">
           <Check size={14} />
-          <span>{lang === 'ak' ? 'အကောင့်ထွက်ပြီးပါပြီ' : 'Logged out securely'}</span>
+          <span>{isAk ? 'အကောင့်ထွက်ပြီးပါပြီ' : 'Logged out securely'}</span>
         </div>
       )}
     </div>
@@ -1260,242 +1341,342 @@ export function Send({
   )
 }
 
-// ── RECEIVE SCREEN ──────────────────────────────────────────────────────
-export function Receive({ lang, theme = 'light' }: { lang: Language; theme?: ThemeMode }) {
-  const t = translations[lang]
-  const [copied, setCopied] = useState(false)
-  const myId = 'ARAK-8891-JACK'
+// ── RECEIVE SCREEN (Matched to user's hand-drawn Receive layout) ────────
+export function Receive({
+  go,
+  lang,
+  profile,
+  embedded = false,
+  theme = 'light',
+}: {
+  go?: (s: Screen) => void
+  lang: Language
+  profile?: UserProfile
+  embedded?: boolean
+  theme?: ThemeMode
+}) {
+  const [copiedUid, setCopiedUid] = useState(false)
+  const [savedQr, setSavedQr] = useState(false)
+  const [sharedQr, setSharedQr] = useState(false)
+  const isAk = lang === 'ak'
+  const currentProfile = profile || initialUserProfile
+  const usernameHandle = `@${currentProfile.name.toLowerCase().replace(/\s+/g, '') || 'username'}`
+  const uidNumber = '000000000000'
 
-  const copyId = () => {
-    navigator.clipboard?.writeText(myId)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  const handleCopyUid = () => {
+    navigator.clipboard?.writeText(uidNumber)
+    setCopiedUid(true)
+    setTimeout(() => setCopiedUid(false), 2000)
+  }
+
+  const handleSaveQr = () => {
+    localStorage.setItem('pethar-receive-qr', `pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`)
+    setSavedQr(true)
+    setTimeout(() => setSavedQr(false), 2000)
+  }
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Péthar Receive QR',
+      text: `${currentProfile.name} (${usernameHandle}) · UID: ${uidNumber}`,
+      url: `pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`,
+    }
+    try {
+      if (navigator.share) await navigator.share(shareData)
+      else await navigator.clipboard?.writeText(shareData.text)
+    } catch {
+      // User cancelled share sheet
+    }
+    setSharedQr(true)
+    setTimeout(() => setSharedQr(false), 2000)
   }
 
   return (
-    <div className={`flex h-full flex-col ${th.root(theme)}`}>
-      <ScreenHeader
-        title={t.receiveTitle}
-        subtitle={lang === 'ak' ? 'Arakan QR စနစ်ဖြင့် လက်ခံရန်' : 'Arakan QR (AK QR)'}
-        theme={theme}
-      />
+    <div className={`flex h-full flex-col ${th.root(theme)} text-zinc-900`}>
+      {/* Top Header: < | Receive | (Share) */}
+      {!embedded && (
+        <div className="bg-white px-4 pt-4 pb-3 flex items-center justify-between border-b border-zinc-200/80 sticky top-0 z-20">
+          <button
+            type="button"
+            onClick={() => go && go('home')}
+            aria-label="Back"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-800 hover:bg-zinc-100 transition cursor-pointer"
+          >
+            <ChevronRight size={22} className="rotate-180" />
+          </button>
 
-      <div className="flex flex-1 flex-col items-center justify-center p-6 text-center space-y-4">
-        <div className="p-4 bg-white rounded-3xl shadow-2xl">
-          <FakeQR size={170} value={`pethar://pay?to=${myId}&curr=AKD`} />
+          <h1 className="text-base font-extrabold text-zinc-900 tracking-tight">
+            {isAk ? 'ငွေလက်ခံရန်' : 'Receive'}
+          </h1>
+
+          <button
+            type="button"
+            onClick={handleShare}
+            className="px-3.5 py-1.5 rounded-full border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 inline-flex items-center gap-1.5 shadow-2xs active:scale-95 transition cursor-pointer"
+          >
+            <Share2 size={13} className="text-[#D91624]" />
+            <span>{sharedQr ? (isAk ? 'မျှဝေပြီး' : 'Shared') : isAk ? 'မျှဝေရန်' : 'Share'}</span>
+          </button>
+        </div>
+      )}
+
+      {/* Main Content Body */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-5 text-center space-y-4">
+        {/* 1. App Logo (Circular) + App Name */}
+        <div className="flex flex-col items-center space-y-1.5">
+          <div className="w-14 h-14 rounded-full bg-white border border-zinc-200 shadow-xs flex items-center justify-center p-2">
+            <img
+              src="/pethar-logo-red-white.svg"
+              alt="Péthar Logo"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="text-sm font-extrabold text-zinc-900 tracking-tight">
+            Péthar
+          </div>
         </div>
 
-        <div>
-          <div className="text-base font-bold text-white">Jack Halder</div>
-          <div className="text-xs font-mono text-amber-400 mt-0.5">{myId}</div>
-          <p className="text-[11px] text-gray-400 mt-1 max-w-xs">
-            {lang === 'ak'
-              ? 'ဤ QR ကုဒ်ကို ပေးပို့သူအား ပြသ၍ အာရက္ခဒေါ်လာ တိုက်ရိုက်လက်ခံပါ'
-              : 'Scan with Péthar Mobile to send Arakan Dollars instantly'}
-          </p>
+        {/* 2. User Name & @username */}
+        <div className="space-y-0.5">
+          <div className="text-lg font-extrabold text-zinc-900 leading-tight">
+            {currentProfile.name}
+          </div>
+          <div className="text-xs font-semibold text-zinc-500 font-mono">
+            {usernameHandle}
+          </div>
         </div>
 
-        <button
-          onClick={copyId}
-          className="px-5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center gap-2 border border-white/10 transition"
-        >
-          {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-          {copied ? t.receiveIdCopied : t.receiveCopyId}
-        </button>
+        {/* 3. QR Box */}
+        <div className="p-5 bg-white rounded-3xl border-2 border-zinc-200/90 shadow-[0_10px_28px_rgba(15,23,42,0.06)] flex items-center justify-center">
+          <FakeQR size={184} value={`pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`} />
+        </div>
+
+        {/* 4. UID Number */}
+        <div className="pt-0.5">
+          <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            UID Number
+          </div>
+          <div className="text-base font-extrabold font-mono tracking-widest text-zinc-900 mt-0.5 tabular-nums">
+            {uidNumber}
+          </div>
+        </div>
+
+        {/* 5. Bottom Buttons: [ copy UID ] & [ Save ] */}
+        <div className="grid grid-cols-2 gap-3 w-full max-w-[280px] pt-2">
+          <button
+            type="button"
+            onClick={handleCopyUid}
+            className="py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-900 font-bold text-xs flex items-center justify-center gap-2 shadow-2xs active:scale-95 transition cursor-pointer"
+          >
+            {copiedUid ? (
+              <Check size={15} className="text-emerald-600" />
+            ) : (
+              <Copy size={15} className="text-zinc-700" />
+            )}
+            <span>{copiedUid ? (isAk ? 'ကူးယူပြီး' : 'Copied') : 'copy UID'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSaveQr}
+            className="py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-900 font-bold text-xs flex items-center justify-center gap-2 shadow-2xs active:scale-95 transition cursor-pointer"
+          >
+            {savedQr ? (
+              <Check size={15} className="text-emerald-600" />
+            ) : (
+              <Download size={15} className="text-zinc-700" />
+            )}
+            <span>{savedQr ? (isAk ? 'သိမ်းပြီး' : 'Saved') : isAk ? 'သိမ်းမည်' : 'Save'}</span>
+          </button>
+        </div>
       </div>
     </div>
   )
 }
 
-// ── SCAN SCREEN ─────────────────────────────────────────────────────────
-export function Scan({ lang, theme = 'light' }: { lang: Language; theme?: ThemeMode }) {
-  const [tab, setTab] = useState<'scan' | 'myqr' | 'pay'>('scan')
+// ── SCAN / MYQR SCREEN ──────────────────────────────────────────────────
+export function Scan({
+  go,
+  lang,
+  profile,
+  theme = 'light',
+}: {
+  go?: (s: Screen) => void
+  lang: Language
+  profile?: UserProfile
+  theme?: ThemeMode
+}) {
+  const [tab, setTab] = useState<'scan' | 'myqr'>('scan')
   const [flashEnabled, setFlashEnabled] = useState(false)
   const [photoSelected, setPhotoSelected] = useState(false)
-  const [qrSaved, setQrSaved] = useState(false)
-  const [qrShared, setQrShared] = useState(false)
-  const isLight = theme === 'light'
-
-  const handleSaveQr = () => {
-    localStorage.setItem('pethar-my-qr', 'pethar://receive?id=ARAK-8891-JACK&cur=AKD')
-    setQrSaved(true)
-    setTimeout(() => setQrSaved(false), 2000)
-  }
+  const [sharedQr, setSharedQr] = useState(false)
+  const isAk = lang === 'ak'
+  const currentProfile = profile || initialUserProfile
+  const usernameHandle = `@${currentProfile.name.toLowerCase().replace(/\s+/g, '') || 'username'}`
+  const uidNumber = '000000000000'
 
   const handleShareQr = async () => {
     const shareData = {
-      title: 'Arakan QR Payment',
-      text: 'Scan this QR to transfer to Jack · ARAK-8891-JACK',
-      url: 'pethar://receive?id=ARAK-8891-JACK&cur=AKD',
+      title: 'Péthar Receive QR',
+      text: `${currentProfile.name} (${usernameHandle}) · UID: ${uidNumber}`,
+      url: `pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`,
     }
     try {
       if (navigator.share) await navigator.share(shareData)
-      else await navigator.clipboard?.writeText(shareData.url)
-      setQrShared(true)
-      setTimeout(() => setQrShared(false), 2000)
+      else await navigator.clipboard?.writeText(shareData.text)
     } catch {
-      // Sharing can be cancelled by the device without showing an error.
+      // Share cancelled
     }
+    setSharedQr(true)
+    setTimeout(() => setSharedQr(false), 2000)
   }
 
-  const tabs = [
-    { id: 'scan' as const, label: lang === 'ak' ? 'စကင်ဖတ်' : 'Scan', icon: ScanLine },
-    { id: 'myqr' as const, label: lang === 'ak' ? 'မိမိ QR' : 'My QR', icon: QrCode },
-    { id: 'pay' as const, label: lang === 'ak' ? 'QR ဖြင့် ငွေပေးချေ' : 'QR to Pay', icon: Barcode },
-  ]
-
   return (
-    <div className={`flex h-full flex-col relative ${tab === 'scan' ? 'bg-black text-white' : th.root(theme)}`}>
-      <ScreenHeader
-        title="Scan/MyQR"
-        centerTitle
-        theme={tab === 'scan' ? 'dark' : theme}
-      />
+    <div className={`flex h-full flex-col relative ${tab === 'scan' ? 'bg-zinc-700 text-white' : th.root(theme)}`}>
+      {/* Top Header: < | Scan/MyQR | Torch or Share */}
+      <div
+        className={`px-4 pt-4 pb-3 flex items-center justify-between border-b ${
+          tab === 'scan'
+            ? 'bg-zinc-800/90 border-white/10 text-white'
+            : 'bg-white border-zinc-200/80 text-zinc-900'
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => go && go('home')}
+          className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer"
+        >
+          <ChevronRight size={22} className="rotate-180" />
+        </button>
 
-      {/* ── TAB BAR: Scan / My QR / QR to Pay ── */}
-      <div className={`mx-4 mt-3 flex rounded-2xl p-1 ${
-        tab === 'scan' ? 'bg-white/10' : isLight ? 'bg-gray-200/70' : 'bg-white/[0.07]'
-      }`}>
-        {tabs.map((tb) => (
+        <h1 className="text-base font-extrabold tracking-tight">Scan/MyQR</h1>
+
+        {tab === 'scan' ? (
           <button
-            key={tb.id}
-            onClick={() => setTab(tb.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition active:scale-95 ${
-              tab === tb.id
-                ? 'bg-amber-500 text-black shadow-md'
-                : tab === 'scan'
-                  ? 'text-gray-300 hover:text-white'
-                  : isLight
-                    ? 'text-gray-600 hover:text-gray-900'
-                    : 'text-gray-400 hover:text-white'
+            type="button"
+            onClick={() => setFlashEnabled(!flashEnabled)}
+            className={`w-9 h-9 rounded-full flex items-center justify-center border transition cursor-pointer ${
+              flashEnabled
+                ? 'bg-[#D91624] border-white text-white'
+                : 'bg-black/30 border-white/40 text-white'
             }`}
           >
-            <tb.icon size={13} />
-            {tb.label}
+            <Flashlight size={17} />
           </button>
-        ))}
+        ) : (
+          <button
+            type="button"
+            onClick={handleShareQr}
+            className="px-3.5 py-1.5 rounded-full border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 inline-flex items-center gap-1.5 shadow-2xs cursor-pointer"
+          >
+            <Share2 size={13} className="text-[#D91624]" />
+            <span>{sharedQr ? 'Shared' : 'Share'}</span>
+          </button>
+        )}
       </div>
 
-      {/* ── TAB 1: SCAN ── */}
-      {tab === 'scan' && (
-        <>
-          <div className="mx-4 mt-2 flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-2 text-[10px] text-amber-200">
-            <AlertTriangle size={16} className="shrink-0 text-amber-400 mt-0.5" />
-            <span className="leading-relaxed">
-              {lang === 'ak'
-                ? 'ငွေပေးချေရန်၊ ငွေလွှဲရန် သို့မဟုတ် ငွေထုတ်ရန်သာ စကင်ဖတ်ပါ။ ငွေလက်ခံရန် စကင်ဖတ်ခြင်းကို မထောက်ပံ့ပါ။'
-                : 'Scan to pay, transfer, or withdraw only. Scan to receive money is not supported.'}
-            </span>
-          </div>
-          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-5">
-            <div className="relative w-60 h-60">
-              {flashEnabled && <div className="absolute inset-0 rounded-3xl bg-white/10" />}
+      {/* Main Content: Scan Viewfinder OR Receive (MyQR) */}
+      <div className="flex-1 overflow-y-auto flex flex-col">
+        {tab === 'scan' ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-6 relative">
+            <div className="relative w-64 h-64 flex items-center justify-center">
+              {flashEnabled && <div className="absolute inset-0 rounded-3xl bg-white/15" />}
               {[
                 'top-0 left-0 border-t-4 border-l-4 rounded-tl-3xl',
                 'top-0 right-0 border-t-4 border-r-4 rounded-tr-3xl',
                 'bottom-0 left-0 border-b-4 border-l-4 rounded-bl-3xl',
                 'bottom-0 right-0 border-b-4 border-r-4 rounded-br-3xl',
               ].map((pos) => (
-                <div key={pos} className={`absolute w-10 h-10 border-amber-400 ${pos}`} />
+                <div key={pos} className={`absolute w-10 h-10 border-white ${pos}`} />
               ))}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <ScanLine size={40} className="text-amber-400/60" />
-              </div>
-              <div className="absolute left-4 right-4 top-1/2 h-0.5 bg-amber-400 animate-pulse" style={{ boxShadow: '0 0 14px rgba(251,191,36,0.8)' }} />
-            </div>
-            <div className="w-60 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => setFlashEnabled(!flashEnabled)}
-                aria-label={flashEnabled ? 'Turn flashlight off' : 'Turn flashlight on'}
-                className={`h-10 w-10 rounded-full flex items-center justify-center transition active:scale-95 ${
-                  flashEnabled ? 'bg-amber-500 text-black' : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                }`}
-              >
-                <Flashlight size={18} />
-              </button>
-              <label
-                htmlFor="qr-photo-upload"
-                aria-label="Scan QR from photo"
-                className={`h-10 w-10 rounded-full flex items-center justify-center cursor-pointer transition active:scale-95 ${
-                  photoSelected ? 'bg-emerald-500 text-black' : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                }`}
-              >
-                <ImagePlus size={18} />
-              </label>
-              <input
-                id="qr-photo-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(event) => setPhotoSelected(Boolean(event.target.files?.length))}
+              <div
+                className="w-full h-0.5 bg-white animate-pulse"
+                style={{ boxShadow: '0 0 14px rgba(217,22,36,0.9)' }}
               />
             </div>
-          </div>
-        </>
-      )}
 
-      {/* ── TAB 2: MY QR ── */}
-      {tab === 'myqr' && (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <div className="w-full max-w-[260px] overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center gap-2 bg-[#17679a] px-3 py-2 text-left text-white">
-              <ArakanEmblem size={22} variant="badge" />
-              <div>
-                <div className="text-[11px] font-black tracking-wide">ARAKAN QR PAYMENT</div>
-                <div className="text-[8px] text-white/75">Arakan Digital Wallet</div>
-              </div>
-            </div>
-            <div className="px-3 pt-3">
-              <div className="bg-white p-2">
-                <FakeQR size={168} value="pethar://receive?id=ARAK-8891-JACK&cur=AKD" />
-              </div>
-              <div className="mt-2 text-[10px] font-bold text-teal-600">Scan QR to transfer to account</div>
-              <div className="mt-1 text-[9px] text-gray-500">Name: Jack Halder</div>
-              <div className="text-[9px] text-gray-500">Account No: ARAK-8891-JACK</div>
-              <div className="pb-3 text-[8px] text-gray-400">Arakan QR Payment</div>
-            </div>
-            <div className="flex border-t border-gray-200 bg-gray-50">
-              <button
-                type="button"
-                onClick={handleSaveQr}
-                className="flex flex-1 flex-col items-center gap-1 py-2 text-[9px] font-semibold text-gray-600 hover:bg-gray-100"
-              >
-                <Download size={16} className={qrSaved ? 'text-emerald-600' : 'text-teal-600'} />
-                {qrSaved ? 'Saved' : 'Save'}
-              </button>
-              <button
-                type="button"
-                onClick={handleShareQr}
-                className="flex flex-1 flex-col items-center gap-1 border-l border-gray-200 py-2 text-[9px] font-semibold text-gray-600 hover:bg-gray-100"
-              >
-                <Share2 size={16} className={qrShared ? 'text-emerald-600' : 'text-teal-600'} />
-                {qrShared ? 'Shared' : 'Share'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            <p className="text-xs text-white/90 font-medium">
+              {isAk
+                ? 'QR ကုဒ် သို့မဟုတ် ဘားကုဒ်ကို ဘောင်အတွင်း ထားရှိပါ'
+                : 'Place the QR code or barcode within the frame.'}
+            </p>
 
-      {/* ── TAB 3: QR TO PAY ── */}
-      {tab === 'pay' && (
-        <div className="flex-1 flex flex-col items-center gap-3 overflow-y-auto p-4">
-          <div className="w-full max-w-[260px] overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between bg-[#17679a] px-3 py-2 text-white">
-              <div className="text-[11px] font-bold">Pay at</div>
-              <div className="text-[10px] font-bold">Arakan</div>
-            </div>
-            <div className="px-3 pt-3 text-left">
-              <div className="text-[10px] font-bold text-gray-800">Jack Halder</div>
-              <div className="mt-2 flex justify-center">
-                <FakeQR size={142} value="pethar://pay?merchant=ARAKAN&curr=AKD" />
-              </div>
-              <div className="mt-2 text-center text-[9px] font-bold text-teal-600">ARAKAN QR PAYMENT</div>
-              <div className="pb-3 text-center text-[8px] text-gray-400">Scan to pay with ₳</div>
-            </div>
+            <label
+              htmlFor="qr-photo-upload"
+              className="px-5 py-2.5 rounded-full bg-black/55 border border-white/25 text-white text-xs font-bold inline-flex items-center gap-2 cursor-pointer hover:bg-black/70 transition"
+            >
+              <ImagePlus size={16} />
+              <span>
+                {photoSelected
+                  ? isAk
+                    ? 'QR ပုံ ရွေးချယ်ပြီးပါပြီ'
+                    : 'QR Image Selected'
+                  : isAk
+                    ? 'ပုံပြခန်းမှ ရွေးချယ်ရန်'
+                    : 'Select from Gallery'}
+              </span>
+            </label>
+            <input
+              id="qr-photo-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => setPhotoSelected(Boolean(event.target.files?.length))}
+            />
           </div>
-        </div>
-      )}
+        ) : (
+          <Receive go={go} lang={lang} profile={currentProfile} embedded theme={theme} />
+        )}
+      </div>
+
+      {/* Bottom Toggle Bar: Scan | MyQR */}
+      <div className="h-20 bg-white border-t border-zinc-200 grid grid-cols-2 shrink-0">
+        <button
+          type="button"
+          onClick={() => setTab('scan')}
+          className="flex flex-col items-center justify-center gap-1 cursor-pointer"
+        >
+          <ScanLine
+            size={22}
+            className={tab === 'scan' ? 'text-[#D91624]' : 'text-zinc-800'}
+          />
+          <span
+            className={`text-xs font-bold ${
+              tab === 'scan' ? 'text-[#D91624]' : 'text-zinc-800'
+            }`}
+          >
+            {isAk ? 'စကင်ဖတ်' : 'Scan'}
+          </span>
+          <span
+            className={`w-9 h-0.5 rounded-full ${
+              tab === 'scan' ? 'bg-[#D91624]' : 'bg-transparent'
+            }`}
+          />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setTab('myqr')}
+          className="flex flex-col items-center justify-center gap-1 cursor-pointer"
+        >
+          <QrCode
+            size={22}
+            className={tab === 'myqr' ? 'text-[#D91624]' : 'text-zinc-800'}
+          />
+          <span
+            className={`text-xs font-bold ${
+              tab === 'myqr' ? 'text-[#D91624]' : 'text-zinc-800'
+            }`}
+          >
+            MyQR
+          </span>
+          <span
+            className={`w-9 h-0.5 rounded-full ${
+              tab === 'myqr' ? 'bg-[#D91624]' : 'bg-transparent'
+            }`}
+          />
+        </button>
+      </div>
     </div>
   )
 }

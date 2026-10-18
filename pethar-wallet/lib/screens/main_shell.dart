@@ -15,6 +15,7 @@ import '../widgets/support_and_kyc_modals.dart';
 import 'home_screen.dart';
 import 'account_screen.dart';
 import 'scan_screen.dart';
+import 'pay_screen.dart';
 import 'services_screen.dart';
 import 'settings_screen.dart';
 import 'send_screen.dart';
@@ -2218,6 +2219,7 @@ class _MainShellState extends State<MainShell> {
     if (appState.currentScreen == Screen.crypto) return const CryptoScreen();
     if (appState.currentScreen == Screen.offlinePayment) return const OfflinePaymentScreen();
     if (appState.currentScreen == Screen.scan) return const ScanScreen();
+    if (appState.currentScreen == Screen.pay) return const PayScreen();
 
     int currentIndex = 0;
     switch (appState.currentScreen) {
@@ -2277,22 +2279,22 @@ class _MainShellState extends State<MainShell> {
                 height: 68,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.88),
+                  color: Colors.white.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.95),
+                    color: Colors.white,
                     width: 1.2,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF0F172A).withValues(alpha: 0.14),
-                      blurRadius: 34,
-                      offset: const Offset(0, 14),
+                      color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+                      blurRadius: 18,
+                      offset: const Offset(0, 4),
                     ),
                     BoxShadow(
-                      color: crimson.withValues(alpha: 0.06),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
+                      color: crimson.withValues(alpha: 0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),

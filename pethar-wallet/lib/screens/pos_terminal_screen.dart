@@ -15,7 +15,7 @@ class PosTerminalScreen extends StatefulWidget {
 
 class _PosTerminalScreenState extends State<PosTerminalScreen> {
   final Map<String, int> _cart = {
-    'Arakan Fragrant Rice': 1,
+    'Arakan Fragrant Rice (1 Bag)': 1,
   };
   final TextEditingController _customAmtCtrl = TextEditingController();
   String _viewState = 'checkout'; // 'checkout', 'waiting', 'paid', 'receipt'
@@ -33,8 +33,11 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
   double get _totalAmount {
     double sum = 0.0;
     _cart.forEach((name, qty) {
-      final itm = posItems.firstWhere((i) => i['name'] == name);
-      sum += (itm['price'] as double) * qty;
+      final itm = posItems.firstWhere(
+        (i) => i['name'] == name,
+        orElse: () => {'price': 0.0},
+      );
+      sum += ((itm['price'] as num?)?.toDouble() ?? 0.0) * qty;
     });
     final customVal = double.tryParse(_customAmtCtrl.text) ?? 0.0;
     return sum + customVal;
@@ -353,7 +356,10 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
                     : ListView(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         children: _cart.entries.map((e) {
-                          final itm = posItems.firstWhere((i) => i['name'] == e.key);
+                          final itm = posItems.firstWhere(
+                            (i) => i['name'] == e.key,
+                            orElse: () => {'name': e.key, 'price': 0.0, 'sku': ''},
+                          );
                           final subtotal = (itm['price'] as double) * e.value;
                           return Container(
                             margin: const EdgeInsets.only(bottom: 10),

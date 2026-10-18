@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import '../app_state.dart';
 import '../theme.dart';
+import 'receive_screen.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({Key? key}) : super(key: key);
@@ -12,9 +13,34 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
-  int _bottomTab = 0; // 0: Scan, 1: Pay
+  int _bottomTab = 0; // 0: Scan, 1: MyQR (Receive function)
   bool _flashlightOn = false;
+  bool _sharedQr = false;
   String? _galleryResult;
+
+  void _shareMyQr(BuildContext context, AppState appState, bool isAk) {
+    final username =
+        '@${appState.profile.name.toLowerCase().replaceAll(RegExp(r'\s+'), '')}';
+    Clipboard.setData(
+      ClipboardData(
+        text: '${appState.profile.name} ($username) · UID: 000000000000',
+      ),
+    );
+    setState(() => _sharedQr = true);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isAk ? 'မျှဝေရန် လင့်ခ် ကူးယူပြီးပါပြီ' : 'Receive details copied to share',
+        ),
+        backgroundColor: emeraldSuccess,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _sharedQr = false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,14 +48,21 @@ class _ScanScreenState extends State<ScanScreen> {
     final isAk = appState.language == 'ak';
 
     return Scaffold(
-      backgroundColor: _bottomTab == 0 ? const Color(0xFF52525B) : const Color(0xFFF8FAFC),
+      backgroundColor:
+          _bottomTab == 0 ? const Color(0xFF52525B) : const Color(0xFFF8FAFC),
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            // Top Overlay Header: Back (<) | Scan | Flashlight Torch Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            // Top Overlay Header: Back (<) | Scan/MyQR | Flashlight Torch or Share Button
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: _bottomTab == 0 ? Colors.transparent : Colors.white,
+                border: _bottomTab == 0
+                    ? null
+                    : const Border(bottom: BorderSide(color: Color(0xFFE4E4E7))),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -42,13 +75,11 @@ class _ScanScreenState extends State<ScanScreen> {
                     ),
                   ),
                   Text(
-                    _bottomTab == 0
-                        ? (isAk ? 'စကင်ဖတ်ရန်' : 'Scan')
-                        : (isAk ? 'QR ဖြင့် ငွေပေးချေရန်' : 'Pay'),
+                    'Scan/MyQR',
                     style: TextStyle(
                       color: _bottomTab == 0 ? Colors.white : Colors.black87,
                       fontSize: 17,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                   if (_bottomTab == 0)
@@ -71,19 +102,51 @@ class _ScanScreenState extends State<ScanScreen> {
                               : null,
                         ),
                         child: Icon(
-                          _flashlightOn ? Icons.flashlight_on_rounded : Icons.flashlight_off_outlined,
+                          _flashlightOn
+                              ? Icons.flashlight_on_rounded
+                              : Icons.flashlight_off_outlined,
                           color: Colors.white,
                           size: 20,
                         ),
                       ),
                     )
                   else
-                    const SizedBox(width: 40),
+                    GestureDetector(
+                      onTap: () => _shareMyQr(context, appState, isAk),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: const Color(0xFFD4D4D8)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.share_outlined, size: 14, color: crimson),
+                            const SizedBox(width: 5),
+                            Text(
+                              _sharedQr
+                                  ? (isAk ? 'မျှဝေပြီး' : 'Shared')
+                                  : (isAk ? 'မျှဝေရန်' : 'Share'),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF18181B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
 
-            // Main Viewfinder or Pay QR Body
+            // Main Viewfinder or MyQR (Receive Function) Body
             Expanded(
               child: _bottomTab == 0
                   ? Stack(
@@ -93,7 +156,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           Container(
                             color: Colors.white.withValues(alpha: 0.16),
                           ),
-                        // Horizontal glowing laser scan line matching photo 8.21.36
+                        // Horizontal glowing laser scan line
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 32),
                           child: Container(
@@ -105,7 +168,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                   color: crimson.withValues(alpha: 0.9),
                                   blurRadius: 12,
                                   spreadRadius: 2,
-                                    offset: const Offset(0, 3),
+                                  offset: const Offset(0, 3),
                                 ),
                               ],
                             ),
@@ -115,14 +178,20 @@ class _ScanScreenState extends State<ScanScreen> {
                           Positioned(
                             top: 40,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.black87,
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
                                 _galleryResult!,
-                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           ),
@@ -155,7 +224,10 @@ class _ScanScreenState extends State<ScanScreen> {
                                   });
                                 },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 22,
+                                    vertical: 12,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.black.withValues(alpha: 0.55),
                                     borderRadius: BorderRadius.circular(999),
@@ -164,10 +236,16 @@ class _ScanScreenState extends State<ScanScreen> {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.photo_library_outlined, color: Colors.white, size: 18),
+                                      const Icon(
+                                        Icons.photo_library_outlined,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        isAk ? 'ပုံပြခန်းမှ ရွေးချယ်ရန်' : 'Select from Gallery',
+                                        isAk
+                                            ? 'ပုံပြခန်းမှ ရွေးချယ်ရန်'
+                                            : 'Select from Gallery',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 14,
@@ -183,43 +261,16 @@ class _ScanScreenState extends State<ScanScreen> {
                         ),
                       ],
                     )
-                  : Center(
-                      child: Container(
-                        width: 280,
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(28),
-                          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 24)],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            QrImageView(
-                              data: 'pethar://pay?user=${appState.profile.petharId}&cur=AKD',
-                              version: QrVersions.auto,
-                              size: 190,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              appState.profile.name,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              appState.profile.petharId,
-                              style: const TextStyle(fontSize: 12, color: Colors.black54, fontFamily: 'monospace'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  : const ReceiveScreen(embedded: true),
             ),
 
-            // Bottom White Scan / Pay Bar matching photo 8.21.36
+            // Bottom White Scan / MyQR Bar
             Container(
               height: 82,
-              color: Colors.white,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: Color(0xFFE4E4E7))),
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -270,7 +321,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            isAk ? 'ငွေပေးချေ' : 'Pay',
+                            'MyQR',
                             style: TextStyle(
                               color: _bottomTab == 1 ? crimson : Colors.black87,
                               fontSize: 12,
