@@ -1,8 +1,8 @@
 # Péthar Enterprise Code Ownership
-* @realjackhalder
+* @Péthar
 
 # Security & Rules
-/firestore.rules @realjackhalder
-/.github/workflows/ @realjackhalder
-/pethar_mobile/lib/services/offline_payment_service.dart @realjackhalder
-/pethar-wallet/src/components/TransactionSlip.tsx @realjackhalder
+/firestore.rules @Péthar
+/.github/workflows/ @Péthar
+/pethar_mobile/lib/services/offline_payment_service.dart @Péthar
+/pethar-wallet/src/components/TransactionSlip.tsx @Péthar

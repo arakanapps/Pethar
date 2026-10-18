@@ -21,7 +21,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE IF NOT EXISTS public.users (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     phone_number  VARCHAR(30) UNIQUE,
-    full_name     VARCHAR(100) NOT NULL DEFAULT 'Aung Kyaw Zan',
+    full_name     VARCHAR(100) NOT NULL DEFAULT 'User',
     kyc_tier      INT NOT NULL DEFAULT 2 CHECK (kyc_tier IN (1, 2, 3)),
     status        VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'SUSPENDED', 'FROZEN', 'CLOSED')),
     created_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -31,12 +31,12 @@ CREATE TABLE IF NOT EXISTS public.users (
 CREATE TABLE IF NOT EXISTS public.user_profiles (
     id            VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
     user_id       UUID REFERENCES public.users(id) ON DELETE SET NULL,
-    name          VARCHAR(100) NOT NULL DEFAULT 'Aung Kyaw Zan',
-    phone         VARCHAR(30) NOT NULL DEFAULT '09795220917',
-    ak_id         VARCHAR(64) NOT NULL DEFAULT 'AK-992104-88',
-    username      VARCHAR(50) NOT NULL DEFAULT '@aung_kyaw_zan',
-    uid           VARCHAR(32) NOT NULL DEFAULT '710293847561',
-    balance       NUMERIC(18, 4) NOT NULL DEFAULT 12500.00,
+    name          VARCHAR(100) NOT NULL DEFAULT 'User',
+    phone         VARCHAR(30) NOT NULL DEFAULT '0000000000',
+    ak_id         VARCHAR(64) NOT NULL DEFAULT 'AK-000000-0000',
+    username      VARCHAR(50) NOT NULL DEFAULT '@User',
+    uid           VARCHAR(32) NOT NULL DEFAULT '000000000000',
+    balance       NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
     currency      VARCHAR(16) NOT NULL DEFAULT 'AKD',
     avatar_url    TEXT DEFAULT '',
     kyc_tier      INT NOT NULL DEFAULT 2,
@@ -445,7 +445,7 @@ CREATE TABLE IF NOT EXISTS public.bill_providers (
     name             VARCHAR(120) NOT NULL,
     name_mm          VARCHAR(150) NOT NULL,
     category         VARCHAR(64) NOT NULL,
-    region           VARCHAR(32) NOT NULL DEFAULT 'myanmar',
+    region           VARCHAR(32) NOT NULL DEFAULT 'Arakan',
     default_amount   NUMERIC(18, 2) NOT NULL DEFAULT 0.00,
     account_label    VARCHAR(64) NOT NULL DEFAULT 'Account No',
     primary_color    VARCHAR(16) NOT NULL DEFAULT '#00A859',
@@ -554,11 +554,11 @@ END $$;
 
 -- 12.1. Seed Core System User & Default User Profile
 INSERT INTO public.users (id, phone_number, full_name, kyc_tier, status)
-VALUES ('00000000-0000-0000-0000-000000000001', '+959795220917', 'Aung Kyaw Zan', 2, 'ACTIVE')
+VALUES ('00000000-0000-0000-0000-000000000001', '+959795220917', 'Use', 2, 'ACTIVE')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.user_profiles (id, user_id, name, phone, ak_id, username, uid, balance, currency, kyc_tier)
-VALUES ('user_default', '00000000-0000-0000-0000-000000000001', 'Aung Kyaw Zan', '09795220917', 'AK-992104-88', '@aung_kyaw_zan', '710293847561', 12500.00, 'AKD', 2)
+VALUES ('user_default', '00000000-0000-0000-0000-000000000001', 'Use', '09795220917', 'AK-992104-88', '@aung_kyaw_zan', '710293847561', 12500.00, 'AKD', 2)
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     phone = EXCLUDED.phone,

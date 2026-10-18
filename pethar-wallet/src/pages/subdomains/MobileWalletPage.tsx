@@ -382,7 +382,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [theme] = useState<ThemeMode>('light')
   const [profile, setProfile] = useState<UserProfile>({
     ...initialUserProfile,
-    name: 'Myat Soe Paing',
+    name: 'User',
   })
 
   // Verification State: Verified vs Unverified + Verification Required Modal
@@ -727,16 +727,16 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [biometricLoginEnabled, setBiometricLoginEnabled] = useState<boolean>(true)
   const [settingsNoticeToast, setSettingsNoticeToast] = useState<string | null>(null)
   const [profileDetails] = useState({
-    firstName: 'MYAT SOE',
-    lastName: 'PAING',
-    passportNumber: 'MJ310666',
+    firstName: 'Firstname',
+    lastName: 'Lastname',
+    passportNumber: '123456789',
     dob: '13 May 2003',
     mobile: '095-126-8295',
-    email: 'realjackhalder@gmail.com',
+    email: 'example@email.com',
   })
   const [profileAddress, setProfileAddress] = useState({
-    subdistrict: 'Sanam Bin Don Mueang, Bangkok 10210',
-    street: '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd',
+    subdistrict: 'Sittwe',
+    street: 'Building C,A Rd',
   })
 
   const triggerSettingsToast = (msg: string) => {
@@ -780,7 +780,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             setCameraReady(true)
             if (videoRef.current) {
               videoRef.current.srcObject = stream
-              videoRef.current.play().catch(() => {})
+              videoRef.current.play().catch(() => { })
             }
           })
           .catch(() => {
@@ -1365,9 +1365,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   key={idx}
                   type="button"
                   onClick={() => setCurrentAdIndex(idx)}
-                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                    idx === currentAdIndex ? 'w-5 bg-[#D91624]' : 'w-1.5 bg-zinc-300'
-                  }`}
+                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${idx === currentAdIndex ? 'w-5 bg-[#D91624]' : 'w-1.5 bg-zinc-300'
+                    }`}
                   aria-label={`Slide ${idx + 1}`}
                 />
               ))}
@@ -1449,9 +1448,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               {/* 12-Word Grid (Blurred until revealed) */}
               <div className="relative">
                 <div
-                  className={`grid grid-cols-3 gap-2 p-3 rounded-2xl bg-zinc-50 border border-zinc-200 transition ${
-                    phraseRevealed ? '' : 'blur-sm select-none'
-                  }`}
+                  className={`grid grid-cols-3 gap-2 p-3 rounded-2xl bg-zinc-50 border border-zinc-200 transition ${phraseRevealed ? '' : 'blur-sm select-none'
+                    }`}
                 >
                   {SINGLE_WALLET_ACCOUNT.recoveryPhrase.map((word, index) => (
                     <div
@@ -1518,14 +1516,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => setAutoLockWallet((v) => !v)}
-                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${
-                    autoLockWallet ? 'bg-[#D91624]' : 'bg-zinc-300'
-                  }`}
+                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${autoLockWallet ? 'bg-[#D91624]' : 'bg-zinc-300'
+                    }`}
                 >
                   <span
-                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                      autoLockWallet ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${autoLockWallet ? 'translate-x-5' : 'translate-x-0'
+                      }`}
                   />
                 </button>
               </div>
@@ -1545,14 +1541,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => setBiometricSigning((v) => !v)}
-                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${
-                    biometricSigning ? 'bg-[#D91624]' : 'bg-zinc-300'
-                  }`}
+                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${biometricSigning ? 'bg-[#D91624]' : 'bg-zinc-300'
+                    }`}
                 >
                   <span
-                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                      biometricSigning ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${biometricSigning ? 'translate-x-5' : 'translate-x-0'
+                      }`}
                   />
                 </button>
               </div>
@@ -1572,14 +1566,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => setHideInfoToggle((v) => !v)}
-                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${
-                    hideInfoToggle ? 'bg-[#D91624]' : 'bg-zinc-300'
-                  }`}
+                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${hideInfoToggle ? 'bg-[#D91624]' : 'bg-zinc-300'
+                    }`}
                 >
                   <span
-                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                      hideInfoToggle ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${hideInfoToggle ? 'translate-x-5' : 'translate-x-0'
+                      }`}
                   />
                 </button>
               </div>
@@ -1653,11 +1645,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         setSelectedDepositToken(t.symbol)
                         setDepositTokenDropdownOpen(false)
                       }}
-                      className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-xs font-bold cursor-pointer ${
-                        t.symbol === selectedDepositToken
-                          ? 'bg-[#D91624]/10 text-[#D91624]'
-                          : 'text-zinc-800 hover:bg-zinc-100'
-                      }`}
+                      className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-xs font-bold cursor-pointer ${t.symbol === selectedDepositToken
+                        ? 'bg-[#D91624]/10 text-[#D91624]'
+                        : 'text-zinc-800 hover:bg-zinc-100'
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         <span
@@ -1842,22 +1833,20 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <button
                     type="button"
                     onClick={() => setWithdrawTab('your_account')}
-                    className={`pb-2.5 border-b-2 transition cursor-pointer ${
-                      withdrawTab === 'your_account'
-                        ? 'border-[#D91624] text-[#D91624]'
-                        : 'border-transparent text-zinc-500'
-                    }`}
+                    className={`pb-2.5 border-b-2 transition cursor-pointer ${withdrawTab === 'your_account'
+                      ? 'border-[#D91624] text-[#D91624]'
+                      : 'border-transparent text-zinc-500'
+                      }`}
                   >
                     Your Account
                   </button>
                   <button
                     type="button"
                     onClick={() => setWithdrawTab('contacts')}
-                    className={`pb-2.5 border-b-2 transition cursor-pointer ${
-                      withdrawTab === 'contacts'
-                        ? 'border-[#D91624] text-[#D91624]'
-                        : 'border-transparent text-zinc-500'
-                    }`}
+                    className={`pb-2.5 border-b-2 transition cursor-pointer ${withdrawTab === 'contacts'
+                      ? 'border-[#D91624] text-[#D91624]'
+                      : 'border-transparent text-zinc-500'
+                      }`}
                   >
                     Contacts
                   </button>
@@ -1964,18 +1953,16 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <button
                 type="button"
                 onClick={() => setSpendingPeriod('weekly')}
-                className={`py-2 rounded-full text-xs font-bold cursor-pointer ${
-                  isWeekly ? 'bg-white text-[#D91624] shadow-xs' : 'text-zinc-500'
-                }`}
+                className={`py-2 rounded-full text-xs font-bold cursor-pointer ${isWeekly ? 'bg-white text-[#D91624] shadow-xs' : 'text-zinc-500'
+                  }`}
               >
                 Weekly
               </button>
               <button
                 type="button"
                 onClick={() => setSpendingPeriod('monthly')}
-                className={`py-2 rounded-full text-xs font-bold cursor-pointer ${
-                  !isWeekly ? 'bg-white text-[#D91624] shadow-xs' : 'text-zinc-500'
-                }`}
+                className={`py-2 rounded-full text-xs font-bold cursor-pointer ${!isWeekly ? 'bg-white text-[#D91624] shadow-xs' : 'text-zinc-500'
+                  }`}
               >
                 Monthly
               </button>
@@ -2079,9 +2066,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   {walletBalanceHidden
                     ? '••••••'
                     : `$${usdAccountBalance.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}`}
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}`}
                 </div>
                 <button
                   type="button"
@@ -2192,11 +2179,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     key={t.id}
                     type="button"
                     onClick={() => setWalletTab(t.id)}
-                    className={`pb-2.5 border-b-2 transition cursor-pointer ${
-                      walletTab === t.id
-                        ? 'border-[#D91624] text-[#D91624]'
-                        : 'border-transparent text-zinc-500 hover:text-zinc-800'
-                    }`}
+                    className={`pb-2.5 border-b-2 transition cursor-pointer ${walletTab === t.id
+                      ? 'border-[#D91624] text-[#D91624]'
+                      : 'border-transparent text-zinc-500 hover:text-zinc-800'
+                      }`}
                   >
                     {t.label}
                   </button>
@@ -2263,9 +2249,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         {walletBalanceHidden
                           ? '••••'
                           : `$${token.usdValue.toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}`}
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}`}
                       </div>
                     </div>
                   </button>
@@ -2289,11 +2275,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         key={f.id}
                         type="button"
                         onClick={() => setHistoryCategoryTab(f.id)}
-                        className={`px-3 py-1 rounded-full text-xs font-bold cursor-pointer ${
-                          historyCategoryTab === f.id
-                            ? 'bg-[#D91624] text-white'
-                            : 'bg-zinc-100 text-zinc-600'
-                        }`}
+                        className={`px-3 py-1 rounded-full text-xs font-bold cursor-pointer ${historyCategoryTab === f.id
+                          ? 'bg-[#D91624] text-white'
+                          : 'bg-zinc-100 text-zinc-600'
+                          }`}
                       >
                         {f.label}
                       </button>
@@ -2327,9 +2312,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                           </div>
                         </div>
                         <div
-                          className={`text-xs font-extrabold font-mono ${
-                            isPos ? 'text-emerald-600' : 'text-zinc-900'
-                          }`}
+                          className={`text-xs font-extrabold font-mono ${isPos ? 'text-emerald-600' : 'text-zinc-900'
+                            }`}
                         >
                           {isPos
                             ? `+${tx.amount.toFixed(2)} USDT`
@@ -2416,9 +2400,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 autoPlay
                 playsInline
                 muted
-                className={`absolute inset-0 w-full h-full object-cover ${
-                  cameraReady ? 'opacity-100' : 'opacity-0'
-                }`}
+                className={`absolute inset-0 w-full h-full object-cover ${cameraReady ? 'opacity-100' : 'opacity-0'
+                  }`}
               />
               {!cameraReady && (
                 <div
@@ -2453,11 +2436,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   type="button"
                   onClick={handleToggleFlash}
                   aria-label="Toggle Flashlight"
-                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition cursor-pointer ${
-                    flashOn
-                      ? 'bg-[#D91624] border-white text-white shadow-[0_0_20px_rgba(217,22,36,0.9)]'
-                      : 'bg-black/25 border-white/80 text-white hover:bg-black/40'
-                  }`}
+                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition cursor-pointer ${flashOn
+                    ? 'bg-[#D91624] border-white text-white shadow-[0_0_20px_rgba(217,22,36,0.9)]'
+                    : 'bg-black/25 border-white/80 text-white hover:bg-black/40'
+                    }`}
                 >
                   <svg
                     className="w-5 h-5"
@@ -2604,14 +2586,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               className="flex flex-col items-center justify-center gap-1 relative cursor-pointer"
             >
               <NavScanBracketIcon
-                className={`w-6 h-6 ${
-                  scanBottomTab === 'scan' ? 'text-[#D91624]' : 'text-zinc-700'
-                }`}
+                className={`w-6 h-6 ${scanBottomTab === 'scan' ? 'text-[#D91624]' : 'text-zinc-700'
+                  }`}
               />
               <span
-                className={`text-xs font-bold ${
-                  scanBottomTab === 'scan' ? 'text-[#D91624]' : 'text-zinc-800'
-                }`}
+                className={`text-xs font-bold ${scanBottomTab === 'scan' ? 'text-[#D91624]' : 'text-zinc-800'
+                  }`}
               >
                 {isAk ? 'စကင်ဖတ်' : 'Scan'}
               </span>
@@ -2630,9 +2610,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 className={scanBottomTab === 'pay' ? 'text-[#D91624]' : 'text-zinc-700'}
               />
               <span
-                className={`text-xs font-bold ${
-                  scanBottomTab === 'pay' ? 'text-[#D91624]' : 'text-zinc-800'
-                }`}
+                className={`text-xs font-bold ${scanBottomTab === 'pay' ? 'text-[#D91624]' : 'text-zinc-800'
+                  }`}
               >
                 MyQR
               </span>
@@ -2952,11 +2931,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       key={chip}
                       type="button"
                       onClick={() => setPayNote(chip)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
-                        isActive
-                          ? 'bg-black text-white border-black shadow-xs'
-                          : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200'
-                      }`}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${isActive
+                        ? 'bg-black text-white border-black shadow-xs'
+                        : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200'
+                        }`}
                     >
                       {chip}
                     </button>
@@ -2991,11 +2969,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 type="button"
                 onClick={handleExecutePay}
                 disabled={!payAmount || parseFloat(payAmount) <= 0 || isPayOverBalance || isPayUnderMin || !payNote.trim()}
-                className={`w-full py-3.5 rounded-xl ${
-                  isPayOverBalance
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-black hover:bg-zinc-800'
-                } disabled:opacity-40 text-white font-extrabold text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer mt-2 flex items-center justify-center gap-2 group`}
+                className={`w-full py-3.5 rounded-xl ${isPayOverBalance
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-black hover:bg-zinc-800'
+                  } disabled:opacity-40 text-white font-extrabold text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer mt-2 flex items-center justify-center gap-2 group`}
               >
                 <WalletMinimalIcon size={18} color="#FFFFFF" className="text-white shrink-0" />
                 <span>
@@ -3131,9 +3108,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <button
                 type="button"
                 onClick={() => setPayDeleteMode(!payDeleteMode)}
-                className={`text-xs font-bold transition cursor-pointer ${
-                  payDeleteMode ? 'text-red-600' : 'text-zinc-500 hover:text-zinc-800'
-                }`}
+                className={`text-xs font-bold transition cursor-pointer ${payDeleteMode ? 'text-red-600' : 'text-zinc-500 hover:text-zinc-800'
+                  }`}
               >
                 {payDeleteMode ? 'Done' : 'Delete'}
               </button>
@@ -3148,20 +3124,19 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     tab === 'all'
                       ? 'All'
                       : tab === 'family'
-                      ? 'Family'
-                      : tab === 'friends'
-                      ? 'Friends'
-                      : 'other'
+                        ? 'Family'
+                        : tab === 'friends'
+                          ? 'Friends'
+                          : 'other'
                   return (
                     <button
                       key={tab}
                       type="button"
                       onClick={() => setPayCategoryTab(tab)}
-                      className={`px-3 py-1 text-xs font-bold transition relative cursor-pointer ${
-                        isActive
-                          ? 'text-black'
-                          : 'text-zinc-400 hover:text-zinc-600'
-                      }`}
+                      className={`px-3 py-1 text-xs font-bold transition relative cursor-pointer ${isActive
+                        ? 'text-black'
+                        : 'text-zinc-400 hover:text-zinc-600'
+                        }`}
                     >
                       {label}
                       {isActive && (
@@ -3534,9 +3509,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         setHistoryMonth(m)
                         setHistoryMonthModalOpen(false)
                       }}
-                      className={`w-full p-3 rounded-xl flex items-center justify-between text-left transition cursor-pointer ${
-                        isSel ? 'bg-rose-50 text-[#9E1B32] font-bold' : 'hover:bg-slate-50 text-slate-800'
-                      }`}
+                      className={`w-full p-3 rounded-xl flex items-center justify-between text-left transition cursor-pointer ${isSel ? 'bg-rose-50 text-[#9E1B32] font-bold' : 'hover:bg-slate-50 text-slate-800'
+                        }`}
                     >
                       <span className="text-sm">{m}</span>
                       {isSel && <Check size={18} className="text-[#9E1B32]" />}
@@ -3578,9 +3552,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         setHistoryCategoryFilter(cat.id as any)
                         setHistoryFilterModalOpen(false)
                       }}
-                      className={`w-full p-3 rounded-xl flex items-center justify-between text-left transition cursor-pointer ${
-                        isSel ? 'bg-rose-50 text-[#9E1B32] font-bold' : 'hover:bg-slate-50 text-slate-800'
-                      }`}
+                      className={`w-full p-3 rounded-xl flex items-center justify-between text-left transition cursor-pointer ${isSel ? 'bg-rose-50 text-[#9E1B32] font-bold' : 'hover:bg-slate-50 text-slate-800'
+                        }`}
                     >
                       <span className="text-sm">{cat.label}</span>
                       {isSel && <Check size={18} className="text-[#9E1B32]" />}
@@ -3942,22 +3915,20 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             <button
               type="button"
               onClick={() => setTopupActiveTab('phoneTopup')}
-              className={`py-2.5 rounded-full text-xs font-bold transition cursor-pointer text-center ${
-                topupActiveTab === 'phoneTopup'
-                  ? 'bg-[#FF7A00] text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`py-2.5 rounded-full text-xs font-bold transition cursor-pointer text-center ${topupActiveTab === 'phoneTopup'
+                ? 'bg-[#FF7A00] text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+                }`}
             >
               Phone Topup
             </button>
             <button
               type="button"
               onClick={() => setTopupActiveTab('packages')}
-              className={`py-2.5 rounded-full text-xs font-bold transition cursor-pointer text-center ${
-                topupActiveTab === 'packages'
-                  ? 'bg-[#FF7A00] text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`py-2.5 rounded-full text-xs font-bold transition cursor-pointer text-center ${topupActiveTab === 'packages'
+                ? 'bg-[#FF7A00] text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+                }`}
             >
               Packages
             </button>
@@ -3977,11 +3948,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       key={amt}
                       type="button"
                       onClick={() => setTopupSelectedAmount(amt)}
-                      className={`py-3.5 px-1 rounded-xl text-center font-bold text-sm transition cursor-pointer border ${
-                        isSelected
-                          ? 'bg-[#FF7A00] text-white border-[#FF7A00] shadow-sm'
-                          : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
-                      }`}
+                      className={`py-3.5 px-1 rounded-xl text-center font-bold text-sm transition cursor-pointer border ${isSelected
+                        ? 'bg-[#FF7A00] text-white border-[#FF7A00] shadow-sm'
+                        : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
+                        }`}
                     >
                       {amt.toLocaleString()}
                     </button>
@@ -4019,11 +3989,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       key={cat}
                       type="button"
                       onClick={() => setTopupSelectedCategory(cat)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center space-x-1.5 border ${
-                        isSel
-                          ? 'bg-[#9E1B32] text-white border-[#9E1B32]'
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-                      }`}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center space-x-1.5 border ${isSel
+                        ? 'bg-[#9E1B32] text-white border-[#9E1B32]'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                        }`}
                     >
                       {cat !== 'All' && <Wifi size={12} />}
                       <span>{cat}</span>
@@ -4047,11 +4016,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     <div
                       key={pkg.id}
                       onClick={() => setTopupSelectedPackageId(pkg.id)}
-                      className={`p-3.5 rounded-2xl border transition cursor-pointer flex items-center justify-between ${
-                        isSelected
-                          ? 'border-[#FF7A00] bg-[#FFF7ED] ring-1 ring-[#FF7A00]'
-                          : 'border-slate-200 bg-white hover:border-slate-300'
-                      }`}
+                      className={`p-3.5 rounded-2xl border transition cursor-pointer flex items-center justify-between ${isSelected
+                        ? 'border-[#FF7A00] bg-[#FFF7ED] ring-1 ring-[#FF7A00]'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
+                        }`}
                     >
                       <div className="space-y-1">
                         <div className="flex items-center space-x-2">
@@ -4099,11 +4067,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               type="button"
               disabled={!hasInput}
               onClick={() => setTopupReviewModalOpen(true)}
-              className={`w-full py-3.5 rounded-full text-sm font-black transition cursor-pointer shadow-md ${
-                hasInput
-                  ? 'bg-[#FF7A00] hover:bg-[#EA6C00] text-white'
-                  : 'bg-slate-300 text-slate-500 cursor-not-allowed'
-              }`}
+              className={`w-full py-3.5 rounded-full text-sm font-black transition cursor-pointer shadow-md ${hasInput
+                ? 'bg-[#FF7A00] hover:bg-[#EA6C00] text-white'
+                : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                }`}
             >
               {isAk ? 'အချက်အလက် စစ်ဆေးမည်' : 'Review Topup Details'}
             </button>
@@ -4124,11 +4091,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     key={op.name}
                     type="button"
                     onClick={() => setTopupPhone(op.phone)}
-                    className={`py-2 px-1 rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center space-y-0.5 ${
-                      isActive
-                        ? 'border-[#9E1B32] bg-red-50/50 shadow-sm'
-                        : 'border-slate-200 bg-white hover:border-slate-300'
-                    }`}
+                    className={`py-2 px-1 rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center space-y-0.5 ${isActive
+                      ? 'border-[#9E1B32] bg-red-50/50 shadow-sm'
+                      : 'border-slate-200 bg-white hover:border-slate-300'
+                      }`}
                   >
                     <span className={`text-[12px] font-black ${op.color}`}>{op.name}</span>
                     <span className="text-[9px] text-slate-400 font-medium">Auto-test</span>
@@ -4815,11 +4781,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 setBillsRegion('myanmar')
                 setBillsSearchQuery('')
               }}
-              className={`flex-1 py-1.5 text-xs font-bold rounded-full transition cursor-pointer ${
-                billsRegion === 'myanmar'
-                  ? 'bg-[#9E1B32] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-full transition cursor-pointer ${billsRegion === 'myanmar'
+                ? 'bg-[#9E1B32] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+                }`}
             >
               Myanmar Bills
             </button>
@@ -4829,11 +4794,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 setBillsRegion('thailand')
                 setBillsSearchQuery('')
               }}
-              className={`flex-1 py-1.5 text-xs font-bold rounded-full transition cursor-pointer ${
-                billsRegion === 'thailand'
-                  ? 'bg-[#9E1B32] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-full transition cursor-pointer ${billsRegion === 'thailand'
+                ? 'bg-[#9E1B32] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+                }`}
             >
               Crossborder (Thailand)
             </button>
@@ -5295,11 +5259,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   key={cat}
                   type="button"
                   onClick={() => setFavCategoryFilter(cat)}
-                  className={`text-xs font-bold px-3 py-1.5 rounded-full shrink-0 transition cursor-pointer ${
-                    isSelected
-                      ? 'bg-zinc-900 text-white shadow-2xs'
-                      : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
-                  }`}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-full shrink-0 transition cursor-pointer ${isSelected
+                    ? 'bg-zinc-900 text-white shadow-2xs'
+                    : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                    }`}
                 >
                   {cat === 'All' ? `All (${favouriteList.length})` : cat}
                 </button>
@@ -5498,12 +5461,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 >
                   {favFormName.trim()
                     ? favFormName
-                        .trim()
-                        .split(' ')
-                        .map((p) => p[0] || '')
-                        .slice(0, 2)
-                        .join('')
-                        .toUpperCase()
+                      .trim()
+                      .split(' ')
+                      .map((p) => p[0] || '')
+                      .slice(0, 2)
+                      .join('')
+                      .toUpperCase()
                     : 'U'}
                 </div>
 
@@ -5513,9 +5476,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       key={g}
                       type="button"
                       onClick={() => setFavFormBg(g)}
-                      className={`w-6 h-6 rounded-full bg-gradient-to-b ${g} transition ${
-                        favFormBg === g ? 'ring-2 ring-zinc-900 ring-offset-2' : ''
-                      }`}
+                      className={`w-6 h-6 rounded-full bg-gradient-to-b ${g} transition ${favFormBg === g ? 'ring-2 ring-zinc-900 ring-offset-2' : ''
+                        }`}
                     />
                   ))}
                 </div>
@@ -5577,11 +5539,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         key={b}
                         type="button"
                         onClick={() => setFavFormBank(b)}
-                        className={`text-xs font-bold px-2.5 py-1 rounded-lg border transition ${
-                          favFormBank === b
-                            ? 'bg-[#9E1B32] text-white border-[#9E1B32]'
-                            : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
-                        }`}
+                        className={`text-xs font-bold px-2.5 py-1 rounded-lg border transition ${favFormBank === b
+                          ? 'bg-[#9E1B32] text-white border-[#9E1B32]'
+                          : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
+                          }`}
                       >
                         {b}
                       </button>
@@ -5600,11 +5561,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         key={cat}
                         type="button"
                         onClick={() => setFavFormCategory(cat)}
-                        className={`text-xs font-bold px-3 py-1 rounded-lg border transition ${
-                          favFormCategory === cat
-                            ? 'bg-zinc-900 text-white border-zinc-900'
-                            : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
-                        }`}
+                        className={`text-xs font-bold px-3 py-1 rounded-lg border transition ${favFormCategory === cat
+                          ? 'bg-zinc-900 text-white border-zinc-900'
+                          : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
+                          }`}
                       >
                         {cat}
                       </button>
@@ -5697,13 +5657,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   return (
                     <div
                       key={idx}
-                      className={`w-4 h-4 rounded-full border-2 transition-all ${
-                        isFilled
-                          ? 'bg-[#D4AF37] border-[#D4AF37] scale-110'
-                          : isActive
-                            ? 'border-[#D4AF37]'
-                            : 'border-zinc-300'
-                      }`}
+                      className={`w-4 h-4 rounded-full border-2 transition-all ${isFilled
+                        ? 'bg-[#D4AF37] border-[#D4AF37] scale-110'
+                        : isActive
+                          ? 'border-[#D4AF37]'
+                          : 'border-zinc-300'
+                        }`}
                     />
                   )
                 })}
@@ -5955,14 +5914,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => setHideInfoToggle(!hideInfoToggle)}
-                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${
-                    hideInfoToggle ? 'bg-[#3B82F6]' : 'bg-zinc-300'
-                  }`}
+                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${hideInfoToggle ? 'bg-[#3B82F6]' : 'bg-zinc-300'
+                    }`}
                 >
                   <span
-                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                      hideInfoToggle ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${hideInfoToggle ? 'translate-x-5' : 'translate-x-0'
+                      }`}
                   />
                 </button>
               </div>
@@ -6005,14 +5962,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     onClick={() =>
                       setShowReceivingProfileToggle(!showReceivingProfileToggle)
                     }
-                    className={`w-12 h-7 rounded-full p-0.5 transition shrink-0 cursor-pointer ${
-                      showReceivingProfileToggle ? 'bg-[#3B82F6]' : 'bg-zinc-300'
-                    }`}
+                    className={`w-12 h-7 rounded-full p-0.5 transition shrink-0 cursor-pointer ${showReceivingProfileToggle ? 'bg-[#3B82F6]' : 'bg-zinc-300'
+                      }`}
                   >
                     <span
-                      className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                        showReceivingProfileToggle ? 'translate-x-5' : 'translate-x-0'
-                      }`}
+                      className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${showReceivingProfileToggle ? 'translate-x-5' : 'translate-x-0'
+                        }`}
                     />
                   </button>
                 </div>
@@ -6039,14 +5994,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <button
                     type="button"
                     onClick={() => setBiometricConsentToggle(!biometricConsentToggle)}
-                    className={`w-12 h-7 rounded-full p-0.5 transition shrink-0 cursor-pointer ${
-                      biometricConsentToggle ? 'bg-[#3B82F6]' : 'bg-zinc-300'
-                    }`}
+                    className={`w-12 h-7 rounded-full p-0.5 transition shrink-0 cursor-pointer ${biometricConsentToggle ? 'bg-[#3B82F6]' : 'bg-zinc-300'
+                      }`}
                   >
                     <span
-                      className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                        biometricConsentToggle ? 'translate-x-5' : 'translate-x-0'
-                      }`}
+                      className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${biometricConsentToggle ? 'translate-x-5' : 'translate-x-0'
+                        }`}
                     />
                   </button>
                 </div>
@@ -6190,14 +6143,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             <button
               type="button"
               onClick={() => setShowAllProfileInfo((v) => !v)}
-              className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${
-                showAllProfileInfo ? 'bg-[#2563EB]' : 'bg-zinc-300'
-              }`}
+              className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${showAllProfileInfo ? 'bg-[#2563EB]' : 'bg-zinc-300'
+                }`}
             >
               <span
-                className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                  showAllProfileInfo ? 'translate-x-5' : 'translate-x-0'
-                }`}
+                className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${showAllProfileInfo ? 'translate-x-5' : 'translate-x-0'
+                  }`}
               />
             </button>
           </div>
@@ -6522,14 +6473,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => setAutoSaveReceipt((v) => !v)}
-                  className={`w-12 h-7 rounded-full p-0.5 transition shrink-0 cursor-pointer ${
-                    autoSaveReceipt ? 'bg-[#2563EB]' : 'bg-zinc-300'
-                  }`}
+                  className={`w-12 h-7 rounded-full p-0.5 transition shrink-0 cursor-pointer ${autoSaveReceipt ? 'bg-[#2563EB]' : 'bg-zinc-300'
+                    }`}
                 >
                   <span
-                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                      autoSaveReceipt ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${autoSaveReceipt ? 'translate-x-5' : 'translate-x-0'
+                      }`}
                   />
                 </button>
               </div>
@@ -6637,11 +6586,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <button
                     type="button"
                     onClick={() => setKycFlowModalOpen(true)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer ${
-                      isVerified
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : 'bg-rose-50 text-[#D91624] border border-rose-200'
-                    }`}
+                    className={`px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer ${isVerified
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-rose-50 text-[#D91624] border border-rose-200'
+                      }`}
                   >
                     <CheckCircle2 size={14} />
                     <span>{isVerified ? 'Verified' : 'Unverified'}</span>
@@ -6704,14 +6652,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => setAutoSaveReceipt((v) => !v)}
-                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${
-                    autoSaveReceipt ? 'bg-[#2563EB]' : 'bg-zinc-300'
-                  }`}
+                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${autoSaveReceipt ? 'bg-[#2563EB]' : 'bg-zinc-300'
+                    }`}
                 >
                   <span
-                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                      autoSaveReceipt ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${autoSaveReceipt ? 'translate-x-5' : 'translate-x-0'
+                      }`}
                   />
                 </button>
               </div>
@@ -6919,7 +6865,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   onClick={() => {
                     setShowSignOutModal(false)
                     localStorage.removeItem('pethar_logged_in')
-                    import('../../lib/supabase').then((m) => m.signOut()).catch(() => {})
+                    import('../../lib/supabase').then((m) => m.signOut()).catch(() => { })
                     setIsAuthenticated(false)
                     setScreen('home')
                   }}
@@ -7017,23 +6963,20 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
   return (
     <div
-      className={`h-[100dvh] max-h-[100dvh] w-full flex justify-center overflow-hidden ${
-        isLight ? 'bg-[#E2E8F0]' : 'bg-[#05070B]'
-      }`}
+      className={`h-[100dvh] max-h-[100dvh] w-full flex justify-center overflow-hidden ${isLight ? 'bg-[#E2E8F0]' : 'bg-[#05070B]'
+        }`}
     >
       <div
-        className={`w-full max-w-[480px] h-[100dvh] max-h-[100dvh] flex flex-col relative shadow-2xl overflow-hidden ${
-          isLight ? 'bg-[#F4F5F8] text-gray-900' : 'bg-[#090D14] text-white'
-        }`}
+        className={`w-full max-w-[480px] h-[100dvh] max-h-[100dvh] flex flex-col relative shadow-2xl overflow-hidden ${isLight ? 'bg-[#F4F5F8] text-gray-900' : 'bg-[#090D14] text-white'
+          }`}
       >
         {/* Sub-screen Back Bar (No Logo on non-Home pages) */}
         {isSubScreen && (
           <div
-            className={`px-4 py-2.5 flex items-center justify-between border-b shrink-0 ${
-              isLight
-                ? 'bg-white border-gray-200 text-gray-900'
-                : 'bg-[#0E1522] border-white/10 text-white'
-            }`}
+            className={`px-4 py-2.5 flex items-center justify-between border-b shrink-0 ${isLight
+              ? 'bg-white border-gray-200 text-gray-900'
+              : 'bg-[#0E1522] border-white/10 text-white'
+              }`}
           >
             <button
               type="button"
@@ -7515,16 +7458,14 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     {chatMessages.map((msg, i) => (
                       <div
                         key={i}
-                        className={`flex ${
-                          msg.sender === 'user' ? 'justify-end' : 'justify-start'
-                        }`}
+                        className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'
+                          }`}
                       >
                         <div
-                          className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${
-                            msg.sender === 'user'
-                              ? 'bg-[#1CA3B8] text-white rounded-br-xs font-medium'
-                              : 'bg-[#242933] border border-white/10 text-zinc-100 rounded-bl-xs'
-                          }`}
+                          className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${msg.sender === 'user'
+                            ? 'bg-[#1CA3B8] text-white rounded-br-xs font-medium'
+                            : 'bg-[#242933] border border-white/10 text-zinc-100 rounded-bl-xs'
+                            }`}
                         >
                           {msg.text}
                         </div>
@@ -7636,11 +7577,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   {isAk ? 'အကောင့် အတည်ပြုချက် (KYC)' : 'Account Verification'}
                 </h3>
                 <span
-                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                    isVerified
-                      ? 'bg-emerald-500/15 text-emerald-700'
-                      : 'bg-rose-500/15 text-[#D91624]'
-                  }`}
+                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isVerified
+                    ? 'bg-emerald-500/15 text-emerald-700'
+                    : 'bg-rose-500/15 text-[#D91624]'
+                    }`}
                 >
                   {isVerified ? 'Verified' : 'Unverified'}
                 </span>
@@ -7744,7 +7684,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     type="text"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="realjackhalder@gmail.com"
+                    placeholder="[EMAIL_ADDRESS]"
                     className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-sm font-semibold text-zinc-900 focus:outline-none focus:border-[#D91624]"
                   />
                 </div>
@@ -7820,11 +7760,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         <div className="absolute bottom-3 left-3 right-3 z-40 pointer-events-none transform-gpu">
           <nav
             aria-label="Mobile Wallet Navigation"
-            className={`pointer-events-auto relative h-[68px] px-2 rounded-full backdrop-blur-2xl saturate-180 border flex items-center justify-between transition-colors duration-150 ${
-              isLight
-                ? 'bg-white/85 border-white/90 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.95),inset_0_-1px_2px_rgba(217,22,36,0.06),0_14px_34px_rgba(15,23,42,0.14)]'
-                : 'bg-[#121620]/85 border-white/15 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.22),inset_0_-1px_2px_rgba(217,22,36,0.18),0_16px_40px_rgba(0,0,0,0.7)]'
-            }`}
+            className={`pointer-events-auto relative h-[68px] px-2 rounded-full backdrop-blur-2xl saturate-180 border flex items-center justify-between transition-colors duration-150 ${isLight
+              ? 'bg-white/85 border-white/90 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.95),inset_0_-1px_2px_rgba(217,22,36,0.06),0_14px_34px_rgba(15,23,42,0.14)]'
+              : 'bg-[#121620]/85 border-white/15 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.22),inset_0_-1px_2px_rgba(217,22,36,0.18),0_16px_40px_rgba(0,0,0,0.7)]'
+              }`}
           >
             {/* 1. Home */}
             <button

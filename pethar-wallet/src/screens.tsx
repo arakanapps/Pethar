@@ -10,7 +10,7 @@ import {
   Plus, X, LogOut,
   RefreshCw, Download,
   Receipt, User, Sun, KeyRound, ShieldCheck,
-  Bell, AlarmClock, Megaphone, ArrowLeftRight, Share2, PieChart, Info
+  Bell, AlarmClock, Megaphone, ArrowLeftRight, Share2, PieChart
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { FakeQR } from './components/FakeQR'
@@ -66,9 +66,8 @@ export function ScreenHeader({
 }) {
   const isLight = theme === 'light'
   return (
-    <div className={`px-5 pt-4 pb-3 border-b backdrop-blur-md ${
-      isLight ? 'border-gray-200 bg-white/85' : 'border-white/10 bg-[#090D14]/80'
-    }`}>
+    <div className={`px-5 pt-4 pb-3 border-b backdrop-blur-md ${isLight ? 'border-gray-200 bg-white/85' : 'border-white/10 bg-[#090D14]/80'
+      }`}>
       <div className={centerTitle ? 'text-center' : undefined}>
         <div className={`text-[15px] font-bold tracking-wide ${isLight ? 'text-gray-900' : 'text-white'}`}>{title}</div>
         {subtitle && <div className={`text-[11px] font-medium ${isLight ? 'text-amber-600' : 'text-amber-300'}`}>{subtitle}</div>}
@@ -107,11 +106,10 @@ export function Keypad({
           <button
             key={k}
             onClick={() => press(k)}
-            className={`h-12 rounded-xl text-lg font-bold transition active:scale-95 border ${
-              isLight
+            className={`h-12 rounded-xl text-lg font-bold transition active:scale-95 border ${isLight
                 ? 'text-gray-900 bg-white hover:bg-gray-50 border-gray-200 shadow-sm'
                 : 'text-white bg-white/[0.08] hover:bg-white/[0.12] border-white/5'
-            }`}
+              }`}
           >
             {k}
           </button>
@@ -127,11 +125,10 @@ export function OtpDots({ len }: { len: number }) {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className={`flex h-11 w-9 items-center justify-center rounded-xl text-xl font-bold text-white transition-all ${
-            i === len
+          className={`flex h-11 w-9 items-center justify-center rounded-xl text-xl font-bold text-white transition-all ${i === len
               ? 'border-2 border-amber-400 bg-amber-400/10'
               : 'border border-white/10 bg-white/5'
-          }`}
+            }`}
         >
           {len > i ? '●' : ''}
         </div>
@@ -429,9 +426,8 @@ export function Home({
                 key={i}
                 type="button"
                 onClick={() => setAdIdx(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === adIdx ? 'w-5 bg-[#D91624]' : 'w-1.5 bg-gray-300'
-                }`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === adIdx ? 'w-5 bg-[#D91624]' : 'w-1.5 bg-gray-300'
+                  }`}
                 aria-label={`Slide ${i + 1}`}
               />
             ))}
@@ -573,9 +569,8 @@ export function AccountScreen({
 
   return (
     <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
-      <div className={`px-5 pt-4 pb-3 border-b flex items-center justify-between ${
-        isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-[#090D14]'
-      }`}>
+      <div className={`px-5 pt-4 pb-3 border-b flex items-center justify-between ${isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-[#090D14]'
+        }`}>
         <div className="flex items-center gap-2">
           <button
             onClick={() => go('home')}
@@ -871,11 +866,10 @@ export function AccountScreen({
           </div>
 
           <div
-            className={`p-4 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden ${
-              cardFrozen
+            className={`p-4 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden ${cardFrozen
                 ? 'bg-gray-800 border-gray-600 grayscale'
                 : 'bg-gradient-to-br from-[#730A12] via-[#A8131F] to-[#3B0206] border-amber-500/50'
-            }`}
+              }`}
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
@@ -892,7 +886,7 @@ export function AccountScreen({
             <div className="flex items-end justify-between font-mono text-[10px] text-gray-200">
               <div>
                 <div className="text-[8px] uppercase text-amber-200/80">Cardholder</div>
-                <div className="font-bold text-white">JACK HALDER</div>
+                <div className="font-bold text-white">User</div>
               </div>
               <div className="flex items-center gap-3">
                 <div>
@@ -910,11 +904,10 @@ export function AccountScreen({
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setCardFrozen(!cardFrozen)}
-              className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border ${
-                cardFrozen
+              className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border ${cardFrozen
                   ? 'bg-emerald-600 text-white border-emerald-500'
                   : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200 shadow-2xs'
-              }`}
+                }`}
             >
               <Lock size={13} />
               <span>{cardFrozen ? 'Unfreeze Card' : 'Freeze Card'}</span>
@@ -1120,11 +1113,10 @@ export function SettingsScreen({
             {t.accountSetting}
           </h2>
 
-          <div className={`rounded-3xl border overflow-hidden shadow-sm divide-y ${
-            isLight
+          <div className={`rounded-3xl border overflow-hidden shadow-sm divide-y ${isLight
               ? 'bg-white border-gray-100 divide-gray-100'
               : 'bg-[#131B26] border-white/5 divide-white/5'
-          }`}>
+            }`}>
             {/* 1. Profile Information -> opens Edit Personal Data modal */}
             <button
               onClick={() => {
@@ -1135,9 +1127,8 @@ export function SettingsScreen({
                 setEditLocation(currentProfile.location)
                 setEditModalOpen(true)
               }}
-              className={`w-full p-4 flex items-center justify-between text-left transition ${
-                isLight ? 'hover:bg-gray-50 active:bg-gray-100' : 'hover:bg-white/5 active:bg-white/10'
-              }`}
+              className={`w-full p-4 flex items-center justify-between text-left transition ${isLight ? 'hover:bg-gray-50 active:bg-gray-100' : 'hover:bg-white/5 active:bg-white/10'
+                }`}
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
@@ -1167,16 +1158,14 @@ export function SettingsScreen({
               </div>
 
               {/* Direct in-app Language Selection Buttons */}
-              <div className={`flex items-center p-1 rounded-xl border ${
-                isLight ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/10'
-              }`}>
+              <div className={`flex items-center p-1 rounded-xl border ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/10'
+                }`}>
                 <button
                   onClick={() => setLang && setLang('ak')}
-                  className={`flex items-center justify-center p-1.5 rounded-lg transition ${
-                    lang === 'ak'
+                  className={`flex items-center justify-center p-1.5 rounded-lg transition ${lang === 'ak'
                       ? 'bg-red-700 text-white shadow-sm'
                       : 'text-gray-400 hover:text-gray-200'
-                  }`}
+                    }`}
                   title="ရခိုင်ဘာသာ"
                   aria-label="ရခိုင်ဘာသာ"
                 >
@@ -1184,11 +1173,10 @@ export function SettingsScreen({
                 </button>
                 <button
                   onClick={() => setLang && setLang('en')}
-                  className={`flex items-center justify-center p-1.5 rounded-lg transition ${
-                    lang === 'en'
+                  className={`flex items-center justify-center p-1.5 rounded-lg transition ${lang === 'en'
                       ? 'bg-blue-800 text-white shadow-sm'
                       : 'text-gray-400 hover:text-gray-200'
-                  }`}
+                    }`}
                   title="English"
                   aria-label="English"
                 >
@@ -1216,9 +1204,8 @@ export function SettingsScreen({
               {/* Orange toggle switch */}
               <button
                 onClick={() => setAutoSaveSlip(!autoSaveSlip)}
-                className={`w-12 h-6 rounded-full transition-colors duration-200 p-0.5 flex items-center shrink-0 ${
-                  autoSaveSlip ? 'bg-[#FF5722] justify-end' : 'bg-gray-300 dark:bg-gray-700 justify-start'
-                }`}
+                className={`w-12 h-6 rounded-full transition-colors duration-200 p-0.5 flex items-center shrink-0 ${autoSaveSlip ? 'bg-[#FF5722] justify-end' : 'bg-gray-300 dark:bg-gray-700 justify-start'
+                  }`}
               >
                 <div className="w-5 h-5 rounded-full bg-white shadow-md" />
               </button>
@@ -1248,9 +1235,8 @@ export function SettingsScreen({
             {/* 5. Billing Management */}
             <button
               onClick={() => go('account')}
-              className={`w-full p-4 flex items-center justify-between text-left transition ${
-                isLight ? 'hover:bg-gray-50' : 'hover:bg-white/5'
-              }`}
+              className={`w-full p-4 flex items-center justify-between text-left transition ${isLight ? 'hover:bg-gray-50' : 'hover:bg-white/5'
+                }`}
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
@@ -1271,17 +1257,15 @@ export function SettingsScreen({
             {t.securitySetting}
           </h2>
 
-          <div className={`rounded-3xl border overflow-hidden shadow-sm divide-y ${
-            isLight
+          <div className={`rounded-3xl border overflow-hidden shadow-sm divide-y ${isLight
               ? 'bg-white border-gray-100 divide-gray-100'
               : 'bg-[#131B26] border-white/5 divide-white/5'
-          }`}>
+            }`}>
             {/* 1. Change PIN */}
             <button
               onClick={() => alert(lang === 'ak' ? '၆ လုံး လျှို့ဝှက်ကုဒ် (PIN) အသစ် ပြောင်းလဲရန် ညွှန်ကြားချက် ပို့ပြီးပါပြီ' : 'Instructions sent to reset your 6-digit transaction PIN')}
-              className={`w-full p-4 flex items-center justify-between text-left transition ${
-                isLight ? 'hover:bg-gray-50' : 'hover:bg-white/5'
-              }`}
+              className={`w-full p-4 flex items-center justify-between text-left transition ${isLight ? 'hover:bg-gray-50' : 'hover:bg-white/5'
+                }`}
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
@@ -1307,11 +1291,10 @@ export function SettingsScreen({
 
               <button
                 onClick={() => setTwoFactorAuth(!twoFactorAuth)}
-                className={`px-3 py-1 rounded-full text-xs font-extrabold transition tracking-wider ${
-                  twoFactorAuth
+                className={`px-3 py-1 rounded-full text-xs font-extrabold transition tracking-wider ${twoFactorAuth
                     ? 'text-red-500 bg-red-500/10 border border-red-500/30'
                     : 'text-gray-400 bg-gray-500/10 border border-gray-500/30'
-                }`}
+                  }`}
               >
                 {twoFactorAuth ? 'ON' : 'OFF'}
               </button>
@@ -1324,9 +1307,8 @@ export function SettingsScreen({
       {/* ── EDIT PERSONAL DATA MODAL ─────────────────────────────────── */}
       {editModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm">
-          <div className={`w-full max-w-sm rounded-t-[32px] sm:rounded-3xl p-5 shadow-2xl border ${
-            isLight ? 'bg-white border-gray-200 text-gray-900' : 'bg-[#101724] border-white/10 text-white'
-          }`}>
+          <div className={`w-full max-w-sm rounded-t-[32px] sm:rounded-3xl p-5 shadow-2xl border ${isLight ? 'bg-white border-gray-200 text-gray-900' : 'bg-[#101724] border-white/10 text-white'
+            }`}>
             <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <User size={18} className="text-orange-500" />
@@ -1349,9 +1331,8 @@ export function SettingsScreen({
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${
-                    isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                  }`}
+                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                    }`}
                   required
                 />
               </div>
@@ -1364,9 +1345,8 @@ export function SettingsScreen({
                   type="email"
                   value={editEmail}
                   onChange={(e) => setEditEmail(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${
-                    isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                  }`}
+                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                    }`}
                   required
                 />
               </div>
@@ -1379,9 +1359,8 @@ export function SettingsScreen({
                   type="text"
                   value={editPhone}
                   onChange={(e) => setEditPhone(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold font-mono ${
-                    isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                  }`}
+                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold font-mono ${isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                    }`}
                   required
                 />
               </div>
@@ -1394,9 +1373,8 @@ export function SettingsScreen({
                   type="text"
                   value={editPetharId}
                   onChange={(e) => setEditPetharId(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold font-mono ${
-                    isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                  }`}
+                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold font-mono ${isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                    }`}
                   required
                 />
               </div>
@@ -1409,9 +1387,8 @@ export function SettingsScreen({
                   type="text"
                   value={editLocation}
                   onChange={(e) => setEditLocation(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${
-                    isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                  }`}
+                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                    }`}
                 />
               </div>
 
@@ -1644,7 +1621,7 @@ export function Send({
             amount={parseFloat(amount) || 0}
             recipientName={contact.name}
             recipientId={contact.id}
-            senderName="Jack Halder"
+            senderName="User"
             senderId="ARAK-8891-JACK"
             fee={0.0}
             autoSaved={true}
@@ -1848,11 +1825,10 @@ export function Scan({
     <div className={`flex h-full flex-col relative ${tab === 'scan' ? 'bg-zinc-700 text-white' : th.root(theme)}`}>
       {/* Top Header: < | Scan/MyQR | Torch or Share */}
       <div
-        className={`px-4 pt-4 pb-3 flex items-center justify-between border-b ${
-          tab === 'scan'
+        className={`px-4 pt-4 pb-3 flex items-center justify-between border-b ${tab === 'scan'
             ? 'bg-zinc-800/90 border-white/10 text-white'
             : 'bg-white border-zinc-200/80 text-zinc-900'
-        }`}
+          }`}
       >
         <button
           type="button"
@@ -1868,11 +1844,10 @@ export function Scan({
           <button
             type="button"
             onClick={() => setFlashEnabled(!flashEnabled)}
-            className={`w-9 h-9 rounded-full flex items-center justify-center border transition cursor-pointer ${
-              flashEnabled
+            className={`w-9 h-9 rounded-full flex items-center justify-center border transition cursor-pointer ${flashEnabled
                 ? 'bg-[#D91624] border-white text-white'
                 : 'bg-black/30 border-white/40 text-white'
-            }`}
+              }`}
           >
             <Flashlight size={17} />
           </button>
@@ -1954,16 +1929,14 @@ export function Scan({
             className={tab === 'scan' ? 'text-[#D91624]' : 'text-zinc-800'}
           />
           <span
-            className={`text-xs font-bold ${
-              tab === 'scan' ? 'text-[#D91624]' : 'text-zinc-800'
-            }`}
+            className={`text-xs font-bold ${tab === 'scan' ? 'text-[#D91624]' : 'text-zinc-800'
+              }`}
           >
             {isAk ? 'စကင်ဖတ်' : 'Scan'}
           </span>
           <span
-            className={`w-9 h-0.5 rounded-full ${
-              tab === 'scan' ? 'bg-[#D91624]' : 'bg-transparent'
-            }`}
+            className={`w-9 h-0.5 rounded-full ${tab === 'scan' ? 'bg-[#D91624]' : 'bg-transparent'
+              }`}
           />
         </button>
 
@@ -1977,16 +1950,14 @@ export function Scan({
             className={tab === 'myqr' ? 'text-[#D91624]' : 'text-zinc-800'}
           />
           <span
-            className={`text-xs font-bold ${
-              tab === 'myqr' ? 'text-[#D91624]' : 'text-zinc-800'
-            }`}
+            className={`text-xs font-bold ${tab === 'myqr' ? 'text-[#D91624]' : 'text-zinc-800'
+              }`}
           >
             MyQR
           </span>
           <span
-            className={`w-9 h-0.5 rounded-full ${
-              tab === 'myqr' ? 'bg-[#D91624]' : 'bg-transparent'
-            }`}
+            className={`w-9 h-0.5 rounded-full ${tab === 'myqr' ? 'bg-[#D91624]' : 'bg-transparent'
+              }`}
           />
         </button>
       </div>
@@ -2163,19 +2134,17 @@ export function NotificationsScreen({
   return (
     <div className={`flex h-full flex-col overflow-y-auto select-none ${th.root(theme)}`}>
       {/* Header */}
-      <div className={`sticky top-0 z-30 px-4 py-3 flex items-center justify-between border-b backdrop-blur-md ${
-        isLight ? 'bg-white/90 border-gray-200' : 'bg-[#090D14]/90 border-white/10'
-      }`}>
+      <div className={`sticky top-0 z-30 px-4 py-3 flex items-center justify-between border-b backdrop-blur-md ${isLight ? 'bg-white/90 border-gray-200' : 'bg-[#090D14]/90 border-white/10'
+        }`}>
         <h2 className={`text-base font-bold tracking-wide ${th.textMain(theme)}`}>
           {lang === 'ak' ? 'အသိပေးချက်များ' : 'Notifications'}
         </h2>
 
         {/* Live unread counter — synced with the home bell */}
-        <div className={`min-w-[26px] h-6 px-1.5 rounded-lg border-2 flex items-center justify-center text-[10px] font-bold ${
-          unread > 0
+        <div className={`min-w-[26px] h-6 px-1.5 rounded-lg border-2 flex items-center justify-center text-[10px] font-bold ${unread > 0
             ? 'border-red-500/70 text-red-500'
             : isLight ? 'border-gray-300 text-gray-400' : 'border-white/30 text-gray-400'
-        }`}>
+          }`}>
           {unread}
         </div>
       </div>
@@ -2186,13 +2155,12 @@ export function NotificationsScreen({
           <button
             key={p.id}
             onClick={() => setFilter(p.id)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 shrink-0 ${
-              filter === p.id
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 shrink-0 ${filter === p.id
                 ? 'bg-amber-500 text-black shadow-sm'
                 : isLight
                   ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   : 'bg-white/[0.07] text-gray-300 hover:bg-white/10'
-            }`}
+              }`}
           >
             {lang === 'ak' ? p.mm : p.label}
           </button>
@@ -2204,9 +2172,8 @@ export function NotificationsScreen({
         <button
           onClick={markAllRead}
           disabled={unread === 0}
-          className={`text-xs font-semibold transition ${
-            unread === 0 ? 'text-gray-500 cursor-default' : 'text-red-500 hover:underline'
-          }`}
+          className={`text-xs font-semibold transition ${unread === 0 ? 'text-gray-500 cursor-default' : 'text-red-500 hover:underline'
+            }`}
         >
           {lang === 'ak' ? 'အားလုံး ဖတ်ပြီးဟု မှတ်သား' : 'Mark all as read'}
         </button>
@@ -2223,9 +2190,8 @@ export function NotificationsScreen({
                 <button
                   key={n.id}
                   onClick={() => markRead(n.id)}
-                  className={`w-full px-4 py-3 text-left transition ${
-                    isLight ? 'hover:bg-gray-50' : 'hover:bg-white/[0.03]'
-                  } ${n.read ? 'opacity-60' : ''}`}
+                  className={`w-full px-4 py-3 text-left transition ${isLight ? 'hover:bg-gray-50' : 'hover:bg-white/[0.03]'
+                    } ${n.read ? 'opacity-60' : ''}`}
                 >
                   <div className="flex items-start gap-3">
                     {typeIcon(n)}
