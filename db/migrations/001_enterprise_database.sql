@@ -626,50 +626,50 @@ VALUES
 (
     'TXN-5001', '50059261069021', '50059261069021',
     'Transfer to MR. User', 'ဦးမြတ်စိုး သို့ ငွေလွှဲခြင်း',
-    'p2p', -5.0000, 'AKD', 'Today 17:35:10', 'SETTLED',
-    'MR. User (004-********* -689)', 'ဦးမြတ်စိုးပိုင် (PromptPay/Péthar)', 0.0000,
+    'p2p', -5.00, 'AKD', 'Today 17:35:10', 'SETTLED',
+    'MR. User (004-********* -689)', 'ဦးမြတ်စိုးပိုင် (PromptPay/Péthar)', 0.00,
     '0x8a91f4c2901bfa829471de990c7412ae8b7244ef0182c81'
 ),
 (
     'TXN-5002', '50059261069022', '50059261069022',
     'Receive money from MR. User', 'ဦးမြတ်စိုး ထံမှ ငွေလက်ခံရရှိခြင်း',
-    'p2p', 20.0000, 'AKD', 'Today 14:50:22', 'SETTLED',
-    'MR. User', 'ဦးမြတ်စိုးပိုင်', 0.0000,
+    'p2p', 20.00, 'AKD', 'Today 14:50:22', 'SETTLED',
+    'MR. User', 'ဦးမြတ်စိုးပိုင်', 0.00,
     '0x3e11f0a829141bfa829471de990c7412ae8b7244ef'
 ),
 (
     'TXN-5003', '50059261069023', '50059261069023',
     'Grab Local Transportation', 'Grab ယာဉ်စီးခ ပေးချေခြင်း',
-    'pos', -94.0000, 'AKD', 'Yesterday 19:12:05', 'SETTLED',
-    'Grab Merchant Connect', 'Grab ကုန်သည်ဝန်ဆောင်မှု', 0.0000,
+    'pos', -94.00, 'AKD', 'Yesterday 19:12:05', 'SETTLED',
+    'Grab Merchant Connect', 'Grab ကုန်သည်ဝန်ဆောင်မှု', 0.00,
     '0x4981fa12048bfa829471de990c7412ae8b7244ef'
 ),
 (
     'TXN-5004', '50059261069024', '50059261069024',
     'USDT Treasury Deposit', 'USDT ဘဏ္ဍာတိုက် ငွေသွင်းခြင်း',
-    'crypto', 500.0000, 'AKD', '12 Oct 2026', 'SETTLED',
-    'Tether TRC-20 Inflow', 'Tether တရားဝင်ငွေသွင်း', 0.0000,
+    'crypto', 500.00, 'AKD', '12 Oct 2026', 'SETTLED',
+    'Tether TRC-20 Inflow', 'Tether တရားဝင်ငွေသွင်း', 0.00,
     '0x77c29bf01a8829141bfa829471de990c7412ae8b72'
 ),
 (
     'TXN-5005', '50059261069025', '50059261069025',
     'Starlink Mesh High-Speed Pass', 'Starlink ကွန်ရက် အသုံးပြုခ',
-    'pos', -15.0000, 'AKD', '11 Oct 2026', 'SETTLED',
-    'Starlink Sittwe Ground Terminal', 'Starlink စစ်တွေကွန်ရက်', 0.0000,
+    'pos', -15.00, 'AKD', '11 Oct 2026', 'SETTLED',
+    'Starlink Sittwe Ground Terminal', 'Starlink စစ်တွေကွန်ရက်', 0.00,
     '0x99a18274f8829141bfa829471de990c7412ae8b72'
 ),
 (
     'TXN-5006', '50059261069026', '50059261069026',
     'Coffee House Sittwe', 'စစ်တွေ ကော်ဖီဆိုင်',
     'pos', -4.5000, 'AKD', '10 Oct 2026', 'SETTLED',
-    'Point of Sale Terminal #04', 'အရောင်းဆိုင် ကောင်တာ #၀၄', 0.0000,
+    'Point of Sale Terminal #04', 'အရောင်းဆိုင် ကောင်တာ #၀၄', 0.00,
     '0x12a9c4001bfa829471de990c7412ae8b7244ef'
 ),
 (
     'TXN-5007', '50059261069027', '50059261069027',
     'P2P Inward Wire Settlement', 'အာရက္ခ P2P ပြည်တွင်းလွှဲငွေ',
-    'p2p', 120.0000, 'AKD', '09 Oct 2026', 'SETTLED',
-    'Kyaw Zeya (Peer #8812)', 'ကျော်ဇေယျ', 0.0000,
+    'p2p', 120.00, 'AKD', '09 Oct 2026', 'SETTLED',
+    'Kyaw Zeya (Peer #8812)', 'ကျော်ဇေယျ', 0.00,
     '0x55bc101a8829141bfa829471de990c7412ae8b72'
 )
 ON CONFLICT (id) DO UPDATE SET

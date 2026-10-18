@@ -61,7 +61,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
         base: "AKD",
         timestamp: 1728901200,
         pairs: {
-          "USDT": { rate: 1.0000, spread_bps: 0, status: "pegged" },
+          "USDT": { rate: 1.00, spread_bps: 0, status: "pegged" },
           "THB": { rate: 36.85, spread_bps: 2, status: "live" },
           "GBP": { rate: 0.7720, spread_bps: 3, status: "live" },
           "XAU_GRAM": { rate: 0.01234, spread_bps: 0, status: "bullion_backed" }

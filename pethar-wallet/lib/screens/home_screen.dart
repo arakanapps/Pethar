@@ -750,32 +750,45 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         )
                       else
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            const Text(
-                              '₳ ',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w900,
-                                color: crimson,
-                                fontFamily: 'monospace',
+                        Builder(
+                          builder: (context) {
+                            final double bal = appState.isAuthenticated ? appState.wallet.balance : 0.0;
+                            final double fontSize = bal >= 1000000000
+                                ? 20.0
+                                : (bal >= 1000000
+                                    ? 24.0
+                                    : (bal >= 100000 ? 26.0 : 28.0));
+                            return FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text(
+                                    '₳ ',
+                                    style: TextStyle(
+                                      fontSize: fontSize * 0.85,
+                                      fontWeight: FontWeight.w900,
+                                      color: crimson,
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                  Text(
+                                    currencyFmt.format(bal),
+                                    style: TextStyle(
+                                      fontSize: fontSize,
+                                      fontWeight: FontWeight.w900,
+                                      color: const Color(0xFF09090B),
+                                      fontFamily: 'monospace',
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            Text(
-                              currencyFmt.format(
-                                appState.isAuthenticated ? appState.wallet.balance : 0.0,
-                              ),
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w900,
-                                color: Color(0xFF09090B),
-                                fontFamily: 'monospace',
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
                     ],
                   ),

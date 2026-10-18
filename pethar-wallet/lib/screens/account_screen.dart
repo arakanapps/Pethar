@@ -765,22 +765,27 @@ class _AccountScreenState extends State<AccountScreen> {
                                     '••••••••',
                                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                                   )
-                                : Row(
-                                    children: [
-                                      const Text(
-                                        '\$ ',
-                                        style: TextStyle(color: Color(0xFF10B981), fontSize: 22, fontWeight: FontWeight.w900),
-                                      ),
-                                      Text(
-                                        usdBalance.toStringAsFixed(2),
-                                        style: TextStyle(
-                                          fontFamily: 'monospace',
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w900,
-                                          color: isDark ? Colors.white : Colors.black87,
+                                : FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text(
+                                          '\$ ',
+                                          style: TextStyle(color: Color(0xFF10B981), fontSize: 22, fontWeight: FontWeight.w900),
                                         ),
-                                      ),
-                                    ],
+                                        Text(
+                                          usdBalance.toStringAsFixed(2),
+                                          style: TextStyle(
+                                            fontFamily: 'monospace',
+                                            fontSize: usdBalance >= 1000000 ? 20 : 24,
+                                            fontWeight: FontWeight.w900,
+                                            color: isDark ? Colors.white : Colors.black87,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                             const SizedBox(height: 3),
                             if (!_hideBalances)

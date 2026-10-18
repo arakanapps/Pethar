@@ -4,7 +4,7 @@ CREATE TABLE "accounts" (
 	"user_id" text,
 	"account_number" varchar(32) NOT NULL,
 	"currency" varchar(8) DEFAULT 'AKD' NOT NULL,
-	"balance" numeric(18, 4) DEFAULT '0.0000' NOT NULL,
+	"balance" numeric(18, 4) DEFAULT '0.00' NOT NULL,
 	"type" "account_type" DEFAULT 'user' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "accounts_account_number_unique" UNIQUE("account_number")

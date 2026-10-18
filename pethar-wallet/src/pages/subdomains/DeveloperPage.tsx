@@ -173,7 +173,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         pair: "AKD/USDT",
         side: "buy",
         executed_qty: 1200.00,
-        rate: 1.0000,
+        rate: 1.00,
         slippage: "0.00%",
         maker_fee: 0.00
       }

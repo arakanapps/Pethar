@@ -74,7 +74,52 @@ class NotificationItem {
 }
 
 // Live notifications: Fetched dynamically or generated from transactions
-List<NotificationItem> sampleNotifications = [];
+List<NotificationItem> sampleNotifications = [
+  NotificationItem(
+    id: 'N-001',
+    type: 'transaction',
+    titleEn: 'P2P Transfer Sent',
+    titleMm: 'ငွေလွှဲပို့ခြင်း အောင်မြင်ပါသည်',
+    bodyEn: 'You sent ₳350.00 to Ko Min Aung (ARAK-8891). Settled instantly with zero fee.',
+    bodyMm: 'ကိုမင်းအောင် (ARAK-8891) ထံ ₳350.00 ပို့လွှဲခြင်း ချက်ချင်းပြီးစီးပါသည်။',
+    time: '2:22 PM',
+    dateGroup: 'Today',
+    read: false,
+  ),
+  NotificationItem(
+    id: 'N-002',
+    type: 'transaction',
+    titleEn: 'Binance Pay USDT Inflow Received',
+    titleMm: 'Binance မှ USDT ငွေသွင်း ရရှိပါသည်',
+    bodyEn: '1,500 USDT converted 1:1 to ₳1,500.00 and credited to your vault.',
+    bodyMm: 'USDT 1,500 ကို ၁:၁ နှုန်းဖြင့် ₳1,500.00 အဖြစ် သင့်စာရင်းသို့ သွင်းပြီးပါပြီ။',
+    time: '11:05 AM',
+    dateGroup: 'Today',
+    read: false,
+  ),
+  NotificationItem(
+    id: 'N-003',
+    type: 'system',
+    titleEn: 'Arakan Ledger Upgrade Window',
+    titleMm: 'ဗဟိုစာရင်းစနစ် အဆင့်မြှင့်တင်ချိန်',
+    bodyEn: 'Scheduled maintenance 24 Sep, 01:00–06:00 AM. Offline vouchers remain fully active.',
+    bodyMm: 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀–၀၆:၀၀ ထိန်းသိမ်းချိန်။ အော့ဖ်လိုင်းဘောက်ချာများ အသုံးပြုနိုင်ပါသည်။',
+    time: 'Yesterday, 9:00 AM',
+    dateGroup: 'Yesterday',
+    read: true,
+  ),
+  NotificationItem(
+    id: 'N-004',
+    type: 'promotion',
+    titleEn: 'Zero-Fee THB Remittance Week',
+    titleMm: 'ထိုင်းဘတ် ငွေလွှဲ အခမဲ့အပတ်စဉ်',
+    bodyEn: 'Send THB corridor remittances with 0% markup until 30 Sep. Special FX rate locked.',
+    bodyMm: 'စက်တင်ဘာ ၃၀ ရက်အထိ ထိုင်းဘတ်လမ်းကြောင်း ငွေလွှဲများ အခမဲ့။ အထူးငွေလဲနှုန်း သော့ခတ်ထားပါသည်။',
+    time: '20 Sep, 8:15 AM',
+    dateGroup: 'Earlier',
+    read: true,
+  ),
+];
 
 class FavoriteContact {
   String name;
