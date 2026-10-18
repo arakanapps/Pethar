@@ -6,7 +6,7 @@ import {
   ArrowUpRight, ArrowDownLeft, QrCode, Store, Eye, EyeOff,
   ChevronRight, Copy, Check,
   Fingerprint, ScanLine, Globe, Coins, Flashlight, ImagePlus,
-  Clock, Terminal, CreditCard, Lock,
+  Clock, Terminal, CreditCard,
   Plus, X, LogOut,
   RefreshCw, Download,
   Receipt, User, Sun, KeyRound, ShieldCheck,
@@ -543,8 +543,6 @@ export function AccountScreen({
   lang: Language
   theme?: ThemeMode
 }) {
-  const [cardFrozen, setCardFrozen] = useState(false)
-  const [showCvv, setShowCvv] = useState(false)
   const [hideBalances, setHideBalances] = useState(false)
   const [copiedAddr, setCopiedAddr] = useState(false)
 
