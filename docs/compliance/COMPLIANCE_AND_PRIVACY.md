@@ -1,7 +1,7 @@
 # Péthar Corporate Compliance & Privacy Standard
 
 ## 1. Regulatory Status & Purpose
-**Péthar (ဖေ့သာ)** is developed as a community-centric self-sovereign digital cash infrastructure for Arakan. It does not engage in fractional-reserve banking, high-risk leverage lending, or customer asset hypothecation.
+**Péthar (ဖေ့သာ)** is developed as a community-centric digital cash infrastructure for Arakan. It does not engage in fractional-reserve banking, high-risk leverage lending, or customer asset hypothecation.
 
 ---
 

@@ -26,7 +26,7 @@ export const AccountsPage = ({ lang }: AccountsPageProps) => {
   const accounts: AccountItem[] = [
     {
       id: 'acc-1',
-      name: 'Arakan Sovereign Treasury Master',
+      name: 'Arakan Treasury Master',
       accountNumber: 'AKD-8820-1940-1049',
       type: 'Cold Vault • Multi-Sig 3/5',
       balance: '2,450,810.00 ₳',
@@ -86,7 +86,7 @@ export const AccountsPage = ({ lang }: AccountsPageProps) => {
       }
     : {
         badge: 'Institutional Treasury & Accounts Command · Multi-Sig 3/5',
-        heroTitle: 'Sovereign Multi-Account Treasury Architecture',
+        heroTitle: 'Multi-Account Treasury Architecture',
         heroSubtitle: 'Enterprise segregated sub-accounts, audited gold bullion vaults, Nostro clearing corridors, and granular Maker-Checker governance',
         ctaOpenAccount: 'Open Sub-Account',
         ctaPortal: 'Launch Internet Banking Portal',
@@ -234,7 +234,7 @@ export const AccountsPage = ({ lang }: AccountsPageProps) => {
                   <CheckCircle2 className="w-3.5 h-3.5" /> Approved
                 </span>
               </div>
-              <p className="text-xs font-bold text-white">Sovereign Reserve Trustee</p>
+              <p className="text-xs font-bold text-white">Reserve Trustee</p>
               <p className="text-[10px] font-mono text-slate-500">Signed with Hardware Ledger YubiKey</p>
             </div>
 

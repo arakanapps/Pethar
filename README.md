@@ -1,4 +1,4 @@
-# Péthar (ဖေ့သာ) — Sovereign Digital Cash & Financial Infrastructure
+# Péthar (ဖေ့သာ) — Digital Cash & Financial Infrastructure
 
 <div align="center">
 

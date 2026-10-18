@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-**Péthar (ဖေ့သာ)** is a self-sovereign digital cash infrastructure built for financial resilience. This document outlines our corporate compliance posture, stablecoin reserve auditing, and privacy standards.
+**Péthar (ဖေ့သာ)** is a digital cash infrastructure built for financial resilience. This document outlines our corporate compliance posture, stablecoin reserve auditing, and privacy standards.
 
 ---
 
@@ -26,7 +26,7 @@
 
 ---
 
-## 4. Offline Humanitarian Self-Sovereignty
+## 4. Offline Humanitarian Resilience
 
 * **Sanctions & Freedom of Payment:** In scenarios of telecommunications shutdowns or infrastructure disruptions, Péthar's offline Cashu bearer tokens operate peer-to-peer over BLE and NFC.
 * **No Unsolicited Data Collection:** The offline mode requests local hardware permissions (Bluetooth / NFC / Camera) only upon user-initiated send/receive actions.

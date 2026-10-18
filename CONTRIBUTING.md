@@ -1,6 +1,6 @@
 # Contributing to Péthar (ဖေ့သာ)
 
-Thank you for contributing to **Péthar**, the resilient sovereign financial infrastructure for Arakan and global digital commerce.
+Thank you for contributing to **Péthar**, the resilient financial infrastructure for Arakan and global digital commerce.
 
 ---
 

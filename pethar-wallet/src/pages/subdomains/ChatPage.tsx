@@ -25,7 +25,7 @@ export const ChatPage = ({ lang }: ChatPageProps) => {
       sender: 'agent',
       text: lang === 'ak'
         ? 'မင်္ဂလာပါ။ Péthar တရားဝင် သတင်းအချက်အလက်နှင့် နည်းပညာအကူအညီပေးရေးမှ ကြိုဆိုပါသည်။ မည်သည့်အရာကို သိရှိလိုပါသလဲခင်ဗျာ။'
-        : 'Welcome to Péthar Sovereign Support. All communications are end-to-end encrypted with your hardware Ed25519 key. How may we assist you today?',
+        : 'Welcome to Péthar Support. All communications are end-to-end encrypted with your hardware Ed25519 key. How may we assist you today?',
       time: '14:30'
     }
   ]);
@@ -46,10 +46,10 @@ export const ChatPage = ({ lang }: ChatPageProps) => {
       }
     : {
         badge: 'End-to-End Encrypted Support Rails · Signal Protocol',
-        heroTitle: 'Sovereign 24/7 Support & Direct Messaging',
+        heroTitle: '24/7 Support & Direct Messaging',
         heroSubtitle: 'Direct cryptographic channels protected by Ed25519 authentication with zero server-side plaintext logging',
         ctaWebWallet: 'Open Péthar Wallet',
-        activeChannel: 'Péthar Sovereign Support Desk',
+        activeChannel: 'Péthar Support Desk',
         onlineStatus: 'Online • Average Response Time < 60s',
         placeholder: 'Type your inquiry or transaction ID...',
         quickQ1: 'How do I audit the 100% Gold Reserves?',

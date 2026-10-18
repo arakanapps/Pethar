@@ -365,7 +365,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <span className="text-xs font-bold text-[#FF6B00]">₳</span>
             </div>
             <p className="text-[10px] text-slate-400 font-medium tracking-wide uppercase">
-              {ak ? 'အချုပ်အခြာ ဒစ်ဂျစ်တယ်ပိုက်ဆံအိတ်' : 'Sovereign Digital Wallet'}
+              {ak ? 'ဒစ်ဂျစ်တယ်ပိုက်ဆံအိတ်' : 'Digital Wallet'}
             </p>
           </div>
         </div>
@@ -430,7 +430,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             <ShieldCheck size={16} />
           </div>
           <div>
-            <div className="font-bold text-slate-900 dark:text-white">{ak ? 'လွတ်လပ်သော အကူအညီ' : 'Sovereign Support'}</div>
+            <div className="font-bold text-slate-900 dark:text-white">{ak ? 'အကူအညီ' : 'Support'}</div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
               {ak ? 'အင်တာနက်ပြတ်တောက်ချိန် Starlink မက်ရှ်ဖြင့် ဆက်သွယ်နိုင်ပါသည်' : 'Starlink emergency mesh & offline radio'}
             </p>
@@ -1074,13 +1074,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
             {/* ── RIGHT WORKSPACE (Col 4) ── */}
             <div className="lg:col-span-4 space-y-6">
-              {/* SECTION E: VIRTUAL SOVEREIGN CARD (Matching digital-wallet-dashboard & SxDx Bank) */}
+              {/* SECTION E: VIRTUAL CARD (Matching digital-wallet-dashboard & SxDx Bank) */}
               <div className={`p-5 sm:p-6 rounded-3xl border shadow-sm space-y-4 ${
                 isDarkMode ? 'bg-[#1F2937] border-slate-800' : 'bg-white border-slate-200/80'
               }`}>
                 <div className="flex items-center justify-between">
                   <h3 className="font-black text-base tracking-tight text-slate-900 dark:text-white">
-                    {ak ? 'အချုပ်အခြာ ဒစ်ဂျစ်တယ်ကတ်' : 'Sovereign Card'}
+                    {ak ? 'ဒစ်ဂျစ်တယ်ကတ်' : 'Card'}
                   </h3>
                   <button
                     onClick={() => setCardLocked((l) => !l)}
@@ -1673,7 +1673,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="font-black text-lg">{ak ? 'ဝန်ဆောင်မှု အားလုံး' : 'All Sovereign Services'}</h3>
+              <h3 className="font-black text-lg">{ak ? 'ဝန်ဆောင်မှု အားလုံး' : 'All Services'}</h3>
               <button
                 onClick={() => setAllServicesModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xs font-bold"

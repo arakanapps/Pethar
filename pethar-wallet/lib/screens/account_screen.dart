@@ -839,10 +839,14 @@ class _AccountScreenState extends State<AccountScreen> {
                       color: isDark ? Colors.white.withOpacity(0.04) : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 4,
                       children: [
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
                             const SizedBox(width: 4),
@@ -853,6 +857,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           ],
                         ),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF2563EB), shape: BoxShape.circle)),
                             const SizedBox(width: 4),
@@ -863,6 +868,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           ],
                         ),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFF59E0B), shape: BoxShape.circle)),
                             const SizedBox(width: 4),
@@ -921,288 +927,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 22),
-
-            // ═════════════════════════════════════════════════════════════════
-            // 4. VISA DEBIT CARD SECTION
-            // ═════════════════════════════════════════════════════════════════
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.credit_card, size: 16, color: gold),
-                    const SizedBox(width: 8),
-                    Text(
-                      lang == 'ak' ? 'ဖေ့သာ ဒစ်ဂျစ်တယ်ကတ်' : 'Péthar Debit Card',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                const Text(
-                  'VISA DEBIT',
-                  style: TextStyle(fontFamily: 'monospace', fontSize: 11, fontWeight: FontWeight.bold, color: gold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Realistic Card Container
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                gradient: appState.cardFrozen
-                    ? LinearGradient(
-                        colors: [Colors.grey[850]!, Colors.grey[900]!],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : const LinearGradient(
-                        colors: [Color(0xFF730A12), Color(0xFFA8131F), Color(0xFF3B0206)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                border: Border.all(
-                  color: appState.cardFrozen ? Colors.grey[700]! : gold.withOpacity(0.6),
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.35),
-                    blurRadius: 14,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const ArakanEmblem(size: 28),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'PETHAR',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 2,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        'VISA',
-                        style: TextStyle(
-                          color: goldLight,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 18,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    '4219 •••• •••• 9924',
-                    style: TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 18,
-                      letterSpacing: 3,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white.withOpacity(0.95),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'CARDHOLDER',
-                            style: TextStyle(color: goldLight.withOpacity(0.7), fontSize: 8, letterSpacing: 1),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            appState.profile.name.toUpperCase(),
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'EXP',
-                                style: TextStyle(color: goldLight.withOpacity(0.7), fontSize: 8, letterSpacing: 1),
-                              ),
-                              const SizedBox(height: 2),
-                              const Text('09/30', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                            ],
-                          ),
-                          const SizedBox(width: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'CVV',
-                                style: TextStyle(color: goldLight.withOpacity(0.7), fontSize: 8, letterSpacing: 1),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                appState.showCardCvv ? '418' : '•••',
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, fontFamily: 'monospace'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Card Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => appState.toggleCardFreeze(),
-                    icon: Icon(
-                      appState.cardFrozen ? Icons.lock_open : Icons.lock,
-                      size: 15,
-                      color: appState.cardFrozen ? emeraldSuccess : Colors.orangeAccent,
-                    ),
-                    label: Text(
-                      appState.cardFrozen ? 'Unfreeze Card' : 'Freeze Card',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white70 : Colors.black87,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      side: BorderSide(color: isDark ? Colors.white24 : Colors.grey[300]!),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => appState.toggleCardCvv(),
-                    icon: Icon(
-                      appState.showCardCvv ? Icons.visibility_off : Icons.visibility,
-                      size: 15,
-                      color: gold,
-                    ),
-                    label: Text(
-                      appState.showCardCvv ? 'Hide CVV' : 'View CVV',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white70 : Colors.black87,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      side: BorderSide(color: isDark ? Colors.white24 : Colors.grey[300]!),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
             const SizedBox(height: 24),
-
-            // ═════════════════════════════════════════════════════════════════
-            // 5. RECENT ACTIVITY
-            // ═════════════════════════════════════════════════════════════════
-            Text(
-              lang == 'ak' ? 'လတ်တလော ငွေစာရင်းမှတ်တမ်း' : 'Recent Transactions',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 12),
-            ...appState.txList.take(4).map((tx) {
-              final isNegative = tx.amount < 0;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isDark ? surfaceCard : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[200]!),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: (isNegative ? crimson : emeraldSuccess).withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        isNegative ? Icons.arrow_outward : Icons.arrow_downward,
-                        color: isNegative ? crimson : emeraldSuccess,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            lang == 'ak' ? tx.titleMm : tx.title,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                              color: isDark ? Colors.white : Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            tx.time,
-                            style: TextStyle(fontSize: 10, color: Colors.grey[500]),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      '${isNegative ? '-' : '+'} ₳ ${tx.amount.abs().toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        color: isNegative ? Colors.redAccent : emeraldSuccess,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
           ],
         ),
       ),

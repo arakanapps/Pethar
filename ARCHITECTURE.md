@@ -41,7 +41,7 @@ graph TD
         Wallet --> Treasury[Treasury Gateway: USDT / USDC / USD1]
     end
     
-    subgraph "Offline Sovereign Mesh"
+    subgraph "Offline Mesh"
         Client -.->|BLE / NFC| DeviceB[Peer Mobile Device]
         DeviceB -.->|Chaumian Cashu Tokens| DeviceC[Local Merchant POS]
         DeviceC -.->|Reconciliation via Starlink| Ledger
