@@ -166,7 +166,7 @@ export const CardPage = ({ lang }: CardPageProps) => {
               <div className="flex items-end justify-between text-xs font-mono relative z-10">
                 <div>
                   <div className="text-[9px] text-white/70 uppercase">{t.cardHolder}</div>
-                  <div className="font-bold tracking-wider uppercase text-sm mt-0.5">JACK HALDER</div>
+                  <div className="font-bold tracking-wider uppercase text-sm mt-0.5">USER</div>
                 </div>
                 <div className="text-right">
                   <div className="text-[9px] text-white/70 uppercase">{t.validThru}</div>

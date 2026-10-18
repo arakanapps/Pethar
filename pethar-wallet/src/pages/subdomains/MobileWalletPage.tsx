@@ -3664,7 +3664,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     ]
 
     const sampleContacts = [
-      { name: 'Jack (Self)', phone: '09795220917', op: 'ATOM' },
+      { name: 'User (Self)', phone: '09795220917', op: 'ATOM' },
       { name: 'Ko Min Aung', phone: '09251998791', op: 'MPT' },
       { name: 'Daw Hla Hla', phone: '09691234567', op: 'mytel' },
       { name: 'Mg Zaw Myo', phone: '09971234567', op: 'U9' },
@@ -4650,7 +4650,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Customer Name</span>
-                    <span className="font-bold text-slate-800">Jack</span>
+                    <span className="font-bold text-slate-800">User</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Account / Policy</span>
@@ -5836,7 +5836,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <Smartphone size={22} className="text-zinc-500 mt-0.5 shrink-0" />
                   <div className="space-y-1.5 flex-1">
                     <div className="text-sm font-bold text-zinc-900">
-                      iOS | iPhone 14 Pro Max (Jack’s iPhone)
+                      iOS | iPhone 14 Pro Max (User’s iPhone)
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-zinc-500">
                       <Clock size={13} />

@@ -1040,7 +1040,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                             ],
                           ),
                           const Divider(height: 22, color: Color(0xFFE2E8F0)),
-                          _buildDetailRow('Customer Name', 'Jack'),
+                          _buildDetailRow('Customer Name', 'User'),
                           _buildDetailRow('Account / Policy', _accountCtrl.text),
                           _buildDetailRow('Billing Cycle', '01/10/2026 - 31/10/2026'),
                           _buildDetailRow('Service Fee', '0.00 (Free)'),

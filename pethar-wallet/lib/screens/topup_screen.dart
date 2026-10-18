@@ -211,7 +211,7 @@ class _TopupScreenState extends State<TopupScreen> {
 
   void _showContactsPicker(BuildContext context) {
     final sampleContacts = [
-      {'name': 'Jack (Self)', 'phone': '09795220917', 'op': 'ATOM'},
+      {'name': 'User (Self)', 'phone': '09795220917', 'op': 'ATOM'},
       {'name': 'Ko Min Aung', 'phone': '09251998791', 'op': 'MPT'},
       {'name': 'Daw Hla Hla', 'phone': '09691234567', 'op': 'mytel'},
       {'name': 'Mg Zaw Myo', 'phone': '09971234567', 'op': 'U9'},

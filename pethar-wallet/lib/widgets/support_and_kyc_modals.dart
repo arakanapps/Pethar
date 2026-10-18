@@ -283,10 +283,10 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
               await FirebaseService().signInWithEmail(email: email, password: pass);
             }
           } catch (_) {}
-          final derived = email.contains('@') ? email.split('@').first : 'Jack';
+          final derived = email.contains('@') ? email.split('@').first : 'User';
           final name = derived.isNotEmpty
               ? '${derived[0].toUpperCase()}${derived.substring(1)}'
-              : 'Jack';
+              : 'User';
           appState.signIn(email: email, name: name);
           if (ctx.mounted) Navigator.pop(ctx);
         }
@@ -300,14 +300,14 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
             final cred = await FirebaseService().signInWithGoogle();
             if (cred?.user != null) {
               appState.signIn(
-                email: cred!.user!.email ?? 'realjackhalder@gmail.com',
-                name: cred.user!.displayName ?? 'Jack',
+                email: cred!.user!.email ?? 'example@email.com',
+                name: cred.user!.displayName ?? 'User',
               );
               if (ctx.mounted) Navigator.pop(ctx);
               return;
             }
           } catch (_) {}
-          appState.signIn(email: 'realjackhalder@gmail.com', name: 'Jack');
+          appState.signIn(email: 'example@email.com', name: 'User');
           if (ctx.mounted) Navigator.pop(ctx);
         }
 
@@ -409,7 +409,7 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
                   keyboardType: TextInputType.emailAddress,
                   style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: Color(0xFF18181B)),
                   decoration: InputDecoration(
-                    hintText: 'realjackhalder@gmail.com',
+                    hintText: 'example@email.com',
                     hintStyle: const TextStyle(color: Color(0xFFA8A29E), fontSize: 13),
                     filled: true,
                     fillColor: const Color(0xFFFAFAF9),

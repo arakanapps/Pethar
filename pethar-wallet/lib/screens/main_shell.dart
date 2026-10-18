@@ -448,10 +448,10 @@ class _MainShellState extends State<MainShell> {
         }
       }
       if (!mounted) return;
-      final derivedName = email.contains('@') ? email.split('@').first : 'Jack';
+      final derivedName = email.contains('@') ? email.split('@').first : 'User';
       final formattedName = derivedName.isNotEmpty
           ? '${derivedName[0].toUpperCase()}${derivedName.substring(1)}'
-          : 'Jack';
+          : 'User';
       setState(() => _loginLoading = false);
       appState.signIn(email: email, name: formattedName);
     }
@@ -468,8 +468,8 @@ class _MainShellState extends State<MainShell> {
           final cred = await FirebaseService().signInWithGoogle();
           if (cred?.user != null) {
             appState.signIn(
-              email: cred!.user!.email ?? 'realjackhalder@gmail.com',
-              name: cred.user!.displayName ?? 'Jack',
+              email: cred!.user!.email ?? 'example@email.com',
+              name: cred.user!.displayName ?? 'User',
             );
             if (mounted) setState(() => _loginLoading = false);
             return;
@@ -480,7 +480,7 @@ class _MainShellState extends State<MainShell> {
       }
       if (!mounted) return;
       setState(() => _loginLoading = false);
-      appState.signIn(email: 'realjackhalder@gmail.com', name: 'Jack');
+      appState.signIn(email: 'example@email.com', name: 'User');
     }
 
     return Scaffold(
@@ -637,7 +637,7 @@ class _MainShellState extends State<MainShell> {
                         keyboardType: TextInputType.emailAddress,
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF18181B)),
                         decoration: InputDecoration(
-                          hintText: 'realjackhalder@gmail.com',
+                          hintText: 'example@email.com',
                           hintStyle: const TextStyle(color: Color(0xFFA8A29E), fontSize: 13.5),
                           filled: true,
                           fillColor: const Color(0xFFFAFAF9),

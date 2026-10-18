@@ -487,7 +487,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isAndroid ? 'Android | Pixel / Galaxy (Jack’s Phone)' : 'iOS | iPhone 14 Pro Max (Jack’s iPhone)',
+                            isAndroid ? 'Android | Pixel / Galaxy (User’s Phone)' : 'iOS | iPhone 14 Pro Max (User’s iPhone)',
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
                           ),
                           const SizedBox(height: 6),
@@ -1100,7 +1100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      appState.profile.email.isNotEmpty ? appState.profile.email : 'realjackhalder@gmail.com',
+                      appState.profile.email.isNotEmpty ? appState.profile.email : 'example@email.com',
                       style: const TextStyle(fontSize: 13, color: Colors.black45),
                     ),
                     const SizedBox(height: 14),

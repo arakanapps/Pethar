@@ -20,7 +20,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
     'TKeB891AKDa91jK04L2xM904vPeThar98124',
     '0x8f2a718c991804b204918ac891b01479812',
     'EQD90418AKD_MraukU_PeThar_Chain_88914',
-    '0x3e11048891jackhalderpeThar901456201',
+    '0x3e11048891userpeThar901456201',
   ];
 
   @override

@@ -324,7 +324,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
               <div className="flex items-end justify-between font-mono text-xs text-gray-200">
                 <div>
                   <div className="text-[9px] uppercase tracking-wider text-amber-200/80">Cardholder</div>
-                  <div className="font-bold text-white tracking-wide">JACK HALDER</div>
+                  <div className="font-bold text-white tracking-wide">USER</div>
                 </div>
 
                 <div className="flex items-center gap-4">
