@@ -27,7 +27,7 @@ export const TradePage = ({ lang }: TradePageProps) => {
 
   return (
     <BaseLayout
-      title={lang === 'ak' ? 'ဖေ့သာ ကုန်စည်နှင့် ဒစ်ဂျစ်တယ် အရောင်းအဝယ်' : 'Péthar Sovereign Trade & Commodities Terminal'}
+      title={lang === 'ak' ? 'ဖေ့သာ ကုန်စည်နှင့် ဒစ်ဂျစ်တယ် အရောင်းအဝယ်' : 'Péthar Trade & Commodities Terminal'}
       lang={lang}
     >
       <div className="space-y-8 max-w-[1300px] mx-auto pb-16">
@@ -37,7 +37,7 @@ export const TradePage = ({ lang }: TradePageProps) => {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 text-purple-900 border border-purple-200 text-xs font-mono font-bold mb-2">
               <Zap size={13} className="text-purple-600" />
-              <span>{lang === 'ak' ? 'အာရက္ခ ဗဟိုကုန်သွယ်ရေး' : 'NovaPay Sovereign Exchange Engine'}</span>
+              <span>{lang === 'ak' ? 'အာရက္ခ ဗဟိုကုန်သွယ်ရေး' : 'NovaPay Exchange Engine'}</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight font-sans">
               {lang === 'ak' ? 'ရွှေ၊ ကုန်စည်နှင့် ဒစ်ဂျစ်တယ်ငွေကြေး ကုန်သွယ်မှု' : 'Commodities & Digital Asset Exchange'}
@@ -297,7 +297,7 @@ export const TradePage = ({ lang }: TradePageProps) => {
                   </span>
                 </div>
               </div>
-              <p className="text-[11px] text-slate-400 font-mono mb-4">Monthly inflows and sovereign savings breakdown</p>
+              <p className="text-[11px] text-slate-400 font-mono mb-4">Monthly inflows and savings breakdown</p>
 
               {/* Dual Direction Vertical Bars */}
               <div className="h-44 w-full flex items-center justify-between gap-2 pt-2 border-y border-slate-800 my-2">
@@ -434,7 +434,7 @@ export const TradePage = ({ lang }: TradePageProps) => {
             <div className="mt-4 p-3 rounded-xl bg-purple-950/60 border border-purple-800 text-[11px] font-mono space-y-1.5">
               <div className="flex items-center gap-1.5 text-amber-400 font-bold">
                 <Award size={13} />
-                <span>Upgrade to Sovereign</span>
+                <span>Upgrade to Premium</span>
               </div>
               <p className="text-slate-400 leading-snug">
                 Zero-fee bullion vault delivery & custom laser metal card.

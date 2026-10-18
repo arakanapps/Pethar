@@ -27,7 +27,7 @@ export const SearchPage = ({ lang }: SearchPageProps) => {
 
   const t = lang === 'ak'
     ? {
-        badge: 'Péthar Universal Explorer & Search · Sovereign Ledger',
+        badge: 'Péthar Universal Explorer & Search · Ledger',
         heroTitle: 'အာရက္ခ ဒစ်ဂျစ်တယ် Ledger အချက်အလက် ရှာဖွေရေး',
         heroSubtitle: 'ငွေလွှဲပြေစာ Hash၊ နိုင်ငံသား အကောင့်နံပါတ်၊ ရွှေတုံး အမှတ်စဉ်နှင့် Ledger Block များကို ပွင့်လင်းမြင်သာစွာ တိုက်ရိုက် ရှာဖွေပါ',
         placeholder: 'Transaction Hash, Node ID (akd_...), Block #, သို့မဟုတ် ရွှေအမှတ်စဉ်...',
@@ -38,8 +38,8 @@ export const SearchPage = ({ lang }: SearchPageProps) => {
         noResults: 'ရှာဖွေမှု မတွေ့ရှိပါ။ ကျေးဇူးပြု၍ Hash သို့မဟုတ် အကောင့် ID ကို ပြန်လည်စစ်ဆေးပါ',
       }
     : {
-        badge: 'Péthar Universal Explorer & Search · Sovereign Ledger',
-        heroTitle: 'Universal Sovereign Ledger Search',
+        badge: 'Péthar Universal Explorer & Search · Ledger',
+        heroTitle: 'Universal Ledger Search',
         heroSubtitle: 'Search any transaction hash, citizen enclave node, bullion custody certificate, or ledger block with deterministic proof verification',
         placeholder: 'Search Transaction Hash, Node ID (akd_...), Block #, or Bullion Serial...',
         filterAll: 'All Categories',
@@ -90,7 +90,7 @@ export const SearchPage = ({ lang }: SearchPageProps) => {
       id: 'block-1',
       type: 'block',
       title: 'Block Height #2,491,032',
-      subtitle: 'Contains 142 atomic transfers · Validator: Sovereign Node A1',
+      subtitle: 'Contains 142 atomic transfers · Validator: Node A1',
       timestamp: '2 mins ago',
       status: 'Finalized (Ed25519 Quorum)',
       link: 'api'

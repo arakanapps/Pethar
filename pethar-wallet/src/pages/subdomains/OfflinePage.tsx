@@ -31,7 +31,7 @@ export const OfflinePage = ({ lang }: OfflinePageProps) => {
       }
     : {
         badge: 'Offline BLE/NFC Mesh Engine · Zero-Internet Protocol',
-        heroTitle: 'Transact Without Internet. Unstoppable Sovereign Mesh.',
+        heroTitle: 'Transact Without Internet. Unstoppable Mesh.',
         heroSubtitle: 'Complete resilience during telecommunication blackouts. Broadcast cryptographic payment vouchers peer-to-peer using localized Bluetooth Low Energy and NFC pulses',
         ctaTryMesh: 'Simulate Offline Mesh Tap',
         ctaDownloadApp: 'Download Offline App',

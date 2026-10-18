@@ -281,7 +281,7 @@ export const P2PPage = ({ lang }: P2PPageProps) => {
             <Lock className="w-6 h-6 text-emerald-600 mb-2" />
             <h4 className="text-base font-black text-slate-950">Timelock Protection</h4>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Trades are protected by 15-minute countdown locks with automatic dispute referral to sovereign arbiters if needed.
+              Trades are protected by 15-minute countdown locks with automatic dispute referral to arbiters if needed.
             </p>
           </div>
 

@@ -20,11 +20,11 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
     ? {
         badge: 'Péthar Web3 တံတား · EVM & Multi-Chain Bridge Protocol',
         heroTitle: 'ဗဟိုမဲ့ ဘဏ္ဍာရေးနှင့် Multi-Chain ချိတ်ဆက်မှု စနစ်',
-        heroSubtitle: 'Ethereum, BNB Chain, Polygon တို့မှ USDT နှင့် ပိုင်ဆိုင်မှုများကို Péthar အချုပ်အခြာအာဏာပိုင် Ledger သို့ 1:1 တန်းတူ လဲလှယ်ကူးပြောင်းနိုင်ပါသည်',
+        heroSubtitle: 'Ethereum, BNB Chain, Polygon တို့မှ USDT နှင့် ပိုင်ဆိုင်မှုများကို Péthar Ledger သို့ 1:1 တန်းတူ လဲလှယ်ကူးပြောင်းနိုင်ပါသည်',
         ctaBridge: 'Cross-Chain Bridge စမ်းသပ်မည်',
         ctaExplorer: 'Ledger Explorer ကြည့်မည်',
         bridgeTitle: 'Cross-Chain တံတား စမ်းသပ်မှု Simulator',
-        bridgeDesc: 'EVM ကွင်းဆက်မှ USDT ပမာဏကို Péthar Sovereign AKD အဖြစ် စမတ်ကန်ထရိုက်ဖြင့် သော့ခတ်လဲလှယ်ခြင်း',
+        bridgeDesc: 'EVM ကွင်းဆက်မှ USDT ပမာဏကို Péthar AKD အဖြစ် စမတ်ကန်ထရိုက်ဖြင့် သော့ခတ်လဲလှယ်ခြင်း',
         runBridge: 'Bridge လဲလှယ်မှု အတည်ပြုမည်',
         bridgeSuccess: 'Bridge အောင်မြင်စွာ ကူးပြောင်းပြီးပါပြီ! (1:1 AKD Minted to Enclave Wallet)',
         didTitle: 'Zero-Knowledge နိုင်ငံသား အထောက်အထား (zk-DID)',
@@ -32,15 +32,15 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
       }
     : {
         badge: 'Péthar Web3 Bridge Protocol · EVM & Multi-Chain Rails',
-        heroTitle: 'Decentralized Liquidity & Sovereign DeFi Rails',
+        heroTitle: 'Decentralized Liquidity & DeFi Rails',
         heroSubtitle: 'Seamlessly bridge USDT and stable assets between Ethereum, BNB Chain, Polygon, Arbitrum and Péthar\'s high-speed zero-gas ledger',
         ctaBridge: 'Simulate Cross-Chain Bridge',
-        ctaExplorer: 'Explore Sovereign Ledger',
+        ctaExplorer: 'Explore Ledger',
         bridgeTitle: 'Live Cross-Chain Peg-In Bridge Simulator',
         bridgeDesc: 'Lock standard ERC-20 / BEP-20 USDT into multi-sig smart contracts and receive instant 1:1 Arakan Dollars (AKD) with zero slippage',
         runBridge: 'Execute Cross-Chain Bridge Call',
         bridgeSuccess: 'Bridge Transit Settled! (500.00 AKD Minted & Verified on Block #2,491,048)',
-        didTitle: 'Zero-Knowledge Sovereign Identity (zk-DID)',
+        didTitle: 'Zero-Knowledge Identity (zk-DID)',
         didDesc: 'W3C-compliant Decentralized Identifiers allowing cryptographic citizen verification without exposing real names or private coordinates',
       };
 
@@ -146,7 +146,7 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
             {/* Destination Chain */}
             <div className="md:col-span-5 p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-slate-300">Péthar Sovereign Ledger</span>
+                <span className="text-xs font-mono font-bold text-slate-300">Péthar Ledger</span>
                 <span className="text-[10px] font-mono text-amber-400">1:1 Mint Guarantee</span>
               </div>
               <div className="flex items-baseline justify-between font-mono">
@@ -160,7 +160,7 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-slate-900">
             <div className="font-mono text-xs text-slate-400 space-y-0.5">
-              <p>Bridge Gas Fee: <span className="text-emerald-400 font-bold">$0.00 (Sponsored by Sovereign Reserve)</span></p>
+              <p>Bridge Gas Fee: <span className="text-emerald-400 font-bold">$0.00 (Sponsored by Reserve)</span></p>
               <p>Estimated Finality: <span className="text-white">~ 12 Seconds (EVM Block Confirms)</span></p>
             </div>
 
@@ -182,14 +182,14 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
           )}
         </div>
 
-        {/* zk-DID Sovereign Identity Section */}
+        {/* zk-DID Identity Section */}
         <div className="p-8 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 text-amber-700 font-mono font-bold text-xs uppercase">
               <Lock className="w-4 h-4" />
               <span>{t.didTitle}</span>
             </div>
-            <h3 className="text-xl font-black text-slate-950">Self-Sovereign Identity Without Surveillance</h3>
+            <h3 className="text-xl font-black text-slate-950">Decentralized Identity Without Surveillance</h3>
             <p className="text-xs text-slate-600 leading-relaxed max-w-3xl">
               {t.didDesc}
             </p>
