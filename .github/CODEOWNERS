@@ -1,8 +1,8 @@
 # Péthar Enterprise Code Ownership
-* @arakanapps
+* @Péthar
 
 # Security & Rules
-/firestore.rules @arakanapps
-/.github/workflows/ @arakanapps
-/pethar_mobile/lib/services/offline_payment_service.dart @arakanapps
-/pethar-wallet/src/components/TransactionSlip.tsx @arakanapps
+/firestore.rules @Péthar
+/.github/workflows/ @Péthar
+/pethar_mobile/lib/services/offline_payment_service.dart @Péthar
+/pethar-wallet/src/components/TransactionSlip.tsx @Péthar
