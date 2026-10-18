@@ -777,27 +777,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.info_outline_rounded,
-                            size: 13,
-                            color: Color(0xFF71717A),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isAk
-                                ? 'လွှဲပြောင်းမှု ခွင့်မပြုပါ (Transaction is not allowed)'
-                                : 'Transaction is not allowed',
-                            style: const TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF71717A),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
