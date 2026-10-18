@@ -4,7 +4,7 @@
       "emailPassword": true,
       "googleSignIn": {
         "oAuthBrandDisplayName": "Péthar",
-        "supportEmail": "contact@pethar.co.uk",
+        "supportEmail": "pethar-app@protonmail.com",
         "authorizedRedirectUris": [
           "https://pe-thar.firebaseapp.com/__/auth/handler",
           "http://localhost"

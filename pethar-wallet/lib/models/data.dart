@@ -31,7 +31,7 @@ class Transaction {
 }
 
 UserProfile initialUserProfile = UserProfile(
-  name: 'Péthar User', email: 'pethar.wallet@gmail.com', phone: '+95 9 790 000 000',
+  name: 'User', email: 'example@email.com', phone: '+95 9 790 000 000',
   petharId: 'ARAK-8891-JACK', location: 'Sittwe · စစ်တွေ', accountTier: 'Normal',
   avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
 );
