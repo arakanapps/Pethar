@@ -326,29 +326,34 @@ class _AccountScreenState extends State<AccountScreen> {
                             letterSpacing: 4,
                           ),
                         )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            const Text(
-                              '\$ ',
-                              style: TextStyle(color: Colors.lightBlueAccent, fontSize: 24, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              totalUsd.toStringAsFixed(2),
-                              style: const TextStyle(
-                                fontFamily: 'monospace',
-                                fontSize: 32,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                      : FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              const Text(
+                                '\$ ',
+                                style: TextStyle(color: Colors.lightBlueAccent, fontSize: 24, fontWeight: FontWeight.bold),
                               ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Text(
-                              'USD',
-                              style: TextStyle(color: Colors.white60, fontSize: 13, fontWeight: FontWeight.bold),
-                            ),
-                          ],
+                              Text(
+                                totalUsd.toStringAsFixed(2),
+                                style: const TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              const Text(
+                                'USD',
+                                style: TextStyle(color: Colors.white60, fontSize: 13, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
                         ),
                   const SizedBox(height: 6),
                   if (!_hideBalances)
@@ -522,22 +527,27 @@ class _AccountScreenState extends State<AccountScreen> {
                                     '••••••••',
                                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                                   )
-                                : Row(
-                                    children: [
-                                      const Text(
-                                        '₳ ',
-                                        style: TextStyle(color: Color(0xFFD91624), fontSize: 22, fontWeight: FontWeight.w900),
-                                      ),
-                                      Text(
-                                        akdBalance.toStringAsFixed(2),
-                                        style: TextStyle(
-                                          fontFamily: 'monospace',
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w900,
-                                          color: isDark ? Colors.white : Colors.black87,
+                                : FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text(
+                                          '₳ ',
+                                          style: TextStyle(color: Color(0xFFD91624), fontSize: 22, fontWeight: FontWeight.w900),
                                         ),
-                                      ),
-                                    ],
+                                        Text(
+                                          akdBalance.toStringAsFixed(2),
+                                          style: TextStyle(
+                                            fontFamily: 'monospace',
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w900,
+                                            color: isDark ? Colors.white : Colors.black87,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                             const SizedBox(height: 3),
                             if (!_hideBalances)
@@ -576,10 +586,14 @@ class _AccountScreenState extends State<AccountScreen> {
                       color: isDark ? Colors.white.withOpacity(0.04) : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 4,
                       children: [
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFE11D48), shape: BoxShape.circle)),
                             const SizedBox(width: 6),
@@ -590,6 +604,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           ],
                         ),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFF59E0B), shape: BoxShape.circle)),
                             const SizedBox(width: 6),
