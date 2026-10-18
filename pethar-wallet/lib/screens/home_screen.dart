@@ -688,7 +688,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 14),
 
-                // 4. WALLET BALANCE BOX: Wallet Balance (AKD) + Eye Icon | ₳ 0.0000
+                // 4. WALLET BALANCE BOX: Wallet Balance (AKD) + Eye Icon | ₳ 0.00
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),

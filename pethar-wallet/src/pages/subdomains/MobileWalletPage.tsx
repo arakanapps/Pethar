@@ -146,8 +146,8 @@ const USD_BACKED_TOKENS: UsdStablecoin[] = [
     symbol: 'USDT',
     name: 'Tether USD',
     price: '$0.9985',
-    balance: 12500,
-    usdValue: 12500.0,
+    balance: 0.00,
+    usdValue: 0.00,
     bg: 'bg-[#26A17B]',
     badgeText: '₮',
   },
@@ -411,8 +411,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   // Home & Crypto Wallet Balance Visibility
   const [homeBalanceHidden, setHomeBalanceHidden] = useState<boolean>(false)
   const [walletBalanceHidden, setWalletBalanceHidden] = useState<boolean>(false)
-  const [akdBalance, setAkdBalance] = useState<number>(12500.0)
-  const [usdAccountBalance, setUsdAccountBalance] = useState<number>(12500.0)
+  const [akdBalance, setAkdBalance] = useState<number>(0.00)
+  const [usdAccountBalance, setUsdAccountBalance] = useState<number>(0.00)
 
   // Financial Tab (Single-Account USD Account — NO NFT) States
   const [financialSubView, setFinancialSubView] = useState<FinancialSubView>('wallet_main')
@@ -1178,7 +1178,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             </div>
           </div>
 
-          {/* 4. WALLET BALANCE BOX: Wallet Balance (AKD) + Eye Icon | ₳ 0.0000 */}
+          {/* 4. WALLET BALANCE BOX: Wallet Balance (AKD) + Eye Icon | ₳ 0.00 */}
           <div className="bg-white rounded-[22px] px-4 py-4 shadow-[0_6px_20px_rgba(15,23,42,0.04)] border border-zinc-200/80">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-bold text-zinc-600">
