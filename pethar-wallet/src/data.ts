@@ -59,7 +59,7 @@ export interface UserProfile {
 }
 
 export const initialUserProfile: UserProfile = {
-  name: 'Aung Kyaw Zan',
+  name: 'User',
   email: 'aungkyawzan@pethar.io',
   phone: '09795220917',
   petharId: 'AK-992104-88',

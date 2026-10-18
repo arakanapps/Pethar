@@ -21,7 +21,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE IF NOT EXISTS public.users (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     phone_number  VARCHAR(30) UNIQUE,
-    full_name     VARCHAR(100) NOT NULL DEFAULT 'Aung Kyaw Zan',
+    full_name     VARCHAR(100) NOT NULL DEFAULT 'User',
     kyc_tier      INT NOT NULL DEFAULT 2 CHECK (kyc_tier IN (1, 2, 3)),
     status        VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'SUSPENDED', 'FROZEN', 'CLOSED')),
     created_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -31,12 +31,12 @@ CREATE TABLE IF NOT EXISTS public.users (
 CREATE TABLE IF NOT EXISTS public.user_profiles (
     id            VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
     user_id       UUID REFERENCES public.users(id) ON DELETE SET NULL,
-    name          VARCHAR(100) NOT NULL DEFAULT 'Aung Kyaw Zan',
+    name          VARCHAR(100) NOT NULL DEFAULT 'User',
     phone         VARCHAR(30) NOT NULL DEFAULT '09795220917',
     ak_id         VARCHAR(64) NOT NULL DEFAULT 'AK-992104-88',
-    username      VARCHAR(50) NOT NULL DEFAULT '@aung_kyaw_zan',
+    username      VARCHAR(50) NOT NULL DEFAULT '@user',
     uid           VARCHAR(32) NOT NULL DEFAULT '710293847561',
-    balance       NUMERIC(18, 4) NOT NULL DEFAULT 12500.00,
+    balance       NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
     currency      VARCHAR(16) NOT NULL DEFAULT 'AKD',
     avatar_url    TEXT DEFAULT '',
     kyc_tier      INT NOT NULL DEFAULT 2,
@@ -554,11 +554,11 @@ END $$;
 
 -- 12.1. Seed Core System User & Default User Profile
 INSERT INTO public.users (id, phone_number, full_name, kyc_tier, status)
-VALUES ('00000000-0000-0000-0000-000000000001', '+959795220917', 'Aung Kyaw Zan', 2, 'ACTIVE')
+VALUES ('00000000-0000-0000-0000-000000000001', '+959795220917', 'User', 2, 'ACTIVE')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.user_profiles (id, user_id, name, phone, ak_id, username, uid, balance, currency, kyc_tier)
-VALUES ('user_default', '00000000-0000-0000-0000-000000000001', 'Aung Kyaw Zan', '09795220917', 'AK-992104-88', '@aung_kyaw_zan', '710293847561', 12500.00, 'AKD', 2)
+VALUES ('user_default', '00000000-0000-0000-0000-000000000001', 'User', '09795220917', 'AK-992104-88', '@user', '710293847561', 0.00, 'AKD', 2)
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     phone = EXCLUDED.phone,
@@ -625,16 +625,16 @@ INSERT INTO public.transactions
 VALUES
 (
     'TXN-5001', '50059261069021', '50059261069021',
-    'Transfer to MR. MYAT S***', 'ဦးမြတ်စိုး သို့ ငွေလွှဲခြင်း',
+    'Transfer to MR. User', 'ဦးမြတ်စိုး သို့ ငွေလွှဲခြင်း',
     'p2p', -5.0000, 'AKD', 'Today 17:35:10', 'SETTLED',
-    'MR. MYAT SOE PAI**** (004-********* -689)', 'ဦးမြတ်စိုးပိုင် (PromptPay/Péthar)', 0.0000,
+    'MR. User (004-********* -689)', 'ဦးမြတ်စိုးပိုင် (PromptPay/Péthar)', 0.0000,
     '0x8a91f4c2901bfa829471de990c7412ae8b7244ef0182c81'
 ),
 (
     'TXN-5002', '50059261069022', '50059261069022',
-    'Receive money from MR. MYAT S...', 'ဦးမြတ်စိုး ထံမှ ငွေလက်ခံရရှိခြင်း',
+    'Receive money from MR. User', 'ဦးမြတ်စိုး ထံမှ ငွေလက်ခံရရှိခြင်း',
     'p2p', 20.0000, 'AKD', 'Today 14:50:22', 'SETTLED',
-    'MR. MYAT SOE PAING', 'ဦးမြတ်စိုးပိုင်', 0.0000,
+    'MR. User', 'ဦးမြတ်စိုးပိုင်', 0.0000,
     '0x3e11f0a829141bfa829471de990c7412ae8b7244ef'
 ),
 (

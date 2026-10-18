@@ -14,7 +14,7 @@ class AppState extends ChangeNotifier {
   String financialSubView = 'wallet_main'; // 'wallet_main' | 'deposit' | 'withdraw' | 'tx_history' | 'spending' | 'wallet_security_phrase'
   UserProfile profile = initialUserProfile;
   WalletBalance wallet = akdWallet;
-  double usdAccountBalance = 12500.00;
+  double usdAccountBalance = 0.00;
   bool isVerified = true;
   bool balanceHidden = false;
   bool walletBalanceHidden = false;

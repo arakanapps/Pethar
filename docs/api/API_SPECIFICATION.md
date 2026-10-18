@@ -25,11 +25,11 @@ Retrieves the cryptographic receipt verification status for any transaction refe
   "peggedValueUsd": 5.00,
   "timestamp": "2026-10-14T17:35:10Z",
   "sender": {
-    "name": "MYAT SOE P****",
+    "name": "User",
     "id": "ARAK-8891-USER"
   },
   "recipient": {
-    "name": "MR. MYAT SOE PAI****",
+    "name": "User",
     "id": "TX-5001"
   },
   "proof": {

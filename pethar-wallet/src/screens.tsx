@@ -174,7 +174,7 @@ export function Home({
 
   const favorites = [
     { name: 'user', mm: 'အသုံးပြုသူ', id: 'ARAK-1024', initials: 'U', bg: 'bg-sky-600' },
-    { name: 'MYAT SOE', mm: 'မြတ်စိုး', id: 'ARAK-1024', initials: 'MS', bg: 'bg-blue-600' },
+    { name: 'User', mm: 'မြတ်စိုး', id: 'ARAK-1024', initials: 'U', bg: 'bg-blue-600' },
     { name: 'TONY', mm: 'တိုနီ', id: 'ARAK-9921', initials: 'TN', bg: 'bg-emerald-600' },
     { name: 'KO MIN AUNG', mm: 'မင်းအောင်', id: 'ARAK-8891', initials: 'MA', bg: 'bg-amber-600' },
   ]

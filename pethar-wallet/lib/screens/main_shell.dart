@@ -804,7 +804,7 @@ class _MainShellState extends State<MainShell> {
     final isAk = lang == 'ak';
     final currencyFmt = NumberFormat('#,##0.00', 'en_US');
     final usdTokens = [
-      {'symbol': 'USDT', 'name': 'Tether USD', 'price': '\$0.9985', 'balance': 12500.0, 'usd': 12500.00, 'color': const Color(0xFF26A17B), 'badge': '₮'},
+      {'symbol': 'USDT', 'name': 'Tether USD', 'price': '\$0.9985', 'balance': 12500.0, 'usd': 0.00, 'color': const Color(0xFF26A17B), 'badge': '₮'},
       {'symbol': 'USDC', 'name': 'USD Coin', 'price': '\$1.00', 'balance': 0.0, 'usd': 0.00, 'color': const Color(0xFF2775CA), 'badge': '\$'},
       {'symbol': 'USD1', 'name': 'World Liberty USD1', 'price': '\$0.999', 'balance': 0.0, 'usd': 0.00, 'color': const Color(0xFFD4AF37), 'badge': '1'},
       {'symbol': 'FDUSD', 'name': 'First Digital USD', 'price': '\$1.00', 'balance': 0.0, 'usd': 0.00, 'color': const Color(0xFF00C389), 'badge': 'F'},

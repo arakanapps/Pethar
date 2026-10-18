@@ -1331,7 +1331,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               recipientName={selectedTx.counterparty}
               recipientId={selectedTx.id}
               recipientType={selectedTx.category === 'p2p' ? 'Péthar Instant Pay' : 'Offline Mode Token'}
-              senderName={profile.name || 'MYAT SOE P****'}
+              senderName={profile.name || 'User'}
               senderId={`Péthar Wallet ${profile.petharId}`}
               fee={selectedTx.fee}
               timestamp={selectedTx.time}
@@ -1358,7 +1358,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           >
             <ReceiveQRCard
               lang={lang}
-              name={profile.name || 'MYAT SOE PAING'}
+              name={profile.name || 'User'}
               petharId={profile.petharId || '140-********* -295'}
               onClose={() => setReceiveModalOpen(false)}
             />

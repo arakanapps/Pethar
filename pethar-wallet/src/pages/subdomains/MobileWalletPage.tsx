@@ -644,8 +644,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     },
     {
       id: 'ARAK-8891',
-      name: 'MYAT SOE',
-      fullName: 'Myat Soe',
+      name: 'User',
+      fullName: 'User',
       mm: 'မြတ်စိုး',
       phone: '09951234567',
       initials: 'MS',
@@ -5494,7 +5494,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     required
                     value={favFormName}
                     onChange={(e) => setFavFormName(e.target.value)}
-                    placeholder="e.g. Myat Soe"
+                    placeholder="e.g. User"
                     className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 text-xs font-semibold focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                   />
                 </div>
@@ -6282,13 +6282,13 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         M
                       </div>
                       <div className="text-[7px] text-zinc-700 font-mono leading-tight space-y-0.5">
-                        <div className="font-bold text-zinc-900">MYAT SOE PAING</div>
+                        <div className="font-bold text-zinc-900">User</div>
                         <div>NO: MJ310666</div>
                         <div>DOB: 13 MAY 2003</div>
                       </div>
                     </div>
                     <div className="text-[6px] font-mono text-zinc-400 truncate">
-                      P&lt;MMR&lt;PAING&lt;&lt;MYAT&lt;SOE&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+                      P&lt;MMR&lt;USER&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
                     </div>
                   </div>
                 </div>

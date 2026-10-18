@@ -31,7 +31,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
   recipientName,
   recipientId,
   recipientType = 'Péthar Pay',
-  senderName = 'MYAT SOE P****',
+  senderName = 'User',
   senderId = 'Péthar Wallet ***-***-8295',
   fee = 0.0,
   timestamp = '14 Oct 2026 17:35:10',

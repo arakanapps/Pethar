@@ -105,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         Text(
-                          'MYAT SOE PAING\nNO: MJ310666\nDOB: 13 MAY 2003',
+                          'User\nNO: MJ310666\nDOB: 13 MAY 2003',
                           style: TextStyle(
                             fontFamily: 'monospace',
                             fontSize: 8,
@@ -115,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         Text(
-                          'P<MMR<PAING<<MYAT<SOE<<<<',
+                          'P<MMR<USER<<<<<<<<<<<<<<<<<',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -692,7 +692,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                _buildInfoRow(isAk ? 'အမည်' : 'Name', 'MYAT SOE'),
+                _buildInfoRow(isAk ? 'အမည်' : 'Name', 'User'),
                 const SizedBox(height: 14),
                 _buildInfoRow(isAk ? 'မျိုးရိုးအမည်' : 'Last name', 'PAING'),
                 const SizedBox(height: 14),
