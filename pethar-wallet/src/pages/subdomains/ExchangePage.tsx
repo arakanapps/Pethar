@@ -62,7 +62,7 @@ export const ExchangePage = ({ lang }: ExchangePageProps) => {
   const orderBookBids = [
     { price: '1.0002', amount: '24,500', total: '24,504.90', depth: '92%' },
     { price: '1.0001', amount: '18,200', total: '18,201.82', depth: '75%' },
-    { price: '1.0000', amount: '150,000', total: '150,000.00', depth: '100%' },
+    { price: '1.00', amount: '150,000', total: '150,000.00', depth: '100%' },
     { price: '0.9999', amount: '35,000', total: '34,996.50', depth: '60%' },
     { price: '0.9998', amount: '12,400', total: '12,397.52', depth: '40%' },
   ]
@@ -87,7 +87,7 @@ export const ExchangePage = ({ lang }: ExchangePageProps) => {
           <div className="flex flex-wrap items-center gap-4">
             <span className="flex items-center gap-1.5 text-emerald-600 font-bold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              AKD/USDT 1.0000 (+0.00%)
+              AKD/USDT 1.00 (+0.00%)
             </span>
             <span className="text-slate-300">|</span>
             <span className="text-slate-700">AKD/THB {fxRates.find(r => r.pair.includes('THB'))?.rate || '35.80'}</span>
@@ -155,7 +155,7 @@ export const ExchangePage = ({ lang }: ExchangePageProps) => {
                     <div className="font-extrabold text-base text-slate-900 font-mono">AKD / USD Parity</div>
                     <div className="text-[11px] font-mono text-emerald-600 flex items-center gap-1">
                       <TrendingUp size={12} />
-                      <span>1.0000 USD (0.00% 24h Volatility)</span>
+                      <span>1.00 USD (0.00% 24h Volatility)</span>
                     </div>
                   </div>
                 </div>

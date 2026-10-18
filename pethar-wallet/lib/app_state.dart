@@ -295,6 +295,21 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  void deleteNotification(String id) {
+    notifications.removeWhere((n) => n.id == id);
+    notifyListeners();
+  }
+
+  void clearAllNotifications() {
+    notifications.clear();
+    notifyListeners();
+  }
+
+  void resetDemoNotifications() {
+    notifications = List.from(sampleNotifications);
+    notifyListeners();
+  }
+
   void updateProfile({required String name, required String email, required String phone, required String petharId, required String location}) {
     profile.name = name;
     profile.email = email;

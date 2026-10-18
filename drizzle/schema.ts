@@ -14,7 +14,7 @@ export const accounts = pgTable('accounts', {
   userId: text('user_id'),
   accountNumber: varchar('account_number', { length: 32 }).notNull().unique(),
   currency: varchar('currency', { length: 8 }).default('AKD').notNull(),
-  balance: numeric('balance', { precision: 18, scale: 4 }).default('0.0000').notNull(),
+  balance: numeric('balance', { precision: 18, scale: 4 }).default('0.00').notNull(),
   type: accountTypeEnum('type').default('user').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

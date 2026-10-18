@@ -1799,28 +1799,56 @@ class _MainShellState extends State<MainShell> {
                     ),
                     if (appState.isAuthenticated) ...[
                       const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Text(
-                            appState.walletBalanceHidden ? '••••••' : '\$${currencyFmt.format(appState.usdAccountBalance)}',
-                            style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w900,
-                              fontFamily: 'monospace',
-                              color: Color(0xFF09090B),
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: () => appState.toggleWalletBalance(),
-                            child: Icon(
-                              appState.walletBalanceHidden ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                              size: 18,
-                              color: const Color(0xFFA1A1AA),
-                            ),
-                          ),
-                        ],
+                      Builder(
+                        builder: (context) {
+                          final balanceText = appState.walletBalanceHidden
+                              ? '••••••'
+                              : '\$${currencyFmt.format(appState.usdAccountBalance)}';
+                          // Dynamically scale down font size if amount is large
+                          final double fontSize;
+                          if (appState.walletBalanceHidden) {
+                            fontSize = 32.0;
+                          } else if (appState.usdAccountBalance >= 1000000000) {
+                            fontSize = 22.0;
+                          } else if (appState.usdAccountBalance >= 1000000) {
+                            fontSize = 25.0;
+                          } else if (balanceText.length > 12) {
+                            fontSize = 28.0;
+                          } else {
+                            fontSize = 32.0;
+                          }
+
+                          return Row(
+                            children: [
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    balanceText,
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      fontSize: fontSize,
+                                      fontWeight: FontWeight.w900,
+                                      fontFamily: 'monospace',
+                                      color: const Color(0xFF09090B),
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              GestureDetector(
+                                onTap: () => appState.toggleWalletBalance(),
+                                child: Icon(
+                                  appState.walletBalanceHidden ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                  size: 18,
+                                  color: const Color(0xFFA1A1AA),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 20),
                     ] else ...[

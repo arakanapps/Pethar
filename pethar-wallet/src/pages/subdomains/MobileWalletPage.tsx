@@ -2061,8 +2061,26 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
             {/* Total USD Account Balance or Logged-Out Welcome Prompt */}
             {isAuthenticated ? (
-              <div className="flex items-center gap-2.5">
-                <div className="text-3xl font-black font-mono text-zinc-950 tracking-tight">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div
+                  className={`font-black font-mono text-zinc-950 tracking-tight truncate ${
+                    walletBalanceHidden
+                      ? 'text-3xl'
+                      : usdAccountBalance >= 1_000_000_000
+                      ? 'text-xl sm:text-2xl'
+                      : usdAccountBalance >= 1_000_000
+                      ? 'text-2xl'
+                      : 'text-3xl'
+                  }`}
+                  title={
+                    walletBalanceHidden
+                      ? undefined
+                      : `$${usdAccountBalance.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}`
+                  }
+                >
                   {walletBalanceHidden
                     ? '••••••'
                     : `$${usdAccountBalance.toLocaleString(undefined, {
@@ -2073,7 +2091,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => setWalletBalanceHidden((h) => !h)}
-                  className="text-zinc-400 hover:text-zinc-700 cursor-pointer"
+                  className="text-zinc-400 hover:text-zinc-700 cursor-pointer shrink-0"
                 >
                   {walletBalanceHidden ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>

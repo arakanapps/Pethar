@@ -39,7 +39,7 @@
           "type": "numeric(18, 4)",
           "primaryKey": false,
           "notNull": true,
-          "default": "'0.0000'"
+          "default": "'0.00'"
         },
         "type": {
           "name": "type",
