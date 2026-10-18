@@ -105,15 +105,15 @@ export const wallets: WalletBalance[] = [
     currency: 'AKD',
     code: 'AKD',
     symbol: '₳',
-    balance: 12500.0,
-    totalBalance: 12500.0,
+    balance: 0.00,
+    totalBalance: 0.00,
     pendingBalance: 0.0,
     labelEn: 'Available Balance',
     labelMm: 'ရရှိနိုင်သော လက်ကျန်ငွေ',
     totalLabelEn: 'Total Balance',
     totalLabelMm: 'စုစုပေါင်း လက်ကျန်ငွေ',
     isReserveBacked: true,
-    usdEquivalent: 12500.0,
+    usdEquivalent: 0.00,
   },
 ]
 

@@ -553,7 +553,7 @@ export function AccountScreen({
 
   // Account Balances
   const akdBal = wallets.length > 0 ? wallets[0].balance : 14840.0
-  const usdBal = 12500.0 // Multi-stablecoin USD account
+  const usdBal = 0.00 // Multi-stablecoin USD account
   const totalUsd = akdBal + usdBal
   const totalMmk = totalUsd * 4500.0
   const totalThb = totalMmk / 115.0

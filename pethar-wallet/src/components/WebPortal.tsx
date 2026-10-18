@@ -36,7 +36,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
   const [txList, setTxList] = useState<Txn[]>([])
   const [fxList, setFxList] = useState<FxRateItem[]>([])
   const [contactList, setContactList] = useState<any[]>([])
-  const [walletBalance, setWalletBalance] = useState(12500.0)
+  const [walletBalance, setWalletBalance] = useState(0.00)
 
   useEffect(() => {
     let active = true
