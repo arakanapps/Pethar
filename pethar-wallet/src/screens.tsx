@@ -678,7 +678,7 @@ export function AccountScreen({
                 <div className="text-xs font-bold text-gray-900">
                   {isAk ? 'ဖေ့သာ ပိုက်ဆံအိတ်' : 'Péthar Wallet (AKD)'}
                 </div>
-                <div className="text-[10px] text-gray-400 font-mono">ARAK-8891-JACK</div>
+                <div className="text-[10px] text-gray-400 font-mono">ARAK-8891-USER</div>
               </div>
             </div>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -1622,7 +1622,7 @@ export function Send({
             recipientName={contact.name}
             recipientId={contact.id}
             senderName="User"
-            senderId="ARAK-8891-JACK"
+            senderId="ARAK-8891-USER"
             fee={0.0}
             autoSaved={true}
             onClose={() => go('home')}

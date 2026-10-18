@@ -32,7 +32,7 @@ class Transaction {
 
 UserProfile initialUserProfile = UserProfile(
   name: 'User', email: 'example@email.com', phone: '+95 9 881 204 991',
-  petharId: 'ARAK-8891-JACK', location: 'Sittwe · စစ်တွေ', accountTier: 'Normal',
+  petharId: 'ARAK-8891-USER', location: 'Sittwe · စစ်တွေ', accountTier: 'Normal',
   avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
 );
 

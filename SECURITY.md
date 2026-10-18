@@ -9,7 +9,7 @@
 We welcome responsible security research. Please do **NOT** open public GitHub issues for security vulnerabilities.
 
 Submit reports privately to our security operations team:
-* **Email:** [security@pethar.co.uk](mailto:security@pethar.co.uk)
+* **Email:** [pethar-app@protonmail.com](mailto:pethar-app@protonmail.com)
 * **Response SLA:** Initial triage within 24 hours; status updates every 48 hours.
 
 ### What to Include
