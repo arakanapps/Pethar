@@ -115,6 +115,10 @@ class _PayScreenState extends State<PayScreen> {
     ];
     _selectedRecipient = _recentContacts.first;
 
+    _amountCtrl.addListener(() {
+      if (mounted) setState(() {});
+    });
+
     // Check if user navigated from Favourites or Scanner
     final appState = Provider.of<AppState>(context, listen: false);
     _applyPendingPayContactSynchronous(appState);
@@ -223,13 +227,18 @@ class _PayScreenState extends State<PayScreen> {
     final amount = double.tryParse(_amountCtrl.text.trim()) ?? 0.0;
     final note = _noteCtrl.text.trim();
 
-    if (amount <= 0) {
-      setState(() => _errorMessage = 'Please enter an amount greater than 0');
+    final isAk = appState.language == 'ak';
+    if (amount <= 0 || amount < 1.0) {
+      setState(() => _errorMessage = isAk
+          ? 'အနည်းဆုံး 1.00 AKD လွှဲရပါမည် (At least 1.00)'
+          : 'Amount must be at least 1.00 AKD');
       return;
     }
 
     if (amount > appState.wallet.balance) {
-      setState(() => _errorMessage = 'Insufficient AKD balance for this transfer');
+      setState(() => _errorMessage = isAk
+          ? 'လက်ကျန်ငွေထက် ကျော်လွန်နေပါသည် (Over balance)'
+          : 'Over balance: Transfer amount exceeds available balance');
       return;
     }
 
@@ -930,6 +939,9 @@ class _PayScreenState extends State<PayScreen> {
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildScreen2Detail(AppState appState, bool isAk) {
     final noteChips = ['Salary', 'Payment', 'Bill', 'Family & Friends'];
+    final enteredAmount = double.tryParse(_amountCtrl.text.trim());
+    final isOverBalance = enteredAmount != null && enteredAmount > appState.wallet.balance;
+    final isUnderMin = enteredAmount != null && enteredAmount > 0 && enteredAmount < 1.0;
 
     return SingleChildScrollView(
       key: const ValueKey('screen2'),
@@ -1095,14 +1107,60 @@ class _PayScreenState extends State<PayScreen> {
                 ),
                 const SizedBox(height: 6),
 
-                // Under that: only show balance, no need AKD any more
-                Text(
-                  '${isAk ? 'လက်ကျန်ငွေ' : 'Balance'}: ${NumberFormat('#,##0.00').format(appState.wallet.balance)}',
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B),
-                  ),
+                // Under that: show balance and "At least" / "Over balance" dynamic text
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${isAk ? 'လက်ကျန်ငွေ' : 'Balance'}: ${NumberFormat('#,##0.00').format(appState.wallet.balance)}',
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                    if (isOverBalance)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error_outline_rounded, size: 12, color: Color(0xFFDC2626)),
+                          const SizedBox(width: 3),
+                          Text(
+                            isAk ? 'လက်ကျန်ထက် ကျော်လွန်ပါသည်' : 'Over balance',
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFFDC2626),
+                            ),
+                          ),
+                        ],
+                      )
+                    else if (isUnderMin)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.info_outline_rounded, size: 12, color: Color(0xFFEA580C)),
+                          const SizedBox(width: 3),
+                          Text(
+                            isAk ? 'အနည်းဆုံး 1.00' : 'At least 1.00',
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFFEA580C),
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Text(
+                        isAk ? 'အနည်းဆုံး: 1.00' : 'At least: 1.00',
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF94A3B8),
+                        ),
+                      ),
+                  ],
                 ),
 
                 const SizedBox(height: 16),
@@ -1216,6 +1274,67 @@ class _PayScreenState extends State<PayScreen> {
                   ),
                 ],
 
+                if (isOverBalance) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFFCA5A5)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626), size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            isAk
+                                ? 'လက်ကျန်ငွေထက် ကျော်လွန်နေပါသည် (Over balance)'
+                                : 'Over balance: Amount exceeds available balance',
+                            style: const TextStyle(
+                              color: Color(0xFFDC2626),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                if (isUnderMin) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7ED),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFFDBA74)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline_rounded, color: Color(0xFFEA580C), size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            isAk
+                                ? 'အနည်းဆုံး 1.00 AKD လွှဲရပါမည် (At least 1.00)'
+                                : 'At least 1.00: Minimum transfer amount is 1.00 AKD',
+                            style: const TextStyle(
+                              color: Color(0xFFEA580C),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 const SizedBox(height: 20),
 
                 // [Pay] Button
@@ -1224,19 +1343,21 @@ class _PayScreenState extends State<PayScreen> {
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: isOverBalance ? const Color(0xFFDC2626) : Colors.black,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                     ),
-                    onPressed: () => _onProcessPay(appState),
+                    onPressed: isOverBalance ? null : () => _onProcessPay(appState),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const WalletMinimalFlutterIcon(size: 20, color: Colors.white),
                         const SizedBox(width: 8),
                         Text(
-                          isAk ? 'ငွေပေးချေမည်' : 'Pay',
+                          isOverBalance
+                              ? (isAk ? 'လက်ကျန်ထက် ကျော်လွန်ပါသည် (Over Balance)' : 'Over Balance')
+                              : (isAk ? 'ငွေပေးချေမည်' : 'Pay'),
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                         ),
                       ],

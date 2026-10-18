@@ -28,6 +28,8 @@ import 'pos_terminal_screen.dart';
 import 'desktop_portal_screen.dart';
 import 'history_screen.dart';
 import 'topup_screen.dart';
+import 'bill_payment_screen.dart';
+import 'favourites_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({Key? key}) : super(key: key);
@@ -2157,6 +2159,8 @@ class _MainShellState extends State<MainShell> {
     if (appState.currentScreen == Screen.pay) return const PayScreen();
     if (appState.currentScreen == Screen.history) return const HistoryScreen();
     if (appState.currentScreen == Screen.topup) return const TopupScreen();
+    if (appState.currentScreen == Screen.billPayment) return const BillPaymentScreen();
+    if (appState.currentScreen == Screen.favourites) return const FavouritesScreen();
 
     int currentIndex = 0;
     switch (appState.currentScreen) {

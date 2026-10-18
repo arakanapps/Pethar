@@ -226,13 +226,83 @@ class FavoriteContact {
   String id;
   String initials;
   int colorValue;
-  FavoriteContact({required this.name, required this.mm, required this.id, required this.initials, required this.colorValue});
+  String? _phone;
+  String? _category;
+  String? _bank;
+
+  String get phone => _phone ?? '';
+  set phone(String val) => _phone = val;
+
+  String get category => (_category != null && _category!.isNotEmpty) ? _category! : 'Friends';
+  set category(String val) => _category = val;
+
+  String get bank => (_bank != null && _bank!.isNotEmpty) ? _bank! : 'Péthar Wallet';
+  set bank(String val) => _bank = val;
+
+  FavoriteContact({
+    required this.name,
+    required this.mm,
+    required this.id,
+    required this.initials,
+    required this.colorValue,
+    String phone = '',
+    String category = 'Friends',
+    String bank = 'Péthar Wallet',
+  })  : _phone = phone,
+        _category = category,
+        _bank = bank;
 }
 
 List<FavoriteContact> favoriteContacts = [
-  FavoriteContact(name: 'MYAT SOE', mm: 'မြတ်စိုး', id: 'ARAK-1024', initials: 'MS', colorValue: 0xFF2563EB),
-  FavoriteContact(name: 'TONY', mm: 'တိုနီ', id: 'ARAK-9921', initials: 'TN', colorValue: 0xFF059669),
-  FavoriteContact(name: 'CIMB WIRE', mm: 'စီအိုင်အမ်ဘီ', id: 'ARAK-5501', initials: 'CB', colorValue: 0xFFDC2626),
-  FavoriteContact(name: 'KO MIN AUNG', mm: 'မင်းအောင်', id: 'ARAK-8891', initials: 'MA', colorValue: 0xFFD97706),
+  FavoriteContact(
+    name: 'user',
+    mm: 'အသုံးပြုသူ',
+    id: 'ARAK-1024',
+    initials: 'U',
+    colorValue: 0xFF0284C7,
+    phone: '09795220917',
+    category: 'Personal',
+    bank: 'Péthar Wallet',
+  ),
+  FavoriteContact(
+    name: 'MYAT SOE',
+    mm: 'မြတ်စိုး',
+    id: 'ARAK-1024',
+    initials: 'MS',
+    colorValue: 0xFF2563EB,
+    phone: '09951234567',
+    category: 'Family',
+    bank: 'KBZPay',
+  ),
+  FavoriteContact(
+    name: 'TONY',
+    mm: 'တိုနီ',
+    id: 'ARAK-9921',
+    initials: 'TN',
+    colorValue: 0xFF059669,
+    phone: '09781122334',
+    category: 'Friends',
+    bank: 'Wave Money',
+  ),
+  FavoriteContact(
+    name: 'CIMB WIRE',
+    mm: 'စီအိုင်အမ်ဘီ',
+    id: 'ARAK-5501',
+    initials: 'CB',
+    colorValue: 0xFFDC2626,
+    phone: '+66 81 234 5678',
+    category: 'Business',
+    bank: 'CIMB Bank',
+  ),
+  FavoriteContact(
+    name: 'KO MIN AUNG',
+    mm: 'မင်းအောင်',
+    id: 'ARAK-8891',
+    initials: 'MA',
+    colorValue: 0xFFD97706,
+    phone: '09440112233',
+    category: 'Business',
+    bank: 'AYA Pay',
+  ),
 ];
 

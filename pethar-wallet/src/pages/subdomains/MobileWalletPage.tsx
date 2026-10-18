@@ -58,6 +58,7 @@ import {
   Ticket,
   Bug,
   Trash2,
+  Wifi,
 } from 'lucide-react'
 import {
   AccountScreen,
@@ -74,7 +75,7 @@ import { CryptoGateway } from '../../components/CryptoGateway'
 import { POSTerminal } from '../../components/POSTerminal'
 import { TransactionSlip } from '../../components/TransactionSlip'
 import { FakeQR } from '../../components/FakeQR'
-import { initialUserProfile, transactions, contacts, type UserProfile, type Txn } from '../../data'
+import { initialUserProfile, transactions, wallets, contacts, type UserProfile, type Txn } from '../../data'
 import type { Language } from '../../i18n'
 import { WalletMinimalIcon } from '@/components/WalletMinimalIcon'
 
@@ -501,6 +502,145 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   ])
   const [paySuccessTx, setPaySuccessTx] = useState<Txn | null>(null)
 
+  // Topup screen states
+  const [topupPhone, setTopupPhone] = useState<string>('09795220917')
+  const [topupActiveTab, setTopupActiveTab] = useState<'phoneTopup' | 'packages'>('phoneTopup')
+  const [topupHeaderStyle, setTopupHeaderStyle] = useState<'crossborder' | 'royalBlue'>('crossborder')
+  const [topupSelectedCategory, setTopupSelectedCategory] = useState<string>('All')
+  const [topupSelectedAmount, setTopupSelectedAmount] = useState<number>(500)
+  const [topupSelectedPackageId, setTopupSelectedPackageId] = useState<string>('pkg_1')
+  const [topupContactsModalOpen, setTopupContactsModalOpen] = useState<boolean>(false)
+  const [topupReviewModalOpen, setTopupReviewModalOpen] = useState<boolean>(false)
+  const [topupSuccessModalOpen, setTopupSuccessModalOpen] = useState<boolean>(false)
+  const [topupLastSuccessInfo, setTopupLastSuccessInfo] = useState<{
+    phone: string
+    operator: string
+    title: string
+    thb: number
+    akd: number
+  } | null>(null)
+
+  // Bill payment states (Screenshots 1, 2, 3)
+  const [billsRegion, setBillsRegion] = useState<'myanmar' | 'thailand'>('myanmar')
+  const [billsSearchQuery, setBillsSearchQuery] = useState<string>('')
+  const [billsDismissBanner, setBillsDismissBanner] = useState<boolean>(false)
+  const [selectedBiller, setSelectedBiller] = useState<{
+    id: string
+    name: string
+    category: string
+    section?: string
+    defaultAccount: string
+    accountLabel: string
+    defaultAmountMmk: number
+    defaultAmountThb: number
+    primaryColor: string
+    initials: string
+    hasKyoPhyae?: boolean
+  } | null>(null)
+  const [billerAccountInput, setBillerAccountInput] = useState<string>('')
+  const [isBillFetched, setIsBillFetched] = useState<boolean>(false)
+  const [billsSuccessModalOpen, setBillsSuccessModalOpen] = useState<boolean>(false)
+  const [lastBillSuccess, setLastBillSuccess] = useState<{
+    billerName: string
+    accountNo: string
+    amountMmk: number
+    amountThb: number
+    amountAkd: number
+    refId: string
+  } | null>(null)
+
+  // Favourites Management States
+  const [favouriteList, setFavouriteList] = useState<Array<{
+    id: string
+    name: string
+    fullName: string
+    mm: string
+    phone: string
+    initials: string
+    bg: string
+    bank: string
+    category: 'Personal' | 'Family' | 'Friends' | 'Business'
+  }>>([
+    {
+      id: 'ARAK-1024',
+      name: 'user',
+      fullName: 'user',
+      mm: 'အသုံးပြုသူ',
+      phone: '09795220917',
+      initials: 'U',
+      bg: 'from-[#38BDF8] to-[#0284C7]',
+      bank: 'Péthar Wallet',
+      category: 'Personal',
+    },
+    {
+      id: 'ARAK-8891',
+      name: 'MYAT SOE',
+      fullName: 'Myat Soe',
+      mm: 'မြတ်စိုး',
+      phone: '09951234567',
+      initials: 'MS',
+      bg: 'from-blue-500 to-indigo-600',
+      bank: 'KBZPay',
+      category: 'Family',
+    },
+    {
+      id: 'ARAK-9921',
+      name: 'TONY',
+      fullName: 'Tony',
+      mm: 'တိုနီ',
+      phone: '09781122334',
+      initials: 'TN',
+      bg: 'from-emerald-500 to-teal-600',
+      bank: 'Wave Money',
+      category: 'Friends',
+    },
+    {
+      id: 'ARAK-5501',
+      name: 'CIMB WIRE',
+      fullName: 'CIMB Wire',
+      mm: 'စီအိုင်အမ်ဘီ',
+      phone: '+66 81 234 5678',
+      initials: 'CB',
+      bg: 'from-rose-500 to-[#D91624]',
+      bank: 'CIMB Bank',
+      category: 'Business',
+    },
+    {
+      id: 'ARAK-3305',
+      name: 'KO MIN AUNG',
+      fullName: 'Ko Min Aung',
+      mm: 'မင်းအောင်',
+      phone: '09440112233',
+      initials: 'MA',
+      bg: 'from-amber-500 to-orange-600',
+      bank: 'AYA Pay',
+      category: 'Business',
+    },
+  ])
+
+  const [favSearchQuery, setFavSearchQuery] = useState<string>('')
+  const [favCategoryFilter, setFavCategoryFilter] = useState<string>('All')
+  const [favPinModalOpen, setFavPinModalOpen] = useState<boolean>(false)
+  const [favPinAction, setFavPinAction] = useState<{
+    title: string
+    description: string
+    onConfirm: () => void
+  } | null>(null)
+  const [favPinInput, setFavPinInput] = useState<string>('')
+  const [favPinError, setFavPinError] = useState<string>('')
+  const [favSuccessToast, setFavSuccessToast] = useState<string>('')
+
+  const [favEditModalOpen, setFavEditModalOpen] = useState<boolean>(false)
+  const [editingFavIndex, setEditingFavIndex] = useState<number | null>(null)
+  const [favFormName, setFavFormName] = useState<string>('')
+  const [favFormMm, setFavFormMm] = useState<string>('')
+  const [favFormPhone, setFavFormPhone] = useState<string>('')
+  const [favFormBank, setFavFormBank] = useState<string>('Péthar Wallet')
+  const [favFormCategory, setFavFormCategory] = useState<'Personal' | 'Family' | 'Friends' | 'Business'>('Friends')
+  const [favFormBg, setFavFormBg] = useState<string>('from-blue-500 to-indigo-600')
+
+  const [favDeleteTarget, setFavDeleteTarget] = useState<{ contact: any; index: number } | null>(null)
+
   // Account & Privacy / Security / Device Management / Sign Out States
   const [accountSubScreen, setAccountSubScreen] = useState<AccountSubScreen>('main')
   const [showSignOutModal, setShowSignOutModal] = useState<boolean>(false)
@@ -781,7 +921,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         icon: () => <Plus size={22} className="text-[#D91624]" strokeWidth={2.4} />,
         action: () =>
           requireVerified(isAk ? 'ငွေဖြည့်ရန် (Topup)' : 'Topup', () =>
-            setScreen('intl')
+            setScreen('topup')
           ),
       },
       {
@@ -790,7 +930,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         icon: () => <FileText size={20} className="text-[#D91624]" strokeWidth={2.2} />,
         action: () =>
           requireVerified(isAk ? 'ဘေလ်ဆောင်ရန် (Bill payment)' : 'Bill payment', () =>
-            setScreen('pos')
+            setScreen('bills')
           ),
       },
       {
@@ -812,27 +952,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       },
     ]
 
-    const favouriteUsers = [
-      {
-        id: 'ARAK-8891',
-        name: isAk ? 'အသုံးပြုသူ' : 'user',
-        fullName: 'Ko Min Aung',
-        initials: 'U',
-        bg: 'from-[#38BDF8] to-[#0284C7]',
-      },
-      ...contacts.slice(0, 3).map((c, idx) => ({
-        id: c.id,
-        name: isAk ? c.mm : c.name.split(' ').slice(-1)[0],
-        fullName: c.name,
-        initials: c.initials,
-        bg:
-          idx === 0
-            ? 'from-emerald-500 to-emerald-600'
-            : idx === 1
-              ? 'from-amber-500 to-orange-600'
-              : 'from-rose-500 to-[#D91624]',
-      })),
-    ]
+    const favouriteUsers = favouriteList
 
     return (
       <div className="min-h-full bg-gradient-to-b from-[#FFF5F5] via-[#F8FAFC] to-[#F4F6F9] text-zinc-900 pb-10">
@@ -1018,12 +1138,21 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   </span>
                   <span className="text-2xl sm:text-3xl font-black text-zinc-950 tabular-nums">
                     {(isAuthenticated ? akdBalance : 0).toLocaleString(undefined, {
-                      minimumFractionDigits: 4,
-                      maximumFractionDigits: 4,
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
                     })}
                   </span>
                 </>
               )}
+            </div>
+
+            <div className="mt-1.5 flex items-center gap-1.5 text-zinc-500 text-[11.5px] font-semibold">
+              <Info size={12} className="text-zinc-500 shrink-0" />
+              <span>
+                {isAk
+                  ? 'လွှဲပြောင်းမှု ခွင့်မပြုပါ (Transaction is not allowed)'
+                  : 'Transaction is not allowed'}
+              </span>
             </div>
           </div>
 
@@ -1057,9 +1186,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <button
                 type="button"
                 onClick={() =>
-                  requireVerified(isAk ? 'ငွေပေးချေရန်' : 'Pay', () => {
-                    setPayStep('input')
-                    setScreen('pay')
+                  requireVerified(isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites', () => {
+                    setScreen('favourites')
                   })
                 }
                 className="text-xs font-bold text-[#D91624] hover:underline cursor-pointer"
@@ -1118,13 +1246,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </button>
               ))}
 
-              {/* Add (+) Favourite Button -> Go to Pay */}
+              {/* Add (+) Favourite Button -> Go to Favourites */}
               <button
                 type="button"
                 onClick={() =>
-                  requireVerified(isAk ? 'ငွေပေးချေရန်' : 'Pay', () => {
-                    setPayStep('input')
-                    setScreen('pay')
+                  requireVerified(isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites', () => {
+                    setScreen('favourites')
                   })
                 }
                 aria-label="Add Favourite User"
@@ -2517,12 +2644,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     const handleExecutePay = () => {
       const amt = parseFloat(payAmount)
-      if (isNaN(amt) || amt <= 0) {
-        triggerSettingsToast(isAk ? 'ပမာဏ မှန်ကန်စွာ ရိုက်ထည့်ပါ' : 'Please enter a valid amount')
+      if (isNaN(amt) || amt <= 0 || amt < 1.0) {
+        triggerSettingsToast(isAk ? 'အနည်းဆုံး 1.00 AKD လွှဲရပါမည် (At least 1.00)' : 'Amount must be at least 1.00 AKD')
         return
       }
       if (amt > usdAccountBalance) {
-        triggerSettingsToast(isAk ? 'လက်ကျန်ငွေ မလုံလောက်ပါ' : 'Insufficient available balance')
+        triggerSettingsToast(isAk ? 'လက်ကျန်ငွေထက် ကျော်လွန်နေပါသည် (Over balance)' : 'Over balance: Transfer amount exceeds available balance')
         return
       }
       if (!payNote.trim()) {
@@ -2653,6 +2780,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     // ── Screen 2: Amount & Pay Screen (Picture 2: media_1792312005578_2310f939.jpg) ──
     if (payStep === 'detail') {
+      const parsedAmt = parseFloat(payAmount)
+      const isPayOverBalance = !isNaN(parsedAmt) && parsedAmt > usdAccountBalance
+      const isPayUnderMin = !isNaN(parsedAmt) && parsedAmt > 0 && parsedAmt < 1.0
+
       return (
         <div className="min-h-full bg-[#F4F5F8] flex flex-col text-zinc-900 pb-16">
           {/* Header matching Picture 2: Back (<) | Pay | History */}
@@ -2714,8 +2845,25 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 text-base font-bold font-mono text-zinc-900 focus:outline-none focus:border-black focus:bg-white"
                   />
                 </div>
-                <div className="text-[11.5px] text-zinc-500 font-medium mt-1.5">
-                  Balance: {usdAccountBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <div className="flex items-center justify-between text-[11.5px] mt-1.5 font-medium">
+                  <span className="text-zinc-500">
+                    {isAk ? 'လက်ကျန်ငွေ' : 'Balance'}: {usdAccountBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  {isPayOverBalance ? (
+                    <span className="text-red-600 font-extrabold flex items-center gap-1">
+                      <AlertCircle size={12} />
+                      {isAk ? 'လက်ကျန်ထက် ကျော်လွန်ပါသည်' : 'Over balance'}
+                    </span>
+                  ) : isPayUnderMin ? (
+                    <span className="text-amber-600 font-extrabold flex items-center gap-1">
+                      <AlertCircle size={12} />
+                      {isAk ? 'အနည်းဆုံး 1.00' : 'At least 1.00'}
+                    </span>
+                  ) : (
+                    <span className="text-zinc-400 font-semibold">
+                      {isAk ? 'အနည်းဆုံး: 1.00' : 'At least: 1.00'}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -2754,15 +2902,45 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 })}
               </div>
 
+              {/* Over balance and Minimum amount alert banners */}
+              {isPayOverBalance && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs font-bold text-red-700 flex items-center gap-2">
+                  <AlertCircle size={14} className="shrink-0 text-red-600" />
+                  <span>
+                    {isAk
+                      ? 'လက်ကျန်ငွေထက် ကျော်လွန်နေပါသည် (Over balance)'
+                      : 'Over balance: Amount exceeds available balance'}
+                  </span>
+                </div>
+              )}
+              {isPayUnderMin && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-700 flex items-center gap-2">
+                  <AlertCircle size={14} className="shrink-0 text-amber-600" />
+                  <span>
+                    {isAk
+                      ? 'အနည်းဆုံး 1.00 AKD လွှဲရပါမည် (At least 1.00)'
+                      : 'At least 1.00: Minimum transfer amount is 1.00 AKD'}
+                  </span>
+                </div>
+              )}
+
               {/* Pay Button */}
               <button
                 type="button"
                 onClick={handleExecutePay}
-                disabled={!payAmount || parseFloat(payAmount) <= 0 || !payNote.trim()}
-                className="w-full py-3.5 rounded-xl bg-black hover:bg-zinc-800 disabled:opacity-40 text-white font-extrabold text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer mt-2 flex items-center justify-center gap-2 group"
+                disabled={!payAmount || parseFloat(payAmount) <= 0 || isPayOverBalance || isPayUnderMin || !payNote.trim()}
+                className={`w-full py-3.5 rounded-xl ${
+                  isPayOverBalance
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-black hover:bg-zinc-800'
+                } disabled:opacity-40 text-white font-extrabold text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer mt-2 flex items-center justify-center gap-2 group`}
               >
                 <WalletMinimalIcon size={18} color="#FFFFFF" className="text-white shrink-0" />
-                <span>Pay</span>
+                <span>
+                  {isPayOverBalance
+                    ? (isAk ? 'လက်ကျန်ထက် ကျော်လွန်ပါသည် (Over Balance)' : 'Over Balance')
+                    : (isAk ? 'ငွေပေးချေမည်' : 'Pay')}
+                </span>
               </button>
             </div>
 
@@ -3396,6 +3574,2176 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     </button>
                   )
                 })}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     4.6. TOP UP SCREEN (MATCHING USER'S 5 REFERENCE SCREENSHOTS)
+  ═══════════════════════════════════════════════════════════════════════════ */
+  const renderTopupScreen = () => {
+    const isAk = lang === 'ak'
+    const thbRate = 115.0
+    const akdRate = 4500.0
+
+    const topupAmounts = [
+      500, 1000, 2000, 2500, 3000, 5000, 6000, 7500, 10000, 15000, 20000, 30000, 50000,
+    ]
+
+    const topupPackages = [
+      {
+        id: 'pkg_1',
+        name: 'Shal Suboo 195 MB (7Days)',
+        category: 'Data',
+        mmkPrice: 799,
+        thbPrice: 6.95,
+        validity: '7 Days',
+        quota: '195 MB',
+        isHot: false,
+      },
+      {
+        id: 'pkg_2',
+        name: 'Shal Suboo 263 MB (10Days)',
+        category: 'Data',
+        mmkPrice: 999,
+        thbPrice: 8.69,
+        validity: '10 Days',
+        quota: '263 MB',
+        isHot: false,
+      },
+      {
+        id: 'pkg_3',
+        name: 'Shal Suboo 421 MB (30Days)',
+        category: 'Data',
+        mmkPrice: 1599,
+        thbPrice: 13.90,
+        validity: '30 Days',
+        quota: '421 MB',
+        isHot: false,
+      },
+      {
+        id: 'pkg_4',
+        name: 'Shal Suboo 526 MB (30Days)',
+        category: 'Data',
+        mmkPrice: 1999,
+        thbPrice: 17.38,
+        validity: '30 Days',
+        quota: '526 MB',
+        isHot: false,
+      },
+      {
+        id: 'pkg_5',
+        name: 'Asia 9 Countries 1200MB (3 Days)',
+        category: 'Data Roaming',
+        mmkPrice: 14599,
+        thbPrice: 126.95,
+        validity: '3 Days',
+        quota: '1200 MB',
+        isHot: true,
+      },
+      {
+        id: 'pkg_6',
+        name: 'Asia 5 Data Saver (2.5 GB) (5 Days)',
+        category: 'Data Roaming',
+        mmkPrice: 19997,
+        thbPrice: 173.88,
+        validity: '5 Days',
+        quota: '2.5 GB',
+        isHot: true,
+      },
+      {
+        id: 'pkg_7',
+        name: 'Super Pack 1.5GB (30 Days)',
+        category: 'Super Pack',
+        mmkPrice: 3500,
+        thbPrice: 30.43,
+        validity: '30 Days',
+        quota: '1.5 GB',
+        isHot: false,
+      },
+      {
+        id: 'pkg_8',
+        name: 'Super Pack 3.0GB (30 Days)',
+        category: 'Super Pack',
+        mmkPrice: 6500,
+        thbPrice: 56.52,
+        validity: '30 Days',
+        quota: '3.0 GB',
+        isHot: false,
+      },
+    ]
+
+    const sampleContacts = [
+      { name: 'Jack (Self)', phone: '09795220917', op: 'ATOM' },
+      { name: 'Ko Min Aung', phone: '09251998791', op: 'MPT' },
+      { name: 'Daw Hla Hla', phone: '09691234567', op: 'mytel' },
+      { name: 'Mg Zaw Myo', phone: '09971234567', op: 'U9' },
+    ]
+
+    const detectOperator = (num: string) => {
+      const clean = num.replace(/[^0-9]/g, '')
+      if (clean.length < 3) return ''
+      if (clean.startsWith('097')) return 'ATOM'
+      if (
+        clean.startsWith('092') ||
+        clean.startsWith('094') ||
+        clean.startsWith('095') ||
+        clean.startsWith('098')
+      ) {
+        return 'MPT'
+      }
+      if (clean.startsWith('096')) return 'mytel'
+      if (clean.startsWith('099') || clean.startsWith('093')) return 'U9'
+      return 'ATOM'
+    }
+
+    const currentOperator = detectOperator(topupPhone)
+    const hasInput = topupPhone.trim().length >= 4
+
+    const selectedPkg =
+      topupPackages.find((p) => p.id === topupSelectedPackageId) || topupPackages[0]
+
+    const calculatedThb =
+      topupActiveTab === 'phoneTopup'
+        ? topupSelectedAmount / thbRate
+        : selectedPkg.thbPrice
+
+    const calculatedAkd =
+      topupActiveTab === 'phoneTopup'
+        ? topupSelectedAmount / akdRate
+        : selectedPkg.mmkPrice / akdRate
+
+    const productTitle =
+      topupActiveTab === 'phoneTopup'
+        ? `${topupSelectedAmount.toLocaleString()} MMK Phone Topup`
+        : selectedPkg.name
+
+    const filteredPackages =
+      topupSelectedCategory === 'All'
+        ? topupPackages
+        : topupPackages.filter((p) => p.category === topupSelectedCategory)
+
+    const renderMiniOpBadge = (op: string) => {
+      switch (op) {
+        case 'ATOM':
+          return (
+            <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#0284C7] text-white">
+              ATOM
+            </span>
+          )
+        case 'MPT':
+          return (
+            <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#EAB308] text-slate-900">
+              MPT
+            </span>
+          )
+        case 'mytel':
+          return (
+            <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#EA580C] text-white">
+              mytel
+            </span>
+          )
+        case 'U9':
+          return (
+            <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#D97706] text-white">
+              U9
+            </span>
+          )
+        default:
+          return null
+      }
+    }
+
+    const handleExecuteTopup = () => {
+      const costAkd = calculatedAkd
+      setAkdBalance((b) => Math.max(0, b - costAkd))
+
+      const nowStr = Date.now().toString()
+      const newTx: Txn = {
+        id: `TOPUP-${nowStr.slice(-6)}`,
+        refId: `REF${nowStr}`,
+        title: `${currentOperator || 'Mobile'} Topup: ${topupPhone}`,
+        titleMm: `${currentOperator || 'မိုဘိုင်း'} ဖုန်းငွေဖြည့်: ${topupPhone}`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        amount: -costAkd,
+        currency: 'AKD',
+        category: 'p2p',
+        status: 'SETTLED',
+        counterparty: `${currentOperator || 'Mobile'} Telecom`,
+        counterpartyMm: `${currentOperator || 'မိုဘိုင်း'} ဆက်သွယ်ရေး`,
+        fee: 0,
+        hash: `0x${nowStr.slice(-8)}...`,
+      }
+      transactions.unshift(newTx)
+
+      setTopupLastSuccessInfo({
+        phone: topupPhone,
+        operator: currentOperator || 'Mobile',
+        title: productTitle,
+        thb: calculatedThb,
+        akd: calculatedAkd,
+      })
+
+      setTopupReviewModalOpen(false)
+      setTopupSuccessModalOpen(true)
+    }
+
+    return (
+      <div className="min-h-full bg-[#F8F9FA] text-slate-800 flex flex-col pb-12">
+        {/* HEADER: ROYAL BLUE (Screenshot 1) vs CROSSBORDER (Screenshot 2-5) */}
+        {topupHeaderStyle === 'royalBlue' ? (
+          <div className="bg-[#0B57CF] text-white px-4 pt-4 pb-8 transition-all">
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setScreen('home')}
+                className="flex items-center space-x-1.5 cursor-pointer font-bold text-base hover:opacity-80 transition"
+              >
+                <ChevronLeft size={24} />
+                <span>Top Up</span>
+              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setTopupHeaderStyle('crossborder')}
+                  className="px-2.5 py-1 rounded-full bg-white/20 text-xs font-semibold hover:bg-white/30 transition cursor-pointer"
+                >
+                  ⇄ Crossborder
+                </button>
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                  <MoreHorizontal size={18} />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-between">
+              <div>
+                <div className="text-[11px] font-bold tracking-wider uppercase text-blue-200">
+                  {currentOperator || 'ATOM'}
+                </div>
+                <div className="text-2xl font-black tracking-tight mt-0.5">
+                  {topupPhone || '09795220917'}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTopupContactsModalOpen(true)}
+                className="w-10 h-10 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center cursor-pointer transition text-white"
+                title="Select Saved Contact"
+              >
+                <BookUser size={20} />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white border-b border-slate-200 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30 transition-all">
+            <button
+              type="button"
+              onClick={() => setScreen('home')}
+              className="p-1 -ml-1 text-slate-700 hover:text-slate-900 cursor-pointer"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <div className="text-base font-extrabold text-slate-900 tracking-tight">
+              Péthar Myanmar | Crossborder
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={() => setTopupHeaderStyle('royalBlue')}
+                className="p-1 text-slate-500 hover:text-[#0B57CF] cursor-pointer"
+                title="Switch to Royal Blue Style"
+              >
+                <span className="text-xs font-bold px-2 py-0.5 bg-blue-50 text-[#0B57CF] rounded-full border border-blue-200">
+                  ATOM style
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setScreen('home')}
+                className="p-1 text-slate-500 hover:text-slate-800 cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* BODY CONTAINER */}
+        <div
+          className={`flex-1 p-4 space-y-4 max-w-lg mx-auto w-full ${
+            topupHeaderStyle === 'royalBlue'
+              ? 'bg-white rounded-t-3xl -mt-4 shadow-sm'
+              : 'bg-white'
+          }`}
+        >
+          {/* Mobile No Input */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-700">Mobile No</label>
+            <div className="relative flex items-center">
+              <input
+                type="tel"
+                value={topupPhone}
+                onChange={(e) => setTopupPhone(e.target.value)}
+                placeholder="09xxxxxxxxx"
+                className="w-full pl-3.5 pr-20 py-3 rounded-xl border border-slate-300 text-[15px] font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#FF7A00] focus:ring-1 focus:ring-[#FF7A00]"
+              />
+              <div className="absolute right-2 flex items-center space-x-1">
+                {topupPhone.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setTopupPhone('')}
+                    className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+                  >
+                    <X size={15} />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setTopupContactsModalOpen(true)}
+                  className="p-2 rounded-lg bg-[#0B57CF] text-white hover:bg-[#0047AB] transition cursor-pointer shadow-sm"
+                  title="Select Contact"
+                >
+                  <BookUser size={15} />
+                </button>
+              </div>
+            </div>
+
+            {/* Operator Detected Subtitle (Screenshots 2, 4, 5) */}
+            {hasInput && currentOperator && (
+              <div className="flex items-center space-x-1.5 pt-1 text-xs font-bold text-slate-800 animate-in fade-in">
+                <span className="w-4 h-4 rounded-full bg-[#0B57CF] text-white flex items-center justify-center text-[8px]">
+                  ▶
+                </span>
+                <span>
+                  {currentOperator}{' '}
+                  {topupActiveTab === 'phoneTopup' ? 'Eload' : 'DataPack'}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Segmented Pill Tabs: Phone Topup vs Packages (Screenshots 2-5) */}
+          <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-full">
+            <button
+              type="button"
+              onClick={() => setTopupActiveTab('phoneTopup')}
+              className={`py-2.5 rounded-full text-xs font-bold transition cursor-pointer text-center ${
+                topupActiveTab === 'phoneTopup'
+                  ? 'bg-[#FF7A00] text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Phone Topup
+            </button>
+            <button
+              type="button"
+              onClick={() => setTopupActiveTab('packages')}
+              className={`py-2.5 rounded-full text-xs font-bold transition cursor-pointer text-center ${
+                topupActiveTab === 'packages'
+                  ? 'bg-[#FF7A00] text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Packages
+            </button>
+          </div>
+
+          {/* TAB 1: PHONE TOPUP */}
+          {topupActiveTab === 'phoneTopup' && (
+            <div className="space-y-4 pt-1">
+              <div className="text-xs font-bold text-slate-700">Select Amount (MMK)</div>
+
+              {/* 3-Column Amount Denomination Grid */}
+              <div className="grid grid-cols-3 gap-2.5">
+                {topupAmounts.map((amt) => {
+                  const isSelected = topupSelectedAmount === amt
+                  return (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setTopupSelectedAmount(amt)}
+                      className={`py-3.5 px-1 rounded-xl text-center font-bold text-sm transition cursor-pointer border ${
+                        isSelected
+                          ? 'bg-[#FF7A00] text-white border-[#FF7A00] shadow-sm'
+                          : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      {amt.toLocaleString()}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Exchange Rate Card (Screenshots 2-5) */}
+              <div className="bg-[#E8F1FC] border border-[#BFDBFE] rounded-xl px-4 py-3 text-xs font-bold text-slate-800">
+                Exchange rate: 1 THB = 115 MMK
+              </div>
+
+              {/* Dynamic Calculation Subtext */}
+              {hasInput && topupSelectedAmount > 0 && (
+                <div className="text-center text-xs font-medium text-slate-700">
+                  Your total is{' '}
+                  <span className="font-extrabold text-[#EA580C]">
+                    {(topupSelectedAmount / thbRate).toFixed(2)} THB
+                  </span>{' '}
+                  for {topupSelectedAmount.toLocaleString()} MMK
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 2: PACKAGES */}
+          {topupActiveTab === 'packages' && (
+            <div className="space-y-4 pt-1">
+              {/* Category Pills (Screenshot 1) */}
+              <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
+                {['All', 'Data Roaming', 'Super Pack', 'Data'].map((cat) => {
+                  const isSel = topupSelectedCategory === cat
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setTopupSelectedCategory(cat)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center space-x-1.5 border ${
+                        isSel
+                          ? 'bg-[#0B57CF] text-white border-[#0B57CF]'
+                          : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      {cat !== 'All' && <Wifi size={12} />}
+                      <span>{cat}</span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="text-xs font-bold text-slate-700">Select Package (MMK)</div>
+
+              {/* Exchange Rate Banner */}
+              <div className="bg-[#E8F1FC] border border-[#BFDBFE] rounded-xl px-4 py-3 text-xs font-bold text-slate-800">
+                Exchange rate: 1 THB = 115 MMK
+              </div>
+
+              {/* Package Cards List (Screenshots 1 & 5) */}
+              <div className="space-y-2.5">
+                {filteredPackages.map((pkg) => {
+                  const isSelected = topupSelectedPackageId === pkg.id
+                  return (
+                    <div
+                      key={pkg.id}
+                      onClick={() => setTopupSelectedPackageId(pkg.id)}
+                      className={`p-3.5 rounded-2xl border transition cursor-pointer flex items-center justify-between ${
+                        isSelected
+                          ? 'border-[#FF7A00] bg-[#FFF7ED] ring-1 ring-[#FF7A00]'
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs font-bold text-slate-900">{pkg.name}</span>
+                          {pkg.isHot && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-[#EF4444] text-white tracking-wider">
+                              HOT
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-slate-500 font-medium">
+                          Validity: {pkg.validity} • Quota: {pkg.quota}
+                        </div>
+                      </div>
+
+                      <div className="text-right space-y-1 shrink-0 pl-2">
+                        <div className="text-xs font-bold text-slate-900">
+                          {pkg.mmkPrice.toLocaleString()} MMK
+                        </div>
+                        <div className="inline-block px-2.5 py-0.5 rounded-full border border-[#FF7A00] text-[11px] font-bold text-[#EA580C] bg-white">
+                          {pkg.thbPrice.toFixed(2)} THB
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Package Selected Subtext */}
+              {hasInput && selectedPkg && (
+                <div className="text-center text-xs font-medium text-slate-700">
+                  Selected package:{' '}
+                  <span className="font-extrabold text-[#EA580C]">
+                    {selectedPkg.thbPrice.toFixed(2)} THB
+                  </span>{' '}
+                  ({selectedPkg.mmkPrice.toLocaleString()} MMK)
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Action Button: Review Topup Details (Screenshots 2-5) */}
+          <div className="pt-2">
+            <button
+              type="button"
+              disabled={!hasInput}
+              onClick={() => setTopupReviewModalOpen(true)}
+              className={`w-full py-3.5 rounded-full text-sm font-black transition cursor-pointer shadow-md ${
+                hasInput
+                  ? 'bg-[#FF7A00] hover:bg-[#EA6C00] text-white'
+                  : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+              }`}
+            >
+              {isAk ? 'အချက်အလက် စစ်ဆေးမည်' : 'Review Topup Details'}
+            </button>
+          </div>
+
+          {/* Operator Logos Row (ATOM, MPT, mytel, U9) */}
+          <div className="pt-3">
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { name: 'ATOM', phone: '09795220917', color: 'text-[#0284C7]' },
+                { name: 'MPT', phone: '09251998791', color: 'text-[#EAB308]' },
+                { name: 'mytel', phone: '09691234567', color: 'text-[#EA580C]' },
+                { name: 'U9', phone: '09971234567', color: 'text-[#D97706]' },
+              ].map((op) => {
+                const isActive = currentOperator.toLowerCase() === op.name.toLowerCase()
+                return (
+                  <button
+                    key={op.name}
+                    type="button"
+                    onClick={() => setTopupPhone(op.phone)}
+                    className={`py-2 px-1 rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center space-y-0.5 ${
+                      isActive
+                        ? 'border-[#0B57CF] bg-blue-50/50 shadow-sm'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <span className={`text-[12px] font-black ${op.color}`}>{op.name}</span>
+                    <span className="text-[9px] text-slate-400 font-medium">Auto-test</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Copyright Footer (Screenshots 2-5) */}
+          <div className="pt-4 text-center text-[11px] text-slate-400">
+            Copyright © TrueMoney / Péthar Myanmar 2026
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════════
+           MODAL 1: SAVED CONTACTS PICKER
+        ═══════════════════════════════════════════════════════════════════════ */}
+        {topupContactsModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+            <div className="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">Select Saved Contact</h3>
+                <button
+                  type="button"
+                  onClick={() => setTopupContactsModalOpen(false)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                {sampleContacts.map((c) => (
+                  <button
+                    key={c.phone}
+                    type="button"
+                    onClick={() => {
+                      setTopupPhone(c.phone)
+                      setTopupContactsModalOpen(false)
+                    }}
+                    className="w-full p-3 rounded-2xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 flex items-center justify-between transition cursor-pointer text-left"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-50 text-[#0B57CF] font-bold flex items-center justify-center text-sm">
+                        {c.name.substring(0, 1)}
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900">{c.name}</div>
+                        <div className="text-[11px] text-slate-500 font-mono">{c.phone}</div>
+                      </div>
+                    </div>
+                    {renderMiniOpBadge(c.op)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════════════
+           MODAL 2: REVIEW TOPUP DETAILS BOTTOM SHEET (MATCHING SCREENSHOT 3 & 4)
+        ═══════════════════════════════════════════════════════════════════════ */}
+        {topupReviewModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+            <div className="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-black text-slate-900">
+                  {isAk ? 'ငွေဖြည့်အချက်အလက် စစ်ဆေးရန်' : 'Review Topup Details'}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setTopupReviewModalOpen(false)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Recipient & Operator Box */}
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-2.5 text-xs">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium">Mobile Number</span>
+                  <span className="font-extrabold text-slate-900 font-mono text-sm">
+                    {topupPhone}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium">Operator</span>
+                  <div className="flex items-center space-x-1.5 font-bold text-slate-900">
+                    {renderMiniOpBadge(currentOperator)}
+                    <span>
+                      {currentOperator}{' '}
+                      {topupActiveTab === 'phoneTopup' ? 'Eload' : 'DataPack'}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium">Product / Plan</span>
+                  <span className="font-bold text-slate-900 text-right truncate max-w-[180px]">
+                    {productTitle}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium">Exchange Rate</span>
+                  <span className="font-bold text-[#0B57CF]">1 THB = 115 MMK</span>
+                </div>
+              </div>
+
+              {/* Total Amount Box */}
+              <div className="p-4 rounded-2xl bg-[#FFF7ED] border border-[#FED7AA] flex items-center justify-between">
+                <div>
+                  <div className="text-[11px] font-bold text-[#C2410C]">Total Amount to Pay</div>
+                  <div className="text-xl font-black text-[#EA580C] mt-0.5">
+                    {calculatedThb.toFixed(2)} THB
+                  </div>
+                </div>
+                <div className="px-3 py-1 rounded-full bg-white border border-[#FDBA74] text-xs font-black text-[#C2410C]">
+                  ≈ {calculatedAkd.toFixed(3)} AKD
+                </div>
+              </div>
+
+              {/* Confirm Button */}
+              <button
+                type="button"
+                onClick={handleExecuteTopup}
+                className="w-full py-3.5 rounded-full bg-[#FF7A00] hover:bg-[#EA6C00] text-white font-extrabold text-sm transition cursor-pointer shadow-md"
+              >
+                {isAk ? 'အတည်ပြုပြီး ငွေဖြည့်မည်' : 'Confirm & Pay'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════════════
+           MODAL 3: TOPUP SUCCESS RECEIPT
+        ═══════════════════════════════════════════════════════════════════════ */}
+        {topupSuccessModalOpen && topupLastSuccessInfo && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+            <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-[#ECFDF5] text-[#10B981] flex items-center justify-center mx-auto">
+                <CheckCircle2 size={36} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900">Top Up Successful!</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Successfully sent {topupLastSuccessInfo.title} to{' '}
+                  <span className="font-bold text-slate-800">
+                    {topupLastSuccessInfo.phone}
+                  </span>{' '}
+                  ({topupLastSuccessInfo.operator}).
+                </p>
+              </div>
+
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-xs space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Total Charged</span>
+                  <span className="font-black text-slate-900">
+                    {topupLastSuccessInfo.thb.toFixed(2)} THB (
+                    {topupLastSuccessInfo.akd.toFixed(3)} AKD)
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Transaction Status</span>
+                  <span className="font-bold text-[#10B981]">Instant Completed</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setTopupSuccessModalOpen(false)
+                  setScreen('home')
+                }}
+                className="w-full py-3.5 rounded-full bg-[#FF7A00] hover:bg-[#EA6C00] text-white font-extrabold text-sm transition cursor-pointer shadow-md"
+              >
+                Back to Home
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     BILL PAYMENT SCREEN (SCREENSHOTS 1, 2, 3: MYANMAR & THAILAND UTILITY BILLS)
+  ═══════════════════════════════════════════════════════════════════════════ */
+  const renderBillPaymentScreen = () => {
+    const isAk = lang === 'ak'
+    const thbRate = 115.0
+    const akdRate = 4500.0
+
+    // 9 Myanmar Billers (Screenshot 2)
+    const myanmarBillers = [
+      {
+        id: 'mm_aia',
+        name: 'AIA Myanmar Life Insurance',
+        category: 'Insurance',
+        defaultAccount: 'POL-982140021',
+        accountLabel: 'Policy Number',
+        defaultAmountMmk: 45000,
+        defaultAmountThb: 391.3,
+        primaryColor: '#D91624',
+        initials: 'AIA',
+        hasKyoPhyae: true,
+      },
+      {
+        id: 'mm_alliance',
+        name: 'Alliance Microfinance',
+        category: 'Microfinance',
+        defaultAccount: 'ALN-501923',
+        accountLabel: 'Customer / Loan ID',
+        defaultAmountMmk: 30000,
+        defaultAmountThb: 260.87,
+        primaryColor: '#0D9488',
+        initials: 'ALN',
+      },
+      {
+        id: 'mm_atom',
+        name: 'ATOM Broadband & Smart Device',
+        category: 'Broadband & Device',
+        defaultAccount: '09795220917',
+        accountLabel: 'Account ID / Mobile No',
+        defaultAmountMmk: 32000,
+        defaultAmountThb: 278.26,
+        primaryColor: '#0284C7',
+        initials: 'ATOM',
+      },
+      {
+        id: 'mm_aya',
+        name: 'AYA SOMPO Insurance',
+        category: 'General Insurance',
+        defaultAccount: 'AYS-771209',
+        accountLabel: 'Policy No / Vehicle Reg',
+        defaultAmountMmk: 50000,
+        defaultAmountThb: 434.78,
+        primaryColor: '#E11D48',
+        initials: 'AYA',
+      },
+      {
+        id: 'mm_moee',
+        name: 'Electricity Bill (Bago)',
+        category: 'Utilities & Power',
+        defaultAccount: 'BGO-E-10294',
+        accountLabel: 'Meter Box / Consumer No',
+        defaultAmountMmk: 65600,
+        defaultAmountThb: 570.43,
+        primaryColor: '#1D4ED8',
+        initials: 'MOEE',
+      },
+      {
+        id: 'mm_capital',
+        name: 'Capital Taiyo Life Insurance',
+        category: 'Life Insurance',
+        defaultAccount: 'CTL-441029',
+        accountLabel: 'Policy Number',
+        defaultAmountMmk: 28000,
+        defaultAmountThb: 243.48,
+        primaryColor: '#2563EB',
+        initials: 'CTL',
+      },
+      {
+        id: 'mm_city',
+        name: 'City Rewards',
+        category: 'Retail & Supermarket',
+        defaultAccount: 'CR-889102',
+        accountLabel: 'Member ID / Phone',
+        defaultAmountMmk: 15000,
+        defaultAmountThb: 130.43,
+        primaryColor: '#9333EA',
+        initials: 'CR',
+      },
+      {
+        id: 'mm_excise',
+        name: 'Excise Revenue (NayPyiTaw)',
+        category: 'Government Tax & Revenue',
+        defaultAccount: 'NPT-EX-3041',
+        accountLabel: 'Assessment / Tax ID',
+        defaultAmountMmk: 20000,
+        defaultAmountThb: 173.91,
+        primaryColor: '#DC2626',
+        initials: 'EXC',
+      },
+      {
+        id: 'mm_hana',
+        name: 'Hana Microfinance Limited',
+        category: 'Microfinance & Loans',
+        defaultAccount: 'HNA-19283',
+        accountLabel: 'Contract / Account No',
+        defaultAmountMmk: 25000,
+        defaultAmountThb: 217.39,
+        primaryColor: '#059669',
+        initials: 'HNA',
+      },
+    ]
+
+    // Thailand Utility Billers (Screenshot 1)
+    const thailandBillers = [
+      {
+        id: 'th_dtac',
+        name: 'Dtac (Postpaid)',
+        category: 'Telecom',
+        section: 'Dtac Bills',
+        defaultAccount: '0812345678',
+        accountLabel: 'Mobile / Account No',
+        defaultAmountMmk: 68885,
+        defaultAmountThb: 599.0,
+        primaryColor: '#0284C7',
+        initials: 'DTAC',
+      },
+      {
+        id: 'th_true',
+        name: 'TrueMove H/Online/Visions/True Group',
+        category: 'Telecom & TV',
+        section: 'True Bills',
+        defaultAccount: '0958765432',
+        accountLabel: 'Subscriber / Service No',
+        defaultAmountMmk: 91885,
+        defaultAmountThb: 799.0,
+        primaryColor: '#EF4444',
+        initials: 'TRUE',
+      },
+      {
+        id: 'th_mea',
+        name: 'Metropolitan Electricity',
+        category: 'Electricity',
+        section: 'Utility',
+        defaultAccount: 'CA-100293847',
+        accountLabel: 'MEA CA / Account No',
+        defaultAmountMmk: 143750,
+        defaultAmountThb: 1250.0,
+        primaryColor: '#EA580C',
+        initials: 'MEA',
+      },
+      {
+        id: 'th_pea',
+        name: 'Provincial Electricity',
+        category: 'Electricity',
+        section: 'Utility',
+        defaultAccount: 'PEA-9920145',
+        accountLabel: 'PEA CA No',
+        defaultAmountMmk: 112700,
+        defaultAmountThb: 980.0,
+        primaryColor: '#7C3AED',
+        initials: 'PEA',
+      },
+      {
+        id: 'th_mwa',
+        name: 'Metropolitan Water Authority',
+        category: 'Waterworks',
+        section: 'Utility',
+        defaultAccount: 'MWA-4412098',
+        accountLabel: 'Customer Code',
+        defaultAmountMmk: 27600,
+        defaultAmountThb: 240.0,
+        primaryColor: '#0284C7',
+        initials: 'MWA',
+      },
+      {
+        id: 'th_pwa',
+        name: 'Provincial Waterworks',
+        category: 'Waterworks',
+        section: 'Utility',
+        defaultAccount: 'PWA-6651203',
+        accountLabel: 'User ID',
+        defaultAmountMmk: 21275,
+        defaultAmountThb: 185.0,
+        primaryColor: '#0369A1',
+        initials: 'PWA',
+      },
+      {
+        id: 'th_dlt',
+        name: 'Motor Vehicle Tax',
+        category: 'Transport & Tax',
+        section: 'Utility',
+        defaultAccount: '9กก-8821',
+        accountLabel: 'License Plate / Chassis No',
+        defaultAmountMmk: 172500,
+        defaultAmountThb: 1500.0,
+        primaryColor: '#9333EA',
+        initials: 'DLT',
+      },
+      {
+        id: 'th_rd',
+        name: 'Tax (Revenue Dept.)',
+        category: 'Government Tax',
+        section: 'Utility',
+        defaultAccount: 'TAX-1102938475',
+        accountLabel: 'Taxpayer ID / Ref No',
+        defaultAmountMmk: 230000,
+        defaultAmountThb: 2000.0,
+        primaryColor: '#D97706',
+        initials: 'RD',
+      },
+      {
+        id: 'th_easypass',
+        name: 'Easy Pass',
+        category: 'Toll & Expressway',
+        section: 'Utility',
+        defaultAccount: 'OBU-88192039',
+        accountLabel: 'Smart Card No / OBU ID',
+        defaultAmountMmk: 57500,
+        defaultAmountThb: 500.0,
+        primaryColor: '#1D4ED8',
+        initials: 'PASS',
+      },
+    ]
+
+    const handleSelectBiller = (biller: typeof myanmarBillers[0]) => {
+      setSelectedBiller(biller)
+      setBillerAccountInput(biller.defaultAccount)
+      setIsBillFetched(true)
+    }
+
+    const handleConfirmBillPayment = () => {
+      if (!selectedBiller) return
+      const isMm = billsRegion === 'myanmar'
+      const mmkAmount = isMm ? selectedBiller.defaultAmountMmk : selectedBiller.defaultAmountThb * thbRate
+      const thbAmount = isMm ? selectedBiller.defaultAmountMmk / thbRate : selectedBiller.defaultAmountThb
+      const akdAmount = mmkAmount / akdRate
+
+      // Deduct balance
+      setAkdBalance((prev) => Math.max(0, prev - akdAmount))
+      if (wallets.length > 0) {
+        wallets[0].balance = Math.max(0, wallets[0].balance - akdAmount)
+      }
+
+      // Add to transactions
+      const newTx: Txn = {
+        id: `TXN-BILL-${Date.now()}`,
+        refId: billerAccountInput || selectedBiller.defaultAccount,
+        title: `Bill Payment - ${selectedBiller.name}`,
+        titleMm: `${selectedBiller.name} ဘေလ်ပေးချေခြင်း`,
+        category: 'pos',
+        amount: akdAmount,
+        currency: 'AKD',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'SETTLED',
+        counterparty: selectedBiller.name,
+        counterpartyMm: selectedBiller.name,
+        fee: 0,
+        hash: `0x${Math.random().toString(16).substring(2, 10)}...${Math.random().toString(16).substring(2, 6)}`,
+      }
+      transactions.unshift(newTx)
+
+      setLastBillSuccess({
+        billerName: selectedBiller.name,
+        accountNo: billerAccountInput || selectedBiller.defaultAccount,
+        amountMmk: mmkAmount,
+        amountThb: thbAmount,
+        amountAkd: akdAmount,
+        refId: newTx.id,
+      })
+      setBillsSuccessModalOpen(true)
+    }
+
+    // ── IF BILLER DETAIL VIEW IS OPEN (SCREENSHOT 3) ─────────────────────────
+    if (selectedBiller) {
+      const isMm = billsRegion === 'myanmar'
+      const mmkAmount = isMm ? selectedBiller.defaultAmountMmk : selectedBiller.defaultAmountThb * thbRate
+      const thbAmount = isMm ? selectedBiller.defaultAmountMmk / thbRate : selectedBiller.defaultAmountThb
+      const akdAmount = mmkAmount / akdRate
+
+      return (
+        <div className="min-h-full bg-[#F4F5F8] flex flex-col">
+          {/* Header Bar with Royal Blue #0B57CF */}
+          <div className="bg-[#0B57CF] text-white pt-4 pb-6 px-4">
+            <div className="flex items-center space-x-3 mb-4">
+              <button
+                type="button"
+                onClick={() => setSelectedBiller(null)}
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 cursor-pointer"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <h1 className="text-base font-bold truncate flex-1">
+                {selectedBiller.name}
+              </h1>
+            </div>
+
+            {/* Embedded Rounded Pill Input with Green Circular Search Button [🔍] */}
+            <div className="bg-white rounded-full px-4 py-1.5 flex items-center justify-between shadow-md">
+              <input
+                type="text"
+                value={billerAccountInput}
+                onChange={(e) => setBillerAccountInput(e.target.value)}
+                placeholder={`Enter ${selectedBiller.accountLabel}`}
+                className="w-full text-slate-800 font-semibold text-sm outline-none bg-transparent"
+              />
+              <button
+                type="button"
+                onClick={() => setIsBillFetched(true)}
+                className="w-9 h-9 rounded-full bg-[#00A859] hover:bg-[#008f4c] text-white flex items-center justify-center shrink-0 cursor-pointer transition shadow-sm"
+              >
+                <Search size={16} strokeWidth={2.5} />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 p-4 space-y-4">
+            {/* Info Hint */}
+            <div className="flex items-start space-x-2 text-slate-700 text-xs font-semibold px-1">
+              <Info size={16} className="text-slate-500 shrink-0 mt-0.5" />
+              <span>How to make bill payment for {selectedBiller.name}</span>
+            </div>
+
+            {/* 3-Step Guide Card (Screenshot 3) */}
+            <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-3.5">
+              <div>
+                <div className="text-[11px] font-black text-slate-900 uppercase tracking-wider">
+                  STEP 1
+                </div>
+                <div className="text-xs text-slate-600 mt-0.5">
+                  Please enter Customer Policy Number and click "Next".
+                </div>
+              </div>
+
+              <div>
+                <div className="text-[11px] font-black text-slate-900 uppercase tracking-wider">
+                  STEP 2
+                </div>
+                <div className="text-xs text-slate-600 mt-0.5">
+                  Choose bill you would like to pay.
+                </div>
+              </div>
+
+              <div>
+                <div className="text-[11px] font-black text-slate-900 uppercase tracking-wider">
+                  STEP 3
+                </div>
+                <div className="text-xs text-slate-600 mt-0.5">
+                  Click "Pay" and enter PIN to complete the payment.
+                </div>
+              </div>
+            </div>
+
+            {/* Bill Statement Card */}
+            {isBillFetched && (
+              <div className="bg-white rounded-2xl p-4 border border-blue-100 shadow-xs space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <span className="text-xs font-bold text-slate-800">
+                    Bill Statement (Oct 2026)
+                  </span>
+                  <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                    Due in 7 days
+                  </span>
+                </div>
+
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Customer Name</span>
+                    <span className="font-bold text-slate-800">Jack</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Account / Policy</span>
+                    <span className="font-mono font-bold text-slate-800">
+                      {billerAccountInput || selectedBiller.defaultAccount}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Billing Cycle</span>
+                    <span className="font-semibold text-slate-800">
+                      01/10/2026 - 31/10/2026
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Service Fee</span>
+                    <span className="font-bold text-emerald-600">0.00 (Free)</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-100 pt-3">
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-xs font-semibold text-slate-600">
+                      Outstanding Bill
+                    </span>
+                    <span className="text-lg font-black text-[#FF7A00]">
+                      {isMm
+                        ? `${mmkAmount.toLocaleString()} MMK`
+                        : `${thbAmount.toFixed(2)} THB`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-[11px] font-semibold text-sky-600 mt-0.5">
+                    <span>≈ {thbAmount.toFixed(2)} THB</span>
+                    <span>≈ {akdAmount.toFixed(3)} AKD</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Confirm & Pay Button */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleConfirmBillPayment}
+                className="w-full py-4 rounded-2xl bg-[#FF7A00] hover:bg-[#EA6C00] text-white font-extrabold text-sm transition cursor-pointer shadow-lg active:scale-98"
+              >
+                Confirm & Pay Bill ({akdAmount.toFixed(3)} AKD)
+              </button>
+            </div>
+          </div>
+
+          {/* Success Dialog Modal */}
+          {billsSuccessModalOpen && lastBillSuccess && (
+            <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+              <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl space-y-4 text-center">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
+                  <CheckCircle2 size={36} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900">
+                    Bill Paid Successfully!
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Payment for {lastBillSuccess.billerName} has been processed.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 rounded-2xl p-4 text-xs space-y-2 text-left border border-slate-100">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Account / Ref</span>
+                    <span className="font-mono font-bold text-slate-800">
+                      {lastBillSuccess.accountNo}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Amount Paid</span>
+                    <span className="font-bold text-slate-900">
+                      {lastBillSuccess.amountMmk.toLocaleString()} MMK
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Charged</span>
+                    <span className="font-bold text-[#FF7A00]">
+                      ≈ {lastBillSuccess.amountAkd.toFixed(3)} AKD
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBillsSuccessModalOpen(false)
+                    setSelectedBiller(null)
+                    setScreen('home')
+                  }}
+                  className="w-full py-3.5 rounded-2xl bg-[#0B57CF] hover:bg-[#0947a8] text-white font-extrabold text-sm transition cursor-pointer shadow-md"
+                >
+                  Back to Home
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    // ── MAIN BILL LIST VIEW (SCREENSHOT 1 & SCREENSHOT 2) ───────────────────
+    const filteredThailandBillers = thailandBillers.filter(
+      (b) =>
+        b.name.toLowerCase().includes(billsSearchQuery.toLowerCase()) ||
+        b.category.toLowerCase().includes(billsSearchQuery.toLowerCase()) ||
+        b.section.toLowerCase().includes(billsSearchQuery.toLowerCase())
+    )
+
+    const filteredMyanmarBillers = myanmarBillers.filter(
+      (b) =>
+        b.name.toLowerCase().includes(billsSearchQuery.toLowerCase()) ||
+        b.category.toLowerCase().includes(billsSearchQuery.toLowerCase())
+    )
+
+    return (
+      <div className="min-h-full bg-[#F4F5F8] flex flex-col">
+        {/* Top Region Toggle Pill Bar */}
+        <div className="bg-white px-4 pt-3 pb-2.5 border-b border-slate-100">
+          <div className="flex items-center bg-slate-100 p-1 rounded-full">
+            <button
+              type="button"
+              onClick={() => {
+                setBillsRegion('myanmar')
+                setBillsSearchQuery('')
+              }}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-full transition cursor-pointer ${
+                billsRegion === 'myanmar'
+                  ? 'bg-[#0B57CF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Myanmar Bills
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setBillsRegion('thailand')
+                setBillsSearchQuery('')
+              }}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-full transition cursor-pointer ${
+                billsRegion === 'thailand'
+                  ? 'bg-[#0B57CF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Crossborder (Thailand)
+            </button>
+          </div>
+        </div>
+
+        {/* ── MYANMAR BILLS VIEW (SCREENSHOT 2) ──────────────────────────────── */}
+        {billsRegion === 'myanmar' && (
+          <div>
+            {/* Header: Royal Blue with < Bills Payment and History on Right */}
+            <div className="bg-[#0B57CF] text-white px-4 py-3.5 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setScreen('home')}
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 cursor-pointer"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <h1 className="text-base font-bold">
+                  {isAk ? 'ဘေလ်ပေးချေခြင်း' : 'Bills Payment'}
+                </h1>
+              </div>
+              <button
+                type="button"
+                onClick={() => setScreen('history')}
+                className="text-xs font-bold text-white hover:underline cursor-pointer px-2 py-1"
+              >
+                {isAk ? 'မှတ်တမ်း' : 'History'}
+              </button>
+            </div>
+
+            {/* List of 9 Myanmar Billers (Screenshot 2) */}
+            <div className="p-4 space-y-2.5">
+              {filteredMyanmarBillers.map((biller) => (
+                <div
+                  key={biller.id}
+                  onClick={() => handleSelectBiller(biller)}
+                  className="relative bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs flex items-center justify-between hover:border-blue-400 hover:shadow-sm transition cursor-pointer active:scale-99"
+                >
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <div
+                      className="w-10 h-10 rounded-full border-2 border-slate-100 flex items-center justify-center font-black text-xs shrink-0"
+                      style={{ color: biller.primaryColor }}
+                    >
+                      {biller.initials}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-slate-900 truncate">
+                        {biller.name}
+                      </div>
+                      <div className="text-[10px] text-slate-400 truncate mt-0.5">
+                        {biller.category}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2 shrink-0">
+                    {/* Floating Pill for Kyo Phyae badge on AIA (Screenshot 2) */}
+                    {biller.hasKyoPhyae && (
+                      <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#0284C7] to-[#0B57CF] text-white text-[10px] font-bold shadow-xs flex items-center space-x-1">
+                        <span>Kyo Phyae &gt;</span>
+                      </span>
+                    )}
+                    <ChevronRight size={18} className="text-slate-400" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── THAILAND UTILITY BILLS VIEW (SCREENSHOT 1) ────────────────────── */}
+        {billsRegion === 'thailand' && (
+          <div>
+            {/* Header: Clean White Header < Pay Utility Bills */}
+            <div className="bg-white border-b border-slate-100 px-4 py-3.5 flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={() => setScreen('home')}
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-800 cursor-pointer"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <h1 className="text-base font-extrabold text-slate-900">
+                Pay Utility Bills
+              </h1>
+            </div>
+
+            {/* Rounded Search Bar */}
+            <div className="p-4 bg-white border-b border-slate-100">
+              <div className="bg-slate-100 rounded-full px-4 py-2 flex items-center space-x-2">
+                <Search size={16} className="text-slate-400 shrink-0" />
+                <input
+                  type="text"
+                  value={billsSearchQuery}
+                  onChange={(e) => setBillsSearchQuery(e.target.value)}
+                  placeholder="Search utility bill"
+                  className="w-full text-xs text-slate-800 font-medium outline-none bg-transparent"
+                />
+                {billsSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setBillsSearchQuery('')}
+                    className="text-slate-400 hover:text-slate-600"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Thai Red Cross Charity Banner (Screenshot 1) */}
+            {!billsDismissBanner && (
+              <div className="m-4 p-3.5 rounded-2xl bg-[#FFF9E6] border border-amber-200/80 shadow-xs relative flex items-center justify-between">
+                <div className="flex items-center space-x-3 pr-6">
+                  <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                    <span className="text-lg">❤️</span>
+                  </div>
+                  <div>
+                    <div className="text-xs font-black text-[#D91624]">
+                      ร่วมสมทบทุน สภากาชาดไทย
+                    </div>
+                    <div className="text-[11px] text-amber-900 mt-0.5">
+                      ช่วยเหลือผู้ป่วยปลูกถ่ายอวัยวะและดวงตา
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setBillsDismissBanner(true)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 cursor-pointer absolute top-2 right-2"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+
+            {/* Categorized Sections: Dtac Bills, True Bills, Utility (Screenshot 1) */}
+            <div className="space-y-4 pb-6">
+              {['Dtac Bills', 'True Bills', 'Utility'].map((sec) => {
+                const secBillers = filteredThailandBillers.filter((b) => b.section === sec)
+                if (secBillers.length === 0) return null
+
+                return (
+                  <div key={sec} className="space-y-1">
+                    {/* Light Grey Divider Section Header */}
+                    <div className="bg-slate-200/70 px-4 py-1.5 text-xs font-bold text-slate-700">
+                      {sec}
+                    </div>
+
+                    <div className="bg-white divide-y divide-slate-100">
+                      {secBillers.map((biller) => (
+                        <div
+                          key={biller.id}
+                          onClick={() => handleSelectBiller(biller)}
+                          className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition cursor-pointer"
+                        >
+                          <div className="flex items-center space-x-3 min-w-0">
+                            <div
+                              className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center font-bold text-xs shrink-0"
+                              style={{ color: biller.primaryColor }}
+                            >
+                              {biller.initials}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold text-slate-900 truncate">
+                                {biller.name}
+                              </div>
+                              <div className="text-[10px] text-slate-400">
+                                {biller.category}
+                              </div>
+                            </div>
+                          </div>
+                          <ChevronRight size={18} className="text-slate-400 shrink-0" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     4.7. FAVOURITES MANAGEMENT SCREEN (CRUD + 6-DIGIT PIN AUTHORIZATION)
+  ═══════════════════════════════════════════════════════════════════════════ */
+  const renderFavouritesScreen = () => {
+    const isAk = lang === 'ak'
+    const query = favSearchQuery.trim().toLowerCase()
+    const filteredList = favouriteList
+      .map((item, idx) => ({ item, originalIndex: idx }))
+      .filter(({ item }) => {
+        const matchesCategory =
+          favCategoryFilter === 'All' ||
+          item.category.toLowerCase() === favCategoryFilter.toLowerCase()
+        const matchesQuery =
+          !query ||
+          item.name.toLowerCase().includes(query) ||
+          item.fullName.toLowerCase().includes(query) ||
+          item.mm.toLowerCase().includes(query) ||
+          item.id.toLowerCase().includes(query) ||
+          item.phone.toLowerCase().includes(query) ||
+          item.bank.toLowerCase().includes(query)
+        return matchesCategory && matchesQuery
+      })
+
+    const avatarGradients = [
+      'from-[#38BDF8] to-[#0284C7]', // Blue
+      'from-blue-500 to-indigo-600', // Royal Blue
+      'from-emerald-500 to-teal-600', // Emerald
+      'from-rose-500 to-[#D91624]', // Crimson
+      'from-amber-500 to-orange-600', // Amber
+      'from-purple-500 to-violet-700', // Purple
+      'from-teal-500 to-emerald-700', // Teal
+    ]
+
+    const banksList = [
+      'Péthar Wallet',
+      'KBZPay',
+      'Wave Money',
+      'AYA Pay',
+      'CB Pay',
+      'CIMB Bank',
+      'Other',
+    ]
+
+    const categoriesList: Array<'Personal' | 'Family' | 'Friends' | 'Business'> = [
+      'Personal',
+      'Family',
+      'Friends',
+      'Business',
+    ]
+
+    const openAddModal = () => {
+      setEditingFavIndex(null)
+      setFavFormName('')
+      setFavFormMm('')
+      setFavFormPhone('')
+      setFavFormBank('Péthar Wallet')
+      setFavFormCategory('Friends')
+      setFavFormBg('from-blue-500 to-indigo-600')
+      setFavEditModalOpen(true)
+    }
+
+    const openEditModal = (contact: (typeof favouriteList)[0], index: number) => {
+      setEditingFavIndex(index)
+      setFavFormName(contact.name)
+      setFavFormMm(contact.mm)
+      setFavFormPhone(contact.phone || contact.id)
+      setFavFormBank(contact.bank || 'Péthar Wallet')
+      setFavFormCategory(contact.category || 'Friends')
+      setFavFormBg(contact.bg || 'from-blue-500 to-indigo-600')
+      setFavEditModalOpen(true)
+    }
+
+    const requestPinAuthorization = (
+      title: string,
+      description: string,
+      onConfirm: () => void
+    ) => {
+      setFavPinAction({ title, description, onConfirm })
+      setFavPinInput('')
+      setFavPinError('')
+      setFavPinModalOpen(true)
+    }
+
+    const handlePinDigit = (digit: string) => {
+      if (digit === '.') return
+      if (favPinInput.length < 6) {
+        const next = favPinInput + digit
+        setFavPinInput(next)
+        setFavPinError('')
+
+        if (next.length === 6) {
+          if (next === '123456' || next === '000000') {
+            setTimeout(() => {
+              if (favPinAction) {
+                favPinAction.onConfirm()
+              }
+              setFavPinModalOpen(false)
+              setFavPinAction(null)
+              setFavPinInput('')
+              setFavSuccessToast(
+                isAk
+                  ? 'အပြောင်းအလဲ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ'
+                  : 'Action authorized and saved successfully!'
+              )
+              setTimeout(() => setFavSuccessToast(''), 3000)
+            }, 250)
+          } else {
+            setFavPinError('Incorrect PIN. Try 123456')
+            setFavPinInput('')
+          }
+        }
+      }
+    }
+
+    const handlePinDelete = () => {
+      if (favPinInput.length > 0) {
+        setFavPinInput(favPinInput.slice(0, -1))
+        setFavPinError('')
+      }
+    }
+
+    const handleSaveContact = (e: React.FormEvent) => {
+      e.preventDefault()
+      if (!favFormName.trim() || !favFormPhone.trim()) return
+
+      const name = favFormName.trim()
+      const mm = favFormMm.trim() || name
+      const phoneOrId = favFormPhone.trim()
+      const initials = name
+        .split(' ')
+        .map((p) => (p ? p[0] : ''))
+        .filter(Boolean)
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+
+      const newContact = {
+        id: phoneOrId.startsWith('ARAK') ? phoneOrId : `ARAK-${Math.floor(1000 + Math.random() * 9000)}`,
+        name,
+        fullName: name,
+        mm,
+        phone: phoneOrId,
+        initials: initials || 'U',
+        bg: favFormBg,
+        bank: favFormBank,
+        category: favFormCategory,
+      }
+
+      setFavEditModalOpen(false)
+
+      if (editingFavIndex !== null) {
+        requestPinAuthorization(
+          isAk ? 'အချက်အလက် ပြင်ဆင်ရန် အတည်ပြုပါ' : 'Authorize Edit Contact',
+          isAk
+            ? `"${name}" ၏ အချက်အလက်များကို ပြင်ဆင်ရန် PIN ၆ လုံး ရိုက်ထည့်ပါ`
+            : `Enter your 6-digit PIN to update recipient "${name}"`,
+          () => {
+            setFavouriteList((prev) => {
+              const updated = [...prev]
+              updated[editingFavIndex] = newContact
+              return updated
+            })
+          }
+        )
+      } else {
+        requestPinAuthorization(
+          isAk ? 'စိတ်ကြိုက်အသစ် ထည့်ရန် အတည်ပြုပါ' : 'Authorize Add Contact',
+          isAk
+            ? `"${name}" ကို စိတ်ကြိုက်စာရင်းသို့ ထည့်ရန် PIN ၆ လုံး ရိုက်ထည့်ပါ`
+            : `Enter your 6-digit PIN to add recipient "${name}"`,
+          () => {
+            setFavouriteList((prev) => [...prev, newContact])
+          }
+        )
+      }
+    }
+
+    const handleDeleteContact = () => {
+      if (!favDeleteTarget) return
+      const { contact, index } = favDeleteTarget
+      setFavDeleteTarget(null)
+
+      requestPinAuthorization(
+        isAk ? 'ဖျက်ပစ်ရန် အတည်ပြုပါ' : 'Authorize Delete',
+        isAk
+          ? `"${contact.name}" ကို စိတ်ကြိုက်စာရင်းမှ ဖျက်ပစ်ရန် PIN ၆ လုံး ရိုက်ထည့်ပါ`
+          : `Enter your 6-digit PIN to delete "${contact.name}"`,
+        () => {
+          setFavouriteList((prev) => prev.filter((_, idx) => idx !== index))
+        }
+      )
+    }
+
+    return (
+      <div className="min-h-full bg-[#F8FAFC] flex flex-col text-zinc-900 pb-16 relative">
+        {/* Success Toast */}
+        {favSuccessToast && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-zinc-900 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 border border-zinc-700 animate-in fade-in slide-in-from-top-4">
+            <CheckCircle2 size={16} className="text-emerald-400" />
+            <span>{favSuccessToast}</span>
+          </div>
+        )}
+
+        {/* 1. TOP APP BAR */}
+        <div className="bg-white px-4 py-3 border-b border-zinc-200 flex items-center justify-between sticky top-0 z-10 shadow-2xs">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setScreen('home')}
+              className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center hover:bg-zinc-200 text-zinc-700 transition cursor-pointer"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <div>
+              <h1 className="text-base font-extrabold text-zinc-900 leading-tight">
+                {isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites'}
+              </h1>
+              <p className="text-[11px] font-medium text-zinc-500">
+                {isAk
+                  ? 'အချက်အလက် ပြင်ဆင်ရန်နှင့် အသစ်ထည့်ရန်'
+                  : 'Manage recipients & quick contacts'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={openAddModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 text-[#D91624] border border-rose-200 text-xs font-bold hover:bg-rose-100 transition cursor-pointer"
+          >
+            <Plus size={15} />
+            <span>{isAk ? 'အသစ်ထည့်ရန်' : 'Add New'}</span>
+          </button>
+        </div>
+
+        {/* 2. SEARCH BAR & CATEGORY FILTER */}
+        <div className="bg-white px-4 pt-2.5 pb-3 border-b border-zinc-200/80 space-y-2.5">
+          <div className="relative">
+            <Search
+              size={17}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
+            />
+            <input
+              type="text"
+              value={favSearchQuery}
+              onChange={(e) => setFavSearchQuery(e.target.value)}
+              placeholder={
+                isAk
+                  ? 'အမည် သို့မဟုတ် ဖုန်းနံပါတ်ဖြင့် ရှာဖွေပါ...'
+                  : 'Search by name, phone or Arakan ID...'
+              }
+              className="w-full h-10 pl-10 pr-9 bg-zinc-100/80 rounded-xl text-xs font-medium text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#D91624]/20 border border-transparent focus:border-[#D91624]/30"
+            />
+            {favSearchQuery && (
+              <button
+                type="button"
+                onClick={() => setFavSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
+
+          {/* Category Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+            {['All', 'Personal', 'Family', 'Friends', 'Business'].map((cat) => {
+              const isSelected = cat === favCategoryFilter
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setFavCategoryFilter(cat)}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-full shrink-0 transition cursor-pointer ${
+                    isSelected
+                      ? 'bg-zinc-900 text-white shadow-2xs'
+                      : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                  }`}
+                >
+                  {cat === 'All' ? `All (${favouriteList.length})` : cat}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* 3. RECIPIENT CARDS LIST */}
+        <div className="p-4 space-y-3 flex-1">
+          {filteredList.length === 0 ? (
+            <div className="text-center py-16 px-4">
+              <div className="w-16 h-16 rounded-full bg-zinc-100 text-zinc-400 flex items-center justify-center mx-auto mb-3">
+                <Search size={28} />
+              </div>
+              <p className="text-sm font-bold text-zinc-800">
+                {isAk ? 'ရှာဖွေမှု မတွေ့ရှိပါ' : 'No Favourites Found'}
+              </p>
+              <p className="text-xs text-zinc-500 mt-1 max-w-xs mx-auto">
+                {isAk
+                  ? 'အခြားအချက်အလက်ဖြင့် ရှာဖွေပါ သို့မဟုတ် အသစ်ထည့်ပါ'
+                  : 'Try searching with a different name or add a new favourite recipient.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setFavSearchQuery('')
+                  setFavCategoryFilter('All')
+                }}
+                className="mt-4 px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-bold hover:bg-zinc-800 transition"
+              >
+                {isAk ? 'မူလအတိုင်း ပြန်ကြည့်မည်' : 'Clear Filter'}
+              </button>
+            </div>
+          ) : (
+            filteredList.map(({ item, originalIndex }) => {
+              const catColors: Record<string, string> = {
+                Personal: 'bg-indigo-50 text-indigo-600 border-indigo-200',
+                Family: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+                Friends: 'bg-blue-50 text-blue-600 border-blue-200',
+                Business: 'bg-amber-50 text-amber-600 border-amber-200',
+              }
+              const catBadge = catColors[item.category] || 'bg-zinc-100 text-zinc-600 border-zinc-200'
+
+              return (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-2xl p-3.5 border border-zinc-200/90 shadow-2xs space-y-3 hover:border-zinc-300 transition"
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Circle Avatar */}
+                    <div
+                      className={`w-12 h-12 rounded-full bg-gradient-to-b ${item.bg} flex items-center justify-center text-white font-extrabold text-sm shadow-xs border-2 border-white shrink-0`}
+                    >
+                      {item.initials === 'U' ? <User size={20} /> : item.initials}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-extrabold text-zinc-900 truncate">
+                          {item.name}
+                        </span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${catBadge}`}
+                        >
+                          {item.category}
+                        </span>
+                      </div>
+                      {item.mm && item.mm !== item.name && (
+                        <p className="text-[11px] font-semibold text-zinc-500 truncate">
+                          {item.mm}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-500 font-medium">
+                        <span className="font-semibold text-zinc-700">{item.bank}</span>
+                        <span>·</span>
+                        <span>{item.phone || item.id}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-zinc-100 flex items-center gap-2">
+                    {/* Quick Pay Button */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        requireVerified(isAk ? 'ငွေပေးချေရန်' : 'Pay', () => {
+                          const matchedRecent = recentPayContacts.find(
+                            (c) => c.name.toLowerCase() === item.name.toLowerCase()
+                          )
+                          setPayRecipient({
+                            id: item.id,
+                            name: item.name,
+                            username: matchedRecent
+                              ? matchedRecent.username
+                              : `@${item.name.toLowerCase().replace(/\s+/g, '_')}`,
+                            uid: item.phone || item.id,
+                            category: (item.category.toLowerCase() === 'family'
+                              ? 'family'
+                              : item.category.toLowerCase() === 'friends'
+                                ? 'friends'
+                                : 'other') as 'family' | 'friends' | 'other',
+                            initials: item.initials,
+                            avatarUrl: '',
+                          })
+                          setPayToInput(
+                            matchedRecent
+                              ? matchedRecent.username
+                              : `@${item.name.toLowerCase().replace(/\s+/g, '_')}`
+                          )
+                          setPayStep('detail')
+                          setScreen('pay')
+                        })
+                      }
+                      className="flex-1 h-9 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs"
+                    >
+                      <SendIcon size={13} />
+                      <span>{isAk ? 'ငွေလွှဲမည်' : 'Quick Pay'}</span>
+                    </button>
+
+                    {/* Edit Pencil Button */}
+                    <button
+                      type="button"
+                      onClick={() => openEditModal(item, originalIndex)}
+                      className="w-9 h-9 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 flex items-center justify-center transition cursor-pointer"
+                      title="Edit Contact"
+                    >
+                      <Pencil size={15} />
+                    </button>
+
+                    {/* Delete Trash Button */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFavDeleteTarget({ contact: item, index: originalIndex })
+                      }
+                      className="w-9 h-9 rounded-xl bg-rose-50 hover:bg-rose-100 text-[#D91624] flex items-center justify-center transition cursor-pointer"
+                      title="Delete Contact"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
+        {/* Floating Add Favourite Action Button */}
+        <button
+          type="button"
+          onClick={openAddModal}
+          className="fixed bottom-6 right-6 px-4 py-3 rounded-full bg-[#D91624] hover:bg-[#b0101b] text-white text-xs font-extrabold shadow-lg flex items-center gap-2 cursor-pointer transition active:scale-95 z-20"
+        >
+          <Plus size={18} />
+          <span>{isAk ? 'အသစ်ထည့်မည်' : 'Add Favourite'}</span>
+        </button>
+
+        {/* ── MODAL 1: ADD / EDIT FAVOURITE BOTTOM SHEET ── */}
+        {favEditModalOpen && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-xs animate-in fade-in">
+            <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+              {/* Drag Handle */}
+              <div className="w-10 h-1 rounded-full bg-zinc-200 mx-auto" />
+
+              <div className="flex items-center justify-between pb-1 border-b border-zinc-100">
+                <div>
+                  <h2 className="text-base font-extrabold text-zinc-900">
+                    {editingFavIndex !== null
+                      ? isAk
+                        ? 'အချက်အလက် ပြင်ဆင်ရန်'
+                        : 'Edit Favourite'
+                      : isAk
+                        ? 'စိတ်ကြိုက်အသစ် ထည့်ရန်'
+                        : 'Add New Favourite'}
+                  </h2>
+                  <p className="text-[11px] text-zinc-500">
+                    {isAk
+                      ? 'အတည်ပြုရန် ၆ လုံး PIN လိုအပ်ပါသည်'
+                      : 'PIN verification required to save changes'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFavEditModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 flex items-center justify-center hover:bg-zinc-200"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Avatar Live Preview & Color Selector */}
+              <div className="flex flex-col items-center py-2 space-y-2.5">
+                <div
+                  className={`w-14 h-14 rounded-full bg-gradient-to-b ${favFormBg} flex items-center justify-center text-white font-black text-base shadow-md border-2 border-white`}
+                >
+                  {favFormName.trim()
+                    ? favFormName
+                        .trim()
+                        .split(' ')
+                        .map((p) => p[0] || '')
+                        .slice(0, 2)
+                        .join('')
+                        .toUpperCase()
+                    : 'U'}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {avatarGradients.map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setFavFormBg(g)}
+                      className={`w-6 h-6 rounded-full bg-gradient-to-b ${g} transition ${
+                        favFormBg === g ? 'ring-2 ring-zinc-900 ring-offset-2' : ''
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveContact} className="space-y-3.5">
+                {/* Name */}
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 mb-1">
+                    {isAk ? 'အမည် (အင်္ဂလိပ်)' : 'Recipient Name'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={favFormName}
+                    onChange={(e) => setFavFormName(e.target.value)}
+                    placeholder="e.g. Myat Soe"
+                    className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 text-xs font-semibold focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                  />
+                </div>
+
+                {/* Burmese Name */}
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 mb-1">
+                    {isAk ? 'မြန်မာအမည် / မှတ်ချက်' : 'Burmese Name / Note (Optional)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={favFormMm}
+                    onChange={(e) => setFavFormMm(e.target.value)}
+                    placeholder="e.g. မြတ်စိုး"
+                    className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 text-xs font-semibold focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                  />
+                </div>
+
+                {/* Phone / Account ID */}
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 mb-1">
+                    {isAk ? 'ဖုန်းနံပါတ် သို့မဟုတ် Péthar ID' : 'Phone Number or Account ID'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={favFormPhone}
+                    onChange={(e) => setFavFormPhone(e.target.value)}
+                    placeholder="e.g. 09951234567 or ARAK-1024"
+                    className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 text-xs font-semibold focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                  />
+                </div>
+
+                {/* Bank / Method */}
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 mb-1.5">
+                    {isAk ? 'ဘဏ် / ငွေပေးချေမှုစနစ်' : 'Bank / Payment Method'}
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {banksList.map((b) => (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => setFavFormBank(b)}
+                        className={`text-xs font-bold px-2.5 py-1 rounded-lg border transition ${
+                          favFormBank === b
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
+                        }`}
+                      >
+                        {b}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 mb-1.5">
+                    {isAk ? 'အမျိုးအစား' : 'Category'}
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {categoriesList.map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setFavFormCategory(cat)}
+                        className={`text-xs font-bold px-3 py-1 rounded-lg border transition ${
+                          favFormCategory === cat
+                            ? 'bg-zinc-900 text-white border-zinc-900'
+                            : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Submit button */}
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    className="w-full h-11 rounded-xl bg-[#D91624] hover:bg-[#b0101b] text-white font-extrabold text-xs shadow-md transition cursor-pointer"
+                  >
+                    {editingFavIndex !== null
+                      ? isAk
+                        ? 'ပြင်ဆင်မှု သိမ်းဆည်းမည် (PIN စစ်မည်)'
+                        : 'Save Changes (Verify PIN)'
+                      : isAk
+                        ? 'အသစ်ထည့်မည် (PIN စစ်မည်)'
+                        : 'Add Contact (Verify PIN)'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ── MODAL 2: DELETE CONFIRMATION DIALOG ── */}
+        {favDeleteTarget && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in">
+            <div className="bg-white w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl text-center">
+              <div className="w-12 h-12 rounded-full bg-rose-50 text-[#D91624] flex items-center justify-center mx-auto">
+                <Trash2 size={22} />
+              </div>
+
+              <div>
+                <h3 className="text-base font-extrabold text-zinc-900">
+                  {isAk ? 'စိတ်ကြိုက်စာရင်းမှ ဖျက်ရန်' : 'Delete Favourite'}
+                </h3>
+                <p className="text-xs text-zinc-500 mt-1">
+                  {isAk
+                    ? `"${favDeleteTarget.contact.name}" ကို စိတ်ကြိုက်စာရင်းမှ ဖျက်ပစ်ရန် သေချာပါသလား? အတည်ပြုရန် လျှို့ဝှက်နံပါတ် ရိုက်ထည့်ရပါမည်။`
+                    : `Are you sure you want to remove "${favDeleteTarget.contact.name}" from your favourites? You will need to enter your 6-digit PIN to confirm.`}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setFavDeleteTarget(null)}
+                  className="flex-1 h-10 rounded-xl bg-zinc-100 text-zinc-700 font-bold text-xs hover:bg-zinc-200 transition cursor-pointer"
+                >
+                  {isAk ? 'မလုပ်တော့ပါ' : 'Cancel'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteContact}
+                  className="flex-1 h-10 rounded-xl bg-[#D91624] text-white font-bold text-xs hover:bg-[#b0101b] transition cursor-pointer shadow-xs"
+                >
+                  {isAk ? 'ဖျက်မည်' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── MODAL 3: 6-DIGIT PIN CODE AUTHORIZATION SHEET (MANDATORY REQUIREMENT) ── */}
+        {favPinModalOpen && favPinAction && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-xs animate-in fade-in">
+            <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 shadow-2xl">
+              <div className="w-10 h-1 rounded-full bg-zinc-200 mx-auto" />
+
+              <div className="text-center space-y-2">
+                <div className="w-14 h-14 rounded-full bg-rose-50 border-2 border-rose-100 text-[#D91624] flex items-center justify-center mx-auto">
+                  <Shield size={26} />
+                </div>
+                <h3 className="text-lg font-black text-zinc-900">
+                  {favPinAction.title}
+                </h3>
+                <p className="text-xs text-zinc-500 max-w-xs mx-auto">
+                  {favPinAction.description}
+                </p>
+              </div>
+
+              {/* 6 OTP Dots */}
+              <div className="flex items-center justify-center gap-3 py-2">
+                {[0, 1, 2, 3, 4, 5].map((idx) => {
+                  const isFilled = idx < favPinInput.length
+                  const isActive = idx === favPinInput.length
+                  return (
+                    <div
+                      key={idx}
+                      className={`w-4 h-4 rounded-full border-2 transition-all ${
+                        isFilled
+                          ? 'bg-[#D4AF37] border-[#D4AF37] scale-110'
+                          : isActive
+                            ? 'border-[#D4AF37]'
+                            : 'border-zinc-300'
+                      }`}
+                    />
+                  )
+                })}
+              </div>
+
+              {/* Error or Hint */}
+              <div className="text-center h-4">
+                {favPinError ? (
+                  <span className="text-xs font-bold text-[#D91624]">
+                    {favPinError}
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-zinc-400 font-medium">
+                    Default PIN: 123456
+                  </span>
+                )}
+              </div>
+
+              {/* Keypad Grid */}
+              <div className="grid grid-cols-3 gap-3 pt-2 max-w-xs mx-auto">
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0'].map(
+                  (keyVal) => (
+                    <button
+                      key={keyVal}
+                      type="button"
+                      onClick={() => handlePinDigit(keyVal)}
+                      className="h-13 rounded-2xl bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 text-xl font-bold text-zinc-900 flex items-center justify-center transition cursor-pointer"
+                    >
+                      {keyVal}
+                    </button>
+                  )
+                )}
+                <button
+                  type="button"
+                  onClick={handlePinDelete}
+                  className="h-13 rounded-2xl bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 text-zinc-700 flex items-center justify-center transition cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="text-center pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFavPinModalOpen(false)
+                    setFavPinAction(null)
+                    setFavPinInput('')
+                  }}
+                  className="text-xs font-bold text-zinc-500 hover:text-zinc-800 cursor-pointer"
+                >
+                  {isAk ? 'မလုပ်တော့ပါ' : 'Cancel'}
+                </button>
               </div>
             </div>
           </div>
@@ -4586,6 +6934,18 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     return renderHistoryScreen()
   }
 
+  if (screen === 'topup') {
+    return renderTopupScreen()
+  }
+
+  if (screen === 'bills') {
+    return renderBillPaymentScreen()
+  }
+
+  if (screen === 'favourites') {
+    return renderFavouritesScreen()
+  }
+
   const renderScreen = () => {
     switch (screen) {
       case 'home':
@@ -4899,13 +7259,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               {/* Top Bar: App Badge / Back on Left + Agent Avatar & Close X on Right */}
               <div className="px-5 pt-5 pb-3 flex items-center justify-between shrink-0">
                 {supportView === 'hub' ? (
-                  <div className="w-11 h-11 rounded-xl bg-[#0B252E]/80 border border-white/25 p-1.5 flex items-center justify-center shadow-md">
-                    <img
-                      src="/pethar-logo-red-white.svg"
-                      alt="Péthar"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
+                  <img
+                    src="/pethar-logo-red-white.svg"
+                    alt="Péthar"
+                    className="w-9 h-9 object-contain"
+                  />
                 ) : (
                   <button
                     type="button"

@@ -851,17 +851,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                     ),
                   )
                 else
-                  Container(
-                    width: 44,
-                    height: 44,
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0B252E).withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white24),
-                    ),
-                    child: const Center(child: ArakanEmblem(size: 28)),
-                  ),
+                  const ArakanEmblem(size: 34),
                 Row(
                   children: [
                     Container(

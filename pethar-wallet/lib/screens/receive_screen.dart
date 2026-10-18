@@ -91,24 +91,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 1. Circular App Logo + App Name
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFE4E4E7)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Center(child: ArakanEmblem(size: 38)),
-            ),
+            // 1. App Logo + App Name (No background container)
+            const ArakanEmblem(size: 46),
             const SizedBox(height: 6),
             const Text(
               'Péthar',
