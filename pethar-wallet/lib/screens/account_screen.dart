@@ -87,7 +87,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: usdToAkd ? const Color(0xFF0B57CF) : Colors.transparent,
+                              color: usdToAkd ? const Color(0xFF9E1B32) : Colors.transparent,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Center(
@@ -110,7 +110,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: !usdToAkd ? const Color(0xFF0B57CF) : Colors.transparent,
+                              color: !usdToAkd ? const Color(0xFF9E1B32) : Colors.transparent,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Center(
@@ -150,7 +150,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     children: [
                       Text(
                         usdToAkd ? '\$ ' : '₳ ',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0B57CF)),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF9E1B32)),
                       ),
                       Expanded(
                         child: TextFormField(
@@ -185,7 +185,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0B57CF),
+                      backgroundColor: const Color(0xFF9E1B32),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                     child: const Text(
@@ -280,10 +280,10 @@ class _AccountScreenState extends State<AccountScreen> {
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF0B57CF).withOpacity(0.3),
+                              color: const Color(0xFF9E1B32).withOpacity(0.3),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.pie_chart, size: 16, color: Colors.lightBlueAccent),
+                            child: const Icon(Icons.pie_chart, size: 16, color: Colors.amberAccent),
                           ),
                           const SizedBox(width: 8),
                           Text(

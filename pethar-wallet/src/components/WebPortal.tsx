@@ -1,9 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   ArrowUpRight, ArrowDownLeft, Store, Globe, Coins,
   TrendingUp, Search, Sparkles, Send, CheckCircle
 } from 'lucide-react'
-import { transactions, liveFxRates, contacts } from '../data'
+import type { Txn, FxRateItem } from '../data'
+import {
+  fetchTransactionsFromDb,
+  fetchFxRatesFromDb,
+  fetchFavoriteContactsFromDb,
+  fetchUserProfileFromDb,
+  insertTransactionToDb,
+} from '../services/walletDatabase'
 import { ArakanEmblem } from './ArakanEmblem'
 import type { Language } from '../i18n'
 import { translations } from '../i18n'
@@ -24,10 +31,41 @@ export const WebPortal: React.FC<WebPortalProps> = ({
   const [filterCat, setFilterCat] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [quickSendAmount, setQuickSendAmount] = useState('150')
-  const [quickSendContact, setQuickSendContact] = useState(contacts[0].id)
+  const [quickSendContact, setQuickSendContact] = useState('')
   const [quickSentSuccess, setQuickSentSuccess] = useState(false)
+  const [txList, setTxList] = useState<Txn[]>([])
+  const [fxList, setFxList] = useState<FxRateItem[]>([])
+  const [contactList, setContactList] = useState<any[]>([])
+  const [walletBalance, setWalletBalance] = useState(12500.0)
 
-  const filteredTxns = transactions.filter((tx) => {
+  useEffect(() => {
+    let active = true
+
+    fetchTransactionsFromDb().then((txs) => {
+      if (active && txs.length > 0) setTxList(txs)
+    })
+
+    fetchFxRatesFromDb().then((fxs) => {
+      if (active && fxs.length > 0) setFxList(fxs)
+    })
+
+    fetchFavoriteContactsFromDb().then((contactsData) => {
+      if (active && contactsData.length > 0) {
+        setContactList(contactsData)
+        setQuickSendContact(contactsData[0]?.uid || contactsData[0]?.id || '')
+      }
+    })
+
+    fetchUserProfileFromDb().then((up) => {
+      if (active && up) setWalletBalance(up.balance)
+    })
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const filteredTxns = txList.filter((tx) => {
     const matchesCat = filterCat === 'all' || tx.category === filterCat
     const matchesSearch =
       tx.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -36,8 +74,32 @@ export const WebPortal: React.FC<WebPortalProps> = ({
     return matchesCat && matchesSearch
   })
 
-  const handleQuickSend = (e: React.FormEvent) => {
+  const handleQuickSend = async (e: React.FormEvent) => {
     e.preventDefault()
+    const amt = parseFloat(quickSendAmount) || 0
+    if (amt <= 0) return
+
+    const selectedContactObj = contactList.find(c => c.uid === quickSendContact || c.id === quickSendContact)
+    const newTx: Txn = {
+      id: `TX-${Date.now().toString().slice(-4)}`,
+      refId: `ARAK-P2P-${Date.now().toString().slice(-6)}`,
+      title: `Transfer to ${selectedContactObj?.name || 'Contact'}`,
+      titleMm: `${selectedContactObj?.name || 'မိတ်ဆွေ'} ထံသို့ ငွေလွှဲခြင်း`,
+      category: 'p2p',
+      amount: -amt,
+      currency: 'AKD',
+      time: 'Just now',
+      status: 'SETTLED',
+      counterparty: selectedContactObj?.name || 'Arakan Citizen',
+      counterpartyMm: selectedContactObj?.name || 'အာရက္ခပြည်သူ',
+      fee: 0,
+      hash: `0x${Math.random().toString(16).slice(2, 10)}...`,
+    }
+
+    setTxList(prev => [newTx, ...prev])
+    setWalletBalance(prev => Math.max(0, prev - amt))
+    insertTransactionToDb(newTx)
+
     setQuickSentSuccess(true)
     setTimeout(() => setQuickSentSuccess(false), 3000)
   }
@@ -51,7 +113,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
             <TrendingUp size={13} />
             {lang === 'ak' ? 'တရားဝင်ငွေလဲနှုန်း' : 'Arakan FX Ticker'}:
           </span>
-          {liveFxRates.slice(0, 4).map((fx) => (
+          {fxList.slice(0, 4).map((fx) => (
             <div key={fx.pair} className="flex items-center gap-1 shrink-0 font-mono text-[11px]">
               <span className="text-gray-300 font-semibold">{fx.pair}</span>
               <span className="text-white font-bold">{fx.rate}</span>
@@ -78,7 +140,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
                   {t.currencyLabel}
                 </span>
                 <h1 className="text-3xl lg:text-4xl font-black text-white font-mono mt-3 tracking-tight">
-                  ₳ 14,850.00
+                  ₳ {walletBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h1>
                 <p className="text-xs text-gray-400 mt-1 flex items-center gap-1.5">
                   <Sparkles size={13} className="text-amber-400" />
@@ -88,7 +150,9 @@ export const WebPortal: React.FC<WebPortalProps> = ({
 
               <div className="text-right">
                 <div className="text-xs text-gray-400">Total Net Worth (USD Eq.)</div>
-                <div className="text-xl font-bold font-mono text-emerald-400 mt-0.5">$ 21,526.00</div>
+                <div className="text-xl font-bold font-mono text-emerald-400 mt-0.5">
+                  $ {walletBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
                 <div className="text-[10px] text-gray-500 mt-1">Tier 2 Arakan Citizen Enclave</div>
               </div>
             </div>
@@ -149,9 +213,9 @@ export const WebPortal: React.FC<WebPortalProps> = ({
                     onChange={(e) => setQuickSendContact(e.target.value)}
                     className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
                   >
-                    {contacts.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} ({c.id}) · {c.location}
+                    {contactList.map((c) => (
+                      <option key={c.uid || c.id} value={c.uid || c.id}>
+                        {c.name} ({c.uid || c.id}) · {c.category || 'Arakan'}
                       </option>
                     ))}
                   </select>

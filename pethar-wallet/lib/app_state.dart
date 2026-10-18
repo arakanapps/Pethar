@@ -25,13 +25,105 @@ class AppState extends ChangeNotifier {
   List<NotificationItem> notifications = List.from(sampleNotifications);
   List<Transaction> txList = List.from(transactions);
   List<FavoriteContact> favoriteContactsList = List.from(favoriteContacts);
+  List<Contact> contactsList = [];
+  List<Agent> agentsList = [];
+  List<Map<String, dynamic>> fxRatesList = [];
+  List<Map<String, dynamic>> billProvidersList = [];
+  List<Map<String, dynamic>> topupPackagesList = [];
   double offlinePocketBalance = 150.0; // Pre-loaded offline bearer cash
   List<String> offlineTokens = [];     // Stored bearer tokens
   Map<String, dynamic>? pendingPayContact;
   bool dontShowQuickScanDialog = false;
+  bool isLoadingDb = false;
+
+  AppState() {
+    loadSupabaseData();
+  }
+
+  /// Fetch live data from Supabase tables
+  Future<void> loadSupabaseData() async {
+    isLoadingDb = true;
+    notifyListeners();
+    try {
+      final supa = SupabaseService();
+      // 1. Fetch transactions from Supabase
+      final remoteTxs = await supa.fetchTransactions();
+      if (remoteTxs.isNotEmpty) {
+        txList = remoteTxs;
+        transactions = txList;
+      }
+
+      // 2. Fetch User Profile & Balance from Supabase
+      final profileMap = await supa.fetchUserProfile();
+      if (profileMap != null) {
+        if (profileMap['name'] != null) profile.name = profileMap['name'].toString();
+        if (profileMap['phone'] != null) profile.phone = profileMap['phone'].toString();
+        if (profileMap['balance'] != null) {
+          final bal = double.tryParse(profileMap['balance'].toString()) ?? usdAccountBalance;
+          usdAccountBalance = bal;
+          wallet.balance = bal;
+          wallet.totalBalance = bal;
+        }
+      }
+
+      // 3. Fetch Favorite Contacts from Supabase
+      final remoteFavs = await supa.fetchFavoriteContacts();
+      if (remoteFavs.isNotEmpty) {
+        favoriteContactsList = remoteFavs;
+        favoriteContacts = favoriteContactsList;
+        contactsList = remoteFavs.map((f) => Contact(
+          name: f.name,
+          mm: f.mm,
+          id: f.id,
+          location: f.category,
+          phone: f.phone,
+          initials: f.initials,
+        )).toList();
+        contacts = contactsList;
+      }
+
+      // 4. Fetch Physical Agents from Supabase
+      final remoteAgents = await supa.fetchAgents();
+      if (remoteAgents.isNotEmpty) {
+        agentsList = remoteAgents;
+        agents = agentsList;
+      }
+
+      // 5. Fetch FX Rates from Supabase
+      final remoteFx = await supa.fetchFxRates();
+      if (remoteFx.isNotEmpty) {
+        fxRatesList = remoteFx;
+      }
+
+      // 6. Fetch Bill Providers from Supabase
+      final remoteBills = await supa.fetchBillProviders();
+      if (remoteBills.isNotEmpty) {
+        billProvidersList = remoteBills;
+      }
+
+      // 7. Fetch Topup Packages from Supabase
+      final remoteTopups = await supa.fetchTopupPackages();
+      if (remoteTopups.isNotEmpty) {
+        topupPackagesList = remoteTopups;
+      }
+    } catch (e) {
+      debugPrint('Supabase data fetch notice: $e');
+    } finally {
+      isLoadingDb = false;
+      notifyListeners();
+    }
+  }
+
+  void _addTransaction(Transaction tx) {
+    txList.insert(0, tx);
+    SupabaseService().insertTransaction(tx);
+    SupabaseService().updateUserBalance(usdAccountBalance);
+    notifyListeners();
+  }
 
   void addFavoriteContact(FavoriteContact contact) {
     favoriteContactsList.add(contact);
+    SupabaseService().insertFavoriteContact(contact);
     notifyListeners();
   }
 
@@ -44,7 +136,8 @@ class AppState extends ChangeNotifier {
 
   void deleteFavoriteContact(int index) {
     if (index >= 0 && index < favoriteContactsList.length) {
-      favoriteContactsList.removeAt(index);
+      final item = favoriteContactsList.removeAt(index);
+      SupabaseService().deleteFavoriteContact(item.id);
       notifyListeners();
     }
   }
@@ -222,8 +315,7 @@ class AppState extends ChangeNotifier {
       wallet.totalBalance = (wallet.totalBalance - amount).clamp(0.0, double.infinity);
       usdAccountBalance += amount;
     }
-    txList.insert(
-      0,
+    _addTransaction(
       Transaction(
         id: 'TX-CONV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
         refId: 'ARAK-CONV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
@@ -240,7 +332,6 @@ class AppState extends ChangeNotifier {
         fee: 0.0,
       ),
     );
-    notifyListeners();
   }
 
   void transferBetweenAccounts({required double amount, required bool usdToAkd}) {
@@ -256,8 +347,7 @@ class AppState extends ChangeNotifier {
       wallet.totalBalance -= amount;
       usdAccountBalance += amount;
     }
-    txList.insert(
-      0,
+    _addTransaction(
       Transaction(
         id: 'TX-XFER-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
         refId: 'ARAK-XFER-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
@@ -274,14 +364,12 @@ class AppState extends ChangeNotifier {
         fee: 0.0,
       ),
     );
-    notifyListeners();
   }
 
   void recordTransfer({required double amount, required String recipientName, required String recipientId}) {
     wallet.balance -= amount;
     wallet.totalBalance -= amount;
-    txList.insert(
-      0,
+    _addTransaction(
       Transaction(
         id: 'TX-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
         refId: 'ARAK-P2P-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
@@ -456,8 +544,7 @@ class AppState extends ChangeNotifier {
     wallet.balance = (wallet.balance - akdTotal).clamp(0.0, double.infinity);
     wallet.totalBalance = (wallet.totalBalance - akdTotal).clamp(0.0, double.infinity);
     final now = DateTime.now();
-    txList.insert(
-      0,
+    _addTransaction(
       Transaction(
         id: 'TX-TOPUP-${now.millisecondsSinceEpoch.toString().substring(7)}',
         refId: 'REF-TOP-${now.millisecondsSinceEpoch.toString().substring(8)}',
@@ -502,8 +589,7 @@ class AppState extends ChangeNotifier {
     wallet.balance = (wallet.balance - akdAmount).clamp(0.0, double.infinity);
     wallet.totalBalance = (wallet.totalBalance - akdAmount).clamp(0.0, double.infinity);
     final now = DateTime.now();
-    txList.insert(
-      0,
+    _addTransaction(
       Transaction(
         id: 'TX-BILL-${now.millisecondsSinceEpoch.toString().substring(7)}',
         refId: 'REF-BILL-${now.millisecondsSinceEpoch.toString().substring(8)}',

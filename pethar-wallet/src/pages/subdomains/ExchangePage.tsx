@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BaseLayout } from './BaseLayout'
 import type { Language } from '../../i18n'
 import {
@@ -6,7 +6,7 @@ import {
   CheckCircle, ArrowUpRight,
   DollarSign, Percent
 } from 'lucide-react'
-import { liveFxRates } from '../../data'
+import { fetchFxRatesFromDb } from '../../services/walletDatabase'
 
 interface ExchangePageProps {
   lang: Language
@@ -19,6 +19,13 @@ export const ExchangePage = ({ lang }: ExchangePageProps) => {
   const [isSwapping, setIsSwapping] = useState(false)
   const [swapSuccess, setSwapSuccess] = useState(false)
   const [selectedTimeframe, setSelectedTimeframe] = useState<'1H' | '24H' | '7D' | '1M'>('24H')
+  const [fxRates, setFxRates] = useState<any[]>([])
+
+  useEffect(() => {
+    fetchFxRatesFromDb().then((rates) => {
+      if (rates.length > 0) setFxRates(rates)
+    })
+  }, [])
 
   const getRate = (from: string, to: string) => {
     if (from === to) return 1.0
@@ -83,7 +90,7 @@ export const ExchangePage = ({ lang }: ExchangePageProps) => {
               AKD/USDT 1.0000 (+0.00%)
             </span>
             <span className="text-slate-300">|</span>
-            <span className="text-slate-700">AKD/THB {liveFxRates.find(r => r.pair.includes('THB'))?.rate || '35.80'}</span>
+            <span className="text-slate-700">AKD/THB {fxRates.find(r => r.pair.includes('THB'))?.rate || '35.80'}</span>
             <span className="text-slate-300">|</span>
             <span className="text-slate-700">AKD/USD 1.00</span>
             <span className="text-slate-300">|</span>

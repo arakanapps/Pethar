@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BaseLayout } from './BaseLayout';
 import { ArakanEmblem } from '../../components/ArakanEmblem';
 import type { Language } from '../../i18n';
-import { transactions, initialUserProfile, liveFxRates, type Txn } from '../../data';
+import { initialUserProfile, type Txn, type FxRateItem } from '../../data';
+import { fetchTransactionsFromDb, fetchFxRatesFromDb, fetchUserProfileFromDb } from '../../services/walletDatabase';
 import { redirectToSubdomain } from '../../utils/subdomain';
 import {
   Wallet, ArrowUpRight, ArrowDownLeft, QrCode, CreditCard,
@@ -34,8 +35,35 @@ export const AppPage = ({ lang }: AppPageProps) => {
   // QR Request state
   const [qrRequestAmount, setQrRequestAmount] = useState('50.00');
 
-  const profile = initialUserProfile;
-  const balance = 14850.0;
+  // Dynamic state fetched from Supabase database
+  const [profile, setProfile] = useState(initialUserProfile);
+  const [balance, setBalance] = useState(12500.0);
+  const [txList, setTxList] = useState<Txn[]>([]);
+  const [fxRates, setFxRates] = useState<FxRateItem[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchTransactionsFromDb().then((txs) => {
+      if (isMounted && txs.length > 0) setTxList(txs);
+    });
+    fetchFxRatesFromDb().then((fxs) => {
+      if (isMounted && fxs.length > 0) setFxRates(fxs);
+    });
+    fetchUserProfileFromDb().then((up) => {
+      if (isMounted && up) {
+        setBalance(up.balance);
+        setProfile((prev) => ({
+          ...prev,
+          name: up.name || prev.name,
+          phone: up.phone || prev.phone,
+          petharId: up.ak_id || prev.petharId,
+        }));
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const t = lang === 'ak'
     ? {
@@ -136,7 +164,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
     { name: 'Sittwe Central Agent', id: 'AGENT-AK-042', avatar: 'A' },
   ];
 
-  const filteredTxns = transactions.filter((tx) => {
+  const filteredTxns = txList.filter((tx) => {
     const matchesCat = filterCategory === 'all' || tx.category === filterCategory;
     const matchesSearch =
       tx.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -493,7 +521,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
                   : 'Direct inward wires from Wise, Payoneer, PayPal, and regional bank corridors'}
               </p>
               <div className="space-y-2 text-xs font-mono">
-                {liveFxRates.slice(0, 3).map((fx) => (
+                {fxRates.slice(0, 3).map((fx) => (
                   <div key={fx.pair} className="flex justify-between items-center py-2 px-3 rounded-xl bg-slate-50 dark:bg-slate-800/80">
                     <span className="font-bold text-slate-700 dark:text-slate-300">{fx.pair}</span>
                     <span className="font-bold text-amber-600 dark:text-amber-400">{fx.rate}</span>

@@ -378,7 +378,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                     appState.navigate(Screen.home);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0B57CF),
+                    backgroundColor: const Color(0xFF9E1B32),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                   ),
@@ -424,10 +424,10 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
-                            color: _activeRegion == BillRegionTab.myanmar ? const Color(0xFF0B57CF) : Colors.transparent,
+                            color: _activeRegion == BillRegionTab.myanmar ? const Color(0xFF9E1B32) : Colors.transparent,
                             borderRadius: BorderRadius.circular(999),
                             boxShadow: _activeRegion == BillRegionTab.myanmar
-                                ? [BoxShadow(color: const Color(0xFF0B57CF).withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 2))]
+                                ? [BoxShadow(color: const Color(0xFF9E1B32).withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 2))]
                                 : null,
                           ),
                           child: Text(
@@ -448,10 +448,10 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
-                            color: _activeRegion == BillRegionTab.thailand ? const Color(0xFF0B57CF) : Colors.transparent,
+                            color: _activeRegion == BillRegionTab.thailand ? const Color(0xFF9E1B32) : Colors.transparent,
                             borderRadius: BorderRadius.circular(999),
                             boxShadow: _activeRegion == BillRegionTab.thailand
-                                ? [BoxShadow(color: const Color(0xFF0B57CF).withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 2))]
+                                ? [BoxShadow(color: const Color(0xFF9E1B32).withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 2))]
                                 : null,
                           ),
                           child: Text(
@@ -489,9 +489,14 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
   Widget _buildMyanmarBillsView(BuildContext context, AppState appState) {
     return Column(
       children: [
-        // Royal Blue Header matching Screenshot 2
+        // Clean White Header
         Container(
-          color: const Color(0xFF0B57CF),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.8),
+            ),
+          ),
           padding: const EdgeInsets.fromLTRB(12, 12, 16, 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -499,7 +504,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
               Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
+                    icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A), size: 24),
                     onPressed: () => appState.navigate(Screen.home),
                   ),
                   const Text(
@@ -507,7 +512,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                     style: TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: Color(0xFF0F172A),
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -515,12 +520,19 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
               ),
               GestureDetector(
                 onTap: () => appState.navigate(Screen.history),
-                child: const Text(
-                  'History',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text(
+                    'History',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
                   ),
                 ),
               ),
@@ -826,9 +838,14 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Royal Blue Header with Embedded Input Pill matching Screenshot 3
+            // Clean White Header with Embedded Input Pill
             Container(
-              color: const Color(0xFF0B57CF),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.8),
+                ),
+              ),
               padding: const EdgeInsets.fromLTRB(8, 8, 16, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -836,7 +853,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
+                        icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A), size: 24),
                         onPressed: _closeBillerDetail,
                       ),
                       Expanded(
@@ -845,7 +862,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                           style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            color: Color(0xFF0F172A),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -854,20 +871,14 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // White Rounded Input Pill with Green Search Button matching Screenshot 3
+                  // Input Pill with light background and border
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(999),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
                     child: Row(
                       children: [
@@ -996,12 +1007,12 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFBFDBFE)),
-                        boxShadow: [
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: const [
                           BoxShadow(
-                            color: const Color(0xFF0B57CF).withOpacity(0.05),
+                            color: Color(0x06000000),
                             blurRadius: 10,
-                            offset: const Offset(0, 4),
+                            offset: Offset(0, 4),
                           ),
                         ],
                       ),
@@ -1059,7 +1070,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                             children: [
                               Text(
                                 '≈ ${thbEquiv.toStringAsFixed(2)} THB',
-                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF0B57CF)),
+                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
                               ),
                               Text(
                                 '≈ ${akdEquiv.toStringAsFixed(3)} AKD',

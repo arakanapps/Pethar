@@ -75,7 +75,15 @@ import { CryptoGateway } from '../../components/CryptoGateway'
 import { POSTerminal } from '../../components/POSTerminal'
 import { TransactionSlip } from '../../components/TransactionSlip'
 import { FakeQR } from '../../components/FakeQR'
-import { initialUserProfile, transactions, wallets, contacts, type UserProfile, type Txn } from '../../data'
+import { initialUserProfile, wallets, contacts, type UserProfile, type Txn } from '../../data'
+import {
+  fetchTransactionsFromDb,
+  insertTransactionToDb,
+  fetchUserProfileFromDb,
+  updateUserBalanceInDb,
+  fetchFavoriteContactsFromDb,
+  subscribeToTransactions,
+} from '../../services/walletDatabase'
 import type { Language } from '../../i18n'
 import { WalletMinimalIcon } from '@/components/WalletMinimalIcon'
 
@@ -438,6 +446,68 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [historyCategoryFilter, setHistoryCategoryFilter] = useState<'all' | 'transfer' | 'bill'>('all')
   const [historyExportToast, setHistoryExportToast] = useState<string | null>(null)
 
+  // Live Database State from Supabase (avoids static file storage)
+  const [liveTransactions, setLiveTransactions] = useState<Txn[]>([])
+
+  useEffect(() => {
+    let isMounted = true
+
+    // 1. Fetch transactions from Supabase table
+    fetchTransactionsFromDb().then((txs) => {
+      if (isMounted && txs.length > 0) {
+        setLiveTransactions(txs)
+      }
+    })
+
+    // 2. Fetch live user profile & balance
+    fetchUserProfileFromDb().then((up) => {
+      if (isMounted && up) {
+        setUsdAccountBalance(up.balance)
+        setAkdBalance(up.balance)
+        setProfile((prev) => ({
+          ...prev,
+          name: up.name,
+          phone: up.phone,
+          akId: up.ak_id,
+        }))
+      }
+    })
+
+    // 3. Fetch favorite contacts from Supabase table
+    fetchFavoriteContactsFromDb().then((dbContacts) => {
+      if (isMounted && dbContacts.length > 0) {
+        setRecentPayContacts(
+          dbContacts.map((c) => ({
+            id: c.id,
+            name: c.name,
+            username: c.username,
+            uid: c.uid,
+            category: (c.category || 'friends') as any,
+            initials: c.initials || c.name.slice(0, 2).toUpperCase(),
+            avatarUrl: c.avatar_url || '',
+          }))
+        )
+      }
+    })
+
+    // 4. Subscribe to Realtime Supabase changes
+    const unsubscribe = subscribeToTransactions((newTx) => {
+      if (isMounted) {
+        setLiveTransactions((prev) => {
+          if (prev.some((t) => t.id === newTx.id || t.refId === newTx.refId)) {
+            return prev
+          }
+          return [newTx, ...prev]
+        })
+      }
+    })
+
+    return () => {
+      isMounted = false
+      unsubscribe()
+    }
+  }, [])
+
   // Convert & Transfer Modals inside Financial USD Account
   const [convertModalOpen, setConvertModalOpen] = useState<boolean>(false)
   const [convertFromToken, setConvertFromToken] = useState<'USDT' | 'USDC' | 'USD1'>('USDT')
@@ -789,13 +859,13 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
   const filteredHistoryTxns = useMemo(() => {
     if (historyCategoryTab === 'wallet') {
-      return transactions.filter((tx) => tx.category === 'p2p' || tx.category === 'crypto')
+      return liveTransactions.filter((tx) => tx.category === 'p2p' || tx.category === 'crypto')
     }
     if (historyCategoryTab === 'qr_pay') {
-      return transactions.filter((tx) => tx.category === 'pos')
+      return liveTransactions.filter((tx) => tx.category === 'pos')
     }
-    return transactions
-  }, [historyCategoryTab])
+    return liveTransactions
+  }, [historyCategoryTab, liveTransactions])
 
   /* ═══════════════════════════════════════════════════════════════════════════
      1. OPENING SPLASH SCREEN WITH PÉTHAR LOGO
@@ -2657,7 +2727,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         return
       }
 
-      setUsdAccountBalance((prev) => Math.max(0, prev - amt))
+      const nextBal = Math.max(0, usdAccountBalance - amt)
+      setUsdAccountBalance(nextBal)
+      setAkdBalance(nextBal)
+      updateUserBalanceInDb(nextBal)
 
       const newTx: Txn = {
         id: `TX-PAY-${Date.now().toString().slice(-6)}`,
@@ -2674,7 +2747,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         amount: -amt,
         fee: 0.0,
       }
-      transactions.unshift(newTx)
+      setLiveTransactions((prev) => [newTx, ...prev])
+      insertTransactionToDb(newTx)
       setPaySuccessTx(newTx)
       setPayStep('success')
     }
@@ -3186,71 +3260,25 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
      4.5. DEDICATED HISTORY SCREEN (MATCHING SPECIFIED SCREENSHOT)
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderHistoryScreen = () => {
-    const historyData = [
-      {
-        id: 'tx_01',
-        title: 'Bills: YESC',
-        time: '14/10 19:11:38',
-        amount: -65600.0,
-        type: 'bill' as const,
-        category: 'Electricity Bill',
-        refNo: '202610141911388829104',
-      },
-      {
-        id: 'tx_02',
-        title: 'Bills: ATOM Myanmar Limited',
-        time: '14/10 19:10:49',
-        amount: -32000.0,
-        type: 'bill' as const,
-        category: 'Telecom & Internet',
-        refNo: '202610141910497120349',
-      },
-      {
-        id: 'tx_03',
-        title: 'Transfer From Daw Than Nwe',
-        time: '14/10 19:09:11',
-        amount: 200000.0,
-        type: 'transfer' as const,
-        category: 'P2P Receive',
-        refNo: '202610141909115598124',
-      },
-      {
-        id: 'tx_04',
-        title: 'Transfer To Hsu Hnin Wutt Yee',
-        time: '10/10 17:44:46',
-        amount: -100000.0,
-        type: 'transfer' as const,
-        category: 'P2P Transfer',
-        refNo: '202610101744469901452',
-      },
-      {
-        id: 'tx_05',
-        title: 'Transfer To HNIN THANDAR PHYO',
-        time: '03/10 12:38:14',
-        amount: -900000.0,
-        type: 'transfer' as const,
-        category: 'P2P Transfer',
-        refNo: '202610031238148819203',
-      },
-      {
-        id: 'tx_06',
-        title: 'Transfer From Daw Than Nwe',
-        time: '02/10 14:39:47',
-        amount: 1000000.0,
-        type: 'transfer' as const,
-        category: 'P2P Receive',
-        refNo: '202610021439474412908',
-      },
-      {
-        id: 'tx_07',
-        title: 'Transfer To Myo Min Paing',
-        time: '01/10 09:37:13',
-        amount: -100000.0,
-        type: 'transfer' as const,
-        category: 'P2P Transfer',
-        refNo: '202610010937133378901',
-      },
-    ]
+    // Dynamic history mapped directly from the app transactions database
+    const historyData = liveTransactions.map((t, idx) => {
+      const isBill =
+        t.category.toLowerCase().includes('bill') ||
+        t.title.toLowerCase().includes('bill') ||
+        t.category.toLowerCase().includes('top')
+      return {
+        id: t.id || `tx_${idx}`,
+        title: t.title,
+        time: t.time || 'Today',
+        amount: t.amount,
+        type: isBill ? ('bill' as const) : ('transfer' as const),
+        category: t.category,
+        refNo: t.refId || t.id,
+      }
+    })
+
+    const totalInflow = historyData.filter((i) => i.amount > 0).reduce((sum, i) => sum + i.amount, 0)
+    const totalOutflow = historyData.filter((i) => i.amount < 0).reduce((sum, i) => sum + Math.abs(i.amount), 0)
 
     const filtered = historyData.filter((item) => {
       if (historyTab === 'inflow' && item.amount <= 0) return false
@@ -3269,16 +3297,16 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     return (
       <div className="min-h-full bg-[#F4F5F8] text-slate-900 flex flex-col pb-12">
-        {/* Top App Bar: Deep Blue (#0B57CF) */}
-        <div className="bg-[#0B57CF] text-white px-4 pt-4 pb-3 flex items-center justify-between shadow-sm sticky top-0 z-30">
+        {/* Top App Bar: Clean White */}
+        <div className="bg-white text-slate-900 border-b border-slate-200 px-4 pt-4 pb-3 flex items-center justify-between shadow-xs sticky top-0 z-30">
           <button
             type="button"
             onClick={() => setScreen('home')}
-            className="w-9 h-9 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center text-slate-800 hover:bg-slate-100 rounded-full transition cursor-pointer"
           >
             <ChevronLeft size={26} />
           </button>
-          <h1 className="text-lg font-bold text-white tracking-wide">History</h1>
+          <h1 className="text-lg font-bold text-slate-900 tracking-tight">History</h1>
           <div className="w-9" />
         </div>
 
@@ -3305,7 +3333,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     {tab.label}
                   </span>
                   {isActive && (
-                    <span className="absolute bottom-0 w-8 h-[3px] bg-[#0B57CF] rounded-full" />
+                    <span className="absolute bottom-0 w-8 h-[3px] bg-[#9E1B32] rounded-full" />
                   )}
                 </button>
               )
@@ -3346,7 +3374,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
         {/* Toast */}
         {historyExportToast && (
-          <div className="mx-4 mt-3 p-3 bg-[#0B57CF] text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg animate-in fade-in">
+          <div className="mx-4 mt-3 p-3 bg-slate-900 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg animate-in fade-in">
             <CheckCircle2 size={16} />
             <span>{historyExportToast}</span>
           </div>
@@ -3354,11 +3382,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
         {/* Scrollable Container */}
         <div className="p-4 space-y-3 max-w-lg mx-auto w-full">
-          {/* Monthly Summary Banner Card */}
-          <div className="bg-gradient-to-br from-[#E8F1FC] to-[#F1F6FE] rounded-2xl p-4 shadow-sm relative overflow-hidden">
-            {/* Watermark circle */}
-            <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-[#0B57CF]/5 pointer-events-none" />
-
+          {/* Monthly Summary Banner Card (Clean White) */}
+          <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs relative overflow-hidden">
             <h2 className="text-base font-bold text-slate-900 tracking-tight mb-3">
               {historyMonth}
             </h2>
@@ -3367,13 +3392,13 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <div>
                 <div className="text-xs text-slate-500 font-medium">Inflow</div>
                 <div className="text-[15px] font-bold text-slate-900 mt-0.5">
-                  1,300,000.00 (Ks)
+                  {totalInflow.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AKD
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-xs text-slate-500 font-medium">Outflow</div>
                 <div className="text-[15px] font-bold text-slate-900 mt-0.5">
-                  –1,197,600.00 (Ks)
+                  –{totalOutflow.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AKD
                 </div>
               </div>
             </div>
@@ -3395,7 +3420,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       <span className="absolute bottom-1.5 right-1.5 text-[8px] font-black text-[#0284C7] leading-none">$</span>
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-[#0B57CF] flex items-center justify-center shrink-0 text-white">
+                    <div className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center shrink-0 text-white">
                       <div className="flex items-center justify-center -space-x-0.5">
                         <span className="text-[10px] font-bold">◀</span>
                         <span className="w-3.5 h-3.5 rounded-full border border-white flex items-center justify-center text-[7.5px] font-black leading-none mx-0.5">$</span>
@@ -3442,12 +3467,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               </div>
 
               <div className="text-center py-2">
-                <div className="w-14 h-14 rounded-full bg-[#E0F2FE] text-[#0B57CF] flex items-center justify-center mx-auto mb-2">
+                <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2">
                   <CheckCircle2 size={32} />
                 </div>
                 <div className="text-xs text-slate-500 font-medium">Transaction Completed</div>
                 <div className="text-2xl font-black text-slate-900 mt-1">
-                  {formatAmount(selectedHistoryTx.amount)} Ks
+                  {formatAmount(selectedHistoryTx.amount)} AKD
                 </div>
               </div>
 
@@ -3471,7 +3496,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     <button
                       type="button"
                       onClick={() => navigator.clipboard.writeText(selectedHistoryTx.refNo)}
-                      className="text-[#0B57CF] hover:text-[#0047AB]"
+                      className="text-slate-700 hover:text-slate-900"
                       title="Copy Ref"
                     >
                       <Copy size={12} />
@@ -3480,14 +3505,14 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Service Fee</span>
-                  <span className="font-semibold text-emerald-600">0.00 Ks (Free)</span>
+                  <span className="font-semibold text-emerald-600">0.00 AKD (Free)</span>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setSelectedHistoryTx(null)}
-                className="w-full py-3 rounded-xl bg-[#0B57CF] text-white font-bold text-sm hover:bg-[#0047AB] transition cursor-pointer"
+                className="w-full py-3 rounded-xl bg-[#9E1B32] text-white font-bold text-sm hover:bg-[#831629] transition cursor-pointer"
               >
                 Close
               </button>
@@ -3522,11 +3547,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         setHistoryMonthModalOpen(false)
                       }}
                       className={`w-full p-3 rounded-xl flex items-center justify-between text-left transition cursor-pointer ${
-                        isSel ? 'bg-[#E8F1FC] text-[#0B57CF] font-bold' : 'hover:bg-slate-50 text-slate-800'
+                        isSel ? 'bg-rose-50 text-[#9E1B32] font-bold' : 'hover:bg-slate-50 text-slate-800'
                       }`}
                     >
                       <span className="text-sm">{m}</span>
-                      {isSel && <Check size={18} className="text-[#0B57CF]" />}
+                      {isSel && <Check size={18} className="text-[#9E1B32]" />}
                     </button>
                   )
                 })}
@@ -3566,11 +3591,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         setHistoryFilterModalOpen(false)
                       }}
                       className={`w-full p-3 rounded-xl flex items-center justify-between text-left transition cursor-pointer ${
-                        isSel ? 'bg-[#E8F1FC] text-[#0B57CF] font-bold' : 'hover:bg-slate-50 text-slate-800'
+                        isSel ? 'bg-rose-50 text-[#9E1B32] font-bold' : 'hover:bg-slate-50 text-slate-800'
                       }`}
                     >
                       <span className="text-sm">{cat.label}</span>
-                      {isSel && <Check size={18} className="text-[#0B57CF]" />}
+                      {isSel && <Check size={18} className="text-[#9E1B32]" />}
                     </button>
                   )
                 })}
@@ -3778,7 +3803,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         fee: 0,
         hash: `0x${nowStr.slice(-8)}...`,
       }
-      transactions.unshift(newTx)
+      // Update live transactions and sync with Supabase database
+      setLiveTransactions((prev) => [newTx, ...prev])
+      insertTransactionToDb(newTx)
+      updateUserBalanceInDb(Math.max(0, usdAccountBalance - costAkd))
 
       setTopupLastSuccessInfo({
         phone: topupPhone,
@@ -3794,45 +3822,45 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     return (
       <div className="min-h-full bg-[#F8F9FA] text-slate-800 flex flex-col pb-12">
-        {/* HEADER: ROYAL BLUE (Screenshot 1) vs CROSSBORDER (Screenshot 2-5) */}
+        {/* HEADER: CLEAN WHITE (matching all app pages) */}
         {topupHeaderStyle === 'royalBlue' ? (
-          <div className="bg-[#0B57CF] text-white px-4 pt-4 pb-8 transition-all">
+          <div className="bg-white text-slate-900 border-b border-slate-200 px-4 pt-4 pb-6 transition-all">
             <div className="flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => setScreen('home')}
-                className="flex items-center space-x-1.5 cursor-pointer font-bold text-base hover:opacity-80 transition"
+                className="flex items-center space-x-1.5 cursor-pointer font-bold text-base text-slate-900 hover:opacity-80 transition"
               >
-                <ChevronLeft size={24} />
+                <ChevronLeft size={24} className="text-slate-800" />
                 <span>Top Up</span>
               </button>
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
                   onClick={() => setTopupHeaderStyle('crossborder')}
-                  className="px-2.5 py-1 rounded-full bg-white/20 text-xs font-semibold hover:bg-white/30 transition cursor-pointer"
+                  className="px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition cursor-pointer"
                 >
                   ⇄ Crossborder
                 </button>
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700">
                   <MoreHorizontal size={18} />
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 flex items-center justify-between">
+            <div className="mt-4 flex items-center justify-between">
               <div>
-                <div className="text-[11px] font-bold tracking-wider uppercase text-blue-200">
+                <div className="text-[11px] font-bold tracking-wider uppercase text-slate-500">
                   {currentOperator || 'ATOM'}
                 </div>
-                <div className="text-2xl font-black tracking-tight mt-0.5">
+                <div className="text-2xl font-black tracking-tight mt-0.5 text-slate-900">
                   {topupPhone || '09795220917'}
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setTopupContactsModalOpen(true)}
-                className="w-10 h-10 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center cursor-pointer transition text-white"
+                className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center cursor-pointer transition text-slate-700"
                 title="Select Saved Contact"
               >
                 <BookUser size={20} />
@@ -3855,10 +3883,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <button
                 type="button"
                 onClick={() => setTopupHeaderStyle('royalBlue')}
-                className="p-1 text-slate-500 hover:text-[#0B57CF] cursor-pointer"
-                title="Switch to Royal Blue Style"
+                className="p-1 text-slate-500 hover:text-slate-900 cursor-pointer"
+                title="Switch Header Style"
               >
-                <span className="text-xs font-bold px-2 py-0.5 bg-blue-50 text-[#0B57CF] rounded-full border border-blue-200">
+                <span className="text-xs font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full border border-slate-200">
                   ATOM style
                 </span>
               </button>
@@ -3874,13 +3902,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         )}
 
         {/* BODY CONTAINER */}
-        <div
-          className={`flex-1 p-4 space-y-4 max-w-lg mx-auto w-full ${
-            topupHeaderStyle === 'royalBlue'
-              ? 'bg-white rounded-t-3xl -mt-4 shadow-sm'
-              : 'bg-white'
-          }`}
-        >
+        <div className="flex-1 p-4 space-y-4 max-w-lg mx-auto w-full bg-white">
           {/* Mobile No Input */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700">Mobile No</label>
@@ -3905,7 +3927,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => setTopupContactsModalOpen(true)}
-                  className="p-2 rounded-lg bg-[#0B57CF] text-white hover:bg-[#0047AB] transition cursor-pointer shadow-sm"
+                  className="p-2 rounded-lg bg-[#9E1B32] text-white hover:bg-[#801426] transition cursor-pointer shadow-sm"
                   title="Select Contact"
                 >
                   <BookUser size={15} />
@@ -3913,10 +3935,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               </div>
             </div>
 
-            {/* Operator Detected Subtitle (Screenshots 2, 4, 5) */}
+            {/* Operator Detected Subtitle */}
             {hasInput && currentOperator && (
               <div className="flex items-center space-x-1.5 pt-1 text-xs font-bold text-slate-800 animate-in fade-in">
-                <span className="w-4 h-4 rounded-full bg-[#0B57CF] text-white flex items-center justify-center text-[8px]">
+                <span className="w-4 h-4 rounded-full bg-[#9E1B32] text-white flex items-center justify-center text-[8px]">
                   ▶
                 </span>
                 <span>
@@ -4011,7 +4033,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       onClick={() => setTopupSelectedCategory(cat)}
                       className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center space-x-1.5 border ${
                         isSel
-                          ? 'bg-[#0B57CF] text-white border-[#0B57CF]'
+                          ? 'bg-[#9E1B32] text-white border-[#9E1B32]'
                           : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
                       }`}
                     >
@@ -4116,7 +4138,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     onClick={() => setTopupPhone(op.phone)}
                     className={`py-2 px-1 rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center space-y-0.5 ${
                       isActive
-                        ? 'border-[#0B57CF] bg-blue-50/50 shadow-sm'
+                        ? 'border-[#9E1B32] bg-red-50/50 shadow-sm'
                         : 'border-slate-200 bg-white hover:border-slate-300'
                     }`}
                   >
@@ -4163,7 +4185,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     className="w-full p-3 rounded-2xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 flex items-center justify-between transition cursor-pointer text-left"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-50 text-[#0B57CF] font-bold flex items-center justify-center text-sm">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-800 font-bold flex items-center justify-center text-sm">
                         {c.name.substring(0, 1)}
                       </div>
                       <div>
@@ -4224,7 +4246,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-medium">Exchange Rate</span>
-                  <span className="font-bold text-[#0B57CF]">1 THB = 115 MMK</span>
+                  <span className="font-bold text-slate-900">1 THB = 115 MMK</span>
                 </div>
               </div>
 
@@ -4563,7 +4585,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         fee: 0,
         hash: `0x${Math.random().toString(16).substring(2, 10)}...${Math.random().toString(16).substring(2, 6)}`,
       }
-      transactions.unshift(newTx)
+      // Update live transactions and sync with Supabase database
+      setLiveTransactions((prev) => [newTx, ...prev])
+      insertTransactionToDb(newTx)
+      updateUserBalanceInDb(Math.max(0, usdAccountBalance - akdAmount))
 
       setLastBillSuccess({
         billerName: selectedBiller.name,
@@ -4585,23 +4610,23 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
       return (
         <div className="min-h-full bg-[#F4F5F8] flex flex-col">
-          {/* Header Bar with Royal Blue #0B57CF */}
-          <div className="bg-[#0B57CF] text-white pt-4 pb-6 px-4">
-            <div className="flex items-center space-x-3 mb-4">
+          {/* Header Bar: Clean White */}
+          <div className="bg-white text-slate-900 border-b border-slate-200 pt-4 pb-4 px-4 sticky top-0 z-30">
+            <div className="flex items-center space-x-3 mb-3">
               <button
                 type="button"
                 onClick={() => setSelectedBiller(null)}
-                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 cursor-pointer"
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-700 cursor-pointer"
               >
                 <ChevronLeft size={24} />
               </button>
-              <h1 className="text-base font-bold truncate flex-1">
+              <h1 className="text-base font-bold text-slate-900 truncate flex-1">
                 {selectedBiller.name}
               </h1>
             </div>
 
             {/* Embedded Rounded Pill Input with Green Circular Search Button [🔍] */}
-            <div className="bg-white rounded-full px-4 py-1.5 flex items-center justify-between shadow-md">
+            <div className="bg-slate-50 rounded-full px-4 py-1.5 flex items-center justify-between border border-slate-200 shadow-xs">
               <input
                 type="text"
                 value={billerAccountInput}
@@ -4766,7 +4791,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     setSelectedBiller(null)
                     setScreen('home')
                   }}
-                  className="w-full py-3.5 rounded-2xl bg-[#0B57CF] hover:bg-[#0947a8] text-white font-extrabold text-sm transition cursor-pointer shadow-md"
+                  className="w-full py-3.5 rounded-2xl bg-[#9E1B32] hover:bg-[#801426] text-white font-extrabold text-sm transition cursor-pointer shadow-md"
                 >
                   Back to Home
                 </button>
@@ -4804,7 +4829,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               }}
               className={`flex-1 py-1.5 text-xs font-bold rounded-full transition cursor-pointer ${
                 billsRegion === 'myanmar'
-                  ? 'bg-[#0B57CF] text-white shadow-xs'
+                  ? 'bg-[#9E1B32] text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -4818,7 +4843,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               }}
               className={`flex-1 py-1.5 text-xs font-bold rounded-full transition cursor-pointer ${
                 billsRegion === 'thailand'
-                  ? 'bg-[#0B57CF] text-white shadow-xs'
+                  ? 'bg-[#9E1B32] text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -4830,24 +4855,24 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         {/* ── MYANMAR BILLS VIEW (SCREENSHOT 2) ──────────────────────────────── */}
         {billsRegion === 'myanmar' && (
           <div>
-            {/* Header: Royal Blue with < Bills Payment and History on Right */}
-            <div className="bg-[#0B57CF] text-white px-4 py-3.5 flex items-center justify-between">
+            {/* Header: Clean White with < Bills Payment and History on Right */}
+            <div className="bg-white text-slate-900 border-b border-slate-200 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30">
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
                   onClick={() => setScreen('home')}
-                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 cursor-pointer"
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-700 cursor-pointer"
                 >
                   <ChevronLeft size={24} />
                 </button>
-                <h1 className="text-base font-bold">
+                <h1 className="text-base font-bold text-slate-900">
                   {isAk ? 'ဘေလ်ပေးချေခြင်း' : 'Bills Payment'}
                 </h1>
               </div>
               <button
                 type="button"
                 onClick={() => setScreen('history')}
-                className="text-xs font-bold text-white hover:underline cursor-pointer px-2 py-1"
+                className="text-xs font-bold text-slate-700 hover:text-slate-900 px-2.5 py-1 rounded-full border border-slate-200 hover:bg-slate-100 cursor-pointer"
               >
                 {isAk ? 'မှတ်တမ်း' : 'History'}
               </button>
@@ -4859,7 +4884,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <div
                   key={biller.id}
                   onClick={() => handleSelectBiller(biller)}
-                  className="relative bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs flex items-center justify-between hover:border-blue-400 hover:shadow-sm transition cursor-pointer active:scale-99"
+                  className="relative bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs flex items-center justify-between hover:border-slate-300 hover:shadow-sm transition cursor-pointer active:scale-99"
                 >
                   <div className="flex items-center space-x-3 min-w-0">
                     <div
@@ -4881,7 +4906,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <div className="flex items-center space-x-2 shrink-0">
                     {/* Floating Pill for Kyo Phyae badge on AIA (Screenshot 2) */}
                     {biller.hasKyoPhyae && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#0284C7] to-[#0B57CF] text-white text-[10px] font-bold shadow-xs flex items-center space-x-1">
+                      <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-white text-[10px] font-bold shadow-xs flex items-center space-x-1">
                         <span>Kyo Phyae &gt;</span>
                       </span>
                     )}
@@ -5401,7 +5426,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                           setScreen('pay')
                         })
                       }
-                      className="flex-1 h-9 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs"
+                      className="flex-1 h-9 rounded-xl bg-[#9E1B32] hover:bg-[#801426] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs"
                     >
                       <SendIcon size={13} />
                       <span>{isAk ? 'ငွေလွှဲမည်' : 'Quick Pay'}</span>
@@ -5566,7 +5591,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         onClick={() => setFavFormBank(b)}
                         className={`text-xs font-bold px-2.5 py-1 rounded-lg border transition ${
                           favFormBank === b
-                            ? 'bg-blue-600 text-white border-blue-600'
+                            ? 'bg-[#9E1B32] text-white border-[#9E1B32]'
                             : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
                         }`}
                       >

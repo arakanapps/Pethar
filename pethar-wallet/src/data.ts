@@ -31,7 +31,7 @@ export interface Txn {
   refId: string
   title: string
   titleMm: string
-  category: 'p2p' | 'cashout' | 'crypto' | 'remittance' | 'pos' | 'card'
+  category: 'p2p' | 'cashout' | 'crypto' | 'remittance' | 'pos' | 'card' | 'Bills' | string
   amount: number
   currency: string
   time: string
@@ -42,106 +42,11 @@ export interface Txn {
   hash: string
 }
 
-export const transactions: Txn[] = [
-  {
-    id: 'TX-9014',
-    refId: 'ARAK-P2P-2026-9014',
-    title: 'P2P Transfer to Ko Min Aung',
-    titleMm: 'ကိုမင်းအောင် သို့ ငွေလွှဲခြင်း',
-    category: 'p2p',
-    amount: -350.0,
-    currency: 'AKD',
-    time: 'Today · 14:22',
-    status: 'SETTLED',
-    counterparty: 'Ko Min Aung (ARAK-8891)',
-    counterpartyMm: 'ကိုမင်းအောင် (စစ်တွေ)',
-    fee: 0.0,
-    hash: '0x8f2a...c891',
-  },
-  {
-    id: 'TX-9013',
-    refId: 'ARAK-BN-2026-9013',
-    title: 'Binance Pay USDT Inflow',
-    titleMm: 'Binance မှ USDT ငွေသွင်းခြင်း',
-    category: 'crypto',
-    amount: 1500.0,
-    currency: 'AKD',
-    time: 'Today · 11:05',
-    status: 'SETTLED',
-    counterparty: 'Binance Pay Connect (1500 USDT inflow)',
-    counterpartyMm: 'Binance ဒစ်ဂျစ်တယ်ငွေသွင်း',
-    fee: 0.0,
-    hash: '0x3e11...904b',
-  },
-  {
-    id: 'TX-9012',
-    refId: 'ARAK-POS-2026-9012',
-    title: 'Merchant POS · Mrauk-U Solar Supplies',
-    titleMm: 'မြောက်ဦးဆိုလာ အရောင်းဆိုင်တွင် ရှင်းပြီး',
-    category: 'pos',
-    amount: -125.5,
-    currency: 'AKD',
-    time: 'Yesterday · 16:40',
-    status: 'SETTLED',
-    counterparty: 'Mrauk-U Solar POS Terminal #04',
-    counterpartyMm: 'မြောက်ဦးဆိုလာ အရောင်းဆိုင်',
-    fee: 0.0,
-    hash: '0xaa42...b712',
-  },
-  {
-    id: 'TX-9011',
-    refId: 'ARAK-AGT-2026-9011',
-    title: 'Physical Cash-Out at Sittwe Main Agent',
-    titleMm: 'စစ်တွေ အဓိကအေးဂျင့်တွင် ငွေသားထုတ်ယူမှု',
-    category: 'cashout',
-    amount: -500.0,
-    currency: 'AKD',
-    time: 'Yesterday · 10:18',
-    status: 'SETTLED',
-    counterparty: 'Agent #AK-001 · Sittwe Strand Road',
-    counterpartyMm: 'အေးဂျင့် #AK-001 (စစ်တွေ ကမ်းနားလမ်း)',
-    fee: 2.5,
-    hash: '0xd714...fe09',
-  },
-  {
-    id: 'TX-9010',
-    refId: 'ARAK-WISE-2026-9010',
-    title: 'Wise Global Wire from Bangkok (THB Corridor)',
-    titleMm: 'Wise မှ ထိုင်း-အာရက္ခ နယ်စပ်ဖြတ်ကျော်ငွေလွှဲ',
-    category: 'remittance',
-    amount: 820.0,
-    currency: 'AKD',
-    time: '21 Sep · 09:30',
-    status: 'SETTLED',
-    counterparty: 'Daw Saw Mya (Bangkok, Wise Wire)',
-    counterpartyMm: 'ဒေါ်စောမြ (ဘန်ကောက်)',
-    fee: 1.0,
-    hash: '0x718a...2214',
-  },
-  {
-    id: 'TX-9009',
-    refId: 'ARAK-VSA-2026-9009',
-    title: 'International Visa Card Top-Up',
-    titleMm: 'Visa ကတ်ဖြင့် အကောင့်အတွင်း ငွေသွင်းခြင်း',
-    category: 'card',
-    amount: 400.0,
-    currency: 'AKD',
-    time: '20 Sep · 19:15',
-    status: 'SETTLED',
-    counterparty: 'Visa Intl (Card ending in 4109)',
-    counterpartyMm: 'နိုင်ငံတကာ Visa ကတ်',
-    fee: 3.2,
-    hash: '0x12c9...560a',
-  },
-]
+// Live data: All transactions are fetched dynamically from Supabase
+export const transactions: Txn[] = []
 
-export const contacts = [
-  { name: 'Ko Min Aung', mm: 'ကိုမင်းအောင်', id: 'ARAK-8891', location: 'Sittwe · စစ်တွေ', phone: '+95 9 881 204 991', initials: 'MA' },
-  { name: 'Ma Hnin Nu', mm: 'မနှင်းနု', id: 'ARAK-4402', location: 'Mrauk-U · မြောက်ဦး', phone: '+95 9 791 443 821', initials: 'HN' },
-  { name: 'U Ba Thein', mm: 'ဦးဘသိန်း', id: 'ARAK-1982', location: 'Kyaukpyu · ကျောက်ဖြူ', phone: '+95 9 440 918 203', initials: 'BT' },
-  { name: 'Daw Saw Mya', mm: 'ဒေါ်စောမြ', id: 'ARAK-7719', location: 'Thandwe · သံတွဲ', phone: '+95 9 961 882 109', initials: 'SM' },
-  { name: 'Ko Kyaw Sein', mm: 'ကိုကျော်စိန်', id: 'ARAK-3305', location: 'Ramree · ရမ်းဗြဲ', phone: '+95 9 250 119 443', initials: 'KS' },
-]
+// Live data: Contacts are fetched dynamically from Supabase 'favorite_contacts'
+export const contacts: { name: string; mm: string; id: string; location: string; phone: string; initials: string }[] = []
 
 export interface UserProfile {
   name: string
@@ -154,13 +59,13 @@ export interface UserProfile {
 }
 
 export const initialUserProfile: UserProfile = {
-  name: 'Jack',
-  email: 'realjackhalder@gmail.com',
-  phone: '+95 9 881 204 991',
-  petharId: 'ARAK-8891-JACK',
+  name: 'Aung Kyaw Zan',
+  email: 'aungkyawzan@pethar.io',
+  phone: '09795220917',
+  petharId: 'AK-992104-88',
   location: 'Sittwe · စစ်တွေ',
-  accountTier: 'Normal',
-  avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+  accountTier: 'Tier 2 Verified',
+  avatarUrl: '',
 }
 
 export interface Agent {
@@ -177,73 +82,8 @@ export interface Agent {
   open: boolean
 }
 
-export const agents: Agent[] = [
-  {
-    code: 'AK-001',
-    name: 'Shwe Sittwe Central Merchant Point',
-    mm: 'ရွှေစစ်တွေ အဓိကဘဏ္ဍာရေးအေးဂျင့်',
-    township: 'Sittwe Strand Road',
-    townshipMm: 'စစ်တွေမြို့၊ ကမ်းနားလမ်း',
-    distance: '180 m',
-    floatStatus: 'High',
-    floatStatusMm: 'ငွေသားအပြည့်ရှိ (High Float)',
-    phone: '+95 9 881 000 101',
-    cashReserveAkd: 85000,
-    open: true,
-  },
-  {
-    code: 'AK-042',
-    name: 'Mrauk-U Ancient City Express Agent',
-    mm: 'မြောက်ဦး မြို့လယ် အေးဂျင့်ဆိုင်',
-    township: 'Mrauk-U Palace Road',
-    townshipMm: 'မြောက်ဦး နန်းရာလမ်း',
-    distance: '420 m',
-    floatStatus: 'High',
-    floatStatusMm: 'ငွေသားအပြည့်ရှိ (High Float)',
-    phone: '+95 9 791 000 042',
-    cashReserveAkd: 54000,
-    open: true,
-  },
-  {
-    code: 'AK-088',
-    name: 'Kyaukpyu Deep Port Financial Center',
-    mm: 'ကျောက်ဖြူ ဆိပ်ကမ်းကြီး ဘဏ္ဍာရေးကောင်တာ',
-    township: 'Kyaukpyu Port Road',
-    townshipMm: 'ကျောက်ဖြူ သင်္ဘောဆိပ်လမ်း',
-    distance: '950 m',
-    floatStatus: 'Medium',
-    floatStatusMm: 'ငွေသားသင့်တင့်စွာရှိ (Medium)',
-    phone: '+95 9 440 000 088',
-    cashReserveAkd: 28000,
-    open: true,
-  },
-  {
-    code: 'AK-115',
-    name: 'Thandwe Beach Gateway Agent',
-    mm: 'သံတွဲ ကမ်းခြေလမ်းဆုံ ငွေသားကောင်တာ',
-    township: 'Thandwe Main Market',
-    townshipMm: 'သံတွဲမြို့မဈေးကြီး',
-    distance: '1.4 km',
-    floatStatus: 'Medium',
-    floatStatusMm: 'ငွေသားသင့်တင့်စွာရှိ (Medium)',
-    phone: '+95 9 961 000 115',
-    cashReserveAkd: 32000,
-    open: true,
-  },
-  {
-    code: 'AK-204',
-    name: 'Ramree Island Agricultural Service',
-    mm: 'ရမ်းဗြဲကျွန်း စိုက်ပျိုးရေးနှင့်ငွေထုတ်အေးဂျင့်',
-    township: 'Ramree Bogyoke Road',
-    townshipMm: 'ရမ်းဗြဲ ဗိုလ်ချုပ်လမ်း',
-    distance: '2.1 km',
-    floatStatus: 'Low',
-    floatStatusMm: 'ငွေသားအနည်းငယ်သာရှိ (Low)',
-    phone: '+95 9 250 000 204',
-    cashReserveAkd: 9500,
-    open: true,
-  },
-]
+// Live data: Agents are fetched dynamically from Supabase 'agents'
+export const agents: Agent[] = []
 
 export interface WalletBalance {
   currency: string
@@ -265,15 +105,15 @@ export const wallets: WalletBalance[] = [
     currency: 'AKD',
     code: 'AKD',
     symbol: '₳',
-    balance: 14850.0,
-    totalBalance: 15200.0,
-    pendingBalance: 350.0,
+    balance: 12500.0,
+    totalBalance: 12500.0,
+    pendingBalance: 0.0,
     labelEn: 'Available Balance',
     labelMm: 'ရရှိနိုင်သော လက်ကျန်ငွေ',
     totalLabelEn: 'Total Balance',
     totalLabelMm: 'စုစုပေါင်း လက်ကျန်ငွေ',
     isReserveBacked: true,
-    usdEquivalent: 14850.0,
+    usdEquivalent: 12500.0,
   },
 ]
 
@@ -288,15 +128,8 @@ export interface FxRateItem {
   trend: 'up' | 'down' | 'flat'
 }
 
-export const liveFxRates: FxRateItem[] = [
-  { pair: 'AKD / USD', name: 'Arakan Dollar to US Dollar', nameMm: 'အာရက္ခဒေါ်လာ နှင့် အမေရိကန်ဒေါ်လာ', rate: 1.0, change24h: '+0.00%', high24h: 1.0, low24h: 1.0, trend: 'flat' },
-  { pair: 'AKD / USDT', name: 'Arakan Dollar to Tether', nameMm: 'အာရက္ခဒေါ်လာ နှင့် USDT', rate: 1.0, change24h: '+0.00%', high24h: 1.0, low24h: 1.0, trend: 'flat' },
-  { pair: 'AKD / THB', name: 'Arakan Dollar to Thai Baht', nameMm: 'အာရက္ခဒေါ်လာ နှင့် ထိုင်းဘတ်', rate: 35.8, change24h: '+0.42%', high24h: 36.1, low24h: 35.6, trend: 'up' },
-  { pair: 'AKD / MYR', name: 'Arakan Dollar to Malaysian Ringgit', nameMm: 'အာရက္ခဒေါ်လာ နှင့် မလေးရှားရင်းဂစ်', rate: 4.72, change24h: '-0.15%', high24h: 4.75, low24h: 4.7, trend: 'down' },
-  { pair: 'AKD / SGD', name: 'Arakan Dollar to Singapore Dollar', nameMm: 'အာရက္ခဒေါ်လာ နှင့် စင်ကာပူဒေါ်လာ', rate: 1.34, change24h: '+0.08%', high24h: 1.35, low24h: 1.33, trend: 'up' },
-  { pair: 'AKD / EUR', name: 'Arakan Dollar to Euro', nameMm: 'အာရက္ခဒေါ်လာ နှင့် ဥရောပယူရို', rate: 0.92, change24h: '-0.21%', high24h: 0.93, low24h: 0.91, trend: 'down' },
-  { pair: 'BTC / AKD', name: 'Bitcoin to Arakan Dollar', nameMm: 'ဘစ်ကွိုင် နှင့် အာရက္ခဒေါ်လာ', rate: 64500.0, change24h: '+2.85%', high24h: 65200.0, low24h: 63100.0, trend: 'up' },
-]
+// Live data: FX rates are fetched dynamically from Supabase 'fx_rate_board'
+export const liveFxRates: FxRateItem[] = []
 
 export const quickPosItems = [
   { id: '1', name: 'Arakan Fragrant Rice (1 Bag)', nameMm: 'အာရက္ခပေါ်ဆန်းမွှေးဆန် ၁ အိတ်', price: 28.0, category: 'Food' },

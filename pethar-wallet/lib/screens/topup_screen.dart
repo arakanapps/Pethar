@@ -1043,11 +1043,16 @@ class _TopupScreenState extends State<TopupScreen> {
     );
   }
 
-  // Royal Blue Header (Screenshot 1)
+  // Clean White Header
   Widget _buildRoyalBlueHeader(BuildContext context, AppState appState, String operatorName) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFF0B57CF),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.8),
+        ),
+      ),
       padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 8, 16, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1059,12 +1064,12 @@ class _TopupScreenState extends State<TopupScreen> {
                 children: [
                   GestureDetector(
                     onTap: () => appState.goBack(),
-                    child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                    child: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0F172A), size: 18),
                   ),
                   const SizedBox(width: 14),
                   const Text(
                     'Top Up',
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
+                    style: TextStyle(color: Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -1079,14 +1084,14 @@ class _TopupScreenState extends State<TopupScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.swap_horiz_rounded, size: 14, color: Colors.white),
+                          Icon(Icons.swap_horiz_rounded, size: 14, color: Color(0xFF0F172A)),
                           SizedBox(width: 4),
-                          Text('Crossborder', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                          Text('Crossborder', style: TextStyle(color: Color(0xFF0F172A), fontSize: 11, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -1095,14 +1100,14 @@ class _TopupScreenState extends State<TopupScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.more_horiz_rounded, color: Colors.white, size: 18),
+                        Icon(Icons.more_horiz_rounded, color: Color(0xFF0F172A), size: 18),
                         SizedBox(width: 6),
-                        Icon(Icons.lens_blur_rounded, color: Colors.white, size: 18),
+                        Icon(Icons.lens_blur_rounded, color: Color(0xFF0F172A), size: 18),
                       ],
                     ),
                   ),
@@ -1113,10 +1118,10 @@ class _TopupScreenState extends State<TopupScreen> {
           const SizedBox(height: 18),
           Text(
             operatorName.toUpperCase(),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.8),
+              color: Color(0xFF64748B),
               letterSpacing: 0.5,
             ),
           ),
@@ -1129,7 +1134,7 @@ class _TopupScreenState extends State<TopupScreen> {
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: Color(0xFF0F172A),
                   letterSpacing: 0.5,
                 ),
               ),
@@ -1138,10 +1143,10 @@ class _TopupScreenState extends State<TopupScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.contacts_rounded, size: 18, color: Colors.white),
+                  child: const Icon(Icons.contacts_rounded, size: 18, color: Color(0xFF0F172A)),
                 ),
               ),
             ],
