@@ -141,7 +141,7 @@ export const DataPage = ({ lang }: DataPageProps) => {
               <span className="text-xs font-mono font-bold">{t.parityLabel}</span>
               <Layers className="w-4 h-4 text-sky-600" />
             </div>
-            <p className="text-2xl font-black text-slate-950 font-mono">1.0000 ₳ = $1.00</p>
+            <p className="text-2xl font-black text-slate-950 font-mono">1.00 ₳ = $1.00</p>
             <p className="text-[11px] font-mono text-emerald-600 font-bold">
               0.00% Peg Deviation
             </p>

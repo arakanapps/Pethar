@@ -289,7 +289,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
                 {lang === 'ak' ? 'အာရက္ခဒေါ်လာ ငွေလဲလှယ်နှုန်း' : 'Official Exchange Peg'}
               </div>
               <div className="text-lg font-bold text-emerald-400 font-mono">
-                1.00 ₳ = 1.0000 USDT = $1.00 USD
+                1.00 ₳ = 1.00 USDT = $1.00 USD
               </div>
               <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
                 <CheckCircle className="w-3 h-3 text-emerald-500" />

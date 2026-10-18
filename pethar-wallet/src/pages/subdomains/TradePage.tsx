@@ -93,7 +93,7 @@ export const TradePage = ({ lang }: TradePageProps) => {
                 <TrendingUp size={12} /> Parity
               </span>
             </div>
-            <div className="text-2xl font-black font-mono text-white mt-2">₳ 1.0000</div>
+            <div className="text-2xl font-black font-mono text-white mt-2">₳ 1.00</div>
             <div className="text-[10px] text-slate-400 font-mono mt-1">1:1 USD Escrow Peg</div>
           </div>
 
@@ -117,7 +117,7 @@ export const TradePage = ({ lang }: TradePageProps) => {
                 <TrendingUp size={12} /> +0.01%
               </span>
             </div>
-            <div className="text-2xl font-black font-mono text-emerald-400 mt-2">$1.0000</div>
+            <div className="text-2xl font-black font-mono text-emerald-400 mt-2">$1.00</div>
             <div className="text-[10px] text-slate-400 font-mono mt-1">100% Backed Pool</div>
           </div>
 
