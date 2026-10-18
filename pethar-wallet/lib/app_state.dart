@@ -27,20 +27,30 @@ class AppState extends ChangeNotifier {
   double offlinePocketBalance = 150.0; // Pre-loaded offline bearer cash
   List<String> offlineTokens = [];     // Stored bearer tokens
   Map<String, dynamic>? pendingPayContact;
+  bool dontShowQuickScanDialog = false;
 
   int get unreadNotificationsCount => notifications.where((n) => !n.read).length;
+
+  void setDontShowQuickScanDialog(bool val) {
+    dontShowQuickScanDialog = val;
+    notifyListeners();
+  }
 
   void startPayForContact({
     required String name,
     required String id,
     required String initials,
     required int colorValue,
+    String? username,
+    String? uid,
   }) {
     pendingPayContact = {
       'name': name,
       'id': id,
       'initials': initials,
       'colorValue': colorValue,
+      'username': username,
+      'uid': uid,
     };
     navigate(Screen.pay);
   }
