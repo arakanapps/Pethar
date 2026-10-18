@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../theme.dart';
 import '../widgets/support_and_kyc_modals.dart';
+import 'notifications_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -825,7 +826,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
                   ),
                   trailing: const Icon(Icons.chevron_right, color: Colors.black38),
-                  onTap: () => appState.navigate(Screen.notifications),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationsScreen(),
+                      ),
+                    );
+                  },
                 ),
                 const Divider(height: 1),
                 SwitchListTile(

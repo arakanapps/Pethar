@@ -392,6 +392,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               GestureDetector(
+                                behavior: HitTestBehavior.opaque,
                                 onTap: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
