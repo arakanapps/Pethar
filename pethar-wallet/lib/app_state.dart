@@ -3,7 +3,7 @@ import 'models/data.dart';
 import 'services/firebase_service.dart';
 import 'services/supabase_service.dart';
 
-enum Screen { home, account, services, settings, send, receive, scan, cashout, intl, crypto, pos, notifications, desktop, offlinePayment }
+enum Screen { home, account, services, settings, send, receive, scan, cashout, intl, crypto, pos, notifications, desktop, offlinePayment, pay }
 
 class AppState extends ChangeNotifier {
   Screen currentScreen = Screen.home;
@@ -26,8 +26,28 @@ class AppState extends ChangeNotifier {
   List<Transaction> txList = List.from(transactions);
   double offlinePocketBalance = 150.0; // Pre-loaded offline bearer cash
   List<String> offlineTokens = [];     // Stored bearer tokens
+  Map<String, dynamic>? pendingPayContact;
 
   int get unreadNotificationsCount => notifications.where((n) => !n.read).length;
+
+  void startPayForContact({
+    required String name,
+    required String id,
+    required String initials,
+    required int colorValue,
+  }) {
+    pendingPayContact = {
+      'name': name,
+      'id': id,
+      'initials': initials,
+      'colorValue': colorValue,
+    };
+    navigate(Screen.pay);
+  }
+
+  void clearPendingPayContact() {
+    pendingPayContact = null;
+  }
 
   void navigate(Screen screen, {String? financialView}) {
     if (financialView != null) {

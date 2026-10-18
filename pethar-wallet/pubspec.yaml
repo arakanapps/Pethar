@@ -1,7 +1,7 @@
 name: pethar_mobile
-description: Péthar (ဖေ့သာ) — Arakan Financial Super App
+description: Péthar (ဖေ့သာ) — Arakan Financial App
 publish_to: 'none'
-version: 2.0.0+1
+version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

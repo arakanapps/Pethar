@@ -69,10 +69,12 @@ export default defineConfig({
     allowedHosts: true,
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "framer-motion": path.resolve(__dirname, "./src/lib/framer-motion.tsx"),
-    },
+    alias: [
+      { find: "@", replacement: path.resolve(__dirname, "./src") },
+      { find: "motion/react", replacement: path.resolve(__dirname, "./src/lib/framer-motion.tsx") },
+      { find: /^motion$/, replacement: path.resolve(__dirname, "./src/lib/framer-motion.tsx") },
+      { find: "framer-motion", replacement: path.resolve(__dirname, "./src/lib/framer-motion.tsx") },
+    ],
   },
   build: {
     target: 'es2020',

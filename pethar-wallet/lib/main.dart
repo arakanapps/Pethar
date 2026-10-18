@@ -16,14 +16,16 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Set clean light system UI overlay style matching iOS
+  // Set clean light edge-to-edge system UI overlay style matching iOS
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
-    systemNavigationBarColor: Color(0xFFF4F5F8),
+    systemNavigationBarColor: Colors.transparent,
     systemNavigationBarIconBrightness: Brightness.dark,
     systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarContrastEnforced: false,
   ));
 
   // Initialize Firebase (Project: pe-thar)

@@ -15,6 +15,12 @@
       ],
       "framer-motion": [
         "./src/lib/framer-motion.tsx"
+      ],
+      "motion": [
+        "./src/lib/framer-motion.tsx"
+      ],
+      "motion/react": [
+        "./src/lib/framer-motion.tsx"
       ]
     },
     /* Bundler mode */

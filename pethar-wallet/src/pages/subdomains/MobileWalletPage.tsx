@@ -54,6 +54,7 @@ import {
   X,
   Ticket,
   Bug,
+  Trash2,
 } from 'lucide-react'
 import {
   AccountScreen,
@@ -72,6 +73,7 @@ import { TransactionSlip } from '../../components/TransactionSlip'
 import { FakeQR } from '../../components/FakeQR'
 import { initialUserProfile, transactions, contacts, type UserProfile, type Txn } from '../../data'
 import type { Language } from '../../i18n'
+import { WalletMinimalIcon } from '@/components/WalletMinimalIcon'
 
 interface MobileWalletPageProps {
   lang: Language
@@ -95,7 +97,7 @@ type FinancialSubView =
   | 'spending'
   | 'wallet_security_phrase'
 
-const DOCK_TABS: MobileTab[] = ['home', 'financial', 'scan', 'services', 'account', 'settings']
+const DOCK_TABS: MobileTab[] = ['home', 'financial', 'scan', 'services', 'account', 'settings', 'receive']
 
 const SINGLE_WALLET_ACCOUNT = {
   name: 'USD Account',
@@ -299,6 +301,53 @@ function NavAccountIcon({ active }: { active: boolean }) {
   )
 }
 
+const PROMO_ADS = [
+  {
+    id: 1,
+    bgGradient: 'from-white to-rose-50/70',
+    borderColor: 'border-rose-200/80',
+    accentBg: 'bg-rose-100 text-[#D91624] border-rose-200',
+    icon: SendIcon,
+    titleEn: 'Péthar Zero-Fee Global Remittance',
+    titleAk: 'ဖေ့သာ ၀% ဝန်ဆောင်ခ အထူးအစီအစဉ်',
+    descEn: 'Instant transfers & zero network gas fees',
+    descAk: 'နယ်စပ်ဖြတ်ကျော် ငွေလွှဲခမဲ့နှင့် လက်ငင်းလွှဲပို့ခြင်း',
+  },
+  {
+    id: 2,
+    bgGradient: 'from-white to-emerald-50/70',
+    borderColor: 'border-emerald-200/80',
+    accentBg: 'bg-emerald-100 text-emerald-600 border-emerald-200',
+    icon: Ticket,
+    titleEn: 'Arakan Merchant 5% Cashback',
+    titleAk: 'ကုန်သည်ဆိုင်များတွင် ၅% ပြန်အမ်းငွေ',
+    descEn: 'Earn 5% cashback at verified partner merchants',
+    descAk: 'အတည်ပြုစတိုးဆိုင်များတွင် QR ဖြင့် ပေးချေပါ',
+  },
+  {
+    id: 3,
+    bgGradient: 'from-white to-indigo-50/70',
+    borderColor: 'border-indigo-200/80',
+    accentBg: 'bg-indigo-100 text-indigo-600 border-indigo-200',
+    icon: Smartphone,
+    titleEn: 'Péthar Offline Bearer eCash',
+    titleAk: 'အင်တာနက်မလိုဘဲ ငွေသားကဲ့သို့ ပေးချေခြင်း',
+    descEn: 'NFC & soundwave offline tap-to-pay anywhere',
+    descAk: 'အသံလှိုင်းနှင့် NFC ဖြင့် အင်တာနက်မဲ့ သုံးစွဲနိုင်သည်',
+  },
+  {
+    id: 4,
+    bgGradient: 'from-white to-amber-50/70',
+    borderColor: 'border-amber-200/80',
+    accentBg: 'bg-amber-100 text-amber-600 border-amber-200',
+    icon: ShieldCheck,
+    titleEn: '100% Gold-Backed AKD Vault',
+    titleAk: 'ရွှေအာမခံ ၁၀၀% အပြည့်ဖြင့် ထိန်းသိမ်းထားသော ငွေကြေး',
+    descEn: 'Audited sovereign reserve backed 1:1 by physical gold',
+    descAk: 'ရုပ်ပိုင်းဆိုင်ရာ ရွှေနှင့် ဒေါ်လာဖြင့် အပြည့်အဝ အာမခံထားသည်',
+  },
+]
+
 export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLang }) => {
   // 1. App Opening Splash Screen
   const [showSplash, setShowSplash] = useState<boolean>(true)
@@ -396,6 +445,43 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const streamRef = useRef<MediaStream | null>(null)
   const galleryInputRef = useRef<HTMLInputElement | null>(null)
 
+  // Pay Interface (Picture 1 & Picture 2 Layout) States
+  const [payStep, setPayStep] = useState<'input' | 'detail' | 'success'>('input')
+  const [payRecipient, setPayRecipient] = useState({
+    id: 'REC-1',
+    name: 'Zaw Myo Htet',
+    username: '@zawmyo',
+    uid: '882194012345',
+    category: 'family' as 'family' | 'friends' | 'other',
+    initials: 'ZH',
+    avatarUrl: '',
+  })
+  const [payToInput, setPayToInput] = useState<string>('')
+  const [payAmount, setPayAmount] = useState<string>('')
+  const [payNote, setPayNote] = useState<string>('')
+  const [payCategoryTab, setPayCategoryTab] = useState<'all' | 'family' | 'friends' | 'other'>('all')
+  const [paySearchQuery, setPaySearchQuery] = useState<string>('')
+  const [payDeleteMode, setPayDeleteMode] = useState<boolean>(false)
+  const [currentAdIndex, setCurrentAdIndex] = useState<number>(0)
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setCurrentAdIndex((prev) => (prev + 1) % PROMO_ADS.length)
+    }, 4000)
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const [recentPayContacts, setRecentPayContacts] = useState([
+    { id: 'REC-1', name: 'Zaw Myo Htet', username: '@zawmyo', uid: '882194012345', category: 'family' as const, initials: 'ZH', avatarUrl: '' },
+    { id: 'REC-2', name: 'Ko Min Aung', username: '@minaung', uid: '198273560912', category: 'friends' as const, initials: 'MA', avatarUrl: '' },
+    { id: 'REC-3', name: 'Ma Hnin Nu', username: '@hninnu', uid: '440211987654', category: 'friends' as const, initials: 'HN', avatarUrl: '' },
+    { id: 'REC-4', name: 'Daw Saw Mya', username: '@sawmya', uid: '771902345678', category: 'family' as const, initials: 'SM', avatarUrl: '' },
+    { id: 'REC-5', name: 'U Ba Thein', username: '@bathein', uid: '550182390124', category: 'other' as const, initials: 'BT', avatarUrl: '' },
+    { id: 'REC-6', name: 'Ko Kyaw Sein', username: '@kyawsein', uid: '330549123456', category: 'other' as const, initials: 'KS', avatarUrl: '' },
+  ])
+  const [showQuickScanner, setShowQuickScanner] = useState<boolean>(false)
+  const [paySuccessTx, setPaySuccessTx] = useState<Txn | null>(null)
+
   // Account & Privacy / Security / Device Management / Sign Out States
   const [accountSubScreen, setAccountSubScreen] = useState<AccountSubScreen>('main')
   const [showSignOutModal, setShowSignOutModal] = useState<boolean>(false)
@@ -409,7 +495,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [autoSaveReceipt, setAutoSaveReceipt] = useState<boolean>(true)
   const [faceIdEnabled, setFaceIdEnabled] = useState<boolean>(true)
   const [biometricLoginEnabled, setBiometricLoginEnabled] = useState<boolean>(true)
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState<boolean>(false)
   const [settingsNoticeToast, setSettingsNoticeToast] = useState<string | null>(null)
   const [profileDetails] = useState({
     firstName: 'MYAT SOE',
@@ -552,38 +637,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     return transactions
   }, [historyCategoryTab])
 
-  /* ─── SHARED TOP LOGO BAR (LOGO ONLY BY DEFAULT; LIVE CHAT ONLY ON HOME, NO BELL, NO BLACK HOVER/BOX ON LOGO) ─── */
-  const renderTopLogoHeader = (showChat = false) => (
-    <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-      {/* Left: Clean Péthar Logo without black box or black hover */}
-      <button
-        type="button"
-        onClick={() => setScreen('home')}
-        aria-label="Péthar Home"
-        className="w-10 h-10 flex items-center justify-center bg-transparent hover:bg-transparent active:scale-95 transition cursor-pointer"
-      >
-        <img
-          src="/pethar-logo-red-white.svg"
-          alt="Péthar"
-          className="w-10 h-10 object-contain"
-        />
-      </button>
-
-      {/* Right: Live Chat Support Button ONLY on Home (No Notification Bell) */}
-      {showChat && (
-        <button
-          type="button"
-          onClick={() => setChatModalOpen(true)}
-          aria-label="Live Chat Support"
-          className="h-10 px-3.5 rounded-full bg-white shadow-xs border border-zinc-200/80 inline-flex items-center gap-1.5 text-xs font-bold text-zinc-800 hover:border-[#D91624]/40 hover:text-[#D91624] transition cursor-pointer"
-        >
-          <Headphones size={16} className="text-[#D91624]" />
-          <span>{isAk ? 'ချက်တင်' : 'Chat'}</span>
-        </button>
-      )}
-    </div>
-  )
-
   /* ═══════════════════════════════════════════════════════════════════════════
      1. OPENING SPLASH SCREEN WITH PÉTHAR LOGO
   ═══════════════════════════════════════════════════════════════════════════ */
@@ -647,17 +700,17 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       {
         id: 'pay',
         label: isAk ? 'ငွေပေးချေ' : 'Pay',
-        icon: () => <NavScanBracketIcon className="w-6 h-6 text-[#D91624]" />,
+        icon: () => <WalletMinimalIcon size={21} color="#000000" className="text-black" />,
         action: () =>
           requireVerified(isAk ? 'ငွေပေးချေရန် (Pay)' : 'Pay', () => {
-            setScanBottomTab('scan')
-            setScreen('scan')
+            setPayStep('input')
+            setScreen('pay')
           }),
       },
       {
         id: 'receive',
         label: isAk ? 'ငွေလက်ခံ' : 'Receive',
-        icon: () => <QrCode size={23} className="text-[#D91624]" />,
+        icon: () => <QrCode size={21} className="text-[#D91624]" />,
         action: () =>
           requireVerified(isAk ? 'ငွေလက်ခံရန် (Receive)' : 'Receive', () =>
             setScreen('receive')
@@ -668,9 +721,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         label: isAk ? 'ငွေသွင်း' : 'Deposit',
         icon: () => (
           <div className="relative flex items-center justify-center">
-            <Landmark size={22} className="text-[#D91624]" />
+            <Landmark size={20} className="text-[#D91624]" />
             <ArrowDown
-              size={11}
+              size={10}
               className="text-[#D91624] bg-white rounded-full absolute -bottom-1 -right-1 stroke-[3]"
             />
           </div>
@@ -686,9 +739,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         label: isAk ? 'ငွေထုတ်' : 'Withdraw',
         icon: () => (
           <div className="relative flex items-center justify-center">
-            <Landmark size={22} className="text-[#D91624]" />
+            <Landmark size={20} className="text-[#D91624]" />
             <ArrowUp
-              size={11}
+              size={10}
               className="text-[#D91624] bg-white rounded-full absolute -bottom-1 -right-1 stroke-[3]"
             />
           </div>
@@ -701,27 +754,149 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       },
     ]
 
-    return (
-      <div className="min-h-full bg-gradient-to-b from-[#FFF5F5] via-[#F8FAFC] to-[#F4F6F9] text-zinc-900 pb-8">
-        {/* Top Header: Péthar Logo + Live Chat Button (only on Home, no Bell) */}
-        {renderTopLogoHeader(true)}
+    const secondaryActions = [
+      {
+        id: 'topup',
+        label: isAk ? 'ငွေဖြည့်' : 'Topup',
+        icon: () => <Plus size={22} className="text-[#D91624]" strokeWidth={2.4} />,
+        action: () =>
+          requireVerified(isAk ? 'ငွေဖြည့်ရန် (Topup)' : 'Topup', () =>
+            setScreen('intl')
+          ),
+      },
+      {
+        id: 'bill_payment',
+        label: isAk ? 'ဘေလ်ဆောင်' : 'Bill payment',
+        icon: () => <FileText size={20} className="text-[#D91624]" strokeWidth={2.2} />,
+        action: () =>
+          requireVerified(isAk ? 'ဘေလ်ဆောင်ရန် (Bill payment)' : 'Bill payment', () =>
+            setScreen('pos')
+          ),
+      },
+      {
+        id: 'account',
+        label: isAk ? 'ငွေစာရင်း' : 'Account',
+        icon: () => <AppWindow size={20} className="text-[#D91624]" strokeWidth={2.2} />,
+        action: () => {
+          setAccountSubScreen('cards')
+          setScreen('account')
+        },
+      },
+      {
+        id: 'history',
+        label: isAk ? 'မှတ်တမ်း' : 'History',
+        icon: () => <Clock size={20} className="text-[#D91624]" strokeWidth={2.2} />,
+        action: () => {
+          setFinancialSubView('tx_history')
+          setScreen('financial')
+        },
+      },
+    ]
 
-        <div className="px-4 pt-2 space-y-5">
-          {/* Logged-In Welcome Card */}
+    const favouriteUsers = [
+      {
+        id: 'ARAK-8891',
+        name: isAk ? 'အသုံးပြုသူ' : 'user',
+        fullName: 'Ko Min Aung',
+        initials: 'U',
+        bg: 'from-[#38BDF8] to-[#0284C7]',
+      },
+      ...contacts.slice(0, 3).map((c, idx) => ({
+        id: c.id,
+        name: isAk ? c.mm : c.name.split(' ').slice(-1)[0],
+        fullName: c.name,
+        initials: c.initials,
+        bg:
+          idx === 0
+            ? 'from-emerald-500 to-emerald-600'
+            : idx === 1
+              ? 'from-amber-500 to-orange-600'
+              : 'from-rose-500 to-[#D91624]',
+      })),
+    ]
+
+    return (
+      <div className="min-h-full bg-gradient-to-b from-[#FFF5F5] via-[#F8FAFC] to-[#F4F6F9] text-zinc-900 pb-10">
+        {/* 1. TOP HEADER BAR: (User Photo) | (App Logo) | (Noti Bell) | (Logout & Close) */}
+        <div className="px-4 pt-3.5 pb-2 relative flex items-center justify-between">
+          {/* Left: Circular User Photo */}
+          <button
+            type="button"
+            onClick={() => {
+              setAccountSubScreen('main')
+              setScreen('account')
+            }}
+            aria-label="User Profile Photo"
+            title={profile.name || 'User Profile'}
+            className="w-11 h-11 rounded-full overflow-hidden border-2 border-[#D91624]/30 bg-white shadow-xs flex items-center justify-center active:scale-95 transition cursor-pointer shrink-0 z-10"
+          >
+            {profile.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name || 'User'}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-b from-[#38BDF8] to-[#0284C7] flex items-center justify-center text-white font-black text-sm">
+                {profile.name ? profile.name.charAt(0).toUpperCase() : <User size={18} />}
+              </div>
+            )}
+          </button>
+
+          {/* Center: App Logo */}
+          <div className="absolute inset-x-0 flex items-center justify-center pointer-events-none">
+            <button
+              type="button"
+              onClick={() => setScreen('home')}
+              aria-label="Péthar App Logo"
+              className="pointer-events-auto w-10 h-10 flex items-center justify-center active:scale-95 transition cursor-pointer bg-transparent border-0 shadow-none hover:bg-transparent"
+            >
+              <img
+                src="/pethar-logo-red-white.svg"
+                alt="Péthar"
+                className="w-full h-full object-contain"
+              />
+            </button>
+          </div>
+
+          {/* Right: (Noti Bell) + (Logout and Close) */}
+          <div className="flex items-center gap-2 shrink-0 z-10">
+            <button
+              type="button"
+              onClick={() => setScreen('notifications')}
+              aria-label="Notifications"
+              title={isAk ? 'အသိပေးချက်များ' : 'Notifications'}
+              className="relative w-10 h-10 rounded-full bg-white shadow-xs border border-zinc-200/80 flex items-center justify-center text-zinc-700 hover:border-[#D91624]/40 hover:text-[#D91624] active:scale-95 transition cursor-pointer"
+            >
+              <Bell size={18} />
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-[#D91624] text-white text-[9px] font-black flex items-center justify-center border border-white">
+                2
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowSignOutModal(true)}
+              aria-label="Logout and close"
+              title={isAk ? 'အကောင့်ထွက်ရန်နှင့် ပိတ်ရန်' : 'Logout and close'}
+              className="w-10 h-10 rounded-full bg-white shadow-xs border border-zinc-200/80 hover:border-[#D91624]/40 hover:bg-[#FFF1F2] text-zinc-700 hover:text-[#D91624] flex items-center justify-center active:scale-95 transition cursor-pointer"
+            >
+              <LogOut size={16} className="text-[#D91624]" />
+            </button>
+          </div>
+        </div>
+
+        <div className="px-4 pt-2 space-y-3.5">
+          {/* 2. WELCOME BACK CARD: Welcome back + User name (left) | Verified badge (right) */}
           {isAuthenticated ? (
             <>
-              <div className="bg-white rounded-[26px] p-3.5 shadow-[0_8px_26px_rgba(15,23,42,0.05)] border border-zinc-100 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-b from-[#38BDF8] to-[#0284C7] flex items-center justify-center text-white font-black text-lg shrink-0 shadow-xs">
-                    {profile.name.charAt(0)}
+              <div className="bg-white rounded-[22px] px-4 py-3.5 shadow-[0_6px_20px_rgba(15,23,42,0.04)] border border-zinc-200/80 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-xs text-zinc-500 font-semibold">
+                    {isAk ? 'ပြန်လည်ကြိုဆိုပါသည်' : 'Welcome back'}
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-xs text-zinc-400 font-medium">
-                      {isAk ? 'ပြန်လည်ကြိုဆိုပါသည်၊' : 'Welcome back,'}
-                    </div>
-                    <div className="text-base font-extrabold text-zinc-900 truncate mt-0.5">
-                      {profile.name}
-                    </div>
+                  <div className="text-base font-extrabold text-zinc-900 truncate mt-0.5">
+                    {profile.name}
                   </div>
                 </div>
 
@@ -729,27 +904,27 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <button
                     type="button"
                     onClick={() => setKycFlowModalOpen(true)}
-                    className="px-3.5 py-1.5 rounded-full border border-[#0284C7]/50 bg-[#F0F9FF] text-[#0284C7] text-xs font-bold inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+                    className="px-4 py-1.5 rounded-full border border-[#0284C7]/50 bg-[#F0F9FF] text-[#0284C7] text-xs font-bold inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
                   >
                     <CheckCircle2 size={15} className="fill-[#0284C7] text-white" />
-                    <span>{isAk ? 'အတည်ပြုပြီး (Verified)' : 'Verified'}</span>
+                    <span>{isAk ? 'အတည်ပြုပြီး' : 'Verified'}</span>
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setKycFlowModalOpen(true)}
-                    className="px-3.5 py-1.5 rounded-full border border-[#D91624] bg-[#FFF1F2] text-[#D91624] text-xs font-extrabold inline-flex items-center gap-1.5 shrink-0 shadow-[0_4px_12px_rgba(217,22,36,0.18)] animate-pulse cursor-pointer"
+                    className="px-4 py-1.5 rounded-full border border-[#D91624] bg-[#FFF1F2] text-[#D91624] text-xs font-extrabold inline-flex items-center gap-1.5 shrink-0 shadow-[0_4px_12px_rgba(217,22,36,0.18)] animate-pulse cursor-pointer"
                   >
                     <AlertCircle size={15} />
-                    <span>{isAk ? 'အတည်မပြုရသေး (Unverified)' : 'Unverified'}</span>
+                    <span>{isAk ? 'အတည်မပြုရသေး' : 'Unverified'}</span>
                   </button>
                 )}
               </div>
 
               {!isVerified && (
-                <div className="p-3.5 rounded-2xl bg-[#FFF1F2] border border-[#FECDD3] flex items-center justify-between gap-3">
+                <div className="p-3 rounded-2xl bg-[#FFF1F2] border border-[#FECDD3] flex items-center justify-between gap-3">
                   <div className="flex items-start gap-2.5">
-                    <AlertCircle size={18} className="text-[#D91624] shrink-0 mt-0.5" />
+                    <AlertCircle size={17} className="text-[#D91624] shrink-0 mt-0.5" />
                     <div className="text-xs text-zinc-800 leading-relaxed">
                       <span className="font-extrabold text-[#D91624] block">
                         {isAk ? 'အကောင့်အတည်ပြုရန် လိုအပ်ပါသည်' : 'Account Verification Required'}
@@ -769,88 +944,227 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </div>
               )}
             </>
-          ) : null}
+          ) : (
+            renderWelcomeSignInCard()
+          )}
 
-          {/* Unified Action & Balance / Welcome Card */}
-          <div className="bg-white rounded-[28px] shadow-[0_12px_32px_rgba(15,23,42,0.06)] border border-zinc-100 overflow-hidden">
-            <div className="grid grid-cols-4 gap-2 px-4 pt-6 pb-5 border-b border-zinc-100">
+          {/* 3. PRIMARY 4-ACTION BOX: (Pay) | (Receive) | (Deposit) | (Withdraw) */}
+          <div className="bg-white rounded-[22px] px-3 py-4 shadow-[0_6px_20px_rgba(15,23,42,0.04)] border border-zinc-200/80">
+            <div className="grid grid-cols-4 gap-2">
               {homeCoreActions.map((item) => (
                 <button
                   key={item.id}
                   type="button"
                   onClick={item.action}
-                  className="flex flex-col items-center gap-2.5 group active:scale-95 transition cursor-pointer"
+                  className="flex flex-col items-center gap-2 group active:scale-95 transition cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-[#FFF1F2] flex items-center justify-center shadow-2xs group-hover:bg-[#FFE4E6] transition">
+                  <div className="w-12 h-12 rounded-full bg-[#FFF1F2] border border-[#FECDD3]/80 flex items-center justify-center shadow-2xs group-hover:bg-[#FFE4E6] transition">
                     {item.icon()}
                   </div>
-                  <span className="text-xs font-bold text-zinc-900">
+                  <span className="text-xs font-bold text-zinc-900 leading-tight">
                     {item.label}
                   </span>
                 </button>
               ))}
             </div>
+          </div>
 
-            {isAuthenticated ? (
-              <div className="px-5 py-4 bg-zinc-50/50 flex items-end justify-between">
-                <div>
-                  <div className="flex items-center gap-2 text-xs font-semibold text-zinc-500">
-                    <span>
-                      {isAk
-                        ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)'
-                        : 'Wallet Balance (AKD)'}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setHomeBalanceHidden((h) => !h)}
-                      className="text-zinc-500 hover:text-zinc-900 cursor-pointer"
-                    >
-                      {homeBalanceHidden ? <EyeOff size={15} /> : <Eye size={15} />}
-                    </button>
-                  </div>
-
-                  <div className="mt-1.5 flex items-baseline font-mono tracking-tight">
-                    {homeBalanceHidden ? (
-                      <span className="text-2xl font-black text-zinc-900 tracking-widest">
-                        ******
-                      </span>
-                    ) : (
-                      <>
-                        <span className="text-2xl font-black text-[#D91624] mr-1.5">
-                          ₳
-                        </span>
-                        <span className="text-3xl font-black text-zinc-950">
-                          {akdBalance.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="px-6 py-6 bg-white text-center space-y-3.5">
-                <div className="space-y-1">
-                  <h2 className="text-lg font-extrabold text-zinc-900">
-                    {isAk ? 'ဖေ့သာမှ ကြိုဆိုပါသည်' : 'Welcome to Péthar'}
-                  </h2>
-                  <p className="text-xs text-zinc-500">
-                    {isAk
-                      ? 'အက်ပ်ကို အသုံးပြုရန် အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်သစ်ဖွင့်ပါ။'
-                      : 'Please sign in or sign up to use the app.'}
-                  </p>
-                </div>
+          {/* 4. WALLET BALANCE BOX: Wallet Balance (AKD) + Eye Icon | ₳ 0.0000 */}
+          <div className="bg-white rounded-[22px] px-4 py-4 shadow-[0_6px_20px_rgba(15,23,42,0.04)] border border-zinc-200/80">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold text-zinc-600">
+                <span>
+                  {isAk ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)' : 'Wallet Balance (AKD)'}
+                </span>
                 <button
                   type="button"
-                  onClick={() => setAuthModalOpen(true)}
-                  className="px-7 py-2.5 rounded-full bg-[#D91624] hover:bg-[#B8121E] text-white font-bold text-sm shadow-[0_6px_18px_rgba(217,22,36,0.3)] active:scale-95 transition cursor-pointer"
+                  onClick={() => setHomeBalanceHidden((h) => !h)}
+                  aria-label="Toggle Wallet Balance Visibility"
+                  className="p-1 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer"
                 >
-                  {isAk ? 'အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန်' : 'Sign in/Sign up'}
+                  {homeBalanceHidden ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
-            )}
+            </div>
+
+            <div className="mt-2 flex items-baseline font-mono tracking-tight">
+              {homeBalanceHidden ? (
+                <span className="text-2xl font-black text-zinc-900 tracking-widest">
+                  ••••••••
+                </span>
+              ) : (
+                <>
+                  <span className="text-2xl font-black text-[#D91624] mr-1.5">
+                    ₳
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-black text-zinc-950 tabular-nums">
+                    {(isAuthenticated ? akdBalance : 0).toLocaleString(undefined, {
+                      minimumFractionDigits: 4,
+                      maximumFractionDigits: 4,
+                    })}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* 5. SECONDARY 4-SERVICE BOX: (+) Topup | (Bill) Bill payment | (Card) Account | (Clock) History */}
+          <div className="bg-white rounded-[22px] px-3 py-4 shadow-[0_6px_20px_rgba(15,23,42,0.04)] border border-zinc-200/80">
+            <div className="grid grid-cols-4 gap-2">
+              {secondaryActions.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={item.action}
+                  className="flex flex-col items-center gap-2 group active:scale-95 transition cursor-pointer"
+                >
+                  <div className="w-11 h-11 rounded-full bg-zinc-50 border border-zinc-200/90 flex items-center justify-center shadow-2xs group-hover:border-[#D91624]/40 group-hover:bg-[#FFF1F2] transition">
+                    {item.icon()}
+                  </div>
+                  <span className="text-[11px] font-bold text-zinc-800 text-center leading-tight">
+                    {item.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 6. FAVOURITES SECTION: Favourites + view all | (User) user + (+) */}
+          <div className="pt-0.5">
+            <div className="flex items-center justify-between px-1 mb-2">
+              <span className="text-xs font-extrabold text-zinc-800">
+                {isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites'}
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  requireVerified(isAk ? 'ငွေပေးချေရန်' : 'Pay', () => {
+                    setPayStep('input')
+                    setScreen('pay')
+                  })
+                }
+                className="text-xs font-bold text-[#D91624] hover:underline cursor-pointer"
+              >
+                {isAk ? 'အားလုံးကြည့်ရန်' : 'view all'}
+              </button>
+            </div>
+
+            <div className="flex items-start gap-3.5 overflow-x-auto no-scrollbar py-1 px-1">
+              {favouriteUsers.map((fav) => (
+                <button
+                  key={fav.id}
+                  type="button"
+                  onClick={() =>
+                    requireVerified(isAk ? 'ငွေပေးချေရန်' : 'Pay', () => {
+                      const matchedRecent = recentPayContacts.find(
+                        (c) => c.name.toLowerCase() === fav.name.toLowerCase()
+                      )
+                      const hash12 = (
+                        Math.abs(
+                          fav.name
+                            .split('')
+                            .reduce((acc, char) => (acc << 5) - acc + char.charCodeAt(0), 0)
+                        ).toString() + '987654321000'
+                      ).slice(0, 12)
+                      setPayRecipient({
+                        id: fav.id,
+                        name: fav.name,
+                        username: matchedRecent
+                          ? matchedRecent.username
+                          : `@${fav.name.toLowerCase().replace(/\s+/g, '_')}`,
+                        uid: matchedRecent ? matchedRecent.uid : hash12,
+                        category: 'friends',
+                        initials: fav.initials,
+                        avatarUrl: '',
+                      })
+                      setPayToInput(
+                        matchedRecent
+                          ? matchedRecent.username
+                          : `@${fav.name.toLowerCase().replace(/\s+/g, '_')}`
+                      )
+                      setPayStep('detail')
+                      setScreen('pay')
+                    })
+                  }
+                  className="flex flex-col items-center gap-1.5 shrink-0 group active:scale-95 transition cursor-pointer"
+                >
+                  <div
+                    className={`w-11 h-11 rounded-full bg-gradient-to-b ${fav.bg} flex items-center justify-center text-white font-extrabold text-xs shadow-xs border-2 border-white`}
+                  >
+                    {fav.initials === 'U' ? <User size={18} /> : fav.initials}
+                  </div>
+                  <span className="text-[11px] font-semibold text-zinc-700 max-w-[56px] truncate">
+                    {fav.name}
+                  </span>
+                </button>
+              ))}
+
+              {/* Add (+) Favourite Button -> Go to Pay */}
+              <button
+                type="button"
+                onClick={() =>
+                  requireVerified(isAk ? 'ငွေပေးချေရန်' : 'Pay', () => {
+                    setPayStep('input')
+                    setScreen('pay')
+                  })
+                }
+                aria-label="Add Favourite User"
+                className="flex flex-col items-center gap-1.5 shrink-0 group active:scale-95 transition cursor-pointer"
+              >
+                <div className="w-11 h-11 rounded-full bg-white border-2 border-dashed border-zinc-300 group-hover:border-[#D91624] flex items-center justify-center text-zinc-600 group-hover:text-[#D91624] shadow-2xs transition">
+                  <Plus size={18} strokeWidth={2.4} />
+                </div>
+                <span className="text-[11px] font-semibold text-zinc-500">
+                  {isAk ? 'ထည့်ရန်' : 'Add'}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* 7. 4 MOVING ADS BANNER CAROUSEL (NO "ADS" TEXT) */}
+          <div className="space-y-2">
+            <div
+              className={`bg-gradient-to-r ${PROMO_ADS[currentAdIndex].bgGradient} rounded-[20px] p-3 text-slate-900 shadow-[0_4px_16px_rgba(15,23,42,0.04)] border ${PROMO_ADS[currentAdIndex].borderColor} flex items-center justify-between gap-3 transition-all duration-500`}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div
+                  className={`w-9 h-9 rounded-full ${PROMO_ADS[currentAdIndex].accentBg} border flex items-center justify-center shrink-0`}
+                >
+                  {React.createElement(PROMO_ADS[currentAdIndex].icon, {
+                    size: 18,
+                    strokeWidth: 2.2,
+                  })}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-extrabold text-slate-900 truncate">
+                    {isAk
+                      ? PROMO_ADS[currentAdIndex].titleAk
+                      : PROMO_ADS[currentAdIndex].titleEn}
+                  </div>
+                  <div className="text-[11px] text-slate-500 truncate mt-0.5">
+                    {isAk
+                      ? PROMO_ADS[currentAdIndex].descAk
+                      : PROMO_ADS[currentAdIndex].descEn}
+                  </div>
+                </div>
+              </div>
+              <ChevronRight size={16} className="text-slate-400 shrink-0" />
+            </div>
+
+            {/* Indicator Dots for 4 Moving Ads */}
+            <div className="flex items-center justify-center gap-1.5 py-0.5">
+              {PROMO_ADS.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentAdIndex(idx)}
+                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    idx === currentAdIndex ? 'w-5 bg-[#D91624]' : 'w-1.5 bg-zinc-300'
+                  }`}
+                  aria-label={`Slide ${idx + 1}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -1949,9 +2263,27 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════
-     4. CAMERA SCAN + FLASHLIGHT + SELECT FROM GALLERY SCREEN
+     3. CAMERA SCAN SCREEN (SCAN QR / BARCODE OR SELECT FROM GALLERY)
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderCameraScanScreen = () => {
+    const usernameHandle = `@${profile.name.toLowerCase().replace(/\s+/g, '') || 'username'}`
+    const uidNumber = '000000000000'
+
+    const handleShareMyQr = async () => {
+      const shareData = {
+        title: 'Péthar Receive QR',
+        text: `${profile.name} (${usernameHandle}) · UID: ${uidNumber}`,
+        url: `pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`,
+      }
+      try {
+        if (navigator.share) await navigator.share(shareData)
+        else await navigator.clipboard?.writeText(shareData.text)
+      } catch {
+        // Share sheet cancelled
+      }
+      triggerSettingsToast(isAk ? 'မျှဝေရန် ကူးယူပြီးပါပြီ' : 'Copied Receive QR link to share')
+    }
+
     return (
       <div className="fixed inset-0 z-50 flex justify-center bg-black select-none">
         <div className="w-full max-w-[480px] h-full flex flex-col relative overflow-hidden bg-zinc-800">
@@ -1991,8 +2323,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <ChevronLeft size={26} />
                 </button>
 
-                <span className="text-base font-bold tracking-wide drop-shadow">
-                  {isAk ? 'စကင်ဖတ်ရန်' : 'Scan'}
+                <span className="text-base font-extrabold tracking-wide drop-shadow">
+                  Scan/MyQR
                 </span>
 
                 <button
@@ -2093,52 +2425,37 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               </div>
             </div>
           ) : (
-            <div className="flex-1 bg-[#F8FAFC] text-zinc-900 flex flex-col">
-              <div className="bg-white px-4 pt-5 pb-3 flex items-center justify-between border-b border-zinc-200">
+            <div className="flex-1 bg-[#F4F5F8] text-zinc-900 flex flex-col overflow-y-auto">
+              {/* Top Header: < | Scan/MyQR | Share */}
+              <div className="bg-white px-4 pt-5 pb-3 flex items-center justify-between border-b border-zinc-200/80 shrink-0">
                 <button
                   type="button"
                   onClick={() => setScreen('home')}
-                  className="w-9 h-9 flex items-center justify-center text-zinc-800 cursor-pointer"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-800 hover:bg-zinc-100 transition cursor-pointer"
                 >
                   <ChevronLeft size={24} />
                 </button>
-                <span className="text-base font-bold">
-                  {isAk ? 'QR ဖြင့် ငွေပေးချေရန်' : 'Pay with QR'}
+                <span className="text-base font-extrabold tracking-tight text-zinc-900">
+                  Scan/MyQR
                 </span>
-                <div className="w-9" />
+                <button
+                  type="button"
+                  onClick={handleShareMyQr}
+                  className="px-3.5 py-1.5 rounded-full border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 inline-flex items-center gap-1.5 shadow-2xs active:scale-95 transition cursor-pointer"
+                >
+                  <Share2 size={13} className="text-[#D91624]" />
+                  <span>{isAk ? 'မျှဝေရန်' : 'Share'}</span>
+                </button>
               </div>
 
-              <div className="flex-1 flex flex-col items-center justify-center p-6">
-                <div className="w-full max-w-xs bg-white rounded-3xl shadow-xl border border-zinc-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-[#D91624] to-[#B00E1A] px-5 py-3.5 text-white flex items-center justify-between">
-                    <span className="text-xs font-extrabold tracking-wide uppercase">
-                      Péthar QR Pay
-                    </span>
-                    <span className="text-[11px] font-mono">
-                      {SINGLE_WALLET_ACCOUNT.shortAddress}
-                    </span>
-                  </div>
-                  <div className="p-6 flex flex-col items-center space-y-4">
-                    <div className="p-3 bg-white rounded-2xl border border-zinc-200 shadow-xs">
-                      <FakeQR
-                        size={180}
-                        value={SINGLE_WALLET_ACCOUNT.fullAddress}
-                      />
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm font-extrabold text-zinc-900">
-                        {profile.name}
-                      </div>
-                      <div className="text-xs font-mono text-zinc-500 mt-0.5">
-                        {SINGLE_WALLET_ACCOUNT.name} · {SINGLE_WALLET_ACCOUNT.shortAddress}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {/* Embedded Receive Function */}
+              <div className="flex-1 flex flex-col">
+                <Receive go={setScreen} lang={lang} profile={profile} embedded theme={theme} />
               </div>
             </div>
           )}
 
+          {/* Bottom Toggle Bar: Scan | MyQR */}
           <div className="bg-white h-20 px-6 grid grid-cols-2 border-t border-zinc-200 shrink-0">
             <button
               type="button"
@@ -2167,26 +2484,16 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               onClick={() => setScanBottomTab('pay')}
               className="flex flex-col items-center justify-center gap-1 relative cursor-pointer"
             >
-              <svg
-                className={`w-6 h-6 ${
-                  scanBottomTab === 'pay' ? 'text-[#D91624]' : 'text-zinc-700'
-                }`}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                <path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 19h2M19 14v2" />
-              </svg>
+              <QrCode
+                size={23}
+                className={scanBottomTab === 'pay' ? 'text-[#D91624]' : 'text-zinc-700'}
+              />
               <span
                 className={`text-xs font-bold ${
                   scanBottomTab === 'pay' ? 'text-[#D91624]' : 'text-zinc-800'
                 }`}
               >
-                {isAk ? 'ငွေပေးချေ' : 'Pay'}
+                MyQR
               </span>
               {scanBottomTab === 'pay' && (
                 <span className="absolute bottom-2 w-10 h-1 rounded-full bg-[#D91624]" />
@@ -2194,6 +2501,558 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             </button>
           </div>
         </div>
+      </div>
+    )
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     4. PAY INTERFACE (Picture 1 & Picture 2 Layouts matching user wireframes)
+  ═══════════════════════════════════════════════════════════════════════════ */
+  const renderPayInterfaceScreen = () => {
+    // Filter contacts based on active tab and search query
+    const filteredContacts = recentPayContacts.filter((c) => {
+      const matchesTab = payCategoryTab === 'all' || c.category === payCategoryTab
+      const matchesSearch =
+        c.name.toLowerCase().includes(paySearchQuery.toLowerCase()) ||
+        c.username.toLowerCase().includes(paySearchQuery.toLowerCase())
+      return matchesTab && matchesSearch
+    })
+
+    const handleSelectRecentUser = (contact: (typeof recentPayContacts)[0]) => {
+      setPayRecipient(contact)
+      setPayToInput(contact.username)
+      setPayStep('detail')
+    }
+
+    const handleNextFromInput = () => {
+      const trimmed = payToInput.trim()
+      if (trimmed) {
+        const clean = trimmed.replace(/\s+/g, '').toLowerCase()
+        const match = recentPayContacts.find(
+          (c) =>
+            c.username.toLowerCase() === trimmed.toLowerCase() ||
+            c.name.toLowerCase() === trimmed.toLowerCase() ||
+            c.uid.replace(/\s+/g, '').toLowerCase() === clean ||
+            c.username.toLowerCase() === `@${trimmed.toLowerCase()}`
+        )
+        if (match) {
+          setPayRecipient(match)
+        } else {
+          const hash12 = (
+            Math.abs(
+              trimmed
+                .split('')
+                .reduce((acc, char) => (acc << 5) - acc + char.charCodeAt(0), 0)
+            ).toString() + '102938475612'
+          ).slice(0, 12)
+          setPayRecipient({
+            id: `USR-${hash12.slice(-4)}`,
+            name: trimmed,
+            username: trimmed.startsWith('@')
+              ? trimmed
+              : `@${trimmed.toLowerCase().replace(/\s+/g, '_')}`,
+            uid: hash12,
+            category: 'other',
+            initials: trimmed.slice(0, 2).toUpperCase(),
+            avatarUrl: '',
+          })
+        }
+      } else if (recentPayContacts.length > 0) {
+        setPayRecipient(recentPayContacts[0])
+      }
+      setPayStep('detail')
+    }
+
+    const handleExecutePay = () => {
+      const amt = parseFloat(payAmount)
+      if (isNaN(amt) || amt <= 0) {
+        triggerSettingsToast(isAk ? 'ပမာဏ မှန်ကန်စွာ ရိုက်ထည့်ပါ' : 'Please enter a valid amount')
+        return
+      }
+      if (amt > usdAccountBalance) {
+        triggerSettingsToast(isAk ? 'လက်ကျန်ငွေ မလုံလောက်ပါ' : 'Insufficient available balance')
+        return
+      }
+      if (!payNote.trim()) {
+        triggerSettingsToast(isAk ? 'မှတ်ချက် ရေးရန် လိုအပ်ပါသည်' : 'Notes is mandatory')
+        return
+      }
+
+      setUsdAccountBalance((prev) => Math.max(0, prev - amt))
+
+      const newTx: Txn = {
+        id: `TX-PAY-${Date.now().toString().slice(-6)}`,
+        refId: `ARAK-PAY-${Date.now().toString().slice(-6)}`,
+        title: `Payment to ${payRecipient.name}`,
+        titleMm: `${payRecipient.name} သို့ ငွေပေးချေခြင်း`,
+        category: 'p2p',
+        currency: 'AKD',
+        time: 'Just now',
+        status: 'SETTLED',
+        counterparty: `${payRecipient.name} (${payRecipient.username})`,
+        counterpartyMm: payRecipient.name,
+        hash: `0x${Math.random().toString(16).slice(2, 10)}...pay`,
+        amount: -amt,
+        fee: 0.0,
+      }
+      transactions.unshift(newTx)
+      setPaySuccessTx(newTx)
+      setPayStep('success')
+    }
+
+    const handleDeleteContact = (id: string) => {
+      setRecentPayContacts((prev) => prev.filter((c) => c.id !== id))
+    }
+
+    const quickNoteChips = ['Salary', 'Payment', 'Bill', 'Family & Friends']
+
+    // ── Payment Success Screen ──
+    if (payStep === 'success' && paySuccessTx) {
+      return (
+        <div className="min-h-full bg-[#F4F5F8] flex flex-col text-zinc-900 pb-16">
+          <div className="bg-white px-4 pt-5 pb-3.5 flex items-center justify-between border-b border-zinc-200">
+            <button
+              type="button"
+              onClick={() => {
+                setPayStep('input')
+                setScreen('home')
+              }}
+              className="w-9 h-9 flex items-center justify-center text-zinc-800 cursor-pointer"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <h1 className="text-base font-bold text-zinc-900">
+              {isAk ? 'ငွေပေးချေမှု အောင်မြင်သည်' : 'Payment Success'}
+            </h1>
+            <button
+              type="button"
+              onClick={() => {
+                setFinancialSubView('tx_history')
+                setScreen('financial')
+              }}
+              className="px-3.5 py-1 rounded-full border border-zinc-300 text-xs font-bold text-zinc-700 hover:bg-zinc-100 cursor-pointer"
+            >
+              History
+            </button>
+          </div>
+
+          <div className="p-4 flex-1 flex flex-col items-center justify-center max-w-sm mx-auto w-full">
+            <div className="w-full bg-white rounded-3xl p-6 border border-zinc-200 shadow-md text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-200">
+                <CheckCircle2 size={36} />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+                  Payment Completed
+                </span>
+                <h2 className="text-2xl font-black font-mono text-zinc-900 mt-1">
+                  ₳ {parseFloat(payAmount).toFixed(2)} AKD
+                </h2>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Paid to {payRecipient.name} ({payRecipient.username})
+                </p>
+              </div>
+
+              <div className="bg-zinc-50 rounded-2xl p-3.5 border border-zinc-100 text-left space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-zinc-500">Note</span>
+                  <span className="font-semibold text-zinc-800">{payNote}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-500">Ref ID</span>
+                  <span className="font-mono font-medium text-zinc-800">{paySuccessTx.refId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-500">Date</span>
+                  <span className="text-zinc-800">Just now</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-500">Status</span>
+                  <span className="font-bold text-emerald-600">SETTLED</span>
+                </div>
+              </div>
+
+              <div className="pt-2 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPayAmount('')
+                    setPayNote('')
+                    setPayStep('input')
+                    setScreen('home')
+                  }}
+                  className="w-full py-3 rounded-xl bg-black text-white font-bold text-sm hover:bg-zinc-800 transition cursor-pointer"
+                >
+                  Done
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPayStep('input')
+                    setFinancialSubView('tx_history')
+                    setScreen('financial')
+                  }}
+                  className="w-full py-2.5 rounded-xl border border-zinc-300 text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition cursor-pointer"
+                >
+                  View in History
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // ── Screen 2: Amount & Pay Screen (Picture 2: media_1792312005578_2310f939.jpg) ──
+    if (payStep === 'detail') {
+      return (
+        <div className="min-h-full bg-[#F4F5F8] flex flex-col text-zinc-900 pb-16">
+          {/* Header matching Picture 2: Back (<) | Pay | History */}
+          <div className="bg-white px-4 pt-5 pb-3.5 flex items-center justify-between border-b border-zinc-200/80 sticky top-0 z-20">
+            <button
+              type="button"
+              onClick={() => setPayStep('input')}
+              className="w-9 h-9 flex items-center justify-center text-zinc-800 hover:bg-zinc-100 rounded-full transition cursor-pointer"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <h1 className="text-base font-extrabold text-zinc-900 tracking-tight">Pay</h1>
+            <button
+              type="button"
+              onClick={() => {
+                setFinancialSubView('tx_history')
+                setScreen('financial')
+              }}
+              className="px-3.5 py-1 rounded-full border border-zinc-400 text-xs font-bold text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
+            >
+              History
+            </button>
+          </div>
+
+          <div className="p-4 space-y-4 max-w-md mx-auto w-full">
+            {/* Recipient Profile Banner (User Pic + User Name + @username) */}
+            <div className="flex flex-col items-center justify-center py-2 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-sky-400 to-blue-600 text-white font-black text-xl flex items-center justify-center shadow-md border-2 border-white mb-2 overflow-hidden">
+                {payRecipient.avatarUrl ? (
+                  <img src={payRecipient.avatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{payRecipient.initials || payRecipient.name.charAt(0)}</span>
+                )}
+              </div>
+              <h2 className="text-base font-extrabold text-zinc-900">{payRecipient.name}</h2>
+              <p className="text-xs text-zinc-500 font-mono mt-0.5">{payRecipient.username} • {payRecipient.uid}</p>
+            </div>
+
+            {/* Main Form Card */}
+            <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 shadow-xs space-y-4">
+              {/* Amount */}
+              <div>
+                <label className="block text-xs font-bold text-zinc-800 mb-1.5">
+                  Amount
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    value={payAmount}
+                    onChange={(e) => setPayAmount(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 text-base font-bold font-mono text-zinc-900 focus:outline-none focus:border-black focus:bg-white"
+                  />
+                </div>
+                <div className="text-[11.5px] text-zinc-500 font-medium mt-1.5">
+                  Balance: {usdAccountBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+              </div>
+
+              {/* Add Notes (Mandatory) */}
+              <div>
+                <label className="block text-xs font-bold text-zinc-800 mb-1.5">
+                  Add Notes (Mandatory)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Please Add Notes"
+                  value={payNote}
+                  onChange={(e) => setPayNote(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-black focus:bg-white"
+                />
+              </div>
+
+              {/* Quick Note Tag Chips */}
+              <div className="flex flex-wrap gap-2 pt-1">
+                {quickNoteChips.map((chip) => {
+                  const isActive = payNote === chip
+                  return (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() => setPayNote(chip)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                        isActive
+                          ? 'bg-black text-white border-black shadow-xs'
+                          : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200'
+                      }`}
+                    >
+                      {chip}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Pay Button */}
+              <button
+                type="button"
+                onClick={handleExecutePay}
+                disabled={!payAmount || parseFloat(payAmount) <= 0 || !payNote.trim()}
+                className="w-full py-3.5 rounded-xl bg-black hover:bg-zinc-800 disabled:opacity-40 text-white font-extrabold text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer mt-2 flex items-center justify-center gap-2 group"
+              >
+                <WalletMinimalIcon size={18} color="#FFFFFF" className="text-white shrink-0" />
+                <span>Pay</span>
+              </button>
+            </div>
+
+            {/* Warning / Instructions Box */}
+            <div className="bg-zinc-100/80 rounded-2xl p-4 border border-zinc-200/70 text-xs text-zinc-600 space-y-2 leading-relaxed">
+              <div className="flex items-start gap-2">
+                <span className="text-zinc-500 font-bold">•</span>
+                <span>
+                  Always check recipient&apos;s User Name, username, user photo, Amount, Notes to avoid incorrect transitions and fraud.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-zinc-500 font-bold">•</span>
+                <span>Please make sure to add notes to transfer.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // ── Screen 1: Initial Pay Screen (Picture 1: media_1792311901292_26857504.jpg) ──
+    return (
+      <div className="min-h-full bg-[#F4F5F8] flex flex-col text-zinc-900 pb-20">
+        {/* Header matching Picture 1: Back (<) | Pay | History */}
+        <div className="bg-white px-4 pt-5 pb-3.5 flex items-center justify-between border-b border-zinc-200/80 sticky top-0 z-20">
+          <button
+            type="button"
+            onClick={() => setScreen('home')}
+            className="w-9 h-9 flex items-center justify-center text-zinc-800 hover:bg-zinc-100 rounded-full transition cursor-pointer"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <h1 className="text-base font-extrabold text-zinc-900 tracking-tight">Pay</h1>
+          <button
+            type="button"
+            onClick={() => {
+              setFinancialSubView('tx_history')
+              setScreen('financial')
+            }}
+            className="px-3.5 py-1 rounded-full border border-zinc-400 text-xs font-bold text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
+          >
+            History
+          </button>
+        </div>
+
+        <div className="p-4 space-y-4 max-w-md mx-auto w-full">
+          {/* Section: From */}
+          <div>
+            <div className="text-xs font-bold text-zinc-600 px-1 mb-1.5">From</div>
+            <div className="bg-white rounded-2xl p-4 border border-zinc-200/80 shadow-xs flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#29B6F6] to-[#0288D1] text-white font-extrabold text-sm flex items-center justify-center shadow-xs overflow-hidden border-2 border-white shrink-0">
+                {profile.avatarUrl ? (
+                  <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{profile.name.charAt(0)}</span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-extrabold text-zinc-900 truncate">
+                  {profile.name}
+                </div>
+                <div className="text-xs text-zinc-500 font-medium mt-0.5">
+                  Available balance:{' '}
+                  <span className="font-mono font-bold text-zinc-900">
+                    ₳ {usdAccountBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section: To */}
+          <div>
+            <div className="text-xs font-bold text-zinc-600 px-1 mb-1.5">To</div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="enter 12-digit ID or username"
+                value={payToInput}
+                onChange={(e) => setPayToInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleNextFromInput()
+                }}
+                className="flex-1 px-4 py-3 rounded-xl bg-white border border-zinc-200 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-black shadow-xs"
+              />
+              <button
+                type="button"
+                onClick={() => setShowQuickScanner(true)}
+                className="px-3.5 py-3 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 flex items-center gap-1.5 shadow-xs cursor-pointer"
+              >
+                <QrCode size={16} />
+                <span>Scan</span>
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleNextFromInput}
+              className="w-full mt-3 py-3 rounded-xl bg-black hover:bg-zinc-800 text-white font-extrabold text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer"
+            >
+              Next
+            </button>
+          </div>
+
+          {/* Section: Recent Transfers */}
+          <div className="pt-2">
+            <div className="flex items-center justify-between px-1 mb-2">
+              <h3 className="text-sm font-extrabold text-zinc-900">Recent Transfers</h3>
+              <button
+                type="button"
+                onClick={() => setPayDeleteMode(!payDeleteMode)}
+                className={`text-xs font-bold transition cursor-pointer ${
+                  payDeleteMode ? 'text-red-600' : 'text-zinc-500 hover:text-zinc-800'
+                }`}
+              >
+                {payDeleteMode ? 'Done' : 'Delete'}
+              </button>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-zinc-200/80 shadow-xs p-3 space-y-3">
+              {/* Filter Tabs: All | Family | Friends | other */}
+              <div className="flex items-center border-b border-zinc-100 pb-2">
+                {(['all', 'family', 'friends', 'other'] as const).map((tab) => {
+                  const isActive = payCategoryTab === tab
+                  const label =
+                    tab === 'all'
+                      ? 'All'
+                      : tab === 'family'
+                      ? 'Family'
+                      : tab === 'friends'
+                      ? 'Friends'
+                      : 'other'
+                  return (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setPayCategoryTab(tab)}
+                      className={`px-3 py-1 text-xs font-bold transition relative cursor-pointer ${
+                        isActive
+                          ? 'text-black'
+                          : 'text-zinc-400 hover:text-zinc-600'
+                      }`}
+                    >
+                      {label}
+                      {isActive && (
+                        <span className="absolute bottom-[-9px] left-3 right-3 h-[2px] bg-black rounded-full" />
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <input
+                  type="text"
+                  placeholder="search"
+                  value={paySearchQuery}
+                  onChange={(e) => setPaySearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-zinc-50 border border-zinc-200 text-xs font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-black focus:bg-white"
+                />
+              </div>
+
+              {/* Contacts List */}
+              <div className="divide-y divide-zinc-100 max-h-60 overflow-y-auto">
+                {filteredContacts.length === 0 ? (
+                  <div className="py-6 text-center text-xs text-zinc-400">No transfers found</div>
+                ) : (
+                  filteredContacts.map((contact) => (
+                    <div
+                      key={contact.id}
+                      className="py-2.5 flex items-center justify-between hover:bg-zinc-50/80 rounded-xl px-2 transition group cursor-pointer"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleSelectRecentUser(contact)}
+                        className="flex items-center gap-3 flex-1 text-left cursor-pointer"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-xs shrink-0 overflow-hidden">
+                          {contact.avatarUrl ? (
+                            <img src={contact.avatarUrl} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span>{contact.initials}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-bold text-zinc-900 truncate">
+                            {contact.name}
+                          </div>
+                          <div className="text-xs text-zinc-400 font-mono">
+                            {contact.username} • {contact.uid}
+                          </div>
+                        </div>
+                      </button>
+
+                      {payDeleteMode ? (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteContact(contact.id)}
+                          className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg cursor-pointer"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSelectRecentUser(contact)}
+                          className="p-1 text-zinc-400 group-hover:text-zinc-700 cursor-pointer"
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Optional Quick QR Scanner Modal if user taps [Scan] */}
+        {showQuickScanner && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center p-4">
+            <div className="w-full max-w-sm bg-zinc-900 rounded-3xl p-5 text-white text-center space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                <span className="text-sm font-bold">Scan QR / UID</span>
+                <button
+                  type="button"
+                  onClick={() => setShowQuickScanner(false)}
+                  className="p-1 text-zinc-400 hover:text-white"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="w-56 h-56 mx-auto rounded-2xl border-2 border-dashed border-white/40 flex items-center justify-center p-4">
+                <QrCode size={120} className="text-white/60 animate-pulse" />
+              </div>
+              <p className="text-xs text-zinc-400">Align recipient QR in frame</p>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -2999,12 +3858,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     return (
       <div className="min-h-full bg-[#F4F5F8] text-zinc-900 pb-12">
-        {/* Clean Top Title Bar (No Logo on non-Home pages) */}
-        <div className="bg-white px-4 pt-5 pb-3.5 flex items-center justify-center border-b border-zinc-100 sticky top-0 z-20">
-          <h1 className="text-lg font-extrabold text-zinc-900 tracking-tight">
-            {isAk ? 'ပရိုဖိုင်နှင့် ဆက်တင်' : 'Profile'}
-          </h1>
-        </div>
 
         {/* Toast Feedback Banner */}
         {settingsNoticeToast && (
@@ -3090,39 +3943,111 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             </div>
           )}
 
-          {/* ── SECTION 1: Wallet Settings (Dropped Supported QR Code & Credit/Debit Cards) ── */}
+          {/* ── SECTION 1: Account Setting (matches wireframe) ── */}
           <div className="space-y-2">
             <h3 className="text-xs font-bold text-zinc-500 px-1">
-              {isAk ? 'ပိုက်ဆံအိတ် ဆက်တင်များ' : 'Wallet Settings'}
+              {isAk ? 'အကောင့် ဆက်တင်များ' : 'Account Setting'}
             </h3>
             <div className="bg-white rounded-2xl divide-y divide-zinc-100 border border-zinc-100 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
               <button
                 type="button"
-                onClick={() => {
-                  setFinancialSubView('tx_history')
-                  setScreen('financial')
-                }}
+                onClick={() => setAccountSubScreen('personal_info')}
                 className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
-                    <FileText size={18} />
+                    <User size={18} />
                   </div>
                   <span className="text-sm font-bold text-zinc-900">
-                    {isAk ? 'ငွေလွှဲ မှတ်တမ်းများ' : 'Transaction History'}
+                    {isAk ? 'ကိုယ်ရေးအချက်အလက်နှင့် လိပ်စာ' : 'Personal Information'}
                   </span>
                 </div>
                 <ChevronRight size={18} className="text-zinc-400" />
               </button>
+
+              <button
+                type="button"
+                onClick={() => setLang && setLang(isAk ? 'en' : 'ak')}
+                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
+                    <Globe size={18} />
+                  </div>
+                  <span className="text-sm font-bold text-zinc-900">
+                    {isAk ? 'ဘာသာစကား' : 'Language'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-sm text-zinc-500">
+                  <span>{isAk ? 'ရခိုင်' : 'English'}</span>
+                  <ChevronRight size={18} className="text-zinc-400" />
+                </div>
+              </button>
+
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
+                    <Download size={18} />
+                  </div>
+                  <span className="text-sm font-bold text-zinc-900">
+                    {isAk ? 'ပြေစာ အလိုအလျောက် သိမ်းဆည်းမည်' : 'Auto save receipt'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAutoSaveReceipt((v) => !v)}
+                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${
+                    autoSaveReceipt ? 'bg-[#2563EB]' : 'bg-zinc-300'
+                  }`}
+                >
+                  <span
+                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
+                      autoSaveReceipt ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* ── SECTION 2: Security Settings (Change PIN + Face ID on iPhone / Biometric Login on Android) ── */}
+          {/* ── SECTION 2: Security Settings (matches wireframe) ── */}
           <div className="space-y-2">
             <h3 className="text-xs font-bold text-zinc-500 px-1">
               {isAk ? 'လုံခြုံရေး ဆက်တင်များ' : 'Security Settings'}
             </h3>
             <div className="bg-white rounded-2xl divide-y divide-zinc-100 border border-zinc-100 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
+              <button
+                type="button"
+                onClick={() => {
+                  if (isAndroidDevice) {
+                    setBiometricLoginEnabled((v) => !v)
+                    triggerSettingsToast(
+                      biometricLoginEnabled
+                        ? (isAk ? 'လက်ဗွေ ပိတ်ထားသည်' : 'Biometric login disabled')
+                        : (isAk ? 'လက်ဗွေ ဖွင့်ထားသည်' : 'Biometric login enabled')
+                    )
+                  } else {
+                    setFaceIdEnabled((v) => !v)
+                    triggerSettingsToast(
+                      faceIdEnabled
+                        ? (isAk ? 'Face ID ပိတ်ထားသည်' : 'Face ID disabled')
+                        : (isAk ? 'Face ID ဖွင့်ထားသည်' : 'Face ID enabled')
+                    )
+                  }
+                }}
+                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
+                    <Fingerprint size={18} />
+                  </div>
+                  <span className="text-sm font-bold text-zinc-900">
+                    {isAk ? 'လက်ဗွေနှင့် မျက်နှာမှတ်သား' : 'Fingerprint & Face ID'}
+                  </span>
+                </div>
+                <ChevronRight size={18} className="text-zinc-400" />
+              </button>
+
               <button
                 type="button"
                 onClick={() =>
@@ -3138,93 +4063,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
                     <Lock size={18} />
                   </div>
-                  <div>
-                    <div className="text-sm font-bold text-zinc-900">
-                      {isAk ? 'လျှို့ဝှက် PIN ပြောင်းရန်' : 'Change PIN'}
-                    </div>
-                    <div className="text-xs text-zinc-400 mt-0.5">
-                      Last changed NA
-                    </div>
-                  </div>
-                </div>
-                <ChevronRight size={18} className="text-zinc-400" />
-              </button>
-
-              {isAndroidDevice ? (
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
-                      <Fingerprint size={18} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-zinc-900">
-                        {isAk ? 'လက်ဗွေဖြင့် ဝင်ရောက်မှု' : 'Biometric Login'}
-                      </div>
-                      <div className="text-xs text-zinc-400 mt-0.5">
-                        {biometricLoginEnabled ? 'Enabled' : 'Disabled'}
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setBiometricLoginEnabled((v) => !v)}
-                    className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${
-                      biometricLoginEnabled ? 'bg-[#10B981]' : 'bg-zinc-300'
-                    }`}
-                  >
-                    <span
-                      className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                        biometricLoginEnabled ? 'translate-x-5' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                </div>
-              ) : (
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
-                      <KeyRound size={18} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-zinc-900">Face ID</div>
-                      <div className="text-xs text-zinc-400 mt-0.5">
-                        {faceIdEnabled ? 'Enabled' : 'Disabled'}
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setFaceIdEnabled((v) => !v)}
-                    className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${
-                      faceIdEnabled ? 'bg-[#10B981]' : 'bg-zinc-300'
-                    }`}
-                  >
-                    <span
-                      className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                        faceIdEnabled ? 'translate-x-5' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setTwoFactorEnabled((v) => !v)}
-                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
-                    <Shield size={18} />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-zinc-900">
-                      {isAk ? 'နှစ်ဆင့်ခံ လုံခြုံရေး (2FA)' : 'Two Factor Authentication'}
-                    </div>
-                    <div className="text-xs text-zinc-400 mt-0.5">
-                      {twoFactorEnabled ? 'Enabled' : 'Disabled'}
-                    </div>
-                  </div>
+                  <span className="text-sm font-bold text-zinc-900">
+                    {isAk ? 'PIN စီမံခန့်ခွဲမှု' : 'PIN Management'}
+                  </span>
                 </div>
                 <ChevronRight size={18} className="text-zinc-400" />
               </button>
@@ -3260,65 +4101,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </div>
                 <ChevronRight size={18} className="text-zinc-400" />
               </button>
-            </div>
-          </div>
-
-          {/* ── SECTION 3: Account Settings (Dropped Dark Mode) ── */}
-          <div className="space-y-2">
-            <h3 className="text-xs font-bold text-zinc-500 px-1">
-              {isAk ? 'အကောင့် ဆက်တင်များ' : 'Account Settings'}
-            </h3>
-            <div className="bg-white rounded-2xl divide-y divide-zinc-100 border border-zinc-100 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
-              <button
-                type="button"
-                onClick={() => setAccountSubScreen('personal_info')}
-                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
-                    <User size={18} />
-                  </div>
-                  <span className="text-sm font-bold text-zinc-900">
-                    {isAk ? 'ကိုယ်ရေးအချက်အလက်နှင့် လိပ်စာ' : 'Personal Information'}
-                  </span>
-                </div>
-                <ChevronRight size={18} className="text-zinc-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setAccountSubScreen('app_settings')}
-                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
-                    <SettingsIcon size={18} />
-                  </div>
-                  <span className="text-sm font-bold text-zinc-900">
-                    {isAk ? 'အက်ပ် ဆက်တင်များ' : 'Application Settings'}
-                  </span>
-                </div>
-                <ChevronRight size={18} className="text-zinc-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setLang && setLang(isAk ? 'en' : 'ak')}
-                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
-                    <Globe size={18} />
-                  </div>
-                  <span className="text-sm font-bold text-zinc-900">
-                    {isAk ? 'ဘာသာစကား' : 'Language'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-zinc-500">
-                  <span>{isAk ? 'ရခိုင်' : 'English'}</span>
-                  <ChevronRight size={18} className="text-zinc-400" />
-                </div>
-              </button>
 
               <button
                 type="button"
@@ -3331,22 +4113,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   </div>
                   <span className="text-sm font-bold text-zinc-900">
                     {isAk ? 'Péthar အကူအညီနှင့် ချက်တင်' : 'Chat with Support'}
-                  </span>
-                </div>
-                <ChevronRight size={18} className="text-zinc-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setAccountSubScreen('privacy')}
-                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
-                    <Shield size={18} />
-                  </div>
-                  <span className="text-sm font-bold text-zinc-900">
-                    {isAk ? 'စည်းကမ်းချက်နှင့် ကိုယ်ရေးလုံခြုံမှု' : 'TOS & Data Privacy'}
                   </span>
                 </div>
                 <ChevronRight size={18} className="text-zinc-400" />
@@ -3368,8 +4134,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             )}
 
             <div className="pt-2 text-center text-xs font-medium text-zinc-400">
-              ©Péthar Super App - Version:{' '}
-              <span className="text-[#2A8B9D] font-bold">3.3.2</span>
+              ©Péthar App - Version:{' '}
+              <span className="text-[#2A8B9D] font-bold">1.0.0</span>
             </div>
           </div>
         </div>
@@ -3421,6 +4187,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     return renderCameraScanScreen()
   }
 
+  if (screen === 'pay') {
+    return renderPayInterfaceScreen()
+  }
+
   const renderScreen = () => {
     switch (screen) {
       case 'home':
@@ -3445,7 +4215,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       case 'send':
         return <Send go={setScreen} lang={lang} theme={theme} />
       case 'receive':
-        return <Receive lang={lang} theme={theme} />
+        return <Receive go={setScreen} lang={lang} profile={profile} theme={theme} />
       case 'cashout':
         return <CashOut go={setScreen} lang={lang} theme={theme} />
       case 'notifications':
