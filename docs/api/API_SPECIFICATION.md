@@ -26,7 +26,7 @@ Retrieves the cryptographic receipt verification status for any transaction refe
   "timestamp": "2026-10-14T17:35:10Z",
   "sender": {
     "name": "MYAT SOE P****",
-    "id": "ARAK-8891-JACK"
+    "id": "ARAK-8891-USER"
   },
   "recipient": {
     "name": "MR. MYAT SOE PAI****",

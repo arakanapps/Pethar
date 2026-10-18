@@ -143,4 +143,4 @@ npm run build
 
 ## Security & Compliance
 
-Péthar is engineered for defense-in-depth and compliance with Google API Services Limited Use requirements. For security disclosures or bug bounty inquiries, refer to [SECURITY.md](SECURITY.md) or contact `security@pethar.co.uk`.
+Péthar is engineered for defense-in-depth and compliance with Google API Services Limited Use requirements. For security disclosures or bug bounty inquiries, refer to [SECURITY.md](SECURITY.md) or contact `pethar-app@protonmail.com`.
