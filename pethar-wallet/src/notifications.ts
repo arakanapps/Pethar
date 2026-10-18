@@ -94,8 +94,24 @@ export function markRead(id: string) {
   emit()
 }
 
+export function deleteNotification(id: string) {
+  items = items.filter((n) => n.id !== id)
+  emit()
+}
+
+export function clearAllNotifications() {
+  items = []
+  emit()
+}
+
+export function resetDemoNotifications() {
+  items = [...seed]
+  emit()
+}
+
 export function useNotifications() {
   const list = useSyncExternalStore(subscribe, getItems)
   const unread = list.filter((n) => !n.read).length
   return { list, unread }
 }
+

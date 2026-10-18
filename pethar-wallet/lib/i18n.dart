@@ -104,7 +104,7 @@ class TranslationStrings {
     },
     'en': {
       'appName': 'Péthar',
-      'appSubtitle': 'Arakan National Financial Infrastructure',
+      'appSubtitle': 'Arakan Financial Infrastructure',
       'currencyLabel': 'Arakan Dollar',
       'currencySymbol': '₳',
       'currencyUnit': '₳',
@@ -154,7 +154,7 @@ class TranslationStrings {
       'intlTitle': 'Global Banking & Cross-Border Remittance',
       'intlSubtitle': 'Direct incoming and outgoing rails for Payoneer, Wise, PayPal, Visa, Mastercard, and AMEX',
       'intlRemittance': 'Global Inward Corridors (Thailand, Malaysia, Singapore, USA, Europe)',
-      'intlSendAbroad': 'Send Outward International Wire',
+      'intlSendAbroad': 'Send Outward Wire',
       'intlTopUpCard': 'Top Up with Global Cards (Visa / Mastercard / AMEX)',
       'intlDebitCard': 'Péthar Multi-Currency Debit Card',
       'intlFreezeCard': 'Freeze Card Instantly',

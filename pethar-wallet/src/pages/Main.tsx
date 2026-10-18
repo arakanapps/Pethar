@@ -2937,7 +2937,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
 
               <div className="space-y-3">
                 <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-zinc-950'}`}>
-                  8. INTERNATIONAL USERS
+                  8. USERS
                 </h2>
                 <p>
                   Péthar Properties can be accessed from countries around the world and may contain
@@ -3003,7 +3003,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                   THE AGREEMENT AND ANY ACTION RELATED THERETO WILL BE GOVERNED AND INTERPRETED IN
                   ACCORDANCE WITH APPLICABLE LAWS, WITHOUT GIVING EFFECT TO ANY PRINCIPLES THAT
                   PROVIDE FOR THE APPLICATION OF THE LAW OF ANOTHER JURISDICTION. THE UNITED NATIONS
-                  CONVENTION ON CONTRACTS FOR THE INTERNATIONAL SALE OF GOODS DOES NOT APPLY TO THIS
+                  CONVENTION ON CONTRACTS FOR THE SALE OF GOODS DOES NOT APPLY TO THIS
                   AGREEMENT OR ITS SUPPLEMENTAL TERMS.
                 </p>
 

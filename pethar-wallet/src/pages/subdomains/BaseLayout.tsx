@@ -354,7 +354,7 @@ export const BaseLayout = ({
                 <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
                   {lang === 'ak'
                     ? 'အာရက္ခဒေသတွင်း ဘဏ္ဍာရေးလွတ်လပ်ခွင့်၊ စက္ကန့်ပိုင်းအတွင်း ချက်ချင်းငွေလွှဲမှု၊ Arakan QR (AK QR) ကုန်သည်ငွေပေးချေမှုနှင့် ၁:၁ USDT တည်ငြိမ်ငွေကြေးစနစ်။'
-                    : 'Unified national financial technology infrastructure for Arakan. Real-time settlement rails, offline cryptographic vouchers, and auditable 1:1 USD reserves.'}
+                    : 'Unified financial technology infrastructure for Arakan. Real-time settlement rails, offline cryptographic vouchers, and auditable 1:1 USD reserves.'}
                 </p>
                 <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] font-mono text-emerald-700 font-bold">
                   <span className="flex items-center gap-1">

@@ -204,7 +204,7 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
               <Cpu className="w-5 h-5 text-amber-600 mb-2" />
               <h4 className="font-bold text-slate-950">W3C Verifiable Credentials</h4>
-              <p className="text-[11px] text-slate-500 mt-1">Interoperable with international digital passport and visa verification standards.</p>
+              <p className="text-[11px] text-slate-500 mt-1">Interoperable with digital passport and visa verification standards.</p>
             </div>
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 font-mono text-xs">
               <Globe className="w-5 h-5 text-sky-600 mb-2" />

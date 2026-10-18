@@ -125,7 +125,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
         allCategories: 'All Categories',
         searchPlaceholder: 'Search transactions...',
         noTransactions: 'No transactions found',
-        connectedCard: 'Péthar International Card',
+        connectedCard: 'Péthar Card',
         cardHolder: 'Cardholder',
         accountOverview: 'Customer Account Details',
         township: 'Township / Region',
@@ -152,7 +152,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
       };
 
   const currencyAccounts = [
-    { code: 'AKD', symbol: '₳', name: 'Arakan Dollar (National)', amount: balance, equivalent: balance, flag: '🇲🇲' },
+    { code: 'AKD', symbol: '₳', name: 'Arakan Dollar', amount: balance, equivalent: balance, flag: '🇲🇲' },
     { code: 'USD', symbol: '$', name: 'United States Dollar (Escrow)', amount: balance, equivalent: balance, flag: '🇺🇸' },
     { code: 'USDT', symbol: '₮', name: 'Tether TRC-20 / ERC-20', amount: balance, equivalent: balance, flag: '🌐' },
     { code: 'THB', symbol: '฿', name: 'Thai Baht (PromptPay)', amount: balance * 35.8, equivalent: balance, flag: '🇹🇭' },

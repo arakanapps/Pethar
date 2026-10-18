@@ -74,7 +74,7 @@ export const SearchPage = ({ lang }: SearchPageProps) => {
       title: 'akd_node_sittwe_port_treasury',
       subtitle: 'Sittwe Port Regional Clearing & Logistics Pool',
       timestamp: 'Active Node',
-      status: 'Verified National Tier-2',
+      status: 'Verified Tier-2',
       link: 'accounts'
     },
     {

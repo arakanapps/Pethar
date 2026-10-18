@@ -172,7 +172,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
           <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
-                <h3 className="font-bold text-sm text-slate-900">National Ledger Master Audit Trail</h3>
+                <h3 className="font-bold text-sm text-slate-900">Ledger Master Audit Trail</h3>
                 <p className="text-xs text-slate-400 font-mono">Immutable cryptographic journal of transactions</p>
               </div>
               <button
@@ -293,12 +293,12 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
         {/* Tab 3: Policies */}
         {activeTab === 'policy' && (
           <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-2xs space-y-4">
-            <h3 className="font-bold text-sm text-slate-900">National Monetary & Fee Schedules</h3>
+            <h3 className="font-bold text-sm text-slate-900">Monetary & Fee Schedules</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
                 <div className="font-bold text-slate-900">P2P Transfer Fee Ceiling</div>
                 <div className="text-2xl font-black text-emerald-600">0.00% (FREE)</div>
-                <p className="text-slate-500 text-[11px]">Enforced nationally across all citizen accounts.</p>
+                <p className="text-slate-500 text-[11px]">Enforced across all citizen accounts.</p>
               </div>
 
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">

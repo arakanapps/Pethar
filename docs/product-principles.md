@@ -18,7 +18,7 @@ Empower the people of Arakan with resilient digital financial infrastructure. P�
 - **Physical Agent Network**: Verified branch counters across Sittwe, Mrauk-U, Kyaukpyu, Thandwe, Ramree, Minbya, and Ponnagyun.
 - **Dynamic Cash-Out Security**: Time-based One-Time Passwords (TOTP) refreshed every 30 seconds to prevent unauthorized withdrawals.
 
-### 3. International Banking & Corridors (Wise / Payoneer / Card Rails)
+### 3. Banking & Corridors (Wise / Payoneer / Card Rails)
 - **Global Receiving Account**: Multi-currency receiving accounts for global freelance, corporate payroll, and remittances with SWIFT code `ARAKMMXX`.
 - **Card Top-Up Gateway**: Simulated 3D-Secure gateway for Visa, Mastercard, American Express, and PayPal.
 - **Péthar Debit Card**: Virtual and physical Visa-compatible cards with instant in-app freeze/unfreeze controls.
@@ -38,6 +38,6 @@ Empower the people of Arakan with resilient digital financial infrastructure. P�
 - **Offline Mesh Protocol**: Enables signed offline vouchers during regional internet and telecom blackouts, safely reconciling on reconnect.
 - **Coercion / Duress Protection**: Secret Duress PIN (e.g. 999999) displays a decoy balance and silently alerts community safety channels.
 
-### 7. Bilingual Experience & National Identity
+### 7. Bilingual Experience & Identity
 - First-class support for **ရခိုင် (Arakanese)** and **English**, accessible with one tap.
-- Prominent integration of the sacred **Arakan Royal Red Emblem** (Srivatsa, sun, crescent moon, and crown) and national flag.
+- Prominent integration of the sacred **Arakan Royal Red Emblem** (Srivatsa, sun, crescent moon, and crown) and flag.

@@ -217,7 +217,7 @@ export const BetaPage = ({ lang }: BetaPageProps) => {
             </div>
 
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">International Remittance</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Remittance</h3>
               <p className="text-gray-600 dark:text-gray-400">
                 Cross-border payments to 50+ countries with competitive FX rates
               </p>
