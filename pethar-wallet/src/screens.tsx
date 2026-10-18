@@ -10,13 +10,18 @@ import {
   Plus, X, LogOut,
   RefreshCw, Download,
   Receipt, User, Sun, KeyRound, ShieldCheck,
-  Bell, AlarmClock, Megaphone, ArrowLeftRight, Share2, PieChart
+  Bell, ArrowLeftRight, Share2, PieChart,
+  ChevronLeft, BellOff, Sparkles, CheckCheck, Trash2, MoreVertical, RotateCcw
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { FakeQR } from './components/FakeQR'
 import { ArakanEmblem, FlagArakan, FlagInternational } from './components/ArakanEmblem'
 import { TransactionSlip } from './components/TransactionSlip'
-import { useNotifications, markAllRead, markRead, type NotiItem } from './notifications'
+import {
+  useNotifications, markAllRead, markRead,
+  deleteNotification, clearAllNotifications, resetDemoNotifications,
+  type NotiItem
+} from './notifications'
 import type { Language } from './i18n'
 import { translations } from './i18n'
 import { WalletMinimalIcon } from './components/WalletMinimalIcon'
@@ -2016,135 +2021,409 @@ export function CashOut({ go, lang, theme = 'light' }: { go: (s: Screen) => void
 
 // ── NOTIFICATIONS SCREEN (store-driven, synced with home bell) ─────────────
 export function NotificationsScreen({
+  go,
   lang = 'ak',
   theme = 'light',
 }: {
+  go?: (s: Screen) => void
   lang?: Language
   theme?: ThemeMode
 }) {
   const [filter, setFilter] = useState<'all' | 'transaction' | 'system' | 'promotion'>('all')
+  const [selectedNoti, setSelectedNoti] = useState<NotiItem | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const { list, unread } = useNotifications()
-  const isLight = theme === 'light'
+  const isAk = lang === 'ak'
 
   const filtered = list.filter((n) => filter === 'all' || n.type === filter)
   const groups = [...new Set(filtered.map((n) => n.dateGroup))]
 
-  const typeIcon = (n: NotiItem) => {
-    const base = 'relative w-8 h-8 rounded-full border flex items-center justify-center shrink-0 mt-0.5'
-    if (n.type === 'transaction')
-      return (
-        <div className={`${base} ${isLight ? 'bg-emerald-50 border-emerald-200' : 'bg-emerald-500/15 border-emerald-500/30'}`}>
-          <ArrowLeftRight size={15} className="text-emerald-500" />
-          {!n.read && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500" />}
-        </div>
-      )
-    if (n.type === 'system')
-      return (
-        <div className={`${base} ${isLight ? 'bg-amber-50 border-amber-200' : 'bg-amber-500/15 border-amber-500/30'}`}>
-          <AlarmClock size={15} className="text-amber-500" />
-          {!n.read && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500" />}
-        </div>
-      )
-    return (
-      <div className={`${base} ${isLight ? 'bg-blue-50 border-blue-200' : 'bg-blue-500/15 border-blue-500/30'}`}>
-        <Megaphone size={15} className="text-blue-500" />
-        {!n.read && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500" />}
-      </div>
-    )
+  const getPillCount = (id: typeof filter) => {
+    if (id === 'all') return list.length
+    return list.filter((n) => n.type === id).length
   }
 
-  const pills: { id: typeof filter; label: string; mm: string }[] = [
-    { id: 'all', label: 'All', mm: 'အားလုံး' },
-    { id: 'transaction', label: 'Transaction', mm: 'ငွေလွှဲ' },
-    { id: 'system', label: 'System', mm: 'စနစ်' },
-    { id: 'promotion', label: 'Promotion', mm: 'ပရိုမိုးရှင်း' },
+  const pills = [
+    { id: 'all' as const, label: 'All', mm: 'အားလုံး', icon: Bell },
+    { id: 'transaction' as const, label: 'Transactions', mm: 'ငွေလွှဲ', icon: ArrowLeftRight },
+    { id: 'system' as const, label: 'System', mm: 'စနစ်', icon: ShieldCheck },
+    { id: 'promotion' as const, label: 'Offers', mm: 'ပရိုမိုးရှင်း', icon: Sparkles },
   ]
 
+  const typeConfig = (type: NotiItem['type']) => {
+    switch (type) {
+      case 'transaction':
+        return {
+          gradient: 'from-emerald-500 to-teal-600',
+          shadow: 'shadow-emerald-500/20',
+          bgSoft: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+          tag: isAk ? 'ငွေလွှဲ' : 'TRANSACTION',
+          icon: ArrowLeftRight,
+        }
+      case 'system':
+        return {
+          gradient: 'from-amber-500 to-orange-500',
+          shadow: 'shadow-amber-500/20',
+          bgSoft: 'bg-amber-50 text-amber-700 border-amber-200/60',
+          tag: isAk ? 'စနစ်' : 'SYSTEM',
+          icon: ShieldCheck,
+        }
+      case 'promotion':
+      default:
+        return {
+          gradient: 'from-indigo-500 to-purple-600',
+          shadow: 'shadow-purple-500/20',
+          bgSoft: 'bg-purple-50 text-purple-700 border-purple-200/60',
+          tag: isAk ? 'ပရိုမိုးရှင်း' : 'OFFER',
+          icon: Sparkles,
+        }
+    }
+  }
+
+  const handleCardClick = (n: NotiItem) => {
+    if (!n.read) {
+      markRead(n.id)
+    }
+    setSelectedNoti(n)
+  }
+
   return (
-    <div className={`flex h-full flex-col overflow-y-auto select-none ${th.root(theme)}`}>
-      {/* Header */}
-      <div className={`sticky top-0 z-30 px-4 py-3 flex items-center justify-between border-b backdrop-blur-md ${isLight ? 'bg-white/90 border-gray-200' : 'bg-[#090D14]/90 border-white/10'
-        }`}>
-        <h2 className={`text-base font-bold tracking-wide ${th.textMain(theme)}`}>
-          {lang === 'ak' ? 'အသိပေးချက်များ' : 'Notifications'}
-        </h2>
-
-        {/* Live unread counter — synced with the home bell */}
-        <div className={`min-w-[26px] h-6 px-1.5 rounded-lg border-2 flex items-center justify-center text-[10px] font-bold ${unread > 0
-            ? 'border-red-500/70 text-red-500'
-            : isLight ? 'border-gray-300 text-gray-400' : 'border-white/30 text-gray-400'
-          }`}>
-          {unread}
-        </div>
-      </div>
-
-      {/* Filter pills */}
-      <div className="px-4 pt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
-        {pills.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => setFilter(p.id)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition active:scale-95 shrink-0 ${filter === p.id
-                ? 'bg-amber-500 text-black shadow-sm'
-                : isLight
-                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  : 'bg-white/[0.07] text-gray-300 hover:bg-white/10'
-              }`}
-          >
-            {lang === 'ak' ? p.mm : p.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Mark all as read */}
-      <div className="px-4 pt-2.5 text-right">
-        <button
-          onClick={markAllRead}
-          disabled={unread === 0}
-          className={`text-xs font-semibold transition ${unread === 0 ? 'text-gray-500 cursor-default' : 'text-red-500 hover:underline'
-            }`}
-        >
-          {lang === 'ak' ? 'အားလုံး ဖတ်ပြီးဟု မှတ်သား' : 'Mark all as read'}
-        </button>
-      </div>
-
-      {/* Feed grouped by date */}
-      {groups.map((g) => (
-        <div key={g}>
-          <div className={`px-4 pt-4 pb-2 text-sm font-bold tracking-tight ${th.textMain(theme)}`}>{g}</div>
-          <div className={`divide-y ${th.divide(theme)} pb-2`}>
-            {filtered
-              .filter((n) => n.dateGroup === g)
-              .map((n) => (
-                <button
-                  key={n.id}
-                  onClick={() => markRead(n.id)}
-                  className={`w-full px-4 py-3 text-left transition ${isLight ? 'hover:bg-gray-50' : 'hover:bg-white/[0.03]'
-                    } ${n.read ? 'opacity-60' : ''}`}
-                >
-                  <div className="flex items-start gap-3">
-                    {typeIcon(n)}
-                    <div className="flex-1 min-w-0">
-                      <h3 className={`text-sm font-bold leading-snug ${th.textMain(theme)}`}>
-                        {lang === 'ak' ? n.titleMm : n.titleEn}
-                      </h3>
-                      <p className={`text-xs leading-relaxed mt-1 ${th.textSub(theme)}`}>
-                        {lang === 'ak' ? n.bodyMm : n.bodyEn}
-                      </p>
-                      <div className="text-[11px] text-gray-500 mt-1.5 font-mono">{n.time}</div>
-                    </div>
-                  </div>
-                </button>
-              ))}
+    <div className={`relative flex h-full flex-col overflow-y-auto select-none ${th.root(theme)}`}>
+      {/* ── App Bar / Header ── */}
+      <div className="sticky top-0 z-30 px-4 py-3 flex items-center justify-between border-b backdrop-blur-md bg-white/95 border-gray-200/80 shadow-xs">
+        <div className="flex items-center gap-3">
+          {go && (
+            <button
+              onClick={() => go('home')}
+              className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition active:scale-95 shadow-xs"
+              title="Back"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
+          <div>
+            <h2 className="text-base font-extrabold tracking-tight text-gray-900 leading-tight">
+              {isAk ? 'အသိပေးချက်များ' : 'Notifications'}
+            </h2>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              {unread > 0 ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-200/80">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                  {isAk ? `${unread} ခု အသစ်` : `${unread} unread`}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                  <Check size={10} strokeWidth={3} />
+                  {isAk ? 'အားလုံး ဖတ်ပြီး' : 'All caught up'}
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      ))}
 
-      {filtered.length === 0 && (
-        <div className={`flex-1 flex flex-col items-center justify-center gap-2 py-16 ${th.textSub(theme)}`}>
-          <Bell size={28} className="opacity-40" />
-          <div className="text-xs font-semibold">
-            {lang === 'ak' ? 'အသိပေးချက် မရှိပါ' : 'No notifications in this category'}
+        {/* Header Actions */}
+        <div className="relative flex items-center gap-1">
+          {unread > 0 && (
+            <button
+              onClick={() => markAllRead()}
+              className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-blue-600 hover:bg-blue-50 transition"
+              title={isAk ? 'အားလုံး ဖတ်ပြီးဟု မှတ်သား' : 'Mark all as read'}
+            >
+              <CheckCheck size={14} />
+              <span>{isAk ? 'ဖတ်ပြီးမှတ်' : 'Mark read'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-600 transition"
+            title="Options"
+          >
+            <MoreVertical size={18} />
+          </button>
+
+          {/* Overflow Menu */}
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 top-11 z-50 w-52 rounded-2xl bg-white border border-gray-200 shadow-xl p-1.5 text-xs font-semibold animate-in fade-in zoom-in-95 duration-100">
+                <button
+                  onClick={() => {
+                    markAllRead()
+                    setMenuOpen(false)
+                  }}
+                  disabled={unread === 0}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition ${
+                    unread === 0 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <CheckCheck size={15} className="text-blue-600" />
+                  <span>{isAk ? 'အားလုံး ဖတ်ပြီးဟု မှတ်သား' : 'Mark all as read'}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    clearAllNotifications()
+                    setMenuOpen(false)
+                  }}
+                  disabled={list.length === 0}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition ${
+                    list.length === 0 ? 'text-gray-400 cursor-not-allowed' : 'text-rose-600 hover:bg-rose-50'
+                  }`}
+                >
+                  <Trash2 size={15} />
+                  <span>{isAk ? 'အားလုံး ရှင်းလင်းမည်' : 'Clear all'}</span>
+                </button>
+                <div className="my-1 border-t border-gray-100" />
+                <button
+                  onClick={() => {
+                    resetDemoNotifications()
+                    setMenuOpen(false)
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-gray-700 hover:bg-gray-100 transition"
+                >
+                  <RotateCcw size={15} className="text-gray-500" />
+                  <span>{isAk ? 'မူလ သရုပ်ပြ အသိပေးချက်များ ပြန်ယူမည်' : 'Reset demo alerts'}</span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* ── Filter Pills Bar ── */}
+      <div className="px-4 pt-3.5 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+        {pills.map((p) => {
+          const Icon = p.icon
+          const count = getPillCount(p.id)
+          const active = filter === p.id
+          return (
+            <button
+              key={p.id}
+              onClick={() => setFilter(p.id)}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold transition active:scale-95 shrink-0 ${
+                active
+                  ? 'bg-gradient-to-r from-[#1B4DFF] to-[#0A2EB0] text-white shadow-[0_4px_12px_rgba(27,77,255,0.28)]'
+                  : 'bg-white text-gray-700 border border-gray-200/80 hover:bg-gray-50 shadow-2xs'
+              }`}
+            >
+              <Icon size={14} className={active ? 'text-white' : 'text-gray-500'} />
+              <span>{isAk ? p.mm : p.label}</span>
+              <span
+                className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+                  active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* ── Grouped Feed ── */}
+      <div className="px-4 py-2 space-y-4 flex-1">
+        {groups.map((group) => {
+          const groupItems = filtered.filter((n) => n.dateGroup === group)
+          if (groupItems.length === 0) return null
+
+          return (
+            <div key={group} className="space-y-2">
+              <div className="flex items-center gap-2 pt-2 pb-1">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">
+                  {group}
+                </span>
+                <div className="flex-1 h-px bg-gray-200/60" />
+              </div>
+
+              <div className="space-y-2.5">
+                {groupItems.map((n) => {
+                  const cfg = typeConfig(n.type)
+                  const TypeIcon = cfg.icon
+
+                  return (
+                    <div
+                      key={n.id}
+                      onClick={() => handleCardClick(n)}
+                      className={`group relative rounded-2xl p-3.5 border transition cursor-pointer select-none ${
+                        !n.read
+                          ? 'bg-white border-blue-200/90 shadow-[0_3px_12px_rgba(27,77,255,0.06)]'
+                          : 'bg-white/90 border-gray-200/70 shadow-2xs hover:border-gray-300'
+                      }`}
+                    >
+                      {/* Glow indicator on left edge for unread */}
+                      {!n.read && (
+                        <div className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-[#1B4DFF]" />
+                      )}
+
+                      <div className="flex items-start gap-3">
+                        {/* Squircle gradient icon */}
+                        <div
+                          className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${cfg.gradient} text-white flex items-center justify-center shrink-0 shadow-md ${cfg.shadow}`}
+                        >
+                          <TypeIcon size={19} strokeWidth={2.2} />
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span
+                                className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase border ${cfg.bgSoft}`}
+                              >
+                                {cfg.tag}
+                              </span>
+                              {!n.read && (
+                                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-500 text-white shadow-2xs">
+                                  NEW
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 text-[11px] text-gray-400 font-mono">
+                              <Clock size={11} />
+                              <span>{n.time}</span>
+                            </div>
+                          </div>
+
+                          <h3
+                            className={`text-sm leading-snug line-clamp-1 ${
+                              !n.read ? 'font-black text-gray-950' : 'font-bold text-gray-800'
+                            }`}
+                          >
+                            {isAk ? n.titleMm : n.titleEn}
+                          </h3>
+
+                          <p className="text-xs text-gray-600 leading-relaxed mt-1 line-clamp-2">
+                            {isAk ? n.bodyMm : n.bodyEn}
+                          </p>
+                        </div>
+
+                        {/* Delete action button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            deleteNotification(n.id)
+                          }}
+                          className="opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 w-8 h-8 rounded-full hover:bg-gray-100 text-gray-400 hover:text-rose-600 flex items-center justify-center transition shrink-0"
+                          title="Delete"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
+
+        {/* ── Empty State ── */}
+        {filtered.length === 0 && (
+          <div className="flex-1 flex flex-col items-center justify-center py-20 px-6 text-center">
+            {/* Multi-tier concentric glow rings */}
+            <div className="relative w-28 h-28 rounded-full bg-blue-50/70 border border-blue-100 flex items-center justify-center mb-5 shadow-inner">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-100/70 flex items-center justify-center shadow-xs">
+                <BellOff size={34} className="text-blue-600" />
+              </div>
+            </div>
+
+            <h3 className="text-base font-black text-gray-900 tracking-tight">
+              {isAk ? 'အသိပေးချက် မရှိပါ' : 'All caught up!'}
+            </h3>
+            <p className="text-xs text-gray-500 max-w-xs mt-1.5 leading-relaxed">
+              {isAk
+                ? 'ဤအမျိုးအစားတွင် အသိပေးချက် အသစ်များ မရှိသေးပါ။'
+                : 'No notifications found in this category. You are up to date on all wallet activity.'}
+            </p>
+
+            <button
+              onClick={() => resetDemoNotifications()}
+              className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 transition active:scale-95 border border-blue-200/60"
+            >
+              <RotateCcw size={14} />
+              <span>{isAk ? 'သရုပ်ပြ အသိပေးချက်များ ပြန်ဖွင့်မည်' : 'Load Demo Notifications'}</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── Detail Modal Bottom Sheet ── */}
+      {selectedNoti && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-150">
+          <div
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-gray-100 animate-in slide-in-from-bottom duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Sheet Handle */}
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-5 sm:hidden" />
+
+            {/* Header info */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${
+                    typeConfig(selectedNoti.type).gradient
+                  } text-white flex items-center justify-center shadow-md`}
+                >
+                  {(() => {
+                    const Icon = typeConfig(selectedNoti.type).icon
+                    return <Icon size={22} strokeWidth={2.2} />
+                  })()}
+                </div>
+                <div>
+                  <span
+                    className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase border ${
+                      typeConfig(selectedNoti.type).bgSoft
+                    }`}
+                  >
+                    {typeConfig(selectedNoti.type).tag}
+                  </span>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-400 font-mono mt-1">
+                    <Clock size={12} />
+                    <span>
+                      {selectedNoti.dateGroup} • {selectedNoti.time}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedNoti(null)}
+                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="mt-5">
+              <h2 className="text-base font-extrabold text-gray-950 leading-snug">
+                {isAk ? selectedNoti.titleMm : selectedNoti.titleEn}
+              </h2>
+              <div className="mt-3 p-4 rounded-2xl bg-gray-50 border border-gray-200/60 text-xs text-gray-700 leading-relaxed font-medium">
+                {isAk ? selectedNoti.bodyMm : selectedNoti.bodyEn}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-6 flex items-center gap-3">
+              <button
+                onClick={() => {
+                  deleteNotification(selectedNoti.id)
+                  setSelectedNoti(null)
+                }}
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold transition active:scale-95"
+              >
+                <Trash2 size={15} />
+                <span>{isAk ? 'ဖျက်မည်' : 'Delete'}</span>
+              </button>
+
+              <button
+                onClick={() => setSelectedNoti(null)}
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#1B4DFF] to-[#0A2EB0] text-white text-xs font-bold shadow-md hover:shadow-lg transition active:scale-95"
+              >
+                {isAk ? 'နားလည်ပါပြီ' : 'Done'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -2153,3 +2432,4 @@ export function NotificationsScreen({
     </div>
   )
 }
+

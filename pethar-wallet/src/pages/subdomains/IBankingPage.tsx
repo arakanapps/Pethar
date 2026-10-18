@@ -231,7 +231,7 @@ export const IBankingPage = ({ lang }: IBankingPageProps) => {
             <Building2 className="w-6 h-6 text-sky-600 mb-2" />
             <h4 className="text-base font-black text-slate-950">Virtual IBANs & Routing</h4>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Dedicated dedicated Euro and UK clearing accounts to receive international settlements directly into Péthar.
+              Dedicated Euro and UK clearing accounts to receive settlements directly into Péthar.
             </p>
           </div>
         </div>

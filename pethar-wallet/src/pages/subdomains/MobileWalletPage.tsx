@@ -6951,7 +6951,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       case 'cashout':
         return <CashOut go={setScreen} lang={lang} theme={theme} />
       case 'notifications':
-        return <NotificationsScreen lang={lang} theme={theme} />
+        return <NotificationsScreen go={setScreen} lang={lang} theme={theme} />
       case 'intl':
         return <InternationalBanking lang={lang} theme={theme} />
       case 'crypto':

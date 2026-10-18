@@ -121,7 +121,7 @@ print(f"Arakan QR Payload: {invoice.qr_payload}")`
     : {
         badge: 'For Retailers & Enterprises',
         heroTitle: 'Péthar Merchant & Smart POS Suite',
-        heroSubtitle: 'Zero transaction fees, unified Arakan QR terminals, and instant settlement for local & international commerce',
+        heroSubtitle: 'Zero transaction fees, unified Arakan QR terminals, and instant settlement for local commerce',
         simulatorTitle: 'Arakan QR POS Cashier Simulator',
         simulatorDesc: 'Enter a bill amount to generate an instant dynamic QR invoice and test simulated settlement',
         amountLabel: 'Bill Amount',

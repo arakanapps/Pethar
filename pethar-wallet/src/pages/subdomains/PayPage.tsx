@@ -196,7 +196,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
                 </div>
                 <div>
                   <div className="font-bold text-slate-900 dark:text-white">Instant Ledger Receipt</div>
-                  <div className="text-slate-500">Cryptographically verifiable on the national ledger</div>
+                  <div className="text-slate-500">Cryptographically verifiable on the ledger</div>
                 </div>
               </div>
             </div>

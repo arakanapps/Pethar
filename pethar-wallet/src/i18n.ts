@@ -58,7 +58,7 @@ export interface TranslationStrings {
   cashOutTokenLabel: string
   cashOutTokenValidFor: string
 
-  // International Banking
+  // Banking
   intlTitle: string
   intlSubtitle: string
   intlRemittance: string
@@ -181,7 +181,7 @@ export const translations: Record<Language, TranslationStrings> = {
     cashOutTokenLabel: 'ငွေထုတ် တစ်ခါသုံး လျှို့ဝှက်ကုဒ် (TOTP)',
     cashOutTokenValidFor: 'သက်တမ်းကျန်ချိန် စက္ကန့်',
 
-    // International Banking
+    // Banking
     intlTitle: 'နိုင်ငံတကာဘဏ်နှင့် ငွေလွှဲစနစ်',
     intlSubtitle: 'Payoneer, Wise, PayPal, Visa, Mastercard, AMEX တို့မှ တိုက်ရိုက်ငွေသွင်း/ငွေလွှဲနိုင်ပါသည်',
     intlRemittance: 'ပြည်ပနိုင်ငံများမှ ငွေလွှဲလက်ခံမှု (ထိုင်း၊ မလေး၊ စင်ကာပူ၊ အမေရိကန်)',
@@ -247,7 +247,7 @@ export const translations: Record<Language, TranslationStrings> = {
 
   en: {
     appName: 'Péthar',
-    appSubtitle: 'Arakan National Financial Infrastructure',
+    appSubtitle: 'Arakan Financial Infrastructure',
     currencyLabel: 'Arakan Dollar',
     currencySymbol: '₳',
     currencyUnit: '₳',
@@ -303,11 +303,11 @@ export const translations: Record<Language, TranslationStrings> = {
     cashOutTokenLabel: 'One-Time Cash-Out Authorization Code (TOTP)',
     cashOutTokenValidFor: 'Valid for seconds',
 
-    // International Banking
+    // Banking
     intlTitle: 'Global Banking & Cross-Border Remittance',
     intlSubtitle: 'Direct incoming and outgoing rails for Payoneer, Wise, PayPal, Visa, Mastercard, and AMEX',
     intlRemittance: 'Global Inward Corridors (Thailand, Malaysia, Singapore, USA, Europe)',
-    intlSendAbroad: 'Send Outward International Wire',
+    intlSendAbroad: 'Send Outward Wire',
     intlTopUpCard: 'Top Up with Global Cards (Visa / Mastercard / AMEX)',
     intlDebitCard: 'Péthar Multi-Currency Debit Card',
     intlFreezeCard: 'Freeze Card Instantly',
