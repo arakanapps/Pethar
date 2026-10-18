@@ -217,7 +217,7 @@ class _SendScreenState extends State<SendScreen> {
           style: const TextStyle(color: gold, fontSize: 12, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
-        ...contacts.map((c) {
+        ...(appState.contactsList.isNotEmpty ? appState.contactsList : contacts).map((c) {
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
             child: Material(

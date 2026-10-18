@@ -183,19 +183,41 @@ export interface Database {
       transactions: {
         Row: {
           id: string;
-          reference_id: string;
-          transaction_type: TransactionType;
-          status: TransactionStatus;
-          reverses_transaction_id: string | null;
-          metadata: Json;
-          created_at: string;
-          updated_at: string;
+          ref_id?: string;
+          reference_id?: string;
+          title?: string;
+          title_mm?: string;
+          category?: string;
+          amount?: number;
+          currency?: string;
+          time?: string;
+          status?: string;
+          counterparty?: string;
+          counterparty_mm?: string;
+          fee?: number;
+          hash?: string;
+          transaction_type?: TransactionType;
+          reverses_transaction_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
         };
         Insert: {
           id?: string;
-          reference_id: string;
-          transaction_type: TransactionType;
-          status?: TransactionStatus;
+          ref_id?: string;
+          reference_id?: string;
+          title?: string;
+          title_mm?: string;
+          category?: string;
+          amount?: number;
+          currency?: string;
+          time?: string;
+          status?: string;
+          counterparty?: string;
+          counterparty_mm?: string;
+          fee?: number;
+          hash?: string;
+          transaction_type?: TransactionType;
           reverses_transaction_id?: string | null;
           metadata?: Json;
           created_at?: string;
@@ -203,9 +225,20 @@ export interface Database {
         };
         Update: {
           id?: string;
+          ref_id?: string;
           reference_id?: string;
+          title?: string;
+          title_mm?: string;
+          category?: string;
+          amount?: number;
+          currency?: string;
+          time?: string;
+          status?: string;
+          counterparty?: string;
+          counterparty_mm?: string;
+          fee?: number;
+          hash?: string;
           transaction_type?: TransactionType;
-          status?: TransactionStatus;
           reverses_transaction_id?: string | null;
           metadata?: Json;
           created_at?: string;
@@ -220,6 +253,168 @@ export interface Database {
             referencedColumns: ['id'];
           }
         ];
+      };
+      user_profiles: {
+        Row: {
+          id: string;
+          name: string;
+          phone: string;
+          ak_id: string;
+          username: string;
+          uid: string;
+          balance: number;
+          currency: string;
+          avatar_url: string | null;
+          kyc_tier: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name?: string;
+          phone?: string;
+          ak_id?: string;
+          username?: string;
+          uid?: string;
+          balance?: number;
+          currency?: string;
+          avatar_url?: string | null;
+          kyc_tier?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          phone?: string;
+          ak_id?: string;
+          username?: string;
+          uid?: string;
+          balance?: number;
+          currency?: string;
+          avatar_url?: string | null;
+          kyc_tier?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      favorite_contacts: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          name: string;
+          username: string;
+          uid: string;
+          phone: string;
+          initials: string;
+          color_value: number;
+          category: string;
+          avatar_url: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          name: string;
+          username: string;
+          uid: string;
+          phone?: string;
+          initials?: string;
+          color_value?: number;
+          category?: string;
+          avatar_url?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          name?: string;
+          username?: string;
+          uid?: string;
+          phone?: string;
+          initials?: string;
+          color_value?: number;
+          category?: string;
+          avatar_url?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      bill_providers: {
+        Row: {
+          id: string;
+          biller_id: string;
+          name: string;
+          name_mm: string;
+          category: string;
+          region: string;
+          account_label: string;
+          default_account: string;
+          is_popular: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          biller_id: string;
+          name: string;
+          name_mm: string;
+          category: string;
+          region: string;
+          account_label: string;
+          default_account: string;
+          is_popular?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          biller_id?: string;
+          name?: string;
+          name_mm?: string;
+          category?: string;
+          region?: string;
+          account_label?: string;
+          default_account?: string;
+          is_popular?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      topup_packages: {
+        Row: {
+          id: string;
+          operator: string;
+          title: string;
+          data_allowance: string;
+          validity: string;
+          cost_thb: number;
+          cost_akd: number;
+          is_best_seller: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          operator: string;
+          title: string;
+          data_allowance: string;
+          validity: string;
+          cost_thb: number;
+          cost_akd: number;
+          is_best_seller?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          operator?: string;
+          title?: string;
+          data_allowance?: string;
+          validity?: string;
+          cost_thb?: number;
+          cost_akd?: number;
+          is_best_seller?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       ledger_entries: {
         Row: {

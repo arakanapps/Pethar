@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
 import {
@@ -6,7 +6,8 @@ import {
   Sliders,
   Lock, UserCheck, Eye
 } from 'lucide-react';
-import { transactions } from '../../data';
+import type { Txn } from '../../data';
+import { fetchTransactionsFromDb } from '../../services/walletDatabase';
 
 interface AdminPageProps {
   lang: Language;
@@ -15,6 +16,13 @@ interface AdminPageProps {
 export const AdminPage = ({ lang }: AdminPageProps) => {
   const [activeTab, setActiveTab] = useState<'audit' | 'kyc' | 'policy' | 'nodes'>('audit');
   const [kycFilter, setKycFilter] = useState<'pending' | 'approved'>('pending');
+  const [txList, setTxList] = useState<Txn[]>([]);
+
+  useEffect(() => {
+    fetchTransactionsFromDb().then((txs) => {
+      if (txs.length > 0) setTxList(txs);
+    });
+  }, []);
 
   const [kycQueue, setKycQueue] = useState([
     { id: 'KYC-801', name: 'Ko Hlaing Min', township: 'Sittwe · Strand Rd', idCard: 'ARAK-NAT-99102', submitted: '12 mins ago', status: 'Pending' },
@@ -188,7 +196,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {transactions.map((tx) => (
+                  {txList.map((tx) => (
                     <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
                       <td className="py-3">
                         <span className="font-bold text-slate-900 block">{tx.refId}</span>

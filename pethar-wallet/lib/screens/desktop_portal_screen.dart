@@ -17,10 +17,10 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
   String _selectedCategory = 'all';
   String _searchQuery = '';
   final TextEditingController _quickAmtCtrl = TextEditingController(text: '150');
-  String _selectedContactId = contacts[0].id;
+  String _selectedContactId = '';
   bool _quickSentSuccess = false;
 
-  final List<Map<String, dynamic>> _fxRates = [
+  final List<Map<String, dynamic>> _defaultFxRates = [
     {'pair': 'AKD / USD', 'rate': '1.00', 'change': '+0.00%', 'up': true},
     {'pair': 'AKD / USDT', 'rate': '1.00', 'change': '+0.00%', 'up': true},
     {'pair': 'AKD / THB', 'rate': '35.80', 'change': '+0.42%', 'up': true},
@@ -70,36 +70,41 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                 ),
                 const SizedBox(width: 14),
                 Expanded(
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _fxRates.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 16),
-                    itemBuilder: (ctx, i) {
-                      final item = _fxRates[i];
-                      final isUp = item['up'] as bool;
-                      return Center(
-                        child: Row(
-                          children: [
-                            Text(
-                              item['pair'] as String,
-                              style: const TextStyle(color: Colors.grey, fontSize: 11, fontFamily: 'monospace'),
+                  child: Builder(
+                    builder: (ctx) {
+                      final fxList = appState.fxRatesList.isNotEmpty ? appState.fxRatesList : _defaultFxRates;
+                      return ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: fxList.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 16),
+                        itemBuilder: (ctx, i) {
+                          final item = fxList[i];
+                          final isUp = item['up'] as bool? ?? true;
+                          return Center(
+                            child: Row(
+                              children: [
+                                Text(
+                                  item['pair'] as String? ?? '',
+                                  style: const TextStyle(color: Colors.grey, fontSize: 11, fontFamily: 'monospace'),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  item['rate']?.toString() ?? '',
+                                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  item['change'] as String? ?? '+0.00%',
+                                  style: TextStyle(
+                                    color: isUp ? emeraldSuccess : Colors.redAccent,
+                                    fontSize: 10,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              item['rate'] as String,
-                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              item['change'] as String,
-                              style: TextStyle(
-                                color: isUp ? emeraldSuccess : Colors.redAccent,
-                                fontSize: 10,
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       );
                     },
                   ),
@@ -346,21 +351,29 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                                 ],
                               ),
                               const SizedBox(height: 14),
-                              DropdownButtonFormField<String>(
-                                value: _selectedContactId,
-                                decoration: InputDecoration(
-                                  labelText: 'Recipient',
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                ),
-                                items: contacts.map((c) {
-                                  return DropdownMenuItem(
-                                    value: c.id,
-                                    child: Text('${c.name} (${c.id})', style: const TextStyle(fontSize: 12)),
+                              Builder(
+                                builder: (ctx) {
+                                  final currentContacts = appState.contactsList.isNotEmpty ? appState.contactsList : contacts;
+                                  final validSelection = currentContacts.any((c) => c.id == _selectedContactId)
+                                      ? _selectedContactId
+                                      : (currentContacts.isNotEmpty ? currentContacts.first.id : null);
+                                  return DropdownButtonFormField<String>(
+                                    value: validSelection,
+                                    decoration: InputDecoration(
+                                      labelText: 'Recipient',
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    ),
+                                    items: currentContacts.map((c) {
+                                      return DropdownMenuItem(
+                                        value: c.id,
+                                        child: Text('${c.name} (${c.id})', style: const TextStyle(fontSize: 12)),
+                                      );
+                                    }).toList(),
+                                    onChanged: (v) {
+                                      if (v != null) setState(() => _selectedContactId = v);
+                                    },
                                   );
-                                }).toList(),
-                                onChanged: (v) {
-                                  if (v != null) setState(() => _selectedContactId = v);
                                 },
                               ),
                               const SizedBox(height: 10),
@@ -381,7 +394,13 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                                 child: ElevatedButton(
                                   onPressed: () {
                                     final amt = double.tryParse(_quickAmtCtrl.text) ?? 0.0;
-                                    final contact = contacts.firstWhere((c) => c.id == _selectedContactId);
+                                    final currentContacts = appState.contactsList.isNotEmpty ? appState.contactsList : contacts;
+                                    final contact = currentContacts.firstWhere(
+                                      (c) => c.id == _selectedContactId,
+                                      orElse: () => currentContacts.isNotEmpty
+                                          ? currentContacts.first
+                                          : Contact(name: 'Arakan Network', mm: 'အာရက္ခ', id: 'ARAK-001', location: 'Sittwe', phone: '', initials: 'AK'),
+                                    );
                                     if (amt > 0) {
                                       appState.recordTransfer(
                                         amount: amt,

@@ -1447,8 +1447,9 @@ class _MainShellState extends State<MainShell> {
               )
             else
               ...contacts.take(4).map((c) {
+                final idSuffix = c.id.length >= 4 ? c.id.substring(c.id.length - 4) : c.id.padLeft(4, '0');
                 return GestureDetector(
-                  onTap: () => setState(() => _withdrawAddressCtrl.text = '0x8F492C109bE742819aBcD${c.id.substring(c.id.length - 4)}'),
+                  onTap: () => setState(() => _withdrawAddressCtrl.text = '0x8F492C109bE742819aBcD$idSuffix'),
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(14),

@@ -106,7 +106,7 @@ class _CashOutScreenState extends State<CashOutScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                ...agents.map((agt) {
+                ...(appState.agentsList.isNotEmpty ? appState.agentsList : agents).map((agt) {
                   return Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     child: Material(

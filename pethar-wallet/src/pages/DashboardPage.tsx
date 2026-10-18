@@ -10,7 +10,15 @@ import {
   Store, Layers, Wifi, ArrowUpRight, ArrowDownLeft,
   User, Sun, Moon
 } from 'lucide-react'
-import { transactions as initialTransactions, initialUserProfile, contacts, type UserProfile, type Txn } from '../data'
+import { initialUserProfile, type UserProfile, type Txn } from '../data'
+import {
+  fetchTransactionsFromDb,
+  insertTransactionToDb,
+  fetchUserProfileFromDb,
+  updateUserBalanceInDb,
+  fetchFavoriteContactsFromDb,
+  subscribeToTransactions,
+} from '../services/walletDatabase'
 import type { Language } from '../i18n'
 import { auth, onAuthStateChange } from '../lib/firebase'
 import { supabase } from '../lib/supabase'
@@ -121,6 +129,58 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       unsubscribe()
     }
   }, [])
+
+  // Live Database Sync with Supabase (Replaces file-based storage)
+  useEffect(() => {
+    let isMounted = true
+
+    fetchTransactionsFromDb().then((txs) => {
+      if (isMounted && txs.length > 0) {
+        setTxList(txs)
+      }
+    })
+
+    fetchUserProfileFromDb().then((up) => {
+      if (isMounted && up) {
+        setWalletBalance(up.balance)
+        setProfile((prev) => ({
+          ...prev,
+          name: up.name || prev.name,
+          phone: up.phone || prev.phone,
+        }))
+      }
+    })
+
+    fetchFavoriteContactsFromDb().then((fc) => {
+      if (isMounted && fc.length > 0) {
+        setContactsList(
+          fc.map((c: any) => ({
+            id: c.uid || c.id,
+            name: c.name,
+            initials: c.initials || c.name.slice(0, 2).toUpperCase(),
+            location: c.category || 'Arakan',
+            phone: c.phone || '',
+          }))
+        )
+      }
+    })
+
+    const unsubRealtime = subscribeToTransactions((newTx) => {
+      if (isMounted) {
+        setTxList((prev) => {
+          if (prev.some((t) => t.id === newTx.id || t.refId === newTx.refId)) {
+            return prev
+          }
+          return [newTx, ...prev]
+        })
+      }
+    })
+
+    return () => {
+      isMounted = false
+      unsubRealtime()
+    }
+  }, [])
   const [balanceVisible, setBalanceVisible] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [txCategoryFilter, setTxCategoryFilter] = useState<'all' | 'transfer' | 'inflow' | 'merchant' | 'offline'>('all')
@@ -141,85 +201,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   // Analytics View Filter
   const [chartPeriod, setChartPeriod] = useState<'week' | 'month' | 'year'>('week')
 
-  // Transactions State
-  const [txList, setTxList] = useState<Txn[]>([
-    {
-      id: 'TX-5001',
-      refId: '50059261069021',
-      title: 'Transfer to MR. MYAT S***',
-      titleMm: 'ဦးမြတ်စိုး သို့ ငွေလွှဲခြင်း',
-      category: 'p2p',
-      amount: -5.0,
-      currency: 'AKD',
-      time: '14 Oct 2026 17:35:10',
-      status: 'VERIFIED',
-      counterparty: 'MR. MYAT SOE PAI**** (004-********* -689)',
-      counterpartyMm: 'ဦးမြတ်စိုးပိုင် (PromptPay/Péthar)',
-      fee: 0.0,
-      hash: '0x8a91f4c2901bfa829471de990c7412ae8b7244ef0182c81',
-    },
-    {
-      id: 'TX-5002',
-      refId: '50059261069022',
-      title: 'Receive money from MR. MYAT S...',
-      titleMm: 'ဦးမြတ်စိုး ထံမှ ငွေလက်ခံရရှိခြင်း',
-      category: 'p2p',
-      amount: 20.0,
-      currency: 'AKD',
-      time: '14 Oct 2026 14:50:22',
-      status: 'VERIFIED',
-      counterparty: 'MR. MYAT SOE PAING',
-      counterpartyMm: 'ဦးမြတ်စိုးပိုင်',
-      fee: 0.0,
-      hash: '0x3e11f0a829141bfa829471de990c7412ae8b7244ef',
-    },
-    {
-      id: 'TX-5003',
-      refId: '50059261069023',
-      title: 'Grab Local Transportation',
-      titleMm: 'Grab ယာဉ်စီးခ ပေးချေခြင်း',
-      category: 'pos',
-      amount: -94.0,
-      currency: 'AKD',
-      time: '13 Oct 2026 19:12:05',
-      status: 'SETTLED',
-      counterparty: 'Grab Merchant Connect',
-      counterpartyMm: 'Grab ကုန်သည်ဝန်ဆောင်မှု',
-      fee: 0.0,
-      hash: '0x4981fa12048bfa829471de990c7412ae8b7244ef',
-    },
-    {
-      id: 'TX-5004',
-      refId: '50059261069024',
-      title: 'USDT Treasury Deposit',
-      titleMm: 'USDT ဘဏ္ဍာတိုက် ငွေသွင်းခြင်း',
-      category: 'crypto',
-      amount: 500.0,
-      currency: 'AKD',
-      time: '12 Oct 2026 11:20:00',
-      status: 'SETTLED',
-      counterparty: 'Tether TRC-20 Inflow',
-      counterpartyMm: 'Tether တရားဝင်ငွေသွင်း',
-      fee: 0.0,
-      hash: '0x77c29bf01a8829141bfa829471de990c7412ae8b72',
-    },
-    {
-      id: 'TX-5005',
-      refId: '50059261069025',
-      title: 'Starlink Mesh High-Speed Pass',
-      titleMm: 'Starlink ကွန်ရက် အသုံးပြုခ',
-      category: 'pos',
-      amount: -15.0,
-      currency: 'AKD',
-      time: '11 Oct 2026 09:44:18',
-      status: 'VERIFIED',
-      counterparty: 'Starlink Sittwe Ground Terminal',
-      counterpartyMm: 'Starlink စစ်တွေကွန်ရက်',
-      fee: 0.0,
-      hash: '0x99a18274f8829141bfa829471de990c7412ae8b72',
-    },
-    ...initialTransactions,
-  ])
+  // Transactions & Contacts State - loaded live from Supabase
+  const [txList, setTxList] = useState<Txn[]>([])
+  const [contactsList, setContactsList] = useState<any[]>([])
 
   // Modals
   const [selectedTx, setSelectedTx] = useState<Txn | null>(null)
@@ -311,8 +295,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         hash: `0x${Math.random().toString(16).slice(2, 12)}${Math.random().toString(16).slice(2, 10)}`,
       }
 
-      setWalletBalance((prev) => prev - amt)
+      const updatedBalance = Math.max(0, walletBalance - amt)
+      setWalletBalance(updatedBalance)
       setTxList((prev) => [newTx, ...prev])
+      insertTransactionToDb(newTx)
+      updateUserBalanceInDb(updatedBalance)
+
       setSendModalOpen(false)
       setRecipientInput('')
       setRecipientNameInput('')
@@ -329,7 +317,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const handleExecuteTopUp = () => {
     const amt = parseFloat(topUpAmount) || 0
     if (amt > 0) {
-      setWalletBalance((prev) => prev + amt)
+      const updatedBalance = walletBalance + amt
+      setWalletBalance(updatedBalance)
       setTopUpModalOpen(false)
       const newTx: Txn = {
         id: `TX-${Date.now().toString().slice(-4)}`,
@@ -347,6 +336,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         hash: `0x${Math.random().toString(16).slice(2, 14)}`,
       }
       setTxList((prev) => [newTx, ...prev])
+      insertTransactionToDb(newTx)
+      updateUserBalanceInDb(updatedBalance)
     }
   }
 
@@ -871,7 +862,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 </div>
 
                 <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
-                  {contacts.map((c) => (
+                  {contactsList.map((c) => (
                     <button
                       key={c.id}
                       onClick={() => handleSelectContactForSend(c)}

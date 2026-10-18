@@ -38,72 +38,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   String _selectedMonth = 'October – 2026';
   String _selectedCategoryFilter = 'all'; // 'all', 'transfer', 'bill'
 
-  // Standard transactions matching the screenshot reference
-  final List<HistoryItem> _items = const [
-    HistoryItem(
-      id: 'tx_01',
-      title: 'Bills: YESC',
-      time: '14/10 19:11:38',
-      amount: -65600.00,
-      type: 'bill',
-      category: 'Electricity Bill',
-      refNo: '202610141911388829104',
-    ),
-    HistoryItem(
-      id: 'tx_02',
-      title: 'Bills: ATOM Myanmar Limited',
-      time: '14/10 19:10:49',
-      amount: -32000.00,
-      type: 'bill',
-      category: 'Telecom & Internet',
-      refNo: '202610141910497120349',
-    ),
-    HistoryItem(
-      id: 'tx_03',
-      title: 'Transfer From Daw Than Nwe',
-      time: '14/10 19:09:11',
-      amount: 200000.00,
-      type: 'transfer',
-      category: 'P2P Receive',
-      refNo: '202610141909115598124',
-    ),
-    HistoryItem(
-      id: 'tx_04',
-      title: 'Transfer To Hsu Hnin Wutt Yee',
-      time: '10/10 17:44:46',
-      amount: -100000.00,
-      type: 'transfer',
-      category: 'P2P Transfer',
-      refNo: '202610101744469901452',
-    ),
-    HistoryItem(
-      id: 'tx_05',
-      title: 'Transfer To HNIN THANDAR PHYO',
-      time: '03/10 12:38:14',
-      amount: -900000.00,
-      type: 'transfer',
-      category: 'P2P Transfer',
-      refNo: '202610031238148819203',
-    ),
-    HistoryItem(
-      id: 'tx_06',
-      title: 'Transfer From Daw Than Nwe',
-      time: '02/10 14:39:47',
-      amount: 1000000.00,
-      type: 'transfer',
-      category: 'P2P Receive',
-      refNo: '202610021439474412908',
-    ),
-    HistoryItem(
-      id: 'tx_07',
-      title: 'Transfer To Myo Min Paing',
-      time: '01/10 09:37:13',
-      amount: -100000.00,
-      type: 'transfer',
-      category: 'P2P Transfer',
-      refNo: '202610010937133378901',
-    ),
-  ];
 
   String _formatAmount(double amount) {
     final formatter = NumberFormat("#,##0.00", "en_US");
@@ -167,13 +101,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE8F2FE) : const Color(0xFFF1F5F9),
+          color: isSelected ? const Color(0xFFFEE2E2) : const Color(0xFFF1F5F9),
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
           size: 20,
-          color: isSelected ? const Color(0xFF0B57CF) : const Color(0xFF64748B),
+          color: isSelected ? const Color(0xFF9E1B32) : const Color(0xFF64748B),
         ),
       ),
       title: Text(
@@ -181,11 +115,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
         style: TextStyle(
           fontSize: 15,
           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-          color: isSelected ? const Color(0xFF0B57CF) : const Color(0xFF1E293B),
+          color: isSelected ? const Color(0xFF9E1B32) : const Color(0xFF1E293B),
         ),
       ),
       trailing: isSelected
-          ? const Icon(Icons.check_circle_rounded, color: Color(0xFF0B57CF), size: 22)
+          ? const Icon(Icons.check_circle_rounded, color: Color(0xFF9E1B32), size: 22)
           : null,
       onTap: () {
         setState(() => _selectedCategoryFilter = key);
@@ -246,11 +180,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? const Color(0xFF0B57CF) : const Color(0xFF1E293B),
+                      color: isSelected ? const Color(0xFF9E1B32) : const Color(0xFF1E293B),
                     ),
                   ),
                   trailing: isSelected
-                      ? const Icon(Icons.check_circle_rounded, color: Color(0xFF0B57CF), size: 22)
+                      ? const Icon(Icons.check_circle_rounded, color: Color(0xFF9E1B32), size: 22)
                       : null,
                   onTap: () {
                     setState(() => _selectedMonth = m);
@@ -280,7 +214,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF0B57CF),
+        backgroundColor: const Color(0xFF0F172A),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         duration: const Duration(seconds: 3),
@@ -320,12 +254,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 width: 56,
                 height: 56,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFE0F2FE),
+                  color: Color(0xFFD1FAE5),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.check_circle_rounded,
-                  color: Color(0xFF0B57CF),
+                  color: Color(0xFF10B981),
                   size: 32,
                 ),
               ),
@@ -340,7 +274,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                '${_formatAmount(item.amount)} Ks',
+                '${_formatAmount(item.amount)} AKD',
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
@@ -367,7 +301,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     const Divider(height: 20, color: Color(0xFFE2E8F0)),
                     _buildSlipRow('Reference No.', item.refNo ?? '202610141911388829', canCopy: true),
                     const Divider(height: 20, color: Color(0xFFE2E8F0)),
-                    _buildSlipRow('Fee', '0.00 Ks'),
+                    _buildSlipRow('Fee', '0.00 AKD'),
                   ],
                 ),
               ),
@@ -380,7 +314,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(ctx),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0B57CF),
+                    backgroundColor: const Color(0xFF9E1B32),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -435,7 +369,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                   );
                 },
-                child: const Icon(Icons.copy_rounded, size: 14, color: Color(0xFF0B57CF)),
+                child: const Icon(Icons.copy_rounded, size: 14, color: Color(0xFF0F172A)),
               ),
             ],
           ],
@@ -496,7 +430,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       height: 40,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(0xFF0B57CF),
+        color: Color(0xFF0F172A),
       ),
       child: Center(
         child: Row(
@@ -533,12 +467,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
 
-    // Calculate Inflow & Outflow for summary
-    double totalInflow = 1300000.00;
-    double totalOutflow = 1197600.00;
+    // Dynamic transactions matching app database and Pay page
+    final items = appState.txList.map((tx) {
+      final isBill = tx.category.toLowerCase().contains('bill') ||
+          tx.title.toLowerCase().contains('bill') ||
+          tx.category.toLowerCase().contains('top');
+      return HistoryItem(
+        id: tx.id,
+        title: tx.title,
+        time: tx.time,
+        amount: tx.amount,
+        type: isBill ? 'bill' : 'transfer',
+        category: tx.category,
+        refNo: tx.refId.isNotEmpty ? tx.refId : tx.id,
+      );
+    }).toList();
+
+    // Calculate Inflow & Outflow for summary dynamically from items
+    final double totalInflow = items.where((i) => i.isInflow).fold(0.0, (sum, i) => sum + i.amount);
+    final double totalOutflow = items.where((i) => !i.isInflow).fold(0.0, (sum, i) => sum + i.amount.abs());
 
     // Filter list
-    final filtered = _items.where((item) {
+    final filtered = items.where((item) {
       if (_activeTab == 1 && !item.isInflow) return false;
       if (_activeTab == 2 && item.isInflow) return false;
       if (_selectedCategoryFilter != 'all' && item.type != _selectedCategoryFilter) return false;
@@ -548,18 +498,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B57CF), // Deep primary blue matching reference
+        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Color(0xFF0B57CF),
-          statusBarIconBrightness: Brightness.light,
-          statusBarBrightness: Brightness.dark,
+          statusBarColor: Colors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
         ),
         leading: IconButton(
           icon: const Icon(
             Icons.chevron_left_rounded,
-            color: Colors.white,
+            color: Color(0xFF0F172A),
             size: 28,
           ),
           onPressed: () => appState.goBack(),
@@ -569,7 +519,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: Color(0xFF0F172A),
             letterSpacing: 0.1,
           ),
         ),
@@ -625,106 +575,84 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: ListView(
               padding: const EdgeInsets.only(bottom: 40),
               children: [
-                // MONTHLY SUMMARY BANNER CARD
+                // MONTHLY SUMMARY BANNER CARD (CLEAN WHITE)
                 Container(
                   margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                  clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFE8F1FC), Color(0xFFF1F6FE)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
+                    border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                    boxShadow: const [
                       BoxShadow(
-                        color: const Color(0xFF0B57CF).withValues(alpha: 0.04),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+                        color: Color(0x06000000),
+                        blurRadius: 10,
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
-                  child: Stack(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Subtle watermark circle in top right
-                      Positioned(
-                        right: -30,
-                        top: -30,
-                        child: Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color(0xFF0B57CF).withValues(alpha: 0.05),
-                          ),
+                      Text(
+                        _selectedMonth,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F172A),
+                          letterSpacing: -0.2,
                         ),
                       ),
-
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(height: 14),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            _selectedMonth,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                              letterSpacing: -0.2,
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // Inflow
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Inflow
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Inflow',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Color(0xFF64748B),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${NumberFormat("#,##0.00", "en_US").format(totalInflow)} (Ks)',
-                                    style: const TextStyle(
-                                      fontSize: 15.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF0F172A),
-                                      letterSpacing: -0.2,
-                                    ),
-                                  ),
-                                ],
+                              const Text(
+                                'Inflow',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B),
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${NumberFormat("#,##0.00", "en_US").format(totalInflow)} AKD',
+                                style: const TextStyle(
+                                  fontSize: 15.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF0F172A),
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                            ],
+                          ),
 
-                              // Outflow
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  const Text(
-                                    'Outflow',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Color(0xFF64748B),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '–${NumberFormat("#,##0.00", "en_US").format(totalOutflow)} (Ks)',
-                                    style: const TextStyle(
-                                      fontSize: 15.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF0F172A),
-                                      letterSpacing: -0.2,
-                                    ),
-                                  ),
-                                ],
+                          // Outflow
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              const Text(
+                                'Outflow',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '–${NumberFormat("#,##0.00", "en_US").format(totalOutflow)} AKD',
+                                style: const TextStyle(
+                                  fontSize: 15.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF0F172A),
+                                  letterSpacing: -0.2,
+                                ),
                               ),
                             ],
                           ),
@@ -797,7 +725,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 height: 3,
                 width: 32,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0B57CF),
+                  color: const Color(0xFF9E1B32),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
