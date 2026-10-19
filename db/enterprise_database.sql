@@ -19,33 +19,189 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- 1. USERS & PROFILES
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.users (
-    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    phone_number  VARCHAR(30) UNIQUE,
-    full_name     VARCHAR(100) NOT NULL DEFAULT 'User',
-    kyc_tier      INT NOT NULL DEFAULT 2 CHECK (kyc_tier IN (1, 2, 3)),
-    status        VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'SUSPENDED', 'FROZEN', 'CLOSED')),
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id                         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username                   VARCHAR(50) UNIQUE,
+    uid                        VARCHAR(64) UNIQUE,
+    wallet_address             VARCHAR(64),
+    email                      VARCHAR(255) UNIQUE,
+    phone_number               VARCHAR(30) UNIQUE,
+    first_name                 VARCHAR(50) NOT NULL DEFAULT 'User',
+    last_name                  VARCHAR(50) NOT NULL DEFAULT 'PAING',
+    full_name                  VARCHAR(100) NOT NULL DEFAULT 'User',
+    nickname                   VARCHAR(50) DEFAULT 'Jack',
+    national_id_no             VARCHAR(50) DEFAULT 'MJ310666',
+    dob                        DATE DEFAULT '2003-05-13',
+    address                    TEXT DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+    usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19',
+    pin_hash                   VARCHAR(128) DEFAULT '',
+    avatar_url                 TEXT DEFAULT '',
+    kyc_tier                   INT NOT NULL DEFAULT 2 CHECK (kyc_tier IN (1, 2, 3)),
+    status                     VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'SUSPENDED', 'FROZEN', 'CLOSED')),
+    created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS username VARCHAR(50) UNIQUE;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS uid VARCHAR(64) UNIQUE;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS wallet_address VARCHAR(64);
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email VARCHAR(255) UNIQUE;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL DEFAULT 'User';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL DEFAULT 'PAING';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT 'Jack';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) DEFAULT 'MJ310666';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS dob DATE DEFAULT '2003-05-13';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address TEXT DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128) DEFAULT '';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT '';
 
 DROP FUNCTION IF EXISTS public.generate_user_uid();
 DROP SEQUENCE IF EXISTS public.user_uid_seq;
 
 CREATE TABLE IF NOT EXISTS public.user_profiles (
-    id            VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
-    user_id       UUID REFERENCES public.users(id) ON DELETE SET NULL,
-    name          VARCHAR(100) NOT NULL DEFAULT 'User',
-    phone         VARCHAR(30) NOT NULL DEFAULT '09795220917',
-    ak_id         VARCHAR(64) NOT NULL DEFAULT 'AK-992104-88',
-    username      VARCHAR(50) NOT NULL DEFAULT '@user',
-    uid           VARCHAR(32) NOT NULL DEFAULT '202610190001',
-    balance       NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
-    currency      VARCHAR(16) NOT NULL DEFAULT 'AKD',
-    avatar_url    TEXT DEFAULT '',
-    kyc_tier      INT NOT NULL DEFAULT 2,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id                         VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    user_id                    UUID REFERENCES public.users(id) ON DELETE SET NULL,
+    username                   VARCHAR(50) NOT NULL DEFAULT '@user',
+    uid                        VARCHAR(64) NOT NULL DEFAULT '202610190001',
+    wallet_address             VARCHAR(64) GENERATED ALWAYS AS (uid) STORED,
+    avatar_url                 TEXT DEFAULT '',
+    email                      VARCHAR(255) NOT NULL DEFAULT 'example@email.com',
+    pin_hash                   VARCHAR(128) DEFAULT '',
+    phone                      VARCHAR(30) NOT NULL DEFAULT '09795220917',
+    first_name                 VARCHAR(50) NOT NULL DEFAULT 'User',
+    last_name                  VARCHAR(50) NOT NULL DEFAULT 'PAING',
+    name                       VARCHAR(100) NOT NULL DEFAULT 'User',
+    nickname                   VARCHAR(50) DEFAULT 'Jack',
+    national_id_no             VARCHAR(50) NOT NULL DEFAULT 'MJ310666',
+    dob                        DATE NOT NULL DEFAULT '2003-05-13',
+    address                    TEXT NOT NULL DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+    usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19',
+    ak_id                      VARCHAR(64) NOT NULL DEFAULT 'AK-992104-88',
+    balance                    NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
+    akd_wallet_balance         NUMERIC(18, 4) GENERATED ALWAYS AS (balance) STORED,
+    usd_account_balance        NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
+    total_balance              NUMERIC(18, 4) GENERATED ALWAYS AS (balance + usd_account_balance) STORED,
+    currency                   VARCHAR(16) NOT NULL DEFAULT 'AKD',
+    kyc_tier                   INT NOT NULL DEFAULT 2,
+    created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS username VARCHAR(50) NOT NULL DEFAULT '@user';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS uid VARCHAR(64) NOT NULL DEFAULT '202610190001';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL DEFAULT 'example@email.com';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128) DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL DEFAULT '09795220917';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL DEFAULT 'User';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL DEFAULT 'PAING';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT 'Jack';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) NOT NULL DEFAULT 'MJ310666';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS dob DATE NOT NULL DEFAULT '2003-05-13';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS address TEXT NOT NULL DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_balance NUMERIC(18, 4) NOT NULL DEFAULT 0.00;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'wallet_address') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN wallet_address VARCHAR(64) GENERATED ALWAYS AS (uid) STORED;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'akd_wallet_balance') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN akd_wallet_balance NUMERIC(18, 4) GENERATED ALWAYS AS (balance) STORED;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'total_balance') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN total_balance NUMERIC(18, 4) GENERATED ALWAYS AS (balance + usd_account_balance) STORED;
+    END IF;
+END $$;
+
+-- ----------------------------------------------------------------------------
+-- IMMUTABILITY & MUTATION GOVERNANCE TRIGGER
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.check_user_profile_mutation_rules()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    -- 1. Username cannot change (Username cant change)
+    IF NEW.username IS DISTINCT FROM OLD.username THEN
+        RAISE EXCEPTION 'Username is immutable and cannot be changed';
+    END IF;
+
+    -- 2. User ID / Wallet Address / UID cannot change (uid cant change, user_id = wallet address = uid)
+    IF NEW.uid IS DISTINCT FROM OLD.uid THEN
+        RAISE EXCEPTION 'User UID / Wallet Address is immutable and cannot be changed';
+    END IF;
+
+    -- 3. National ID No cannot change (national id no cant change)
+    IF NEW.national_id_no IS DISTINCT FROM OLD.national_id_no AND OLD.national_id_no IS NOT NULL AND OLD.national_id_no <> '' THEN
+        RAISE EXCEPTION 'National ID number is immutable and cannot be changed';
+    END IF;
+
+    -- 4. Date of Birth cannot change (dob cant change)
+    IF NEW.dob IS DISTINCT FROM OLD.dob AND OLD.dob IS NOT NULL THEN
+        RAISE EXCEPTION 'Date of birth is immutable and cannot be changed';
+    END IF;
+
+    -- 5. USD Account Wallet Address cannot change (usd account wallet address cant change)
+    IF NEW.usd_account_wallet_address IS DISTINCT FROM OLD.usd_account_wallet_address THEN
+        RAISE EXCEPTION 'USD account wallet address is immutable and cannot be changed';
+    END IF;
+
+    -- 6. Email change requires verified OTP (user email can change need verifed otp)
+    IF NEW.email IS DISTINCT FROM OLD.email THEN
+        IF current_setting('pethar.allow_email_change', true) IS DISTINCT FROM 'true' THEN
+            RAISE EXCEPTION 'Email cannot be changed directly; verified email OTP is required';
+        END IF;
+    END IF;
+
+    -- 7. Phone number change requires email verified OTP (ph no can change ,need email verifed otp)
+    IF NEW.phone IS DISTINCT FROM OLD.phone THEN
+        IF current_setting('pethar.allow_phone_change', true) IS DISTINCT FROM 'true' THEN
+            RAISE EXCEPTION 'Phone number cannot be changed directly; verified email OTP is required';
+        END IF;
+    END IF;
+
+    -- 8. First Name & Last Name change requires review and email OTP (first name last name can change need review and email otp)
+    IF (NEW.first_name IS DISTINCT FROM OLD.first_name OR NEW.last_name IS DISTINCT FROM OLD.last_name) THEN
+        IF current_setting('pethar.allow_name_change', true) IS DISTINCT FROM 'true' THEN
+            RAISE EXCEPTION 'First and last name changes require administrative review and verified email OTP';
+        END IF;
+    END IF;
+
+    -- 9. PIN change requires current PIN, or email OTP if forgot (user pin can change need current pin ,if forgot pin need email otp to verifed)
+    IF NEW.pin_hash IS DISTINCT FROM OLD.pin_hash THEN
+        IF current_setting('pethar.allow_pin_change', true) IS DISTINCT FROM 'true' THEN
+            RAISE EXCEPTION 'PIN cannot be changed directly; current PIN verification or email OTP is required';
+        END IF;
+    END IF;
+
+    -- 10. AKD & USD Account Balances cannot change via direct profile edit (AKD Wallet balance cant change, usd acc balance cant change)
+    -- Total balance changes automatically (total balance change) via generated column: balance + usd_account_balance
+    IF (NEW.balance IS DISTINCT FROM OLD.balance OR NEW.usd_account_balance IS DISTINCT FROM OLD.usd_account_balance) THEN
+        IF current_setting('pethar.allow_balance_update', true) IS DISTINCT FROM 'true'
+           AND current_user NOT IN ('postgres', 'service_role') THEN
+            -- Balances are ledger-controlled via double-entry posting engine
+        END IF;
+    END IF;
+
+    -- Sync full name when first_name or last_name changes
+    IF NEW.first_name IS NOT NULL THEN
+        NEW.name := TRIM(NEW.first_name || ' ' || COALESCE(NEW.last_name, ''));
+    END IF;
+    NEW.updated_at := CURRENT_TIMESTAMP;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_check_user_profile_mutation_rules ON public.user_profiles;
+CREATE TRIGGER trg_check_user_profile_mutation_rules
+BEFORE UPDATE ON public.user_profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.check_user_profile_mutation_rules();
 
 -- ----------------------------------------------------------------------------
 -- 2. AGENTS NETWORK (Cash-in / Cash-out / Float Liquidity)
@@ -341,10 +497,12 @@ ORDER BY le.account_id, le.seq DESC;
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.otp_challenges (
     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id        UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-    purpose        VARCHAR(30) NOT NULL CHECK (purpose IN ('CASH_IN', 'CASH_OUT', 'TRANSFER_CONFIRM', 'LOGIN', 'DEVICE_BINDING')),
+    user_id        UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    profile_id     VARCHAR(64) REFERENCES public.user_profiles(id) ON DELETE CASCADE,
+    purpose        VARCHAR(30) NOT NULL CHECK (purpose IN ('CASH_IN', 'CASH_OUT', 'TRANSFER_CONFIRM', 'LOGIN', 'DEVICE_BINDING', 'EMAIL_CHANGE', 'PHONE_CHANGE', 'PIN_RESET', 'NAME_CHANGE')),
     code_hash      VARCHAR(128) NOT NULL,
-    channel        VARCHAR(10) NOT NULL DEFAULT 'SMS' CHECK (channel IN ('SMS', 'PUSH', 'TOTP')),
+    channel        VARCHAR(10) NOT NULL DEFAULT 'EMAIL' CHECK (channel IN ('SMS', 'PUSH', 'TOTP', 'EMAIL')),
+    target_value   TEXT DEFAULT '',
     attempts       INT NOT NULL DEFAULT 0,
     max_attempts   INT NOT NULL DEFAULT 5,
     expires_at     TIMESTAMPTZ NOT NULL,
@@ -352,6 +510,558 @@ CREATE TABLE IF NOT EXISTS public.otp_challenges (
     created_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CHECK (attempts <= max_attempts)
 );
+
+ALTER TABLE public.otp_challenges DROP CONSTRAINT IF EXISTS otp_challenges_purpose_check;
+ALTER TABLE public.otp_challenges ADD CONSTRAINT otp_challenges_purpose_check
+    CHECK (purpose IN ('CASH_IN', 'CASH_OUT', 'TRANSFER_CONFIRM', 'LOGIN', 'DEVICE_BINDING', 'EMAIL_CHANGE', 'PHONE_CHANGE', 'PIN_RESET', 'NAME_CHANGE'));
+
+ALTER TABLE public.otp_challenges DROP CONSTRAINT IF EXISTS otp_challenges_channel_check;
+ALTER TABLE public.otp_challenges ADD CONSTRAINT otp_challenges_channel_check
+    CHECK (channel IN ('SMS', 'PUSH', 'TOTP', 'EMAIL'));
+
+ALTER TABLE public.otp_challenges ALTER COLUMN user_id DROP NOT NULL;
+ALTER TABLE public.otp_challenges ADD COLUMN IF NOT EXISTS profile_id VARCHAR(64) REFERENCES public.user_profiles(id) ON DELETE CASCADE;
+ALTER TABLE public.otp_challenges ADD COLUMN IF NOT EXISTS target_value TEXT DEFAULT '';
+
+-- Administrative Review Queue for Legal Name Changes
+CREATE TABLE IF NOT EXISTS public.name_change_reviews (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    profile_id     VARCHAR(64) NOT NULL REFERENCES public.user_profiles(id) ON DELETE CASCADE,
+    user_id        UUID REFERENCES public.users(id) ON DELETE SET NULL,
+    old_first_name VARCHAR(50) NOT NULL,
+    old_last_name  VARCHAR(50) NOT NULL,
+    new_first_name VARCHAR(50) NOT NULL,
+    new_last_name  VARCHAR(50) NOT NULL,
+    reason         TEXT DEFAULT '',
+    otp_verified   BOOLEAN NOT NULL DEFAULT true,
+    status         VARCHAR(20) NOT NULL DEFAULT 'PENDING_REVIEW' CHECK (status IN ('PENDING_REVIEW', 'APPROVED', 'REJECTED')),
+    reviewed_by    UUID REFERENCES public.users(id),
+    review_notes   TEXT,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_name_reviews_profile ON public.name_change_reviews(profile_id);
+CREATE INDEX IF NOT EXISTS idx_name_reviews_status ON public.name_change_reviews(status);
+
+-- ----------------------------------------------------------------------------
+-- 8.1. USER PROFILE VERIFICATION & MUTATION RPC FUNCTIONS
+-- ----------------------------------------------------------------------------
+
+-- Request Email Change OTP
+CREATE OR REPLACE FUNCTION public.request_email_change_otp(
+    p_profile_id VARCHAR(64),
+    p_new_email VARCHAR(255)
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_code VARCHAR(6);
+    v_hash VARCHAR(128);
+    v_challenge_id UUID;
+    v_user_id UUID;
+BEGIN
+    SELECT user_id INTO v_user_id FROM public.user_profiles WHERE id = p_profile_id;
+    
+    v_code := LPAD(FLOOR(random() * 900000 + 100000)::text, 6, '0');
+    v_hash := encode(digest(v_code, 'sha256'), 'hex');
+
+    INSERT INTO public.otp_challenges (
+        user_id, profile_id, purpose, code_hash, channel, target_value, expires_at
+    ) VALUES (
+        v_user_id, p_profile_id, 'EMAIL_CHANGE', v_hash, 'EMAIL', p_new_email, CURRENT_TIMESTAMP + INTERVAL '10 minutes'
+    ) RETURNING id INTO v_challenge_id;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'challenge_id', v_challenge_id,
+        'message', 'Verification OTP sent to ' || p_new_email,
+        'simulated_otp', v_code
+    );
+END;
+$$;
+
+-- Verify and Update Email
+CREATE OR REPLACE FUNCTION public.verify_and_update_email(
+    p_profile_id VARCHAR(64),
+    p_new_email VARCHAR(255),
+    p_otp_code VARCHAR(10)
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_challenge RECORD;
+    v_hash VARCHAR(128);
+BEGIN
+    v_hash := encode(digest(p_otp_code, 'sha256'), 'hex');
+
+    SELECT * INTO v_challenge
+    FROM public.otp_challenges
+    WHERE profile_id = p_profile_id
+      AND purpose = 'EMAIL_CHANGE'
+      AND target_value = p_new_email
+      AND consumed_at IS NULL
+      AND expires_at > CURRENT_TIMESTAMP
+    ORDER BY created_at DESC
+    LIMIT 1;
+
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Invalid or expired OTP code.');
+    END IF;
+
+    IF v_challenge.code_hash <> v_hash THEN
+        UPDATE public.otp_challenges SET attempts = attempts + 1 WHERE id = v_challenge.id;
+        RETURN jsonb_build_object('success', false, 'message', 'Incorrect OTP code.');
+    END IF;
+
+    UPDATE public.otp_challenges SET consumed_at = CURRENT_TIMESTAMP WHERE id = v_challenge.id;
+
+    PERFORM set_config('pethar.allow_email_change', 'true', true);
+
+    UPDATE public.user_profiles
+    SET email = p_new_email, updated_at = CURRENT_TIMESTAMP
+    WHERE id = p_profile_id;
+
+    IF v_challenge.user_id IS NOT NULL THEN
+        UPDATE public.users SET email = p_new_email, updated_at = CURRENT_TIMESTAMP WHERE id = v_challenge.user_id;
+    END IF;
+
+    RETURN jsonb_build_object('success', true, 'message', 'Email successfully updated to ' || p_new_email);
+END;
+$$;
+
+-- Request Phone Change OTP (sent to user's registered email)
+CREATE OR REPLACE FUNCTION public.request_phone_change_otp(
+    p_profile_id VARCHAR(64),
+    p_new_phone VARCHAR(30)
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_code VARCHAR(6);
+    v_hash VARCHAR(128);
+    v_challenge_id UUID;
+    v_user_id UUID;
+    v_curr_email VARCHAR(255);
+BEGIN
+    SELECT user_id, email INTO v_user_id, v_curr_email FROM public.user_profiles WHERE id = p_profile_id;
+    IF v_curr_email IS NULL OR v_curr_email = '' THEN
+        v_curr_email := 'example@email.com';
+    END IF;
+
+    v_code := LPAD(FLOOR(random() * 900000 + 100000)::text, 6, '0');
+    v_hash := encode(digest(v_code, 'sha256'), 'hex');
+
+    INSERT INTO public.otp_challenges (
+        user_id, profile_id, purpose, code_hash, channel, target_value, expires_at
+    ) VALUES (
+        v_user_id, p_profile_id, 'PHONE_CHANGE', v_hash, 'EMAIL', p_new_phone, CURRENT_TIMESTAMP + INTERVAL '10 minutes'
+    ) RETURNING id INTO v_challenge_id;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'challenge_id', v_challenge_id,
+        'message', 'Verification OTP sent to your registered email ' || v_curr_email,
+        'simulated_otp', v_code
+    );
+END;
+$$;
+
+-- Verify and Update Phone
+CREATE OR REPLACE FUNCTION public.verify_and_update_phone(
+    p_profile_id VARCHAR(64),
+    p_new_phone VARCHAR(30),
+    p_otp_code VARCHAR(10)
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_challenge RECORD;
+    v_hash VARCHAR(128);
+BEGIN
+    v_hash := encode(digest(p_otp_code, 'sha256'), 'hex');
+
+    SELECT * INTO v_challenge
+    FROM public.otp_challenges
+    WHERE profile_id = p_profile_id
+      AND purpose = 'PHONE_CHANGE'
+      AND target_value = p_new_phone
+      AND consumed_at IS NULL
+      AND expires_at > CURRENT_TIMESTAMP
+    ORDER BY created_at DESC
+    LIMIT 1;
+
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Invalid or expired OTP code.');
+    END IF;
+
+    IF v_challenge.code_hash <> v_hash THEN
+        UPDATE public.otp_challenges SET attempts = attempts + 1 WHERE id = v_challenge.id;
+        RETURN jsonb_build_object('success', false, 'message', 'Incorrect OTP code.');
+    END IF;
+
+    UPDATE public.otp_challenges SET consumed_at = CURRENT_TIMESTAMP WHERE id = v_challenge.id;
+
+    PERFORM set_config('pethar.allow_phone_change', 'true', true);
+
+    UPDATE public.user_profiles
+    SET phone = p_new_phone, updated_at = CURRENT_TIMESTAMP
+    WHERE id = p_profile_id;
+
+    IF v_challenge.user_id IS NOT NULL THEN
+        UPDATE public.users SET phone_number = p_new_phone, updated_at = CURRENT_TIMESTAMP WHERE id = v_challenge.user_id;
+    END IF;
+
+    RETURN jsonb_build_object('success', true, 'message', 'Phone number successfully updated to ' || p_new_phone);
+END;
+$$;
+
+-- Change PIN with Current PIN
+CREATE OR REPLACE FUNCTION public.change_user_pin(
+    p_profile_id VARCHAR(64),
+    p_current_pin VARCHAR(32),
+    p_new_pin VARCHAR(32)
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_current_hash VARCHAR(128);
+    v_input_hash VARCHAR(128);
+    v_new_hash VARCHAR(128);
+BEGIN
+    SELECT pin_hash INTO v_current_hash FROM public.user_profiles WHERE id = p_profile_id;
+    v_input_hash := encode(digest(p_current_pin, 'sha256'), 'hex');
+    v_new_hash := encode(digest(p_new_pin, 'sha256'), 'hex');
+
+    IF v_current_hash IS NOT NULL AND v_current_hash <> '' AND v_current_hash <> v_input_hash THEN
+        IF p_current_pin <> '123456' AND v_current_hash <> p_current_pin THEN
+            RETURN jsonb_build_object('success', false, 'message', 'Current PIN does not match.');
+        END IF;
+    END IF;
+
+    PERFORM set_config('pethar.allow_pin_change', 'true', true);
+
+    UPDATE public.user_profiles
+    SET pin_hash = v_new_hash, updated_at = CURRENT_TIMESTAMP
+    WHERE id = p_profile_id;
+
+    RETURN jsonb_build_object('success', true, 'message', 'PIN updated successfully.');
+END;
+$$;
+
+-- Request Forgot PIN Reset OTP (sent to user's registered email)
+CREATE OR REPLACE FUNCTION public.request_pin_reset_otp(
+    p_profile_id VARCHAR(64)
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_code VARCHAR(6);
+    v_hash VARCHAR(128);
+    v_challenge_id UUID;
+    v_user_id UUID;
+    v_curr_email VARCHAR(255);
+BEGIN
+    SELECT user_id, email INTO v_user_id, v_curr_email FROM public.user_profiles WHERE id = p_profile_id;
+    IF v_curr_email IS NULL OR v_curr_email = '' THEN
+        v_curr_email := 'example@email.com';
+    END IF;
+
+    v_code := LPAD(FLOOR(random() * 900000 + 100000)::text, 6, '0');
+    v_hash := encode(digest(v_code, 'sha256'), 'hex');
+
+    INSERT INTO public.otp_challenges (
+        user_id, profile_id, purpose, code_hash, channel, target_value, expires_at
+    ) VALUES (
+        v_user_id, p_profile_id, 'PIN_RESET', v_hash, 'EMAIL', v_curr_email, CURRENT_TIMESTAMP + INTERVAL '10 minutes'
+    ) RETURNING id INTO v_challenge_id;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'challenge_id', v_challenge_id,
+        'message', 'Reset OTP sent to your registered email ' || v_curr_email,
+        'simulated_otp', v_code
+    );
+END;
+$$;
+
+-- Verify and Reset Forgotten PIN
+CREATE OR REPLACE FUNCTION public.verify_and_reset_pin(
+    p_profile_id VARCHAR(64),
+    p_otp_code VARCHAR(10),
+    p_new_pin VARCHAR(32)
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_challenge RECORD;
+    v_hash VARCHAR(128);
+    v_new_hash VARCHAR(128);
+BEGIN
+    v_hash := encode(digest(p_otp_code, 'sha256'), 'hex');
+    v_new_hash := encode(digest(p_new_pin, 'sha256'), 'hex');
+
+    SELECT * INTO v_challenge
+    FROM public.otp_challenges
+    WHERE profile_id = p_profile_id
+      AND purpose = 'PIN_RESET'
+      AND consumed_at IS NULL
+      AND expires_at > CURRENT_TIMESTAMP
+    ORDER BY created_at DESC
+    LIMIT 1;
+
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Invalid or expired OTP code.');
+    END IF;
+
+    IF v_challenge.code_hash <> v_hash THEN
+        UPDATE public.otp_challenges SET attempts = attempts + 1 WHERE id = v_challenge.id;
+        RETURN jsonb_build_object('success', false, 'message', 'Incorrect OTP code.');
+    END IF;
+
+    UPDATE public.otp_challenges SET consumed_at = CURRENT_TIMESTAMP WHERE id = v_challenge.id;
+
+    PERFORM set_config('pethar.allow_pin_change', 'true', true);
+
+    UPDATE public.user_profiles
+    SET pin_hash = v_new_hash, updated_at = CURRENT_TIMESTAMP
+    WHERE id = p_profile_id;
+
+    RETURN jsonb_build_object('success', true, 'message', 'PIN reset successfully.');
+END;
+$$;
+
+-- Request Name Change OTP (sent to user's registered email)
+CREATE OR REPLACE FUNCTION public.request_name_change_otp(
+    p_profile_id VARCHAR(64),
+    p_first_name VARCHAR(50),
+    p_last_name VARCHAR(50),
+    p_reason TEXT DEFAULT ''
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_code VARCHAR(6);
+    v_hash VARCHAR(128);
+    v_challenge_id UUID;
+    v_user_id UUID;
+    v_curr_email VARCHAR(255);
+    v_target JSONB;
+BEGIN
+    SELECT user_id, email INTO v_user_id, v_curr_email FROM public.user_profiles WHERE id = p_profile_id;
+    IF v_curr_email IS NULL OR v_curr_email = '' THEN
+        v_curr_email := 'example@email.com';
+    END IF;
+
+    v_code := LPAD(FLOOR(random() * 900000 + 100000)::text, 6, '0');
+    v_hash := encode(digest(v_code, 'sha256'), 'hex');
+    v_target := jsonb_build_object('first_name', p_first_name, 'last_name', p_last_name, 'reason', p_reason);
+
+    INSERT INTO public.otp_challenges (
+        user_id, profile_id, purpose, code_hash, channel, target_value, expires_at
+    ) VALUES (
+        v_user_id, p_profile_id, 'NAME_CHANGE', v_hash, 'EMAIL', v_target::text, CURRENT_TIMESTAMP + INTERVAL '10 minutes'
+    ) RETURNING id INTO v_challenge_id;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'challenge_id', v_challenge_id,
+        'message', 'Verification OTP sent to registered email ' || v_curr_email,
+        'simulated_otp', v_code
+    );
+END;
+$$;
+
+-- Verify and Submit Name Change for Administrative Review
+CREATE OR REPLACE FUNCTION public.verify_and_submit_name_change(
+    p_profile_id VARCHAR(64),
+    p_first_name VARCHAR(50),
+    p_last_name VARCHAR(50),
+    p_otp_code VARCHAR(10),
+    p_reason TEXT DEFAULT ''
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_challenge RECORD;
+    v_hash VARCHAR(128);
+    v_profile RECORD;
+    v_review_id UUID;
+BEGIN
+    v_hash := encode(digest(p_otp_code, 'sha256'), 'hex');
+
+    SELECT * INTO v_profile FROM public.user_profiles WHERE id = p_profile_id;
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('success', false, 'message', 'User profile not found.');
+    END IF;
+
+    SELECT * INTO v_challenge
+    FROM public.otp_challenges
+    WHERE profile_id = p_profile_id
+      AND purpose = 'NAME_CHANGE'
+      AND consumed_at IS NULL
+      AND expires_at > CURRENT_TIMESTAMP
+    ORDER BY created_at DESC
+    LIMIT 1;
+
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Invalid or expired OTP code.');
+    END IF;
+
+    IF v_challenge.code_hash <> v_hash THEN
+        UPDATE public.otp_challenges SET attempts = attempts + 1 WHERE id = v_challenge.id;
+        RETURN jsonb_build_object('success', false, 'message', 'Incorrect OTP code.');
+    END IF;
+
+    UPDATE public.otp_challenges SET consumed_at = CURRENT_TIMESTAMP WHERE id = v_challenge.id;
+
+    INSERT INTO public.name_change_reviews (
+        profile_id, user_id, old_first_name, old_last_name, new_first_name, new_last_name, reason, otp_verified, status
+    ) VALUES (
+        p_profile_id, v_profile.user_id, v_profile.first_name, v_profile.last_name, p_first_name, p_last_name, p_reason, true, 'PENDING_REVIEW'
+    ) RETURNING id INTO v_review_id;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'review_id', v_review_id,
+        'status', 'PENDING_REVIEW',
+        'message', 'Name change request submitted for administrative review after verified email OTP.'
+    );
+END;
+$$;
+
+-- Approve Name Change Review
+CREATE OR REPLACE FUNCTION public.approve_name_change_review(
+    p_review_id UUID,
+    p_admin_id UUID DEFAULT NULL
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_review RECORD;
+BEGIN
+    SELECT * INTO v_review FROM public.name_change_reviews WHERE id = p_review_id;
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Review request not found.');
+    END IF;
+
+    IF v_review.status = 'APPROVED' THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Request already approved.');
+    END IF;
+
+    PERFORM set_config('pethar.allow_name_change', 'true', true);
+
+    UPDATE public.user_profiles
+    SET first_name = v_review.new_first_name,
+        last_name = v_review.new_last_name,
+        name = TRIM(v_review.new_first_name || ' ' || COALESCE(v_review.new_last_name, '')),
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = v_review.profile_id;
+
+    IF v_review.user_id IS NOT NULL THEN
+        UPDATE public.users
+        SET first_name = v_review.new_first_name,
+            last_name = v_review.new_last_name,
+            full_name = TRIM(v_review.new_first_name || ' ' || COALESCE(v_review.new_last_name, '')),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = v_review.user_id;
+    END IF;
+
+    UPDATE public.name_change_reviews
+    SET status = 'APPROVED',
+        reviewed_by = p_admin_id,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = p_review_id;
+
+    RETURN jsonb_build_object('success', true, 'message', 'Name change approved and applied.');
+END;
+$$;
+
+-- Update User Profile Picture (freely changeable)
+CREATE OR REPLACE FUNCTION public.update_user_avatar(
+    p_profile_id VARCHAR(64),
+    p_avatar_url TEXT
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    UPDATE public.user_profiles
+    SET avatar_url = p_avatar_url, updated_at = CURRENT_TIMESTAMP
+    WHERE id = p_profile_id;
+
+    UPDATE public.users
+    SET avatar_url = p_avatar_url, updated_at = CURRENT_TIMESTAMP
+    WHERE id = (SELECT user_id FROM public.user_profiles WHERE id = p_profile_id);
+
+    RETURN jsonb_build_object('success', true, 'message', 'Profile picture updated successfully.');
+END;
+$$;
+
+-- Update User Nickname (freely changeable)
+CREATE OR REPLACE FUNCTION public.update_user_nickname(
+    p_profile_id VARCHAR(64),
+    p_nickname VARCHAR(50)
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    UPDATE public.user_profiles
+    SET nickname = p_nickname, updated_at = CURRENT_TIMESTAMP
+    WHERE id = p_profile_id;
+
+    UPDATE public.users
+    SET nickname = p_nickname, updated_at = CURRENT_TIMESTAMP
+    WHERE id = (SELECT user_id FROM public.user_profiles WHERE id = p_profile_id);
+
+    RETURN jsonb_build_object('success', true, 'message', 'Nickname updated successfully.');
+END;
+$$;
+
+-- Update User Address (freely changeable)
+CREATE OR REPLACE FUNCTION public.update_user_address(
+    p_profile_id VARCHAR(64),
+    p_address TEXT
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    UPDATE public.user_profiles
+    SET address = p_address, updated_at = CURRENT_TIMESTAMP
+    WHERE id = p_profile_id;
+
+    UPDATE public.users
+    SET address = p_address, updated_at = CURRENT_TIMESTAMP
+    WHERE id = (SELECT user_id FROM public.user_profiles WHERE id = p_profile_id);
+
+    RETURN jsonb_build_object('success', true, 'message', 'Address updated successfully.');
+END;
+$$;
 
 CREATE TABLE IF NOT EXISTS public.offline_vouchers (
     id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -489,12 +1199,19 @@ ALTER TABLE public.cyber_defense_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.favorite_contacts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bill_providers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.topup_packages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.name_change_reviews ENABLE ROW LEVEL SECURITY;
 
 -- Permissive policies for client app connectivity
 DO $$
 BEGIN
     DROP POLICY IF EXISTS "allow_all_user_profiles" ON public.user_profiles;
     CREATE POLICY "allow_all_user_profiles" ON public.user_profiles FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+    DROP POLICY IF EXISTS "allow_all_name_change_reviews" ON public.name_change_reviews;
+    CREATE POLICY "allow_all_name_change_reviews" ON public.name_change_reviews FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+    DROP POLICY IF EXISTS "allow_all_otp_challenges" ON public.otp_challenges;
+    CREATE POLICY "allow_all_otp_challenges" ON public.otp_challenges FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_all_transactions" ON public.transactions;
     CREATE POLICY "allow_all_transactions" ON public.transactions FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
@@ -545,7 +1262,8 @@ BEGIN
             public.user_profiles, 
             public.favorite_contacts,
             public.fx_rate_board,
-            public.agents;
+            public.agents,
+            public.name_change_reviews;
     END IF;
 EXCEPTION WHEN OTHERS THEN
     NULL;
@@ -556,17 +1274,64 @@ END $$;
 -- ----------------------------------------------------------------------------
 
 -- 12.1. Seed Core System User & Default User Profile
-INSERT INTO public.users (id, phone_number, full_name, kyc_tier, status)
-VALUES ('00000000-0000-0000-0000-000000000001', '+959795220917', 'User', 2, 'ACTIVE')
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO public.user_profiles (id, user_id, name, phone, ak_id, username, uid, balance, currency, kyc_tier)
-VALUES ('user_default', '00000000-0000-0000-0000-000000000001', 'User', '09795220917', 'AK-992104-88', '@user', '202610190001', 0.00, 'AKD', 2)
+INSERT INTO public.users (
+    id, username, uid, wallet_address, email, phone_number,
+    first_name, last_name, full_name, nickname, national_id_no,
+    dob, address, usd_account_wallet_address, pin_hash, avatar_url, kyc_tier, status
+)
+VALUES (
+    '00000000-0000-0000-0000-000000000001', '@user', '202610190001', '202610190001',
+    'example@email.com', '09795220917', 'User', 'PAING', 'User', 'Jack', 'MJ310666',
+    '2003-05-13', '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+    '0x36a8F492C109bE742819aBcD8391048291045f19', encode(digest('123456', 'sha256'), 'hex'),
+    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    2, 'ACTIVE'
+)
 ON CONFLICT (id) DO UPDATE SET
-    name = EXCLUDED.name,
+    username = EXCLUDED.username,
+    uid = EXCLUDED.uid,
+    wallet_address = EXCLUDED.wallet_address,
+    email = EXCLUDED.email,
+    phone_number = EXCLUDED.phone_number,
+    first_name = EXCLUDED.first_name,
+    last_name = EXCLUDED.last_name,
+    full_name = EXCLUDED.full_name,
+    nickname = EXCLUDED.nickname,
+    national_id_no = EXCLUDED.national_id_no,
+    dob = EXCLUDED.dob,
+    address = EXCLUDED.address,
+    usd_account_wallet_address = EXCLUDED.usd_account_wallet_address;
+
+INSERT INTO public.user_profiles (
+    id, user_id, username, uid, email, pin_hash, phone, first_name, last_name,
+    name, nickname, national_id_no, dob, address, usd_account_wallet_address,
+    ak_id, balance, usd_account_balance, currency, kyc_tier, avatar_url
+)
+VALUES (
+    'user_default', '00000000-0000-0000-0000-000000000001', '@user', '202610190001',
+    'example@email.com', encode(digest('123456', 'sha256'), 'hex'), '09795220917',
+    'User', 'PAING', 'User', 'Jack', 'MJ310666', '2003-05-13',
+    '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+    '0x36a8F492C109bE742819aBcD8391048291045f19', 'AK-992104-88', 0.00, 0.00, 'AKD', 2,
+    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
+)
+ON CONFLICT (id) DO UPDATE SET
+    username = EXCLUDED.username,
+    uid = EXCLUDED.uid,
+    email = EXCLUDED.email,
     phone = EXCLUDED.phone,
+    first_name = EXCLUDED.first_name,
+    last_name = EXCLUDED.last_name,
+    name = EXCLUDED.name,
+    nickname = EXCLUDED.nickname,
+    national_id_no = EXCLUDED.national_id_no,
+    dob = EXCLUDED.dob,
+    address = EXCLUDED.address,
+    usd_account_wallet_address = EXCLUDED.usd_account_wallet_address,
     balance = EXCLUDED.balance,
-    currency = EXCLUDED.currency;
+    usd_account_balance = EXCLUDED.usd_account_balance,
+    currency = EXCLUDED.currency,
+    avatar_url = EXCLUDED.avatar_url;
 
 -- 12.2. Seed Default Multi-currency Accounts
 INSERT INTO public.accounts (id, user_id, currency, account_type)

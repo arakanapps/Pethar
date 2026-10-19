@@ -822,12 +822,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.vertical(top: Radius.circular(34)),
-        gradient: LinearGradient(
-          colors: [Color(0xFF1CA3B8), Color(0xFF135E6B), Color(0xFF0D0F12)],
-          stops: [0.0, 0.42, 1.0],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
+        color: Color(0xFFF8FAFC),
       ),
       child: Column(
         children: [
@@ -843,11 +838,14 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white24),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 2)),
+                        ],
                       ),
-                      child: const Icon(Icons.chevron_left, color: Colors.white, size: 26),
+                      child: const Icon(Icons.chevron_left, color: Color(0xFF0F172A), size: 26),
                     ),
                   )
                 else
@@ -859,10 +857,10 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                       height: 44,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFF0284C7),
-                        border: Border.all(color: Colors.white38, width: 2),
+                        color: const Color(0xFFE0F2FE),
+                        border: Border.all(color: const Color(0xFFBAE6FD), width: 1.5),
                       ),
-                      child: const Icon(Icons.support_agent_rounded, color: Colors.white, size: 22),
+                      child: const Icon(Icons.support_agent_rounded, color: Color(0xFF0284C7), size: 22),
                     ),
                     const SizedBox(width: 10),
                     GestureDetector(
@@ -872,10 +870,13 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                         height: 44,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.15),
-                          border: Border.all(color: Colors.white30),
+                          color: Colors.white,
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 2)),
+                          ],
                         ),
-                        child: const Icon(Icons.close, color: Colors.white, size: 22),
+                        child: const Icon(Icons.close, color: Color(0xFF0F172A), size: 20),
                       ),
                     ),
                   ],
@@ -895,19 +896,19 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                       children: [
                         Text(
                           isAk ? 'မင်္ဂလာပါ 👋' : 'Hi there 👋',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white.withValues(alpha: 0.78),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF64748B),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           isAk ? 'မည်သို့ ကူညီပေးရမလဲ?' : 'How can we help?',
                           style: const TextStyle(
-                            fontSize: 28,
+                            fontSize: 26,
                             fontWeight: FontWeight.w900,
-                            color: Colors.white,
+                            color: Color(0xFF0F172A),
                           ),
                         ),
                       ],
@@ -916,30 +917,33 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 20),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFF171A1F),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white12),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                      ],
                     ),
                     child: Column(
                       children: [
                         ListTile(
                           title: Text(
                             isAk ? 'မက်ဆေ့ချ်များ (Messages)' : 'Messages',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                            style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 15),
                           ),
-                          trailing: const Icon(Icons.chat_bubble_rounded, color: Color(0xFF29B6F6), size: 19),
+                          trailing: const Icon(Icons.chat_bubble_rounded, color: Color(0xFF2563EB), size: 19),
                           onTap: () => setState(() {
                             _topic = 'Direct Messages';
                             _view = 'chat';
                           }),
                         ),
-                        const Divider(height: 1, color: Colors.white12),
+                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
                         ListTile(
                           title: Text(
                             isAk ? 'အကူအညီ (Help)' : 'Help',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                            style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 15),
                           ),
-                          trailing: const Icon(Icons.help_rounded, color: Color(0xFF29B6F6), size: 20),
+                          trailing: const Icon(Icons.help_rounded, color: Color(0xFF2563EB), size: 20),
                           onTap: () => setState(() => _view = 'help'),
                         ),
                       ],
@@ -948,9 +952,12 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFF171A1F),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white12),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -959,7 +966,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                           child: Text(
                             isAk ? 'အကူအညီ လက်မှတ်ဖွင့်ရန်' : 'Create a ticket',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16),
+                            style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.w800, fontSize: 16),
                           ),
                         ),
                         ...[
@@ -973,10 +980,10 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                           final label = item['label'] as String;
                           return Column(
                             children: [
-                              if (idx > 0) const Divider(height: 1, color: Colors.white12),
+                              if (idx > 0) const Divider(height: 1, color: Color(0xFFF1F5F9)),
                               ListTile(
-                                title: Text(label, style: const TextStyle(color: Colors.white, fontSize: 15)),
-                                trailing: Icon(item['icon'] as IconData, color: const Color(0xFF29B6F6), size: 19),
+                                title: Text(label, style: const TextStyle(color: Color(0xFF0F172A), fontSize: 15)),
+                                trailing: Icon(item['icon'] as IconData, color: const Color(0xFF2563EB), size: 19),
                                 onTap: () {
                                   setState(() {
                                     _topic = label;
@@ -997,46 +1004,52 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFF171A1F),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white12),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                      ],
                     ),
                     child: ListTile(
                       title: Text(
                         isAk ? 'အကူအညီ ရှာဖွေရန်' : 'Search for help',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                        style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 15),
                       ),
-                      trailing: const Icon(Icons.search_rounded, color: Color(0xFF29B6F6), size: 20),
+                      trailing: const Icon(Icons.search_rounded, color: Color(0xFF2563EB), size: 20),
                       onTap: () => setState(() => _view = 'help'),
                     ),
                   ),
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFF171A1F),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white12),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                      ],
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     child: ListTile(
                       title: Text(
                         isAk ? 'မက်ဆေ့ချ် ပေးပို့ရန်' : 'Send us a message',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                        style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 15),
                       ),
                       subtitle: Text(
                         isAk ? 'AI အေးဂျင့်နှင့် အဖွဲ့မှ ကူညီပေးပါမည်' : 'AI Agent and team can help',
-                        style: const TextStyle(color: Colors.white54, fontSize: 13),
+                        style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
                       ),
-                      trailing: Row(
+                      trailing: const Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           CircleAvatar(
                             radius: 15,
-                            backgroundColor: Color(0xFF0284C7),
+                            backgroundColor: Color(0xFF2563EB),
                             child: Text('AI', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
                           ),
                           SizedBox(width: 6),
-                          Icon(Icons.help_rounded, color: Color(0xFF29B6F6), size: 18),
+                          Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8), size: 20),
                         ],
                       ),
                       onTap: () => setState(() {
@@ -1056,17 +1069,17 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF171A1F),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white24),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
                     child: TextField(
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14),
                       onChanged: (v) => setState(() => _searchQuery = v),
                       decoration: const InputDecoration(
-                        icon: Icon(Icons.search, color: Color(0xFF29B6F6), size: 18),
+                        icon: Icon(Icons.search, color: Color(0xFF2563EB), size: 18),
                         hintText: 'Search help articles (KYC, QR Pay, USD)...',
-                        hintStyle: TextStyle(color: Colors.white38, fontSize: 13),
+                        hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
                         border: InputBorder.none,
                       ),
                     ),
@@ -1074,9 +1087,12 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFF171A1F),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white12),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                      ],
                     ),
                     child: Column(
                       children: faqs.map((item) {
@@ -1087,12 +1103,12 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                             children: [
                               Text(
                                 item['q']!,
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 14),
                               ),
                               const SizedBox(height: 6),
                               Text(
                                 item['a']!,
-                                style: const TextStyle(color: Colors.white60, fontSize: 12, height: 1.4),
+                                style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, height: 1.4),
                               ),
                             ],
                           ),
@@ -1112,20 +1128,20 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   children: [
                     Text(
                       _topic,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15),
+                      style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.w800, fontSize: 15),
                     ),
                     const Text(
                       'AI Agent & Specialist Team · Online',
-                      style: TextStyle(color: Colors.white70, fontSize: 11),
+                      style: TextStyle(color: Color(0xFF059669), fontSize: 11, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 10),
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF171A1F),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: Colors.white12),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
                         ),
                         child: ListView.builder(
                           itemCount: _messages.length,
@@ -1139,12 +1155,16 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                 constraints: const BoxConstraints(maxWidth: 260),
                                 decoration: BoxDecoration(
-                                  color: isUser ? const Color(0xFF1CA3B8) : const Color(0xFF242933),
+                                  color: isUser ? const Color(0xFF2563EB) : const Color(0xFFF1F5F9),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
                                   msg['text']!,
-                                  style: const TextStyle(color: Colors.white, fontSize: 12.5, height: 1.4),
+                                  style: TextStyle(
+                                    color: isUser ? Colors.white : const Color(0xFF0F172A),
+                                    fontSize: 12.5,
+                                    height: 1.4,
+                                  ),
                                 ),
                               ),
                             );
@@ -1159,17 +1179,17 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF171A1F),
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: Colors.white24),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
                             ),
                             child: TextField(
                               controller: _chatCtrl,
-                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                              style: const TextStyle(color: Color(0xFF0F172A), fontSize: 13),
                               onSubmitted: (_) => _sendMessage(),
                               decoration: InputDecoration(
                                 hintText: isAk ? 'မက်ဆေ့ချ် ရိုက်ထည့်ပါ...' : 'Type your message...',
-                                hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                                hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
                                 border: InputBorder.none,
                               ),
                             ),
@@ -1182,7 +1202,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                             width: 44,
                             height: 44,
                             decoration: const BoxDecoration(
-                              color: Color(0xFF1CA3B8),
+                              color: Color(0xFF2563EB),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.send_rounded, color: Colors.white, size: 18),

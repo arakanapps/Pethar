@@ -1,9 +1,52 @@
-import { pgTable, serial, text, varchar, timestamp, numeric, uuid, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, varchar, timestamp, numeric, uuid, pgEnum, date } from "drizzle-orm/pg-core";
 
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  fullName: text('full_name'),
-  phone: varchar('phone', { length: 256 }),
+  id: uuid('id').defaultRandom().primaryKey(),
+  username: varchar('username', { length: 50 }).unique(),
+  uid: varchar('uid', { length: 64 }).unique(),
+  walletAddress: varchar('wallet_address', { length: 64 }),
+  email: varchar('email', { length: 255 }).unique(),
+  phoneNumber: varchar('phone_number', { length: 30 }).unique(),
+  firstName: varchar('first_name', { length: 50 }).notNull().default('User'),
+  lastName: varchar('last_name', { length: 50 }).notNull().default(''),
+  fullName: varchar('full_name', { length: 100 }).notNull().default('User'),
+  nickname: varchar('nickname', { length: 50 }).default('Jack'),
+  nationalIdNo: varchar('national_id_no', { length: 50 }).default('MJ310666'),
+  dob: date('dob').default('2003-05-13'),
+  address: text('address'),
+  usdAccountWalletAddress: varchar('usd_account_wallet_address', { length: 64 }).notNull().default('0x36a8F492C109bE742819aBcD8391048291045f19'),
+  pinHash: varchar('pin_hash', { length: 128 }).default(''),
+  avatarUrl: text('avatar_url').default(''),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const userProfiles = pgTable('user_profiles', {
+  id: varchar('id', { length: 64 }).primaryKey(),
+  userId: uuid('user_id').references(() => users.id),
+  username: varchar('username', { length: 50 }).notNull().default('@user'),
+  uid: varchar('uid', { length: 64 }).notNull().default('202610190001'),
+  walletAddress: varchar('wallet_address', { length: 64 }).notNull().default('202610190001'),
+  firstName: varchar('first_name', { length: 50 }).notNull().default('User'),
+  lastName: varchar('last_name', { length: 50 }).notNull().default('PAING'),
+  name: varchar('name', { length: 100 }).notNull().default('User'),
+  nickname: varchar('nickname', { length: 50 }).default('Jack'),
+  email: varchar('email', { length: 255 }).notNull().default('example@email.com'),
+  phone: varchar('phone', { length: 30 }).notNull().default('09795220917'),
+  pinHash: varchar('pin_hash', { length: 128 }).default(''),
+  nationalIdNo: varchar('national_id_no', { length: 50 }).notNull().default('MJ310666'),
+  dob: date('dob').notNull().default('2003-05-13'),
+  address: text('address').notNull(),
+  usdAccountWalletAddress: varchar('usd_account_wallet_address', { length: 64 }).notNull().default('0x36a8F492C109bE742819aBcD8391048291045f19'),
+  akId: varchar('ak_id', { length: 64 }).notNull().default('AK-992104-88'),
+  balance: numeric('balance', { precision: 18, scale: 4 }).default('0.00').notNull(),
+  akdWalletBalance: numeric('akd_wallet_balance', { precision: 18, scale: 4 }).default('0.00').notNull(),
+  usdAccountBalance: numeric('usd_account_balance', { precision: 18, scale: 4 }).default('0.00').notNull(),
+  totalBalance: numeric('total_balance', { precision: 18, scale: 4 }).default('0.00').notNull(),
+  currency: varchar('currency', { length: 16 }).default('AKD').notNull(),
+  avatarUrl: text('avatar_url').default(''),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 // PeThar Core Ledger & Super App Tables
@@ -30,3 +73,4 @@ export const transactions = pgTable('transactions', {
   status: varchar('status', { length: 32 }).default('completed').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+

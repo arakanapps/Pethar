@@ -1,16 +1,60 @@
 class UserProfile {
-  String name, email, phone, petharId, location, accountTier, uid;
-  String? avatarUrl;
+  // Immutable Fields (cant change)
+  String username; // cant change
+  String uid; // user_id = wallet address = uid (cant change)
+  String walletAddress; // same as uid (cant change)
+  String usdAccountWalletAddress; // usd account wallet address (cant change)
+  String nationalIdNo; // national id no (cant change)
+  String dob; // dob (cant change)
+
+  // Mutable Fields (with OTP / Review / Direct)
+  String firstName; // can change (needs review and email OTP)
+  String lastName; // can change (needs review and email OTP)
+  String name; // full name
+  String nickname; // can change
+  String email; // can change (needs verified OTP)
+  String phone; // can change (needs email verified OTP)
+  String pin; // can change (needs current pin, or if forgot pin needs email OTP)
+  String address; // can change
+  String? avatarUrl; // can change (user profile pic)
+
+  // Balances (ledger governed)
+  double akdWalletBalance; // AKD Wallet balance (cant change via profile edit)
+  double usdAccountBalance; // USD account balance (cant change via profile edit)
+  double get totalBalance => akdWalletBalance + usdAccountBalance; // total balance change (auto-calculated)
+
+  // App Metadata
+  String petharId;
+  String location;
+  String accountTier;
+  String currency;
+  int kycTier;
+
   UserProfile({
-    required this.name,
+    this.username = '@user',
+    this.uid = '202610190001',
+    String? walletAddress,
+    this.usdAccountWalletAddress = '0x36a8F492C109bE742819aBcD8391048291045f19',
+    this.nationalIdNo = 'MJ310666',
+    this.dob = '13 May 2003',
+    this.firstName = 'User',
+    this.lastName = 'PAING',
+    String? name,
+    this.nickname = 'Jack',
     required this.email,
     required this.phone,
+    this.pin = '123456',
+    this.address = '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+    this.avatarUrl,
+    this.akdWalletBalance = 0.00,
+    this.usdAccountBalance = 0.00,
     required this.petharId,
     required this.location,
     required this.accountTier,
-    this.uid = '202610190001',
-    this.avatarUrl,
-  });
+    this.currency = 'AKD',
+    this.kycTier = 2,
+  })  : walletAddress = walletAddress ?? uid,
+        name = name ?? (firstName.isNotEmpty ? '$firstName ${lastName.trim()}'.trim() : 'User');
 }
 
 /// Generates a standardized UID in format: yearmmddusercount (e.g. 202610190001)
@@ -51,10 +95,26 @@ class Transaction {
 }
 
 UserProfile initialUserProfile = UserProfile(
-  name: 'User', email: 'example@email.com', phone: '+95 9 881 204 991',
-  petharId: '202610190001', location: 'Sittwe · စစ်တွေ', accountTier: 'Normal',
+  username: '@user',
   uid: '202610190001',
-  avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
+  walletAddress: '202610190001',
+  usdAccountWalletAddress: '0x36a8F492C109bE742819aBcD8391048291045f19',
+  nationalIdNo: 'MJ310666',
+  dob: '13 May 2003',
+  firstName: 'User',
+  lastName: 'PAING',
+  name: 'User',
+  nickname: 'Jack',
+  email: 'example@email.com',
+  phone: '09795220917',
+  pin: '123456',
+  address: '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+  petharId: '202610190001',
+  location: 'Sittwe · စစ်တွေ',
+  accountTier: 'Tier 2 Verified',
+  akdWalletBalance: 0.00,
+  usdAccountBalance: 0.00,
+  avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
 );
 
 WalletBalance akdWallet = WalletBalance(
@@ -99,7 +159,7 @@ List<NotificationItem> sampleNotifications = [
   NotificationItem(
     id: 'N-001',
     type: 'transaction',
-    titleEn: 'P2P Transfer Sent',
+    titleEn: 'Transfer Sent',
     titleMm: 'ငွေလွှဲပို့ခြင်း အောင်မြင်ပါသည်',
     bodyEn: 'You sent ₳0.00 to Ko Min Aung (202610190002). Settled instantly with zero fee.',
     bodyMm: 'ကိုမင်းအောင် (202610190002) ထံ ₳0.00 ပို့လွှဲခြင်း ချက်ချင်းပြီးစီးပါသည်။',

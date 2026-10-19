@@ -57,9 +57,13 @@ export type OtpPurpose =
   | 'CASH_OUT'
   | 'TRANSFER_CONFIRM'
   | 'LOGIN'
-  | 'DEVICE_BINDING';
+  | 'DEVICE_BINDING'
+  | 'EMAIL_CHANGE'
+  | 'PHONE_CHANGE'
+  | 'PIN_RESET'
+  | 'NAME_CHANGE';
 
-export type OtpChannel = 'SMS' | 'PUSH' | 'TOTP';
+export type OtpChannel = 'SMS' | 'PUSH' | 'TOTP' | 'EMAIL';
 
 export type VoucherStatus = 'ISSUED' | 'REDEEMED' | 'EXPIRED' | 'VOID' | 'REVOKED';
 
@@ -73,8 +77,21 @@ export interface Database {
       users: {
         Row: {
           id: string;
+          username: string | null;
+          uid: string | null;
+          wallet_address: string | null;
+          email: string | null;
           phone_number: string;
+          first_name: string;
+          last_name: string;
           full_name: string;
+          nickname: string | null;
+          national_id_no: string | null;
+          dob: string | null;
+          address: string | null;
+          usd_account_wallet_address: string;
+          pin_hash: string | null;
+          avatar_url: string | null;
           kyc_tier: KycTier;
           status: UserStatus;
           created_at: string;
@@ -82,8 +99,21 @@ export interface Database {
         };
         Insert: {
           id?: string;
+          username?: string | null;
+          uid?: string | null;
+          wallet_address?: string | null;
+          email?: string | null;
           phone_number: string;
-          full_name: string;
+          first_name?: string;
+          last_name?: string;
+          full_name?: string;
+          nickname?: string | null;
+          national_id_no?: string | null;
+          dob?: string | null;
+          address?: string | null;
+          usd_account_wallet_address?: string;
+          pin_hash?: string | null;
+          avatar_url?: string | null;
           kyc_tier?: KycTier;
           status?: UserStatus;
           created_at?: string;
@@ -91,8 +121,21 @@ export interface Database {
         };
         Update: {
           id?: string;
+          username?: string | null;
+          uid?: string | null;
+          wallet_address?: string | null;
+          email?: string | null;
           phone_number?: string;
+          first_name?: string;
+          last_name?: string;
           full_name?: string;
+          nickname?: string | null;
+          national_id_no?: string | null;
+          dob?: string | null;
+          address?: string | null;
+          usd_account_wallet_address?: string;
+          pin_hash?: string | null;
+          avatar_url?: string | null;
           kyc_tier?: KycTier;
           status?: UserStatus;
           created_at?: string;
@@ -257,12 +300,26 @@ export interface Database {
       user_profiles: {
         Row: {
           id: string;
-          name: string;
-          phone: string;
-          ak_id: string;
+          user_id: string | null;
           username: string;
           uid: string;
+          wallet_address: string;
+          name: string;
+          first_name: string;
+          last_name: string;
+          nickname: string;
+          email: string;
+          phone: string;
+          pin_hash: string | null;
+          national_id_no: string;
+          dob: string;
+          address: string;
+          usd_account_wallet_address: string;
+          ak_id: string;
           balance: number;
+          akd_wallet_balance: number;
+          usd_account_balance: number;
+          total_balance: number;
           currency: string;
           avatar_url: string | null;
           kyc_tier: number;
@@ -271,12 +328,26 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          name?: string;
-          phone?: string;
-          ak_id?: string;
+          user_id?: string | null;
           username?: string;
           uid?: string;
+          wallet_address?: string;
+          name?: string;
+          first_name?: string;
+          last_name?: string;
+          nickname?: string;
+          email?: string;
+          phone?: string;
+          pin_hash?: string | null;
+          national_id_no?: string;
+          dob?: string;
+          address?: string;
+          usd_account_wallet_address?: string;
+          ak_id?: string;
           balance?: number;
+          akd_wallet_balance?: number;
+          usd_account_balance?: number;
+          total_balance?: number;
           currency?: string;
           avatar_url?: string | null;
           kyc_tier?: number;
@@ -285,19 +356,41 @@ export interface Database {
         };
         Update: {
           id?: string;
-          name?: string;
-          phone?: string;
-          ak_id?: string;
+          user_id?: string | null;
           username?: string;
           uid?: string;
+          wallet_address?: string;
+          name?: string;
+          first_name?: string;
+          last_name?: string;
+          nickname?: string;
+          email?: string;
+          phone?: string;
+          pin_hash?: string | null;
+          national_id_no?: string;
+          dob?: string;
+          address?: string;
+          usd_account_wallet_address?: string;
+          ak_id?: string;
           balance?: number;
+          akd_wallet_balance?: number;
+          usd_account_balance?: number;
+          total_balance?: number;
           currency?: string;
           avatar_url?: string | null;
           kyc_tier?: number;
           created_at?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'user_profiles_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
       };
       favorite_contacts: {
         Row: {
@@ -470,10 +563,12 @@ export interface Database {
       otp_challenges: {
         Row: {
           id: string;
-          user_id: string;
+          user_id: string | null;
+          profile_id: string | null;
           purpose: OtpPurpose;
           code_hash: string;
           channel: OtpChannel;
+          target_value: string | null;
           attempts: number;
           max_attempts: number;
           expires_at: string;
@@ -482,10 +577,12 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          user_id?: string | null;
+          profile_id?: string | null;
           purpose: OtpPurpose;
           code_hash: string;
           channel?: OtpChannel;
+          target_value?: string | null;
           attempts?: number;
           max_attempts?: number;
           expires_at: string;
@@ -494,10 +591,12 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          user_id?: string | null;
+          profile_id?: string | null;
           purpose?: OtpPurpose;
           code_hash?: string;
           channel?: OtpChannel;
+          target_value?: string | null;
           attempts?: number;
           max_attempts?: number;
           expires_at?: string;
@@ -513,6 +612,57 @@ export interface Database {
             referencedColumns: ['id'];
           }
         ];
+      };
+      name_change_reviews: {
+        Row: {
+          id: string;
+          profile_id: string;
+          user_id: string | null;
+          old_first_name: string;
+          old_last_name: string;
+          new_first_name: string;
+          new_last_name: string;
+          reason: string;
+          otp_verified: boolean;
+          status: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED';
+          reviewed_by: string | null;
+          review_notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          profile_id: string;
+          user_id?: string | null;
+          old_first_name: string;
+          old_last_name: string;
+          new_first_name: string;
+          new_last_name: string;
+          reason?: string;
+          otp_verified?: boolean;
+          status?: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED';
+          reviewed_by?: string | null;
+          review_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          profile_id?: string;
+          user_id?: string | null;
+          old_first_name?: string;
+          old_last_name?: string;
+          new_first_name?: string;
+          new_last_name?: string;
+          reason?: string;
+          otp_verified?: boolean;
+          status?: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED';
+          reviewed_by?: string | null;
+          review_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       offline_vouchers: {
         Row: {

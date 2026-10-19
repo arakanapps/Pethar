@@ -31,7 +31,7 @@ export interface Txn {
   refId: string
   title: string
   titleMm: string
-  category: 'p2p' | 'cashout' | 'crypto' | 'remittance' | 'pos' | 'card' | 'Bills' | string
+  category: 'transfer' | 'p2p' | 'cashout' | 'crypto' | 'remittance' | 'pos' | 'card' | 'Bills' | string
   amount: number
   currency: string
   time: string
@@ -49,25 +49,51 @@ export const transactions: Txn[] = []
 export const contacts: { name: string; mm: string; id: string; location: string; phone: string; initials: string }[] = []
 
 export interface UserProfile {
+  username: string // cant change
+  uid: string // user_id = wallet address = uid (cant change)
+  walletAddress: string // cant change
+  usdAccountWalletAddress: string // cant change
+  nationalIdNo: string // cant change
+  dob: string // cant change
+  firstName: string // can change (needs review + email OTP)
+  lastName: string // can change (needs review + email OTP)
   name: string
-  email: string
-  phone: string
+  nickname: string // can change
+  email: string // can change (needs verified OTP)
+  phone: string // can change (needs email verified OTP)
+  pin?: string // can change (needs current pin or email OTP)
+  address: string // can change
+  avatarUrl?: string // can change (user profile pic)
+  akdWalletBalance: number // cant change directly
+  usdAccountBalance: number // cant change directly
+  totalBalance: number // total balance change
   petharId: string
   location: string
   accountTier: string
-  uid: string
-  avatarUrl?: string
 }
 
 export const initialUserProfile: UserProfile = {
+  username: '@user',
+  uid: '202610190001',
+  walletAddress: '202610190001',
+  usdAccountWalletAddress: '0x36a8F492C109bE742819aBcD8391048291045f19',
+  nationalIdNo: 'MJ310666',
+  dob: '13 May 2003',
+  firstName: 'User',
+  lastName: 'PAING',
   name: 'User',
-  email: 'aungkyawzan@pethar.io',
+  nickname: 'Jack',
+  email: 'example@email.com',
   phone: '09795220917',
+  pin: '123456',
+  address: '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+  avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+  akdWalletBalance: 0.00,
+  usdAccountBalance: 0.00,
+  totalBalance: 0.00,
   petharId: '202610190001',
   location: 'Sittwe · စစ်တွေ',
   accountTier: 'Tier 2 Verified',
-  uid: '202610190001',
-  avatarUrl: '',
 }
 
 /**

@@ -66,7 +66,10 @@ export const WebPortal: React.FC<WebPortalProps> = ({
   }, [])
 
   const filteredTxns = txList.filter((tx) => {
-    const matchesCat = filterCat === 'all' || tx.category === filterCat
+    const matchesCat =
+      filterCat === 'all' ||
+      tx.category === filterCat ||
+      (filterCat === 'transfer' && tx.category === 'p2p')
     const matchesSearch =
       tx.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tx.titleMm.includes(searchQuery) ||
@@ -82,10 +85,10 @@ export const WebPortal: React.FC<WebPortalProps> = ({
     const selectedContactObj = contactList.find(c => c.uid === quickSendContact || c.id === quickSendContact)
     const newTx: Txn = {
       id: `TX-${Date.now().toString().slice(-4)}`,
-      refId: `ARAK-P2P-${Date.now().toString().slice(-6)}`,
+      refId: `ARAK-TRANSFER-${Date.now().toString().slice(-6)}`,
       title: `Transfer to ${selectedContactObj?.name || 'Contact'}`,
       titleMm: `${selectedContactObj?.name || 'မိတ်ဆွေ'} ထံသို့ ငွေလွှဲခြင်း`,
-      category: 'p2p',
+      category: 'transfer',
       amount: -amt,
       currency: 'AKD',
       time: 'Just now',
@@ -237,7 +240,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
                   type="submit"
                   className="w-full py-2.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-400 text-black shadow-md transition"
                 >
-                  {lang === 'ak' ? 'ချက်ချင်းလွှဲပို့ရန်' : 'Execute Instant P2P Transfer'}
+                  {lang === 'ak' ? 'ချက်ချင်းလွှဲပို့ရန်' : 'Execute Instant Transfer'}
                 </button>
               </form>
 
@@ -289,7 +292,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
               </div>
 
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                {(['all', 'p2p', 'crypto', 'remittance', 'cashout', 'pos'] as const).map((cat) => (
+                {(['all', 'transfer', 'crypto', 'remittance', 'cashout', 'pos'] as const).map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setFilterCat(cat)}

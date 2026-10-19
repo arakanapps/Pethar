@@ -6,9 +6,9 @@ import {
   ArrowUpRight, ArrowDownLeft, QrCode, Store, Eye, EyeOff,
   ChevronRight, Copy, Check,
   Fingerprint, ScanLine, Globe, Coins, Flashlight, ImagePlus,
-  Clock, Terminal, CreditCard,
+  Clock, CreditCard, Lock, Shield,
   Plus, X, LogOut,
-  RefreshCw, Download,
+  Download,
   Receipt, User, Sun, KeyRound, ShieldCheck,
   Bell, ArrowLeftRight, Share2, PieChart,
   ChevronLeft, BellOff, Sparkles, CheckCheck, Trash2, MoreVertical, RotateCcw,
@@ -826,9 +826,7 @@ export function ServicesScreen({
       titleEn: 'Money Movement & Cash',
       titleMm: 'ငွေလွှဲနှင့် ငွေသားဝန်ဆောင်မှုများ',
       items: [
-        { id: 'send' as Screen, nameEn: 'P2P Transfer', nameMm: 'ဖေ့သာအချင်းချင်း ငွေလွှဲ', desc: 'Instant 0-fee domestic transfers', icon: ArrowUpRight, color: 'text-blue-400 bg-blue-500/20' },
         { id: 'cashout' as Screen, nameEn: 'Agent Cash-Out', nameMm: 'အေးဂျင့်မှ ငွေသားထုတ်ယူ', desc: 'Physical cash at Sittwe, Mrauk-U, Kyaukpyu', icon: Store, color: 'text-emerald-400 bg-emerald-500/20' },
-        { id: 'receive' as Screen, nameEn: 'My Arakan QR (AK QR)', nameMm: 'မိမိ QR ဖြင့် ငွေလက်ခံ', desc: 'Personal and merchant receiving code', icon: QrCode, color: 'text-amber-400 bg-amber-500/20' },
       ],
     },
     {
@@ -836,7 +834,6 @@ export function ServicesScreen({
       titleMm: 'နိုင်ငံတကာငွေလွှဲနှင့် ဘဏ်လုပ်ငန်း',
       items: [
         { id: 'intl' as Screen, nameEn: 'Wise Global Wire', nameMm: 'Wise ပြည်ပငွေလွှဲ', desc: 'Thailand, Malaysia, Singapore, USA, Europe', icon: Globe, color: 'text-cyan-400 bg-cyan-500/20' },
-        { id: 'intl' as Screen, nameEn: 'Visa / Mastercard Top-Up', nameMm: 'နိုင်ငံတကာကတ်ဖြင့် ငွေသွင်း', desc: 'Top up with Visa, Master, AMEX, PayPal', icon: CreditCard, color: 'text-red-400 bg-red-500/20' },
       ],
     },
     {
@@ -844,8 +841,6 @@ export function ServicesScreen({
       titleMm: 'ဒစ်ဂျစ်တယ်ဒင်္ဂါးနှင့် အရောင်းစနစ်',
       items: [
         { id: 'crypto' as Screen, nameEn: 'Binance & MEXC Bridge', nameMm: 'Binance / MEXC ချိတ်ဆက်မှု', desc: 'Direct 0-fee crypto deposit and withdrawal', icon: Coins, color: 'text-purple-400 bg-purple-500/20' },
-        { id: 'crypto' as Screen, nameEn: 'Instant Swap', nameMm: 'USDT မှ ချက်ချင်းလဲလှယ်', desc: '1:1 Guaranteed liquidity parity', icon: RefreshCw, color: 'text-amber-400 bg-amber-500/20' },
-        { id: 'pos' as Screen, nameEn: 'Merchant POS Terminal', nameMm: 'ကုန်သည် POS အရောင်းစနစ်', desc: 'Register with dynamic QR and thermal receipt', icon: Terminal, color: 'text-orange-400 bg-orange-500/20' },
       ],
     },
   ]
@@ -914,37 +909,127 @@ export function SettingsScreen({
   const currentProfile = profile || localProfile
 
   const [editModalOpen, setEditModalOpen] = useState(false)
-  const [editName, setEditName] = useState(currentProfile.name)
+  const [editFirstName, setEditFirstName] = useState(currentProfile.firstName || 'User')
+  const [editLastName, setEditLastName] = useState(currentProfile.lastName || 'PAING')
+  const [editNickname, setEditNickname] = useState(currentProfile.nickname || 'Jack')
+  const [editAvatarUrl, setEditAvatarUrl] = useState(currentProfile.avatarUrl || '')
   const [editEmail, setEditEmail] = useState(currentProfile.email)
   const [editPhone, setEditPhone] = useState(currentProfile.phone)
-  const [editPetharId, setEditPetharId] = useState(currentProfile.petharId)
-  const [editLocation, setEditLocation] = useState(currentProfile.location)
+  const [editAddress, setEditAddress] = useState(currentProfile.address || currentProfile.location)
+  const [editPin, setEditPin] = useState('')
+  const [currentPinInput, setCurrentPinInput] = useState('')
+  const [otpStage, setOtpStage] = useState<'idle' | 'email_otp' | 'phone_otp' | 'name_otp' | 'pin_otp'>('idle')
+  const [otpInput, setOtpInput] = useState('')
+  const [simulatedOtp, setSimulatedOtp] = useState('123456')
   const [saveToast, setSaveToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
 
   const [autoSaveSlip, setAutoSaveSlip] = useState(true)
   const [twoFactorAuth, setTwoFactorAuth] = useState(true)
 
   const t = translations[lang]
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const syncProfileState = () => {
+    setEditFirstName(currentProfile.firstName || 'User')
+    setEditLastName(currentProfile.lastName || 'PAING')
+    setEditNickname(currentProfile.nickname || 'Jack')
+    setEditAvatarUrl(currentProfile.avatarUrl || '')
+    setEditEmail(currentProfile.email)
+    setEditPhone(currentProfile.phone)
+    setEditAddress(currentProfile.address || currentProfile.location)
+    setEditPin('')
+    setCurrentPinInput('')
+    setOtpStage('idle')
+    setOtpInput('')
+  }
+
+  const handleStartSave = (e: React.FormEvent) => {
     e.preventDefault()
+    // 1. If email changed -> requires verified OTP
+    if (editEmail.trim() !== currentProfile.email) {
+      setSimulatedOtp('654321')
+      setOtpStage('email_otp')
+      return
+    }
+    // 2. If phone changed -> requires email verified OTP
+    if (editPhone.trim() !== currentProfile.phone) {
+      setSimulatedOtp('987654')
+      setOtpStage('phone_otp')
+      return
+    }
+    // 3. If first or last name changed -> requires review & email OTP
+    if (
+      editFirstName.trim() !== currentProfile.firstName ||
+      editLastName.trim() !== currentProfile.lastName
+    ) {
+      setSimulatedOtp('123456')
+      setOtpStage('name_otp')
+      return
+    }
+    // 4. If pin changed
+    if (editPin.trim().length === 6) {
+      if (!currentPinInput && currentProfile.pin) {
+        setSimulatedOtp('456789')
+        setOtpStage('pin_otp')
+        return
+      }
+    }
+    commitProfileUpdate()
+  }
+
+  const commitProfileUpdate = (extraMsg?: string) => {
+    const fullName = `${editFirstName.trim()} ${editLastName.trim()}`.trim() || currentProfile.name
     const updated: UserProfile = {
-      name: editName.trim() || currentProfile.name,
+      ...currentProfile,
+      name: fullName,
+      firstName: editFirstName.trim() || currentProfile.firstName,
+      lastName: editLastName.trim() || currentProfile.lastName,
+      nickname: editNickname.trim() || currentProfile.nickname,
       email: editEmail.trim() || currentProfile.email,
       phone: editPhone.trim() || currentProfile.phone,
-      petharId: editPetharId.trim() || currentProfile.petharId,
-      location: editLocation.trim() || currentProfile.location,
-      accountTier: currentProfile.accountTier,
+      address: editAddress.trim() || currentProfile.address,
+      location: editAddress.trim() || currentProfile.location,
+      avatarUrl: editAvatarUrl.trim() || currentProfile.avatarUrl,
+      pin: editPin.trim().length === 6 ? editPin.trim() : currentProfile.pin,
+      // Immutable fields are strictly preserved
+      username: currentProfile.username,
       uid: currentProfile.uid || '202610190001',
-      avatarUrl: currentProfile.avatarUrl,
+      walletAddress: currentProfile.uid || '202610190001',
+      usdAccountWalletAddress: currentProfile.usdAccountWalletAddress,
+      nationalIdNo: currentProfile.nationalIdNo,
+      dob: currentProfile.dob,
+      akdWalletBalance: currentProfile.akdWalletBalance,
+      usdAccountBalance: currentProfile.usdAccountBalance,
+      totalBalance: currentProfile.akdWalletBalance + currentProfile.usdAccountBalance,
     }
+
     if (setProfile) {
       setProfile(updated)
     }
     setLocalProfile(updated)
     setEditModalOpen(false)
+    setOtpStage('idle')
+    setToastMessage(extraMsg || t.profileUpdated || 'Profile updated successfully')
     setSaveToast(true)
-    setTimeout(() => setSaveToast(false), 3000)
+    setTimeout(() => setSaveToast(false), 3500)
+  }
+
+  const handleVerifyOtp = () => {
+    if (otpInput.trim().length !== 6) {
+      alert('Please enter a valid 6-digit OTP code')
+      return
+    }
+    if (otpStage === 'name_otp') {
+      commitProfileUpdate('Name change submitted for administrative review & verified via OTP (PENDING_REVIEW)')
+    } else if (otpStage === 'email_otp') {
+      commitProfileUpdate(`Email successfully verified & updated to ${editEmail}`)
+    } else if (otpStage === 'phone_otp') {
+      commitProfileUpdate(`Phone number verified via Email OTP & updated to ${editPhone}`)
+    } else if (otpStage === 'pin_otp') {
+      commitProfileUpdate('Security PIN successfully reset & updated')
+    } else {
+      commitProfileUpdate()
+    }
   }
 
   const isLight = theme === 'light'
@@ -987,7 +1072,7 @@ export function SettingsScreen({
       {saveToast && (
         <div className="mx-4 mt-3 p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-xs font-bold flex items-center gap-2 animate-bounce">
           <Check size={16} className="text-emerald-400" />
-          <span>{t.profileUpdated}</span>
+          <span>{toastMessage || t.profileUpdated}</span>
         </div>
       )}
 
@@ -1005,11 +1090,7 @@ export function SettingsScreen({
             {/* 1. Profile Information -> opens Edit Personal Data modal */}
             <button
               onClick={() => {
-                setEditName(currentProfile.name)
-                setEditEmail(currentProfile.email)
-                setEditPhone(currentProfile.phone)
-                setEditPetharId(currentProfile.petharId)
-                setEditLocation(currentProfile.location)
+                syncProfileState()
                 setEditModalOpen(true)
               }}
               className={`w-full p-4 flex items-center justify-between text-left transition ${isLight ? 'hover:bg-gray-50 active:bg-gray-100' : 'hover:bg-white/5 active:bg-white/10'
@@ -1189,15 +1270,18 @@ export function SettingsScreen({
 
       </div>
 
-      {/* ── EDIT PERSONAL DATA MODAL ─────────────────────────────────── */}
+      {/* ── EDIT PERSONAL DATA MODAL (WITH FULL GOVERNANCE & OTP) ────── */}
       {editModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm">
-          <div className={`w-full max-w-sm rounded-t-[32px] sm:rounded-3xl p-5 shadow-2xl border ${isLight ? 'bg-white border-gray-200 text-gray-900' : 'bg-[#101724] border-white/10 text-white'
+          <div className={`w-full max-w-md max-h-[90vh] flex flex-col rounded-t-[32px] sm:rounded-3xl p-5 shadow-2xl border ${isLight ? 'bg-white border-gray-200 text-gray-900' : 'bg-[#101724] border-white/10 text-white'
             }`}>
-            <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-white/10">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-white/10 shrink-0">
               <div className="flex items-center gap-2">
-                <User size={18} className="text-orange-500" />
-                <h3 className="font-bold text-sm">{t.editProfile}</h3>
+                <Shield size={18} className="text-orange-500" />
+                <h3 className="font-bold text-sm">
+                  {otpStage !== 'idle' ? 'Security Verification' : 'User & Profile Settings'}
+                </h3>
               </div>
               <button
                 onClick={() => setEditModalOpen(false)}
@@ -1207,92 +1291,340 @@ export function SettingsScreen({
               </button>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="space-y-3 mt-4 text-xs">
-              <div>
-                <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">
-                  {t.fullName}
-                </label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                    }`}
-                  required
-                />
-              </div>
+            {/* OTP VERIFICATION STEP */}
+            {otpStage !== 'idle' ? (
+              <div className="py-4 space-y-4">
+                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs font-medium">
+                  {otpStage === 'email_otp' && (
+                    <p>
+                      <strong>Email Update:</strong> A verification code has been sent to{' '}
+                      <span className="font-mono underline">{editEmail}</span>.
+                    </p>
+                  )}
+                  {otpStage === 'phone_otp' && (
+                    <p>
+                      <strong>Phone Update:</strong> For security, a 6-digit OTP code has been sent to your registered email{' '}
+                      <span className="font-mono underline">{currentProfile.email}</span>.
+                    </p>
+                  )}
+                  {otpStage === 'name_otp' && (
+                    <p>
+                      <strong>Legal Name Review:</strong> Updating first/last name requires administrative review & OTP verification. Code sent to{' '}
+                      <span className="font-mono underline">{currentProfile.email}</span>.
+                    </p>
+                  )}
+                  {otpStage === 'pin_otp' && (
+                    <p>
+                      <strong>Forgot PIN Verification:</strong> A PIN reset OTP code has been sent to{' '}
+                      <span className="font-mono underline">{currentProfile.email}</span>.
+                    </p>
+                  )}
+                  <p className="mt-1 text-[11px] font-mono font-bold text-amber-400">
+                    [Demo Simulator OTP: {simulatedOtp}]
+                  </p>
+                </div>
 
-              <div>
-                <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">
-                  {t.emailAddress}
-                </label>
-                <input
-                  type="email"
-                  value={editEmail}
-                  onChange={(e) => setEditEmail(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                <div>
+                  <label className="text-[11px] font-semibold text-gray-400 block mb-1">
+                    Enter 6-digit OTP Code:
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={otpInput}
+                    onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
+                    placeholder="123456"
+                    className={`w-full text-center tracking-widest text-lg font-mono font-bold px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 ${
+                      isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
                     }`}
-                  required
-                />
-              </div>
+                  />
+                </div>
 
-              <div>
-                <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">
-                  {t.phoneNumber}
-                </label>
-                <input
-                  type="text"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold font-mono ${isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                    }`}
-                  required
-                />
+                <div className="pt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setOtpStage('idle')}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 text-xs font-semibold hover:bg-gray-100 dark:hover:bg-white/5 transition"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleVerifyOtp}
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:brightness-110 text-white font-bold text-xs shadow-md transition"
+                  >
+                    Verify & Confirm
+                  </button>
+                </div>
               </div>
+            ) : (
+              <form onSubmit={handleStartSave} className="flex-1 overflow-y-auto space-y-4 py-3 text-xs pr-1">
+                {/* 1. Immutable Core Identifiers */}
+                <div className="p-3 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-red-500 flex items-center gap-1">
+                      <Lock size={12} /> Immutable Identifiers
+                    </span>
+                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 font-bold uppercase">
+                      Cant Change
+                    </span>
+                  </div>
 
-              <div>
-                <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">
-                  {t.petharId}
-                </label>
-                <input
-                  type="text"
-                  value={editPetharId}
-                  onChange={(e) => setEditPetharId(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold font-mono ${isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                    }`}
-                  required
-                />
-              </div>
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div>
+                      <div className="text-gray-400 text-[10px]">Username:</div>
+                      <div className="font-bold truncate">{currentProfile.username || '@user'}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-[10px]">UID / Wallet Address:</div>
+                      <div className="font-mono font-bold truncate">{currentProfile.uid}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-[10px]">National ID No:</div>
+                      <div className="font-bold truncate">{currentProfile.nationalIdNo || 'MJ310666'}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-[10px]">Date of Birth (DOB):</div>
+                      <div className="font-bold truncate">{currentProfile.dob || '13 May 2003'}</div>
+                    </div>
+                  </div>
 
-              <div>
-                <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">
-                  {t.locationTownship}
-                </label>
-                <input
-                  type="text"
-                  value={editLocation}
-                  onChange={(e) => setEditLocation(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                    }`}
-                />
-              </div>
+                  <div>
+                    <div className="text-gray-400 text-[10px]">USD Account Wallet Address:</div>
+                    <div className="font-mono text-[10px] truncate text-gray-500">
+                      {currentProfile.usdAccountWalletAddress}
+                    </div>
+                  </div>
+                </div>
 
-              <div className="pt-2 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditModalOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 text-xs font-semibold hover:bg-gray-100 dark:hover:bg-white/5 transition"
-                >
-                  {lang === 'ak' ? 'မလုပ်တော့ပါ' : 'Cancel'}
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:brightness-110 text-white font-bold text-xs shadow-md transition"
-                >
-                  {t.saveChanges}
-                </button>
-              </div>
-            </form>
+                {/* 2. Account Balances & Total Balance */}
+                <div className="p-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-emerald-500 flex items-center gap-1">
+                      <Coins size={12} /> Account Balances
+                    </span>
+                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold uppercase">
+                      Total Balance Change
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div>
+                      <div className="text-gray-400 text-[10px]">AKD Wallet Balance:</div>
+                      <div className="font-bold text-gray-400">
+                        {currentProfile.akdWalletBalance.toFixed(2)} AKD
+                      </div>
+                      <div className="text-[9px] text-gray-500">Cant change directly</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-[10px]">USD Account Balance:</div>
+                      <div className="font-bold text-gray-400">
+                        ${currentProfile.usdAccountBalance.toFixed(2)} USD
+                      </div>
+                      <div className="text-[9px] text-gray-500">Cant change directly</div>
+                    </div>
+                  </div>
+
+                  <div className="pt-1 border-t border-emerald-500/20 flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-400">Total Balance (Dynamic Sum):</span>
+                    <span className="text-sm font-extrabold text-emerald-400">
+                      ${(currentProfile.akdWalletBalance + currentProfile.usdAccountBalance).toFixed(2)} USD
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3. Verified OTP Required Fields */}
+                <div className="space-y-3 pt-1">
+                  <div className="text-[11px] font-bold text-gray-400 flex items-center gap-1">
+                    <ShieldCheck size={13} className="text-blue-500" />
+                    Security & Verified Credentials
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-gray-400">User Email</label>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-bold">
+                        Needs Verified OTP
+                      </span>
+                    </div>
+                    <input
+                      type="email"
+                      value={editEmail}
+                      onChange={(e) => setEditEmail(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-blue-500 font-semibold ${
+                        isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                      }`}
+                      required
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-gray-400">Phone Number (ph no)</label>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 font-bold">
+                        Needs Email Verified OTP
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={editPhone}
+                      onChange={(e) => setEditPhone(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-sky-500 font-semibold font-mono ${
+                        isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                      }`}
+                      required
+                    />
+                  </div>
+
+                  {/* Legal Name */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[11px] font-semibold text-gray-400">First Name</label>
+                      </div>
+                      <input
+                        type="text"
+                        value={editFirstName}
+                        onChange={(e) => setEditFirstName(e.target.value)}
+                        className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${
+                          isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[11px] font-semibold text-gray-400">Last Name</label>
+                      </div>
+                      <input
+                        type="text"
+                        value={editLastName}
+                        onChange={(e) => setEditLastName(e.target.value)}
+                        className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${
+                          isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-amber-500 font-medium">
+                    * First & last name change requires review and email OTP
+                  </div>
+
+                  {/* PIN */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-gray-400">Security PIN</label>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 font-bold">
+                        Needs current PIN or Email OTP
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="password"
+                        maxLength={6}
+                        placeholder="Current PIN"
+                        value={currentPinInput}
+                        onChange={(e) => setCurrentPinInput(e.target.value)}
+                        className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-purple-500 font-mono text-center ${
+                          isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                        }`}
+                      />
+                      <input
+                        type="password"
+                        maxLength={6}
+                        placeholder="New PIN (6-digit)"
+                        value={editPin}
+                        onChange={(e) => setEditPin(e.target.value)}
+                        className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-purple-500 font-mono text-center ${
+                          isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Freely Editable Profile Fields */}
+                <div className="space-y-3 pt-2">
+                  <div className="text-[11px] font-bold text-gray-400 flex items-center gap-1">
+                    <User size={13} className="text-emerald-500" />
+                    Freely Editable Profile Fields
+                  </div>
+
+                  {/* Profile Pic URL */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-gray-400">User Profile Pic URL</label>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold">
+                        Can Change
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={editAvatarUrl}
+                      onChange={(e) => setEditAvatarUrl(e.target.value)}
+                      placeholder="https://..."
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-emerald-500 ${
+                        isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                      }`}
+                    />
+                  </div>
+
+                  {/* Nickname */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-gray-400">Nickname</label>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold">
+                        Can Change
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={editNickname}
+                      onChange={(e) => setEditNickname(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-emerald-500 font-semibold ${
+                        isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                      }`}
+                    />
+                  </div>
+
+                  {/* Address */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-gray-400">Address</label>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold">
+                        Can Change
+                      </span>
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={editAddress}
+                      onChange={(e) => setEditAddress(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-emerald-500 ${
+                        isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {/* Form Buttons */}
+                <div className="pt-3 flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setEditModalOpen(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 text-xs font-semibold hover:bg-gray-100 dark:hover:bg-white/5 transition"
+                  >
+                    {lang === 'ak' ? 'မလုပ်တော့ပါ' : 'Cancel'}
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:brightness-110 text-white font-bold text-xs shadow-md transition"
+                  >
+                    {t.saveChanges || 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
@@ -1346,7 +1678,7 @@ export function Send({
       setPin(nextPin)
       if (nextPin.length === 6) {
         setTimeout(() => {
-          setSlipRefId(`ARAK-P2P-${Date.now().toString().slice(-6)}`)
+          setSlipRefId(`ARAK-TRANSFER-${Date.now().toString().slice(-6)}`)
           setStep('done')
           if (onSent) {
             onSent(parseFloat(amount || '0'))
@@ -1502,7 +1834,7 @@ export function Send({
         <div className="flex-1 overflow-y-auto">
           <TransactionSlip
             lang={lang}
-            refId={slipRefId || 'ARAK-P2P-984210'}
+            refId={slipRefId || 'ARAK-TRANSFER-984210'}
             amount={parseFloat(amount) || 0}
             recipientName={contact.name}
             recipientId={contact.id}

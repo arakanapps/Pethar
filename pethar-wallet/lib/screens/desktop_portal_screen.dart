@@ -43,7 +43,9 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
     final lang = appState.language;
 
     final filteredTxns = appState.txList.where((tx) {
-      final matchesCat = _selectedCategory == 'all' || tx.category == _selectedCategory;
+      final matchesCat = _selectedCategory == 'all' ||
+          tx.category == _selectedCategory ||
+          (_selectedCategory == 'transfer' && tx.category == 'p2p');
       final q = _searchQuery.toLowerCase();
       final matchesSearch = tx.title.toLowerCase().contains(q) ||
           tx.titleMm.toLowerCase().contains(q) ||
@@ -467,7 +469,7 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                   Row(
                     children: [
                       {'id': 'all', 'label': 'All Ledger'},
-                      {'id': 'p2p', 'label': 'P2P Wire'},
+                      {'id': 'transfer', 'label': 'Transfer Wire'},
                       {'id': 'crypto', 'label': 'Crypto'},
                       {'id': 'pos', 'label': 'Merchant POS'},
                       {'id': 'cashout', 'label': 'Agent Cash'},

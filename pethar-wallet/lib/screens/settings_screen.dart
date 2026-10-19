@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../services/supabase_service.dart';
 import '../theme.dart';
 import '../widgets/support_and_kyc_modals.dart';
 import 'notifications_screen.dart';
@@ -193,9 +194,806 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showEditAddressModal(BuildContext context, bool isAk) {
-    final subCtrl = TextEditingController(text: _subdistrict);
-    final streetCtrl = TextEditingController(text: _streetAddress);
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PROFILE MUTATION & VERIFICATION MODALS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  void _showEditAvatarModal(BuildContext context, AppState appState, bool isAk) {
+    final urlCtrl = TextEditingController(text: appState.profile.avatarUrl ?? '');
+    final presets = [
+      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    ];
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      isAk ? 'ပရိုဖိုင်ပုံ ပြောင်းလဲရန်' : 'Change Profile Picture',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('Can Change', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                const Text('Choose Preset Avatar or enter Custom URL:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A))),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: presets.map((pUrl) {
+                    final isSel = urlCtrl.text == pUrl;
+                    return GestureDetector(
+                      onTap: () {
+                        setModalState(() => urlCtrl.text = pUrl);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: isSel ? const Color(0xFF0284C7) : Colors.transparent, width: 2.5),
+                        ),
+                        child: CircleAvatar(
+                          radius: 24,
+                          backgroundImage: NetworkImage(pUrl),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: urlCtrl,
+                  style: const TextStyle(fontSize: 12),
+                  decoration: InputDecoration(
+                    labelText: 'Image URL',
+                    filled: true,
+                    fillColor: const Color(0xFFF4F4F5),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final newUrl = urlCtrl.text.trim();
+                          appState.profile.avatarUrl = newUrl;
+                          await SupabaseService().updateAvatarUrl(profileId: appState.profile.uid, avatarUrl: newUrl);
+                          appState.notify();
+                          Navigator.pop(ctx);
+                          _showToast(context, 'Profile picture updated successfully');
+                        },
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+                        child: const Text('Save Photo'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showChangeEmailModal(BuildContext context, AppState appState, bool isAk) {
+    final emailCtrl = TextEditingController();
+    final otpCtrl = TextEditingController();
+    int step = 1; // 1: request, 2: verify
+    String simulatedOtp = '';
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      isAk ? 'အီးမေးလ် ပြောင်းလဲရန်' : 'Change User Email',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2563EB).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('Needs Verified OTP', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF2563EB))),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  isAk
+                      ? 'လက်ရှိ အီးမေးလ်: ${appState.profile.email}'
+                      : 'Current Email: ${appState.profile.email}',
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                ),
+                const SizedBox(height: 14),
+                if (step == 1) ...[
+                  const Text('Enter New Email Address:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: emailCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    decoration: InputDecoration(
+                      hintText: 'e.g. newuser@email.com',
+                      filled: true,
+                      fillColor: const Color(0xFFF4F4F5),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              final newEmail = emailCtrl.text.trim();
+                              if (newEmail.isEmpty || !newEmail.contains('@')) {
+                                _showToast(context, 'Please enter a valid email address');
+                                return;
+                              }
+                              setModalState(() => isLoading = true);
+                              final res = await SupabaseService().requestEmailChangeOtp(
+                                profileId: appState.profile.uid,
+                                newEmail: newEmail,
+                              );
+                              setModalState(() {
+                                isLoading = false;
+                                step = 2;
+                                simulatedOtp = res['simulated_otp']?.toString() ?? '123456';
+                              });
+                            },
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2563EB), foregroundColor: Colors.white),
+                      child: isLoading
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Text('Send Verification OTP', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ] else ...[
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFF59E0B)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline, size: 16, color: Color(0xFFB45309)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Demo OTP sent to ${emailCtrl.text}: $simulatedOtp',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Enter 6-digit OTP Code:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: otpCtrl,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 6),
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      counterText: '',
+                      filled: true,
+                      fillColor: const Color(0xFFF4F4F5),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              final code = otpCtrl.text.trim();
+                              if (code.length != 6) {
+                                _showToast(context, 'Please enter complete 6-digit OTP');
+                                return;
+                              }
+                              setModalState(() => isLoading = true);
+                              final res = await SupabaseService().verifyAndUpdateEmail(
+                                profileId: appState.profile.uid,
+                                newEmail: emailCtrl.text.trim(),
+                                otpCode: code,
+                              );
+                              setModalState(() => isLoading = false);
+                              if (res['success'] == true) {
+                                appState.profile.email = emailCtrl.text.trim();
+                                appState.notify();
+                                Navigator.pop(ctx);
+                                _showToast(context, 'Email updated successfully to ${emailCtrl.text.trim()}');
+                              } else {
+                                _showToast(context, res['message']?.toString() ?? 'OTP verification failed');
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
+                      child: isLoading
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Text('Verify & Update Email', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showChangePhoneModal(BuildContext context, AppState appState, bool isAk) {
+    final phoneCtrl = TextEditingController();
+    final otpCtrl = TextEditingController();
+    int step = 1;
+    String simulatedOtp = '';
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      isAk ? 'ဖုန်းနံပါတ် ပြောင်းလဲရန်' : 'Change Phone Number',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('Needs Email Verified OTP', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0284C7))),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Current Phone: ${appState.profile.phone}\nSecurity code will be sent to registered email: ${appState.profile.email}',
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF71717A), height: 1.4),
+                ),
+                const SizedBox(height: 14),
+                if (step == 1) ...[
+                  const Text('Enter New Phone Number:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    decoration: InputDecoration(
+                      hintText: 'e.g. 09795220918',
+                      filled: true,
+                      fillColor: const Color(0xFFF4F4F5),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              final newPhone = phoneCtrl.text.trim();
+                              if (newPhone.length < 8) {
+                                _showToast(context, 'Please enter a valid phone number');
+                                return;
+                              }
+                              setModalState(() => isLoading = true);
+                              final res = await SupabaseService().requestPhoneChangeOtp(
+                                profileId: appState.profile.uid,
+                                newPhone: newPhone,
+                              );
+                              setModalState(() {
+                                isLoading = false;
+                                step = 2;
+                                simulatedOtp = res['simulated_otp']?.toString() ?? '123456';
+                              });
+                            },
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+                      child: isLoading
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Text('Send Email Verification OTP', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ] else ...[
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFF59E0B)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline, size: 16, color: Color(0xFFB45309)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Demo Email OTP sent to ${appState.profile.email}: $simulatedOtp',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Enter 6-digit Email OTP:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: otpCtrl,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 6),
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      counterText: '',
+                      filled: true,
+                      fillColor: const Color(0xFFF4F4F5),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              final code = otpCtrl.text.trim();
+                              if (code.length != 6) {
+                                _showToast(context, 'Please enter complete 6-digit OTP');
+                                return;
+                              }
+                              setModalState(() => isLoading = true);
+                              final res = await SupabaseService().verifyAndUpdatePhone(
+                                profileId: appState.profile.uid,
+                                newPhone: phoneCtrl.text.trim(),
+                                otpCode: code,
+                              );
+                              setModalState(() => isLoading = false);
+                              if (res['success'] == true) {
+                                appState.profile.phone = phoneCtrl.text.trim();
+                                appState.notify();
+                                Navigator.pop(ctx);
+                                _showToast(context, 'Phone number updated successfully to ${phoneCtrl.text.trim()}');
+                              } else {
+                                _showToast(context, res['message']?.toString() ?? 'OTP verification failed');
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
+                      child: isLoading
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Text('Verify & Update Phone', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showChangePinModal(BuildContext context, AppState appState, bool isAk) {
+    bool forgotMode = false;
+    final currPinCtrl = TextEditingController();
+    final newPinCtrl = TextEditingController();
+    final confirmPinCtrl = TextEditingController();
+    final otpCtrl = TextEditingController();
+    String simulatedOtp = '';
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      forgotMode ? 'Reset Forgotten PIN' : 'Change Security PIN',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDC2626).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        forgotMode ? 'Needs Email OTP' : 'Needs Current PIN',
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFDC2626)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                if (!forgotMode) ...[
+                  const Text('Enter Current PIN:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: currPinCtrl,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    decoration: InputDecoration(counterText: '', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Enter New 6-Digit PIN:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: newPinCtrl,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    decoration: InputDecoration(counterText: '', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () async {
+                          setModalState(() => isLoading = true);
+                          final res = await SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
+                          setModalState(() {
+                            isLoading = false;
+                            forgotMode = true;
+                            simulatedOtp = res['simulated_otp']?.toString() ?? '123456';
+                          });
+                        },
+                        child: const Text('Forgot PIN? Reset with Email OTP', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF2563EB))),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              final curr = currPinCtrl.text.trim();
+                              final np = newPinCtrl.text.trim();
+                              if (curr.length < 4 || np.length != 6) {
+                                _showToast(context, 'Please enter current PIN and new 6-digit PIN');
+                                return;
+                              }
+                              setModalState(() => isLoading = true);
+                              final res = await SupabaseService().changeUserPin(profileId: appState.profile.uid, currentPin: curr, newPin: np);
+                              setModalState(() => isLoading = false);
+                              if (res['success'] == true) {
+                                appState.profile.pin = np;
+                                Navigator.pop(ctx);
+                                _showToast(context, 'Security PIN updated successfully');
+                              } else {
+                                _showToast(context, res['message']?.toString() ?? 'Incorrect current PIN');
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F172A), foregroundColor: Colors.white),
+                      child: const Text('Update PIN', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ] else ...[
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFFF59E0B))),
+                    child: Text('Demo Reset OTP sent to ${appState.profile.email}: $simulatedOtp', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E))),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Enter 6-digit Email OTP:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(controller: otpCtrl, keyboardType: TextInputType.number, maxLength: 6, textAlign: TextAlign.center, decoration: InputDecoration(counterText: '', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  const SizedBox(height: 10),
+                  const Text('Enter New 6-Digit PIN:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(controller: confirmPinCtrl, obscureText: true, keyboardType: TextInputType.number, maxLength: 6, decoration: InputDecoration(counterText: '', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              final otp = otpCtrl.text.trim();
+                              final np = confirmPinCtrl.text.trim();
+                              if (otp.length != 6 || np.length != 6) {
+                                _showToast(context, 'Enter 6-digit OTP and new 6-digit PIN');
+                                return;
+                              }
+                              setModalState(() => isLoading = true);
+                              final res = await SupabaseService().verifyAndResetPin(profileId: appState.profile.uid, otpCode: otp, newPin: np);
+                              setModalState(() => isLoading = false);
+                              if (res['success'] == true) {
+                                appState.profile.pin = np;
+                                Navigator.pop(ctx);
+                                _showToast(context, 'Security PIN reset successfully');
+                              } else {
+                                _showToast(context, res['message']?.toString() ?? 'PIN reset failed');
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
+                      child: const Text('Verify OTP & Reset PIN', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showChangeNameModal(BuildContext context, AppState appState, bool isAk) {
+    final firstCtrl = TextEditingController(text: appState.profile.firstName);
+    final lastCtrl = TextEditingController(text: appState.profile.lastName);
+    final reasonCtrl = TextEditingController();
+    final otpCtrl = TextEditingController();
+    int step = 1;
+    String simulatedOtp = '';
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      isAk ? 'တရားဝင်အမည် ပြင်ဆင်ရန်' : 'Legal Name Change',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('Needs Review & Email OTP', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED))),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                const Text('First name and Last name changes require administrative compliance review and verified email OTP.', style: TextStyle(fontSize: 11, color: Color(0xFF71717A), height: 1.4)),
+                const SizedBox(height: 14),
+                if (step == 1) ...[
+                  const Text('First Name:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(controller: firstCtrl, decoration: InputDecoration(filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  const SizedBox(height: 10),
+                  const Text('Last Name:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(controller: lastCtrl, decoration: InputDecoration(filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  const SizedBox(height: 10),
+                  const Text('Reason for Update:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(controller: reasonCtrl, decoration: InputDecoration(hintText: 'e.g. Passport/National ID correction', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              final fn = firstCtrl.text.trim();
+                              final ln = lastCtrl.text.trim();
+                              if (fn.isEmpty) {
+                                _showToast(context, 'First name cannot be empty');
+                                return;
+                              }
+                              setModalState(() => isLoading = true);
+                              final res = await SupabaseService().requestNameChangeOtp(profileId: appState.profile.uid, firstName: fn, lastName: ln, reason: reasonCtrl.text.trim());
+                              setModalState(() {
+                                isLoading = false;
+                                step = 2;
+                                simulatedOtp = res['simulated_otp']?.toString() ?? '123456';
+                              });
+                            },
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7C3AED), foregroundColor: Colors.white),
+                      child: const Text('Send Verification OTP', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ] else ...[
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFFF59E0B))),
+                    child: Text('Demo OTP sent to ${appState.profile.email}: $simulatedOtp', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E))),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Enter 6-digit Email OTP to Confirm & Submit for Review:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextField(controller: otpCtrl, keyboardType: TextInputType.number, maxLength: 6, textAlign: TextAlign.center, decoration: InputDecoration(counterText: '', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              final otp = otpCtrl.text.trim();
+                              if (otp.length != 6) {
+                                _showToast(context, 'Enter 6-digit OTP code');
+                                return;
+                              }
+                              setModalState(() => isLoading = true);
+                              final res = await SupabaseService().verifyAndSubmitNameChange(
+                                profileId: appState.profile.uid,
+                                firstName: firstCtrl.text.trim(),
+                                lastName: lastCtrl.text.trim(),
+                                otpCode: otp,
+                                reason: reasonCtrl.text.trim(),
+                              );
+                              setModalState(() => isLoading = false);
+                              Navigator.pop(ctx);
+                              _showToast(context, 'Name change submitted for administrative review (Status: PENDING_REVIEW)');
+                            },
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
+                      child: const Text('Submit Request for Review', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEditNicknameModal(BuildContext context, AppState appState, bool isAk) {
+    final nickCtrl = TextEditingController(text: appState.profile.nickname);
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Edit Nickname', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B))),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                    child: const Text('Can Change', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              const Text('Nickname:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A))),
+              const SizedBox(height: 6),
+              TextField(
+                controller: nickCtrl,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                decoration: InputDecoration(filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel'))),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final nick = nickCtrl.text.trim();
+                        appState.profile.nickname = nick;
+                        await SupabaseService().updateNickname(profileId: appState.profile.uid, nickname: nick);
+                        appState.notify();
+                        Navigator.pop(ctx);
+                        _showToast(context, 'Nickname updated to $nick');
+                      },
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+                      child: const Text('Save'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEditAddressModal(BuildContext context, AppState appState, bool isAk) {
+    final addrCtrl = TextEditingController(text: appState.profile.address.isNotEmpty ? appState.profile.address : _streetAddress);
 
     showDialog(
       context: context,
@@ -208,34 +1006,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                isAk ? 'လက်ရှိ နေရပ်လိပ်စာ ပြင်ဆင်ရန်' : 'Edit Current Address',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    isAk ? 'လက်ရှိ နေရပ်လိပ်စာ ပြင်ဆင်ရန်' : 'Edit Current Address',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                    child: const Text('Can Change', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               const Text(
-                'Subdistrict, District, Province, Postal Code',
+                'Full Residential Address',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A)),
               ),
               const SizedBox(height: 6),
               TextField(
-                controller: subCtrl,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF18181B)),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFFF4F4F5),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Street / Building Address',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A)),
-              ),
-              const SizedBox(height: 6),
-              TextField(
-                controller: streetCtrl,
+                controller: addrCtrl,
+                maxLines: 3,
                 style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF18181B)),
                 decoration: InputDecoration(
                   filled: true,
@@ -261,11 +1054,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _subdistrict = subCtrl.text.trim();
-                          _streetAddress = streetCtrl.text.trim();
-                        });
+                      onPressed: () async {
+                        final newAddr = addrCtrl.text.trim();
+                        setState(() => _streetAddress = newAddr);
+                        appState.profile.address = newAddr;
+                        await SupabaseService().updateAddress(profileId: appState.profile.uid, address: newAddr);
+                        appState.notify();
                         Navigator.pop(ctx);
                         _showToast(context, 'Address updated successfully');
                       },
@@ -560,6 +1354,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildPersonalInfoView(BuildContext context, AppState appState, bool isAk) {
+    final p = appState.profile;
     return Scaffold(
       backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
@@ -571,61 +1366,125 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         centerTitle: true,
         title: Text(
-          isAk ? 'ပရိုဖိုင်' : 'Profile',
+          isAk ? 'အသုံးပြုသူ ပရိုဖိုင်' : 'User & Profile Settings',
           style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 100),
         children: [
-          Container(
-            color: const Color(0xFFF1F2F4),
-            padding: const EdgeInsets.symmetric(vertical: 28),
-            child: Center(
-              child: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 46,
-                    backgroundColor: Colors.white,
-                    child: CircleAvatar(
-                      radius: 42,
-                      backgroundColor: const Color(0xFF0284C7),
-                      child: Text(
-                        appState.profile.name.isNotEmpty ? appState.profile.name[0] : 'M',
-                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: () => _showToast(context, isAk ? 'ပရိုဖိုင်ပုံ ပြောင်းလဲရန် အသင့်ဖြစ်ပါပြီ' : 'Profile photo upload ready'),
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.black12),
-                        ),
-                        child: const Icon(Icons.camera_alt_outlined, size: 16, color: Colors.black87),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // ── TOP AVATAR & HEADER SECTION ─────────────────────────────
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+            child: Column(
+              children: [
+                Center(
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 46,
+                        backgroundColor: const Color(0xFFE2E8F0),
+                        child: CircleAvatar(
+                          radius: 43,
+                          backgroundColor: const Color(0xFF0284C7),
+                          backgroundImage: (p.avatarUrl != null && p.avatarUrl!.isNotEmpty)
+                              ? NetworkImage(p.avatarUrl!)
+                              : null,
+                          child: (p.avatarUrl == null || p.avatarUrl!.isEmpty)
+                              ? Text(
+                                  p.firstName.isNotEmpty ? p.firstName[0].toUpperCase() : 'U',
+                                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white),
+                                )
+                              : null,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () => _showEditAvatarModal(context, appState, isAk),
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0284C7),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.15),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '${p.firstName} ${p.lastName}'.trim().isNotEmpty ? '${p.firstName} ${p.lastName}'.trim() : p.name,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        p.username.isNotEmpty ? p.username : '@user',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF475569)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'Photo: Can Change',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // ── MASKING / VISIBILITY TOGGLE ─────────────────────────────
+          Container(
+            color: Colors.white,
+            margin: const EdgeInsets.only(top: 1),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  isAk ? 'အချက်အလက်အားလုံး ဖော်ပြမည်' : 'Show all information',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                Row(
+                  children: [
+                    Icon(
+                      _showAllProfileInfo ? Icons.visibility : Icons.visibility_off,
+                      size: 18,
+                      color: const Color(0xFF64748B),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      isAk ? 'အချက်အလက်အားလုံး ဖော်ပြမည်' : 'Show sensitive details',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                    ),
+                  ],
                 ),
                 Switch(
                   value: _showAllProfileInfo,
@@ -636,40 +1495,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 10),
+
+          // ── SECTION 1: ACCOUNT BALANCES & TOTAL BALANCE ──────────────
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  isAk ? 'အခြေခံ အချက်အလက်' : 'Basic information',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black87),
-                ),
-                const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
-                      children: [
-                        const Icon(Icons.phone_outlined, size: 16, color: Colors.black45),
-                        const SizedBox(width: 6),
+                      children: const [
+                        Icon(Icons.account_balance_wallet_outlined, size: 18, color: Color(0xFF2563EB)),
+                        SizedBox(width: 8),
                         Text(
-                          isAk ? 'ဖုန်းနံပါတ်' : 'Mobile number',
-                          style: const TextStyle(fontSize: 13, color: Colors.black54),
+                          'Account Balances',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
                         ),
                       ],
                     ),
-                    Text(
-                      _showAllProfileInfo ? '095-126-8295' : '095-***-8295',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('Total Balance Change', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
                     ),
                   ],
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Wallet balances are ledger-governed and cannot be directly modified. Total balance updates dynamically.',
+                  style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 14),
+                _buildBalanceRow(
+                  'AKD Wallet Balance',
+                  '${p.akdWalletBalance.toStringAsFixed(2)} AKD',
+                  isDynamic: false,
+                  subtext: 'Cant change directly',
+                ),
+                const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                _buildBalanceRow(
+                  'USD Account Balance',
+                  '\$${p.usdAccountBalance.toStringAsFixed(2)} USD',
+                  isDynamic: false,
+                  subtext: 'Cant change directly',
+                ),
+                const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                _buildBalanceRow(
+                  'Total Balance',
+                  '\$${p.totalBalance.toStringAsFixed(2)} USD',
+                  isDynamic: true,
+                  subtext: 'Dynamic calculated sum (Total balance change)',
                 ),
               ],
             ),
           ),
           const SizedBox(height: 10),
+
+          // ── SECTION 2: IMMUTABLE IDENTIFIERS (CANT CHANGE) ───────────
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(20),
@@ -679,37 +1567,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      isAk ? 'ကိုယ်ရေး အချက်အလက်' : 'Personal information',
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black87),
+                    Row(
+                      children: const [
+                        Icon(Icons.lock_outline, size: 18, color: Color(0xFFDC2626)),
+                        SizedBox(width: 8),
+                        Text(
+                          'Immutable Identifiers',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                        ),
+                      ],
                     ),
-                    GestureDetector(
-                      onTap: () => _showPassportEditModal(context, appState, isAk),
-                      child: Text(
-                        isAk ? 'ပြင်ဆင်ရန်' : 'Edit',
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0284C7)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: const Text('Cant Change', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFDC2626))),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                _buildInfoRow(isAk ? 'အမည်' : 'Name', 'User'),
-                const SizedBox(height: 14),
-                _buildInfoRow(isAk ? 'မျိုးရိုးအမည်' : 'Last name', 'PAING'),
-                const SizedBox(height: 14),
-                _buildInfoRow(
-                  isAk ? 'နိုင်ငံကူးလက်မှတ် အမှတ်' : 'Passport number',
-                  _showAllProfileInfo ? 'MJ310666' : 'MJ3***66',
+                const SizedBox(height: 6),
+                const Text(
+                  'Core security and identity records are permanently anchored and cannot be changed.',
+                  style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 14),
-                _buildInfoRow(
-                  isAk ? 'မွေးသက္ကရာဇ်' : 'Date of birth',
-                  _showAllProfileInfo ? '13 May 2003' : '** May 2003',
+                _buildImmutableInfoRow('Username', p.username, subtext: 'Username cant change'),
+                const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                _buildImmutableInfoRow(
+                  'UID / Wallet Address',
+                  p.uid,
+                  subtext: 'user_id = wallet address = uid (cant change)',
+                ),
+                const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                _buildImmutableInfoRow(
+                  'USD Account Wallet Address',
+                  _showAllProfileInfo
+                      ? p.usdAccountWalletAddress
+                      : (p.usdAccountWalletAddress.length > 12
+                          ? '${p.usdAccountWalletAddress.substring(0, 6)}...${p.usdAccountWalletAddress.substring(p.usdAccountWalletAddress.length - 4)}'
+                          : p.usdAccountWalletAddress),
+                  subtext: 'USD account wallet address cant change',
+                ),
+                const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                _buildImmutableInfoRow(
+                  'National ID No',
+                  _showAllProfileInfo
+                      ? (p.nationalIdNo.isNotEmpty ? p.nationalIdNo : 'MJ310666')
+                      : 'MJ3***66',
+                  subtext: 'National ID no cant change',
+                ),
+                const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                _buildImmutableInfoRow(
+                  'Date of Birth (DOB)',
+                  _showAllProfileInfo
+                      ? (p.dob.isNotEmpty ? p.dob : '13 May 2003')
+                      : '** May 2003',
+                  subtext: 'DOB cant change',
                 ),
               ],
             ),
           ),
           const SizedBox(height: 10),
+
+          // ── SECTION 3: VERIFIED CREDENTIALS (OTP & PIN FLOWS) ────────
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(20),
@@ -719,23 +1641,117 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      isAk ? 'လက်ရှိ နေရပ်လိပ်စာ' : 'Current address',
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black87),
+                    Row(
+                      children: const [
+                        Icon(Icons.verified_user_outlined, size: 18, color: Color(0xFF2563EB)),
+                        SizedBox(width: 8),
+                        Text(
+                          'Security & Verification',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                        ),
+                      ],
                     ),
-                    GestureDetector(
-                      onTap: () => _showEditAddressModal(context, isAk),
-                      child: Text(
-                        isAk ? 'ပြင်ဆင်ရန်' : 'Edit',
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0284C7)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2563EB).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: const Text('Requires OTP', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF2563EB))),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                _buildInfoRow('Subdistrict, district, province, postal code', _subdistrict),
                 const SizedBox(height: 14),
-                _buildInfoRow(isAk ? 'လိပ်စာ' : 'Address', _streetAddress),
+                _buildEditableInfoRow(
+                  label: 'User Email',
+                  value: p.email,
+                  badgeText: 'Needs Verified OTP',
+                  badgeColor: const Color(0xFF2563EB),
+                  subtext: 'User email can change need verified OTP',
+                  onEdit: () => _showChangeEmailModal(context, appState, isAk),
+                ),
+                const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                _buildEditableInfoRow(
+                  label: 'Phone Number',
+                  value: _showAllProfileInfo
+                      ? p.phone
+                      : (p.phone.length > 5 ? p.phone.replaceRange(3, 7, '****') : p.phone),
+                  badgeText: 'Needs Email OTP',
+                  badgeColor: const Color(0xFF0284C7),
+                  subtext: 'ph no can change, need email verified OTP',
+                  onEdit: () => _showChangePhoneModal(context, appState, isAk),
+                ),
+                const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                _buildEditableInfoRow(
+                  label: 'Security PIN',
+                  value: '•••••• (6-digit PIN)',
+                  badgeText: 'Current PIN / OTP',
+                  badgeColor: const Color(0xFF7C3AED),
+                  subtext: 'user pin can change need current pin, if forgot pin need email otp',
+                  onEdit: () => _showChangePinModal(context, appState, isAk),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // ── SECTION 4: PERSONAL DETAILS & ADDRESS ────────────────────
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.person_outline, size: 18, color: Color(0xFF059669)),
+                        SizedBox(width: 8),
+                        Text(
+                          'Personal Profile',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('Manageable', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                _buildEditableInfoRow(
+                  label: 'First & Last Name',
+                  value: '${p.firstName} ${p.lastName}'.trim(),
+                  badgeText: 'Needs Review & OTP',
+                  badgeColor: const Color(0xFFD97706),
+                  subtext: 'First name last name can change need review and email OTP',
+                  onEdit: () => _showChangeNameModal(context, appState, isAk),
+                ),
+                const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                _buildEditableInfoRow(
+                  label: 'Nickname',
+                  value: p.nickname.isNotEmpty ? p.nickname : 'Jack',
+                  badgeText: 'Can Change',
+                  badgeColor: const Color(0xFF059669),
+                  subtext: 'Nickname can change freely',
+                  onEdit: () => _showEditNicknameModal(context, appState, isAk),
+                ),
+                const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                _buildEditableInfoRow(
+                  label: 'Address',
+                  value: p.address.isNotEmpty ? p.address : _streetAddress,
+                  badgeText: 'Can Change',
+                  badgeColor: const Color(0xFF059669),
+                  subtext: 'Address can change',
+                  onEdit: () => _showEditAddressModal(context, appState, isAk),
+                ),
               ],
             ),
           ),
@@ -744,25 +1760,175 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildImmutableInfoRow(String label, String value, {String? subtext}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
           flex: 4,
-          child: Text(label, style: const TextStyle(fontSize: 13, color: Colors.black54)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+              if (subtext != null) ...[
+                const SizedBox(height: 2),
+                Text(subtext, style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
+              ],
+            ],
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
           flex: 5,
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: Text(
+                  value,
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(Icons.lock_rounded, size: 14, color: Color(0xFF94A3B8)),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildBalanceRow(String label, String value, {required bool isDynamic, String? subtext}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isDynamic ? FontWeight.w800 : FontWeight.w600,
+                  color: isDynamic ? const Color(0xFF0F172A) : const Color(0xFF475569),
+                ),
+              ),
+              if (subtext != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtext,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: isDynamic ? FontWeight.w600 : FontWeight.normal,
+                    color: isDynamic ? const Color(0xFF059669) : const Color(0xFF94A3B8),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 5,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: Text(
+                  value,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontSize: isDynamic ? 15 : 13,
+                    fontWeight: FontWeight.w800,
+                    color: isDynamic ? const Color(0xFF059669) : const Color(0xFF1E293B),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Icon(
+                isDynamic ? Icons.sync : Icons.lock_outline,
+                size: 14,
+                color: isDynamic ? const Color(0xFF059669) : const Color(0xFF94A3B8),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEditableInfoRow({
+    required String label,
+    required String value,
+    required String badgeText,
+    required Color badgeColor,
+    required VoidCallback onEdit,
+    String? subtext,
+  }) {
+    return InkWell(
+      onTap: onEdit,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 4,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+                  if (subtext != null) ...[
+                    const SizedBox(height: 2),
+                    Text(subtext, style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          value,
+                          textAlign: TextAlign.right,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.edit_outlined, size: 14, color: Color(0xFF2563EB)),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: badgeColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      badgeText,
+                      style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: badgeColor),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

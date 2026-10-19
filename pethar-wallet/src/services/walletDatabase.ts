@@ -8,11 +8,24 @@ const db = supabase as any
 export interface DbUserProfile {
   id: string
   name: string
-  phone: string
-  ak_id: string
+  firstName: string
+  lastName: string
+  nickname: string
   username: string
   uid: string
+  walletAddress: string
+  email: string
+  phone: string
+  pinHash?: string
+  nationalIdNo: string
+  dob: string
+  address: string
+  usdAccountWalletAddress: string
+  ak_id: string
   balance: number
+  akdWalletBalance: number
+  usdAccountBalance: number
+  totalBalance: number
   currency: string
   avatar_url?: string
   kyc_tier: number
@@ -55,7 +68,7 @@ export async function fetchTransactionsFromDb(): Promise<Txn[]> {
       refId: row.ref_id || row.id,
       title: row.title,
       titleMm: row.title_mm || '',
-      category: row.category || 'p2p',
+      category: row.category || 'transfer',
       amount: parseFloat(row.amount),
       currency: row.currency || 'AKD',
       time: row.time || 'Today',
@@ -121,17 +134,33 @@ export async function fetchUserProfileFromDb(): Promise<DbUserProfile | null> {
 
     if (!data) return null
 
+    const bal = parseFloat(data.balance || 0)
+    const usdBal = parseFloat(data.usd_account_balance || 0)
+
     return {
       id: data.id,
-      name: data.name,
-      phone: data.phone,
-      ak_id: data.ak_id,
-      username: data.username,
-      uid: data.uid,
-      balance: parseFloat(data.balance),
-      currency: data.currency,
+      name: data.name || 'User',
+      firstName: data.first_name || 'User',
+      lastName: data.last_name || 'PAING',
+      nickname: data.nickname || 'Jack',
+      username: data.username || '@user',
+      uid: data.uid || '202610190001',
+      walletAddress: data.wallet_address || data.uid || '202610190001',
+      email: data.email || 'example@email.com',
+      phone: data.phone || '09795220917',
+      pinHash: data.pin_hash,
+      nationalIdNo: data.national_id_no || 'MJ310666',
+      dob: data.dob || '13 May 2003',
+      address: data.address || '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+      usdAccountWalletAddress: data.usd_account_wallet_address || '0x36a8F492C109bE742819aBcD8391048291045f19',
+      ak_id: data.ak_id || 'AK-992104-88',
+      balance: bal,
+      akdWalletBalance: data.akd_wallet_balance ? parseFloat(data.akd_wallet_balance) : bal,
+      usdAccountBalance: usdBal,
+      totalBalance: data.total_balance ? parseFloat(data.total_balance) : (bal + usdBal),
+      currency: data.currency || 'AKD',
       avatar_url: data.avatar_url,
-      kyc_tier: data.kyc_tier,
+      kyc_tier: data.kyc_tier || 2,
     }
   } catch (err) {
     console.error('Error fetching user profile from Supabase:', err)
@@ -198,7 +227,7 @@ export function subscribeToTransactions(onNewTx: (tx: Txn) => void) {
             refId: row.ref_id || row.id,
             title: row.title,
             titleMm: row.title_mm || '',
-            category: row.category || 'p2p',
+            category: row.category || 'transfer',
             amount: parseFloat(row.amount),
             currency: row.currency || 'AKD',
             time: row.time || 'Just now',
