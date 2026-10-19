@@ -59,6 +59,8 @@ import {
   Bug,
   Trash2,
   Wifi,
+  Wallet,
+  ArrowUpRight,
 } from 'lucide-react'
 import {
   AccountScreen,
@@ -75,7 +77,7 @@ import { CryptoGateway } from '../../components/CryptoGateway'
 import { POSTerminal } from '../../components/POSTerminal'
 import { TransactionSlip } from '../../components/TransactionSlip'
 import { FakeQR } from '../../components/FakeQR'
-import { initialUserProfile, wallets, contacts, generateUserUid, type UserProfile, type Txn } from '../../data'
+import { initialUserProfile, wallets, generateUserUid, type UserProfile, type Txn } from '../../data'
 import {
   fetchTransactionsFromDb,
   insertTransactionToDb,
@@ -159,42 +161,6 @@ const USD_BACKED_TOKENS: UsdStablecoin[] = [
     usdValue: 0.0,
     bg: 'bg-[#2775CA]',
     badgeText: '$',
-  },
-  {
-    symbol: 'USD1',
-    name: 'World Liberty USD1',
-    price: '$0.999',
-    balance: 0,
-    usdValue: 0.0,
-    bg: 'bg-[#D4AF37]',
-    badgeText: '1',
-  },
-  {
-    symbol: 'FDUSD',
-    name: 'First Digital USD',
-    price: '$1.00',
-    balance: 0,
-    usdValue: 0.0,
-    bg: 'bg-[#00C389]',
-    badgeText: 'F',
-  },
-  {
-    symbol: 'PYUSD',
-    name: 'PayPal USD',
-    price: '$1.00',
-    balance: 0,
-    usdValue: 0.0,
-    bg: 'bg-[#003087]',
-    badgeText: 'P',
-  },
-  {
-    symbol: 'DAI',
-    name: 'Multi-Collateral DAI',
-    price: '$1.00',
-    balance: 0,
-    usdValue: 0.0,
-    bg: 'bg-[#F5AC37]',
-    badgeText: '◈',
   },
 ]
 
@@ -422,12 +388,16 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [selectedDepositToken, setSelectedDepositToken] = useState<UsdStablecoin['symbol']>('USDT')
   const [depositTokenDropdownOpen, setDepositTokenDropdownOpen] = useState<boolean>(false)
   const [withdrawRecipientAddress, setWithdrawRecipientAddress] = useState<string>('')
-  const [withdrawTab, setWithdrawTab] = useState<'your_account' | 'contacts'>('your_account')
   const [withdrawAmount, setWithdrawAmount] = useState<string>('0.00')
   const [withdrawStep, setWithdrawStep] = useState<'address' | 'confirm'>('address')
+  const [selectedSendToken, setSelectedSendToken] = useState<'USDT' | 'USDC'>('USDT')
+  const [recentUsdAddresses, setRecentUsdAddresses] = useState<string[]>([
+    '0x71C829038baC1294817aAb8291048291a49B',
+    '0x8F492C109bE742819aBcD8391048291045f22',
+    '0x3E11049281a742819abcd8391048291045f201',
+    '0x9A28C10892048291948291048291048290123',
+  ])
   const [copiedWalletAddr, setCopiedWalletAddr] = useState<boolean>(false)
-  const [historyCategoryTab, setHistoryCategoryTab] = useState<'all' | 'wallet' | 'qr_pay'>('all')
-  const [spendingPeriod, setSpendingPeriod] = useState<'weekly' | 'monthly'>('weekly')
   const [selectedSlipTxn, setSelectedSlipTxn] = useState<Txn | null>(null)
 
   // Dedicated History Screen States
@@ -856,15 +826,23 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     setTimeout(() => setIsRefreshingWallet(false), 700)
   }
 
-  const filteredHistoryTxns = useMemo(() => {
-    if (historyCategoryTab === 'wallet') {
-      return liveTransactions.filter((tx) => tx.category === 'p2p' || tx.category === 'crypto')
-    }
-    if (historyCategoryTab === 'qr_pay') {
-      return liveTransactions.filter((tx) => tx.category === 'pos')
-    }
-    return liveTransactions
-  }, [historyCategoryTab, liveTransactions])
+  const usdAccountTxns = useMemo(() => {
+    return liveTransactions.filter((tx) => {
+      const cur = (tx.currency || '').toUpperCase()
+      const cat = (tx.category || '').toLowerCase()
+      return (
+        cat === 'usd_account' ||
+        cat === 'usd' ||
+        cur === 'USDT' ||
+        cur === 'USDC' ||
+        cur === 'USD' ||
+        tx.title.includes('USD') ||
+        tx.title.includes('USDT') ||
+        tx.title.includes('USDC') ||
+        tx.titleMm?.includes('USD')
+      )
+    })
+  }, [liveTransactions])
 
   /* ═══════════════════════════════════════════════════════════════════════════
      1. OPENING SPLASH SCREEN WITH PÉTHAR LOGO
@@ -1729,7 +1707,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       )
     }
 
-    // SUB-VIEW B: WITHDRAW / SEND USD STABLECOIN
+    // SUB-VIEW B: SEND USD STABLECOIN
     if (financialSubView === 'withdraw') {
       return (
         <div className="min-h-full bg-white text-zinc-900 flex flex-col justify-between pb-8">
@@ -1738,182 +1716,309 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <button
                 type="button"
                 onClick={() => {
-                  setWithdrawStep('address')
-                  setFinancialSubView('wallet_main')
+                  if (withdrawStep === 'confirm') {
+                    setWithdrawStep('address')
+                  } else {
+                    setWithdrawStep('address')
+                    setFinancialSubView('wallet_main')
+                  }
                 }}
                 className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-700 cursor-pointer"
               >
                 <ChevronLeft size={20} />
               </button>
               <h1 className="text-base font-extrabold text-zinc-900">
-                {isAk ? 'ပေးပို့ရန် / ငွေထုတ် (Send)' : 'Send / Withdraw'}
+                {isAk ? 'ပေးပို့ရန် (Send)' : 'Send'}
               </h1>
               <button
                 type="button"
-                onClick={() => setFinancialSubView('tx_history')}
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-700 hover:bg-zinc-100 cursor-pointer"
-                title="Transaction History"
+                onClick={() => {
+                  setWalletTab('activity')
+                  setWithdrawStep('address')
+                  setFinancialSubView('wallet_main')
+                }}
+                className="px-2.5 py-1 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-xs font-bold text-zinc-700 flex items-center gap-1.5 transition cursor-pointer"
+                title="USD Account Activity"
               >
-                <FileText size={19} />
+                <Clock size={14} className="text-[#D91624]" />
+                <span>{isAk ? 'မှတ်တမ်း' : 'Activity'}</span>
               </button>
             </div>
 
             <div className="p-4 space-y-5">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-zinc-800">From</label>
-                <div className="p-3.5 rounded-2xl border border-zinc-200 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#D91624] text-white font-black text-xs flex items-center justify-center shrink-0">
-                    $
-                  </div>
-                  <span className="text-sm font-bold text-zinc-900">
-                    {SINGLE_WALLET_ACCOUNT.name}
-                  </span>
-                  <span className="text-sm font-mono text-zinc-500">
-                    {SINGLE_WALLET_ACCOUNT.shortAddress}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-zinc-800">
-                  Recipient address
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={withdrawRecipientAddress}
-                    onChange={(e) => setWithdrawRecipientAddress(e.target.value)}
-                    placeholder="Enter address (0x...)"
-                    className="w-full px-4 py-3.5 pr-12 rounded-2xl bg-zinc-100 text-sm font-mono text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#D91624]/30"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setScanBottomTab('scan')
-                      setScreen('scan')
-                    }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#D91624] p-1 cursor-pointer"
-                  >
-                    <NavScanBracketIcon className="w-5 h-5 text-[#D91624]" />
-                  </button>
-                </div>
-              </div>
-
-              {withdrawStep === 'confirm' && (
-                <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-zinc-500">Asset</span>
-                    <span className="font-extrabold text-zinc-900">
-                      USDT / USDC / USD1
-                    </span>
-                  </div>
-                  <div>
-                    <label className="text-xs text-zinc-500 block mb-1">
-                      Amount ($)
-                    </label>
-                    <input
-                      type="number"
-                      value={withdrawAmount}
-                      onChange={(e) => setWithdrawAmount(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-zinc-200 text-base font-extrabold font-mono text-zinc-900"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <div className="grid grid-cols-2 border-b border-zinc-200 text-xs font-bold">
-                  <button
-                    type="button"
-                    onClick={() => setWithdrawTab('your_account')}
-                    className={`pb-2.5 border-b-2 transition cursor-pointer ${withdrawTab === 'your_account'
-                      ? 'border-[#D91624] text-[#D91624]'
-                      : 'border-transparent text-zinc-500'
-                      }`}
-                  >
-                    Your Account
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setWithdrawTab('contacts')}
-                    className={`pb-2.5 border-b-2 transition cursor-pointer ${withdrawTab === 'contacts'
-                      ? 'border-[#D91624] text-[#D91624]'
-                      : 'border-transparent text-zinc-500'
-                      }`}
-                  >
-                    Contacts
-                  </button>
-                </div>
-
-                <div className="pt-3 space-y-2">
-                  {withdrawTab === 'your_account' ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setWithdrawRecipientAddress(SINGLE_WALLET_ACCOUNT.fullAddress)
-                      }
-                      className="w-full p-3.5 rounded-2xl border border-zinc-200 flex items-center justify-between hover:border-[#D91624]/40 transition cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#D91624] text-white font-black text-xs flex items-center justify-center shrink-0">
-                          $
-                        </div>
-                        <span className="text-sm font-bold text-zinc-900">
-                          {SINGLE_WALLET_ACCOUNT.name}
-                        </span>
+              {withdrawStep === 'address' ? (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-800">From</label>
+                    <div className="p-3.5 rounded-2xl border border-zinc-200 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#D91624] text-white font-black text-xs flex items-center justify-center shrink-0">
+                        $
                       </div>
+                      <span className="text-sm font-bold text-zinc-900">
+                        {SINGLE_WALLET_ACCOUNT.name}
+                      </span>
                       <span className="text-sm font-mono text-zinc-500">
                         {SINGLE_WALLET_ACCOUNT.shortAddress}
                       </span>
-                    </button>
-                  ) : (
-                    contacts.slice(0, 4).map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() =>
-                          setWithdrawRecipientAddress(`0x8F492C109bE742819aBcD${c.id.slice(-4)}`)
-                        }
-                        className="w-full p-3.5 rounded-2xl border border-zinc-200 flex items-center justify-between hover:border-[#D91624]/40 transition cursor-pointer"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[#D91624]/10 text-[#D91624] font-bold text-xs flex items-center justify-center">
-                            {c.initials}
-                          </div>
-                          <span className="text-sm font-bold text-zinc-900">
-                            {c.name}
-                          </span>
-                        </div>
-                        <span className="text-xs font-mono text-zinc-500">
-                          0x8F4...{c.id.slice(-4)}
-                        </span>
-                      </button>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+                    </div>
+                  </div>
 
-          <div className="px-4 pt-4">
-            <button
-              type="button"
-              onClick={() => {
-                if (!withdrawRecipientAddress.trim()) {
-                  setWithdrawRecipientAddress(SINGLE_WALLET_ACCOUNT.fullAddress)
-                  return
-                }
-                if (withdrawStep === 'address') {
-                  setWithdrawStep('confirm')
-                } else {
-                  setWithdrawStep('address')
-                  setFinancialSubView('tx_history')
-                }
-              }}
-              className="w-full py-3.5 rounded-2xl bg-[#D91624] hover:bg-[#B00E1A] text-white font-extrabold text-sm shadow-[0_8px_20px_rgba(217,22,36,0.3)] transition cursor-pointer"
-            >
-              {withdrawStep === 'address' ? 'Next' : `Confirm Send ($${withdrawAmount})`}
-            </button>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-800">
+                      Recipient address
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={withdrawRecipientAddress}
+                        onChange={(e) => setWithdrawRecipientAddress(e.target.value)}
+                        placeholder="Enter address (0x...)"
+                        className="w-full px-4 py-3.5 pr-12 rounded-2xl bg-zinc-100 text-sm font-mono text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#D91624]/30"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setScanBottomTab('scan')
+                          setScreen('scan')
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#D91624] p-1 cursor-pointer"
+                      >
+                        <NavScanBracketIcon className="w-5 h-5 text-[#D91624]" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Continue Button (Directly below Enter address) */}
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!withdrawRecipientAddress.trim()) {
+                          alert(isAk ? 'ကျေးဇူးပြု၍ လိပ်စာ ရိုက်ထည့်ပါ သို့မဟုတ် ရွေးချယ်ပါ' : 'Please enter or select a recipient address')
+                          return
+                        }
+                        setWithdrawStep('confirm')
+                      }}
+                      className="w-full py-3.5 rounded-2xl bg-[#D91624] hover:bg-[#B00E1A] text-white font-extrabold text-sm shadow-[0_8px_20px_rgba(217,22,36,0.3)] transition cursor-pointer"
+                    >
+                      {isAk ? 'ရှေ့သို့ ဆက်သွားမည် (Continue)' : 'Continue'}
+                    </button>
+                  </div>
+
+                  {/* Under Continue button: Recent transaction wallet addresses with recent addresses */}
+                  <div className="pt-3 space-y-2.5">
+                    <div className="flex items-center justify-between text-xs font-bold text-zinc-800">
+                      <span>{isAk ? 'လတ်တလော လွှဲပြောင်းခဲ့သော လိပ်စာများ' : 'Recent Addresses'}</span>
+                      <span className="text-zinc-400 font-normal">{recentUsdAddresses.length} recent</span>
+                    </div>
+                    <div className="space-y-2">
+                      {recentUsdAddresses.map((addr) => {
+                        const short = addr.length > 16 ? `${addr.slice(0, 8)}...${addr.slice(-6)}` : addr
+                        const isSelected = withdrawRecipientAddress === addr
+                        return (
+                          <button
+                            key={addr}
+                            type="button"
+                            onClick={() => setWithdrawRecipientAddress(addr)}
+                            className={`w-full p-3.5 rounded-2xl border transition flex items-center justify-between cursor-pointer ${
+                              isSelected
+                                ? 'bg-rose-50/50 border-[#D91624]'
+                                : 'bg-white border-zinc-200 hover:border-zinc-300'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                  isSelected ? 'bg-[#D91624] text-white' : 'bg-zinc-100 text-zinc-600'
+                                }`}
+                              >
+                                <Wallet size={15} />
+                              </div>
+                              <div className="text-left font-mono">
+                                <div className={`text-xs font-bold ${isSelected ? 'text-[#D91624]' : 'text-zinc-900'}`}>
+                                  {short}
+                                </div>
+                                <div className="text-[10px] text-zinc-400 font-sans">USDT / USDC EVM Address</div>
+                              </div>
+                            </div>
+                            {isSelected ? (
+                              <Check size={16} className="text-[#D91624]" />
+                            ) : (
+                              <ArrowUpRight size={15} className="text-zinc-400" />
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Confirm & Send Step */}
+                  <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-[#D91624] text-white font-black text-[10px] flex items-center justify-center">
+                          $
+                        </div>
+                        <span className="text-xs font-bold text-zinc-800">USD Account</span>
+                      </div>
+                      <span className="text-xs font-mono text-zinc-500">{SINGLE_WALLET_ACCOUNT.shortAddress}</span>
+                    </div>
+                    <div className="border-t border-zinc-200 pt-2 flex items-center justify-between">
+                      <div className="text-xs text-zinc-500">Recipient</div>
+                      <button
+                        type="button"
+                        onClick={() => setWithdrawStep('address')}
+                        className="text-xs font-bold text-[#D91624] hover:underline cursor-pointer"
+                      >
+                        {isAk ? 'ပြင်မည်' : 'Change'}
+                      </button>
+                    </div>
+                    <div className="text-xs font-mono font-bold text-zinc-900 break-all">
+                      {withdrawRecipientAddress}
+                    </div>
+                  </div>
+
+                  {/* Token Asset Selection (USDT and USDC only!) */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-800">
+                      {isAk ? 'ဒေါ်လာဒင်္ဂါး ရွေးချယ်ပါ' : 'Select Token Asset'}
+                    </label>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSendToken('USDT')}
+                        className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition cursor-pointer ${
+                          selectedSendToken === 'USDT'
+                            ? 'bg-emerald-50/50 border-emerald-500 ring-2 ring-emerald-500/20'
+                            : 'bg-white border-zinc-200'
+                        }`}
+                      >
+                        <div className="w-7 h-7 rounded-full bg-[#26A17B] text-white flex items-center justify-center font-bold text-xs">
+                          ₮
+                        </div>
+                        <div>
+                          <div className="text-xs font-extrabold text-zinc-900">USDT</div>
+                          <div className="text-[10px] text-zinc-400">Tether USD</div>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSendToken('USDC')}
+                        className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition cursor-pointer ${
+                          selectedSendToken === 'USDC'
+                            ? 'bg-blue-50/50 border-blue-500 ring-2 ring-blue-500/20'
+                            : 'bg-white border-zinc-200'
+                        }`}
+                      >
+                        <div className="w-7 h-7 rounded-full bg-[#2775CA] text-white flex items-center justify-center font-bold text-xs">
+                          $
+                        </div>
+                        <div>
+                          <div className="text-xs font-extrabold text-zinc-900">USDC</div>
+                          <div className="text-[10px] text-zinc-400">USD Coin</div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Amount Input */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-zinc-800">
+                        {isAk ? 'ပမာဏ ($)' : 'Amount ($)'}
+                      </label>
+                      <span className="text-xs font-mono text-zinc-500">
+                        Available: ${(usdAccountBalance || 0).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-extrabold font-mono text-zinc-900">
+                        $
+                      </span>
+                      <input
+                        type="number"
+                        value={withdrawAmount}
+                        onChange={(e) => setWithdrawAmount(e.target.value)}
+                        className="w-full pl-8 pr-4 py-3 rounded-2xl bg-zinc-100 text-base font-extrabold font-mono text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#D91624]/30"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      {[10, 50, 100].map((amt) => (
+                        <button
+                          key={amt}
+                          type="button"
+                          onClick={() => setWithdrawAmount(amt.toFixed(2))}
+                          className="px-3 py-1 rounded-full bg-zinc-100 text-xs font-bold text-zinc-700 hover:bg-zinc-200 cursor-pointer"
+                        >
+                          ${amt}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setWithdrawAmount((usdAccountBalance || 0).toFixed(2))}
+                        className="px-3 py-1 rounded-full bg-rose-50 text-xs font-bold text-[#D91624] hover:bg-rose-100 cursor-pointer"
+                      >
+                        {isAk ? 'အားလုံး' : 'Max'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm & Send Button */}
+                  <div className="pt-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const amt = parseFloat(withdrawAmount) || 0
+                        if (amt <= 0) {
+                          alert(isAk ? 'ကျေးဇူးပြု၍ မှန်ကန်သော ပမာဏ ထည့်ပါ' : 'Please enter a valid amount')
+                          return
+                        }
+                        if (amt > usdAccountBalance) {
+                          alert(isAk ? 'USD အကောင့် လက်ကျန်ငွေ မလုံလောက်ပါ' : 'Insufficient USD Account balance')
+                          return
+                        }
+                        const newBal = Math.max(0, usdAccountBalance - amt)
+                        setUsdAccountBalance(newBal)
+                        setAkdBalance(newBal)
+                        updateUserBalanceInDb(newBal)
+                        const shortTarget =
+                          withdrawRecipientAddress.length > 14
+                            ? `${withdrawRecipientAddress.slice(0, 6)}...${withdrawRecipientAddress.slice(-4)}`
+                            : withdrawRecipientAddress
+                        const newTxn: Txn = {
+                          id: `TX-USD-${Date.now().toString().slice(-6)}`,
+                          refId: `ARAK-USD-${Date.now().toString().slice(-6)}`,
+                          title: `Send ${selectedSendToken} to ${shortTarget}`,
+                          titleMm: `${shortTarget} သို့ ${selectedSendToken} ပေးပို့ခြင်း`,
+                          category: 'usd_account',
+                          currency: selectedSendToken,
+                          time: 'Just now',
+                          status: 'SETTLED',
+                          counterparty: withdrawRecipientAddress,
+                          counterpartyMm: withdrawRecipientAddress,
+                          hash: `0x${Date.now().toString(16)}...usd`,
+                          amount: -amt,
+                          fee: 0.0,
+                        }
+                        setLiveTransactions((prev) => [newTxn, ...prev])
+                        if (!recentUsdAddresses.includes(withdrawRecipientAddress) && withdrawRecipientAddress.trim()) {
+                          setRecentUsdAddresses((prev) => [withdrawRecipientAddress, ...prev.slice(0, 7)])
+                        }
+                        setWithdrawStep('address')
+                        setWalletTab('activity')
+                        setFinancialSubView('wallet_main')
+                        alert(`Sent $${amt.toFixed(2)} ${selectedSendToken} successfully to ${shortTarget}`)
+                      }}
+                      className="w-full py-3.5 rounded-2xl bg-[#D91624] hover:bg-[#B00E1A] text-white font-extrabold text-sm shadow-[0_8px_20px_rgba(217,22,36,0.3)] transition cursor-pointer"
+                    >
+                      {isAk ? 'ပေးပို့မည် အတည်ပြုပါ (Confirm & Send)' : `Confirm & Send ($${withdrawAmount} ${selectedSendToken})`}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )
@@ -1922,69 +2027,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     // SUB-VIEW C: TRANSACTION HISTORY (Redirect to dedicated standalone History Screen)
     if (financialSubView === 'tx_history') {
       return renderHistoryScreen()
-    }
-
-    // SUB-VIEW D: TOTAL SPENDING ANALYTICS
-    if (financialSubView === 'spending') {
-      const isWeekly = spendingPeriod === 'weekly'
-      return (
-        <div className="min-h-full bg-[#F8FAFC] text-zinc-900 flex flex-col pb-8">
-          <div className="bg-white px-4 pt-4 pb-3 flex items-center justify-between border-b border-zinc-100">
-            <button
-              type="button"
-              onClick={() => setFinancialSubView('wallet_main')}
-              className="w-8 h-8 flex items-center justify-center text-zinc-700 cursor-pointer"
-            >
-              <ChevronLeft size={22} />
-            </button>
-            <h1 className="text-base font-extrabold">Total Spending</h1>
-            <Calendar size={18} className="text-zinc-500" />
-          </div>
-
-          <div className="bg-gradient-to-b from-[#D91624] to-[#F97316] pt-4 pb-20 px-4">
-            <div className="bg-zinc-100 p-1 rounded-full grid grid-cols-2 max-w-md mx-auto">
-              <button
-                type="button"
-                onClick={() => setSpendingPeriod('weekly')}
-                className={`py-2 rounded-full text-xs font-bold cursor-pointer ${isWeekly ? 'bg-white text-[#D91624] shadow-xs' : 'text-zinc-500'
-                  }`}
-              >
-                Weekly
-              </button>
-              <button
-                type="button"
-                onClick={() => setSpendingPeriod('monthly')}
-                className={`py-2 rounded-full text-xs font-bold cursor-pointer ${!isWeekly ? 'bg-white text-[#D91624] shadow-xs' : 'text-zinc-500'
-                  }`}
-              >
-                Monthly
-              </button>
-            </div>
-          </div>
-
-          <div className="px-4 -mt-16 space-y-4">
-            <div className="bg-white rounded-3xl p-5 shadow-md border border-zinc-100 space-y-3">
-              <div className="text-base font-extrabold">
-                {isWeekly ? '12-18 October 2026' : 'October 2026'}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-xs text-zinc-500">Total spending</div>
-                  <div className="text-base font-extrabold font-mono">
-                    {isWeekly ? '$97.00' : '$227.00'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs text-zinc-500">Average spending</div>
-                  <div className="text-base font-extrabold font-mono">
-                    {isWeekly ? '$32.33' : '$28.38'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
     }
 
     // MAIN FINANCIAL VIEW: USD ACCOUNT CRYPTO WALLET
@@ -2270,70 +2312,78 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               </div>
             )}
 
-            {/* TAB 2: ACTIVITY (TRANSACTION HISTORY & SPENDING ANALYTICS) */}
+            {/* TAB 2: ACTIVITY (USD ACCOUNT ONLY) */}
             {walletTab === 'activity' && (
               <div className="pt-3 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex gap-1.5">
-                    {(
-                      [
-                        { id: 'all', label: 'All' },
-                        { id: 'wallet', label: 'Wallet' },
-                        { id: 'qr_pay', label: 'QR Pay' },
-                      ] as const
-                    ).map((f) => (
-                      <button
-                        key={f.id}
-                        type="button"
-                        onClick={() => setHistoryCategoryTab(f.id)}
-                        className={`px-3 py-1 rounded-full text-xs font-bold cursor-pointer ${historyCategoryTab === f.id
-                          ? 'bg-[#D91624] text-white'
-                          : 'bg-zinc-100 text-zinc-600'
-                          }`}
-                      >
-                        {f.label}
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-2">
+                    <Clock size={16} className="text-[#D91624]" />
+                    <span className="text-xs font-extrabold text-zinc-900">
+                      {isAk ? 'USD အကောင့် မှတ်တမ်း' : 'USD Account Activity'}
+                    </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setFinancialSubView('spending')}
-                    className="text-xs font-bold text-[#D91624] hover:underline cursor-pointer"
-                  >
-                    {isAk ? 'သုံးစွဲမှု စာရင်းချုပ် ›' : 'Spending Chart ›'}
-                  </button>
+                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-50 text-[#D91624]">
+                    USDT · USDC
+                  </span>
                 </div>
 
-                <div className="divide-y divide-zinc-100 bg-white rounded-2xl border border-zinc-100">
-                  {filteredHistoryTxns.map((tx) => {
-                    const isPos = tx.amount > 0
-                    return (
-                      <button
-                        key={tx.id}
-                        type="button"
-                        onClick={() => setSelectedSlipTxn(tx)}
-                        className="w-full p-3.5 flex items-center justify-between text-left hover:bg-zinc-50 cursor-pointer"
-                      >
-                        <div>
-                          <div className="text-xs font-bold text-zinc-900">
-                            {isAk ? tx.titleMm : tx.title}
-                          </div>
-                          <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
-                            {tx.time}
-                          </div>
-                        </div>
-                        <div
-                          className={`text-xs font-extrabold font-mono ${isPos ? 'text-emerald-600' : 'text-zinc-900'
-                            }`}
+                {usdAccountTxns.length === 0 ? (
+                  <div className="py-10 text-center space-y-2 text-zinc-400">
+                    <div className="w-12 h-12 rounded-2xl bg-zinc-100 mx-auto flex items-center justify-center text-zinc-400">
+                      <Clock size={22} />
+                    </div>
+                    <div className="text-xs font-bold text-zinc-700">
+                      {isAk ? 'USD အကောင့် မှတ်တမ်း မရှိသေးပါ' : 'No USD Account activity yet'}
+                    </div>
+                    <div className="text-[11px] text-zinc-400">
+                      {isAk
+                        ? 'USDT နှင့် USDC လွှဲပြောင်းမှုများကို ဤနေရာတွင် တွေ့နိုင်ပါသည်'
+                        : 'USDT and USDC transactions will appear here'}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-zinc-100 bg-white rounded-2xl border border-zinc-100">
+                    {usdAccountTxns.map((tx) => {
+                      const isPos = tx.amount > 0
+                      const cur = tx.currency || 'USDT'
+                      return (
+                        <button
+                          key={tx.id}
+                          type="button"
+                          onClick={() => setSelectedSlipTxn(tx)}
+                          className="w-full p-3.5 flex items-center justify-between text-left hover:bg-zinc-50 cursor-pointer"
                         >
-                          {isPos
-                            ? `+${tx.amount.toFixed(2)} USDT`
-                            : `-${Math.abs(tx.amount).toFixed(2)} USDT`}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-[#D91624]'
+                              }`}
+                            >
+                              {isPos ? <ArrowDown size={14} /> : <ArrowUp size={14} />}
+                            </div>
+                            <div>
+                              <div className="text-xs font-bold text-zinc-900">
+                                {isAk ? tx.titleMm : tx.title}
+                              </div>
+                              <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
+                                {tx.time}
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            className={`text-xs font-extrabold font-mono ${
+                              isPos ? 'text-emerald-600' : 'text-zinc-900'
+                            }`}
+                          >
+                            {isPos
+                              ? `+$${tx.amount.toFixed(2)} ${cur}`
+                              : `-$${Math.abs(tx.amount).toFixed(2)} ${cur}`}
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
@@ -2713,7 +2763,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         refId: `ARAK-PAY-${Date.now().toString().slice(-6)}`,
         title: `Payment to ${payRecipient.name}`,
         titleMm: `${payRecipient.name} သို့ ငွေပေးချေခြင်း`,
-        category: 'p2p',
+        category: 'transfer',
         currency: 'AKD',
         time: 'Just now',
         status: 'SETTLED',
@@ -3545,7 +3595,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <div className="space-y-2">
                 {[
                   { id: 'all', label: 'All Transactions' },
-                  { id: 'transfer', label: 'Transfers (P2P)' },
+                  { id: 'transfer', label: 'Transfers' },
                   { id: 'bill', label: 'Bills & Utilities' },
                 ].map((cat) => {
                   const isSel = historyCategoryFilter === cat.id
@@ -3766,7 +3816,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         amount: -costAkd,
         currency: 'AKD',
-        category: 'p2p',
+        category: 'transfer',
         status: 'SETTLED',
         counterparty: `${currentOperator || 'Mobile'} Telecom`,
         counterpartyMm: `${currentOperator || 'မိုဘိုင်း'} ဆက်သွယ်ရေး`,

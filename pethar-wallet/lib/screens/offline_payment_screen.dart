@@ -11,7 +11,7 @@ import '../services/offline_payment_service.dart';
 
 /// Offline Payment Screen
 /// 
-/// True offline P2P money transfers powered by Chaumian bearer ecash (Cashu model)
+/// True offline money transfers powered by Chaumian bearer ecash (Cashu model)
 /// and local device-to-device transport (BitChat-style BLE mesh, NFC tap, and animated QR).
 class OfflinePaymentScreen extends StatefulWidget {
   const OfflinePaymentScreen({Key? key}) : super(key: key);
@@ -65,7 +65,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              lang == 'ak' ? 'အော့ဖ်လိုင်း ငွေလွှဲကွန်ရက်' : 'Offline P2P Mesh',
+              lang == 'ak' ? 'အော့ဖ်လိုင်း ငွေလွှဲကွန်ရက်' : 'Offline Transfer Mesh',
               style: TextStyle(
                 fontSize: 16, fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : Colors.black87,
@@ -723,7 +723,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
     final token = PetharOfflineToken.createMockMintedToken(
       amount: amount.round(),
       recipientPubkey: _recipientId.isNotEmpty ? _recipientId : null,
-      memo: 'P2P Offline Transfer',
+      memo: 'Offline Transfer',
     );
     final serialized = token.serialize();
 

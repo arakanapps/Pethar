@@ -24,6 +24,12 @@ class AppState extends ChangeNotifier {
   bool showCardCvv = false;
   List<NotificationItem> notifications = List.from(sampleNotifications);
   List<Transaction> txList = List.from(transactions);
+  List<String> recentUsdAddresses = [
+    '0x71C829038baC1294817aAb8291048291a49B',
+    '0x8F492C109bE742819aBcD8391048291045f22',
+    '0x3E11049281a742819abcd8391048291045f201',
+    '0x9A28C10892048291948291048291048290123',
+  ];
   List<FavoriteContact> favoriteContactsList = List.from(favoriteContacts);
   List<Contact> contactsList = [];
   List<Agent> agentsList = [];
@@ -56,16 +62,41 @@ class AppState extends ChangeNotifier {
       // 2. Fetch User Profile & Balance from Supabase
       final profileMap = await supa.fetchUserProfile();
       if (profileMap != null) {
-        if (profileMap['name'] != null) profile.name = profileMap['name'].toString();
-        if (profileMap['phone'] != null) profile.phone = profileMap['phone'].toString();
+        if (profileMap['username'] != null && profileMap['username'].toString().isNotEmpty) {
+          profile.username = profileMap['username'].toString();
+        }
         if (profileMap['uid'] != null && profileMap['uid'].toString().isNotEmpty) {
           profile.uid = profileMap['uid'].toString();
+          profile.walletAddress = profile.uid;
+        }
+        if (profileMap['wallet_address'] != null && profileMap['wallet_address'].toString().isNotEmpty) {
+          profile.walletAddress = profileMap['wallet_address'].toString();
+        }
+        if (profileMap['usd_account_wallet_address'] != null && profileMap['usd_account_wallet_address'].toString().isNotEmpty) {
+          profile.usdAccountWalletAddress = profileMap['usd_account_wallet_address'].toString();
+        }
+        if (profileMap['first_name'] != null) profile.firstName = profileMap['first_name'].toString();
+        if (profileMap['last_name'] != null) profile.lastName = profileMap['last_name'].toString();
+        if (profileMap['name'] != null) profile.name = profileMap['name'].toString();
+        if (profileMap['nickname'] != null) profile.nickname = profileMap['nickname'].toString();
+        if (profileMap['email'] != null) profile.email = profileMap['email'].toString();
+        if (profileMap['phone'] != null) profile.phone = profileMap['phone'].toString();
+        if (profileMap['national_id_no'] != null) profile.nationalIdNo = profileMap['national_id_no'].toString();
+        if (profileMap['dob'] != null) profile.dob = profileMap['dob'].toString();
+        if (profileMap['address'] != null) profile.address = profileMap['address'].toString();
+        if (profileMap['avatar_url'] != null && profileMap['avatar_url'].toString().isNotEmpty) {
+          profile.avatarUrl = profileMap['avatar_url'].toString();
         }
         if (profileMap['balance'] != null) {
-          final bal = double.tryParse(profileMap['balance'].toString()) ?? usdAccountBalance;
-          usdAccountBalance = bal;
+          final bal = double.tryParse(profileMap['balance'].toString()) ?? wallet.balance;
+          profile.akdWalletBalance = bal;
           wallet.balance = bal;
           wallet.totalBalance = bal;
+        }
+        if (profileMap['usd_account_balance'] != null) {
+          final usdBal = double.tryParse(profileMap['usd_account_balance'].toString()) ?? usdAccountBalance;
+          profile.usdAccountBalance = usdBal;
+          usdAccountBalance = usdBal;
         }
       }
 
@@ -323,6 +354,8 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void notify() => notifyListeners();
+
   void convertStablecoin({required double amount, required String fromToken, required String toToken}) {
     if (amount <= 0) return;
     if (toToken == 'AKD') {
@@ -372,7 +405,7 @@ class AppState extends ChangeNotifier {
         refId: 'ARAK-XFER-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
         title: usdToAkd ? 'USD Account → AKD Wallet' : 'AKD Wallet → USD Account',
         titleMm: usdToAkd ? 'USD အကောင့်မှ AKD ပိုက်ဆံအိတ်သို့' : 'AKD ပိုက်ဆံအိတ်မှ USD အကောင့်သို့',
-        category: 'p2p',
+        category: 'transfer',
         currency: 'AKD',
         time: 'Just now',
         status: 'SETTLED',
@@ -391,10 +424,10 @@ class AppState extends ChangeNotifier {
     _addTransaction(
       Transaction(
         id: 'TX-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-        refId: 'ARAK-P2P-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        refId: 'ARAK-TRANSFER-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
         title: 'Transfer to $recipientName',
         titleMm: '$recipientName သို့ ငွေလွှဲခြင်း',
-        category: 'p2p',
+        category: 'transfer',
         currency: 'AKD',
         time: 'Just now',
         status: 'SETTLED',
@@ -413,6 +446,71 @@ class AppState extends ChangeNotifier {
         titleMm: 'ငွေလွှဲခြင်း အောင်မြင်ပါသည်',
         bodyEn: 'Sent ${amount.toStringAsFixed(2)} AKD to $recipientName.',
         bodyMm: '$recipientName ထံသို့ ₳ ${amount.toStringAsFixed(2)} ပို့ပြီးပါပြီ။',
+        time: 'Just now',
+        dateGroup: 'Today',
+        type: 'transaction',
+        read: false,
+      ),
+    );
+    notifyListeners();
+  }
+
+  List<Transaction> get usdAccountTxList {
+    return txList.where((tx) {
+      final cur = tx.currency.toUpperCase();
+      final cat = tx.category.toLowerCase();
+      return cat == 'usd_account' ||
+          cat == 'usd' ||
+          cur == 'USDT' ||
+          cur == 'USDC' ||
+          cur == 'USD' ||
+          tx.title.contains('USD') ||
+          tx.title.contains('USDT') ||
+          tx.title.contains('USDC') ||
+          tx.titleMm.contains('USD');
+    }).toList();
+  }
+
+  void recordUsdTransfer({
+    required double amount,
+    required String recipientAddress,
+    String token = 'USDT',
+  }) {
+    if (amount <= 0) return;
+    usdAccountBalance = (usdAccountBalance - amount).clamp(0.0, double.infinity);
+    final shortAddr = recipientAddress.length > 14
+        ? '${recipientAddress.substring(0, 6)}...${recipientAddress.substring(recipientAddress.length - 4)}'
+        : recipientAddress;
+    final tx = Transaction(
+      id: 'TX-USD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+      refId: 'ARAK-USD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+      title: 'Send $token to $shortAddr',
+      titleMm: '$shortAddr သို့ $token ပေးပို့ခြင်း',
+      category: 'usd_account',
+      currency: token,
+      time: 'Just now',
+      status: 'SETTLED',
+      counterparty: recipientAddress,
+      counterpartyMm: recipientAddress,
+      hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}...usd',
+      amount: -amount,
+      fee: 0.0,
+    );
+    _addTransaction(tx);
+    if (recipientAddress.isNotEmpty && !recentUsdAddresses.contains(recipientAddress)) {
+      recentUsdAddresses.insert(0, recipientAddress);
+      if (recentUsdAddresses.length > 8) {
+        recentUsdAddresses.removeLast();
+      }
+    }
+    notifications.insert(
+      0,
+      NotificationItem(
+        id: 'N-USD-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+        titleEn: 'USD Transfer Sent',
+        titleMm: 'USD ငွေလွှဲခြင်း အောင်မြင်ပါသည်',
+        bodyEn: 'Sent \$${amount.toStringAsFixed(2)} $token to $shortAddr.',
+        bodyMm: '$shortAddr ထံသို့ \$${amount.toStringAsFixed(2)} $token ပို့ပြီးပါပြီ။',
         time: 'Just now',
         dateGroup: 'Today',
         type: 'transaction',
@@ -497,10 +595,10 @@ class AppState extends ChangeNotifier {
       0,
       Transaction(
         id: 'TX-OFF-SEND-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-        refId: 'ARAK-OFFLINE-P2P-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-        title: 'Offline P2P to $recipient',
+        refId: 'ARAK-OFFLINE-TRANSFER-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        title: 'Offline Transfer to $recipient',
         titleMm: '$recipient သို့ အော့ဖ်လိုင်းငွေလွှဲခြင်း',
-        category: 'offline_p2p',
+        category: 'offline_transfer',
         currency: 'AKD',
         time: 'Just now',
         status: 'PENDING_MESH_SYNC',
@@ -523,9 +621,9 @@ class AppState extends ChangeNotifier {
       Transaction(
         id: 'TX-OFF-REC-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
         refId: 'ARAK-OFFLINE-REC-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-        title: 'Offline P2P from $sender',
+        title: 'Offline Transfer from $sender',
         titleMm: '$sender ထံမှ အော့ဖ်လိုင်းငွေလက်ခံခြင်း',
-        category: 'offline_p2p',
+        category: 'offline_transfer',
         currency: 'AKD',
         time: 'Just now',
         status: 'HELD_IN_VAULT',

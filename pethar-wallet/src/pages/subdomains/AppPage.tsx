@@ -166,7 +166,10 @@ export const AppPage = ({ lang }: AppPageProps) => {
   ];
 
   const filteredTxns = txList.filter((tx) => {
-    const matchesCat = filterCategory === 'all' || tx.category === filterCategory;
+    const matchesCat =
+      filterCategory === 'all' ||
+      tx.category === filterCategory ||
+      (filterCategory === 'transfer' && tx.category === 'p2p');
     const matchesSearch =
       tx.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tx.titleMm.includes(searchQuery) ||
@@ -325,7 +328,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
               {t.actionSend}
             </span>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-              {lang === 'ak' ? 'ဖုန်း/ID ဖြင့် လွှဲမည်' : 'P2P zero-fee transfer'}
+              {lang === 'ak' ? 'ဖုန်း/ID ဖြင့် လွှဲမည်' : 'Zero-fee transfer'}
             </span>
           </button>
 
@@ -554,7 +557,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
             <div className="flex items-center gap-3">
               {/* Category Filter Pills */}
               <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">
-                {['all', 'p2p', 'pos', 'remittance'].map((cat) => (
+                {['all', 'transfer', 'pos', 'remittance'].map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setFilterCategory(cat)}

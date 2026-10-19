@@ -240,7 +240,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
       if (!matchesSearch) return false
 
-      if (txCategoryFilter === 'transfer') return tx.category === 'p2p'
+      if (txCategoryFilter === 'transfer') return tx.category === 'transfer' || tx.category === 'p2p'
       if (txCategoryFilter === 'inflow') return tx.amount > 0
       if (txCategoryFilter === 'merchant') return tx.category === 'pos'
       if (txCategoryFilter === 'offline') return tx.counterparty.toLowerCase().includes('offline') || tx.title.toLowerCase().includes('offline')
@@ -278,7 +278,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         refId: newRef,
         title: `Transfer to ${targetName}`,
         titleMm: `${targetName} သို့ ငွေလွှဲခြင်း`,
-        category: 'p2p',
+        category: 'transfer',
         amount: -amt,
         currency: 'AKD',
         time: new Date().toLocaleDateString('en-GB', {
@@ -713,7 +713,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   +₳ {monthlyInflow.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </div>
                 <div className="text-[11px] text-slate-400 mt-1 font-medium">
-                  {ak ? 'USDT & P2P စာရင်းသွင်းမှုများ' : '+14.2% higher than last month'}
+                  {ak ? 'USDT & လွှဲပြောင်းမှု စာရင်းများ' : '+14.2% higher than last month'}
                 </div>
               </div>
 
@@ -1189,7 +1189,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
                 <div className="space-y-3">
                   {[
-                    { label: ak ? 'တိုက်ရိုက်လွှဲပြောင်းမှုများ (P2P)' : 'P2P Instant Transfers', pct: 35, color: 'bg-[#FF6B00]', amt: '₳ 4,375.00' },
+                    { label: ak ? 'တိုက်ရိုက်လွှဲပြောင်းမှုများ' : 'Instant Transfers', pct: 35, color: 'bg-[#FF6B00]', amt: '₳ 4,375.00' },
                     { label: ak ? 'Starlink ကွန်ရက် & ဝန်ဆောင်မှု' : 'Starlink Mesh & Telecom', pct: 25, color: 'bg-cyan-500', amt: '₳ 3,125.00' },
                     { label: ak ? 'ဒေသတွင်း ကုန်သည် & အစားအစာ' : 'Merchant Food & Retail', pct: 25, color: 'bg-purple-500', amt: '₳ 3,125.00' },
                     { label: ak ? 'အော့ဖ်လိုင်း ဘဲရားရက်စ် တိုကင်များ' : 'Offline Bearer Tokens (Cashu)', pct: 15, color: 'bg-amber-400', amt: '₳ 1,875.00' },
@@ -1331,7 +1331,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               amount={Math.abs(selectedTx.amount)}
               recipientName={selectedTx.counterparty}
               recipientId={selectedTx.id}
-              recipientType={selectedTx.category === 'p2p' ? 'Péthar Instant Pay' : 'Offline Mode Token'}
+              recipientType={selectedTx.category === 'transfer' || selectedTx.category === 'p2p' ? 'Péthar Instant Pay' : 'Offline Mode Token'}
               senderName={profile.name || 'User'}
               senderId={`Péthar Wallet ${profile.petharId}`}
               fee={selectedTx.fee}

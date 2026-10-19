@@ -476,7 +476,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
     },
     {
       metric: '< 1s',
-      label: isAk ? 'ငွေလွှဲမြန်နှုန်း' : 'P2P Transfer Speed',
+      label: isAk ? 'ငွေလွှဲမြန်နှုန်း' : 'Transfer Speed',
       sub: isAk
         ? 'အသုံးပြုသူအချင်းချင်း စက္ကန့်ပိုင်းအတွင်း ချက်ချင်းရောက်ရှိမှု'
         : 'Instant user-to-user settlement',
@@ -485,8 +485,8 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
       metric: '$0.00',
       label: isAk ? 'အချင်းချင်း ငွေလွှဲခ' : 'User-to-User Fee',
       sub: isAk
-        ? 'P2P ငွေလွှဲမှုတိုင်းအတွက် ဝန်ဆောင်ခ 0% (အခမဲ့)'
-        : '0% fee on every P2P transfer',
+        ? 'ငွေလွှဲမှုတိုင်းအတွက် ဝန်ဆောင်ခ 0% (အခမဲ့)'
+        : '0% fee on every transfer',
     },
     {
       metric: '24/7',
@@ -544,8 +544,8 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
       id: '03',
       badge: isAk ? '03 အချင်းချင်း အခမဲ့ငွေလွှဲမှု' : '03 Free User-to-User Send',
       title: isAk
-        ? 'ဝန်ဆောင်ခ 0% ($0.00) ဖြင့် ချက်ချင်း P2P ငွေလွှဲခြင်း'
-        : 'Instant P2P Transfers with 0% Fee ($0.00)',
+        ? 'ဝန်ဆောင်ခ 0% ($0.00) ဖြင့် ချက်ချင်း ငွေလွှဲခြင်း'
+        : 'Instant Transfers with 0% Fee ($0.00)',
       description: isAk
         ? 'မည်သည့် Péthar အသုံးပြုသူထံသို့မဆို ပိုက်ဆံအိတ်လိပ်စာ (Wallet Address) သို့မဟုတ် ကိုယ်ပိုင် QR ကုဒ်ဖြင့် ၁ စက္ကန့်အောက်အတွင်း အာရက္ခဒေါ်လာ လွှဲပို့နိုင်ပါသည်။ အချင်းချင်း ငွေလွှဲခ $0.00 ဖြစ်၍ ပေးပို့သည့်ပမာဏအတိုင်း အပြည့်အဝ ရရှိပါသည်။'
         : 'Send Arakan Dollar to any Péthar user by wallet address or personal QR code in under a second. Recipients receive 100% of what you send with a $0.00 user-to-user transfer fee.',
@@ -1811,7 +1811,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                             <div className="flex items-center justify-between text-xs">
                               <div>
                                 <div className="font-semibold">from @user</div>
-                                <div className="text-[10px] opacity-65">Instant P2P • 0% Fee</div>
+                                <div className="text-[10px] opacity-65">Instant Transfer • 0% Fee</div>
                               </div>
                               <span className="font-bold">+50.00</span>
                             </div>
@@ -2135,7 +2135,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                     icon: DollarSign,
                   },
                   {
-                    label: isAk ? 'ချက်ချင်းနှင့် အခမဲ့ P2P' : 'Instant & Free P2P',
+                    label: isAk ? 'ချက်ချင်းနှင့် အခမဲ့ ငွေလွှဲ' : 'Instant & Free Transfer',
                     desc: isAk
                       ? 'မည်သည့် Péthar အသုံးပြုသူထံသို့မဆို ဝန်ဆောင်ခ $0.00 ဖြင့် ၁ စက္ကန့်အောက်အတွင်း ငွေလွှဲပို့နိုင်ပါသည်။'
                       : 'Send money to any Péthar user in under a second with $0.00 user-to-user fees.',
@@ -2280,7 +2280,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                   {
                     icon: Send,
                     tag: isAk ? '0% ဝန်ဆောင်ခ ($0.00)' : '0% Fee ($0.00)',
-                    title: isAk ? 'Péthar ချက်ချင်း P2P ငွေလွှဲစနစ်' : 'Péthar Instant P2P',
+                    title: isAk ? 'Péthar ချက်ချင်း ငွေလွှဲစနစ်' : 'Péthar Instant Transfer',
                     desc: isAk
                       ? 'ပိုက်ဆံအိတ်လိပ်စာ (Wallet Address) သို့မဟုတ် ကိုယ်ပိုင် QR ကုဒ်ဖြင့် ဝန်ဆောင်ခ လုံးဝမရှိဘဲ ၁ စက္ကန့်အောက်အတွင်း ငွေပေးပို့/လက်ခံနိုင်ပါသည်။'
                       : 'Send and receive Arakan Dollar in under a second via wallet address or scannable personal QR codes with zero fees.',
@@ -2353,7 +2353,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                   },
                   {
                     year: '2026',
-                    title: isAk ? 'အကောင်းဆုံး အခမဲ့ P2P ငွေပေးချေမှု အတွေ့အကြုံ' : 'Best Zero-Fee P2P Payment Experience',
+                    title: isAk ? 'အကောင်းဆုံး အခမဲ့ ငွေပေးချေမှု အတွေ့အကြုံ' : 'Best Zero-Fee Payment Experience',
                     org: 'Fintech Innovation Awards',
                     desc: isAk
                       ? 'ဝန်ဆောင်ခ $0.00 နှင့် ပုံသေ 1:1 USD တန်ဖိုးဖြင့် စက္ကန့်ပိုင်းအတွင်း အချင်းချင်း ငွေလွှဲနိုင်မှုအတွက် ဂုဏ်ပြုချီးမြှင့်ခံရသည်။'
@@ -2430,7 +2430,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                   {
                     phase: 'Phase 02',
                     status: isAk ? 'လက်ရှိအသုံးပြုနိုင်ပြီ' : 'Live Now',
-                    title: isAk ? 'အခမဲ့ ချက်ချင်း P2P ငွေလွှဲမှု' : 'Instant Free P2P Transfers',
+                    title: isAk ? 'အခမဲ့ ချက်ချင်း ငွေလွှဲမှု' : 'Instant Free Transfers',
                     items: isAk
                       ? [
                           'ဝန်ဆောင်ခ 0% ($0.00) အချင်းချင်း ငွေလွှဲမှု',
@@ -2466,12 +2466,12 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                     items: isAk
                       ? [
                           'အင်တာနက်မလိုဘဲ ဖုန်းအချင်းချင်း QR ငွေလွှဲမှု',
-                          'အချိန်ဇယားသတ်မှတ်၍ ပုံမှန် P2P ငွေလွှဲမှု',
+                          'အချိန်ဇယားသတ်မှတ်၍ ပုံမှန် ငွေလွှဲမှု',
                           'အသုံးစရိတ် သုံးသပ်ချက် အစီရင်ခံစာများ',
                         ]
                       : [
                           'Offline device-to-device QR transfers',
-                          'Recurring scheduled P2P transfers',
+                          'Recurring scheduled transfers',
                           'Advanced spending analytics',
                         ],
                   },
@@ -3107,7 +3107,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
 
                 <p className={`text-xs max-w-sm leading-relaxed ${mutedText}`}>
                   {isAk
-                    ? 'အာရက္ခဒေသတွင်း နေ့စဉ်သုံး ဒစ်ဂျစ်တယ်ပိုက်ဆံအိတ် — စက္ကန့်ပိုင်းအတွင်း အခမဲ့ P2P ငွေလွှဲမှု၊ ပုံသေ ၁ အာရက္ခဒေါ်လာ = $1.00 USD တန်ဖိုးနှင့် လုံခြုံစိတ်ချရသော ငွေထုတ်ယူမှုစနစ်။'
+                    ? 'အာရက္ခဒေသတွင်း နေ့စဉ်သုံး ဒစ်ဂျစ်တယ်ပိုက်ဆံအိတ် — စက္ကန့်ပိုင်းအတွင်း အခမဲ့ ငွေလွှဲမှု၊ ပုံသေ ၁ အာရက္ခဒေါ်လာ = $1.00 USD တန်ဖိုးနှင့် လုံခြုံစိတ်ချရသော ငွေထုတ်ယူမှုစနစ်။'
                     : 'Your everyday digital wallet for Arakan. Fixed 1 Arakan Dollar = $1.00 USD parity, instant 0%-fee user-to-user transfers, and self-custodial mobile security.'}
                 </p>
 

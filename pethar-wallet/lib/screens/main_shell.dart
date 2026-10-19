@@ -41,10 +41,8 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   bool _showSplash = true;
   int _walletSubTab = 0; // 0: Tokens, 1: Activity, 2: Refund
-  String _historyCategoryTab = 'all'; // 'all' | 'wallet' | 'qr_pay'
-  String _spendingPeriod = 'weekly'; // 'weekly' | 'monthly'
   String _selectedDepositToken = 'USDT';
-  String _withdrawTab = 'your_account'; // 'your_account' | 'contacts'
+  String _selectedSendToken = 'USDT';
   String _withdrawStep = 'address'; // 'address' | 'confirm'
   final TextEditingController _withdrawAddressCtrl = TextEditingController();
   final TextEditingController _withdrawAmountCtrl = TextEditingController(text: '0.00');
@@ -805,11 +803,7 @@ class _MainShellState extends State<MainShell> {
     final currencyFmt = NumberFormat('#,##0.00', 'en_US');
     final usdTokens = [
       {'symbol': 'USDT', 'name': 'Tether USD', 'price': '\$0.9985', 'balance': 0.00, 'usd': 0.00, 'color': const Color(0xFF26A17B), 'badge': '₮'},
-      {'symbol': 'USDC', 'name': 'USD Coin', 'price': '\$1.00', 'balance': 0.0, 'usd': 0.00, 'color': const Color(0xFF2775CA), 'badge': '\$'},
-      {'symbol': 'USD1', 'name': 'World Liberty USD1', 'price': '\$0.999', 'balance': 0.0, 'usd': 0.00, 'color': const Color(0xFFD4AF37), 'badge': '1'},
-      {'symbol': 'FDUSD', 'name': 'First Digital USD', 'price': '\$1.00', 'balance': 0.0, 'usd': 0.00, 'color': const Color(0xFF00C389), 'badge': 'F'},
-      {'symbol': 'PYUSD', 'name': 'PayPal USD', 'price': '\$1.00', 'balance': 0.0, 'usd': 0.00, 'color': const Color(0xFF003087), 'badge': 'P'},
-      {'symbol': 'DAI', 'name': 'Multi-Collateral DAI', 'price': '\$1.00', 'balance': 0.0, 'usd': 0.00, 'color': const Color(0xFFF5AC37), 'badge': '◈'},
+      {'symbol': 'USDC', 'name': 'USD Coin', 'price': '\$1.00', 'balance': 0.00, 'usd': 0.00, 'color': const Color(0xFF2775CA), 'badge': '\$'},
     ];
 
     void guardVerified(String feature, VoidCallback action) {
@@ -1254,8 +1248,9 @@ class _MainShellState extends State<MainShell> {
       );
     }
 
-    // SUB-VIEW B: WITHDRAW / SEND USD STABLECOIN
+    // SUB-VIEW B: SEND USD STABLECOIN
     if (appState.financialSubView == 'withdraw') {
+      final selectedAddr = _withdrawAddressCtrl.text.trim();
       return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -1264,260 +1259,456 @@ class _MainShellState extends State<MainShell> {
           leading: IconButton(
             icon: const Icon(Icons.chevron_left, color: Color(0xFF18181B), size: 26),
             onPressed: () {
-              setState(() => _withdrawStep = 'address');
-              appState.setFinancialSubView('wallet_main');
+              if (_withdrawStep == 'confirm') {
+                setState(() => _withdrawStep = 'address');
+              } else {
+                setState(() => _withdrawStep = 'address');
+                appState.setFinancialSubView('wallet_main');
+              }
             },
           ),
           centerTitle: true,
           title: Text(
-            isAk ? 'ပေးပို့ရန် / ငွေထုတ် (Send)' : 'Send / Withdraw',
+            isAk ? 'ပေးပို့ရန် (Send)' : 'Send',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.description_outlined, color: Color(0xFF3F3F46), size: 20),
-              onPressed: () => appState.navigate(Screen.history),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _walletSubTab = 1;
+                  _withdrawStep = 'address';
+                });
+                appState.setFinancialSubView('wallet_main');
+              },
+              icon: const Icon(Icons.receipt_long_rounded, color: crimson, size: 18),
+              label: Text(
+                isAk ? 'မှတ်တမ်း' : 'Activity',
+                style: const TextStyle(
+                  color: crimson,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                ),
+              ),
             ),
+            const SizedBox(width: 4),
           ],
         ),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
           children: [
-            const Text('From', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF27272A))),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0xFFE4E4E7)),
-              ),
-              child: Row(
-                children: const [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: crimson,
-                    child: Text('\$', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
-                  ),
-                  SizedBox(width: 12),
-                  Text('USD Account', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF18181B))),
-                  SizedBox(width: 10),
-                  Text(_shortWalletAddress, style: TextStyle(fontSize: 13, fontFamily: 'monospace', color: Color(0xFF71717A))),
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
-            const Text('Recipient address', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF27272A))),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _withdrawAddressCtrl,
-              style: const TextStyle(fontSize: 13.5, fontFamily: 'monospace', color: Color(0xFF18181B)),
-              decoration: InputDecoration(
-                hintText: 'Enter address (0x...)',
-                hintStyle: const TextStyle(fontSize: 13.5, color: Color(0xFFA1A1AA)),
-                filled: true,
-                fillColor: const Color(0xFFF4F4F5),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
-                suffixIcon: IconButton(
-                  onPressed: () => appState.navigate(Screen.scan),
-                  icon: const ScanBracketIcon(size: 20, color: crimson, strokeWidth: 2.2),
-                ),
-              ),
-            ),
-            if (_withdrawStep == 'confirm') ...[
-              const SizedBox(height: 14),
+            if (_withdrawStep == 'address') ...[
+              const Text('From', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF27272A))),
+              const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFAFAFA),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: const Color(0xFFE4E4E7)),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text('Asset', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
-                        Text('USDT / USDC / USD1', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF18181B))),
-                      ],
+                child: Row(
+                  children: const [
+                    CircleAvatar(
+                      radius: 16,
+                      backgroundColor: crimson,
+                      child: Text('\$', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
                     ),
-                    const SizedBox(height: 10),
-                    const Text('Amount (\$)', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
-                    const SizedBox(height: 6),
-                    TextField(
-                      controller: _withdrawAmountCtrl,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, fontFamily: 'monospace', color: Color(0xFF18181B)),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE4E4E7))),
-                      ),
-                    ),
+                    SizedBox(width: 12),
+                    Text('USD Account', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF18181B))),
+                    SizedBox(width: 10),
+                    Text(_shortWalletAddress, style: TextStyle(fontSize: 13, fontFamily: 'monospace', color: Color(0xFF71717A))),
                   ],
                 ),
               ),
-            ],
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _withdrawTab = 'your_account'),
-                    child: Container(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: _withdrawTab == 'your_account' ? crimson : const Color(0xFFE4E4E7),
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Your Account',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
-                          color: _withdrawTab == 'your_account' ? crimson : const Color(0xFF71717A),
-                        ),
-                      ),
-                    ),
+              const SizedBox(height: 18),
+              const Text('Recipient address', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF27272A))),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _withdrawAddressCtrl,
+                style: const TextStyle(fontSize: 13.5, fontFamily: 'monospace', color: Color(0xFF18181B)),
+                decoration: InputDecoration(
+                  hintText: 'Enter address (0x...)',
+                  hintStyle: const TextStyle(fontSize: 13.5, color: Color(0xFFA1A1AA)),
+                  filled: true,
+                  fillColor: const Color(0xFFF4F4F5),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
+                  suffixIcon: IconButton(
+                    onPressed: () => appState.navigate(Screen.scan),
+                    icon: const ScanBracketIcon(size: 20, color: crimson, strokeWidth: 2.2),
                   ),
                 ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _withdrawTab = 'contacts'),
-                    child: Container(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: _withdrawTab == 'contacts' ? crimson : const Color(0xFFE4E4E7),
-                            width: 2,
-                          ),
+              ),
+              const SizedBox(height: 16),
+
+              // Continue Button (Directly below Enter address)
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () {
+                    final addr = _withdrawAddressCtrl.text.trim();
+                    if (addr.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isAk ? 'ကျေးဇူးပြု၍ လိပ်စာ ရိုက်ထည့်ပါ သို့မဟုတ် ရွေးချယ်ပါ' : 'Please enter or select a recipient address'),
+                          backgroundColor: crimson,
+                          behavior: SnackBarBehavior.floating,
                         ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Contacts',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
-                          color: _withdrawTab == 'contacts' ? crimson : const Color(0xFF71717A),
-                        ),
-                      ),
-                    ),
+                      );
+                      return;
+                    }
+                    setState(() => _withdrawStep = 'confirm');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: crimson,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                  ),
+                  child: Text(
+                    isAk ? 'ရှေ့သို့ ဆက်သွားမည် (Continue)' : 'Continue',
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (_withdrawTab == 'your_account')
-              GestureDetector(
-                onTap: () => setState(() => _withdrawAddressCtrl.text = _fullWalletAddress),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFE4E4E7)),
+              ),
+              const SizedBox(height: 24),
+
+              // Under Continue button: Recent transaction wallet addresses with recent addresses
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    isAk ? 'လတ်တလော လွှဲပြောင်းခဲ့သော လိပ်စာများ' : 'Recent Addresses',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: const [
-                          CircleAvatar(
-                            radius: 16,
-                            backgroundColor: crimson,
-                            child: Text('\$', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12)),
-                          ),
-                          SizedBox(width: 10),
-                          Text('USD Account', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF18181B))),
-                        ],
-                      ),
-                      const Text(_shortWalletAddress, style: TextStyle(fontSize: 13, fontFamily: 'monospace', color: Color(0xFF71717A))),
-                    ],
+                  Text(
+                    '${appState.recentUsdAddresses.length} ${isAk ? 'ခု' : 'recent'}',
+                    style: const TextStyle(fontSize: 11.5, color: Color(0xFFA1A1AA), fontWeight: FontWeight.w600),
                   ),
-                ),
-              )
-            else
-              ...contacts.take(4).map((c) {
-                final idSuffix = c.id.length >= 4 ? c.id.substring(c.id.length - 4) : c.id.padLeft(4, '0');
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...appState.recentUsdAddresses.map((addr) {
+                final short = addr.length > 16 ? '${addr.substring(0, 8)}...${addr.substring(addr.length - 6)}' : addr;
+                final isSelected = _withdrawAddressCtrl.text.trim() == addr;
                 return GestureDetector(
-                  onTap: () => setState(() => _withdrawAddressCtrl.text = '0x8F492C109bE742819aBcD$idSuffix'),
+                  onTap: () {
+                    setState(() {
+                      _withdrawAddressCtrl.text = addr;
+                    });
+                  },
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
+                      color: isSelected ? const Color(0xFFFFF1F2) : Colors.white,
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFE4E4E7)),
+                      border: Border.all(color: isSelected ? crimson : const Color(0xFFE4E4E7)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: crimson.withValues(alpha: 0.1),
-                              child: Text(c.initials, style: const TextStyle(color: crimson, fontWeight: FontWeight.w700, fontSize: 11)),
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: isSelected ? crimson : const Color(0xFFF4F4F5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.account_balance_wallet_outlined,
+                                color: isSelected ? Colors.white : const Color(0xFF71717A),
+                                size: 18,
+                              ),
                             ),
-                            const SizedBox(width: 10),
-                            Text(c.name, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF18181B))),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  short,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontFamily: 'monospace',
+                                    fontWeight: FontWeight.w700,
+                                    color: isSelected ? crimson : const Color(0xFF18181B),
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                const Text('USDT / USDC EVM Address', style: TextStyle(fontSize: 11, color: Color(0xFFA1A1AA))),
+                              ],
+                            ),
                           ],
                         ),
-                        Text(c.id, style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: Color(0xFF71717A))),
+                        Icon(
+                          isSelected ? Icons.check_circle_rounded : Icons.north_east_rounded,
+                          size: 16,
+                          color: isSelected ? crimson : const Color(0xFFA1A1AA),
+                        ),
                       ],
                     ),
                   ),
                 );
               }),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (_withdrawAddressCtrl.text.trim().isEmpty) {
-                    setState(() => _withdrawAddressCtrl.text = _fullWalletAddress);
-                  }
-                  if (_withdrawStep == 'address') {
-                    setState(() => _withdrawStep = 'confirm');
-                  } else {
-                    final amt = double.tryParse(_withdrawAmountCtrl.text) ?? 50.0;
-                    appState.recordTransfer(
-                      amount: amt,
-                      recipientName: 'USD Withdrawal',
-                      recipientId: _shortWalletAddress,
+            ] else ...[
+              // Confirm & Send step
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFAFAFA),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE4E4E7)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: const [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: crimson,
+                              child: Text('\$', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 11)),
+                            ),
+                            SizedBox(width: 8),
+                            Text('USD Account', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF18181B))),
+                          ],
+                        ),
+                        const Text(_shortWalletAddress, style: TextStyle(fontSize: 12, fontFamily: 'monospace', color: Color(0xFF71717A))),
+                      ],
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Divider(height: 1, color: Color(0xFFE4E4E7)),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: const [
+                            Icon(Icons.arrow_downward_rounded, size: 16, color: Color(0xFF71717A)),
+                            SizedBox(width: 8),
+                            Text('Recipient', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
+                          ],
+                        ),
+                        GestureDetector(
+                          onTap: () => setState(() => _withdrawStep = 'address'),
+                          child: Text(
+                            isAk ? 'ပြင်မည်' : 'Change',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: crimson),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        selectedAddr,
+                        style: const TextStyle(fontSize: 12, fontFamily: 'monospace', fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // Token Asset Selection (USDT and USDC only!)
+              Text(isAk ? 'ဒေါ်လာဒင်္ဂါး ရွေးချယ်ပါ' : 'Select Token Asset', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF27272A))),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedSendToken = 'USDT'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                        decoration: BoxDecoration(
+                          color: _selectedSendToken == 'USDT' ? const Color(0xFFECFDF5) : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: _selectedSendToken == 'USDT' ? const Color(0xFF10B981) : const Color(0xFFE4E4E7),
+                            width: _selectedSendToken == 'USDT' ? 2 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const CircleAvatar(
+                              radius: 14,
+                              backgroundColor: Color(0xFF26A17B),
+                              child: Text('₮', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
+                            ),
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text('USDT', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF18181B))),
+                                Text('Tether USD', style: TextStyle(fontSize: 11, color: Color(0xFF71717A))),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedSendToken = 'USDC'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                        decoration: BoxDecoration(
+                          color: _selectedSendToken == 'USDC' ? const Color(0xFFEFF6FF) : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: _selectedSendToken == 'USDC' ? const Color(0xFF2563EB) : const Color(0xFFE4E4E7),
+                            width: _selectedSendToken == 'USDC' ? 2 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const CircleAvatar(
+                              radius: 14,
+                              backgroundColor: Color(0xFF2775CA),
+                              child: Text('\$', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
+                            ),
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text('USDC', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF18181B))),
+                                Text('USD Coin', style: TextStyle(fontSize: 11, color: Color(0xFF71717A))),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+
+              // Amount Field
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(isAk ? 'ပမာဏ (\$)' : 'Amount (\$)', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF27272A))),
+                  Text(
+                    '${isAk ? "လက်ကျန်" : "Available"}: \$${appState.usdAccountBalance.toStringAsFixed(2)}',
+                    style: const TextStyle(fontSize: 11.5, fontFamily: 'monospace', fontWeight: FontWeight.w700, color: Color(0xFF71717A)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _withdrawAmountCtrl,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, fontFamily: 'monospace', color: Color(0xFF18181B)),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFF4F4F5),
+                  prefixText: '\$ ',
+                  prefixStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Quick Amount Chips
+              Row(
+                children: [
+                  ...[10, 50, 100].map((amt) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ActionChip(
+                        label: Text('\$$amt'),
+                        labelStyle: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF27272A)),
+                        backgroundColor: const Color(0xFFF4F4F5),
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                        onPressed: () => setState(() => _withdrawAmountCtrl.text = amt.toDouble().toStringAsFixed(2)),
+                      ),
                     );
-                    setState(() => _withdrawStep = 'address');
+                  }),
+                  ActionChip(
+                    label: Text(isAk ? 'အားလုံး' : 'Max'),
+                    labelStyle: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: crimson),
+                    backgroundColor: const Color(0xFFFFF1F2),
+                    side: BorderSide.none,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                    onPressed: () => setState(() => _withdrawAmountCtrl.text = appState.usdAccountBalance.toStringAsFixed(2)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Confirm & Send Button
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () {
+                    final amt = double.tryParse(_withdrawAmountCtrl.text) ?? 0.0;
+                    if (amt <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isAk ? 'ကျေးဇူးပြု၍ မှန်ကန်သော ပမာဏ ထည့်ပါ' : 'Please enter a valid amount'),
+                          backgroundColor: crimson,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      return;
+                    }
+                    if (amt > appState.usdAccountBalance) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isAk ? 'USD အကောင့် လက်ကျန်ငွေ မလုံလောက်ပါ' : 'Insufficient USD Account balance'),
+                          backgroundColor: crimson,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      return;
+                    }
+                    appState.recordUsdTransfer(
+                      amount: amt,
+                      recipientAddress: selectedAddr,
+                      token: _selectedSendToken,
+                    );
+                    setState(() {
+                      _withdrawStep = 'address';
+                      _walletSubTab = 1; // Show USD Account Activity
+                    });
                     appState.setFinancialSubView('wallet_main');
+                    final shortTarget = selectedAddr.length > 14
+                        ? '${selectedAddr.substring(0, 6)}...${selectedAddr.substring(selectedAddr.length - 4)}'
+                        : selectedAddr;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Sent \$${amt.toStringAsFixed(2)} USDT successfully'),
+                        content: Text('Sent \$$amt $_selectedSendToken successfully to $shortTarget'),
                         backgroundColor: emeraldSuccess,
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: crimson,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-                ),
-                child: Text(
-                  _withdrawStep == 'address' ? 'Continue' : 'Confirm & Send',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: crimson,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                  ),
+                  child: Text(
+                    isAk ? 'ပေးပို့မည် အတည်ပြုပါ (Confirm & Send)' : 'Confirm & Send',
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       );
@@ -1527,173 +1718,6 @@ class _MainShellState extends State<MainShell> {
     if (appState.financialSubView == 'tx_history') {
       return const HistoryScreen();
     }
-
-    // SUB-VIEW D: TOTAL SPENDING ANALYTICS
-    if (appState.financialSubView == 'spending') {
-      final isWeekly = _spendingPeriod == 'weekly';
-      return Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0.5,
-          leading: IconButton(
-            icon: const Icon(Icons.chevron_left, color: Color(0xFF18181B), size: 26),
-            onPressed: () => appState.setFinancialSubView('wallet_main'),
-          ),
-          centerTitle: true,
-          title: const Text(
-            'Total Spending',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-          ),
-          actions: const [
-            Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: Icon(Icons.calendar_today_outlined, size: 18, color: Color(0xFF71717A)),
-            ),
-          ],
-        ),
-        body: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [crimson, Color(0xFFF97316)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4F4F5),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _spendingPeriod = 'weekly'),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isWeekly ? Colors.white : Colors.transparent,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Weekly',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: isWeekly ? crimson : const Color(0xFF71717A),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _spendingPeriod = 'monthly'),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                            color: !isWeekly ? Colors.white : Colors.transparent,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Monthly',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: !isWeekly ? crimson : const Color(0xFF71717A),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Transform.translate(
-              offset: const Offset(0, -28),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFFF4F4F5)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isWeekly ? '12-18 October 2026' : 'October 2026',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                      ),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Total spending', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
-                                const SizedBox(height: 4),
-                                Text(
-                                  isWeekly ? '\$97.00' : '\$227.00',
-                                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, fontFamily: 'monospace', color: Color(0xFF18181B)),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Average spending', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
-                                const SizedBox(height: 4),
-                                Text(
-                                  isWeekly ? '\$32.33' : '\$28.38',
-                                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, fontFamily: 'monospace', color: Color(0xFF18181B)),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final filteredTxList = appState.txList.where((tx) {
-      if (_historyCategoryTab == 'wallet') {
-        return tx.category == 'p2p' || tx.category == 'crypto';
-      }
-      if (_historyCategoryTab == 'qr_pay') {
-        return tx.category == 'pos';
-      }
-      return true;
-    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -2005,52 +2029,98 @@ class _MainShellState extends State<MainShell> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            children: [
-                              _buildActivityFilterChip('all', 'All'),
-                              const SizedBox(width: 6),
-                              _buildActivityFilterChip('wallet', 'Wallet'),
-                              const SizedBox(width: 6),
-                              _buildActivityFilterChip('qr_pay', 'QR Pay'),
+                            children: const [
+                              Icon(Icons.receipt_long_rounded, size: 16, color: crimson),
+                              SizedBox(width: 6),
+                              Text(
+                                'USD Account Activity',
+                                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF18181B)),
+                              ),
                             ],
                           ),
-                          GestureDetector(
-                            onTap: () => appState.setFinancialSubView('spending'),
-                            child: Text(
-                              isAk ? 'သုံးစွဲမှု စာရင်းချုပ် ›' : 'Spending Chart ›',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: crimson),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: crimson.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: const Text(
+                              'USDT · USDC',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: crimson),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
-                      ...filteredTxList.map((tx) {
-                        final isPos = tx.amount > 0;
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFF4F4F5)),
+                      if (appState.usdAccountTxList.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 36),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF4F4F5),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: const Icon(Icons.receipt_long_outlined, color: Color(0xFFA1A1AA), size: 24),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                isAk ? 'USD အကောင့် မှတ်တမ်း မရှိသေးပါ' : 'No USD Account activity yet',
+                                style: const TextStyle(color: Color(0xFF71717A), fontSize: 12.5, fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                isAk ? 'USDT နှင့် USDC လွှဲပြောင်းမှုများကို ဤနေရာတွင် တွေ့နိုင်ပါသည်' : 'USDT and USDC transactions will appear here',
+                                style: const TextStyle(color: Color(0xFFA1A1AA), fontSize: 11),
+                              ),
+                            ],
                           ),
-                          child: ListTile(
-                            dense: true,
-                            title: Text(
-                              isAk ? tx.titleMm : tx.title,
-                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5, color: Color(0xFF18181B)),
+                        )
+                      else
+                        ...appState.usdAccountTxList.map((tx) {
+                          final isPos = tx.amount > 0;
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFF4F4F5)),
                             ),
-                            subtitle: Text(tx.time, style: const TextStyle(fontSize: 11, fontFamily: 'monospace', color: Color(0xFFA1A1AA))),
-                            trailing: Text(
-                              '${isPos ? '+' : '-'}${tx.amount.abs().toStringAsFixed(2)} USDT',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontFamily: 'monospace',
-                                fontSize: 12,
-                                color: isPos ? const Color(0xFF059669) : const Color(0xFF18181B),
+                            child: ListTile(
+                              dense: true,
+                              leading: Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  color: isPos ? const Color(0xFFECFDF5) : const Color(0xFFFFF1F2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  isPos ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                                  color: isPos ? const Color(0xFF059669) : crimson,
+                                  size: 16,
+                                ),
+                              ),
+                              title: Text(
+                                isAk ? tx.titleMm : tx.title,
+                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5, color: Color(0xFF18181B)),
+                              ),
+                              subtitle: Text(tx.time, style: const TextStyle(fontSize: 11, fontFamily: 'monospace', color: Color(0xFFA1A1AA))),
+                              trailing: Text(
+                                '${isPos ? '+' : '-'}\$${tx.amount.abs().toStringAsFixed(2)} ${tx.currency.isNotEmpty ? tx.currency : 'USDT'}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontFamily: 'monospace',
+                                  fontSize: 12,
+                                  color: isPos ? const Color(0xFF059669) : const Color(0xFF18181B),
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      }),
+                          );
+                        }),
                     ] else
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 40),
@@ -2098,27 +2168,6 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  Widget _buildActivityFilterChip(String id, String label) {
-    final active = _historyCategoryTab == id;
-    return GestureDetector(
-      onTap: () => setState(() => _historyCategoryTab = id),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-        decoration: BoxDecoration(
-          color: active ? crimson : const Color(0xFFF4F4F5),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w700,
-            color: active ? Colors.white : const Color(0xFF52525B),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildWalletAction({required String label, required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
@@ -2231,10 +2280,20 @@ class _MainShellState extends State<MainShell> {
         body = const HomeScreen();
     }
 
-    return Scaffold(
-      extendBody: true,
-      backgroundColor: const Color(0xFFF4F5F8),
-      body: body,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+        systemNavigationBarDividerColor: Colors.transparent,
+        systemNavigationBarContrastEnforced: false,
+      ),
+      child: Scaffold(
+        extendBody: true,
+        backgroundColor: const Color(0xFFF4F5F8),
+        body: body,
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(
@@ -2376,8 +2435,9 @@ class _MainShellState extends State<MainShell> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildLiquidGlassNavItem({
     required BuildContext context,

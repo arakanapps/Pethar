@@ -84,7 +84,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
               const SizedBox(height: 16),
               _buildFilterOption('all', 'All Categories', Icons.list_alt_rounded),
-              _buildFilterOption('transfer', 'Transfers (P2P)', Icons.sync_alt_rounded),
+              _buildFilterOption('transfer', 'Transfers', Icons.sync_alt_rounded),
               _buildFilterOption('bill', 'Utility & Bills', Icons.receipt_long_rounded),
             ],
           ),
@@ -295,7 +295,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   children: [
                     _buildSlipRow('Recipient / Source', item.title),
                     const Divider(height: 20, color: Color(0xFFE2E8F0)),
-                    _buildSlipRow('Category', item.category ?? (item.type == 'bill' ? 'Bill Payment' : 'P2P Transfer')),
+                    _buildSlipRow('Category', item.category ?? (item.type == 'bill' ? 'Bill Payment' : 'Transfer')),
                     const Divider(height: 20, color: Color(0xFFE2E8F0)),
                     _buildSlipRow('Date & Time', item.time),
                     const Divider(height: 20, color: Color(0xFFE2E8F0)),

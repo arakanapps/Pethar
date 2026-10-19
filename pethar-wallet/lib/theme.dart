@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // ── Payno & Péthar Modern Sky-Blue Light Fintech Design Tokens ──
@@ -57,6 +58,15 @@ ThemeData lightTheme() {
         color: Color(0xFF0F172A),
         fontSize: 18,
         fontWeight: FontWeight.bold,
+      ),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+        systemNavigationBarDividerColor: Colors.transparent,
+        systemNavigationBarContrastEnforced: false,
       ),
     ),
     textTheme: GoogleFonts.notoSansMyanmarTextTheme(baseTextTheme),

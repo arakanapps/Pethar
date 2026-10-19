@@ -1,7 +1,7 @@
 /// Péthar Offline Payment Service
 /// 
 /// Implements cryptographically signed, replay-resistant, expiry-aware
-/// offline vouchers for P2P and P2M payments via NFC and Bluetooth.
+/// offline vouchers for transfer and merchant payments via NFC and Bluetooth.
 ///
 /// Architecture:
 ///   1. Online: Device generates Ed25519 keypair, registers pubkey with server
@@ -277,7 +277,7 @@ class PetharProof {
   );
 }
 
-/// Token bundle transmitted P2P over NFC, BLE, or QR code ("petharA...").
+/// Token bundle transmitted over NFC, BLE, or QR code ("petharA...").
 class PetharOfflineToken {
   final String mintUrl;
   final List<PetharProof> proofs;

@@ -60,7 +60,7 @@ class _SendScreenState extends State<SendScreen> {
       if (pin.length == 6) {
         Future.delayed(const Duration(milliseconds: 400), () {
           final amt = double.tryParse(amount) ?? 0.0;
-          _generatedRefId = 'ARAK-P2P-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+          _generatedRefId = 'ARAK-TRANSFER-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
           appState.recordTransfer(
             amount: amt,
             recipientName: selectedContact?.name ?? 'Ko Min Aung',
@@ -135,7 +135,7 @@ class _SendScreenState extends State<SendScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Offline P2P banner shortcut
+        // Offline Transfer banner shortcut
         InkWell(
           onTap: () => appState.navigate(Screen.offlinePayment),
           borderRadius: BorderRadius.circular(16),
