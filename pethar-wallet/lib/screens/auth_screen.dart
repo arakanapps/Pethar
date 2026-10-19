@@ -547,40 +547,12 @@ class _AuthScreenState extends State<AuthScreen> {
             stops: [0.0, 0.28, 0.58, 0.84, 1.0],
           ),
         ),
-        child: Stack(
-          children: [
-            // Ambient subtle glowing circles
-            Positioned(
-              top: -40,
-              left: -40,
-              child: Container(
-                width: 180,
-                height: 180,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.05),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 10,
-              right: -30,
-              child: Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.04),
-                ),
-              ),
-            ),
-
-            SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Column(
-                  children: [
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              children: [
                     // Top Bar: Back Button (if sub-step in Sign Up) & Language Selector Pill
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -653,10 +625,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
   }
 
   // Language Pill Widget [ 🇲🇲 MM | 🇬🇧 EN ]

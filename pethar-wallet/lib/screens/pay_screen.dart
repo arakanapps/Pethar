@@ -67,61 +67,37 @@ class _PayScreenState extends State<PayScreen> {
   @override
   void initState() {
     super.initState();
-    _recentContacts = [
-      RecentPayContact(
-        id: 'REC-1',
-        name: 'Zaw Myo Htet',
-        username: '@zawmyo',
-        uid: '202610190002',
+    final appState = Provider.of<AppState>(context, listen: false);
+    _recentContacts = appState.favoriteContactsList.map((f) {
+      return RecentPayContact(
+        id: f.id,
+        name: f.name,
+        username: f.phone.startsWith('@') ? f.phone : '@${f.name.toLowerCase().replaceAll(' ', '_')}',
+        uid: f.id,
+        category: f.category,
+        initials: f.initials,
+        avatarColor: Color(f.colorValue),
+      );
+    }).toList();
+    if (_recentContacts.isNotEmpty) {
+      _selectedRecipient = _recentContacts.first;
+    } else {
+      _selectedRecipient = RecentPayContact(
+        id: '',
+        name: '',
+        username: '',
+        uid: '',
         category: 'Friends',
-        initials: 'ZM',
-        avatarColor: const Color(0xFF10B981),
-      ),
-      RecentPayContact(
-        id: 'REC-2',
-        name: 'Ma Hnin Nu',
-        username: '@hninnu',
-        uid: '202610190003',
-        category: 'Family',
-        initials: 'HN',
-        avatarColor: const Color(0xFFF43F5E),
-      ),
-      RecentPayContact(
-        id: 'REC-3',
-        name: 'Ko Min Aung',
-        username: '@minaung',
-        uid: '202610190004',
-        category: 'Friends',
-        initials: 'MA',
-        avatarColor: const Color(0xFF3B82F6),
-      ),
-      RecentPayContact(
-        id: 'REC-4',
-        name: 'Daw Saw Mya',
-        username: '@sawmya',
-        uid: '202610190005',
-        category: 'Family',
-        initials: 'SM',
-        avatarColor: const Color(0xFFF59E0B),
-      ),
-      RecentPayContact(
-        id: 'REC-5',
-        name: 'Kyaukpyu Merchant Service',
-        username: '@kyaukpyu_biz',
-        uid: '202610190006',
-        category: 'other',
-        initials: 'KM',
-        avatarColor: const Color(0xFF8B5CF6),
-      ),
-    ];
-    _selectedRecipient = _recentContacts.first;
+        initials: 'U',
+        avatarColor: const Color(0xFF0284C7),
+      );
+    }
 
     _amountCtrl.addListener(() {
       if (mounted) setState(() {});
     });
 
     // Check if user navigated from Favourites or Scanner
-    final appState = Provider.of<AppState>(context, listen: false);
     _applyPendingPayContactSynchronous(appState);
   }
 
@@ -802,11 +778,41 @@ class _PayScreenState extends State<PayScreen> {
           if (filteredContacts.isEmpty)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
               alignment: Alignment.center,
-              child: Text(
-                isAk ? 'မှတ်တမ်း မတွေ့ပါ' : 'No transfers found',
-                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+              child: Column(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF1F5F9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.person_add_alt_1_outlined,
+                      size: 24,
+                      color: Color(0xFF94A3B8),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    isAk ? 'လတ်တလော လွှဲပြောင်းသူ မရှိသေးပါ' : 'No saved recipients yet',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isAk
+                        ? 'အထက်တွင် ID သို့မဟုတ် Username ရိုက်ထည့်၍ လွှဲနိုင်ပါသည်'
+                        : 'Enter recipient Username or 12-digit ID above to transfer.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                  ),
+                ],
               ),
             )
           else

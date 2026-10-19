@@ -477,6 +477,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    final isAk = appState.language == 'ak';
 
     // Dynamic transactions matching app database and Pay page
     final items = appState.txList.map((tx) {
@@ -689,17 +690,60 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   child: Column(
                     children: [
-                      for (int i = 0; i < filtered.length; i++) ...[
-                        _buildTransactionRow(filtered[i]),
-                        if (i < filtered.length - 1)
-                          const Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: Color(0xFFF1F5F9),
-                            indent: 64,
-                            endIndent: 16,
+                      if (filtered.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF1F5F9),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.receipt_long_outlined,
+                                  size: 28,
+                                  color: Color(0xFF94A3B8),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Text(
+                                isAk ? 'ငွေစာရင်းမှတ်တမ်း မရှိသေးပါ' : 'No transactions yet',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF0F172A),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                isAk
+                                    ? 'သင့်ငွေလွှဲခြင်းနှင့် ဘေလ်ပေးဆောင်မှု မှတ်တမ်းများကို ဤနေရာတွင် တွေ့ရပါမည်'
+                                    : 'Your recent transfers and bill payments will appear here.',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF64748B),
+                                ),
+                              ),
+                            ],
                           ),
-                      ],
+                        )
+                      else
+                        for (int i = 0; i < filtered.length; i++) ...[
+                          _buildTransactionRow(filtered[i]),
+                          if (i < filtered.length - 1)
+                            const Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: Color(0xFFF1F5F9),
+                              indent: 64,
+                              endIndent: 16,
+                            ),
+                        ],
                     ],
                   ),
                 ),

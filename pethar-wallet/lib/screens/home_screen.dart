@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../services/supabase_service.dart';
 import '../theme.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/support_and_kyc_modals.dart';
@@ -105,6 +108,225 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     onAllowed();
+  }
+
+  ImageProvider? _buildAvatarImageProvider(String? avatarUrl) {
+    if (avatarUrl == null || avatarUrl.trim().isEmpty) return null;
+    final url = avatarUrl.trim();
+    if (url.startsWith('data:image') || url.startsWith('data:application')) {
+      try {
+        final commaIdx = url.indexOf(',');
+        final base64Str = commaIdx != -1 ? url.substring(commaIdx + 1) : url;
+        return MemoryImage(base64Decode(base64Str));
+      } catch (e) {
+        return null;
+      }
+    }
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return NetworkImage(url);
+    }
+    return null;
+  }
+
+  Future<void> _pickAvatarFromSource(
+    BuildContext context,
+    AppState appState,
+    bool isAk,
+    ImageSource source,
+    BuildContext dialogCtx,
+  ) async {
+    try {
+      final picker = ImagePicker();
+      final XFile? picked = await picker.pickImage(
+        source: source,
+        maxWidth: 600,
+        maxHeight: 600,
+        imageQuality: 85,
+      );
+      if (picked != null) {
+        final bytes = await picked.readAsBytes();
+        final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+        appState.profile.avatarUrl = base64Image;
+        appState.notify();
+        if (dialogCtx.mounted) {
+          Navigator.pop(dialogCtx);
+        }
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'Profile photo updated successfully!',
+              ),
+              backgroundColor: const Color(0xFF10B981),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+        try {
+          await SupabaseService().updateAvatarUrl(
+            profileId: appState.profile.uid,
+            avatarUrl: base64Image,
+          );
+        } catch (_) {}
+      }
+    } catch (e) {
+      debugPrint('Error picking avatar image: $e');
+    }
+  }
+
+  void _showChangeProfilePhotoModal(BuildContext context, AppState appState, bool isAk) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (modalCtx) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Grab handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE4E4E7),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+
+              // Title Header: Change profile photo + Close
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ ပြောင်းရန်' : 'Change profile photo',
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF18181B),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        isAk ? 'ကင်မရာ သို့မဟုတ် ဖုန်းပြခန်းမှ ရွေးချယ်ပါ' : 'Take a photo or choose from gallery',
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(modalCtx),
+                    icon: const Icon(Icons.close, size: 20, color: Color(0xFF71717A)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+
+              // Option 1: Take Photo
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: Color(0xFFF4F4F5)),
+                ),
+                tileColor: const Color(0xFFFAFAFA),
+                leading: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFE4E6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, color: crimson, size: 20),
+                ),
+                title: Text(
+                  isAk ? 'ကင်မရာဖြင့် ဓာတ်ပုံရိုက်မည်' : 'Take Photo',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF18181B),
+                  ),
+                ),
+                subtitle: Text(
+                  isAk ? 'ဖုန်းကင်မရာ ဖွင့်ရန်' : 'Open camera to capture',
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                ),
+                trailing: const Icon(Icons.chevron_right, size: 20, color: Color(0xFFA1A1AA)),
+                onTap: () => _pickAvatarFromSource(context, appState, isAk, ImageSource.camera, modalCtx),
+              ),
+              const SizedBox(height: 10),
+
+              // Option 2: Choose Photo
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: Color(0xFFF4F4F5)),
+                ),
+                tileColor: const Color(0xFFFAFAFA),
+                leading: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0F2FE),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.photo_library_rounded, color: Color(0xFF0284C7), size: 20),
+                ),
+                title: Text(
+                  isAk ? 'ဖုန်းပြခန်းမှ ဓာတ်ပုံရွေးမည်' : 'Choose Photo',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF18181B),
+                  ),
+                ),
+                subtitle: Text(
+                  isAk ? 'ပြခန်းမှ ဓာတ်ပုံ ရွေးချယ်ရန်' : 'Select from photo library',
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                ),
+                trailing: const Icon(Icons.chevron_right, size: 20, color: Color(0xFFA1A1AA)),
+                onTap: () => _pickAvatarFromSource(context, appState, isAk, ImageSource.gallery, modalCtx),
+              ),
+              const SizedBox(height: 16),
+
+              // Option 3: Cancel
+              SizedBox(
+                width: double.infinity,
+                height: 46,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(modalCtx),
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFFF4F4F5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    isAk ? 'မလုပ်တော့ပါ' : 'Cancel',
+                    style: const TextStyle(
+                      color: Color(0xFF52525B),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showQuitAppModal(BuildContext context, bool isAk) {
@@ -347,9 +569,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Left: Circular User Photo
+                          // Left: Circular User Photo - Change Profile Photo Popup
                           GestureDetector(
-                            onTap: () => appState.navigate(Screen.settings),
+                            onTap: () => _showChangeProfilePhotoModal(context, appState, isAk),
                             child: Container(
                               width: 42,
                               height: 42,
@@ -371,18 +593,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                     offset: const Offset(0, 2),
                                   ),
                                 ],
+                                image: _buildAvatarImageProvider(appState.profile.avatarUrl) != null
+                                    ? DecorationImage(
+                                        image: _buildAvatarImageProvider(appState.profile.avatarUrl)!,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
                               ),
                               alignment: Alignment.center,
-                              child: Text(
-                                appState.profile.name.isNotEmpty
-                                    ? appState.profile.name[0].toUpperCase()
-                                    : 'U',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 16,
-                                ),
-                              ),
+                              child: _buildAvatarImageProvider(appState.profile.avatarUrl) == null
+                                  ? Text(
+                                      appState.profile.name.isNotEmpty
+                                          ? appState.profile.name[0].toUpperCase()
+                                          : 'U',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 16,
+                                      ),
+                                    )
+                                  : null,
                             ),
                           ),
 
@@ -944,6 +1174,42 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                       ),
+                      if (favUsers.isEmpty) ...[
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => _runVerifiedAction(
+                            context,
+                            appState,
+                            isAk ? 'ကျွန်ုပ်၏ စိတ်ကြိုက်များ' : 'My Favourites',
+                            () => appState.navigate(Screen.favourites),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.person_add_alt_1_rounded, size: 16, color: crimson),
+                                const SizedBox(width: 8),
+                                Text(
+                                  isAk
+                                      ? 'စိတ်ကြိုက်လက်ခံသူ အသစ်ထည့်ပါ'
+                                      : 'Add your first favourite recipient',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

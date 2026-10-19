@@ -127,7 +127,7 @@ UserProfile initialUserProfile = UserProfile(
   lastName: '',
   name: '',
   nickname: '',
-  email: 'user@pethar.com',
+  email: '',
   phone: '',
   pin: '',
   address: '',
@@ -180,30 +180,8 @@ class NotificationItem {
   });
 }
 
-// Live notifications: Fetched dynamically or generated from transactions
+// Live notifications: System announcements and promotions (no fake transactions)
 List<NotificationItem> sampleNotifications = [
-  NotificationItem(
-    id: 'N-001',
-    type: 'transaction',
-    titleEn: 'Transfer Sent',
-    titleMm: 'ငွေလွှဲပို့ခြင်း အောင်မြင်ပါသည်',
-    bodyEn: 'You sent ₳0.00 to Ko Min Aung (202610190002). Settled instantly with zero fee.',
-    bodyMm: 'ကိုမင်းအောင် (202610190002) ထံ ₳0.00 ပို့လွှဲခြင်း ချက်ချင်းပြီးစီးပါသည်။',
-    time: '2:22 PM',
-    dateGroup: 'Today',
-    read: false,
-  ),
-  NotificationItem(
-    id: 'N-002',
-    type: 'transaction',
-    titleEn: 'Binance Pay USDT Inflow Received',
-    titleMm: 'Binance မှ USDT ငွေသွင်း ရရှိပါသည်',
-    bodyEn: '0.00 USDT converted 1:1 to ₳0.00 and credited to your vault.',
-    bodyMm: 'USDT 0.00 ကို ၁:၁ နှုန်းဖြင့် ₳0.00 အဖြစ် သင့်စာရင်းသို့ သွင်းပြီးပါပြီ။',
-    time: '11:05 AM',
-    dateGroup: 'Today',
-    read: false,
-  ),
   NotificationItem(
     id: 'N-003',
     type: 'system',

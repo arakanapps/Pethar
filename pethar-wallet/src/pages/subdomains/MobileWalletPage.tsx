@@ -52,6 +52,7 @@ import {
   Fingerprint,
   ShieldCheck,
   User,
+  UserPlus,
   Search,
   X,
   Ticket,
@@ -87,6 +88,7 @@ import {
   subscribeToTransactions,
   resetPinWithEmail,
   updateUserEmailInDb,
+  updateUserAvatarInDb,
 } from '../../services/walletDatabase'
 import type { Language } from '../../i18n'
 import { WalletMinimalIcon } from '@/components/WalletMinimalIcon'
@@ -371,7 +373,13 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [authInitialMode, setAuthInitialMode] = useState<'login' | 'signup' | 'forgot_pin'>('login')
   const [screen, setScreen] = useState<MobileTab>('home')
   const [theme] = useState<ThemeMode>('light')
-  const [profile, setProfile] = useState<UserProfile>(initialUserProfile)
+  const [profile, setProfile] = useState<UserProfile>(() => {
+    const savedAvatar = typeof window !== 'undefined' ? localStorage.getItem('pethar_user_avatar') || '' : ''
+    return {
+      ...initialUserProfile,
+      avatarUrl: savedAvatar || initialUserProfile.avatarUrl,
+    }
+  })
 
   // Verification State: KYC Level 1 vs KYC Level 2 (no Level 3)
   const [isVerified, setIsVerified] = useState<boolean>(() => {
@@ -464,26 +472,44 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           phone: up.phone,
           petharId: up.uid || prev.petharId,
           uid: up.uid || prev.uid || '',
+          avatarUrl: up.avatar_url || prev.avatarUrl || (typeof window !== 'undefined' ? localStorage.getItem('pethar_user_avatar') || '' : ''),
         }))
       }
     })
 
-    // 3. Fetch favorite contacts from Supabase table
-    fetchFavoriteContactsFromDb().then((dbContacts) => {
-      if (isMounted && dbContacts.length > 0) {
-        setRecentPayContacts(
-          dbContacts.map((c) => ({
-            id: c.id,
-            name: c.name,
-            username: c.username,
-            uid: c.uid,
-            category: (c.category || 'friends') as any,
-            initials: c.initials || c.name.slice(0, 2).toUpperCase(),
-            avatarUrl: c.avatar_url || '',
-          }))
-        )
-      }
-    })
+    // 3. Fetch favorite contacts from Supabase table for this user
+    const currentUid = profile?.uid
+    if (currentUid) {
+      fetchFavoriteContactsFromDb(currentUid).then((dbContacts) => {
+        if (isMounted && dbContacts.length > 0) {
+          setRecentPayContacts(
+            dbContacts.map((c) => ({
+              id: c.id,
+              name: c.name,
+              username: c.username,
+              uid: c.uid,
+              category: (c.category || 'friends') as any,
+              initials: c.initials || c.name.slice(0, 2).toUpperCase(),
+              avatarUrl: c.avatar_url || '',
+            }))
+          )
+          setFavouriteList(
+            dbContacts.map((c) => ({
+              id: c.uid || c.id,
+              name: c.name,
+              fullName: c.name,
+              mm: (c as any).note || c.name,
+              note: (c as any).note || '',
+              phone: c.phone || '',
+              initials: c.initials || c.name.slice(0, 2).toUpperCase(),
+              bg: 'from-[#38BDF8] to-[#0284C7]',
+              bank: 'Péthar Wallet',
+              category: (c.category || 'Friends') as any,
+            }))
+          )
+        }
+      })
+    }
 
     // 4. Subscribe to Realtime Supabase changes
     const unsubscribe = subscribeToTransactions((newTx) => {
@@ -531,6 +557,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const streamRef = useRef<MediaStream | null>(null)
   const galleryInputRef = useRef<HTMLInputElement | null>(null)
 
+  // Home Profile Photo Popup States
+  const [showChangePhotoModal, setShowChangePhotoModal] = useState<boolean>(false)
+  const homeCameraInputRef = useRef<HTMLInputElement | null>(null)
+  const homeGalleryInputRef = useRef<HTMLInputElement | null>(null)
+
   // Pay Interface (Picture 1 & Picture 2 Layout) States
   const [payStep, setPayStep] = useState<'input' | 'detail' | 'success'>('input')
   const [payRecipient, setPayRecipient] = useState({
@@ -557,14 +588,15 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     return () => window.clearInterval(timer)
   }, [])
 
-  const [recentPayContacts, setRecentPayContacts] = useState([
-    { id: 'REC-1', name: 'Zaw Myo Htet', username: '@zawmyo', uid: '202610190002', category: 'family' as const, initials: 'ZH', avatarUrl: '' },
-    { id: 'REC-2', name: 'Ko Min Aung', username: '@minaung', uid: '202610190003', category: 'friends' as const, initials: 'MA', avatarUrl: '' },
-    { id: 'REC-3', name: 'Ma Hnin Nu', username: '@hninnu', uid: '202610190004', category: 'friends' as const, initials: 'HN', avatarUrl: '' },
-    { id: 'REC-4', name: 'Daw Saw Mya', username: '@sawmya', uid: '202610190005', category: 'family' as const, initials: 'SM', avatarUrl: '' },
-    { id: 'REC-5', name: 'U Ba Thein', username: '@bathein', uid: '202610190006', category: 'other' as const, initials: 'BT', avatarUrl: '' },
-    { id: 'REC-6', name: 'Ko Kyaw Sein', username: '@kyawsein', uid: '202610190007', category: 'other' as const, initials: 'KS', avatarUrl: '' },
-  ])
+  const [recentPayContacts, setRecentPayContacts] = useState<Array<{
+    id: string
+    name: string
+    username: string
+    uid: string
+    category: 'family' | 'friends' | 'other'
+    initials: string
+    avatarUrl: string
+  }>>([])
   const [paySuccessTx, setPaySuccessTx] = useState<Txn | null>(null)
 
   // Topup screen states
@@ -621,63 +653,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     bg: string
     bank: string
     category: 'Personal' | 'Family' | 'Friends' | 'Business'
-  }>>([
-    {
-      id: '202610190002',
-      name: 'user',
-      fullName: 'user',
-      mm: 'အသုံးပြုသူ',
-      phone: '09123456789',
-      initials: 'U',
-      bg: 'from-[#38BDF8] to-[#0284C7]',
-      bank: 'Péthar Wallet',
-      category: 'Personal',
-    },
-    {
-      id: '202610190003',
-      name: 'User',
-      fullName: 'User',
-      mm: 'မြတ်စိုး',
-      phone: '09951234567',
-      initials: 'MS',
-      bg: 'from-blue-500 to-indigo-600',
-      bank: 'KBZPay',
-      category: 'Family',
-    },
-    {
-      id: '202610190004',
-      name: 'TONY',
-      fullName: 'Tony',
-      mm: 'တိုနီ',
-      phone: '09781122334',
-      initials: 'TN',
-      bg: 'from-emerald-500 to-teal-600',
-      bank: 'Wave Money',
-      category: 'Friends',
-    },
-    {
-      id: '202610190005',
-      name: 'CIMB WIRE',
-      fullName: 'CIMB Wire',
-      mm: 'စီအိုင်အမ်ဘီ',
-      phone: '+66 81 234 5678',
-      initials: 'CB',
-      bg: 'from-rose-500 to-[#D91624]',
-      bank: 'CIMB Bank',
-      category: 'Business',
-    },
-    {
-      id: '202610190006',
-      name: 'KO MIN AUNG',
-      fullName: 'Ko Min Aung',
-      mm: 'မင်းအောင်',
-      phone: '09440112233',
-      initials: 'MA',
-      bg: 'from-amber-500 to-orange-600',
-      bank: 'AYA Pay',
-      category: 'Business',
-    },
-  ])
+  }>>([])
 
   const [favSearchQuery, setFavSearchQuery] = useState<string>('')
   const [favCategoryFilter, setFavCategoryFilter] = useState<string>('All')
@@ -1120,6 +1096,33 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     setTimeout(() => setIsRefreshingWallet(false), 700)
   }
 
+  const handleProfilePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = async () => {
+      const base64 = typeof reader.result === 'string' ? reader.result : ''
+      if (!base64) return
+      setProfile((prev) => ({ ...prev, avatarUrl: base64 }))
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pethar_user_avatar', base64)
+      }
+      try {
+        await updateUserAvatarInDb(profile.uid || profile.petharId, base64)
+      } catch (err) {
+        console.warn('Failed to update avatar in DB:', err)
+      }
+      triggerSettingsToast(
+        isAk
+          ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ'
+          : 'Profile photo updated successfully!'
+      )
+      setShowChangePhotoModal(false)
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
   const usdAccountTxns = useMemo(() => {
     return liveTransactions.filter((tx) => {
       const cur = (tx.currency || '').toUpperCase()
@@ -1319,15 +1322,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       <div className="min-h-full bg-gradient-to-b from-[#FFF5F5] via-[#F8FAFC] to-[#F4F6F9] text-zinc-900 pb-10">
         {/* 1. TOP HEADER BAR: (User Photo) | (App Logo) | (Noti Bell) | (Logout & Close) */}
         <div className="px-4 pt-3.5 pb-2 relative flex items-center justify-between">
-          {/* Left: Circular User Photo */}
+          {/* Left: Circular User Photo - Opens Change Profile Photo Popup */}
           <button
             type="button"
-            onClick={() => {
-              setAccountSubScreen('main')
-              setScreen('account')
-            }}
-            aria-label="User Profile Photo"
-            title={profile.name || 'User Profile'}
+            onClick={() => setShowChangePhotoModal(true)}
+            aria-label="Change profile photo"
+            title={isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ ပြောင်းရန်' : 'Change profile photo'}
             className="w-11 h-11 rounded-full overflow-hidden border-2 border-[#D91624]/30 bg-white shadow-xs flex items-center justify-center active:scale-95 transition cursor-pointer shrink-0 z-10"
           >
             {profile.avatarUrl ? (
@@ -1608,6 +1608,21 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   {isAk ? 'ထည့်ရန်' : 'Add'}
                 </span>
               </button>
+
+              {favouriteUsers.length === 0 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    requireVerified(isAk ? 'စိတ်ကြိုက်များ' : 'Favorites', () => {
+                      setScreen('favourites')
+                    })
+                  }
+                  className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-zinc-50 border border-zinc-200 text-xs font-semibold text-zinc-600 hover:border-[#D91624] transition shrink-0 cursor-pointer"
+                >
+                  <UserPlus size={15} className="text-[#D91624]" />
+                  <span>{isAk ? 'စိတ်ကြိုက်လက်ခံသူ အသစ်ထည့်ပါ' : 'Add your first favourite recipient'}</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -7585,6 +7600,117 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   className="py-3 rounded-full bg-gradient-to-r from-[#FF7A00] to-[#F97316] text-white font-bold text-sm shadow-[0_6px_18px_rgba(249,115,22,0.35)] hover:brightness-105 transition cursor-pointer"
                 >
                   {isAk ? 'ထွက်မည်' : 'Sign Out'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Change Profile Photo Modal (Home Screen Popup) */}
+        {showChangePhotoModal && (
+          <div
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+            onClick={() => setShowChangePhotoModal(false)}
+          >
+            <div
+              className="w-full max-w-sm bg-white rounded-t-[32px] sm:rounded-[28px] p-6 shadow-2xl border border-zinc-100 flex flex-col animate-in slide-in-from-bottom duration-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Mobile Drag Indicator */}
+              <div className="w-10 h-1 bg-zinc-200 rounded-full mx-auto mb-4 sm:hidden" />
+
+              {/* Title Header */}
+              <div className="flex items-center justify-between pb-3.5 border-b border-zinc-100">
+                <div>
+                  <h3 className="text-base font-extrabold text-zinc-900">
+                    {isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ ပြောင်းရန်' : 'Change profile photo'}
+                  </h3>
+                  <p className="text-xs text-zinc-500 font-medium mt-0.5">
+                    {isAk ? 'ကင်မရာ သို့မဟုတ် ဖုန်းပြခန်းမှ ရွေးချယ်ပါ' : 'Select an option to update your photo'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowChangePhotoModal(false)}
+                  className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Hidden File Inputs */}
+              <input
+                ref={homeCameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="user"
+                className="hidden"
+                onChange={handleProfilePhotoFileChange}
+              />
+              <input
+                ref={homeGalleryInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfilePhotoFileChange}
+              />
+
+              {/* Options List */}
+              <div className="space-y-2.5 pt-4">
+                {/* 1. Take Photo */}
+                <button
+                  type="button"
+                  onClick={() => homeCameraInputRef.current?.click()}
+                  className="w-full p-3.5 rounded-2xl bg-zinc-50 hover:bg-red-50/60 border border-zinc-200/80 hover:border-[#D91624]/40 flex items-center justify-between group active:scale-[0.98] transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-xl bg-red-100 text-[#D91624] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                      <Camera size={20} strokeWidth={2.2} />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-sm font-bold text-zinc-900 group-hover:text-[#D91624] transition-colors">
+                        {isAk ? 'ကင်မရာဖြင့် ဓာတ်ပုံရိုက်မည်' : 'Take Photo'}
+                      </div>
+                      <div className="text-xs text-zinc-500">
+                        {isAk ? 'ဖုန်းကင်မရာ ဖွင့်ရန်' : 'Open camera to capture'}
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} className="text-zinc-400 group-hover:text-[#D91624] transition-colors" />
+                </button>
+
+                {/* 2. Choose Photo */}
+                <button
+                  type="button"
+                  onClick={() => homeGalleryInputRef.current?.click()}
+                  className="w-full p-3.5 rounded-2xl bg-zinc-50 hover:bg-sky-50/60 border border-zinc-200/80 hover:border-sky-500/40 flex items-center justify-between group active:scale-[0.98] transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-xl bg-sky-100 text-[#0284C7] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                      <ImageIcon size={20} strokeWidth={2.2} />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-sm font-bold text-zinc-900 group-hover:text-[#0284C7] transition-colors">
+                        {isAk ? 'ဖုန်းပြခန်းမှ ဓာတ်ပုံရွေးမည်' : 'Choose Photo'}
+                      </div>
+                      <div className="text-xs text-zinc-500">
+                        {isAk ? 'ပြခန်းမှ ဓာတ်ပုံ ရွေးချယ်ရန်' : 'Select from photo library'}
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} className="text-zinc-400 group-hover:text-[#0284C7] transition-colors" />
+                </button>
+              </div>
+
+              {/* 3. Cancel */}
+              <div className="pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowChangePhotoModal(false)}
+                  className="w-full py-3 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-sm transition cursor-pointer active:scale-[0.98]"
+                >
+                  {isAk ? 'မလုပ်တော့ပါ' : 'Cancel'}
                 </button>
               </div>
             </div>

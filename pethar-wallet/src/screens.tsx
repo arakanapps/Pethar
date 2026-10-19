@@ -156,20 +156,56 @@ export function Home({
   lang,
   profile,
   theme = 'light',
+  onUpdateProfile,
 }: {
   go: (s: Screen) => void
   lang: Language
   _onOpenLegal?: (doc: 'terms' | 'privacy' | 'guidelines' | 'fx') => void
   profile?: UserProfile
   theme?: ThemeMode
+  onUpdateProfile?: (p: UserProfile) => void
 }) {
   const [hidden, setHidden] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [loggedOutToast, setLoggedOutToast] = useState(false)
+  const [showChangePhotoModal, setShowChangePhotoModal] = useState(false)
+  const [avatarToast, setAvatarToast] = useState(false)
+  const homeCameraInputRef = useRef<HTMLInputElement | null>(null)
+  const homeGalleryInputRef = useRef<HTMLInputElement | null>(null)
   const { unread } = useNotifications()
   const isAk = lang === 'ak'
   const w = wallets[0]
-  const currentProfile = profile || initialUserProfile
+  const [currentProfileState, setCurrentProfileState] = useState<UserProfile>(() => {
+    const savedAvatar = typeof window !== 'undefined' ? localStorage.getItem('pethar_user_avatar') || '' : ''
+    return {
+      ...(profile || initialUserProfile),
+      avatarUrl: savedAvatar || (profile || initialUserProfile).avatarUrl,
+    }
+  })
+  const currentProfile = currentProfileState
+
+  const handleProfilePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const base64 = typeof reader.result === 'string' ? reader.result : ''
+      if (!base64) return
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pethar_user_avatar', base64)
+      }
+      const updated = { ...currentProfile, avatarUrl: base64 }
+      setCurrentProfileState(updated)
+      if (onUpdateProfile) {
+        onUpdateProfile(updated)
+      }
+      setAvatarToast(true)
+      setTimeout(() => setAvatarToast(false), 3000)
+      setShowChangePhotoModal(false)
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
 
   const primaryActions = [
     { id: 'scan' as Screen, label: isAk ? 'ငွေပေးချေ' : 'Pay', icon: WalletMinimalIcon },
@@ -245,9 +281,10 @@ export function Home({
       {/* 1. Top Header Row: (User Photo) | (App Logo) | (Noti Bell) | (Logout & Close) */}
       <div className="px-4 pt-3.5 pb-2 relative flex items-center justify-between">
         <button
-          onClick={() => go('settings')}
-          className="w-11 h-11 rounded-full overflow-hidden border-2 border-[#D91624]/30 bg-white shadow-xs flex items-center justify-center active:scale-95 transition shrink-0 z-10"
-          title={currentProfile.name || 'Profile'}
+          type="button"
+          onClick={() => setShowChangePhotoModal(true)}
+          className="w-11 h-11 rounded-full overflow-hidden border-2 border-[#D91624]/30 bg-white shadow-xs flex items-center justify-center active:scale-95 transition shrink-0 z-10 cursor-pointer"
+          title={isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ ပြောင်းရန်' : 'Change profile photo'}
         >
           {currentProfile.avatarUrl ? (
             <img
@@ -492,6 +529,125 @@ export function Home({
         <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-red-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-red-400">
           <Check size={14} />
           <span>{isAk ? 'အကောင့်ထွက်ပြီးပါပြီ' : 'Logged out securely'}</span>
+        </div>
+      )}
+
+      {/* Avatar Updated Toast */}
+      {avatarToast && (
+        <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-emerald-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-emerald-400">
+          <Check size={14} />
+          <span>{isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'Profile photo updated successfully!'}</span>
+        </div>
+      )}
+
+      {/* Change Profile Photo Modal Popup */}
+      {showChangePhotoModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowChangePhotoModal(false)}
+        >
+          <div
+            className="w-full max-w-sm bg-white rounded-t-[32px] sm:rounded-[28px] p-6 shadow-2xl border border-zinc-100 flex flex-col animate-in slide-in-from-bottom duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Mobile Drag Indicator */}
+            <div className="w-10 h-1 bg-zinc-200 rounded-full mx-auto mb-4 sm:hidden" />
+
+            {/* Title Header */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-zinc-100">
+              <div>
+                <h3 className="text-base font-extrabold text-zinc-900">
+                  {isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ ပြောင်းရန်' : 'Change profile photo'}
+                </h3>
+                <p className="text-xs text-zinc-500 font-medium mt-0.5">
+                  {isAk ? 'ကင်မရာ သို့မဟုတ် ဖုန်းပြခန်းမှ ရွေးချယ်ပါ' : 'Select an option to update your photo'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowChangePhotoModal(false)}
+                className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition cursor-pointer"
+                aria-label="Close"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Hidden File Inputs */}
+            <input
+              ref={homeCameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="user"
+              className="hidden"
+              onChange={handleProfilePhotoChange}
+            />
+            <input
+              ref={homeGalleryInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleProfilePhotoChange}
+            />
+
+            {/* Options List */}
+            <div className="space-y-2.5 pt-4">
+              {/* 1. Take Photo */}
+              <button
+                type="button"
+                onClick={() => homeCameraInputRef.current?.click()}
+                className="w-full p-3.5 rounded-2xl bg-zinc-50 hover:bg-red-50/60 border border-zinc-200/80 hover:border-[#D91624]/40 flex items-center justify-between group active:scale-[0.98] transition cursor-pointer"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-red-100 text-[#D91624] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                    <Camera size={20} strokeWidth={2.2} />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-zinc-900 group-hover:text-[#D91624] transition-colors">
+                      {isAk ? 'ကင်မရာဖြင့် ဓာတ်ပုံရိုက်မည်' : 'Take Photo'}
+                    </div>
+                    <div className="text-xs text-zinc-500">
+                      {isAk ? 'ဖုန်းကင်မရာ ဖွင့်ရန်' : 'Open camera to capture'}
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight size={18} className="text-zinc-400 group-hover:text-[#D91624] transition-colors" />
+              </button>
+
+              {/* 2. Choose Photo */}
+              <button
+                type="button"
+                onClick={() => homeGalleryInputRef.current?.click()}
+                className="w-full p-3.5 rounded-2xl bg-zinc-50 hover:bg-sky-50/60 border border-zinc-200/80 hover:border-sky-500/40 flex items-center justify-between group active:scale-[0.98] transition cursor-pointer"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-sky-100 text-[#0284C7] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                    <ImagePlus size={20} strokeWidth={2.2} />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-zinc-900 group-hover:text-[#0284C7] transition-colors">
+                      {isAk ? 'ဖုန်းပြခန်းမှ ဓာတ်ပုံရွေးမည်' : 'Choose Photo'}
+                    </div>
+                    <div className="text-xs text-zinc-500">
+                      {isAk ? 'ပြခန်းမှ ဓာတ်ပုံ ရွေးချယ်ရန်' : 'Select from photo library'}
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight size={18} className="text-zinc-400 group-hover:text-[#0284C7] transition-colors" />
+              </button>
+            </div>
+
+            {/* 3. Cancel */}
+            <div className="pt-4">
+              <button
+                type="button"
+                onClick={() => setShowChangePhotoModal(false)}
+                className="w-full py-3 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-sm transition cursor-pointer active:scale-[0.98]"
+              >
+                {isAk ? 'မလုပ်တော့ပါ' : 'Cancel'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -189,7 +189,7 @@ class AuthService {
         pin: '123456',
         name: cleanEmail.contains('@') ? cleanEmail.split('@').first : 'User',
         username: cleanEmail.contains('@') ? cleanEmail.split('@').first : 'user',
-        uid: '202610190001',
+        uid: generateUserUid(userCount: _users.length + 1),
         kycTier: 2,
         kycStatus: 'VERIFIED_LVL2',
       );
