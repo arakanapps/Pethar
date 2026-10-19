@@ -367,11 +367,27 @@ export async function registerWithEmailAndPin(params: {
       kyc_status: 'email_verified',
     }
 
-    // Try inserting into Supabase
+    // Try inserting into Supabase user_profiles
     const { data, error } = await db.from('user_profiles').insert(newProfile).select().maybeSingle()
 
     if (error) {
       console.warn('Could not insert to user_profiles table (using local persistence):', error.message)
+    }
+
+    // Also insert into users table for multi-table directory synchronization
+    try {
+      await db.from('users').insert({
+        uid: newUid,
+        username: cleanUsername,
+        email: cleanEmail,
+        first_name: cleanName.split(' ')[0] || cleanName,
+        last_name: cleanName.split(' ').slice(1).join(' ') || '',
+        full_name: cleanName,
+        kyc_tier: 1,
+        status: 'ACTIVE',
+      })
+    } catch (uErr) {
+      console.warn('Could not insert to users table:', uErr)
     }
 
     if (typeof window !== 'undefined') {
@@ -390,6 +406,45 @@ export async function registerWithEmailAndPin(params: {
   } catch (err: any) {
     console.error('Registration exception:', err)
     return { success: false, error: err.message || 'REGISTRATION_FAILED' }
+  }
+}
+
+/**
+ * Update user email in Supabase (updates both user_profiles and users tables)
+ */
+export async function updateUserEmailInDb(
+  uid: string,
+  newEmail: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cleanEmail = newEmail.trim().toLowerCase()
+    const { error: profileError } = await db
+      .from('user_profiles')
+      .update({ email: cleanEmail, updated_at: new Date().toISOString() })
+      .eq('uid', uid)
+
+    if (profileError) {
+      console.warn('Could not update user_profiles email in Supabase:', profileError.message)
+    }
+
+    const { error: userError } = await db
+      .from('users')
+      .update({ email: cleanEmail, updated_at: new Date().toISOString() })
+      .eq('uid', uid)
+
+    if (userError) {
+      console.warn('Could not update users table email in Supabase:', userError.message)
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pethar_active_email', cleanEmail)
+      localStorage.setItem('pethar_saved_email', cleanEmail)
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('Update email exception:', err)
+    return { success: false, error: err.message || 'EMAIL_UPDATE_FAILED' }
   }
 }
 

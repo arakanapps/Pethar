@@ -90,90 +90,90 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
     final content = Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 6, 20, 16),
+        padding: const EdgeInsets.fromLTRB(20, 48, 20, 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 1. App Logo + App Name (No background container)
-            const ArakanEmblem(size: 38),
-            const SizedBox(height: 3),
+            const ArakanEmblem(size: 44),
+            const SizedBox(height: 6),
             const Text(
               'Péthar',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 14.5,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF18181B),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 14),
 
             // 2. User Name & @username
             Text(
               appState.profile.name,
               style: const TextStyle(
-                fontSize: 17,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF18181B),
               ),
             ),
-            const SizedBox(height: 1),
+            const SizedBox(height: 3),
             Text(
               usernameHandle,
               style: const TextStyle(
-                fontSize: 11.5,
+                fontSize: 12.5,
                 fontFamily: 'monospace',
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF71717A),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
 
             // 3. QR Code Box
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: const Color(0xFFE4E4E7), width: 1.5),
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0xFF0F172A).withValues(alpha: 0.06),
-                    blurRadius: 20,
-                    offset: const Offset(0, 6),
+                    blurRadius: 22,
+                    offset: const Offset(0, 7),
                   ),
                 ],
               ),
               child: QrImageView(
                 data: 'pethar://pay?uid=$uidNumber&user=$usernameHandle&curr=AKD',
                 version: QrVersions.auto,
-                size: 165.0,
+                size: 170.0,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
 
             // 4. Wallet Address
             Text(
               isAk ? 'ပိုက်ဆံအိတ် လိပ်စာ' : 'Wallet Address',
               style: const TextStyle(
-                fontSize: 10.5,
+                fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFFA1A1AA),
                 letterSpacing: 0.6,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 3),
             Text(
               uidNumber,
               style: const TextStyle(
                 fontFamily: 'monospace',
-                fontSize: 16,
+                fontSize: 16.5,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.8,
                 color: Color(0xFF18181B),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
             // 5. Bottom Action Buttons: [ Copy ] & [ Save ]
             SizedBox(

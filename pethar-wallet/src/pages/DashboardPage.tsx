@@ -1295,7 +1295,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             }`}
           >
             <Layers size={20} />
-            <span>{ak ? 'ဝန်ဆောင်မှု' : 'Services'}</span>
+            <span className="truncate">{ak ? 'ဝန်ဆောင်မှု' : 'Service'}</span>
           </button>
 
           {/* 5. Account */}

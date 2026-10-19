@@ -5,17 +5,17 @@ import {
 import {
   ArrowUpRight, ArrowDownLeft, QrCode, Store, Eye, EyeOff,
   ChevronRight, Copy, Check,
-  Fingerprint, ScanLine, Globe, Coins, Flashlight, ImagePlus,
-  Clock, CreditCard, Lock, Shield,
+  Fingerprint, ScanLine, Globe, Flashlight, ImagePlus,
+  Clock, CreditCard, Shield,
   Plus, X, LogOut,
   Download,
-  Receipt, User, Sun, KeyRound, ShieldCheck,
+  Receipt, User, Sun, KeyRound, ShieldCheck, Camera,
   Bell, ArrowLeftRight, Share2, PieChart,
   ChevronLeft, BellOff, Sparkles, CheckCheck, Trash2, MoreVertical, RotateCcw,
   History as HistoryIcon,
-  Search, SmartphoneCharging, Send as SendIcon, Heart, Landmark, Layers, MonitorSmartphone
+  Layers, Radio
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { FakeQR } from './components/FakeQR'
 import { ArakanEmblem, FlagArakan, FlagInternational } from './components/ArakanEmblem'
 import { TransactionSlip } from './components/TransactionSlip'
@@ -63,6 +63,7 @@ export type Screen =
   | 'bills'
   | 'favourites'
   | 'financial'
+  | 'offlinePayment'
 
 // ── Shared Header ───────────────────────────────────────────────────────
 export function ScreenHeader({
@@ -817,9 +818,9 @@ export function AccountScreen({
   )
 }
 
-// ── SERVICES SCREEN (Comprehensive, Premium Financial Directory) ────────
+// ── SERVICES SCREEN (Product & Service - Centered, 4 Core Items) ────────
 export function ServicesScreen({
-  go,
+  go: _go,
   lang,
   theme = 'light',
 }: {
@@ -827,254 +828,112 @@ export function ServicesScreen({
   lang: Language
   theme?: ThemeMode
 }) {
+  void _go
   const isAk = lang === 'ak'
   const isLight = theme === 'light'
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<
-    'all' | 'payments' | 'topup_bills' | 'banking' | 'crypto_pos' | 'security'
-  >('all')
+  const [giftCardOpen, setGiftCardOpen] = useState(false)
+  const [miniAppsOpen, setMiniAppsOpen] = useState(false)
+  const [giftTab, setGiftTab] = useState<'all' | 'games' | 'itunes' | 'viber'>('all')
+  const [selectedGiftCard, setSelectedGiftCard] = useState<any | null>(null)
+  const [selectedGiftPkg, setSelectedGiftPkg] = useState<string>('')
+  const [playerId, setPlayerId] = useState('')
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
 
-  const serviceCategories = [
+  const showComingSoon = (title: string) => {
+    setToastMsg(isAk ? `${title} - မကြာမီ လာမည်ဖြစ်ပါသည်` : `${title} is Coming Soon...`)
+    setTimeout(() => {
+      setToastMsg((prev) => (prev ? null : prev))
+    }, 2500)
+  }
+
+  // Partner Apps State
+  const [partnerApps, setPartnerApps] = useState([
     {
-      id: 'payments' as const,
-      titleEn: 'Payments & Transfers',
-      titleMm: 'ငွေလွှဲနှင့် ငွေပေးချေမှုစနစ်များ',
-      descEn: 'Instant P2P, merchant QR payment, and recipient lists',
-      descMm: 'ချက်ချင်းငွေလွှဲ၊ ဆိုင်ငွေပေးချေမှုနှင့် စိတ်ကြိုက်စာရင်းများ',
-      items: [
-        {
-          id: 'send' as Screen,
-          nameEn: 'P2P Send Money',
-          nameMm: 'ငွေလွှဲမည် (P2P Transfer)',
-          descEn: 'Send instantly to phone number, Account ID, or Arakan UID',
-          descMm: 'မည်သည့် ဖုန်းနံပါတ်၊ အကောင့်နံပါတ် သို့မဟုတ် ရခိုင် UID သို့မဆို ချက်ချင်းငွေလွှဲပါ',
-          tagEn: 'Instant',
-          tagMm: 'ချက်ချင်း',
-          icon: SendIcon,
-          color: 'from-emerald-500 to-teal-600',
-          badgeColor: 'bg-emerald-50 text-emerald-600 border-emerald-200/60',
-        },
-        {
-          id: 'receive' as Screen,
-          nameEn: 'Receive Money & QR',
-          nameMm: 'ငွေလက်ခံမည် (Receive & QR)',
-          descEn: 'Generate personal QR code, Arakan ID address, or payment link',
-          descMm: 'ကိုယ်ပိုင် QR ကုဒ်၊ ရခိုင် ID လိပ်စာ သို့မဟုတ် ငွေလက်ခံလင့်ခ် ထုတ်ယူပါ',
-          tagEn: 'QR & Link',
-          tagMm: 'QR ကုဒ်',
-          icon: QrCode,
-          color: 'from-blue-500 to-cyan-600',
-          badgeColor: 'bg-blue-50 text-blue-600 border-blue-200/60',
-        },
-        {
-          id: 'pay' as Screen,
-          nameEn: 'Scan & Merchant Pay',
-          nameMm: 'စကင်ဖတ်၍ ငွေချေမည် (Scan & Pay)',
-          descEn: 'Scan store QR codes, bill invoices, or merchant counters across Arakan',
-          descMm: 'ရခိုင်ပြည်နယ်အတွင်း ဆိုင်များနှင့် မိတ်ဆွေများ၏ QR ကုဒ်ကို စကင်ဖတ်၍ ငွေချေပါ',
-          tagEn: 'Merchant Pay',
-          tagMm: 'ဆိုင်ငွေချေ',
-          icon: ScanLine,
-          color: 'from-red-500 to-rose-600',
-          badgeColor: 'bg-red-50 text-red-600 border-red-200/60',
-        },
-        {
-          id: 'favourites' as Screen,
-          nameEn: 'Saved Recipients',
-          nameMm: 'စိတ်ကြိုက် စာရင်းများ (Favourites)',
-          descEn: 'Fast 1-tap transfers to frequent friends, family, and merchant contacts',
-          descMm: 'ပုံမှန်ငွေလွှဲနေကျ မိသားစု၊ မိတ်ဆွေများနှင့် ဆိုင်များသို့ တစ်ချက်နှိပ်ရုံဖြင့် လွှဲနိုင်သည်',
-          tagEn: 'Quick Send',
-          tagMm: 'အမြန်လွှဲ',
-          icon: Heart,
-          color: 'from-pink-500 to-rose-500',
-          badgeColor: 'bg-pink-50 text-pink-600 border-pink-200/60',
-        },
-      ],
+      name: 'Sittwe Fresh Mart',
+      category: 'E-Commerce & Food',
+      desc: 'Local fresh groceries & produce delivered to your door',
+      color: 'from-emerald-500 to-teal-600',
     },
     {
-      id: 'topup_bills' as const,
-      titleEn: 'Airtime & Utility Bills',
-      titleMm: 'ဖုန်းဘေလ်ဖြည့်နှင့် အသုံးစရိတ်ပေးဆောင်မှု',
-      descEn: 'Mobile packages, electricity, water supply, fiber internet and TV',
-      descMm: 'ဖုန်းလိုင်းအားလုံး၊ မီးဘေလ်၊ ရေဘေလ်၊ ဖိုင်ဘာအင်တာနက်နှင့် ရုပ်သံလိုင်းများ',
-      items: [
-        {
-          id: 'topup' as Screen,
-          nameEn: 'Mobile Top-Up & Data',
-          nameMm: 'ဖုန်းဘေလ်နှင့် ဒေတာဖြည့်ရန်',
-          descEn: 'MPT, ATOM, Ooredoo & MyTel instant airtime reload and data packs',
-          descMm: 'MPT, ATOM, Ooredoo, MyTel ဖုန်းဘေလ်နှင့် အထူးဒေတာပက်ကေ့ချ်များ ချက်ချင်းဖြည့်ပါ',
-          tagEn: 'All Telcos',
-          tagMm: 'လိုင်းအားလုံး',
-          icon: SmartphoneCharging,
-          color: 'from-violet-500 to-purple-600',
-          badgeColor: 'bg-violet-50 text-violet-600 border-violet-200/60',
-        },
-        {
-          id: 'bills' as Screen,
-          nameEn: 'Utility & Bill Payments',
-          nameMm: 'ဘေလ်ပေးဆောင်ရန် (Bills)',
-          descEn: 'Electricity, municipal water, high-speed fiber internet, and streaming TV',
-          descMm: 'လျှပ်စစ်မီးဘေလ်၊ စည်ပင်ရေဘေလ်၊ ဖိုင်ဘာအင်တာနက်လိုင်းများနှင့် ရုပ်သံလိုင်းများ ဘေလ်ဆောင်ပါ',
-          tagEn: 'Zero Fee',
-          tagMm: 'အခမဲ့',
-          icon: Receipt,
-          color: 'from-amber-500 to-orange-600',
-          badgeColor: 'bg-amber-50 text-amber-600 border-amber-200/60',
-        },
-      ],
+      name: 'Arakan Express Bus',
+      category: 'Travel & Ticketing',
+      desc: 'Inter-town express bus tickets (Sittwe, Mrauk-U, Kyaukpyu)',
+      color: 'from-blue-500 to-indigo-600',
     },
     {
-      id: 'banking' as const,
-      titleEn: 'Cash & Multi-Currency Banking',
-      titleMm: 'ငွေသားထုတ်ယူမှုနှင့် နိုင်ငံခြားငွေစာရင်း',
-      descEn: 'Agent network cash settlement, multi-currency accounts and statements',
-      descMm: 'အေးဂျင့်ငွေသားထုတ်ယူမှု၊ နိုင်ငံခြားငွေစာရင်းနှင့် ငွေစာရင်းရှင်းတမ်းများ',
-      items: [
-        {
-          id: 'cashout' as Screen,
-          nameEn: 'Agent Cash-Out & Cash-In',
-          nameMm: 'အေးဂျင့်မှ ငွေသားထုတ်ယူ / ငွေသွင်း',
-          descEn: 'Physical cash at verified agents across Sittwe, Mrauk-U, Kyaukpyu & Ramree',
-          descMm: 'စစ်တွေ၊ မြောက်ဦး၊ ကျောက်ဖြူ၊ ရမ်းဗြဲမြို့နယ်များရှိ အေးဂျင့်များတွင် ငွေသားထုတ်/သွင်းနိုင်သည်',
-          tagEn: 'Physical Cash',
-          tagMm: 'ငွေသား',
-          icon: Store,
-          color: 'from-emerald-500 to-teal-600',
-          badgeColor: 'bg-emerald-50 text-emerald-600 border-emerald-200/60',
-        },
-        {
-          id: 'financial' as Screen,
-          nameEn: 'USD & Foreign Accounts',
-          nameMm: 'USD နှင့် နိုင်ငံခြားငွေစာရင်း',
-          descEn: 'Multi-currency balances, USD virtual debit cards, conversions and yields',
-          descMm: 'USD ဒေါ်လာစာရင်း၊ ဗာချူရယ်ကတ်များ၊ နိုင်ငံခြားငွေလဲလှယ်မှုနှင့် အတိုးနှုန်းများ',
-          tagEn: 'USD Account',
-          tagMm: 'နိုင်ငံခြားငွေ',
-          icon: CreditCard,
-          color: 'from-blue-600 to-indigo-700',
-          badgeColor: 'bg-blue-50 text-blue-600 border-blue-200/60',
-        },
-        {
-          id: 'history' as Screen,
-          nameEn: 'Statements & Verified Slips',
-          nameMm: 'ငွေစာရင်းရှင်းတမ်းနှင့် ပြေစာများ',
-          descEn: 'Official digital transaction slips, PDF receipts, and monthly activity ledger',
-          descMm: 'တရားဝင် ဒစ်ဂျစ်တယ်ပြေစာများ၊ PDF ထုတ်ယူမှုနှင့် လစဉ် ငွေစာရင်းမှတ်တမ်းများ',
-          tagEn: 'Verified Ledger',
-          tagMm: 'မှတ်တမ်း',
-          icon: HistoryIcon,
-          color: 'from-slate-600 to-zinc-700',
-          badgeColor: 'bg-zinc-100 text-zinc-700 border-zinc-200/60',
-        },
-      ],
+      name: 'Rakhine Health & Med',
+      category: 'Healthcare & Pharmacy',
+      desc: 'Digital prescriptions, clinic appointments & telehealth',
+      color: 'from-red-500 to-rose-600',
     },
     {
-      id: 'crypto_pos' as const,
-      titleEn: 'Digital Assets & Merchant Retail',
-      titleMm: 'ဒစ်ဂျစ်တယ်ဒင်္ဂါးနှင့် အရောင်းစနစ်',
-      descEn: 'Web3 bridges, cryptocurrency gateway and retail merchant terminal',
-      descMm: 'Binance / MEXC ချိတ်ဆက်မှု၊ ဒစ်ဂျစ်တယ်ဒင်္ဂါးနှင့် အရောင်းဆိုင်စနစ်',
-      items: [
-        {
-          id: 'crypto' as Screen,
-          nameEn: 'Binance & MEXC Bridge',
-          nameMm: 'Binance / MEXC ချိတ်ဆက်မှု',
-          descEn: 'Direct 0-fee cryptocurrency deposit & withdrawal bridge (USDT/USDC/BTC)',
-          descMm: 'အခမဲ့ ချက်ချင်း အပ်နှံ/ထုတ်ယူနိုင်သော Binance နှင့် MEXC USDT ခရစ်ပတိုတံတား',
-          tagEn: '0% Web3 Bridge',
-          tagMm: '၀% ဝန်ဆောင်ခ',
-          icon: Coins,
-          color: 'from-purple-600 to-violet-700',
-          badgeColor: 'bg-purple-50 text-purple-600 border-purple-200/60',
-        },
-        {
-          id: 'pos' as Screen,
-          nameEn: 'Merchant POS Terminal',
-          nameMm: 'အရောင်းစနစ် ကောင်တာ (Merchant POS)',
-          descEn: 'Arakan retail merchant point-of-sale terminal for shops and local businesses',
-          descMm: 'ရခိုင်ဒေသတွင်း ဆိုင်များနှင့် စီးပွားရေးလုပ်ငန်းများအတွက် အရောင်းကောင်တာစနစ်',
-          tagEn: 'Retail POS',
-          tagMm: 'အရောင်းဆိုင်',
-          icon: MonitorSmartphone,
-          color: 'from-teal-600 to-cyan-700',
-          badgeColor: 'bg-teal-50 text-teal-600 border-teal-200/60',
-        },
-      ],
+      name: 'Arakan Cinema Club',
+      category: 'Entertainment & Events',
+      desc: 'Movie tickets booking & local cultural showtimes',
+      color: 'from-purple-500 to-violet-600',
+    },
+  ])
+  const [createAppModalOpen, setCreateAppModalOpen] = useState(false)
+  const [newAppName, setNewAppName] = useState('')
+  const [newAppCompany, setNewAppCompany] = useState('')
+  const [newAppCategory, setNewAppCategory] = useState('E-Commerce')
+  const [newAppUrl, setNewAppUrl] = useState('')
+  const [newAppContact, setNewAppContact] = useState('')
+
+  const giftCards = [
+    {
+      id: 'mlbb',
+      category: 'games',
+      title: 'Mobile Legends: Bang Bang',
+      subtitle: 'Diamonds & Weekly Diamond Pass',
+      price: 'From ₳ 3.50',
+      packages: ['50 Diamonds (₳ 3.50)', '250 Diamonds (₳ 16.00)', 'Weekly Pass (₳ 6.50)', '500 Diamonds (₳ 31.00)'],
     },
     {
-      id: 'security' as const,
-      titleEn: 'Security & System Alerts',
-      titleMm: 'လုံခြုံရေးနှင့် အသိပေးချက်များ',
-      descEn: 'Biometric locks, PIN protection, notifications and official notices',
-      descMm: 'လက်ဗွေ/မျက်နှာ လုံခြုံရေး၊ PIN နံပါတ်နှင့် တရားဝင် အသိပေးချက်များ',
-      items: [
-        {
-          id: 'settings' as Screen,
-          nameEn: 'Security Center & PIN',
-          nameMm: 'လုံခြုံရေး စင်တာနှင့် PIN',
-          descEn: 'Manage 2FA authentication, biometric Touch/Face ID, and transaction limits',
-          descMm: '2FA နှစ်ဆင့်လုံခြုံရေး၊ မျက်နှာ/လက်ဗွေစနစ်နှင့် ငွေလွှဲကန့်သတ်ချက်များ စီမံပါ',
-          tagEn: 'Protected',
-          tagMm: 'လုံခြုံရေး',
-          icon: ShieldCheck,
-          color: 'from-emerald-600 to-green-700',
-          badgeColor: 'bg-emerald-50 text-emerald-600 border-emerald-200/60',
-        },
-        {
-          id: 'notifications' as Screen,
-          nameEn: 'Notifications & Alerts',
-          nameMm: 'အသိပေးချက်များ (Notifications)',
-          descEn: 'Real-time transaction alerts, payment confirmations, and system announcements',
-          descMm: 'အချိန်နှင့်တပြေးညီ ငွေလွှဲအသိပေးချက်များ၊ ပြေစာများနှင့် အရေးကြီးသတင်းများ',
-          tagEn: 'Live Alerts',
-          tagMm: 'အသိပေးချက်',
-          icon: Bell,
-          color: 'from-red-500 to-rose-600',
-          badgeColor: 'bg-red-50 text-red-600 border-red-200/60',
-        },
-      ],
+      id: 'pubg',
+      category: 'games',
+      title: 'PUBG Mobile',
+      subtitle: 'Unknown Cash (UC) Direct Top-Up',
+      price: 'From ₳ 4.20',
+      packages: ['60 UC (₳ 4.20)', '325 UC (₳ 19.50)', '660 UC (₳ 37.00)', '1800 UC (₳ 85.00)'],
+    },
+    {
+      id: 'freefire',
+      category: 'games',
+      title: 'Garena Free Fire',
+      subtitle: 'Diamonds & Monthly Membership',
+      price: 'From ₳ 2.80',
+      packages: ['100 Diamonds (₳ 2.80)', '310 Diamonds (₳ 8.50)', '520 Diamonds (₳ 14.00)'],
+    },
+    {
+      id: 'itunes',
+      category: 'itunes',
+      title: 'Apple iTunes / App Store',
+      subtitle: 'US & Global Digital Gift Card',
+      price: 'From ₳ 15.50',
+      packages: ['$5 USD Card (₳ 15.50)', '$10 USD Card (₳ 30.50)', '$25 USD Card (₳ 76.00)', '$50 USD Card (₳ 152.00)'],
+    },
+    {
+      id: 'viberplus',
+      category: 'viber',
+      title: 'Viber Plus Premium',
+      subtitle: 'Exclusive Badge, No Ads, Stealth Mode',
+      price: 'From ₳ 6.00',
+      packages: ['1 Month Subscription (₳ 6.00)', '1 Year Subscription (₳ 55.00)', 'Viber Out $5 Calling (₳ 15.50)'],
+    },
+    {
+      id: 'steam',
+      category: 'games',
+      title: 'Steam Wallet USD',
+      subtitle: 'PC Games & Steam Community Market',
+      price: 'From ₳ 16.00',
+      packages: ['$5 Steam Code (₳ 16.00)', '$10 Steam Code (₳ 31.00)', '$20 Steam Code (₳ 62.00)'],
     },
   ]
 
-  const categoryTabs = [
-    { id: 'all' as const, labelEn: 'All Services', labelMm: 'အားလုံး', icon: Layers },
-    { id: 'payments' as const, labelEn: 'Transfers & Pay', labelMm: 'ငွေလွှဲ/ငွေချေ', icon: ArrowLeftRight },
-    { id: 'topup_bills' as const, labelEn: 'Top-Up & Bills', labelMm: 'ဘေလ်/ဖုန်း', icon: SmartphoneCharging },
-    { id: 'banking' as const, labelEn: 'Cash & Banking', labelMm: 'ငွေသား/ဘဏ်', icon: Landmark },
-    { id: 'crypto_pos' as const, labelEn: 'Digital Assets & POS', labelMm: 'ဒစ်ဂျစ်တယ်/အရောင်း', icon: Coins },
-    { id: 'security' as const, labelEn: 'Security', labelMm: 'လုံခြုံရေး', icon: ShieldCheck },
-  ]
-
-  // Filter categories and items based on search query and active tab
-  const filteredCategories = serviceCategories
-    .map((cat) => {
-      if (selectedCategory !== 'all' && cat.id !== selectedCategory) {
-        return null
-      }
-      const q = searchQuery.trim().toLowerCase()
-      if (!q) {
-        return cat
-      }
-      const matchingItems = cat.items.filter(
-        (it) =>
-          it.nameEn.toLowerCase().includes(q) ||
-          it.nameMm.toLowerCase().includes(q) ||
-          it.descEn.toLowerCase().includes(q) ||
-          it.descMm.toLowerCase().includes(q) ||
-          cat.titleEn.toLowerCase().includes(q) ||
-          cat.titleMm.toLowerCase().includes(q)
-      )
-      if (matchingItems.length === 0) return null
-      return { ...cat, items: matchingItems }
-    })
-    .filter(Boolean) as typeof serviceCategories
-
-  const totalResults = filteredCategories.reduce(
-    (acc, cat) => acc + cat.items.length,
-    0
-  )
+  const filteredGiftCards = giftTab === 'all'
+    ? giftCards
+    : giftCards.filter((g) => g.category === giftTab)
 
   return (
     <div
@@ -1082,336 +941,504 @@ export function ServicesScreen({
         isLight ? 'bg-[#F4F5F8] text-zinc-900' : 'bg-[#090D14] text-white'
       }`}
     >
-      {/* ── Top Hero Header with Red Brand Gradient & Search Bar ── */}
-      <div className="relative bg-gradient-to-br from-[#D91624] via-[#C0121F] to-[#990D18] text-white pt-5 pb-6 px-4 rounded-b-[32px] shadow-[0_12px_32px_rgba(217,22,36,0.22)] overflow-hidden">
-        {/* Glow Effects */}
-        <div className="absolute -top-16 -right-12 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none" />
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-black/20 blur-xl pointer-events-none" />
+      {/* ── Top Bar Header (Centered "Product & Service") ── */}
+      <div className="bg-white border-b border-zinc-200 px-4 py-4 sticky top-0 z-20 shadow-xs">
+        <h1 className="text-base font-extrabold text-zinc-900 text-center tracking-tight">
+          {isAk ? 'ထုတ်ကုန်နှင့် ဝန်ဆောင်မှု' : 'Product & Service'}
+        </h1>
+      </div>
 
-        <div className="relative z-10 max-w-lg mx-auto">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/20 backdrop-blur-md text-[11px] font-semibold tracking-wide text-white/95 mb-2 shadow-xs">
-            <Sparkles size={12} className="text-amber-300" />
-            <span>
-              {isAk ? 'ရခိုင်ဘဏ္ဍာရေး ဝန်ဆောင်မှု ကွန်ရက်' : 'PÉTHAR ECOSYSTEM DIRECTORY'}
-            </span>
+      {/* ── Main List Container ── */}
+      <div className="p-4 space-y-3 max-w-lg mx-auto w-full">
+        {/* Toast Alert */}
+        {toastMsg && (
+          <div className="p-3 bg-emerald-600 text-white rounded-xl text-xs font-bold text-center shadow-md animate-in fade-in">
+            {toastMsg}
           </div>
+        )}
 
-          {/* Title */}
-          <h1 className="text-2xl font-black tracking-tight text-white">
-            {isAk ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services'}
-          </h1>
-          <p className="text-xs text-white/85 font-medium mt-1 leading-relaxed">
-            {isAk
-              ? 'လွယ်ကူလျင်မြန်ပြီး လုံခြုံစိတ်ချရသော ပြည်တွင်းငွေလွှဲ၊ ဘေလ်ဆောင်၊ ငွေသားထုတ်ယူမှုနှင့် ဒစ်ဂျစ်တယ်ဒင်္ဂါးစနစ်'
-              : 'Fast, secure local transfers, utility bills, agent cashout, and Web3 crypto gateway.'}
-          </p>
-
-          {/* Search Input Box */}
-          <div className="relative mt-4">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
-              <Search size={17} />
+        {/* 1. Agent Cash-Out */}
+        <button
+          type="button"
+          onClick={() => showComingSoon(isAk ? 'အေးဂျင့်မှ ငွေသားထုတ်ယူ' : 'Agent Cash-Out')}
+          className="w-full p-4 rounded-2xl border border-zinc-200 bg-white shadow-2xs hover:shadow-md hover:border-emerald-500/40 transition-all flex items-center justify-between group active:scale-[0.99] cursor-pointer"
+        >
+          <div className="flex items-center gap-3.5 flex-1 min-w-0">
+            <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+              <Store size={22} />
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                isAk
-                  ? 'ဝန်ဆောင်မှု၊ ဘေလ်၊ ငွေဖြည့်၊ ဒစ်ဂျစ်တယ်ဒင်္ဂါး ရှာဖွေပါ...'
-                  : 'Search services, top-up, bills, cashout...'
-              }
-              className="w-full pl-10 pr-10 py-3 rounded-2xl bg-white text-zinc-900 placeholder:text-zinc-400 text-xs font-semibold border-0 shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
-            />
-            {searchQuery && (
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span className="text-sm font-bold text-zinc-900">
+                {isAk ? 'အေးဂျင့်မှ ငွေသားထုတ်ယူ' : 'Agent Cash-Out'}
+              </span>
+              <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold shrink-0">
+                {isAk ? 'မကြာမီ' : 'Coming Soon'}
+              </span>
+            </div>
+          </div>
+          <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 group-hover:text-emerald-600 transition-colors">
+            <ChevronRight size={18} />
+          </div>
+        </button>
+
+        {/* 2. Offline Pay (Renamed from Offline NFC & Bluetooth Mesh) */}
+        <button
+          type="button"
+          onClick={() => showComingSoon(isAk ? 'အော့ဖ်လိုင်း ငွေပေးချေမှု' : 'Offline Pay')}
+          className="w-full p-4 rounded-2xl border border-zinc-200 bg-white shadow-2xs hover:shadow-md hover:border-teal-500/40 transition-all flex items-center justify-between group active:scale-[0.99] cursor-pointer"
+        >
+          <div className="flex items-center gap-3.5 flex-1 min-w-0">
+            <div className="w-11 h-11 rounded-2xl bg-teal-500/10 text-teal-600 flex items-center justify-center shrink-0">
+              <Radio size={22} />
+            </div>
+            <div className="flex flex-col text-left flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-zinc-900">
+                  {isAk ? 'အော့ဖ်လိုင်း ငွေပေးချေမှု' : 'Offline Pay'}
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold shrink-0">
+                  {isAk ? 'မကြာမီ' : 'Coming Soon'}
+                </span>
+              </div>
+              <span className="text-xs text-zinc-400 mt-0.5">
+                {isAk
+                  ? 'အင်တာနက်မရှိဘဲ တိုက်ရိုက်ထိ၍ ငွေပေးချေပါ'
+                  : 'Offline tap & mesh pay without internet'}
+              </span>
+            </div>
+          </div>
+          <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 group-hover:text-teal-600 transition-colors">
+            <ChevronRight size={18} />
+          </div>
+        </button>
+
+        {/* 3. Gift Card (To top up games, iTunes, Viber Plus) */}
+        <button
+          type="button"
+          onClick={() => showComingSoon(isAk ? 'လက်ဆောင်ကတ်များ' : 'Gift Card')}
+          className="w-full p-4 rounded-2xl border border-zinc-200 bg-white shadow-2xs hover:shadow-md hover:border-purple-500/40 transition-all flex items-center justify-between group active:scale-[0.99] cursor-pointer"
+        >
+          <div className="flex items-center gap-3.5 flex-1 min-w-0">
+            <div className="w-11 h-11 rounded-2xl bg-purple-500/10 text-purple-600 flex items-center justify-center shrink-0">
+              <Sparkles size={22} />
+            </div>
+            <div className="flex flex-col text-left flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-zinc-900">
+                  {isAk ? 'လက်ဆောင်ကတ်များ' : 'Gift Card'}
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold shrink-0">
+                  {isAk ? 'မကြာမီ' : 'Coming Soon'}
+                </span>
+              </div>
+              <span className="text-xs text-zinc-400 mt-0.5">
+                {isAk
+                  ? 'ဂိမ်း၊ iTunes၊ Viber Plus နှင့် ဒစ်ဂျစ်တယ်ကတ်များ ဖြည့်ရန်'
+                  : 'Top up games, iTunes, Viber Plus & digital cards'}
+              </span>
+            </div>
+          </div>
+          <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 group-hover:text-purple-600 transition-colors">
+            <ChevronRight size={18} />
+          </div>
+        </button>
+
+        {/* 4. Mini Apps (For partner companies to create app) */}
+        <button
+          type="button"
+          onClick={() => showComingSoon(isAk ? 'မိတ်ဖက် မီနီအက်ပ်များ' : 'Mini Apps')}
+          className="w-full p-4 rounded-2xl border border-zinc-200 bg-white shadow-2xs hover:shadow-md hover:border-blue-500/40 transition-all flex items-center justify-between group active:scale-[0.99] cursor-pointer"
+        >
+          <div className="flex items-center gap-3.5 flex-1 min-w-0">
+            <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
+              <Layers size={22} />
+            </div>
+            <div className="flex flex-col text-left flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-zinc-900">
+                  {isAk ? 'မိတ်ဖက် မီနီအက်ပ်များ' : 'Mini Apps'}
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold shrink-0">
+                  {isAk ? 'မကြာမီ' : 'Coming Soon'}
+                </span>
+              </div>
+              <span className="text-xs text-zinc-400 mt-0.5">
+                {isAk
+                  ? 'မိတ်ဖက်ကုမ္ပဏီများအတွက် အက်ပ်ဖန်တီးနိုင်သော ပလက်ဖောင်း'
+                  : 'Partner platform for companies to create apps'}
+              </span>
+            </div>
+          </div>
+          <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 group-hover:text-blue-600 transition-colors">
+            <ChevronRight size={18} />
+          </div>
+        </button>
+      </div>
+
+      {/* ── GIFT CARD MODAL ── */}
+      {giftCardOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-200">
+            {/* Header */}
+            <div className="p-4 border-b border-zinc-200 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                  <Sparkles size={20} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-zinc-900">
+                    {isAk ? 'လက်ဆောင်ကတ်များ' : 'Gift Card & Top-Up'}
+                  </h2>
+                  <p className="text-[11px] text-zinc-400">
+                    {isAk ? 'ဂိမ်း၊ iTunes၊ Viber Plus ဘောက်ချာများ' : 'Games, iTunes, Viber Plus vouchers'}
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-400 hover:text-zinc-700 cursor-pointer"
+                onClick={() => setGiftCardOpen(false)}
+                className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 hover:bg-zinc-200"
               >
                 <X size={16} />
               </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Main Content Container ── */}
-      <div className="p-4 space-y-6 max-w-lg mx-auto w-full">
-        {/* Category Filter Chips */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-1 px-1">
-          {categoryTabs.map((tab) => {
-            const active = selectedCategory === tab.id
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setSelectedCategory(tab.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer ${
-                  active
-                    ? 'bg-[#D91624] text-white shadow-[0_4px_14px_rgba(217,22,36,0.32)] border border-transparent'
-                    : isLight
-                    ? 'bg-white text-zinc-700 border border-zinc-200/80 hover:bg-zinc-50 shadow-2xs'
-                    : 'bg-[#151D2A] text-zinc-300 border border-white/10 hover:bg-[#1D2838]'
-                }`}
-              >
-                <Icon size={14} className={active ? 'text-white' : 'text-zinc-400'} />
-                <span>{isAk ? tab.labelMm : tab.labelEn}</span>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* ── Quick Spotlight Grid (Only when not searching) ── */}
-        {!searchQuery && selectedCategory === 'all' && (
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between px-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider font-mono text-zinc-500">
-                {isAk ? 'လူသုံးအများဆုံး ဝန်ဆောင်မှုများ' : 'Featured Quick Access'}
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-[#D91624] border border-red-100">
-                {isAk ? '၀% ဝန်ဆောင်ခ' : 'Fast & Free'}
-              </span>
             </div>
 
-            <div className="grid grid-cols-4 gap-2.5">
+            {/* Filter Tabs */}
+            <div className="p-3 border-b border-zinc-100 flex gap-2 overflow-x-auto">
               {[
-                {
-                  id: 'topup' as Screen,
-                  titleEn: 'Top-Up',
-                  titleMm: 'ငွေဖြည့်',
-                  subEn: 'Telcos',
-                  subMm: 'ဖုန်းဘေလ်',
-                  badge: '24/7',
-                  icon: SmartphoneCharging,
-                  gradient: 'from-violet-500 to-purple-600',
-                },
-                {
-                  id: 'bills' as Screen,
-                  titleEn: 'Bills',
-                  titleMm: 'ဘေလ်ဆောင်',
-                  subEn: 'Utility',
-                  subMm: 'မီး/ရေ/လိုင်း',
-                  badge: '0% Fee',
-                  icon: Receipt,
-                  gradient: 'from-amber-500 to-orange-600',
-                },
-                {
-                  id: 'cashout' as Screen,
-                  titleEn: 'Cash Out',
-                  titleMm: 'ငွေထုတ်ယူ',
-                  subEn: 'Agents',
-                  subMm: 'စစ်တွေ/မြောက်ဦး',
-                  badge: 'Cash',
-                  icon: Store,
-                  gradient: 'from-emerald-500 to-teal-600',
-                },
-                {
-                  id: 'crypto' as Screen,
-                  titleEn: 'Crypto',
-                  titleMm: 'ဒစ်ဂျစ်တယ်',
-                  subEn: 'MEXC/Binance',
-                  subMm: 'USDT တံတား',
-                  badge: 'Web3',
-                  icon: Coins,
-                  gradient: 'from-purple-600 to-indigo-600',
-                },
-              ].map((item, idx) => (
+                { id: 'all', label: isAk ? 'အားလုံး' : 'All' },
+                { id: 'games', label: isAk ? 'ဂိမ်းများ' : 'Games' },
+                { id: 'itunes', label: 'iTunes' },
+                { id: 'viber', label: 'Viber Plus' },
+              ].map((tab) => (
                 <button
-                  key={idx}
+                  key={tab.id}
                   type="button"
-                  onClick={() => go(item.id)}
-                  className={`p-2.5 rounded-2xl flex flex-col items-center justify-center text-center transition-all cursor-pointer relative group active:scale-95 ${
-                    isLight
-                      ? 'bg-white border border-zinc-200/70 shadow-2xs hover:shadow-md hover:border-[#D91624]/30'
-                      : 'bg-[#121926] border border-white/10 hover:border-[#D91624]/40'
+                  onClick={() => setGiftTab(tab.id as any)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 cursor-pointer ${
+                    giftTab === tab.id
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
                   }`}
                 >
-                  <div
-                    className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.gradient} text-white flex items-center justify-center shadow-xs mb-1.5 group-hover:scale-105 transition-transform`}
-                  >
-                    <item.icon size={20} />
-                  </div>
-                  <div
-                    className={`text-[11px] font-bold truncate max-w-full leading-tight ${
-                      isLight ? 'text-zinc-900' : 'text-white'
-                    }`}
-                  >
-                    {isAk ? item.titleMm : item.titleEn}
-                  </div>
-                  <div className="text-[9px] text-zinc-400 font-medium truncate max-w-full">
-                    {isAk ? item.subMm : item.subEn}
-                  </div>
+                  {tab.label}
                 </button>
               ))}
             </div>
-          </div>
-        )}
 
-        {/* ── Search Match Header if Searching ── */}
-        {searchQuery && (
-          <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-semibold text-zinc-600">
-              {isAk
-                ? `"${searchQuery}" အတွက် ဝန်ဆောင်မှု ${totalResults} ခု တွေ့ရှိပါသည်`
-                : `Found ${totalResults} services matching "${searchQuery}"`}
-            </span>
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              className="text-xs font-bold text-[#D91624] hover:underline cursor-pointer"
-            >
-              {isAk ? 'ရှာဖွေမှု ဖျက်မည်' : 'Clear'}
-            </button>
-          </div>
-        )}
-
-        {/* ── Service Categories & Cards ── */}
-        {filteredCategories.length > 0 ? (
-          filteredCategories.map((category) => (
-            <div key={category.id} className="space-y-2.5">
-              {/* Category Header */}
-              <div className="flex items-center justify-between px-1 pt-1">
-                <div>
-                  <h2
-                    className={`text-xs font-black uppercase tracking-wider font-mono ${
-                      isLight ? 'text-zinc-800' : 'text-zinc-200'
-                    }`}
+            {/* Cards List */}
+            <div className="p-4 space-y-2.5 overflow-y-auto flex-1">
+              {filteredGiftCards.map((card) => (
+                <div
+                  key={card.id}
+                  className="p-3 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-between"
+                >
+                  <div>
+                    <h3 className="text-xs font-bold text-zinc-900">{card.title}</h3>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">{card.subtitle}</p>
+                    <p className="text-[11px] font-bold text-emerald-600 mt-1">{card.price}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedGiftCard(card)
+                      setSelectedGiftPkg(card.packages[0])
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-700 cursor-pointer"
                   >
-                    {isAk ? category.titleMm : category.titleEn}
-                  </h2>
-                  <p className="text-[10px] text-zinc-400 mt-0.5">
-                    {isAk ? category.descMm : category.descEn}
-                  </p>
+                    {isAk ? 'ဝယ်ယူရန်' : 'Top-Up'}
+                  </button>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-200/70 text-zinc-600">
-                  {category.items.length}
-                </span>
-              </div>
-
-              {/* Items List */}
-              <div className="space-y-2.5">
-                {category.items.map((item) => {
-                  const Icon = item.icon as React.ComponentType<{ size?: number; className?: string }>
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => go(item.id)}
-                      className={`w-full p-3.5 rounded-2xl border text-left transition-all flex items-center justify-between group active:scale-[0.99] cursor-pointer ${
-                        isLight
-                          ? 'bg-white border-zinc-200/80 shadow-2xs hover:shadow-md hover:border-[#D91624]/40 hover:bg-white'
-                          : 'bg-[#121926] border-white/10 hover:border-[#D91624]/40 hover:bg-[#162030]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
-                        {/* Squircle Gradient Icon Badge */}
-                        <div
-                          className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-200`}
-                        >
-                          <Icon size={22} />
-                        </div>
-
-                        {/* Title & Description */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                            <span
-                              className={`text-xs font-bold leading-tight ${
-                                isLight ? 'text-zinc-900' : 'text-white'
-                              }`}
-                            >
-                              {isAk ? item.nameMm : item.nameEn}
-                            </span>
-                            <span
-                              className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${item.badgeColor}`}
-                            >
-                              {isAk ? item.tagMm : item.tagEn}
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-zinc-500 line-clamp-1 leading-snug">
-                            {isAk ? item.descMm : item.descEn}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right Action Chevron */}
-                      <div className="w-8 h-8 rounded-full bg-zinc-100/80 flex items-center justify-center text-zinc-400 group-hover:text-[#D91624] group-hover:bg-red-50 group-hover:translate-x-0.5 transition-all shrink-0">
-                        <ChevronRight size={16} />
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
+              ))}
             </div>
-          ))
-        ) : (
-          /* Empty Search Results State */
-          <div
-            className={`p-8 rounded-3xl border text-center space-y-3 ${
-              isLight
-                ? 'bg-white border-zinc-200/80 shadow-xs'
-                : 'bg-[#121926] border-white/10'
-            }`}
-          >
-            <div className="w-12 h-12 rounded-full bg-red-50 text-[#D91624] mx-auto flex items-center justify-center">
-              <Search size={22} />
-            </div>
-            <div>
-              <h3
-                className={`text-sm font-bold ${
-                  isLight ? 'text-zinc-900' : 'text-white'
-                }`}
-              >
-                {isAk ? 'ရှာဖွေတွေ့ရှိမှု မရှိပါ' : 'No services found'}
-              </h3>
-              <p className="text-xs text-zinc-400 mt-1 max-w-xs mx-auto">
-                {isAk
-                  ? `"${searchQuery}" နှင့် ကိုက်ညီသော ဘဏ္ဍာရေးဝန်ဆောင်မှု မရှိပါ။`
-                  : `We couldn't find any financial services matching "${searchQuery}".`}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery('')
-                setSelectedCategory('all')
-              }}
-              className="px-4 py-2 rounded-xl bg-[#D91624] text-white text-xs font-bold hover:brightness-105 active:scale-95 transition cursor-pointer"
-            >
-              {isAk ? 'ဝန်ဆောင်မှု အားလုံး ပြန်ကြည့်ရန်' : 'View All Services'}
-            </button>
-          </div>
-        )}
-
-        {/* ── Arakan Sovereign Financial Security Guarantee Card ── */}
-        <div className="p-4 rounded-3xl bg-gradient-to-br from-zinc-900 via-zinc-950 to-black text-white border border-zinc-800 shadow-md space-y-2 relative overflow-hidden">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-red-600/30 border border-red-500/40 flex items-center justify-center text-red-400">
-              <ShieldCheck size={16} />
-            </div>
-            <span className="text-[11px] font-bold tracking-wider uppercase text-zinc-300 font-mono">
-              {isAk ? 'ရခိုင်ဘဏ္ဍာရေး အာမခံချက်' : 'Arakan Sovereign Protocol'}
-            </span>
-          </div>
-          <p className="text-[11px] text-zinc-400 leading-relaxed">
-            {isAk
-              ? 'ငွေလွှဲ၊ ငွေသွင်း၊ ငွေထုတ်နှင့် ကုန်သွယ်မှု အားလုံးကို 256-bit စစ်တပ်အဆင့် လုံခြုံရေးဖြင့် ကာကွယ်ထားပြီး မြို့နယ်အလိုက် အေးဂျင့်များဖြင့် ချက်ချင်းငွေသား အာမခံပါသည်။'
-              : 'All operations are protected by 256-bit cryptographic security and real-time sovereign ledger settlement with physical cash guarantees.'}
-          </p>
-          <div className="flex items-center gap-3 pt-1 text-[10px] text-zinc-400">
-            <span className="flex items-center gap-1 text-emerald-400 font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              {isAk ? 'စနစ် ပုံမှန်လည်ပတ်နေသည်' : 'All systems operational'}
-            </span>
-            <span>•</span>
-            <span>{isAk ? '၂၄ နာရီ အသင့်' : '24/7 Availability'}</span>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Gift Card Purchase Dialog */}
+      {selectedGiftCard && (
+        <div className="fixed inset-0 z-60 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-zinc-900">{selectedGiftCard.title}</h3>
+              <button
+                type="button"
+                onClick={() => setSelectedGiftCard(null)}
+                className="text-zinc-400 hover:text-zinc-600"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">
+                {isAk ? 'အကောင့် / Player ID / Phone:' : 'User ID / Player ID / Phone:'}
+              </label>
+              <input
+                type="text"
+                value={playerId}
+                onChange={(e) => setPlayerId(e.target.value)}
+                placeholder="e.g. 12345678"
+                className="w-full px-3 py-2 border border-zinc-200 rounded-xl text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">
+                {isAk ? 'ပက်ကေ့ချ် ရွေးပါ:' : 'Select Package:'}
+              </label>
+              <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                {selectedGiftCard.packages.map((pkg: string) => (
+                  <button
+                    key={pkg}
+                    type="button"
+                    onClick={() => setSelectedGiftPkg(pkg)}
+                    className={`w-full p-2.5 rounded-xl text-xs text-left border cursor-pointer ${
+                      selectedGiftPkg === pkg
+                        ? 'border-purple-600 bg-purple-50 text-purple-700 font-bold'
+                        : 'border-zinc-200 bg-zinc-50 text-zinc-700'
+                    }`}
+                  >
+                    {pkg}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setSelectedGiftCard(null)}
+                className="flex-1 py-2 rounded-xl bg-zinc-100 text-zinc-700 text-xs font-bold"
+              >
+                {isAk ? 'မလုပ်တော့ပါ' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedGiftCard(null)
+                  setGiftCardOpen(false)
+                  setToastMsg(
+                    isAk
+                      ? `${selectedGiftCard.title} - ${selectedGiftPkg} အတွက် ငွေဖြည့်မှု အောင်မြင်ပါသည်!`
+                      : `Successfully topped up ${selectedGiftCard.title} - ${selectedGiftPkg}!`
+                  )
+                  setTimeout(() => setToastMsg(null), 4000)
+                }}
+                className="flex-1 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold"
+              >
+                {isAk ? 'အတည်ပြုမည်' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MINI APPS MODAL ── */}
+      {miniAppsOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-200">
+            {/* Header */}
+            <div className="p-4 border-b border-zinc-200 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <Layers size={20} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-zinc-900">
+                    {isAk ? 'မိတ်ဖက် မီနီအက်ပ်များ' : 'Mini Apps Platform'}
+                  </h2>
+                  <p className="text-[11px] text-zinc-400">
+                    {isAk ? 'မိတ်ဖက်ကုမ္ပဏီများအတွက် အက်ပ်ဖန်တီးနိုင်သော ပလက်ဖောင်း' : 'Partner companies platform to create & deploy apps'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMiniAppsOpen(false)}
+                className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 hover:bg-zinc-200"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Scroll Content */}
+            <div className="p-4 space-y-4 overflow-y-auto flex-1">
+              {/* Partner Callout Banner */}
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-900 to-blue-700 text-white space-y-2">
+                <span className="text-[11px] font-bold tracking-wider uppercase text-blue-200">
+                  {isAk ? 'မိတ်ဖက်ကုမ္ပဏီများအတွက်' : 'For Partner Companies'}
+                </span>
+                <p className="text-xs text-blue-100 leading-relaxed">
+                  {isAk
+                    ? 'သင့်လုပ်ငန်းအတွက် မီနီအက်ပ်ကို ဖေ့သာ ပလက်ဖောင်းပေါ်တွင် တိုက်ရိုက်ဖန်တီးပြီး သုံးစွဲသူများထံ ချက်ချင်းရောက်ရှိပါစေ။'
+                    : 'Build & launch your company mini-app inside Péthar Wallet with instant payment rails.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setCreateAppModalOpen(true)}
+                  className="mt-2 px-3.5 py-2 rounded-xl bg-white text-blue-900 text-xs font-bold hover:bg-blue-50 transition cursor-pointer"
+                >
+                  {isAk ? 'မီနီအက်ပ် အသစ်ဖန်တီးမည်' : '+ Create / Register App'}
+                </button>
+              </div>
+
+              {/* Active Partner Apps */}
+              <div>
+                <h3 className="text-xs font-extrabold text-zinc-500 uppercase tracking-wider mb-2 font-mono">
+                  {isAk ? 'လက်ရှိ မိတ်ဖက်အက်ပ်များ' : 'Active Partner Mini Apps'}
+                </h3>
+                <div className="space-y-2">
+                  {partnerApps.map((app) => (
+                    <div
+                      key={app.name}
+                      className="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-between"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-xs font-bold text-zinc-900">{app.name}</h4>
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200">
+                            Verified
+                          </span>
+                        </div>
+                        <p className="text-[10px] font-bold text-blue-600 mt-0.5">{app.category}</p>
+                        <p className="text-[11px] text-zinc-400 mt-0.5">{app.desc}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setToastMsg(`Launching ${app.name} Mini App...`)
+                          setTimeout(() => setToastMsg(null), 3000)
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 cursor-pointer"
+                      >
+                        {isAk ? 'ဖွင့်မည်' : 'Open'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Register Partner App Dialog */}
+      {createAppModalOpen && (
+        <div className="fixed inset-0 z-60 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-sm rounded-2xl p-5 space-y-3.5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-zinc-900">
+                {isAk ? 'မီနီအက်ပ် ဖန်တီးရန် မှတ်ပုံတင်ပါ' : 'Register Partner Mini App'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setCreateAppModalOpen(false)}
+                className="text-zinc-400 hover:text-zinc-600"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">Company / Partner Name:</label>
+              <input
+                type="text"
+                value={newAppCompany}
+                onChange={(e) => setNewAppCompany(e.target.value)}
+                placeholder="e.g. Arakan Logistics Ltd."
+                className="w-full px-3 py-2 border border-zinc-200 rounded-xl text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">Mini App Name:</label>
+              <input
+                type="text"
+                value={newAppName}
+                onChange={(e) => setNewAppName(e.target.value)}
+                placeholder="e.g. Rakhine Quick Delivery"
+                className="w-full px-3 py-2 border border-zinc-200 rounded-xl text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">Category:</label>
+              <select
+                value={newAppCategory}
+                onChange={(e) => setNewAppCategory(e.target.value)}
+                className="w-full px-3 py-2 border border-zinc-200 rounded-xl text-xs"
+              >
+                <option value="E-Commerce">E-Commerce & Retail</option>
+                <option value="Food & Dining">Food & Dining Delivery</option>
+                <option value="Travel">Travel & Transportation</option>
+                <option value="Healthcare">Healthcare & Pharmacy</option>
+                <option value="Utilities">Utilities & Local Services</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">App URL / Webhook Endpoint:</label>
+              <input
+                type="text"
+                value={newAppUrl}
+                onChange={(e) => setNewAppUrl(e.target.value)}
+                placeholder="https://partner.company.com/app"
+                className="w-full px-3 py-2 border border-zinc-200 rounded-xl text-xs"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">Developer Contact / Email:</label>
+              <input
+                type="text"
+                value={newAppContact}
+                onChange={(e) => setNewAppContact(e.target.value)}
+                placeholder="developer@company.com"
+                className="w-full px-3 py-2 border border-zinc-200 rounded-xl text-xs"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setCreateAppModalOpen(false)}
+                className="flex-1 py-2 rounded-xl bg-zinc-100 text-zinc-700 text-xs font-bold"
+              >
+                {isAk ? 'မလုပ်တော့ပါ' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!newAppName.trim()) return
+                  setPartnerApps([
+                    {
+                      name: newAppName,
+                      category: newAppCategory,
+                      desc: 'Newly registered partner mini-app sandbox',
+                      color: 'from-blue-600 to-indigo-700',
+                    },
+                    ...partnerApps,
+                  ])
+                  setCreateAppModalOpen(false)
+                  setToastMsg(
+                    isAk
+                      ? `${newAppName} အတွက် မီနီအက်ပ် လျှောက်ထားမှု အောင်မြင်ပါသည်။ API Key ထုတ်ပေးပြီးပါပြီ!`
+                      : `Successfully registered ${newAppName}! Sandbox API Client Key issued.`
+                  )
+                  setTimeout(() => setToastMsg(null), 4000)
+                }}
+                className="flex-1 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold"
+              >
+                {isAk ? 'ဖန်တီးမည်' : 'Submit & Register'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+
 
 // ── SETTINGS SCREEN (Matched to user reference design) ──────────────────
 export function SettingsScreen({
@@ -1441,6 +1468,14 @@ export function SettingsScreen({
   const [editEmail, setEditEmail] = useState(currentProfile.email)
   const [editPhone, setEditPhone] = useState(currentProfile.phone)
   const [editAddress, setEditAddress] = useState(currentProfile.address || currentProfile.location)
+  const [editGender, setEditGender] = useState(currentProfile.gender || 'Male')
+  const [editIdType, setEditIdType] = useState(currentProfile.idType || 'National ID')
+  const [editIdNumber, setEditIdNumber] = useState(currentProfile.nationalIdNo || '')
+  const [editDob, setEditDob] = useState(currentProfile.dob || '')
+  const [showSensitiveDetails, setShowSensitiveDetails] = useState(false)
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [editPin, setEditPin] = useState('')
   const [currentPinInput, setCurrentPinInput] = useState('')
   const [otpStage, setOtpStage] = useState<'idle' | 'email_otp' | 'phone_otp' | 'name_otp' | 'pin_otp'>('idle')
@@ -1462,10 +1497,48 @@ export function SettingsScreen({
     setEditEmail(currentProfile.email)
     setEditPhone(currentProfile.phone)
     setEditAddress(currentProfile.address || currentProfile.location)
+    setEditGender(currentProfile.gender || 'Male')
+    setEditIdType(currentProfile.idType || 'National ID')
+    setEditIdNumber(currentProfile.nationalIdNo || '')
+    setEditDob(currentProfile.dob || '')
     setEditPin('')
     setCurrentPinInput('')
     setOtpStage('idle')
     setOtpInput('')
+  }
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string
+        setEditAvatarUrl(base64)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleCopy = (text: string, key: string) => {
+    navigator.clipboard?.writeText(text)
+    setCopiedKey(key)
+    setTimeout(() => setCopiedKey(null), 2000)
+  }
+
+  const maskEmail = (email: string) => {
+    if (!email || !email.includes('@')) return '••••••@••••.com'
+    const [name, domain] = email.split('@')
+    return `${name.slice(0, 2)}••••@${domain}`
+  }
+
+  const maskPhone = (phone: string) => {
+    if (!phone || phone.length < 6) return '••••••••'
+    return `${phone.slice(0, 4)}••••${phone.slice(-3)}`
+  }
+
+  const truncateAddress = (addr: string) => {
+    if (!addr || addr.length <= 12) return addr
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`
   }
 
   const handleStartSave = (e: React.FormEvent) => {
@@ -1515,14 +1588,16 @@ export function SettingsScreen({
       address: editAddress.trim() || currentProfile.address,
       location: editAddress.trim() || currentProfile.location,
       avatarUrl: editAvatarUrl.trim() || currentProfile.avatarUrl,
+      gender: editGender || currentProfile.gender || 'Male',
+      idType: editIdType || currentProfile.idType || 'National ID',
+      nationalIdNo: editIdNumber.trim() || currentProfile.nationalIdNo,
+      dob: editDob.trim() || currentProfile.dob,
       pin: editPin.trim().length === 6 ? editPin.trim() : currentProfile.pin,
       // Immutable fields are strictly preserved
       username: currentProfile.username,
       uid: currentProfile.uid || '202610190001',
       walletAddress: currentProfile.uid || '202610190001',
       usdAccountWalletAddress: currentProfile.usdAccountWalletAddress,
-      nationalIdNo: currentProfile.nationalIdNo,
-      dob: currentProfile.dob,
       akdWalletBalance: currentProfile.akdWalletBalance,
       usdAccountBalance: currentProfile.usdAccountBalance,
       totalBalance: currentProfile.akdWalletBalance + currentProfile.usdAccountBalance,
@@ -1627,7 +1702,7 @@ export function SettingsScreen({
                 </div>
                 <div>
                   <div className={`text-xs font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>
-                    {t.profileInfo}
+                    {lang === 'ak' ? 'ကျွန်ုပ်၏ ပရိုဖိုင်' : 'My Profile'}
                   </div>
                   <div className="text-[10px] text-gray-400 mt-0.5">
                     {currentProfile.petharId} · {currentProfile.phone}
@@ -1803,7 +1878,7 @@ export function SettingsScreen({
 
       </div>
 
-      {/* ── EDIT PERSONAL DATA MODAL (WITH FULL GOVERNANCE & OTP) ────── */}
+      {/* ── MY PROFILE MODAL (NO BALANCES, NO BADGES, 10 FIELDS IN ORDER) ────── */}
       {editModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm">
           <div className={`w-full max-w-md max-h-[90vh] flex flex-col rounded-t-[32px] sm:rounded-3xl p-5 shadow-2xl border ${isLight ? 'bg-white border-gray-200 text-gray-900' : 'bg-[#101724] border-white/10 text-white'
@@ -1813,7 +1888,7 @@ export function SettingsScreen({
               <div className="flex items-center gap-2">
                 <Shield size={18} className="text-orange-500" />
                 <h3 className="font-bold text-sm">
-                  {otpStage !== 'idle' ? 'Security Verification' : 'User & Profile Settings'}
+                  {otpStage !== 'idle' ? 'Security Verification' : (lang === 'ak' ? 'ကျွန်ုပ်၏ ပရိုဖိုင်' : 'My Profile')}
                 </h3>
               </div>
               <button
@@ -1892,248 +1967,238 @@ export function SettingsScreen({
               </div>
             ) : (
               <form onSubmit={handleStartSave} className="flex-1 overflow-y-auto space-y-4 py-3 text-xs pr-1">
-                {/* 1. Immutable Core Identifiers */}
-                <div className="p-3 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-red-500 flex items-center gap-1">
-                      <Lock size={12} /> Immutable Identifiers
-                    </span>
-                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 font-bold uppercase">
-                      Cant Change
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
-                    <div>
-                      <div className="text-gray-400 text-[10px]">Username:</div>
-                      <div className="font-bold truncate">{currentProfile.username || '@user'}</div>
+                {/* ── TOP AVATAR & PHOTO UPLOAD + USER NICK NAME WITH VERIFIED BADGE ── */}
+                <div className="flex flex-col items-center justify-center py-2">
+                  <div className="relative">
+                    <div className="w-20 h-20 rounded-full bg-sky-600 border-2 border-white/20 shadow-md overflow-hidden flex items-center justify-center text-white text-2xl font-black">
+                      {editAvatarUrl ? (
+                        <img src={editAvatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <span>
+                          {((editNickname.trim() || `${editFirstName} ${editLastName}`.trim() || currentProfile.name || currentProfile.username || 'U')).charAt(0).toUpperCase()}
+                        </span>
+                      )}
                     </div>
-                    <div>
-                      <div className="text-gray-400 text-[10px]">UID / Wallet Address:</div>
-                      <div className="font-mono font-bold truncate">{currentProfile.uid}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-[10px]">National ID No:</div>
-                      <div className="font-bold truncate">{currentProfile.nationalIdNo || '---'}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-[10px]">Date of Birth (DOB):</div>
-                      <div className="font-bold truncate">{currentProfile.dob || '---'}</div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="text-gray-400 text-[10px]">USD Account Wallet Address:</div>
-                    <div className="font-mono text-[10px] truncate text-gray-500">
-                      {currentProfile.usdAccountWalletAddress}
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Account Balances & Total Balance */}
-                <div className="p-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-emerald-500 flex items-center gap-1">
-                      <Coins size={12} /> Account Balances
-                    </span>
-                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold uppercase">
-                      Total Balance Change
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
-                    <div>
-                      <div className="text-gray-400 text-[10px]">AKD Wallet Balance:</div>
-                      <div className="font-bold text-gray-400">
-                        {currentProfile.akdWalletBalance.toFixed(2)} AKD
-                      </div>
-                      <div className="text-[9px] text-gray-500">Cant change directly</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-[10px]">USD Account Balance:</div>
-                      <div className="font-bold text-gray-400">
-                        ${currentProfile.usdAccountBalance.toFixed(2)} USD
-                      </div>
-                      <div className="text-[9px] text-gray-500">Cant change directly</div>
-                    </div>
-                  </div>
-
-                  <div className="pt-1 border-t border-emerald-500/20 flex items-center justify-between">
-                    <span className="text-xs font-bold text-emerald-400">Total Balance (Dynamic Sum):</span>
-                    <span className="text-sm font-extrabold text-emerald-400">
-                      ${(currentProfile.akdWalletBalance + currentProfile.usdAccountBalance).toFixed(2)} USD
-                    </span>
-                  </div>
-                </div>
-
-                {/* 3. Verified OTP Required Fields */}
-                <div className="space-y-3 pt-1">
-                  <div className="text-[11px] font-bold text-gray-400 flex items-center gap-1">
-                    <ShieldCheck size={13} className="text-blue-500" />
-                    Security & Verified Credentials
-                  </div>
-
-                  {/* Email */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] font-semibold text-gray-400">User Email</label>
-                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-bold">
-                        Needs Verified OTP
-                      </span>
-                    </div>
+                    {/* Camera button: triggers gallery picker from device */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#0284C7] hover:bg-[#0369A1] text-white flex items-center justify-center shadow-lg border border-white cursor-pointer transition"
+                      title="Upload photo from phone gallery"
+                    >
+                      <Camera size={14} />
+                    </button>
                     <input
-                      type="email"
-                      value={editEmail}
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarFileChange}
+                    />
+                  </div>
+
+                  {/* User Nick Name (No verified badge; defaults to full name until user made change) */}
+                  <div className="mt-2.5 flex items-center gap-1.5">
+                    <span className="font-extrabold text-base tracking-tight text-zinc-900 dark:text-white">
+                      {editNickname.trim() || `${editFirstName} ${editLastName}`.trim() || currentProfile.name || currentProfile.username || 'User'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* ── SHOW SENSITIVE DETAILS TOGGLE ── */}
+                <div className={`flex items-center justify-between p-3 rounded-2xl border ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-white/5 border-white/10'}`}>
+                  <div className="flex items-center gap-2">
+                    {showSensitiveDetails ? (
+                      <Eye size={16} className="text-[#0284C7]" />
+                    ) : (
+                      <EyeOff size={16} className="text-gray-400" />
+                    )}
+                    <span className="text-xs font-semibold">
+                      {lang === 'ak' ? 'အချက်အလက်အားလုံး ဖော်ပြမည်' : 'Show sensitive details'}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowSensitiveDetails(!showSensitiveDetails)}
+                    className={`w-11 h-6 rounded-full p-0.5 transition cursor-pointer ${showSensitiveDetails ? 'bg-[#2563EB]' : 'bg-gray-300 dark:bg-gray-700'}`}
+                  >
+                    <span
+                      className={`block w-5 h-5 rounded-full bg-white shadow transition-transform ${showSensitiveDetails ? 'translate-x-5' : 'translate-x-0'}`}
+                    />
+                  </button>
+                </div>
+
+                {/* ── EXACT 10 FIELDS IN SPECIFIED ORDER (NO BALANCES, NO BADGES) ── */}
+                <div className="space-y-3 pt-1">
+                  {/* 1. Full Name */}
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">Full Name</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        placeholder="First Name"
+                        value={editFirstName}
+                        onChange={(e) => setEditFirstName(e.target.value)}
+                        className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-blue-500 font-semibold ${
+                          isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                        }`}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Last Name"
+                        value={editLastName}
+                        onChange={(e) => setEditLastName(e.target.value)}
+                        className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-blue-500 font-semibold ${
+                          isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* 2. username (Click to copy, no copy button, no >) */}
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">username</label>
+                    <div
+                      onClick={() => handleCopy(currentProfile.username || 'user', 'username')}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl border cursor-pointer hover:border-blue-500 transition ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/40 border-white/10'}`}
+                    >
+                      <span className="font-bold text-xs">{currentProfile.username || 'user'}</span>
+                      {copiedKey === 'username' && (
+                        <span className="text-[11px] text-emerald-500 font-semibold">{lang === 'ak' ? 'ကူးယူပြီးပါပြီ' : 'Copied!'}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 3. Wallet Address (Click to copy, no copy button, no >) */}
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">Wallet Address</label>
+                    <div
+                      onClick={() => handleCopy(currentProfile.walletAddress || currentProfile.uid, 'walletAddress')}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl border cursor-pointer hover:border-blue-500 transition ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/40 border-white/10'}`}
+                    >
+                      <span className="font-mono text-xs font-semibold truncate">
+                        {showSensitiveDetails ? (currentProfile.walletAddress || currentProfile.uid) : truncateAddress(currentProfile.walletAddress || currentProfile.uid)}
+                      </span>
+                      {copiedKey === 'walletAddress' && (
+                        <span className="text-[11px] text-emerald-500 font-semibold shrink-0 ml-2">{lang === 'ak' ? 'ကူးယူပြီးပါပြီ' : 'Copied!'}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 4. Email */}
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">Email</label>
+                    <input
+                      type="text"
+                      value={showSensitiveDetails ? editEmail : maskEmail(editEmail)}
                       onChange={(e) => setEditEmail(e.target.value)}
                       className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-blue-500 font-semibold ${
                         isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
                       }`}
-                      required
                     />
                   </div>
 
-                  {/* Phone */}
+                  {/* 5. Mobile No */}
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] font-semibold text-gray-400">Phone Number (ph no)</label>
-                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 font-bold">
-                        Needs Email Verified OTP
-                      </span>
-                    </div>
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">Mobile No</label>
                     <input
                       type="text"
-                      value={editPhone}
+                      value={showSensitiveDetails ? editPhone : maskPhone(editPhone)}
                       onChange={(e) => setEditPhone(e.target.value)}
-                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-sky-500 font-semibold font-mono ${
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-blue-500 font-semibold font-mono ${
                         isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
                       }`}
-                      required
                     />
                   </div>
 
-                  {/* Legal Name */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="text-[11px] font-semibold text-gray-400">First Name</label>
-                      </div>
-                      <input
-                        type="text"
-                        value={editFirstName}
-                        onChange={(e) => setEditFirstName(e.target.value)}
-                        className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${
-                          isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                        }`}
-                      />
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="text-[11px] font-semibold text-gray-400">Last Name</label>
-                      </div>
-                      <input
-                        type="text"
-                        value={editLastName}
-                        onChange={(e) => setEditLastName(e.target.value)}
-                        className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-orange-500 font-semibold ${
-                          isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                        }`}
-                      />
-                    </div>
-                  </div>
-                  <div className="text-[10px] text-amber-500 font-medium">
-                    * First & last name change requires review and email OTP
-                  </div>
-
-                  {/* PIN */}
+                  {/* 6. Gender */}
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] font-semibold text-gray-400">Security PIN</label>
-                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 font-bold">
-                        Needs current PIN or Email OTP
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <input
-                        type="password"
-                        maxLength={6}
-                        placeholder="Current PIN"
-                        value={currentPinInput}
-                        onChange={(e) => setCurrentPinInput(e.target.value)}
-                        className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-purple-500 font-mono text-center ${
-                          isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                        }`}
-                      />
-                      <input
-                        type="password"
-                        maxLength={6}
-                        placeholder="New PIN (6-digit)"
-                        value={editPin}
-                        onChange={(e) => setEditPin(e.target.value)}
-                        className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-purple-500 font-mono text-center ${
-                          isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
-                        }`}
-                      />
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">Gender</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['Male', 'Female', 'Other'].map((g) => (
+                        <button
+                          key={g}
+                          type="button"
+                          onClick={() => setEditGender(g)}
+                          className={`py-2 px-3 rounded-xl border text-xs font-bold transition ${
+                            editGender === g
+                              ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                              : isLight ? 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100' : 'bg-black/40 border-white/10 text-gray-300 hover:bg-white/5'
+                          }`}
+                        >
+                          {g}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                </div>
 
-                {/* 4. Freely Editable Profile Fields */}
-                <div className="space-y-3 pt-2">
-                  <div className="text-[11px] font-bold text-gray-400 flex items-center gap-1">
-                    <User size={13} className="text-emerald-500" />
-                    Freely Editable Profile Fields
-                  </div>
-
-                  {/* Profile Pic URL */}
+                  {/* 7. ID Type */}
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] font-semibold text-gray-400">User Profile Pic URL</label>
-                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold">
-                        Can Change
-                      </span>
-                    </div>
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">ID Type</label>
+                    <select
+                      value={editIdType}
+                      onChange={(e) => setEditIdType(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-blue-500 font-semibold ${
+                        isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                      }`}
+                    >
+                      <option value="National ID">National ID</option>
+                      <option value="Passport">Passport</option>
+                      <option value="Citizenship Card">Citizenship Card</option>
+                      <option value="Driver's License">Driver's License</option>
+                    </select>
+                  </div>
+
+                  {/* 8. ID Number */}
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">ID Number</label>
                     <input
                       type="text"
-                      value={editAvatarUrl}
-                      onChange={(e) => setEditAvatarUrl(e.target.value)}
-                      placeholder="https://..."
-                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-emerald-500 ${
+                      value={showSensitiveDetails ? editIdNumber : (editIdNumber ? '••••••••' : '---')}
+                      onChange={(e) => setEditIdNumber(e.target.value)}
+                      placeholder="e.g. 12/KAMAYA(N)123456"
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-blue-500 font-semibold ${
                         isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
                       }`}
                     />
                   </div>
 
-                  {/* Nickname */}
+                  {/* 9. Date of Birth */}
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] font-semibold text-gray-400">Nickname</label>
-                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold">
-                        Can Change
-                      </span>
-                    </div>
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">Date of Birth</label>
                     <input
-                      type="text"
-                      value={editNickname}
-                      onChange={(e) => setEditNickname(e.target.value)}
-                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-emerald-500 font-semibold ${
+                      type={showSensitiveDetails ? 'date' : 'text'}
+                      value={showSensitiveDetails ? editDob : (editDob ? '••••-••-••' : '---')}
+                      onChange={(e) => setEditDob(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-blue-500 font-semibold ${
                         isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
                       }`}
                     />
                   </div>
 
-                  {/* Address */}
+                  {/* 10. My Address */}
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] font-semibold text-gray-400">Address</label>
-                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold">
-                        Can Change
-                      </span>
-                    </div>
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">My Address</label>
                     <textarea
                       rows={2}
                       value={editAddress}
                       onChange={(e) => setEditAddress(e.target.value)}
-                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-emerald-500 ${
+                      placeholder="Enter residential address"
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-blue-500 font-medium ${
+                        isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
+                      }`}
+                    />
+                  </div>
+
+                  {/* Nickname update field */}
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">User Nick Name</label>
+                    <input
+                      type="text"
+                      value={editNickname}
+                      onChange={(e) => setEditNickname(e.target.value)}
+                      placeholder="Enter nickname"
+                      className={`w-full px-3 py-2 rounded-xl border focus:outline-none focus:border-blue-500 font-semibold ${
                         isLight ? 'bg-gray-50 border-gray-200 text-black' : 'bg-black/40 border-white/10 text-white'
                       }`}
                     />
@@ -2463,13 +2528,13 @@ export function Receive({
       )}
 
       {/* Main Content Body */}
-      <div className="flex-1 flex flex-col items-center justify-start px-6 pt-2.5 pb-6 text-center space-y-2.5 overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-start px-6 pt-12 pb-8 text-center space-y-4 overflow-y-auto">
         {/* 1. App Logo + App Name (No container under logo) */}
-        <div className="flex flex-col items-center space-y-0.5">
+        <div className="flex flex-col items-center space-y-1.5">
           <img
             src="/pethar-logo-red-white.svg"
             alt="Péthar Logo"
-            className="w-10 h-10 object-contain"
+            className="w-11.5 h-11.5 object-contain"
           />
           <div className="text-xs font-extrabold text-zinc-900 tracking-tight">
             Péthar
@@ -2481,19 +2546,19 @@ export function Receive({
           <div className="text-base font-extrabold text-zinc-900 leading-tight">
             {currentProfile.name}
           </div>
-          <div className="text-[11px] font-semibold text-zinc-500 font-mono">
+          <div className="text-xs font-semibold text-zinc-500 font-mono">
             {usernameHandle}
           </div>
         </div>
 
         {/* 3. QR Box */}
-        <div className="p-3.5 bg-white rounded-2xl border-2 border-zinc-200/90 shadow-[0_8px_24px_rgba(15,23,42,0.06)] flex items-center justify-center">
-          <FakeQR size={164} value={`pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`} />
+        <div className="p-4 bg-white rounded-2xl border-2 border-zinc-200/90 shadow-[0_9px_26px_rgba(15,23,42,0.06)] flex items-center justify-center">
+          <FakeQR size={170} value={`pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`} />
         </div>
 
         {/* 4. Wallet Address */}
         <div>
-          <div className="text-[10.5px] font-semibold text-zinc-400 uppercase tracking-wider">
+          <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
             {isAk ? 'ပိုက်ဆံအိတ် လိပ်စာ' : 'Wallet Address'}
           </div>
           <div className="text-base font-extrabold font-mono tracking-widest text-zinc-900 mt-0.5 tabular-nums">
@@ -2502,7 +2567,7 @@ export function Receive({
         </div>
 
         {/* 5. Bottom Buttons: [ Copy ] & [ Save ] */}
-        <div className="grid grid-cols-2 gap-3 w-full max-w-[280px] pt-1">
+        <div className="grid grid-cols-2 gap-3 w-full max-w-[280px] pt-2">
           <button
             type="button"
             onClick={handleCopyUid}

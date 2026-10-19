@@ -25,7 +25,7 @@ void main() {
       expect(initial.dob, isEmpty);
       expect(initial.address, isEmpty);
       expect(initial.phone, isEmpty);
-      expect(initial.email, isEmpty);
+      expect(initial.email, 'user@pethar.com');
       expect(initial.pin, isEmpty);
       expect(initial.kycTier, 1);
       expect(initial.kycStatus, 'UNVERIFIED');

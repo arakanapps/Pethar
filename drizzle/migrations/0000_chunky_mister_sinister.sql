@@ -23,10 +23,57 @@ CREATE TABLE "transactions" (
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"full_name" text,
-	"phone" varchar(256)
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"username" varchar(50) UNIQUE,
+	"uid" varchar(64) UNIQUE,
+	"wallet_address" varchar(64),
+	"email" varchar(255) UNIQUE,
+	"phone_number" varchar(30) UNIQUE,
+	"first_name" varchar(50) DEFAULT '' NOT NULL,
+	"last_name" varchar(50) DEFAULT '' NOT NULL,
+	"full_name" varchar(100) DEFAULT 'User' NOT NULL,
+	"nickname" varchar(50) DEFAULT '',
+	"national_id_no" varchar(50) DEFAULT '',
+	"dob" date,
+	"address" text DEFAULT '',
+	"usd_account_wallet_address" varchar(64) DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19' NOT NULL,
+	"pin_hash" varchar(128) DEFAULT '',
+	"avatar_url" text DEFAULT '',
+	"kyc_tier" integer DEFAULT 1 NOT NULL,
+	"status" varchar(20) DEFAULT 'ACTIVE' NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
+--> statement-breakpoint
+CREATE TABLE "user_profiles" (
+	"id" varchar(64) PRIMARY KEY NOT NULL,
+	"user_id" uuid,
+	"username" varchar(50) DEFAULT '@user' NOT NULL,
+	"uid" varchar(64) NOT NULL,
+	"wallet_address" varchar(64) NOT NULL,
+	"first_name" varchar(50) DEFAULT '' NOT NULL,
+	"last_name" varchar(50) DEFAULT '' NOT NULL,
+	"name" varchar(100) DEFAULT 'User' NOT NULL,
+	"nickname" varchar(50) DEFAULT '',
+	"email" varchar(255) DEFAULT '' NOT NULL,
+	"phone" varchar(30) DEFAULT '' NOT NULL,
+	"pin_hash" varchar(128) DEFAULT '',
+	"national_id_no" varchar(50) DEFAULT '' NOT NULL,
+	"dob" date,
+	"address" text DEFAULT '' NOT NULL,
+	"usd_account_wallet_address" varchar(64) DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19' NOT NULL,
+	"ak_id" varchar(64),
+	"balance" numeric(18, 4) DEFAULT '0.00' NOT NULL,
+	"akd_wallet_balance" numeric(18, 4) DEFAULT '0.00' NOT NULL,
+	"usd_account_balance" numeric(18, 4) DEFAULT '0.00' NOT NULL,
+	"total_balance" numeric(18, 4) DEFAULT '0.00' NOT NULL,
+	"currency" varchar(16) DEFAULT 'AKD' NOT NULL,
+	"avatar_url" text DEFAULT '',
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "user_profiles" ADD CONSTRAINT "user_profiles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;
 --> statement-breakpoint
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_sender_account_id_accounts_id_fk" FOREIGN KEY ("sender_account_id") REFERENCES "public"."accounts"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_recipient_account_id_accounts_id_fk" FOREIGN KEY ("recipient_account_id") REFERENCES "public"."accounts"("id") ON DELETE no action ON UPDATE no action;

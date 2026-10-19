@@ -99,6 +99,8 @@ class AppState extends ChangeNotifier {
           if (profileMap['national_id_no'] != null && profileMap['national_id_no'].toString().isNotEmpty) profile.nationalIdNo = profileMap['national_id_no'].toString();
           if (profileMap['dob'] != null && profileMap['dob'].toString().isNotEmpty) profile.dob = profileMap['dob'].toString();
           if (profileMap['address'] != null && profileMap['address'].toString().isNotEmpty) profile.address = profileMap['address'].toString();
+          if (profileMap['gender'] != null && profileMap['gender'].toString().isNotEmpty) profile.gender = profileMap['gender'].toString();
+          if (profileMap['id_type'] != null && profileMap['id_type'].toString().isNotEmpty) profile.idType = profileMap['id_type'].toString();
           if (profileMap['avatar_url'] != null && profileMap['avatar_url'].toString().isNotEmpty) {
             profile.avatarUrl = profileMap['avatar_url'].toString();
           }
@@ -340,6 +342,8 @@ class AppState extends ChangeNotifier {
     profile.nationalIdNo = user.nationalIdNo;
     profile.dob = user.dob;
     profile.address = user.address;
+    profile.gender = user.gender;
+    profile.idType = user.idType;
     isVerified = user.kycTier >= 2;
     isAuthenticated = true;
     currentScreen = Screen.home;
