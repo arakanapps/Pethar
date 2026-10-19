@@ -28,33 +28,36 @@ class UserProfile {
   String location;
   String accountTier;
   String currency;
-  int kycTier;
+  int kycTier; // 1: Email Verified, 2: National ID Verified
+  String kycStatus; // 'UNVERIFIED', 'VERIFIED_LVL1', 'PENDING_REVIEW', 'VERIFIED_LVL2'
 
   UserProfile({
-    this.username = '@user',
-    this.uid = '202610190001',
+    this.username = '',
+    this.uid = '',
     String? walletAddress,
-    this.usdAccountWalletAddress = '0x36a8F492C109bE742819aBcD8391048291045f19',
-    this.nationalIdNo = 'MJ310666',
-    this.dob = '13 May 2003',
-    this.firstName = 'User',
-    this.lastName = 'PAING',
+    this.usdAccountWalletAddress = '',
+    this.nationalIdNo = '',
+    this.dob = '',
+    this.firstName = '',
+    this.lastName = '',
     String? name,
-    this.nickname = 'Jack',
-    required this.email,
-    required this.phone,
-    this.pin = '123456',
-    this.address = '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+    this.nickname = '',
+    this.email = '',
+    this.phone = '',
+    this.pin = '',
+    this.address = '',
     this.avatarUrl,
     this.akdWalletBalance = 0.00,
     this.usdAccountBalance = 0.00,
-    required this.petharId,
-    required this.location,
-    required this.accountTier,
+    String? petharId,
+    this.location = 'Arakan',
+    this.accountTier = 'Unverified',
     this.currency = 'AKD',
-    this.kycTier = 2,
+    this.kycTier = 1,
+    this.kycStatus = 'UNVERIFIED',
   })  : walletAddress = walletAddress ?? uid,
-        name = name ?? (firstName.isNotEmpty ? '$firstName ${lastName.trim()}'.trim() : 'User');
+        petharId = (petharId != null && petharId.isNotEmpty) ? petharId : uid,
+        name = name ?? (firstName.isNotEmpty ? '$firstName ${lastName.trim()}'.trim() : (username.isNotEmpty ? username : 'User'));
 }
 
 /// Generates a standardized UID in format: yearmmddusercount (e.g. 202610190001)
@@ -95,26 +98,28 @@ class Transaction {
 }
 
 UserProfile initialUserProfile = UserProfile(
-  username: '@user',
-  uid: '202610190001',
-  walletAddress: '202610190001',
-  usdAccountWalletAddress: '0x36a8F492C109bE742819aBcD8391048291045f19',
-  nationalIdNo: 'MJ310666',
-  dob: '13 May 2003',
-  firstName: 'User',
-  lastName: 'PAING',
-  name: 'User',
-  nickname: 'Jack',
-  email: 'example@email.com',
-  phone: '09795220917',
-  pin: '123456',
-  address: '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
-  petharId: '202610190001',
-  location: 'Sittwe · စစ်တွေ',
-  accountTier: 'Tier 2 Verified',
+  username: '',
+  uid: '',
+  walletAddress: '',
+  usdAccountWalletAddress: '',
+  nationalIdNo: '',
+  dob: '',
+  firstName: '',
+  lastName: '',
+  name: '',
+  nickname: '',
+  email: '',
+  phone: '',
+  pin: '',
+  address: '',
+  petharId: '',
+  location: 'Arakan',
+  accountTier: 'Unverified',
   akdWalletBalance: 0.00,
   usdAccountBalance: 0.00,
-  avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+  avatarUrl: null,
+  kycTier: 1,
+  kycStatus: 'UNVERIFIED',
 );
 
 WalletBalance akdWallet = WalletBalance(
