@@ -134,24 +134,14 @@ type FinancialSubView =
 
 const DOCK_TABS: MobileTab[] = ['home', 'financial', 'scan', 'services', 'account', 'settings', 'receive']
 
-const SINGLE_WALLET_ACCOUNT = {
-  name: 'USD Account',
-  shortAddress: '0x36...5f19',
-  fullAddress: '0x36a8F492C109bE742819aBcD8391048291045f19',
-  recoveryPhrase: [
-    'secure',
-    'arakan',
-    'crimson',
-    'harbor',
-    'shield',
-    'ledger',
-    'velvet',
-    'anchor',
-    'crystal',
-    'beacon',
-    'meadow',
-    'fortune',
-  ],
+function getWalletAccount(usdAddress: string) {
+  const short = usdAddress ? `${usdAddress.slice(0, 4)}...${usdAddress.slice(-4)}` : ''
+  return {
+    name: 'USD Account',
+    shortAddress: short,
+    fullAddress: usdAddress,
+    recoveryPhrase: [] as string[],
+  }
 }
 
 interface UsdStablecoin {
@@ -1080,13 +1070,13 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   }
 
   const handleCopyAddress = () => {
-    navigator.clipboard?.writeText(SINGLE_WALLET_ACCOUNT.fullAddress)
+    navigator.clipboard?.writeText(profile.usdAccountWalletAddress || '')
     setCopiedWalletAddr(true)
     setTimeout(() => setCopiedWalletAddr(false), 2000)
   }
 
   const handleCopyRecoveryPhrase = () => {
-    navigator.clipboard?.writeText(SINGLE_WALLET_ACCOUNT.recoveryPhrase.join(' '))
+    // Recovery phrase is not stored locally — sourced from secure backend
     setPhraseCopied(true)
     setTimeout(() => setPhraseCopied(false), 2000)
   }
@@ -1731,10 +1721,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </div>
                 <div>
                   <div className="text-sm font-extrabold text-zinc-900">
-                    {SINGLE_WALLET_ACCOUNT.name}
+                    {getWalletAccount(profile.usdAccountWalletAddress || '').name}
                   </div>
                   <div className="text-xs font-mono text-zinc-500">
-                    {SINGLE_WALLET_ACCOUNT.shortAddress}
+                    {getWalletAccount(profile.usdAccountWalletAddress || '').shortAddress}
                   </div>
                 </div>
               </div>
@@ -1769,7 +1759,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   className={`grid grid-cols-3 gap-2 p-3 rounded-2xl bg-zinc-50 border border-zinc-200 transition ${phraseRevealed ? '' : 'blur-sm select-none'
                     }`}
                 >
-                  {SINGLE_WALLET_ACCOUNT.recoveryPhrase.map((word, index) => (
+                  {getWalletAccount(profile.usdAccountWalletAddress || '').recoveryPhrase.map((word, index) => (
                     <div
                       key={word}
                       className="px-2.5 py-2 rounded-xl bg-white border border-zinc-200/80 text-xs font-mono flex items-center gap-1.5"
@@ -1946,10 +1936,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
               <div className="pr-2 text-xs font-semibold text-zinc-700">
                 <span className="font-bold text-zinc-900">
-                  {SINGLE_WALLET_ACCOUNT.name}
+                  {getWalletAccount(profile.usdAccountWalletAddress || '').name}
                 </span>{' '}
                 <span className="font-mono text-zinc-500">
-                  {SINGLE_WALLET_ACCOUNT.shortAddress}
+                  {getWalletAccount(profile.usdAccountWalletAddress || '').shortAddress}
                 </span>
               </div>
 
@@ -1992,7 +1982,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     $
                   </div>
                   <span className="text-sm font-extrabold text-zinc-900">
-                    {SINGLE_WALLET_ACCOUNT.name}
+                    {getWalletAccount(profile.usdAccountWalletAddress || '').name}
                   </span>
                 </div>
                 <ExternalLink size={16} className="text-zinc-400" />
@@ -2002,12 +1992,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <div className="p-3 bg-white rounded-2xl border border-zinc-100 shadow-xs">
                   <FakeQR
                     size={200}
-                    value={`${SINGLE_WALLET_ACCOUNT.fullAddress}?token=${selectedDepositToken}`}
+                    value={`${getWalletAccount(profile.usdAccountWalletAddress || '').fullAddress}?token=${selectedDepositToken}`}
                   />
                 </div>
 
                 <div className="text-sm font-mono font-bold text-zinc-800">
-                  {SINGLE_WALLET_ACCOUNT.shortAddress}
+                  {getWalletAccount(profile.usdAccountWalletAddress || '').shortAddress}
                 </div>
 
                 <div className="flex items-center justify-center">
@@ -2102,10 +2092,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         $
                       </div>
                       <span className="text-sm font-bold text-zinc-900">
-                        {SINGLE_WALLET_ACCOUNT.name}
+                        {getWalletAccount(profile.usdAccountWalletAddress || '').name}
                       </span>
                       <span className="text-sm font-mono text-zinc-500">
-                        {SINGLE_WALLET_ACCOUNT.shortAddress}
+                        {getWalletAccount(profile.usdAccountWalletAddress || '').shortAddress}
                       </span>
                     </div>
                   </div>
@@ -2210,7 +2200,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         </div>
                         <span className="text-xs font-bold text-zinc-800">USD Account</span>
                       </div>
-                      <span className="text-xs font-mono text-zinc-500">{SINGLE_WALLET_ACCOUNT.shortAddress}</span>
+                      <span className="text-xs font-mono text-zinc-500">{getWalletAccount(profile.usdAccountWalletAddress || '').shortAddress}</span>
                     </div>
                     <div className="border-t border-zinc-200 pt-2 flex items-center justify-between">
                       <div className="text-xs text-zinc-500">Recipient</div>
@@ -2389,7 +2379,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 $
               </div>
               <span className="text-base font-extrabold text-zinc-900">
-                {SINGLE_WALLET_ACCOUNT.name}
+                {getWalletAccount(profile.usdAccountWalletAddress || '').name}
               </span>
             </div>
 
@@ -2425,7 +2415,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             {/* Address + Copy */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-mono text-zinc-500">
-                {SINGLE_WALLET_ACCOUNT.shortAddress}
+                {getWalletAccount(profile.usdAccountWalletAddress || '').shortAddress}
               </span>
               <button
                 type="button"
@@ -2782,7 +2772,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderCameraScanScreen = () => {
     const usernameHandle = `@${profile.name.toLowerCase().replace(/\s+/g, '') || 'username'}`
-    const uidNumber = profile.uid || '202610190001'
+    const uidNumber = profile.uid
 
     const handleShareMyQr = async () => {
       const shareData = {
@@ -3168,7 +3158,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               recipientName={payRecipient.name}
               recipientId={payRecipient.username}
               senderName={profile.name}
-              senderId={profile.uid || '202610190001'}
+              senderId={profile.uid}
               notes={payNote || 'Payment'}
               fee={0.0}
               autoSaved={autoSaveReceipt}
@@ -4780,11 +4770,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       const thbAmount = isMm ? selectedBiller.defaultAmountMmk / thbRate : selectedBiller.defaultAmountThb
       const akdAmount = mmkAmount / akdRate
 
-      // Deduct balance
+      // Deduct balance (UI state only — source of truth is the database via updateUserBalanceInDb below)
       setAkdBalance((prev) => Math.max(0, prev - akdAmount))
-      if (wallets.length > 0) {
-        wallets[0].balance = Math.max(0, wallets[0].balance - akdAmount)
-      }
 
       // Add to transactions
       const newTx: Txn = {

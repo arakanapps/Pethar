@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
 import {
@@ -6,6 +6,7 @@ import {
   User, Hash, Box
 } from 'lucide-react';
 import { redirectToSubdomain } from '../../utils/subdomain';
+import { fetchTransactionsFromDb, fetchAllUsersForAdmin } from '../../services/walletDatabase';
 
 interface SearchPageProps {
   lang: Language;
@@ -24,6 +25,50 @@ interface SearchResultItem {
 export const SearchPage = ({ lang }: SearchPageProps) => {
   const [query, setQuery] = useState('');
   const [activeType, setActiveType] = useState<'all' | 'tx' | 'node' | 'block'>('all');
+  const [ledgerRecords, setLedgerRecords] = useState<SearchResultItem[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadData() {
+      try {
+        const [txs, users] = await Promise.all([
+          fetchTransactionsFromDb(),
+          fetchAllUsersForAdmin(),
+        ]);
+        if (!isMounted) return;
+        const items: SearchResultItem[] = [];
+        (txs || []).forEach((tx) => {
+          items.push({
+            id: tx.id,
+            type: 'tx',
+            title: tx.hash || tx.refId || tx.id,
+            subtitle: `${tx.title}: ${tx.amount} ${tx.currency} • ${tx.counterparty}`,
+            timestamp: tx.time,
+            status: tx.status,
+            link: 'wallet',
+          });
+        });
+        (users || []).forEach((u) => {
+          items.push({
+            id: u.uid,
+            type: 'node',
+            title: `akd_node_${u.uid}`,
+            subtitle: `${u.name} • Tier-${u.kyc_tier || 1} Enclave Node`,
+            timestamp: 'Active Node',
+            status: `Verified Tier-${u.kyc_tier || 1}`,
+            link: 'accounts',
+          });
+        });
+        setLedgerRecords(items);
+      } catch (err) {
+        console.warn('Error loading search ledger records:', err);
+      }
+    }
+    loadData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const t = lang === 'ak'
     ? {
@@ -49,64 +94,7 @@ export const SearchPage = ({ lang }: SearchPageProps) => {
         noResults: 'No records matched your search term. Verify the hash or node identifier.',
       };
 
-  const sampleData: SearchResultItem[] = [
-    {
-      id: 'tx-1',
-      type: 'tx',
-      title: '0x8fa912c00e1b77a28109ca429188a10b',
-      subtitle: 'Transfer 450.00 ₳ to Daw Nilar Win (Mae Sot Hub)',
-      timestamp: '2 mins ago',
-      status: 'Settled (Block #2491032)',
-      link: 'wallet'
-    },
-    {
-      id: 'tx-2',
-      type: 'tx',
-      title: '0x3fe1901a88b199042b8744ce091a4fa8',
-      subtitle: 'Merchant POS Settlement: Sittwe Seafood Market 128.50 ₳',
-      timestamp: '18 mins ago',
-      status: 'Settled (Block #2491029)',
-      link: 'merchant'
-    },
-    {
-      id: 'node-1',
-      type: 'node',
-      title: 'akd_node_sittwe_port_treasury',
-      subtitle: 'Sittwe Port Regional Clearing & Logistics Pool',
-      timestamp: 'Active Node',
-      status: 'Verified Tier-2',
-      link: 'accounts'
-    },
-    {
-      id: 'node-2',
-      type: 'node',
-      title: 'akd_node_7f81a92e10bc_bangkok',
-      subtitle: 'Bangkok Diaspora Remittance Clearing Node',
-      timestamp: 'Active Node',
-      status: 'Verified Merchant Tier-2',
-      link: 'global'
-    },
-    {
-      id: 'block-1',
-      type: 'block',
-      title: 'Block Height #2,491,032',
-      subtitle: 'Contains 142 atomic transfers · Validator: Node A1',
-      timestamp: '2 mins ago',
-      status: 'Finalized (Ed25519 Quorum)',
-      link: 'api'
-    },
-    {
-      id: 'gold-1',
-      type: 'gold_serial',
-      title: 'Bullion Serial #BOE-AU-999-4081',
-      subtitle: 'Allocated 1.000 kg Fine Gold 999.9 (London Depository Vault)',
-      timestamp: 'Audited Oct 2026',
-      status: '100% Backed Collateral',
-      link: 'trade'
-    }
-  ];
-
-  const filteredResults = sampleData.filter((item) => {
+  const filteredResults = ledgerRecords.filter((item) => {
     const matchesCategory = activeType === 'all' || item.type === activeType;
     const matchesQuery = query === '' || 
       item.title.toLowerCase().includes(query.toLowerCase()) ||

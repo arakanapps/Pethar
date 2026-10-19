@@ -223,15 +223,15 @@ export async function fetchUserProfileFromDb(lookupUidOrEmail?: string): Promise
 function mapDbProfile(data: any): DbUserProfile {
   const bal = parseFloat(data.balance || 0)
   const usdBal = parseFloat(data.usd_account_balance || 0)
-  const uid = data.uid || data.wallet_address || '202610190001'
+  const uid = data.uid || data.wallet_address || ''
 
   return {
     id: data.id,
-    name: data.name || data.first_name || 'User',
+    name: data.name || data.first_name || '',
     firstName: data.first_name || '',
     lastName: data.last_name || '',
     nickname: data.nickname || '',
-    username: data.username || '@user',
+    username: data.username || '',
     uid: uid,
     walletAddress: data.wallet_address || uid,
     email: data.email || '',
@@ -240,8 +240,8 @@ function mapDbProfile(data: any): DbUserProfile {
     nationalIdNo: data.national_id_no || '',
     dob: data.dob || '',
     address: data.address || '',
-    usdAccountWalletAddress: data.usd_account_wallet_address || '0x36a8F492C109bE742819aBcD8391048291045f19',
-    ak_id: uid, // replaced ak_id with uid
+    usdAccountWalletAddress: data.usd_account_wallet_address || '',
+    ak_id: uid,
     balance: bal,
     akdWalletBalance: data.akd_wallet_balance ? parseFloat(data.akd_wallet_balance) : bal,
     usdAccountBalance: usdBal,
@@ -320,40 +320,7 @@ export async function authenticateWithEmailAndPin(
       return { success: true, user: profile }
     }
 
-    // Check local fallback user if database is offline/unreachable
-    const localEmail = typeof window !== 'undefined' ? localStorage.getItem('pethar_saved_email') : null
-    const localPin = typeof window !== 'undefined' ? localStorage.getItem('pethar_saved_pin') : null
-    if (localEmail && localEmail.toLowerCase() === cleanEmail && localPin === pin.trim()) {
-      const localProfile: DbUserProfile = {
-        id: 'local_user',
-        name: localStorage.getItem('pethar_saved_name') || 'User',
-        firstName: '',
-        lastName: '',
-        nickname: '',
-        username: localStorage.getItem('pethar_saved_username') || '@user',
-        uid: localStorage.getItem('pethar_saved_uid') || '202610190001',
-        walletAddress: localStorage.getItem('pethar_saved_uid') || '202610190001',
-        email: cleanEmail,
-        phone: '',
-        nationalIdNo: '',
-        dob: '',
-        address: '',
-        usdAccountWalletAddress: '0x36a8F492C109bE742819aBcD8391048291045f19',
-        ak_id: localStorage.getItem('pethar_saved_uid') || '202610190001',
-        balance: 0.0,
-        akdWalletBalance: 0.0,
-        usdAccountBalance: 0.0,
-        totalBalance: 0.0,
-        currency: 'AKD',
-        kyc_tier: 1,
-        kyc_status: 'email_verified',
-      }
-      localStorage.setItem('pethar_logged_in', 'true')
-      localStorage.setItem('pethar_active_uid', localProfile.uid)
-      localStorage.setItem('pethar_active_email', localProfile.email)
-      return { success: true, user: localProfile }
-    }
-
+    // No local fallback — all data must come from the database
     return { success: false, error: 'INCORRECT_CREDENTIALS' }
   } catch (err: any) {
     console.error('Sign in exception:', err)
@@ -396,7 +363,7 @@ export async function registerWithEmailAndPin(params: {
       national_id_no: '',
       dob: '',
       address: '',
-      usd_account_wallet_address: '0x36a8F492C109bE742819aBcD8391048291045f19',
+      usd_account_wallet_address: '',
       balance: 0.0,
       usd_account_balance: 0.0,
       currency: 'AKD',

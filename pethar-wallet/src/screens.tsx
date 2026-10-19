@@ -25,7 +25,7 @@ import {
 } from './utils/receiptSaver'
 import {
   useNotifications, markAllRead, markRead,
-  deleteNotification, clearAllNotifications, resetDemoNotifications,
+  deleteNotification, clearAllNotifications,
   type NotiItem
 } from './notifications'
 import type { Language } from './i18n'
@@ -731,10 +731,10 @@ export function AccountScreen({
   const akdPercent = totalAmount > 0 ? (akdBal / totalAmount) * 100 : 50
   const usdPercent = totalAmount > 0 ? (usdBal / totalAmount) * 100 : 50
 
-  const userUid = initialUserProfile.uid || '202610190001'
+  const userUid = initialUserProfile.uid
 
   const copyAddress = () => {
-    navigator.clipboard.writeText('0x36a8F492C109bE742819aBcD8391048291045f19')
+    navigator.clipboard.writeText(currentProfile.usdAccountWalletAddress || '')
     setCopiedAddr(true)
     setTimeout(() => setCopiedAddr(false), 2000)
   }
@@ -1751,8 +1751,8 @@ export function SettingsScreen({
       pin: editPin.trim().length === 6 ? editPin.trim() : currentProfile.pin,
       // Immutable fields are strictly preserved
       username: currentProfile.username,
-      uid: currentProfile.uid || '202610190001',
-      walletAddress: currentProfile.uid || '202610190001',
+      uid: currentProfile.uid,
+      walletAddress: currentProfile.uid,
       usdAccountWalletAddress: currentProfile.usdAccountWalletAddress,
       akdWalletBalance: currentProfile.akdWalletBalance,
       usdAccountBalance: currentProfile.usdAccountBalance,
@@ -2593,7 +2593,7 @@ export function Send({
             recipientName={contact.name}
             recipientId={contact.id}
             senderName="User"
-            senderId={initialUserProfile.uid || '202610190001'}
+            senderId={initialUserProfile.uid}
             fee={0.0}
             autoSaved={isAutoSaveReceiptEnabled()}
             onClose={() => go('home')}
@@ -2624,7 +2624,7 @@ export function Receive({
   const isAk = lang === 'ak'
   const currentProfile = profile || initialUserProfile
   const usernameHandle = `@${currentProfile.name.toLowerCase().replace(/\s+/g, '') || 'username'}`
-  const uidNumber = currentProfile.uid || '202610190001'
+  const uidNumber = currentProfile.uid
 
   const handleCopyUid = () => {
     navigator.clipboard?.writeText(uidNumber)
@@ -2774,7 +2774,7 @@ export function Scan({
   const isAk = lang === 'ak'
   const currentProfile = profile || initialUserProfile
   const usernameHandle = `@${currentProfile.name.toLowerCase().replace(/\s+/g, '') || 'username'}`
-  const uidNumber = currentProfile.uid || '202610190001'
+  const uidNumber = currentProfile.uid
 
   const handleShareQr = async () => {
     const shareData = {
@@ -3210,17 +3210,7 @@ export function NotificationsScreen({
                   <Trash2 size={15} />
                   <span>{isAk ? 'အားလုံး ရှင်းလင်းမည်' : 'Clear all'}</span>
                 </button>
-                <div className="my-1 border-t border-gray-100" />
-                <button
-                  onClick={() => {
-                    resetDemoNotifications()
-                    setMenuOpen(false)
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-gray-700 hover:bg-gray-100 transition"
-                >
-                  <RotateCcw size={15} className="text-gray-500" />
-                  <span>{isAk ? 'မူလ သရုပ်ပြ အသိပေးချက်များ ပြန်ယူမည်' : 'Reset demo alerts'}</span>
-                </button>
+
               </div>
             </>
           )}
@@ -3373,13 +3363,7 @@ export function NotificationsScreen({
                 : 'No notifications found in this category. You are up to date on all wallet activity.'}
             </p>
 
-            <button
-              onClick={() => resetDemoNotifications()}
-              className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 transition active:scale-95 border border-blue-200/60"
-            >
-              <RotateCcw size={14} />
-              <span>{isAk ? 'သရုပ်ပြ အသိပေးချက်များ ပြန်ဖွင့်မည်' : 'Load Demo Notifications'}</span>
-            </button>
+
           </div>
         )}
       </div>
