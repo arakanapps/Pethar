@@ -59,10 +59,7 @@ export function clearAllNotifications() {
   emit()
 }
 
-export function resetDemoNotifications() {
-  items = [...seed]
-  emit()
-}
+// Notifications are fetched from Supabase — no local seed/demo reset
 
 export function useNotifications() {
   const list = useSyncExternalStore(subscribe, getItems)
