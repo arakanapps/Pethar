@@ -1887,7 +1887,7 @@ export function Receive({
   const handleShare = async () => {
     const shareData = {
       title: 'Péthar Receive QR',
-      text: `${currentProfile.name} (${usernameHandle}) · UID: ${uidNumber}`,
+      text: `${currentProfile.name} (${usernameHandle}) · Wallet Address: ${uidNumber}`,
       url: `pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`,
     }
     try {
@@ -1902,26 +1902,26 @@ export function Receive({
 
   return (
     <div className={`flex h-full flex-col ${th.root(theme)} text-zinc-900`}>
-      {/* Top Header: < | Receive | (Share) */}
+      {/* Top Header: < | Receive (centered) | (Share) */}
       {!embedded && (
-        <div className="bg-white px-4 pt-4 pb-3 flex items-center justify-between border-b border-zinc-200/80 sticky top-0 z-20">
+        <div className="bg-white px-4 pt-4 pb-3 flex items-center justify-between border-b border-zinc-200/80 sticky top-0 z-20 relative">
           <button
             type="button"
             onClick={() => go && go('home')}
             aria-label="Back"
-            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-800 hover:bg-zinc-100 transition cursor-pointer"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-800 hover:bg-zinc-100 transition cursor-pointer z-10"
           >
             <ChevronRight size={22} className="rotate-180" />
           </button>
 
-          <h1 className="text-base font-extrabold text-zinc-900 tracking-tight">
+          <h1 className="absolute inset-0 flex items-center justify-center text-base font-extrabold text-zinc-900 tracking-tight pointer-events-none">
             {isAk ? 'ငွေလက်ခံရန်' : 'Receive'}
           </h1>
 
           <button
             type="button"
             onClick={handleShare}
-            className="px-3.5 py-1.5 rounded-full border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 inline-flex items-center gap-1.5 shadow-2xs active:scale-95 transition cursor-pointer"
+            className="px-3.5 py-1.5 rounded-full border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 inline-flex items-center gap-1.5 shadow-2xs active:scale-95 transition cursor-pointer z-10"
           >
             <Share2 size={13} className="text-[#D91624]" />
             <span>{sharedQr ? (isAk ? 'မျှဝေပြီး' : 'Shared') : isAk ? 'မျှဝေရန်' : 'Share'}</span>
@@ -1930,13 +1930,13 @@ export function Receive({
       )}
 
       {/* Main Content Body */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-5 text-center space-y-4">
+      <div className="flex-1 flex flex-col items-center justify-start px-6 pt-5 pb-8 text-center space-y-3.5 overflow-y-auto">
         {/* 1. App Logo + App Name (No container under logo) */}
-        <div className="flex flex-col items-center space-y-1.5">
+        <div className="flex flex-col items-center space-y-1">
           <img
             src="/pethar-logo-red-white.svg"
             alt="Péthar Logo"
-            className="w-12 h-12 object-contain"
+            className="w-11 h-11 object-contain"
           />
           <div className="text-sm font-extrabold text-zinc-900 tracking-tight">
             Péthar
@@ -1954,22 +1954,22 @@ export function Receive({
         </div>
 
         {/* 3. QR Box */}
-        <div className="p-5 bg-white rounded-3xl border-2 border-zinc-200/90 shadow-[0_10px_28px_rgba(15,23,42,0.06)] flex items-center justify-center">
-          <FakeQR size={184} value={`pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`} />
+        <div className="p-4 bg-white rounded-3xl border-2 border-zinc-200/90 shadow-[0_10px_28px_rgba(15,23,42,0.06)] flex items-center justify-center">
+          <FakeQR size={178} value={`pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`} />
         </div>
 
-        {/* 4. UID Number */}
+        {/* 4. Wallet Address */}
         <div className="pt-0.5">
           <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-            UID Number
+            {isAk ? 'ပိုက်ဆံအိတ် လိပ်စာ' : 'Wallet Address'}
           </div>
           <div className="text-base font-extrabold font-mono tracking-widest text-zinc-900 mt-0.5 tabular-nums">
             {uidNumber}
           </div>
         </div>
 
-        {/* 5. Bottom Buttons: [ copy UID ] & [ Save ] */}
-        <div className="grid grid-cols-2 gap-3 w-full max-w-[280px] pt-2">
+        {/* 5. Bottom Buttons: [ Copy ] & [ Save ] */}
+        <div className="grid grid-cols-2 gap-3 w-full max-w-[280px] pt-1">
           <button
             type="button"
             onClick={handleCopyUid}
@@ -1980,7 +1980,7 @@ export function Receive({
             ) : (
               <Copy size={15} className="text-zinc-700" />
             )}
-            <span>{copiedUid ? (isAk ? 'ကူးယူပြီး' : 'Copied') : 'copy UID'}</span>
+            <span>{copiedUid ? (isAk ? 'ကူးယူပြီး' : 'Copied') : isAk ? 'ကူးယူရန်' : 'Copy'}</span>
           </button>
 
           <button

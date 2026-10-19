@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'models/data.dart';
+import 'services/auth_service.dart';
 import 'services/firebase_service.dart';
 import 'services/supabase_service.dart';
 
@@ -10,12 +11,12 @@ class AppState extends ChangeNotifier {
   List<Screen> navigationStack = [Screen.home];
   String language = 'en'; // Default English matching iOS MobileWalletPage
   ThemeMode themeMode = ThemeMode.light; // Strictly light theme matching iOS
-  bool isAuthenticated = true;
+  bool isAuthenticated = false; // Fresh download/launch shows Login or Sign Up
   String financialSubView = 'wallet_main'; // 'wallet_main' | 'deposit' | 'withdraw' | 'tx_history' | 'spending' | 'wallet_security_phrase'
   UserProfile profile = initialUserProfile;
   WalletBalance wallet = akdWallet;
   double usdAccountBalance = 0.00;
-  bool isVerified = true;
+  bool isVerified = false; // Verified when Level 2 National ID approved
   bool balanceHidden = false;
   bool walletBalanceHidden = false;
   bool autoSaveSlip = true;
@@ -43,7 +44,19 @@ class AppState extends ChangeNotifier {
   bool isLoadingDb = false;
 
   AppState() {
-    loadSupabaseData();
+    _initializeAuthAndData();
+  }
+
+  Future<void> _initializeAuthAndData() async {
+    await AuthService().initialize();
+    final activeEmail = await AuthService().getSavedActiveUserEmail();
+    if (activeEmail != null && activeEmail.isNotEmpty) {
+      final user = AuthService().getUser(activeEmail);
+      if (user != null) {
+        _applyAuthenticatedUser(user);
+      }
+    }
+    await loadSupabaseData();
   }
 
   /// Fetch live data from Supabase tables
@@ -59,44 +72,47 @@ class AppState extends ChangeNotifier {
         transactions = txList;
       }
 
-      // 2. Fetch User Profile & Balance from Supabase
-      final profileMap = await supa.fetchUserProfile();
-      if (profileMap != null) {
-        if (profileMap['username'] != null && profileMap['username'].toString().isNotEmpty) {
-          profile.username = profileMap['username'].toString();
-        }
-        if (profileMap['uid'] != null && profileMap['uid'].toString().isNotEmpty) {
-          profile.uid = profileMap['uid'].toString();
-          profile.walletAddress = profile.uid;
-        }
-        if (profileMap['wallet_address'] != null && profileMap['wallet_address'].toString().isNotEmpty) {
-          profile.walletAddress = profileMap['wallet_address'].toString();
-        }
-        if (profileMap['usd_account_wallet_address'] != null && profileMap['usd_account_wallet_address'].toString().isNotEmpty) {
-          profile.usdAccountWalletAddress = profileMap['usd_account_wallet_address'].toString();
-        }
-        if (profileMap['first_name'] != null) profile.firstName = profileMap['first_name'].toString();
-        if (profileMap['last_name'] != null) profile.lastName = profileMap['last_name'].toString();
-        if (profileMap['name'] != null) profile.name = profileMap['name'].toString();
-        if (profileMap['nickname'] != null) profile.nickname = profileMap['nickname'].toString();
-        if (profileMap['email'] != null) profile.email = profileMap['email'].toString();
-        if (profileMap['phone'] != null) profile.phone = profileMap['phone'].toString();
-        if (profileMap['national_id_no'] != null) profile.nationalIdNo = profileMap['national_id_no'].toString();
-        if (profileMap['dob'] != null) profile.dob = profileMap['dob'].toString();
-        if (profileMap['address'] != null) profile.address = profileMap['address'].toString();
-        if (profileMap['avatar_url'] != null && profileMap['avatar_url'].toString().isNotEmpty) {
-          profile.avatarUrl = profileMap['avatar_url'].toString();
-        }
-        if (profileMap['balance'] != null) {
-          final bal = double.tryParse(profileMap['balance'].toString()) ?? wallet.balance;
-          profile.akdWalletBalance = bal;
-          wallet.balance = bal;
-          wallet.totalBalance = bal;
-        }
-        if (profileMap['usd_account_balance'] != null) {
-          final usdBal = double.tryParse(profileMap['usd_account_balance'].toString()) ?? usdAccountBalance;
-          profile.usdAccountBalance = usdBal;
-          usdAccountBalance = usdBal;
+      // 2. Fetch User Profile & Balance from Supabase only if authenticated
+      if (isAuthenticated) {
+        final profileMap = await supa.fetchUserProfile();
+        if (profileMap != null) {
+          if (profileMap['username'] != null && profileMap['username'].toString().isNotEmpty) {
+            profile.username = profileMap['username'].toString();
+          }
+          if (profileMap['uid'] != null && profileMap['uid'].toString().isNotEmpty) {
+            profile.uid = profileMap['uid'].toString();
+            profile.walletAddress = profile.uid;
+            profile.petharId = profile.uid;
+          }
+          if (profileMap['wallet_address'] != null && profileMap['wallet_address'].toString().isNotEmpty) {
+            profile.walletAddress = profileMap['wallet_address'].toString();
+          }
+          if (profileMap['usd_account_wallet_address'] != null && profileMap['usd_account_wallet_address'].toString().isNotEmpty) {
+            profile.usdAccountWalletAddress = profileMap['usd_account_wallet_address'].toString();
+          }
+          if (profileMap['first_name'] != null && profileMap['first_name'].toString().isNotEmpty) profile.firstName = profileMap['first_name'].toString();
+          if (profileMap['last_name'] != null && profileMap['last_name'].toString().isNotEmpty) profile.lastName = profileMap['last_name'].toString();
+          if (profileMap['name'] != null && profileMap['name'].toString().isNotEmpty) profile.name = profileMap['name'].toString();
+          if (profileMap['nickname'] != null && profileMap['nickname'].toString().isNotEmpty) profile.nickname = profileMap['nickname'].toString();
+          if (profileMap['email'] != null && profileMap['email'].toString().isNotEmpty) profile.email = profileMap['email'].toString();
+          if (profileMap['phone'] != null && profileMap['phone'].toString().isNotEmpty) profile.phone = profileMap['phone'].toString();
+          if (profileMap['national_id_no'] != null && profileMap['national_id_no'].toString().isNotEmpty) profile.nationalIdNo = profileMap['national_id_no'].toString();
+          if (profileMap['dob'] != null && profileMap['dob'].toString().isNotEmpty) profile.dob = profileMap['dob'].toString();
+          if (profileMap['address'] != null && profileMap['address'].toString().isNotEmpty) profile.address = profileMap['address'].toString();
+          if (profileMap['avatar_url'] != null && profileMap['avatar_url'].toString().isNotEmpty) {
+            profile.avatarUrl = profileMap['avatar_url'].toString();
+          }
+          if (profileMap['balance'] != null) {
+            final bal = double.tryParse(profileMap['balance'].toString()) ?? wallet.balance;
+            profile.akdWalletBalance = bal;
+            wallet.balance = bal;
+            wallet.totalBalance = bal;
+          }
+          if (profileMap['usd_account_balance'] != null) {
+            final usdBal = double.tryParse(profileMap['usd_account_balance'].toString()) ?? usdAccountBalance;
+            profile.usdAccountBalance = usdBal;
+            usdAccountBalance = usdBal;
+          }
         }
       }
 
@@ -288,6 +304,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> signOut() async {
     try {
+      await AuthService().setActiveUserEmail(null);
       await SupabaseService().signOut();
     } catch (_) {}
     try {
@@ -295,11 +312,142 @@ class AppState extends ChangeNotifier {
     } catch (e) {
       debugPrint('Sign out notice: $e');
     }
+    profile = initialUserProfile;
     isAuthenticated = false;
+    isVerified = false;
     currentScreen = Screen.home;
     navigationStack = [Screen.home];
     financialSubView = 'wallet_main';
     notifyListeners();
+  }
+
+  /// Apply authenticated user identity to state
+  void _applyAuthenticatedUser(StoredUser user) {
+    profile.email = user.email;
+    profile.name = user.name;
+    profile.username = user.username;
+    profile.uid = user.uid;
+    profile.walletAddress = user.uid;
+    profile.petharId = user.uid;
+    profile.pin = user.pin;
+    profile.kycTier = user.kycTier;
+    profile.kycStatus = user.kycStatus;
+    profile.accountTier = user.kycTier == 2
+        ? 'Level 2: National ID Verified'
+        : (user.kycStatus == 'PENDING_REVIEW'
+            ? 'Level 2: Pending Review'
+            : 'Level 1: Email Verified');
+    profile.nationalIdNo = user.nationalIdNo;
+    profile.dob = user.dob;
+    profile.address = user.address;
+    isVerified = user.kycTier >= 2;
+    isAuthenticated = true;
+    currentScreen = Screen.home;
+    navigationStack = [Screen.home];
+    notifyListeners();
+  }
+
+  /// 1. Log in with Email and 6-digit PIN
+  Future<Map<String, dynamic>> loginWithEmailAndPin({
+    required String email,
+    required String pin,
+  }) async {
+    final res = await AuthService().loginWithEmailAndPin(email: email, pin: pin);
+    if (res['success'] == true && res['user'] is StoredUser) {
+      _applyAuthenticatedUser(res['user'] as StoredUser);
+      return {'success': true};
+    }
+    return res;
+  }
+
+  /// 2. Request Forgot Password / PIN Reset OTP (10 minute expiry)
+  Future<Map<String, dynamic>> requestPinResetOtp(String email) async {
+    return await AuthService().requestPinResetOtp(email: email);
+  }
+
+  /// 3. Verify PIN Reset OTP
+  Map<String, dynamic> verifyPinResetOtp(String email, String otp) {
+    return AuthService().verifyPinResetOtp(email: email, otp: otp);
+  }
+
+  /// 4. Confirm and save New 6-digit PIN
+  Future<Map<String, dynamic>> confirmPinReset({
+    required String email,
+    required String newPin,
+    required String confirmPin,
+  }) async {
+    return await AuthService().confirmPinReset(
+      email: email,
+      newPin: newPin,
+      confirmPin: confirmPin,
+    );
+  }
+
+  /// 5. Sign up Step 1: Credentials and send 10-minute Email OTP
+  Future<Map<String, dynamic>> initiateSignUp({
+    required String email,
+    required String pin,
+    required String confirmPin,
+  }) async {
+    return await AuthService().initiateSignUp(
+      email: email,
+      pin: pin,
+      confirmPin: confirmPin,
+    );
+  }
+
+  /// 6. Sign up Step 2: Verify Email OTP
+  Map<String, dynamic> verifySignUpOtp(String email, String otp) {
+    return AuthService().verifySignUpOtp(email: email, otp: otp);
+  }
+
+  /// 7. Sign up Step 3: Complete Identity -> Issues UID and KYC Level 1
+  Future<Map<String, dynamic>> completeSignUp({
+    required String email,
+    required String name,
+    required String username,
+  }) async {
+    final res = await AuthService().completeSignUp(
+      email: email,
+      name: name,
+      username: username,
+    );
+    if (res['success'] == true && res['user'] is StoredUser) {
+      _applyAuthenticatedUser(res['user'] as StoredUser);
+      return {'success': true};
+    }
+    return res;
+  }
+
+  /// 8. Submit KYC Level 2 (National ID Verification) -> Pending Review
+  Future<Map<String, dynamic>> submitKycLevel2({
+    required String nationalIdNo,
+    required String dob,
+    required String fullName,
+    required String address,
+  }) async {
+    final res = await AuthService().submitKycLevel2(
+      email: profile.email,
+      nationalIdNo: nationalIdNo,
+      dob: dob,
+      fullName: fullName,
+      address: address,
+    );
+    if (res['success'] == true && res['user'] is StoredUser) {
+      _applyAuthenticatedUser(res['user'] as StoredUser);
+      return {'success': true, 'message': res['message']};
+    }
+    return res;
+  }
+
+  /// 9. Approve KYC Level 2 (Upgrade to Level 2)
+  Future<Map<String, dynamic>> approveKycLevel2() async {
+    final res = await AuthService().approveKycLevel2(email: profile.email);
+    if (res['success'] == true && res['user'] is StoredUser) {
+      _applyAuthenticatedUser(res['user'] as StoredUser);
+      return {'success': true, 'message': res['message']};
+    }
+    return res;
   }
 
   void signIn({String? email, String? name}) {

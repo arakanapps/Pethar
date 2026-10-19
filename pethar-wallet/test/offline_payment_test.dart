@@ -98,10 +98,10 @@ void main() {
       expect(parsed.chainHash, original.chainHash);
     });
 
-    test('enforces KYC tier transaction limits in OfflinePaymentConfig', () {
+    test('enforces KYC tier transaction limits in OfflinePaymentConfig (No Level 3)', () {
       expect(OfflinePaymentConfig.maxAmountByKycTier[1], 500.0);
       expect(OfflinePaymentConfig.maxAmountByKycTier[2], 5000.0);
-      expect(OfflinePaymentConfig.maxAmountByKycTier[3], 50000.0);
+      expect(OfflinePaymentConfig.maxAmountByKycTier.containsKey(3), isFalse);
     });
   });
 

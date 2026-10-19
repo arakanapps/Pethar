@@ -504,163 +504,328 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
   );
 }
 
-/// Shows the iOS KYC Account Verification Modal
+/// Shows the iOS KYC Account Verification Modal (Level 1: Email Verified, Level 2: National ID Verified)
 void showKycVerificationModal(BuildContext context, AppState appState) {
   final isAk = appState.language == 'ak';
   final nameCtrl = TextEditingController(text: appState.profile.name);
+  final nrcCtrl = TextEditingController(text: appState.profile.nationalIdNo);
+  final dobCtrl = TextEditingController(text: appState.profile.dob.isNotEmpty ? appState.profile.dob : '2000-01-01');
+  final addrCtrl = TextEditingController(text: appState.profile.address);
+  bool isSubmitting = false;
 
   showDialog(
     context: context,
-    builder: (ctx) => Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-      backgroundColor: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setModalState) {
+        final isLvl2 = appState.profile.kycTier >= 2;
+        final isPending = appState.profile.kycStatus == 'PENDING_REVIEW';
+
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          backgroundColor: Colors.white,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const ArakanEmblem(size: 26),
+                        const SizedBox(width: 8),
+                        Text(
+                          isAk ? 'အကောင့် အတည်ပြုချက် (KYC)' : 'Account Verification',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF18181B),
+                          ),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(ctx),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF4F4F5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close, size: 16, color: Color(0xFF71717A)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // KYC Level 1 Status Card (Email Verified)
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFECFDF5),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFA7F3D0)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF10B981),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.check, size: 14, color: Colors.white),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isAk ? 'KYC အဆင့် ၁ : အီးမေးလ် အတည်ပြုပြီး' : 'KYC Level 1: Email Verified',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF065F46),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              appState.profile.email.isNotEmpty
+                                  ? appState.profile.email
+                                  : (isAk ? 'အီးမေးလ် အတည်ပြုပြီးပါပြီ' : 'Email verified upon sign up'),
+                              style: const TextStyle(fontSize: 11.5, color: Color(0xFF047857)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // KYC Level 2 Section (National ID Verification)
                 Text(
-                  isAk ? 'အကောင့် အတည်ပြုချက် (KYC)' : 'Account Verification',
+                  isAk ? 'KYC အဆင့် ၂ : နိုင်ငံသားကတ် စိစစ်အတည်ပြုခြင်း' : 'KYC Level 2: National ID Verification',
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF18181B),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: appState.isVerified
-                        ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                        : crimson.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    appState.isVerified ? 'Verified' : 'Unverified',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: appState.isVerified ? const Color(0xFF047857) : crimson,
+                const SizedBox(height: 4),
+                Text(
+                  isAk
+                      ? 'အဆင့် ၂ သို့ တိုးမြှင့်ရန် နိုင်ငံသားကတ်နှင့် ကိုယ်ရေးအချက်အလက်များ တင်သွင်းပြီး စိစစ်အတည်ပြုချက်ကို စောင့်ဆိုင်းရမည်ဖြစ်ပါသည်။'
+                      : 'To upgrade to KYC Level 2, enter your National ID and personal info and wait for administrative review.',
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF71717A), height: 1.4),
+                ),
+                const SizedBox(height: 14),
+
+                if (isLvl2) ...[
+                  // Level 2 Approved State
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDF4),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFF86EFAC)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.verified_rounded, color: Color(0xFF16A34A), size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              isAk ? 'အဆင့် ၂ အတည်ပြုပြီးပါပြီ' : 'Level 2 Verified',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF166534)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${isAk ? 'နိုင်ငံသားကတ်နံပါတ်:' : 'National ID:'} ${appState.profile.nationalIdNo.isNotEmpty ? appState.profile.nationalIdNo : "ARAK-NAT-VERIFIED"}',
+                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, fontFamily: 'monospace', color: Color(0xFF14532D)),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${isAk ? 'အမည်:' : 'Legal Name:'} ${appState.profile.name}',
+                          style: const TextStyle(fontSize: 12, color: Color(0xFF166534)),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Full Name',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF71717A),
-              ),
-            ),
-            const SizedBox(height: 6),
-            TextField(
-              controller: nameCtrl,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF18181B),
-              ),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: const Color(0xFFF4F4F5),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFAFAFA),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE4E4E7)),
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'USD Account',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF27272A),
+                ] else if (isPending) ...[
+                  // Pending Review State
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFBEB),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFFDE68A)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.hourglass_top_rounded, color: Color(0xFFD97706), size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              isAk ? 'စိစစ်အတည်ပြုချက် စောင့်ဆိုင်းနေဆဲ (Pending Review)' : 'Pending Administrative Review',
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF92400E)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          isAk
+                              ? 'သင်၏ နိုင်ငံသားကတ် အချက်အလက်များကို တင်သွင်းပြီးပါပြီ။ စီမံခန့်ခွဲရေးအဖွဲ့မှ စစ်ဆေးအတည်ပြုပြီးသည်နှင့် အဆင့် ၂ သို့ အလိုအလျောက် ရောက်ရှိပါမည်။'
+                              : 'Your personal info and National ID have been submitted and are under review. Once approved, your account will be upgraded to KYC Level 2.',
+                          style: const TextStyle(fontSize: 12, color: Color(0xFF78350F), height: 1.4),
+                        ),
+                        const SizedBox(height: 12),
+                        // Test approval button
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            setModalState(() => isSubmitting = true);
+                            await appState.approveKycLevel2();
+                            setModalState(() => isSubmitting = false);
+                          },
+                          icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF059669)),
+                          label: Text(
+                            isAk ? 'အတည်ပြုမှု စမ်းသပ်ရန် (Approve Review)' : 'Approve Review (Dev/Admin)',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF065F46)),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(0xFFA7F3D0)),
+                            backgroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    '0x36a8F492C109bE742819aBcD8391048291045f19',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontFamily: 'monospace',
-                      color: Color(0xFF71717A),
+                ] else ...[
+                  // Submit Level 2 Form
+                  Text(isAk ? 'တရားဝင် အမည်အပြည့်အစုံ' : 'Full Legal Name', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF71717A))),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: nameCtrl,
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
+                    decoration: InputDecoration(
+                      hintText: 'e.g. U Kyaw Min',
+                      filled: true,
+                      fillColor: const Color(0xFFF4F4F5),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  Text(isAk ? 'နိုင်ငံသားကတ် / မှတ်ပုံတင် အမှတ်' : 'National ID Number', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF71717A))),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: nrcCtrl,
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
+                    decoration: InputDecoration(
+                      hintText: 'e.g. ARAK-NAT-091823',
+                      filled: true,
+                      fillColor: const Color(0xFFF4F4F5),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  Text(isAk ? 'မွေးသက္ကရာဇ် (DOB)' : 'Date of Birth (YYYY-MM-DD)', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF71717A))),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: dobCtrl,
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
+                    decoration: InputDecoration(
+                      hintText: '2000-01-01',
+                      filled: true,
+                      fillColor: const Color(0xFFF4F4F5),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  Text(isAk ? 'နေရပ်လိပ်စာနှင့် မြို့နယ်' : 'Residential Address & Township', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF71717A))),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: addrCtrl,
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
+                    decoration: InputDecoration(
+                      hintText: 'e.g. Strand Rd, Sittwe',
+                      filled: true,
+                      fillColor: const Color(0xFFF4F4F5),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isSubmitting
+                          ? null
+                          : () async {
+                              final name = nameCtrl.text.trim();
+                              final nrc = nrcCtrl.text.trim();
+                              final dob = dobCtrl.text.trim();
+                              final addr = addrCtrl.text.trim();
+                              if (name.isEmpty || nrc.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(isAk ? 'အမည်နှင့် မှတ်ပုံတင်နံပါတ် ဖြည့်သွင်းပါ' : 'Please fill in Name and National ID'),
+                                    backgroundColor: crimson,
+                                  ),
+                                );
+                                return;
+                              }
+                              setModalState(() => isSubmitting = true);
+                              await appState.submitKycLevel2(
+                                nationalIdNo: nrc,
+                                dob: dob,
+                                fullName: name,
+                                address: addr,
+                              );
+                              setModalState(() => isSubmitting = false);
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF18181B),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: isSubmitting
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : Text(
+                              isAk ? 'အဆင့် ၂ အတွက် တင်သွင်းမည် (Submit for Review)' : 'Submit for Level 2 Review',
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+                            ),
                     ),
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      if (nameCtrl.text.trim().isNotEmpty) {
-                        appState.profile.name = nameCtrl.text.trim();
-                      }
-                      appState.setVerified(false);
-                      Navigator.pop(ctx);
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF3F3F46),
-                      side: const BorderSide(color: Color(0xFFD4D4D8)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-                    ),
-                    child: Text(
-                      isAk ? 'Unverified ထားမည်' : 'Set Unverified',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (nameCtrl.text.trim().isNotEmpty) {
-                        appState.profile.name = nameCtrl.text.trim();
-                      }
-                      appState.setVerified(true);
-                      Navigator.pop(ctx);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF059669),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-                    ),
-                    child: Text(
-                      isAk ? 'အတည်ပြုမည် (Verify)' : 'Complete Verify',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     ),
   );
 }

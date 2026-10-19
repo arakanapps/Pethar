@@ -25,7 +25,9 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
     setState(() => _copiedUid = true);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(isAk ? 'UID ကူးယူပြီးပါပြီ' : 'UID copied to clipboard'),
+        content: Text(
+          isAk ? 'ပိုက်ဆံအိတ်လိပ်စာ ကူးယူပြီးပါပြီ' : 'Wallet address copied to clipboard',
+        ),
         backgroundColor: emeraldSuccess,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
@@ -56,7 +58,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         '@${appState.profile.name.toLowerCase().replaceAll(RegExp(r'\s+'), '')}';
     Clipboard.setData(
       ClipboardData(
-        text: '${appState.profile.name} ($username) · UID: $uid',
+        text: '${appState.profile.name} ($username) · Wallet Address: $uid',
       ),
     );
     setState(() => _sharedQr = true);
@@ -85,52 +87,54 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
     final uidNumber =
         appState.profile.uid.isNotEmpty ? appState.profile.uid : '202610190001';
 
-    final content = Center(
+    final content = Align(
+      alignment: Alignment.topCenter,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 1. App Logo + App Name (No background container)
-            const ArakanEmblem(size: 46),
-            const SizedBox(height: 6),
+            const ArakanEmblem(size: 42),
+            const SizedBox(height: 4),
             const Text(
               'Péthar',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 13.5,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF18181B),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // 2. User Name & @username
             Text(
               appState.profile.name,
               style: const TextStyle(
-                fontSize: 19,
+                fontSize: 18.5,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF18181B),
               ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 2),
             Text(
               usernameHandle,
               style: const TextStyle(
-                fontSize: 12.5,
+                fontSize: 12,
                 fontFamily: 'monospace',
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF71717A),
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
 
             // 3. QR Code Box
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(26),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: const Color(0xFFE4E4E7), width: 1.5),
                 boxShadow: [
                   BoxShadow(
@@ -143,35 +147,35 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
               child: QrImageView(
                 data: 'pethar://pay?uid=$uidNumber&user=$usernameHandle&curr=AKD',
                 version: QrVersions.auto,
-                size: 190.0,
+                size: 180.0,
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
 
-            // 4. UID Number
-            const Text(
-              'UID Number',
-              style: TextStyle(
+            // 4. Wallet Address
+            Text(
+              isAk ? 'ပိုက်ဆံအိတ် လိပ်စာ' : 'Wallet Address',
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFFA1A1AA),
                 letterSpacing: 0.6,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Text(
               uidNumber,
               style: const TextStyle(
                 fontFamily: 'monospace',
-                fontSize: 17,
+                fontSize: 16.5,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 2.0,
                 color: Color(0xFF18181B),
               ),
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: 18),
 
-            // 5. Bottom Action Buttons: [ copy UID ] & [ Save ]
+            // 5. Bottom Action Buttons: [ Copy ] & [ Save ]
             SizedBox(
               width: 280,
               child: Row(
@@ -185,7 +189,9 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                         color: _copiedUid ? emeraldSuccess : const Color(0xFF27272A),
                       ),
                       label: Text(
-                        _copiedUid ? (isAk ? 'ကူးယူပြီး' : 'Copied') : 'copy UID',
+                        _copiedUid
+                            ? (isAk ? 'ကူးယူပြီး' : 'Copied')
+                            : (isAk ? 'ကူးယူရန်' : 'Copy'),
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
@@ -255,65 +261,75 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top Bar: < | Receive | (Share)
+            // Top Bar: < | Receive (centered) | (Share)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              height: 52,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 border: Border(bottom: BorderSide(color: Color(0xFFE4E4E7))),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () => appState.goBack(),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.transparent,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: () => appState.goBack(),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.transparent,
+                        ),
+                        child: const Icon(
+                          Icons.chevron_left_rounded,
+                          size: 28,
+                          color: Color(0xFF18181B),
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.chevron_left_rounded,
-                        size: 28,
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      isAk ? 'ငွေလက်ခံရန်' : 'Receive',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
                         color: Color(0xFF18181B),
                       ),
                     ),
                   ),
-                  Text(
-                    isAk ? 'ငွေလက်ခံရန်' : 'Receive',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF18181B),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => _shareQr(context, appState, uidNumber, isAk),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: const Color(0xFFD4D4D8)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.share_outlined, size: 14, color: crimson),
-                          const SizedBox(width: 5),
-                          Text(
-                            _sharedQr
-                                ? (isAk ? 'မျှဝေပြီး' : 'Shared')
-                                : (isAk ? 'မျှဝေရန်' : 'Share'),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF18181B),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () => _shareQr(context, appState, uidNumber, isAk),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: const Color(0xFFD4D4D8)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.share_outlined, size: 14, color: crimson),
+                            const SizedBox(width: 5),
+                            Text(
+                              _sharedQr
+                                  ? (isAk ? 'မျှဝေပြီး' : 'Shared')
+                                  : (isAk ? 'မျှဝေရန်' : 'Share'),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF18181B),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

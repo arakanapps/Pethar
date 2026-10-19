@@ -197,11 +197,10 @@ class OfflinePaymentConfig {
   /// Default voucher expiry duration (24 hours for blackout scenarios)
   static const Duration defaultExpiry = Duration(hours: 24);
 
-  /// Maximum offline voucher amount (per KYC tier)
+  /// Maximum offline voucher amount (per KYC tier: 1 = Email Verified, 2 = National ID Verified)
   static const Map<int, double> maxAmountByKycTier = {
-    1: 500.0,    // Basic: 500 AKD
-    2: 5000.0,   // Verified: 5,000 AKD
-    3: 50000.0,  // Full KYC: 50,000 AKD
+    1: 500.0,    // Level 1: Email Verified: 500 AKD
+    2: 5000.0,   // Level 2: National ID Verified: 5,000 AKD
   };
 
   /// Maximum number of unsynced vouchers per device

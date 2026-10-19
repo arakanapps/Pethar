@@ -30,6 +30,7 @@ import 'history_screen.dart';
 import 'topup_screen.dart';
 import 'bill_payment_screen.dart';
 import 'favourites_screen.dart';
+import 'auth_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({Key? key}) : super(key: key);
@@ -2222,24 +2223,46 @@ class _MainShellState extends State<MainShell> {
 
     final appState = Provider.of<AppState>(context);
 
+    if (!appState.isAuthenticated) {
+      return const AuthScreen();
+    }
+
     final lang = appState.language;
 
-    // Sub-screens routing
-    if (appState.currentScreen == Screen.desktop) return const DesktopPortalScreen();
-    if (appState.currentScreen == Screen.pos) return const PosTerminalScreen();
-    if (appState.currentScreen == Screen.send) return const SendScreen();
-    if (appState.currentScreen == Screen.receive) return const ReceiveScreen();
-    if (appState.currentScreen == Screen.cashout) return const CashOutScreen();
-    if (appState.currentScreen == Screen.intl) return const IntlScreen();
-    if (appState.currentScreen == Screen.crypto) return const CryptoScreen();
-    if (appState.currentScreen == Screen.offlinePayment) return const OfflinePaymentScreen();
-    if (appState.currentScreen == Screen.scan) return const ScanScreen();
-    if (appState.currentScreen == Screen.pay) return const PayScreen();
-    if (appState.currentScreen == Screen.history) return const HistoryScreen();
-    if (appState.currentScreen == Screen.topup) return const TopupScreen();
-    if (appState.currentScreen == Screen.billPayment) return const BillPaymentScreen();
-    if (appState.currentScreen == Screen.favourites) return const FavouritesScreen();
-    if (appState.currentScreen == Screen.account) return const AccountScreen();
+    final systemOverlay = const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarContrastEnforced: false,
+    );
+
+    // Sub-screens routing with explicit SystemUiOverlayStyle
+    Widget? subScreen;
+    if (appState.currentScreen == Screen.desktop) subScreen = const DesktopPortalScreen();
+    if (appState.currentScreen == Screen.pos) subScreen = const PosTerminalScreen();
+    if (appState.currentScreen == Screen.send) subScreen = const SendScreen();
+    if (appState.currentScreen == Screen.receive) subScreen = const ReceiveScreen();
+    if (appState.currentScreen == Screen.cashout) subScreen = const CashOutScreen();
+    if (appState.currentScreen == Screen.intl) subScreen = const IntlScreen();
+    if (appState.currentScreen == Screen.crypto) subScreen = const CryptoScreen();
+    if (appState.currentScreen == Screen.offlinePayment) subScreen = const OfflinePaymentScreen();
+    if (appState.currentScreen == Screen.scan) subScreen = const ScanScreen();
+    if (appState.currentScreen == Screen.pay) subScreen = const PayScreen();
+    if (appState.currentScreen == Screen.history) subScreen = const HistoryScreen();
+    if (appState.currentScreen == Screen.topup) subScreen = const TopupScreen();
+    if (appState.currentScreen == Screen.billPayment) subScreen = const BillPaymentScreen();
+    if (appState.currentScreen == Screen.favourites) subScreen = const FavouritesScreen();
+    if (appState.currentScreen == Screen.account) subScreen = const AccountScreen();
+
+    if (subScreen != null) {
+      return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: systemOverlay,
+        child: subScreen,
+      );
+    }
 
     int currentIndex = 0;
     switch (appState.currentScreen) {
@@ -2281,15 +2304,7 @@ class _MainShellState extends State<MainShell> {
     }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-        systemNavigationBarDividerColor: Colors.transparent,
-        systemNavigationBarContrastEnforced: false,
-      ),
+      value: systemOverlay,
       child: Scaffold(
         extendBody: true,
         backgroundColor: const Color(0xFFF4F5F8),
@@ -2334,7 +2349,7 @@ class _MainShellState extends State<MainShell> {
                         context: context,
                         iconWidget: Icon(
                           currentIndex == 0 ? Icons.home_rounded : Icons.home_outlined,
-                          color: currentIndex == 0 ? crimson : const Color(0xFF27272A),
+                          color: currentIndex == 0 ? crimson : const Color(0xFF64748B),
                           size: 22,
                         ),
                         label: TranslationStrings.tr('navHome', lang),
@@ -2348,7 +2363,7 @@ class _MainShellState extends State<MainShell> {
                         context: context,
                         iconWidget: FinancialCoinIcon(
                           size: 20,
-                          color: currentIndex == 1 ? crimson : const Color(0xFF27272A),
+                          color: currentIndex == 1 ? crimson : const Color(0xFF64748B),
                           active: currentIndex == 1,
                         ),
                         label: lang == 'ak' ? 'ဘဏ္ဍာရေး' : 'Financial',
@@ -2406,7 +2421,7 @@ class _MainShellState extends State<MainShell> {
                         context: context,
                         iconWidget: ServicesGridIcon(
                           size: 21,
-                          color: currentIndex == 3 ? crimson : const Color(0xFF27272A),
+                          color: currentIndex == 3 ? crimson : const Color(0xFF64748B),
                           active: currentIndex == 3,
                         ),
                         label: TranslationStrings.tr('navServices', lang),
@@ -2420,7 +2435,7 @@ class _MainShellState extends State<MainShell> {
                         context: context,
                         iconWidget: Icon(
                           currentIndex == 4 ? Icons.person_rounded : Icons.person_outline_rounded,
-                          color: currentIndex == 4 ? crimson : const Color(0xFF27272A),
+                          color: currentIndex == 4 ? crimson : const Color(0xFF64748B),
                           size: 22,
                         ),
                         label: lang == 'ak' ? 'အကောင့်' : 'Account',
@@ -2447,7 +2462,7 @@ class _MainShellState extends State<MainShell> {
     required bool isSelected,
     VoidCallback? onCustomTap,
   }) {
-    final color = isSelected ? crimson : const Color(0xFF27272A);
+    final color = isSelected ? crimson : const Color(0xFF64748B);
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
