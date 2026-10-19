@@ -14,194 +14,6 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  bool _hideBalances = false;
-
-  void _showTransferDialog(BuildContext context, AppState appState) {
-    double transferAmt = 0.00;
-    bool usdToAkd = true;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) {
-          final isDark = Theme.of(ctx).brightness == Brightness.dark;
-          return Container(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-              top: 20,
-              left: 20,
-              right: 20,
-            ),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E2638) : Colors.white,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 44,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      appState.language == 'ak'
-                        ? 'အကောင့်များအကြား ငွေလွှဲပြောင်းရန်'
-                        : 'Transfer Between Accounts',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 20),
-                      onPressed: () => Navigator.pop(ctx),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withOpacity(0.06) : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () => setModalState(() => usdToAkd = true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                              color: usdToAkd ? const Color(0xFF9E1B32) : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'USD → AKD Wallet',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: usdToAkd ? Colors.white : Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () => setModalState(() => usdToAkd = false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                              color: !usdToAkd ? const Color(0xFF9E1B32) : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'AKD Wallet → USD',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: !usdToAkd ? Colors.white : Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  'Amount',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey[100],
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey.withOpacity(0.2)),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        usdToAkd ? '\$ ' : '₳ ',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF9E1B32)),
-                      ),
-                      Expanded(
-                        child: TextFormField(
-                          initialValue: transferAmt.toStringAsFixed(2),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                          decoration: const InputDecoration(border: InputBorder.none),
-                          onChanged: (val) {
-                            transferAmt = double.tryParse(val) ?? 0.0;
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (transferAmt <= 0) return;
-                      appState.transferBetweenAccounts(amount: transferAmt, usdToAkd: usdToAkd);
-                      Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Successfully transferred ${usdToAkd ? "\$$transferAmt to AKD Wallet" : "₳$transferAmt to USD Account"}!',
-                          ),
-                          backgroundColor: emeraldSuccess,
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF9E1B32),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: const Text(
-                      'Confirm Instant Transfer',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
@@ -209,22 +21,33 @@ class _AccountScreenState extends State<AccountScreen> {
     final lang = appState.language;
 
     final double akdBalance = appState.wallet.balance;
-    final double usdBalance = appState.usdAccountBalance;
-    // Parity: 1 AKD = 1 USD; 1 USD/AKD = 4,500 MMK; 1 THB = 115 MMK
-    final double totalUsd = akdBalance + usdBalance;
-    final double totalMmk = totalUsd * 4500.0;
-    final double totalThb = totalMmk / 115.0;
+    final double akdPending = appState.wallet.pendingBalance;
+    final double akdTotal = akdBalance + akdPending;
 
-    final double akdPercent = totalUsd > 0 ? (akdBalance / totalUsd) : 0.5;
-    final double usdPercent = totalUsd > 0 ? (usdBalance / totalUsd) : 0.5;
+    final double usdBalance = appState.usdAccountBalance;
+    const double usdPending = 0.00;
+    final double usdTotal = usdBalance + usdPending;
+
+    // Total Amount across both accounts
+    final double totalBalance = akdBalance + usdBalance;
+
+    final double akdPercent = totalBalance > 0 ? (akdBalance / totalBalance) : 0.5;
+    final double usdPercent = totalBalance > 0 ? (usdBalance / totalBalance) : 0.5;
+
+    final String userUid = appState.profile.uid.isNotEmpty
+        ? appState.profile.uid
+        : '202610190001';
+    const String usdWalletAddress = '0x36a8F492C109bE742819aBcD8391048291045f19';
+    const String usdWalletShort = '0x36...5f19';
 
     return Scaffold(
       backgroundColor: isDark ? obsidian : const Color(0xFFF4F5F8),
       appBar: AppBar(
         title: Text(
-          lang == 'ak' ? 'ငွေစာရင်းများ စီမံခန့်ခွဲမှု' : 'Accounts & Balances',
+          lang == 'ak' ? 'Accounts & Balances' : 'Accounts & Balances',
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => appState.navigate(Screen.home),
@@ -232,16 +55,15 @@ class _AccountScreenState extends State<AccountScreen> {
         actions: [
           IconButton(
             icon: Icon(
-              _hideBalances ? Icons.visibility_off : Icons.visibility,
+              Icons.history_rounded,
               color: isDark ? Colors.white70 : Colors.black87,
             ),
-            tooltip: _hideBalances ? 'Show balances' : 'Hide balances',
-            onPressed: () => setState(() => _hideBalances = !_hideBalances),
+            tooltip: lang == 'ak' ? 'မှတ်တမ်း' : 'History',
+            onPressed: () => appState.navigate(Screen.history),
           ),
         ],
         backgroundColor: isDark ? surfaceDark : Colors.white,
         elevation: 0,
-        centerTitle: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -249,7 +71,7 @@ class _AccountScreenState extends State<AccountScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ═════════════════════════════════════════════════════════════════
-            // 1. FIRST OVERVIEW TOTAL AMOUNT CARD
+            // 1. OVERVIEW CARD (TOTAL AMOUNT & RED/YELLOW PIE CHART)
             // ═════════════════════════════════════════════════════════════════
             Container(
               padding: const EdgeInsets.all(20),
@@ -264,12 +86,12 @@ class _AccountScreenState extends State<AccountScreen> {
                       )
                     : null,
                 border: Border.all(
-                  color: isDark ? Colors.blueAccent.withOpacity(0.35) : const Color(0xFFE2E8F0),
+                  color: isDark ? Colors.blueAccent.withValues(alpha: 0.35) : const Color(0xFFE2E8F0),
                   width: 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
                     blurRadius: 14,
                     offset: const Offset(0, 4),
                   ),
@@ -278,213 +100,170 @@ class _AccountScreenState extends State<AccountScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Overview Heading
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF9E1B32).withOpacity(0.3)
-                                  : const Color(0xFFEFF6FF),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.pie_chart,
-                              size: 16,
-                              color: isDark ? Colors.amberAccent : const Color(0xFF2563EB),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            lang == 'ak' ? 'စုစုပေါင်း ပိုင်ဆိုင်မှု အကျဉ်းချုပ်' : 'Total Portfolio Overview',
-                            style: TextStyle(
-                              color: isDark ? Colors.white70 : const Color(0xFF64748B),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                        padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white.withOpacity(0.12) : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isDark ? Colors.white.withOpacity(0.15) : const Color(0xFFE2E8F0),
-                          ),
+                          color: isDark
+                              ? const Color(0xFF9E1B32).withValues(alpha: 0.3)
+                              : const Color(0xFFEFF6FF),
+                          shape: BoxShape.circle,
                         ),
-                        child: Text(
-                          '2 ACCOUNTS',
-                          style: TextStyle(
-                            color: isDark ? Colors.white : const Color(0xFF475569),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.5,
-                          ),
+                        child: Icon(
+                          Icons.pie_chart,
+                          size: 16,
+                          color: isDark ? Colors.amberAccent : const Color(0xFF2563EB),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        lang == 'ak' ? 'အကျဉ်းချုပ် (Overview)' : 'Overview',
+                        style: TextStyle(
+                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  _hideBalances
-                      ? Text(
-                          '••••••••',
+                  const SizedBox(height: 12),
+
+                  // Total Amount Label
+                  Text(
+                    lang == 'ak' ? 'စုစုပေါင်း ပမာဏ (Total Amount)' : 'Total Amount',
+                    style: TextStyle(
+                      color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Total Balance with AKD symbol
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        const Text(
+                          '₳ ',
                           style: TextStyle(
+                            color: Color(0xFFD91624),
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          totalBalance.toStringAsFixed(2),
+                          style: TextStyle(
+                            fontFamily: 'monospace',
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
                             color: isDark ? Colors.white : const Color(0xFF0F172A),
-                            letterSpacing: 4,
-                          ),
-                        )
-                      : FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                '\$ ',
-                                style: TextStyle(
-                                  color: isDark ? Colors.lightBlueAccent : const Color(0xFF2563EB),
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                totalUsd.toStringAsFixed(2),
-                                style: TextStyle(
-                                  fontFamily: 'monospace',
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                'USD',
-                                style: TextStyle(
-                                  color: isDark ? Colors.white60 : const Color(0xFF64748B),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                  const SizedBox(height: 6),
-                  if (!_hideBalances)
-                    Text(
-                      '≈ ₳ ${totalUsd.toStringAsFixed(2)} AKD  ·  ≈ ${totalMmk.toStringAsFixed(0)} MMK  ·  ≈ ${totalThb.toStringAsFixed(2)} THB',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isDark ? Colors.white.withOpacity(0.65) : const Color(0xFF64748B),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  const SizedBox(height: 18),
-
-                  // Allocation Progress Bar
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: (akdPercent * 100).toInt(),
-                          child: Container(
-                            height: 7,
-                            color: const Color(0xFFE11D48), // Rose/Crimson for AKD Wallet
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          flex: (usdPercent * 100).toInt(),
-                          child: Container(
-                            height: 7,
-                            color: const Color(0xFF10B981), // Emerald for USD Account
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
 
-                  // Overview Legend
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFE11D48), shape: BoxShape.circle)),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Wallet: ${(akdPercent * 100).toStringAsFixed(1)}%',
-                            style: TextStyle(
-                              color: isDark ? Colors.white70 : const Color(0xFF475569),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                  // Pie Chart with Red (Wallet) & Yellow (USD)
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFE2E8F0),
                       ),
-                      Row(
-                        children: [
-                          Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
-                          const SizedBox(width: 6),
-                          Text(
-                            'USD Account: ${(usdPercent * 100).toStringAsFixed(1)}%',
-                            style: TextStyle(
-                              color: isDark ? Colors.white70 : const Color(0xFF475569),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Quick Transfer Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () => _showTransferDialog(context, appState),
-                      icon: Icon(
-                        Icons.swap_horiz,
-                        size: 16,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
-                      ),
-                      label: Text(
-                        lang == 'ak' ? 'အကောင့်များအကြား အပြန်အလှန်လွှဲမည်' : 'Transfer Between Accounts',
-                        style: TextStyle(
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        CustomMiniPieChart(
+                          values: (akdBalance <= 0 && usdBalance <= 0)
+                              ? const [0.5, 0.5]
+                              : [
+                                  akdBalance > 0 ? akdBalance : 0.0001,
+                                  usdBalance > 0 ? usdBalance : 0.0001,
+                                ],
+                          colors: const [
+                            Color(0xFFE11D48), // Red for Wallet
+                            Color(0xFFF59E0B), // Yellow for USD
+                          ],
+                          size: 78,
+                          strokeWidth: 12,
+                          centerWidget: const ArakanEmblem(size: 24),
                         ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: isDark ? Colors.white.withOpacity(0.08) : const Color(0xFFF8FAFC),
-                        side: BorderSide(
-                          color: isDark ? Colors.white.withOpacity(0.2) : const Color(0xFFE2E8F0),
+                        const SizedBox(width: 18),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFE11D48),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Wallet: ₳ ${akdBalance.toStringAsFixed(2)} (${(akdPercent * 100).toStringAsFixed(1)}%)',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.white : const Color(0xFF334155),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFF59E0B),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'USD: \$ ${usdBalance.toStringAsFixed(2)} (${(usdPercent * 100).toStringAsFixed(1)}%)',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.white : const Color(0xFF334155),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        padding: const EdgeInsets.symmetric(vertical: 11),
-                      ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: 20),
 
             // ═════════════════════════════════════════════════════════════════
-            // 2. WALLET ACCOUNT CARD (WITH SMALL PIE CHART & BALANCES)
+            // 2. PETHAR WALLET (AKD) CARD
             // ═════════════════════════════════════════════════════════════════
             Container(
               padding: const EdgeInsets.all(18),
@@ -492,12 +271,12 @@ class _AccountScreenState extends State<AccountScreen> {
                 color: isDark ? surfaceCard : Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
-                  color: isDark ? Colors.white.withOpacity(0.08) : Colors.grey[200]!,
+                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[200]!,
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -506,28 +285,54 @@ class _AccountScreenState extends State<AccountScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
+                  // Header with Arakan Emblem, Title and Copyable UID
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
                           const ArakanEmblem(size: 26),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 10),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                lang == 'ak' ? 'ဖေ့သာ ပိုက်ဆံအိတ်' : 'Péthar Wallet (AKD)',
+                                lang == 'ak' ? 'ဖေ့သာ ပိုက်ဆံအိတ် (akd)' : 'Pethar wallet (akd)',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
                                   color: isDark ? Colors.white : Colors.black87,
                                 ),
                               ),
-                              Text(
-                                appState.profile.petharId,
-                                style: const TextStyle(fontFamily: 'monospace', fontSize: 10, color: Colors.grey),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  Text(
+                                    userUid,
+                                    style: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 11,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  InkWell(
+                                    onTap: () {
+                                      Clipboard.setData(ClipboardData(text: userUid));
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('UID copied to clipboard!'),
+                                          duration: Duration(seconds: 1),
+                                        ),
+                                      );
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(2.0),
+                                      child: Icon(Icons.copy_rounded, size: 13, color: Colors.grey),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -536,9 +341,9 @@ class _AccountScreenState extends State<AccountScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: emeraldSuccess.withOpacity(0.12),
+                          color: emeraldSuccess.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: emeraldSuccess.withOpacity(0.3)),
+                          border: Border.all(color: emeraldSuccess.withValues(alpha: 0.3)),
                         ),
                         child: const Text(
                           'ACTIVE',
@@ -547,9 +352,9 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
 
-                  // Middle Row: Balances on Left, Small Pie Chart on Right
+                  // Middle Row: Available Balance on Left, Mini Pie Chart on Right
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -557,53 +362,56 @@ class _AccountScreenState extends State<AccountScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Available Balance',
-                              style: TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+                            Text(
+                              lang == 'ak' ? 'ရရှိနိုင်သော လက်ကျန်ငွေ' : 'Available Balance',
+                              style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(height: 4),
-                            _hideBalances
-                                ? const Text(
-                                    '••••••••',
-                                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                                  )
-                                : FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text(
-                                          '₳ ',
-                                          style: TextStyle(color: Color(0xFFD91624), fontSize: 22, fontWeight: FontWeight.w900),
-                                        ),
-                                        Text(
-                                          akdBalance.toStringAsFixed(2),
-                                          style: TextStyle(
-                                            fontFamily: 'monospace',
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w900,
-                                            color: isDark ? Colors.white : Colors.black87,
-                                          ),
-                                        ),
-                                      ],
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    '₳ ',
+                                    style: TextStyle(
+                                      color: Color(0xFFD91624),
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w900,
                                     ),
                                   ),
-                            const SizedBox(height: 3),
-                            if (!_hideBalances)
-                              Text(
-                                '≈ \$${akdBalance.toStringAsFixed(2)} USD  ·  ${(akdBalance * 4500).toStringAsFixed(0)} MMK',
-                                style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                                  Text(
+                                    akdBalance.toStringAsFixed(2),
+                                    style: TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w900,
+                                      color: isDark ? Colors.white : Colors.black87,
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ),
                           ],
                         ),
                       ),
                       const SizedBox(width: 12),
 
-                      // Small Pie/Donut Chart for Wallet (75% Liquid, 25% Gold Reserve Vault)
+                      // Mini Pie Chart with Green (Available), Yellow (Pending), Blue (Total)
                       CustomMiniPieChart(
-                        values: const [0.75, 0.25],
-                        colors: const [Color(0xFFE11D48), Color(0xFFF59E0B)],
+                        values: (akdBalance <= 0 && akdPending <= 0)
+                            ? const [0.70, 0.15, 0.15]
+                            : [
+                                akdBalance > 0 ? akdBalance : 0.0001,
+                                akdPending > 0 ? akdPending : 0.0001,
+                                (akdTotal > 0 ? akdTotal : 1.0) * 0.15,
+                              ],
+                        colors: const [
+                          Color(0xFF10B981), // Green: Available
+                          Color(0xFFF59E0B), // Yellow: Pending
+                          Color(0xFF2563EB), // Blue: Total
+                        ],
                         size: 64,
                         strokeWidth: 9,
                         centerWidget: const Text(
@@ -611,35 +419,35 @@ class _AccountScreenState extends State<AccountScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFFD91624),
+                            color: Color(0xFF10B981),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
 
-                  // Legend for Wallet slices
+                  // Legend for Green (Available), Yellow (Pending), Blue (Total)
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white.withOpacity(0.04) : const Color(0xFFF8FAFC),
+                      color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFE2E8F0),
+                      ),
                     ),
-                    child: Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 8,
-                      runSpacing: 4,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFE11D48), shape: BoxShape.circle)),
-                            const SizedBox(width: 6),
+                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
+                            const SizedBox(width: 5),
                             Text(
-                              'Liquid (75%): ₳ ${(akdBalance * 0.75).toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : Colors.black87),
+                              'Available: ₳ ${akdBalance.toStringAsFixed(2)}',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF334155)),
                             ),
                           ],
                         ),
@@ -647,58 +455,26 @@ class _AccountScreenState extends State<AccountScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFF59E0B), shape: BoxShape.circle)),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 5),
                             Text(
-                              'Gold Vault (25%): ₳ ${(akdBalance * 0.25).toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : Colors.black87),
+                              'Pending: ₳ ${akdPending.toStringAsFixed(2)}',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF334155)),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF2563EB), shape: BoxShape.circle)),
+                            const SizedBox(width: 5),
+                            Text(
+                              'Total: ₳ ${akdTotal.toStringAsFixed(2)}',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
                             ),
                           ],
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 14),
-
-                  // Quick Action Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => appState.navigate(Screen.send),
-                          icon: const Icon(Icons.arrow_outward, size: 14, color: Colors.white),
-                          label: Text(
-                            lang == 'ak' ? 'ငွေလွှဲ' : 'Send',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFD91624),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            elevation: 0,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => appState.navigate(Screen.receive),
-                          icon: Icon(Icons.qr_code, size: 14, color: isDark ? Colors.white : Colors.black87),
-                          label: Text(
-                            lang == 'ak' ? 'လက်ခံ' : 'Receive',
-                            style: TextStyle(
-                              color: isDark ? Colors.white : Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: isDark ? Colors.white24 : Colors.grey[300]!),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -706,7 +482,7 @@ class _AccountScreenState extends State<AccountScreen> {
             const SizedBox(height: 18),
 
             // ═════════════════════════════════════════════════════════════════
-            // 3. USD ACCOUNT CARD (WITH SMALL PIE CHART & BALANCES)
+            // 3. USD ACCOUNT CARD
             // ═════════════════════════════════════════════════════════════════
             Container(
               padding: const EdgeInsets.all(18),
@@ -714,12 +490,12 @@ class _AccountScreenState extends State<AccountScreen> {
                 color: isDark ? surfaceCard : Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
-                  color: isDark ? Colors.white.withOpacity(0.08) : Colors.grey[200]!,
+                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[200]!,
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -728,7 +504,7 @@ class _AccountScreenState extends State<AccountScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
+                  // Header with USD Icon, Title, and Copyable Wallet Address
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -738,7 +514,7 @@ class _AccountScreenState extends State<AccountScreen> {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withOpacity(0.15),
+                              color: const Color(0xFF10B981).withValues(alpha: 0.15),
                               shape: BoxShape.circle,
                             ),
                             child: const Center(
@@ -752,33 +528,45 @@ class _AccountScreenState extends State<AccountScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 10),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                lang == 'ak' ? 'ယူအက်စ်ဒီ အကောင့် (တည်ငြိမ်ဒင်္ဂါး)' : 'USD Account (Stablecoins)',
+                                lang == 'ak' ? 'ယူအက်စ်ဒီ အကောင့်' : 'USD Account',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
                                   color: isDark ? Colors.white : Colors.black87,
                                 ),
                               ),
+                              const SizedBox(height: 2),
                               Row(
                                 children: [
                                   const Text(
-                                    '0x36...5f19',
-                                    style: TextStyle(fontFamily: 'monospace', fontSize: 10, color: Colors.grey),
+                                    usdWalletShort,
+                                    style: TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 11,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                  const SizedBox(width: 4),
+                                  const SizedBox(width: 6),
                                   InkWell(
                                     onTap: () {
-                                      Clipboard.setData(const ClipboardData(text: '0x36a8F492C109bE742819aBcD8391048291045f19'));
+                                      Clipboard.setData(const ClipboardData(text: usdWalletAddress));
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Address copied to clipboard!'), duration: Duration(seconds: 1)),
+                                        const SnackBar(
+                                          content: Text('USD wallet address copied to clipboard!'),
+                                          duration: Duration(seconds: 1),
+                                        ),
                                       );
                                     },
-                                    child: const Icon(Icons.copy, size: 11, color: Colors.grey),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(2.0),
+                                      child: Icon(Icons.copy_rounded, size: 13, color: Colors.grey),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -789,9 +577,9 @@ class _AccountScreenState extends State<AccountScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.12),
+                          color: Colors.blue.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                          border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
                         ),
                         child: const Text(
                           'ON-CHAIN',
@@ -800,9 +588,9 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
 
-                  // Middle Row: Balances on Left, Small Pie Chart on Right
+                  // Middle Row: Available Balance on Left, Mini Pie Chart on Right
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -810,53 +598,56 @@ class _AccountScreenState extends State<AccountScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Total USD Value',
-                              style: TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+                            Text(
+                              lang == 'ak' ? 'ရရှိနိုင်သော လက်ကျန်ငွေ' : 'Available Balance',
+                              style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(height: 4),
-                            _hideBalances
-                                ? const Text(
-                                    '••••••••',
-                                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                                  )
-                                : FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text(
-                                          '\$ ',
-                                          style: TextStyle(color: Color(0xFF10B981), fontSize: 22, fontWeight: FontWeight.w900),
-                                        ),
-                                        Text(
-                                          usdBalance.toStringAsFixed(2),
-                                          style: TextStyle(
-                                            fontFamily: 'monospace',
-                                            fontSize: usdBalance >= 1000000 ? 20 : 24,
-                                            fontWeight: FontWeight.w900,
-                                            color: isDark ? Colors.white : Colors.black87,
-                                          ),
-                                        ),
-                                      ],
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    '\$ ',
+                                    style: TextStyle(
+                                      color: Color(0xFF10B981),
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w900,
                                     ),
                                   ),
-                            const SizedBox(height: 3),
-                            if (!_hideBalances)
-                              Text(
-                                '≈ ₳ ${usdBalance.toStringAsFixed(2)} AKD  ·  ${(usdBalance * 4500).toStringAsFixed(0)} MMK',
-                                style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                                  Text(
+                                    usdBalance.toStringAsFixed(2),
+                                    style: TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: usdBalance >= 1000000 ? 20 : 24,
+                                      fontWeight: FontWeight.w900,
+                                      color: isDark ? Colors.white : Colors.black87,
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ),
                           ],
                         ),
                       ),
                       const SizedBox(width: 12),
 
-                      // Small Pie/Donut Chart for USD Tokens (70% USDT, 20% USDC, 10% USD1)
+                      // Mini Pie Chart with Green (Available), Yellow (Pending), Blue (Total)
                       CustomMiniPieChart(
-                        values: const [0.70, 0.20, 0.10],
-                        colors: const [Color(0xFF10B981), Color(0xFF2563EB), Color(0xFFF59E0B)],
+                        values: (usdBalance <= 0 && usdPending <= 0)
+                            ? const [0.70, 0.15, 0.15]
+                            : [
+                                usdBalance > 0 ? usdBalance : 0.0001,
+                                usdPending > 0 ? usdPending : 0.0001,
+                                (usdTotal > 0 ? usdTotal : 1.0) * 0.15,
+                              ],
+                        colors: const [
+                          Color(0xFF10B981), // Green: Available
+                          Color(0xFFF59E0B), // Yellow: Pending
+                          Color(0xFF2563EB), // Blue: Total
+                        ],
                         size: 64,
                         strokeWidth: 9,
                         centerWidget: const Text(
@@ -870,40 +661,29 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
 
-                  // Legend for USD Token slices
+                  // Legend for Green (Available), Yellow (Pending), Blue (Total)
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white.withOpacity(0.04) : const Color(0xFFF8FAFC),
+                      color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFE2E8F0),
+                      ),
                     ),
-                    child: Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 8,
-                      runSpacing: 4,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 5),
                             Text(
-                              'USDT: \$${(usdBalance * 0.7).toStringAsFixed(0)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : Colors.black87),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF2563EB), shape: BoxShape.circle)),
-                            const SizedBox(width: 4),
-                            Text(
-                              'USDC: \$${(usdBalance * 0.2).toStringAsFixed(0)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : Colors.black87),
+                              'Available: \$ ${usdBalance.toStringAsFixed(2)}',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF334155)),
                             ),
                           ],
                         ),
@@ -911,58 +691,26 @@ class _AccountScreenState extends State<AccountScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFF59E0B), shape: BoxShape.circle)),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 5),
                             Text(
-                              'USD1: \$${(usdBalance * 0.1).toStringAsFixed(0)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : Colors.black87),
+                              'Pending: \$ ${usdPending.toStringAsFixed(2)}',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF334155)),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF2563EB), shape: BoxShape.circle)),
+                            const SizedBox(width: 5),
+                            Text(
+                              'Total: \$ ${usdTotal.toStringAsFixed(2)}',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
                             ),
                           ],
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 14),
-
-                  // Quick Action Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => appState.navigate(Screen.crypto),
-                          icon: const Icon(Icons.arrow_downward, size: 14, color: Colors.white),
-                          label: Text(
-                            lang == 'ak' ? 'ငွေသွင်း' : 'Deposit',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF10B981),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            elevation: 0,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => appState.navigate(Screen.cashout),
-                          icon: Icon(Icons.account_balance, size: 14, color: isDark ? Colors.white : Colors.black87),
-                          label: Text(
-                            lang == 'ak' ? 'ငွေထုတ်' : 'Cash Out',
-                            style: TextStyle(
-                              color: isDark ? Colors.white : Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: isDark ? Colors.white24 : Colors.grey[300]!),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -1031,14 +779,23 @@ class _PieChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final double total = values.fold(0.0, (sum, val) => sum + val);
-    if (total <= 0) return;
-
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - strokeWidth) / 2;
 
+    if (total <= 0) {
+      final paint = Paint()
+        ..color = colors.isNotEmpty ? colors.first.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.2)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth;
+      canvas.drawCircle(center, radius, paint);
+      return;
+    }
+
     double startAngle = -math.pi / 2;
+    final gap = values.where((v) => v > 0).length > 1 ? 0.08 : 0.0;
 
     for (int i = 0; i < values.length; i++) {
+      if (values[i] <= 0) continue;
       final sweepAngle = (values[i] / total) * 2 * math.pi;
       final paint = Paint()
         ..color = colors[i % colors.length]
@@ -1049,7 +806,7 @@ class _PieChartPainter extends CustomPainter {
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
         startAngle,
-        sweepAngle - 0.08, // small gap between slices
+        sweepAngle > gap ? sweepAngle - gap : sweepAngle,
         false,
         paint,
       );

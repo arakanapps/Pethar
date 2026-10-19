@@ -13,7 +13,7 @@ void main() {
       final voucher = OfflineVoucher(
         voucherCode: 'VCH-AKD-2026-TEST01',
         senderAccountId: 'acc-uuid-sender-001',
-        recipientIdentifier: 'ARAK-8891-USER',
+        recipientIdentifier: '202610190001',
         amount: 250.0,
         currency: 'AKD',
         nonce: 'nonce-uuid-v4-abc123',
@@ -27,7 +27,7 @@ void main() {
       // Verify canonical payload structure for deterministic Ed25519 signing
       expect(
         voucher.canonicalPayload,
-        'VCH-AKD-2026-TEST01|acc-uuid-sender-001|ARAK-8891-USER|250.00000000|AKD|nonce-uuid-v4-abc123|${expires.toIso8601String()}',
+        'VCH-AKD-2026-TEST01|acc-uuid-sender-001|202610190001|250.00000000|AKD|nonce-uuid-v4-abc123|${expires.toIso8601String()}',
       );
 
       // Verify voucher is active and not expired

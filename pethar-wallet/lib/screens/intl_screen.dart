@@ -39,16 +39,17 @@ class _IntlScreenState extends State<IntlScreen> {
     final akdVal = currentRate > 0 ? (inputVal / currentRate) : 0.0;
 
     return Scaffold(
-      backgroundColor: isDark ? obsidian : paper,
+      backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
         title: Text(
           TranslationStrings.tr('intlTitle', lang),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A)),
         ),
-        backgroundColor: isDark ? surfaceDark : Colors.white,
+        backgroundColor: Colors.white,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
           onPressed: () => appState.goBack(),
         ),
       ),
@@ -60,46 +61,53 @@ class _IntlScreenState extends State<IntlScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.cyan.withOpacity(0.12),
+                color: const Color(0xFFE0F2FE),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.cyan.withOpacity(0.3)),
+                border: Border.all(color: const Color(0xFFBAE6FD)),
               ),
               child: Text(
                 TranslationStrings.tr('intlSubtitle', lang),
-                style: const TextStyle(color: Colors.cyanAccent, fontSize: 11, height: 1.4),
+                style: const TextStyle(color: Color(0xFF0284C7), fontSize: 11, fontWeight: FontWeight.w600, height: 1.4),
               ),
             ),
             const SizedBox(height: 20),
             Text(
               lang == 'ak' ? 'ငွေလွှဲပေးပို့မည့် နိုင်ငံနှင့် ငွေကြေး' : 'Select Remittance Corridor',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: isDark ? Colors.grey[400] : Colors.grey[700],
+                color: Color(0xFF475569),
               ),
             ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: isDark ? surfaceCard : Colors.white,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: isDark ? slateBorder : Colors.grey[300]!),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: _selectedCorridor,
                   isExpanded: true,
-                  dropdownColor: isDark ? surfaceDark : Colors.white,
+                  dropdownColor: Colors.white,
                   items: corridors.map((c) {
                     return DropdownMenuItem<String>(
                       value: c['code'] as String,
                       child: Text(
                         '${c['code']} - ${c['name']}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black87,
+                          color: Color(0xFF0F172A),
                         ),
                       ),
                     );
@@ -113,22 +121,34 @@ class _IntlScreenState extends State<IntlScreen> {
             const SizedBox(height: 18),
             Text(
               '${lang == 'ak' ? 'နိုင်ငံခြားငွေပမာဏ' : 'Foreign Amount'} ($_selectedCorridor)',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: isDark ? Colors.grey[400] : Colors.grey[700],
+                color: Color(0xFF475569),
               ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _amountCtrl,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A)),
               decoration: InputDecoration(
                 filled: true,
-                fillColor: isDark ? surfaceCard : Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                prefixIcon: const Icon(Icons.monetization_on_outlined, color: gold),
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+                ),
+                prefixIcon: const Icon(Icons.monetization_on_outlined, color: Color(0xFFD4AF37)),
               ),
               onChanged: (_) => setState(() {}),
             ),
@@ -137,15 +157,22 @@ class _IntlScreenState extends State<IntlScreen> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: isDark ? surfaceCard : Colors.white,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: gold.withOpacity(0.4)),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
                   Text(
                     lang == 'ak' ? 'ရရှိမည့် အာရက္ခဒေါ်လာ (AKD)' : 'Estimated Arakan Dollar (AKD)',
-                    style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                    style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -154,7 +181,7 @@ class _IntlScreenState extends State<IntlScreen> {
                       fontFamily: 'monospace',
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
-                      color: gold,
+                      color: Color(0xFFD4AF37),
                     ),
                   ),
                   const SizedBox(height: 4),

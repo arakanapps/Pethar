@@ -93,7 +93,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
         tier: 'အကောင့်အဆင့်',
         logout: 'အကောင့်ထွက်မည်',
         sendModalTitle: 'သုံးစွဲသူ အချင်းချင်း ငွေလွှဲပို့ခြင်း',
-        recipientPlaceholder: 'ဖုန်း သို့မဟုတ် Péthar ID (ဥပမာ ARAK-8891)',
+        recipientPlaceholder: 'ဖုန်း သို့မဟုတ် Péthar ID (ဥပမာ 202610190001)',
         amountPlaceholder: 'ငွေပမာဏ (AKD)',
         sendButton: 'ချက်ချင်းငွေလွှဲမည်',
         sendSuccessNotice: 'ငွေလွှဲခြင်း အောင်မြင်ပြီးစီးပါသည်!',
@@ -160,8 +160,8 @@ export const AppPage = ({ lang }: AppPageProps) => {
   ];
 
   const quickRecipients = [
-    { name: 'Ko Min Aung', id: 'ARAK-8891-KMA', avatar: 'M' },
-    { name: 'Daw Nilar Win', id: 'ARAK-9042-NLW', avatar: 'N' },
+    { name: 'Ko Min Aung', id: '202610190002', avatar: 'M' },
+    { name: 'Daw Nilar Win', id: '202610190003', avatar: 'N' },
     { name: 'Sittwe Central Agent', id: 'AGENT-AK-042', avatar: 'A' },
   ];
 

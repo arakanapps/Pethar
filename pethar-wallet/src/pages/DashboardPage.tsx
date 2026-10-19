@@ -1360,7 +1360,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             <ReceiveQRCard
               lang={lang}
               name={profile.name || 'User'}
-              petharId={profile.petharId || '140-********* -295'}
+              petharId={profile.uid || profile.petharId || '202610190001'}
               onClose={() => setReceiveModalOpen(false)}
             />
           </div>
@@ -1428,7 +1428,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     setRecipientInput(e.target.value)
                     setRecipientNameInput(e.target.value)
                   }}
-                  placeholder="e.g. ARAK-8891 or Ko Min Aung"
+                  placeholder="e.g. 202610190001 or Ko Min Aung"
                   className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono focus:outline-none focus:border-[#FF6B00]"
                 />
               </div>

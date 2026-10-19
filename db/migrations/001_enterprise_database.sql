@@ -28,19 +28,8 @@ CREATE TABLE IF NOT EXISTS public.users (
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE SEQUENCE IF NOT EXISTS public.user_uid_seq START WITH 1;
-
-CREATE OR REPLACE FUNCTION public.generate_user_uid()
-RETURNS VARCHAR(32) AS $$
-DECLARE
-    v_date_prefix VARCHAR(8);
-    v_seq_num BIGINT;
-BEGIN
-    v_date_prefix := to_char(CURRENT_DATE, 'YYYYMMDD');
-    v_seq_num := nextval('public.user_uid_seq');
-    RETURN v_date_prefix || lpad((v_seq_num % 10000)::text, 4, '0');
-END;
-$$ LANGUAGE plpgsql;
+DROP FUNCTION IF EXISTS public.generate_user_uid();
+DROP SEQUENCE IF EXISTS public.user_uid_seq;
 
 CREATE TABLE IF NOT EXISTS public.user_profiles (
     id            VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
