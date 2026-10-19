@@ -180,31 +180,8 @@ class NotificationItem {
   });
 }
 
-// Live notifications: System announcements and promotions (no fake transactions)
-List<NotificationItem> sampleNotifications = [
-  NotificationItem(
-    id: 'N-003',
-    type: 'system',
-    titleEn: 'Arakan Ledger Upgrade Window',
-    titleMm: 'ဗဟိုစာရင်းစနစ် အဆင့်မြှင့်တင်ချိန်',
-    bodyEn: 'Scheduled maintenance 24 Sep, 01:00–06:00 AM. Offline vouchers remain fully active.',
-    bodyMm: 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀–၀၆:၀၀ ထိန်းသိမ်းချိန်။ အော့ဖ်လိုင်းဘောက်ချာများ အသုံးပြုနိုင်ပါသည်။',
-    time: 'Yesterday, 9:00 AM',
-    dateGroup: 'Yesterday',
-    read: true,
-  ),
-  NotificationItem(
-    id: 'N-004',
-    type: 'promotion',
-    titleEn: 'Zero-Fee THB Remittance Week',
-    titleMm: 'ထိုင်းဘတ် ငွေလွှဲ အခမဲ့အပတ်စဉ်',
-    bodyEn: 'Send THB corridor remittances with 0% markup until 30 Sep. Special FX rate locked.',
-    bodyMm: 'စက်တင်ဘာ ၃၀ ရက်အထိ ထိုင်းဘတ်လမ်းကြောင်း ငွေလွှဲများ အခမဲ့။ အထူးငွေလဲနှုန်း သော့ခတ်ထားပါသည်။',
-    time: '20 Sep, 8:15 AM',
-    dateGroup: 'Earlier',
-    read: true,
-  ),
-];
+// Live notifications: System announcements and promotions fetched dynamically
+List<NotificationItem> sampleNotifications = [];
 
 class FavoriteContact {
   String name;
