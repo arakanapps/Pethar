@@ -24,14 +24,14 @@ class AppState extends ChangeNotifier {
   bool cardFrozen = false;
   bool showCardCvv = false;
   List<NotificationItem> notifications = List.from(sampleNotifications);
-  List<Transaction> txList = List.from(transactions);
+  List<Transaction> txList = [];
   List<String> recentUsdAddresses = [
     '0x71C829038baC1294817aAb8291048291a49B',
     '0x8F492C109bE742819aBcD8391048291045f22',
     '0x3E11049281a742819abcd8391048291045f201',
     '0x9A28C10892048291948291048291048290123',
   ];
-  List<FavoriteContact> favoriteContactsList = List.from(favoriteContacts);
+  List<FavoriteContact> favoriteContactsList = [];
   List<Contact> contactsList = [];
   List<Agent> agentsList = [];
   List<Map<String, dynamic>> fxRatesList = [];
@@ -54,27 +54,33 @@ class AppState extends ChangeNotifier {
       final user = AuthService().getUser(activeEmail);
       if (user != null) {
         _applyAuthenticatedUser(user);
+        return; // _applyAuthenticatedUser triggers loadSupabaseData()
       }
     }
     await loadSupabaseData();
   }
 
-  /// Fetch live data from Supabase tables
+  /// Fetch live data from Supabase tables scoped to current user
   Future<void> loadSupabaseData() async {
     isLoadingDb = true;
     notifyListeners();
     try {
       final supa = SupabaseService();
-      // 1. Fetch transactions from Supabase
-      final remoteTxs = await supa.fetchTransactions();
-      if (remoteTxs.isNotEmpty) {
+      final currentUid = (isAuthenticated && profile.uid.isNotEmpty) ? profile.uid : null;
+
+      // 1. Fetch transactions from Supabase for this authenticated user
+      if (currentUid != null) {
+        final remoteTxs = await supa.fetchTransactions(userId: currentUid);
         txList = remoteTxs;
         transactions = txList;
+      } else {
+        txList = [];
+        transactions = [];
       }
 
       // 2. Fetch User Profile & Balance from Supabase only if authenticated
-      if (isAuthenticated) {
-        final profileMap = await supa.fetchUserProfile();
+      if (isAuthenticated && currentUid != null) {
+        final profileMap = await supa.fetchUserProfile(uid: currentUid, email: profile.email);
         if (profileMap != null) {
           if (profileMap['username'] != null && profileMap['username'].toString().isNotEmpty) {
             profile.username = profileMap['username'].toString();
@@ -118,9 +124,9 @@ class AppState extends ChangeNotifier {
         }
       }
 
-      // 3. Fetch Favorite Contacts from Supabase
-      final remoteFavs = await supa.fetchFavoriteContacts();
-      if (remoteFavs.isNotEmpty) {
+      // 3. Fetch Favorite Contacts from Supabase for this authenticated user
+      if (currentUid != null) {
+        final remoteFavs = await supa.fetchFavoriteContacts(userId: currentUid);
         favoriteContactsList = remoteFavs;
         favoriteContacts = favoriteContactsList;
         contactsList = remoteFavs.map((f) => Contact(
@@ -132,6 +138,11 @@ class AppState extends ChangeNotifier {
           initials: f.initials,
         )).toList();
         contacts = contactsList;
+      } else {
+        favoriteContactsList = [];
+        favoriteContacts = [];
+        contactsList = [];
+        contacts = [];
       }
 
       // 4. Fetch Physical Agents from Supabase
@@ -168,21 +179,51 @@ class AppState extends ChangeNotifier {
 
   void _addTransaction(Transaction tx) {
     txList.insert(0, tx);
-    SupabaseService().insertTransaction(tx);
-    SupabaseService().updateUserBalance(usdAccountBalance);
+    transactions = txList;
+    final uid = profile.uid.isNotEmpty ? profile.uid : profile.email;
+    if (uid.isNotEmpty) {
+      SupabaseService().insertTransaction(tx, userId: uid);
+      SupabaseService().updateUserBalance(wallet.balance, uid: profile.uid, email: profile.email);
+    }
     notifyListeners();
   }
 
   void addFavoriteContact(FavoriteContact contact) {
     favoriteContactsList.add(contact);
-    SupabaseService().insertFavoriteContact(contact);
+    favoriteContacts = favoriteContactsList;
+    contactsList = favoriteContactsList.map((f) => Contact(
+      name: f.name,
+      mm: f.mm,
+      id: f.id,
+      location: f.category,
+      phone: f.phone,
+      initials: f.initials,
+    )).toList();
+    contacts = contactsList;
+    final uid = profile.uid.isNotEmpty ? profile.uid : profile.email;
+    if (uid.isNotEmpty) {
+      SupabaseService().insertFavoriteContact(contact, userId: uid);
+    }
     notifyListeners();
   }
 
   void updateFavoriteContact(int index, FavoriteContact updated) {
     if (index >= 0 && index < favoriteContactsList.length) {
       favoriteContactsList[index] = updated;
-      SupabaseService().updateFavoriteContact(updated);
+      favoriteContacts = favoriteContactsList;
+      contactsList = favoriteContactsList.map((f) => Contact(
+        name: f.name,
+        mm: f.mm,
+        id: f.id,
+        location: f.category,
+        phone: f.phone,
+        initials: f.initials,
+      )).toList();
+      contacts = contactsList;
+      final uid = profile.uid.isNotEmpty ? profile.uid : profile.email;
+      if (uid.isNotEmpty) {
+        SupabaseService().updateFavoriteContact(updated, userId: uid);
+      }
       notifyListeners();
     }
   }
@@ -190,7 +231,20 @@ class AppState extends ChangeNotifier {
   void deleteFavoriteContact(int index) {
     if (index >= 0 && index < favoriteContactsList.length) {
       final item = favoriteContactsList.removeAt(index);
-      SupabaseService().deleteFavoriteContact(item.id);
+      favoriteContacts = favoriteContactsList;
+      contactsList = favoriteContactsList.map((f) => Contact(
+        name: f.name,
+        mm: f.mm,
+        id: f.id,
+        location: f.category,
+        phone: f.phone,
+        initials: f.initials,
+      )).toList();
+      contacts = contactsList;
+      final uid = profile.uid.isNotEmpty ? profile.uid : profile.email;
+      if (uid.isNotEmpty) {
+        SupabaseService().deleteFavoriteContact(item.id, userId: uid);
+      }
       notifyListeners();
     }
   }
@@ -317,6 +371,12 @@ class AppState extends ChangeNotifier {
     profile = initialUserProfile;
     isAuthenticated = false;
     isVerified = false;
+    favoriteContactsList = [];
+    favoriteContacts = [];
+    contactsList = [];
+    contacts = [];
+    txList = [];
+    transactions = [];
     currentScreen = Screen.home;
     navigationStack = [Screen.home];
     financialSubView = 'wallet_main';
@@ -349,6 +409,8 @@ class AppState extends ChangeNotifier {
     currentScreen = Screen.home;
     navigationStack = [Screen.home];
     notifyListeners();
+    // Load this specific user's data from Supabase
+    loadSupabaseData();
   }
 
   /// 1. Log in with Email and 6-digit PIN

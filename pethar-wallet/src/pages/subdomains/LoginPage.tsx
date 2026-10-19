@@ -471,10 +471,6 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
     <div className="min-h-screen bg-white flex flex-col items-center justify-start pb-12 font-sans">
       {/* 1. Curved Gradient Hero Banner */}
       <div className="w-full relative overflow-hidden bg-gradient-to-br from-[#280C48] via-[#86163C] to-[#DD3347] pb-10 pt-4 px-6 rounded-b-[42px] shadow-sm">
-        {/* Subtle glowing ambient circles */}
-        <div className="absolute -top-10 -left-10 w-44 h-44 rounded-full bg-white/5 pointer-events-none" />
-        <div className="absolute -bottom-6 -right-6 w-40 h-40 rounded-full bg-white/5 pointer-events-none" />
-
         <div className="max-w-md mx-auto relative z-10">
           {/* Top Row: Language Toggle Pill on top right */}
           <div className="flex justify-end pb-5">

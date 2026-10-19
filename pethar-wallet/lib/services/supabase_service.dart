@@ -113,12 +113,16 @@ class SupabaseService {
   // DATABASE QUERIES & MUTATIONS (Supabase Tables)
   // ===========================================================================
 
-  /// Fetch all transactions from Supabase 'transactions' table
-  Future<List<Transaction>> fetchTransactions() async {
+  /// Fetch all transactions from Supabase 'transactions' table for a specific user
+  Future<List<Transaction>> fetchTransactions({String? userId}) async {
     try {
+      if (userId == null || userId.isEmpty) {
+        return [];
+      }
       final response = await client
           .from('transactions')
           .select()
+          .eq('metadata->>user_id', userId)
           .order('created_at', ascending: false);
 
       final List<dynamic> data = response as List<dynamic>;
@@ -150,10 +154,10 @@ class SupabaseService {
     }
   }
 
-  /// Insert a new transaction into Supabase 'transactions' table
-  Future<bool> insertTransaction(Transaction tx) async {
+  /// Insert a new transaction into Supabase 'transactions' table scoped to user
+  Future<bool> insertTransaction(Transaction tx, {String? userId}) async {
     try {
-      await client.from('transactions').insert({
+      final insertMap = <String, dynamic>{
         'id': tx.id,
         'ref_id': tx.refId,
         'title': tx.title,
@@ -167,7 +171,11 @@ class SupabaseService {
         'counterparty_mm': tx.counterpartyMm,
         'fee': tx.fee,
         'hash': tx.hash,
-      });
+        'metadata': {
+          if (userId != null && userId.isNotEmpty) 'user_id': userId,
+        },
+      };
+      await client.from('transactions').insert(insertMap);
       return true;
     } catch (e) {
       debugPrint('Error inserting transaction into Supabase: $e');
@@ -175,14 +183,18 @@ class SupabaseService {
     }
   }
 
-  /// Fetch user profile & balance from Supabase 'user_profiles' table
-  Future<Map<String, dynamic>?> fetchUserProfile() async {
+  /// Fetch user profile & balance from Supabase 'user_profiles' table for specific user
+  Future<Map<String, dynamic>?> fetchUserProfile({String? uid, String? email}) async {
     try {
-      final response = await client
-          .from('user_profiles')
-          .select()
-          .limit(1)
-          .maybeSingle();
+      var query = client.from('user_profiles').select();
+      if (uid != null && uid.isNotEmpty) {
+        query = query.eq('uid', uid);
+      } else if (email != null && email.isNotEmpty) {
+        query = query.eq('email', email);
+      } else {
+        return null;
+      }
+      final response = await query.limit(1).maybeSingle();
       return response;
     } catch (e) {
       debugPrint('Error fetching user profile from Supabase: $e');
@@ -190,13 +202,20 @@ class SupabaseService {
     }
   }
 
-  /// Update balance in Supabase 'user_profiles' table
-  Future<bool> updateUserBalance(double newBalance) async {
+  /// Update balance in Supabase 'user_profiles' table for specific user
+  Future<bool> updateUserBalance(double newBalance, {String? uid, String? email}) async {
     try {
-      await client
+      var query = client
           .from('user_profiles')
-          .update({'balance': newBalance, 'updated_at': DateTime.now().toIso8601String()})
-          .neq('id', '');
+          .update({'balance': newBalance, 'updated_at': DateTime.now().toIso8601String()});
+      if (uid != null && uid.isNotEmpty) {
+        query = query.eq('uid', uid);
+      } else if (email != null && email.isNotEmpty) {
+        query = query.eq('email', email);
+      } else {
+        return false;
+      }
+      await query;
       return true;
     } catch (e) {
       debugPrint('Error updating user balance in Supabase: $e');
@@ -423,12 +442,16 @@ class SupabaseService {
     }
   }
 
-  /// Fetch favorite contacts from Supabase 'favorite_contacts' table
-  Future<List<FavoriteContact>> fetchFavoriteContacts() async {
+  /// Fetch favorite contacts from Supabase 'favorite_contacts' table for a specific user
+  Future<List<FavoriteContact>> fetchFavoriteContacts({String? userId}) async {
     try {
+      if (userId == null || userId.isEmpty) {
+        return [];
+      }
       final response = await client
           .from('favorite_contacts')
           .select()
+          .eq('user_id', userId)
           .order('created_at', ascending: true);
 
       final List<dynamic> data = response as List<dynamic>;
@@ -455,10 +478,11 @@ class SupabaseService {
     }
   }
 
-  /// Insert a favorite contact into Supabase 'favorite_contacts' table
-  Future<bool> insertFavoriteContact(FavoriteContact contact) async {
+  /// Insert a favorite contact into Supabase 'favorite_contacts' table scoped to user
+  Future<bool> insertFavoriteContact(FavoriteContact contact, {String? userId}) async {
     try {
       final data = <String, dynamic>{
+        'user_id': userId ?? '',
         'name': contact.name,
         'username': contact.phone.startsWith('@')
             ? contact.phone
@@ -480,8 +504,8 @@ class SupabaseService {
     }
   }
 
-  /// Update an existing favorite contact in Supabase
-  Future<bool> updateFavoriteContact(FavoriteContact contact) async {
+  /// Update an existing favorite contact in Supabase scoped to user
+  Future<bool> updateFavoriteContact(FavoriteContact contact, {String? userId}) async {
     try {
       final updateData = <String, dynamic>{
         'name': contact.name,
@@ -496,10 +520,11 @@ class SupabaseService {
       if (contact.note.isNotEmpty) {
         updateData['note'] = contact.note;
       }
-      await client
-          .from('favorite_contacts')
-          .update(updateData)
-          .or('id.eq.${contact.id},uid.eq.${contact.id}');
+      var query = client.from('favorite_contacts').update(updateData);
+      if (userId != null && userId.isNotEmpty) {
+        query = query.eq('user_id', userId);
+      }
+      await query.or('id.eq.${contact.id},uid.eq.${contact.id}');
       return true;
     } catch (e) {
       debugPrint('Error updating favorite contact in Supabase: $e');
@@ -507,13 +532,14 @@ class SupabaseService {
     }
   }
 
-  /// Delete a favorite contact from Supabase
-  Future<bool> deleteFavoriteContact(String contactId) async {
+  /// Delete a favorite contact from Supabase scoped to user
+  Future<bool> deleteFavoriteContact(String contactId, {String? userId}) async {
     try {
-      await client
-          .from('favorite_contacts')
-          .delete()
-          .or('id.eq.$contactId,uid.eq.$contactId');
+      var query = client.from('favorite_contacts').delete();
+      if (userId != null && userId.isNotEmpty) {
+        query = query.eq('user_id', userId);
+      }
+      await query.or('id.eq.$contactId,uid.eq.$contactId');
       return true;
     } catch (e) {
       debugPrint('Error deleting favorite contact from Supabase: $e');

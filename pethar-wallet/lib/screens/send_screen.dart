@@ -282,8 +282,20 @@ class _SendScreenState extends State<SendScreen> {
           style: const TextStyle(color: gold, fontSize: 12, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
-        ...(appState.contactsList.isNotEmpty ? appState.contactsList : contacts).map((c) {
-          return Container(
+        if ((appState.contactsList.isNotEmpty ? appState.contactsList : contacts).isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              lang == 'ak' ? 'လတ်တလော ဆက်သွယ်သူ မရှိသေးပါ' : 'No saved contacts yet',
+              style: const TextStyle(
+                color: Color(0xFF94A3B8),
+                fontSize: 13,
+              ),
+            ),
+          )
+        else
+          ...(appState.contactsList.isNotEmpty ? appState.contactsList : contacts).map((c) {
+            return Container(
             margin: const EdgeInsets.only(bottom: 8),
             child: Material(
               color: isDark ? surfaceCard : Colors.white,

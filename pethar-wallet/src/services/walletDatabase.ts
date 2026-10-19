@@ -449,6 +449,37 @@ export async function updateUserEmailInDb(
 }
 
 /**
+ * Update user avatar in Supabase and localStorage
+ */
+export async function updateUserAvatarInDb(
+  uid: string,
+  avatarUrl: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pethar_user_avatar', avatarUrl)
+    }
+
+    if (uid) {
+      const { error: profileError } = await db
+        .from('user_profiles')
+        .update({ avatar_url: avatarUrl, updated_at: new Date().toISOString() })
+        .eq('uid', uid)
+
+      if (profileError) {
+        console.warn('Could not update user_profiles avatar in Supabase:', profileError.message)
+      }
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('Update avatar exception:', err)
+    return { success: false, error: err.message || 'AVATAR_UPDATE_FAILED' }
+  }
+}
+
+
+/**
  * Reset user PIN by email
  */
 export async function resetPinWithEmail(
@@ -544,12 +575,18 @@ export async function updateUserBalanceInDb(newBalance: number): Promise<boolean
 /**
  * Fetch favorite contacts from Supabase
  */
-export async function fetchFavoriteContactsFromDb(): Promise<DbFavoriteContact[]> {
+export async function fetchFavoriteContactsFromDb(userId?: string): Promise<DbFavoriteContact[]> {
   try {
-    const { data, error } = await db
+    let query = db
       .from('favorite_contacts')
       .select('*')
       .order('created_at', { ascending: true })
+
+    if (userId) {
+      query = query.eq('user_id', userId)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.warn('Supabase fetch favorite contacts warning:', error.message)

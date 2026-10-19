@@ -81,8 +81,13 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                 HapticFeedback.lightImpact();
 
                 if (enteredPin.length == 6) {
-                  // Verify PIN (Accept 123456 or default test PINs)
-                  if (enteredPin == '123456' || enteredPin == '000000') {
+                  // Verify PIN (Accept user profile PIN or default test PINs)
+                  final currentPin = Provider.of<AppState>(context, listen: false).profile.pin;
+                  final isPinValid = enteredPin == currentPin ||
+                      (currentPin.isEmpty && (enteredPin == '123456' || enteredPin == '000000')) ||
+                      enteredPin == '123456' ||
+                      enteredPin == '000000';
+                  if (isPinValid) {
                     Navigator.pop(bottomSheetContext);
                     HapticFeedback.mediumImpact();
                     onAuthorized();
@@ -1521,6 +1526,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
 
   // ── EMPTY STATE ──────────────────────────────────────────────────────────
   Widget _buildEmptyState(BuildContext context, AppState appState, bool isAk) {
+    final hasSearch = _searchCtrl.text.isNotEmpty || _selectedCategory != 'All';
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -1534,15 +1540,17 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                 color: Color(0xFFF1F5F9),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.person_search_rounded,
+              child: Icon(
+                hasSearch ? Icons.person_search_rounded : Icons.star_outline_rounded,
                 size: 36,
-                color: Color(0xFF94A3B8),
+                color: const Color(0xFF94A3B8),
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              isAk ? 'ရှာဖွေမှု မတွေ့ရှိပါ' : 'No Favourites Found',
+              hasSearch
+                  ? (isAk ? 'ရှာဖွေမှု မတွေ့ရှိပါ' : 'No Favourites Found')
+                  : (isAk ? 'စိတ်ကြိုက်စာရင်း မရှိသေးပါ' : 'No Favourites Yet'),
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -1551,26 +1559,47 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              isAk
-                  ? 'အခြားအချက်အလက်ဖြင့် ရှာဖွေပါ သို့မဟုတ် အသစ်ထည့်ပါ'
-                  : 'Try adjusting your search query or add a new favourite recipient.',
+              hasSearch
+                  ? (isAk
+                      ? 'အခြားအချက်အလက်ဖြင့် ရှာဖွေပါ သို့မဟုတ် အသစ်ထည့်ပါ'
+                      : 'Try adjusting your search query or add a new favourite recipient.')
+                  : (isAk
+                      ? 'ငွေလွှဲမြန်ဆန်စေရန် သင်ယုံကြည်ရသော လက်ခံသူများကို စိတ်ကြိုက်စာရင်းတွင် ထည့်သွင်းပါ'
+                      : 'Add your trusted recipients here for quick and instant one-tap transfers.'),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
             ),
             const SizedBox(height: 18),
-            ElevatedButton.icon(
-              onPressed: () {
-                _searchCtrl.clear();
-                setState(() => _selectedCategory = 'All');
-              },
-              icon: const Icon(Icons.refresh_rounded, size: 16),
-              label: Text(isAk ? 'မူလအတိုင်း ပြန်ကြည့်မည်' : 'Clear Filter'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F172A),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            if (hasSearch)
+              ElevatedButton.icon(
+                onPressed: () {
+                  _searchCtrl.clear();
+                  setState(() => _selectedCategory = 'All');
+                },
+                icon: const Icon(Icons.refresh_rounded, size: 16),
+                label: Text(isAk ? 'မူလအတိုင်း ပြန်ကြည့်မည်' : 'Clear Filter'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F172A),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              )
+            else
+              ElevatedButton.icon(
+                onPressed: () => _openAddOrEditContactModal(
+                  context: context,
+                  appState: appState,
+                ),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: Text(isAk ? 'စိတ်ကြိုက်အသစ် ထည့်မည်' : 'Add New Favourite'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: crimson,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
               ),
-            ),
           ],
         ),
       ),
