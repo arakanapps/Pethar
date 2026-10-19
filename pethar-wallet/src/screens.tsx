@@ -11,7 +11,8 @@ import {
   RefreshCw, Download,
   Receipt, User, Sun, KeyRound, ShieldCheck,
   Bell, ArrowLeftRight, Share2, PieChart,
-  ChevronLeft, BellOff, Sparkles, CheckCheck, Trash2, MoreVertical, RotateCcw
+  ChevronLeft, BellOff, Sparkles, CheckCheck, Trash2, MoreVertical, RotateCcw,
+  History as HistoryIcon
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { FakeQR } from './components/FakeQR'
@@ -178,10 +179,10 @@ export function Home({
   ]
 
   const favorites = [
-    { name: 'user', mm: 'အသုံးပြုသူ', id: 'ARAK-1024', initials: 'U', bg: 'bg-sky-600' },
-    { name: 'User', mm: 'မြတ်စိုး', id: 'ARAK-1024', initials: 'U', bg: 'bg-blue-600' },
-    { name: 'TONY', mm: 'တိုနီ', id: 'ARAK-9921', initials: 'TN', bg: 'bg-emerald-600' },
-    { name: 'KO MIN AUNG', mm: 'မင်းအောင်', id: 'ARAK-8891', initials: 'MA', bg: 'bg-amber-600' },
+    { name: 'user', mm: 'အသုံးပြုသူ', id: '202610190002', initials: 'U', bg: 'bg-sky-600' },
+    { name: 'User', mm: 'မြတ်စိုး', id: '202610190003', initials: 'U', bg: 'bg-blue-600' },
+    { name: 'TONY', mm: 'တိုနီ', id: '202610190004', initials: 'TN', bg: 'bg-emerald-600' },
+    { name: 'KO MIN AUNG', mm: 'မင်းအောင်', id: '202610190005', initials: 'MA', bg: 'bg-amber-600' },
   ]
 
   const [adIdx, setAdIdx] = useState(0)
@@ -548,21 +549,26 @@ export function AccountScreen({
   lang: Language
   theme?: ThemeMode
 }) {
-  const [hideBalances, setHideBalances] = useState(false)
   const [copiedAddr, setCopiedAddr] = useState(false)
+  const [copiedUid, setCopiedUid] = useState(false)
 
   const isLight = theme === 'light'
   const isAk = lang === 'ak'
 
   // Account Balances
   const akdBal = wallets.length > 0 ? wallets[0].balance : 0.00
-  const usdBal = 0.00 // Multi-stablecoin USD account
-  const totalUsd = akdBal + usdBal
-  const totalMmk = totalUsd * 4500.0
-  const totalThb = totalMmk / 115.0
+  const akdPending = 0.00
+  const akdTotal = akdBal + akdPending
 
-  const akdPercent = totalUsd > 0 ? (akdBal / totalUsd) * 100 : 54.3
-  const usdPercent = totalUsd > 0 ? (usdBal / totalUsd) * 100 : 45.7
+  const usdBal = 0.00
+  const usdPending = 0.00
+  const usdTotal = usdBal + usdPending
+
+  const totalAmount = akdBal + usdBal
+  const akdPercent = totalAmount > 0 ? (akdBal / totalAmount) * 100 : 50
+  const usdPercent = totalAmount > 0 ? (usdBal / totalAmount) * 100 : 50
+
+  const userUid = initialUserProfile.uid || '202610190001'
 
   const copyAddress = () => {
     navigator.clipboard.writeText('0x36a8F492C109bE742819aBcD8391048291045f19')
@@ -570,108 +576,98 @@ export function AccountScreen({
     setTimeout(() => setCopiedAddr(false), 2000)
   }
 
+  const copyUid = () => {
+    navigator.clipboard.writeText(userUid)
+    setCopiedUid(true)
+    setTimeout(() => setCopiedUid(false), 2000)
+  }
+
   return (
     <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
-      <div className={`px-5 pt-4 pb-3 border-b flex items-center justify-between ${isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-[#090D14]'
-        }`}>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => go('home')}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-100 transition active:scale-95"
-            aria-label="Back to home"
-          >
-            <ChevronRight size={20} className="rotate-180" />
-          </button>
-          <div>
-            <div className={`text-[15px] font-bold tracking-wide ${isLight ? 'text-gray-900' : 'text-white'}`}>
-              {isAk ? 'ငွေစာရင်းများ စီမံခန့်ခွဲမှု' : 'Accounts & Balances'}
-            </div>
-            <div className="text-[11px] text-gray-500 font-medium">
-              {isAk ? 'ပိုက်ဆံအိတ်နှင့် ယူအက်စ်ဒီစာရင်း' : 'Wallet & USD Accounts'}
-            </div>
+      {/* ── TOP APP BAR: Accounts in middle, & Balances, History button on right ── */}
+      <div className={`px-4 pt-4 pb-3 border-b flex items-center justify-between ${
+        isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-[#090D14]'
+      }`}>
+        <button
+          onClick={() => go('home')}
+          className="w-9 h-9 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-100 transition active:scale-95"
+          aria-label="Back to home"
+        >
+          <ChevronRight size={20} className="rotate-180" />
+        </button>
+
+        <div className="text-center">
+          <div className={`text-base font-bold tracking-wide ${isLight ? 'text-gray-900' : 'text-white'}`}>
+            {isAk ? 'ငွေစာရင်းများ' : 'Accounts'}
+          </div>
+          <div className="text-[11px] text-gray-500 font-semibold">
+            {isAk ? '& လက်ကျန်ငွေများ' : '& Balances'}
           </div>
         </div>
 
         <button
-          onClick={() => setHideBalances(!hideBalances)}
+          onClick={() => go('history')}
           className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-950 transition active:scale-95 bg-white shadow-2xs"
-          title={hideBalances ? 'Show Balances' : 'Hide Balances'}
+          title={isAk ? 'မှတ်တမ်း' : 'History'}
         >
-          {hideBalances ? <EyeOff size={16} /> : <Eye size={16} />}
+          <HistoryIcon size={17} />
         </button>
       </div>
 
       <div className="p-4 space-y-4 pb-12">
         {/* ═════════════════════════════════════════════════════════════════════
-           1. FIRST OVERVIEW TOTAL AMOUNT CARD
+           1. FIRST OVERVIEW TOTAL AMOUNT CARD (RED & YELLOW PIE CHART)
         ═════════════════════════════════════════════════════════════════════ */}
         <div className="p-5 rounded-3xl bg-gradient-to-br from-[#0B192C] via-[#1E2A38] to-[#101726] border border-blue-400/30 text-white shadow-xl relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-blue-500/25 flex items-center justify-center text-blue-300">
-                <PieChart size={15} />
-              </div>
-              <span className="text-xs font-bold text-gray-300">
-                {isAk ? 'စုစုပေါင်း ပိုင်ဆိုင်မှု အကျဉ်းချုပ်' : 'Total Portfolio Overview'}
-              </span>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full bg-blue-500/25 flex items-center justify-center text-blue-300">
+              <PieChart size={15} />
             </div>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-white/10 text-white border border-white/15 tracking-wider">
-              2 ACCOUNTS
+            <span className="text-xs font-bold text-gray-300">
+              {isAk ? 'အကျဉ်းချုပ် (Overview)' : 'Overview'}
             </span>
           </div>
 
-          <div className="mt-4">
-            <div className="text-3xl font-extrabold font-mono tracking-tight text-white flex items-baseline">
-              {hideBalances ? (
-                <span className="tracking-widest">••••••••</span>
-              ) : (
-                <>
-                  <span className="text-blue-400 mr-1 text-2xl font-bold">$</span>
-                  <span>{totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  <span className="text-xs font-bold text-gray-400 ml-2">USD</span>
-                </>
-              )}
+          <div className="mt-3">
+            <div className="text-[11px] text-gray-400 font-medium">
+              {isAk ? 'စုစုပေါင်း ပမာဏ (Total Amount)' : 'Total Amount'}
             </div>
-            {!hideBalances && (
-              <div className="text-[11px] text-gray-400 font-medium mt-1">
-                ≈ ₳ {totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AKD · ≈ {totalMmk.toLocaleString(undefined, { maximumFractionDigits: 0 })} MMK · ≈ {totalThb.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} THB
-              </div>
-            )}
-          </div>
-
-          {/* Allocation Progress Bar */}
-          <div className="mt-4 pt-3 border-t border-white/10">
-            <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden flex">
-              <div className="h-full bg-[#E11D48] transition-all duration-500" style={{ width: `${akdPercent}%` }} />
-              <div className="h-full bg-[#10B981] transition-all duration-500" style={{ width: `${usdPercent}%` }} />
-            </div>
-
-            <div className="flex items-center justify-between mt-2.5 text-[11px]">
-              <div className="flex items-center gap-1.5 text-gray-300">
-                <span className="w-2 h-2 rounded-full bg-[#E11D48]" />
-                <span className="font-semibold">Wallet: {akdPercent.toFixed(1)}%</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-gray-300">
-                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                <span className="font-semibold">USD Account: {usdPercent.toFixed(1)}%</span>
-              </div>
+            <div className="text-3xl font-extrabold font-mono tracking-tight text-white flex items-baseline mt-1">
+              <span className="text-[#E11D48] mr-1 text-2xl font-bold">₳</span>
+              <span>{totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           </div>
 
-          {/* Quick Transfer Button */}
-          <div className="mt-4">
-            <button
-              onClick={() => go('crypto')}
-              className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition flex items-center justify-center gap-2 border border-white/10 active:scale-98"
-            >
-              <ArrowLeftRight size={14} />
-              <span>{isAk ? 'အကောင့်များအကြား အပြန်အလှန်လွှဲမည်' : 'Transfer Between Accounts'}</span>
-            </button>
+          {/* Red & Yellow Donut Chart + Legend */}
+          <div className="mt-4 p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4">
+            <MiniDonutChart
+              slices={[
+                { percent: akdPercent, color: '#E11D48' },
+                { percent: usdPercent, color: '#F59E0B' },
+              ]}
+              size={68}
+              strokeWidth={10}
+              centerContent={<ArakanEmblem size={22} />}
+            />
+            <div className="flex-1 space-y-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#E11D48] shrink-0" />
+                <span className="font-semibold text-gray-200">
+                  Wallet: ₳ {akdBal.toFixed(2)} ({akdPercent.toFixed(1)}%)
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B] shrink-0" />
+                <span className="font-semibold text-gray-200">
+                  USD: $ {usdBal.toFixed(2)} ({usdPercent.toFixed(1)}%)
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* ═════════════════════════════════════════════════════════════════════
-           2. WALLET ACCOUNT CARD (WITH SMALL PIE CHART & BALANCES)
+           2. PETHAR WALLET (AKD) CARD
         ═════════════════════════════════════════════════════════════════════ */}
         <div className="p-4 rounded-3xl bg-white border border-gray-200 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
@@ -679,9 +675,18 @@ export function AccountScreen({
               <ArakanEmblem size={26} variant="badge" />
               <div>
                 <div className="text-xs font-bold text-gray-900">
-                  {isAk ? 'ဖေ့သာ ပိုက်ဆံအိတ်' : 'Péthar Wallet (AKD)'}
+                  {isAk ? 'ဖေ့သာ ပိုက်ဆံအိတ် (akd)' : 'Pethar wallet (akd)'}
                 </div>
-                <div className="text-[10px] text-gray-400 font-mono">ARAK-8891-USER</div>
+                <div className="text-[11px] text-gray-500 font-mono font-semibold flex items-center gap-1.5 mt-0.5">
+                  <span>{userUid}</span>
+                  <button
+                    onClick={copyUid}
+                    className="text-gray-400 hover:text-gray-600 active:scale-90 transition p-0.5"
+                    title="Copy UID"
+                  >
+                    {copiedUid ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                  </button>
+                </div>
               </div>
             </div>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -695,70 +700,45 @@ export function AccountScreen({
               <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
                 {isAk ? 'လက်ကျန်ငွေ' : 'Available Balance'}
               </div>
-              <div className="text-2xl font-black font-mono text-gray-950 mt-0.5">
-                {hideBalances ? (
-                  <span>••••••••</span>
-                ) : (
-                  <>
-                    <span className="text-[#D91624] mr-1">₳</span>
-                    <span>{akdBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  </>
-                )}
+              <div className="text-2xl font-black font-mono text-gray-950 mt-0.5 flex items-baseline">
+                <span className="text-[#D91624] mr-1">₳</span>
+                <span>{akdBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
-              {!hideBalances && (
-                <div className="text-[10px] text-gray-500 mt-0.5 font-medium">
-                  ≈ ${akdBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD · {(akdBal * 4500).toLocaleString()} MMK
-                </div>
-              )}
             </div>
 
-            {/* Small Pie Chart (75% Liquid, 25% Gold Vault) */}
+            {/* Small Pie Chart (Green Available, Yellow Pending) */}
             <MiniDonutChart
               slices={[
-                { percent: 75, color: '#E11D48' },
-                { percent: 25, color: '#F59E0B' },
+                { percent: 100, color: '#10B981' },
+                { percent: 0, color: '#F59E0B' },
               ]}
-              size={64}
-              strokeWidth={9}
+              size={60}
+              strokeWidth={8}
               centerContent={
                 <span className="text-sm font-black text-[#D91624]">₳</span>
               }
             />
           </div>
 
-          {/* Slices Breakdown Legend */}
-          <div className="p-2.5 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-between text-[10px] font-semibold text-gray-600">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#E11D48]" />
-              <span>Liquid (75%): ₳ {(akdBal * 0.75).toFixed(2)}</span>
+          {/* Green dot Available, Yellow dot Pending, Blue dot Total */}
+          <div className="p-2.5 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-between text-[10px] font-semibold text-gray-700">
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+              <span>Available: ₳ {akdBal.toFixed(2)}</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-              <span>Gold Vault (25%): ₳ {(akdBal * 0.25).toFixed(2)}</span>
+              <span>Pending: ₳ {akdPending.toFixed(2)}</span>
             </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <button
-              onClick={() => go('send')}
-              className="py-2.5 rounded-xl bg-[#D91624] hover:bg-[#b00e1a] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-xs"
-            >
-              <ArrowUpRight size={14} />
-              <span>{isAk ? 'ငွေလွှဲ' : 'Send'}</span>
-            </button>
-            <button
-              onClick={() => go('receive')}
-              className="py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95"
-            >
-              <QrCode size={14} />
-              <span>{isAk ? 'လက်ခံ' : 'Receive'}</span>
-            </button>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
+              <span className="font-bold">Total: ₳ {akdTotal.toFixed(2)}</span>
+            </div>
           </div>
         </div>
 
         {/* ═════════════════════════════════════════════════════════════════════
-           3. USD ACCOUNT CARD (WITH SMALL PIE CHART & BALANCES)
+           3. USD ACCOUNT CARD
         ═════════════════════════════════════════════════════════════════════ */}
         <div className="p-4 rounded-3xl bg-white border border-gray-200 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
@@ -768,18 +748,18 @@ export function AccountScreen({
               </div>
               <div>
                 <div className="text-xs font-bold text-gray-900">
-                  {isAk ? 'ယူအက်စ်ဒီ အကောင့် (တည်ငြိမ်ဒင်္ဂါး)' : 'USD Account (Stablecoins)'}
+                  {isAk ? 'ယူအက်စ်ဒီ အကောင့်' : 'USD Account'}
                 </div>
                 <div className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
                   <span>0x36...5f19</span>
-                  <button onClick={copyAddress} className="text-gray-400 hover:text-gray-600">
+                  <button onClick={copyAddress} className="text-gray-400 hover:text-gray-600 active:scale-90 transition p-0.5" title="Copy Wallet Address">
                     {copiedAddr ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
                   </button>
                 </div>
               </div>
             </div>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-              ON-CHAIN
+              ACTIVE
             </span>
           </div>
 
@@ -787,72 +767,42 @@ export function AccountScreen({
           <div className="flex items-center justify-between pt-1">
             <div>
               <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
-                {isAk ? 'စုစုပေါင်း တန်ဖိုး' : 'Total USD Value'}
+                {isAk ? 'လက်ကျန်ငွေ' : 'Available Balance'}
               </div>
-              <div className="text-2xl font-black font-mono text-gray-950 mt-0.5">
-                {hideBalances ? (
-                  <span>••••••••</span>
-                ) : (
-                  <>
-                    <span className="text-emerald-600 mr-1">$</span>
-                    <span>{usdBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  </>
-                )}
+              <div className="text-2xl font-black font-mono text-gray-950 mt-0.5 flex items-baseline">
+                <span className="text-emerald-600 mr-1">$</span>
+                <span>{usdBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
-              {!hideBalances && (
-                <div className="text-[10px] text-gray-500 mt-0.5 font-medium">
-                  ≈ ₳ {usdBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AKD · {(usdBal * 4500).toLocaleString()} MMK
-                </div>
-              )}
             </div>
 
-            {/* Small Pie Chart (70% USDT, 20% USDC, 10% USD1) */}
+            {/* Small Pie Chart (Green Available, Yellow Pending) */}
             <MiniDonutChart
               slices={[
-                { percent: 70, color: '#10B981' },
-                { percent: 20, color: '#2563EB' },
-                { percent: 10, color: '#F59E0B' },
+                { percent: 100, color: '#10B981' },
+                { percent: 0, color: '#F59E0B' },
               ]}
-              size={64}
-              strokeWidth={9}
+              size={60}
+              strokeWidth={8}
               centerContent={
                 <span className="text-sm font-black text-emerald-600">$</span>
               }
             />
           </div>
 
-          {/* Slices Breakdown Legend */}
-          <div className="p-2.5 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-between text-[10px] font-semibold text-gray-600">
-            <div className="flex items-center gap-1.5">
+          {/* Green dot Available, Yellow dot Pending, Blue dot Total */}
+          <div className="p-2.5 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-between text-[10px] font-semibold text-gray-700">
+            <div className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-              <span>USDT: ${(usdBal * 0.7).toFixed(0)}</span>
+              <span>Available: $ {usdBal.toFixed(2)}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
-              <span>USDC: ${(usdBal * 0.2).toFixed(0)}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-              <span>USD1: ${(usdBal * 0.1).toFixed(0)}</span>
+              <span>Pending: $ {usdPending.toFixed(2)}</span>
             </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <button
-              onClick={() => go('crypto')}
-              className="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-xs"
-            >
-              <ArrowDownLeft size={14} />
-              <span>{isAk ? 'ငွေသွင်း' : 'Deposit'}</span>
-            </button>
-            <button
-              onClick={() => go('cashout')}
-              className="py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95"
-            >
-              <Store size={14} />
-              <span>{isAk ? 'ငွေထုတ်' : 'Cash Out'}</span>
-            </button>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
+              <span className="font-bold">Total: $ {usdTotal.toFixed(2)}</span>
+            </div>
           </div>
         </div>
 
@@ -1557,7 +1507,7 @@ export function Send({
             recipientName={contact.name}
             recipientId={contact.id}
             senderName="User"
-            senderId="ARAK-8891-USER"
+            senderId={initialUserProfile.uid || '202610190001'}
             fee={0.0}
             autoSaved={true}
             onClose={() => go('home')}

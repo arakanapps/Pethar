@@ -64,7 +64,7 @@ class _SendScreenState extends State<SendScreen> {
           appState.recordTransfer(
             amount: amt,
             recipientName: selectedContact?.name ?? 'Ko Min Aung',
-            recipientId: selectedContact?.id ?? 'ARAK-8891',
+            recipientId: selectedContact?.id ?? '202610190002',
           );
           setState(() => step = 4);
         });
@@ -578,7 +578,7 @@ class _SendScreenState extends State<SendScreen> {
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
                       ),
                       Text(
-                        appState.profile.petharId,
+                        appState.profile.uid.isNotEmpty ? appState.profile.uid : '202610190001',
                         style: TextStyle(fontSize: 10, color: Colors.grey[500], fontFamily: 'monospace'),
                       ),
                       const SizedBox(height: 18),
@@ -587,7 +587,7 @@ class _SendScreenState extends State<SendScreen> {
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
                       ),
                       Text(
-                        selectedContact?.id ?? 'ARAK-8891',
+                        selectedContact?.id ?? '202610190002',
                         style: TextStyle(fontSize: 10, color: Colors.grey[500], fontFamily: 'monospace'),
                       ),
                     ],

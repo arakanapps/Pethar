@@ -802,10 +802,10 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               ],
             ),
             const SizedBox(height: 14),
-            _buildBlePeerTile('Arakan Node 01 (ARAK-8891)', 'RSSI: -45 dBm • 1.2m', () {
+            _buildBlePeerTile('Arakan Node 01 (202610190002)', 'RSSI: -45 dBm • 1.2m', () {
               Navigator.pop(ctx);
-              appState.sendOfflineCash(amount: amount, recipient: 'ARAK-8891');
-              _showSuccessSnackBar(lang == 'ak' ? 'ARAK-8891 သို့ BLE မက်ရှ်ဖြင့် ငွေလွှဲပြီးပါပြီ' : 'Delivered to ARAK-8891 over BLE Mesh');
+              appState.sendOfflineCash(amount: amount, recipient: '202610190002');
+              _showSuccessSnackBar(lang == 'ak' ? '202610190002 သို့ BLE မက်ရှ်ဖြင့် ငွေလွှဲပြီးပါပြီ' : 'Delivered to 202610190002 over BLE Mesh');
             }),
             _buildBlePeerTile('Merchant Sittwe Station (POS)', 'RSSI: -62 dBm • 4.5m', () {
               Navigator.pop(ctx);

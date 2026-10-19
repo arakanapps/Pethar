@@ -63,7 +63,7 @@ export const initialUserProfile: UserProfile = {
   name: 'User',
   email: 'aungkyawzan@pethar.io',
   phone: '09795220917',
-  petharId: 'AK-992104-88',
+  petharId: '202610190001',
   location: 'Sittwe · စစ်တွေ',
   accountTier: 'Tier 2 Verified',
   uid: '202610190001',

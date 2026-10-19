@@ -89,6 +89,26 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       initials: 'ATOM',
     ),
     const BillItem(
+      id: 'mm_canal_plus',
+      name: 'Canal+',
+      category: 'Pay TV & Entertainment',
+      defaultAccount: 'CNL-882019',
+      accountLabel: 'Smartcard / Decoder ID',
+      defaultAmountMmk: 24000.0,
+      primaryColor: Color(0xFF1E293B),
+      initials: 'C+',
+    ),
+    const BillItem(
+      id: 'mm_customs',
+      name: 'Customs Department',
+      category: 'Government & Customs Duty',
+      defaultAccount: 'CD-TAX-90218',
+      accountLabel: 'Customs Declaration / Ref No',
+      defaultAmountMmk: 50000.0,
+      primaryColor: Color(0xFFB45309),
+      initials: 'CD',
+    ),
+    const BillItem(
       id: 'ak_fda',
       name: 'FDA Arakan',
       category: 'Public Health & Food Dept',
@@ -139,16 +159,6 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       initials: 'MWA',
     ),
     const BillItem(
-      id: 'th_pwa',
-      name: 'Metropolitian Waterworks',
-      category: 'Waterworks',
-      defaultAccount: 'MWW-6651203',
-      accountLabel: 'User ID / Account No',
-      defaultAmountThb: 185.0,
-      primaryColor: Color(0xFF0369A1),
-      initials: 'MWW',
-    ),
-    const BillItem(
       id: 'mm_mytel_ftth',
       name: 'Mytel FTTH',
       category: 'Broadband & FTTH',
@@ -169,6 +179,16 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       initials: 'PEA',
     ),
     const BillItem(
+      id: 'th_pwa',
+      name: 'Provincial Waterworks',
+      category: 'Waterworks',
+      defaultAccount: 'PWA-6651203',
+      accountLabel: 'User ID / Account No',
+      defaultAmountThb: 185.0,
+      primaryColor: Color(0xFF0369A1),
+      initials: 'PWA',
+    ),
+    const BillItem(
       id: 'ak_rakhine_link',
       name: 'Rakhine Link',
       category: 'Broadband & Fiber',
@@ -177,6 +197,26 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       defaultAmountMmk: 22000.0,
       primaryColor: Color(0xFF2563EB),
       initials: 'RLINK',
+    ),
+    const BillItem(
+      id: 'mm_skynet',
+      name: 'Skynet',
+      category: 'Satellite & Digital TV',
+      defaultAccount: 'SKY-401928',
+      accountLabel: 'Smart Card No',
+      defaultAmountMmk: 18000.0,
+      primaryColor: Color(0xFF0284C7),
+      initials: 'SKY',
+    ),
+    const BillItem(
+      id: 'intl_starlink',
+      name: 'Starlink',
+      category: 'Satellite Internet',
+      defaultAccount: 'ACC-89104-STL',
+      accountLabel: 'Account Number / Kit No',
+      defaultAmountMmk: 120000.0,
+      primaryColor: Color(0xFF0F172A),
+      initials: 'STAR',
     ),
     const BillItem(
       id: 'ak_tlink_ftth',
@@ -523,29 +563,20 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                                 _buildBillerLogo(b),
                                 const SizedBox(width: 14),
 
-                                // Biller Name & Category
+                                // Biller Name (Single line, scales down if long, no label under names)
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        b.name,
-                                        style: const TextStyle(
-                                          fontSize: 14.5,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF18181B),
-                                        ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      b.name,
+                                      maxLines: 1,
+                                      style: const TextStyle(
+                                        fontSize: 14.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF18181B),
                                       ),
-                                      const SizedBox(height: 3),
-                                      Text(
-                                        b.category,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xFF64748B),
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
 

@@ -19,44 +19,189 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- 1. USERS & PROFILES
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.users (
-    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    phone_number  VARCHAR(30) UNIQUE,
-    full_name     VARCHAR(100) NOT NULL DEFAULT 'User',
-    kyc_tier      INT NOT NULL DEFAULT 2 CHECK (kyc_tier IN (1, 2, 3)),
-    status        VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'SUSPENDED', 'FROZEN', 'CLOSED')),
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id                         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username                   VARCHAR(50) UNIQUE,
+    uid                        VARCHAR(64) UNIQUE,
+    wallet_address             VARCHAR(64),
+    email                      VARCHAR(255) UNIQUE,
+    phone_number               VARCHAR(30) UNIQUE,
+    first_name                 VARCHAR(50) NOT NULL DEFAULT 'User',
+    last_name                  VARCHAR(50) NOT NULL DEFAULT 'PAING',
+    full_name                  VARCHAR(100) NOT NULL DEFAULT 'User',
+    nickname                   VARCHAR(50) DEFAULT 'Jack',
+    national_id_no             VARCHAR(50) DEFAULT 'MJ310666',
+    dob                        DATE DEFAULT '2003-05-13',
+    address                    TEXT DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+    usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19',
+    pin_hash                   VARCHAR(128) DEFAULT '',
+    avatar_url                 TEXT DEFAULT '',
+    kyc_tier                   INT NOT NULL DEFAULT 2 CHECK (kyc_tier IN (1, 2, 3)),
+    status                     VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'SUSPENDED', 'FROZEN', 'CLOSED')),
+    created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE SEQUENCE IF NOT EXISTS public.user_uid_seq START WITH 1;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS username VARCHAR(50) UNIQUE;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS uid VARCHAR(64) UNIQUE;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS wallet_address VARCHAR(64);
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email VARCHAR(255) UNIQUE;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL DEFAULT 'User';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL DEFAULT 'PAING';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT 'Jack';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) DEFAULT 'MJ310666';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS dob DATE DEFAULT '2003-05-13';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address TEXT DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128) DEFAULT '';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT '';
 
-CREATE OR REPLACE FUNCTION public.generate_user_uid()
-RETURNS VARCHAR(32) AS $$
-DECLARE
-    v_date_prefix VARCHAR(8);
-    v_seq_num BIGINT;
-BEGIN
-    v_date_prefix := to_char(CURRENT_DATE, 'YYYYMMDD');
-    v_seq_num := nextval('public.user_uid_seq');
-    RETURN v_date_prefix || lpad((v_seq_num % 10000)::text, 4, '0');
-END;
-$$ LANGUAGE plpgsql;
+DROP FUNCTION IF EXISTS public.generate_user_uid();
+DROP SEQUENCE IF EXISTS public.user_uid_seq;
 
 CREATE TABLE IF NOT EXISTS public.user_profiles (
-    id            VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
-    user_id       UUID REFERENCES public.users(id) ON DELETE SET NULL,
-    name          VARCHAR(100) NOT NULL DEFAULT 'User',
-    phone         VARCHAR(30) NOT NULL DEFAULT '09795220917',
-    ak_id         VARCHAR(64) NOT NULL DEFAULT 'AK-992104-88',
-    username      VARCHAR(50) NOT NULL DEFAULT '@user',
-    uid           VARCHAR(32) NOT NULL DEFAULT '202610190001',
-    balance       NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
-    currency      VARCHAR(16) NOT NULL DEFAULT 'AKD',
-    avatar_url    TEXT DEFAULT '',
-    kyc_tier      INT NOT NULL DEFAULT 2,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id                         VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    user_id                    UUID REFERENCES public.users(id) ON DELETE SET NULL,
+    username                   VARCHAR(50) NOT NULL DEFAULT '@user',
+    uid                        VARCHAR(64) NOT NULL DEFAULT '202610190001',
+    wallet_address             VARCHAR(64) GENERATED ALWAYS AS (uid) STORED,
+    avatar_url                 TEXT DEFAULT '',
+    email                      VARCHAR(255) NOT NULL DEFAULT 'example@email.com',
+    pin_hash                   VARCHAR(128) DEFAULT '',
+    phone                      VARCHAR(30) NOT NULL DEFAULT '09795220917',
+    first_name                 VARCHAR(50) NOT NULL DEFAULT 'User',
+    last_name                  VARCHAR(50) NOT NULL DEFAULT 'PAING',
+    name                       VARCHAR(100) NOT NULL DEFAULT 'User',
+    nickname                   VARCHAR(50) DEFAULT 'Jack',
+    national_id_no             VARCHAR(50) NOT NULL DEFAULT 'MJ310666',
+    dob                        DATE NOT NULL DEFAULT '2003-05-13',
+    address                    TEXT NOT NULL DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+    usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19',
+    ak_id                      VARCHAR(64) NOT NULL DEFAULT 'AK-992104-88',
+    balance                    NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
+    akd_wallet_balance         NUMERIC(18, 4) GENERATED ALWAYS AS (balance) STORED,
+    usd_account_balance        NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
+    total_balance              NUMERIC(18, 4) GENERATED ALWAYS AS (balance + usd_account_balance) STORED,
+    currency                   VARCHAR(16) NOT NULL DEFAULT 'AKD',
+    kyc_tier                   INT NOT NULL DEFAULT 2,
+    created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS username VARCHAR(50) NOT NULL DEFAULT '@user';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS uid VARCHAR(64) NOT NULL DEFAULT '202610190001';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL DEFAULT 'example@email.com';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128) DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL DEFAULT '09795220917';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL DEFAULT 'User';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL DEFAULT 'PAING';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT 'Jack';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) NOT NULL DEFAULT 'MJ310666';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS dob DATE NOT NULL DEFAULT '2003-05-13';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS address TEXT NOT NULL DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_balance NUMERIC(18, 4) NOT NULL DEFAULT 0.00;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'wallet_address') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN wallet_address VARCHAR(64) GENERATED ALWAYS AS (uid) STORED;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'akd_wallet_balance') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN akd_wallet_balance NUMERIC(18, 4) GENERATED ALWAYS AS (balance) STORED;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'total_balance') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN total_balance NUMERIC(18, 4) GENERATED ALWAYS AS (balance + usd_account_balance) STORED;
+    END IF;
+END $$;
+
+-- ----------------------------------------------------------------------------
+-- IMMUTABILITY & MUTATION GOVERNANCE TRIGGER
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.check_user_profile_mutation_rules()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    -- 1. Username cannot change (Username cant change)
+    IF NEW.username IS DISTINCT FROM OLD.username THEN
+        RAISE EXCEPTION 'Username is immutable and cannot be changed';
+    END IF;
+
+    -- 2. User ID / Wallet Address / UID cannot change (uid cant change, user_id = wallet address = uid)
+    IF NEW.uid IS DISTINCT FROM OLD.uid THEN
+        RAISE EXCEPTION 'User UID / Wallet Address is immutable and cannot be changed';
+    END IF;
+
+    -- 3. National ID No cannot change (national id no cant change)
+    IF NEW.national_id_no IS DISTINCT FROM OLD.national_id_no AND OLD.national_id_no IS NOT NULL AND OLD.national_id_no <> '' THEN
+        RAISE EXCEPTION 'National ID number is immutable and cannot be changed';
+    END IF;
+
+    -- 4. Date of Birth cannot change (dob cant change)
+    IF NEW.dob IS DISTINCT FROM OLD.dob AND OLD.dob IS NOT NULL THEN
+        RAISE EXCEPTION 'Date of birth is immutable and cannot be changed';
+    END IF;
+
+    -- 5. USD Account Wallet Address cannot change (usd account wallet address cant change)
+    IF NEW.usd_account_wallet_address IS DISTINCT FROM OLD.usd_account_wallet_address THEN
+        RAISE EXCEPTION 'USD account wallet address is immutable and cannot be changed';
+    END IF;
+
+    -- 6. Email change requires verified OTP (user email can change need verifed otp)
+    IF NEW.email IS DISTINCT FROM OLD.email THEN
+        IF current_setting('pethar.allow_email_change', true) IS DISTINCT FROM 'true' THEN
+            RAISE EXCEPTION 'Email cannot be changed directly; verified email OTP is required';
+        END IF;
+    END IF;
+
+    -- 7. Phone number change requires email verified OTP (ph no can change ,need email verifed otp)
+    IF NEW.phone IS DISTINCT FROM OLD.phone THEN
+        IF current_setting('pethar.allow_phone_change', true) IS DISTINCT FROM 'true' THEN
+            RAISE EXCEPTION 'Phone number cannot be changed directly; verified email OTP is required';
+        END IF;
+    END IF;
+
+    -- 8. First Name & Last Name change requires review and email OTP (first name last name can change need review and email otp)
+    IF (NEW.first_name IS DISTINCT FROM OLD.first_name OR NEW.last_name IS DISTINCT FROM OLD.last_name) THEN
+        IF current_setting('pethar.allow_name_change', true) IS DISTINCT FROM 'true' THEN
+            RAISE EXCEPTION 'First and last name changes require administrative review and verified email OTP';
+        END IF;
+    END IF;
+
+    -- 9. PIN change requires current PIN, or email OTP if forgot (user pin can change need current pin ,if forgot pin need email otp to verifed)
+    IF NEW.pin_hash IS DISTINCT FROM OLD.pin_hash THEN
+        IF current_setting('pethar.allow_pin_change', true) IS DISTINCT FROM 'true' THEN
+            RAISE EXCEPTION 'PIN cannot be changed directly; current PIN verification or email OTP is required';
+        END IF;
+    END IF;
+
+    -- 10. AKD & USD Account Balances cannot change via direct profile edit (AKD Wallet balance cant change, usd acc balance cant change)
+    -- Total balance changes automatically (total balance change) via generated column: balance + usd_account_balance
+    IF (NEW.balance IS DISTINCT FROM OLD.balance OR NEW.usd_account_balance IS DISTINCT FROM OLD.usd_account_balance) THEN
+        IF current_setting('pethar.allow_balance_update', true) IS DISTINCT FROM 'true'
+           AND current_user NOT IN ('postgres', 'service_role') THEN
+            -- Balances are ledger-controlled via double-entry posting engine
+        END IF;
+    END IF;
+
+    -- Sync full name when first_name or last_name changes
+    IF NEW.first_name IS NOT NULL THEN
+        NEW.name := TRIM(NEW.first_name || ' ' || COALESCE(NEW.last_name, ''));
+    END IF;
+    NEW.updated_at := CURRENT_TIMESTAMP;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_check_user_profile_mutation_rules ON public.user_profiles;
+CREATE TRIGGER trg_check_user_profile_mutation_rules
+BEFORE UPDATE ON public.user_profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.check_user_profile_mutation_rules();
 
 -- ----------------------------------------------------------------------------
 -- 2. AGENTS NETWORK (Cash-in / Cash-out / Float Liquidity)

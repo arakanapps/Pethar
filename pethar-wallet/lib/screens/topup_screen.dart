@@ -239,15 +239,10 @@ class _TopupScreenState extends State<TopupScreen> {
               const SizedBox(height: 12),
               ...sampleContacts.map((c) => ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: CircleAvatar(
-                      backgroundColor: const Color(0xFFEFF6FF),
-                      child: Text(
-                        c['name']!.substring(0, 1),
-                        style: const TextStyle(color: Color(0xFF1D4ED8), fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                    leading: _buildOperatorLogo(c['op']!, size: 38, borderRadius: 8),
                     title: Text(c['name']!, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                     subtitle: Text('${c['phone']} • ${c['op']}', style: const TextStyle(fontSize: 12, color: Color(0xFF71717A))),
+                    trailing: _buildMiniOperatorBadge(c['op']!),
                     onTap: () {
                       _phoneCtrl.text = c['phone']!;
                       Navigator.pop(ctx);
@@ -354,8 +349,8 @@ class _TopupScreenState extends State<TopupScreen> {
                       ),
                       Row(
                         children: [
-                          _buildMiniOperatorBadge(operatorName),
-                          const SizedBox(width: 6),
+                          _buildOperatorLogo(operatorName, size: 24, borderRadius: 6),
+                          const SizedBox(width: 8),
                           Text(
                             '$operatorName ${_activeTab == TopupTab.phoneTopup ? "Eload" : "DataPack"}',
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
@@ -556,70 +551,144 @@ class _TopupScreenState extends State<TopupScreen> {
     );
   }
 
-  Widget _buildMiniOperatorBadge(String op) {
-    if (op == 'ATOM') {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(color: const Color(0xFFE0F2FE), borderRadius: BorderRadius.circular(4)),
-        child: const Text('ATOM', style: TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.w900, fontSize: 10)),
-      );
-    } else if (op == 'MPT') {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(4)),
-        child: const Text('MPT', style: TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.w900, fontSize: 10)),
-      );
-    } else if (op == 'MYTEL' || op == 'mytel') {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(color: const Color(0xFFFFEDD5), borderRadius: BorderRadius.circular(4)),
-        child: const Text('MYTEL', style: TextStyle(color: Color(0xFFEA580C), fontWeight: FontWeight.w900, fontSize: 10)),
-      );
-    } else if (op == 'MecTel') {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(4)),
-        child: const Text('MecTel', style: TextStyle(color: Color(0xFF15803D), fontWeight: FontWeight.w900, fontSize: 10)),
-      );
-    } else {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(color: const Color(0xFFFEF9C3), borderRadius: BorderRadius.circular(4)),
-        child: const Text('U9', style: TextStyle(color: Color(0xFFCA8A04), fontWeight: FontWeight.w900, fontSize: 10)),
-      );
-    }
+  String _getOperatorAsset(String op) {
+    final norm = op.toUpperCase();
+    if (norm == 'ATOM') return 'assets/operators/atom.png';
+    if (norm == 'MYTEL') return 'assets/operators/mytel.png';
+    if (norm == 'MPT') return 'assets/operators/mpt.png';
+    if (norm == 'U9') return 'assets/operators/u9.jpg';
+    if (norm.contains('MEC')) return 'assets/operators/mectel.png';
+    return 'assets/operators/atom.png';
   }
 
-  // Top Up Header with "Top Up" in the middle, and back button
-  Widget _buildHeader(BuildContext context, AppState appState) {
+  Widget _buildOperatorLogo(String op, {double size = 26, double? width, double? height, double borderRadius = 6}) {
+    final assetPath = _getOperatorAsset(op);
+    final w = width ?? size;
+    final h = height ?? size;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      width: w,
+      height: h,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 3,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius > 2 ? borderRadius - 2 : 2),
+        child: Image.asset(
+          assetPath,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => Center(
+            child: Text(
+              op.isNotEmpty ? op.substring(0, 1) : '?',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniOperatorBadge(String op) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildOperatorLogo(op, size: 16, borderRadius: 3),
+          const SizedBox(width: 5),
+          Text(
+            op,
+            style: const TextStyle(
+              color: Color(0xFF0F172A),
+              fontWeight: FontWeight.w800,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Top Up Header with "Top Up" in the middle, back button on left, and History button on right
+  Widget _buildHeader(BuildContext context, AppState appState) {
+    final isAk = appState.language == 'ak';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1)),
       ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => appState.goBack(),
-            child: const Padding(
-              padding: EdgeInsets.all(4),
-              child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Color(0xFF1E293B)),
-            ),
-          ),
-          const Expanded(
-            child: Text(
-              'Top Up',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
+      child: SizedBox(
+        height: 38,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: GestureDetector(
+                onTap: () => appState.goBack(),
+                child: const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Color(0xFF1E293B)),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 26),
-        ],
+            const Center(
+              child: Text(
+                'Top Up',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () => appState.navigate(Screen.history),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    isAk ? 'မှတ်တမ်း' : 'History',
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1122,62 +1191,6 @@ class _TopupScreenState extends State<TopupScreen> {
   }
 
   Widget _buildOperatorSmallIcon(String op) {
-    if (op == 'ATOM') {
-      return Container(
-        width: 18,
-        height: 18,
-        decoration: const BoxDecoration(
-          color: Color(0xFF00A3E0),
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 12),
-      );
-    } else if (op == 'MPT') {
-      return Container(
-        width: 18,
-        height: 18,
-        decoration: const BoxDecoration(
-          color: Color(0xFF003399),
-          shape: BoxShape.circle,
-        ),
-        child: const Center(
-          child: Text('M', style: TextStyle(color: Color(0xFFFDB913), fontWeight: FontWeight.w900, fontSize: 10)),
-        ),
-      );
-    } else if (op == 'MYTEL' || op == 'mytel') {
-      return Container(
-        width: 18,
-        height: 18,
-        decoration: const BoxDecoration(
-          color: Color(0xFFFF6600),
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(Icons.all_inclusive_rounded, color: Colors.white, size: 11),
-      );
-    } else if (op == 'MecTel') {
-      return Container(
-        width: 18,
-        height: 18,
-        decoration: const BoxDecoration(
-          color: Color(0xFF15803D),
-          shape: BoxShape.circle,
-        ),
-        child: const Center(
-          child: Text('M', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 10)),
-        ),
-      );
-    } else {
-      return Container(
-        width: 18,
-        height: 18,
-        decoration: const BoxDecoration(
-          color: Color(0xFFE5A823),
-          shape: BoxShape.circle,
-        ),
-        child: const Center(
-          child: Text('9', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 10)),
-        ),
-      );
-    }
+    return _buildOperatorLogo(op, size: 24, borderRadius: 6);
   }
 }

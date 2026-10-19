@@ -19,8 +19,8 @@ class _CryptoScreenState extends State<CryptoScreen> {
   final List<String> _addresses = [
     'TKeB891AKDa91jK04L2xM904vPeThar98124',
     '0x8f2a718c991804b204918ac891b01479812',
-    'EQD90418AKD_MraukU_PeThar_Chain_88914',
-    '0x3e11048891userpeThar901456201',
+    'EQD90418AKD_MraukU_PeThar_Chain_20261019',
+    '0x3e11049281a742819abcd8391048291045f201',
   ];
 
   @override
@@ -31,16 +31,17 @@ class _CryptoScreenState extends State<CryptoScreen> {
     final currentAddr = _addresses[_selectedNetwork];
 
     return Scaffold(
-      backgroundColor: isDark ? obsidian : paper,
+      backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
         title: Text(
           TranslationStrings.tr('cryptoTitle', lang),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A)),
         ),
-        backgroundColor: isDark ? surfaceDark : Colors.white,
+        backgroundColor: Colors.white,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
           onPressed: () => appState.goBack(),
         ),
       ),
@@ -53,13 +54,13 @@ class _CryptoScreenState extends State<CryptoScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.purple.withOpacity(0.12),
+                color: const Color(0xFFF3E8FF),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.purple.withOpacity(0.3)),
+                border: Border.all(color: const Color(0xFFD8B4FE)),
               ),
               child: Text(
                 TranslationStrings.tr('cryptoSubtitle', lang),
-                style: const TextStyle(color: Colors.purpleAccent, fontSize: 11, height: 1.4),
+                style: const TextStyle(color: Color(0xFF7E22CE), fontSize: 11, fontWeight: FontWeight.w600, height: 1.4),
               ),
             ),
             const SizedBox(height: 20),
@@ -68,9 +69,16 @@ class _CryptoScreenState extends State<CryptoScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isDark ? surfaceCard : Colors.white,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: emeraldSuccess.withOpacity(0.4)),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,13 +90,16 @@ class _CryptoScreenState extends State<CryptoScreen> {
                         children: const [
                           Icon(Icons.verified, color: emeraldSuccess, size: 18),
                           SizedBox(width: 8),
-                          Text('Proof of Reserves (PoR)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          Text(
+                            'Proof of Reserves (PoR)',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F172A)),
+                          ),
                         ],
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: emeraldSuccess.withOpacity(0.15),
+                          color: emeraldSuccess.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Text('105.0% AUDITED', style: TextStyle(color: emeraldSuccess, fontSize: 9, fontWeight: FontWeight.bold)),
@@ -98,7 +109,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                   const SizedBox(height: 10),
                   Text(
                     TranslationStrings.tr('reserveBacked', lang),
-                    style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.4),
                   ),
                 ],
               ),
@@ -108,10 +119,10 @@ class _CryptoScreenState extends State<CryptoScreen> {
             // Deposit USDT Card
             Text(
               lang == 'ak' ? 'USDT ငွေသွင်းလိပ်စာ (Deposit Address)' : 'Deposit USDT Address',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black87,
+                color: Color(0xFF0F172A),
               ),
             ),
             const SizedBox(height: 10),
@@ -126,10 +137,13 @@ class _CryptoScreenState extends State<CryptoScreen> {
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedNetwork = idx),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 9),
                         decoration: BoxDecoration(
-                          color: active ? gold : (isDark ? surfaceCard : Colors.grey[200]),
+                          color: active ? const Color(0xFF2563EB) : const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: active ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+                          ),
                         ),
                         child: Center(
                           child: Text(
@@ -137,7 +151,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: active ? Colors.black : Colors.grey,
+                              color: active ? Colors.white : const Color(0xFF64748B),
                             ),
                           ),
                         ),
@@ -153,9 +167,16 @@ class _CryptoScreenState extends State<CryptoScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isDark ? surfaceCard : Colors.white,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: isDark ? slateBorder : Colors.grey[300]!),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
@@ -164,6 +185,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
                     child: QrImageView(
                       data: currentAddr,
@@ -175,21 +197,27 @@ class _CryptoScreenState extends State<CryptoScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.black38 : Colors.grey[100],
+                      color: const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
                     child: Row(
                       children: [
                         Expanded(
                           child: Text(
                             currentAddr,
-                            style: const TextStyle(fontFamily: 'monospace', fontSize: 10),
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF0F172A),
+                            ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.copy, size: 16, color: gold),
+                          icon: const Icon(Icons.copy_rounded, size: 18, color: Color(0xFF2563EB)),
                           onPressed: () {
                             Clipboard.setData(ClipboardData(text: currentAddr));
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -204,10 +232,10 @@ class _CryptoScreenState extends State<CryptoScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
+                  const SizedBox(height: 12),
+                  const Text(
                     '1.00 USDT = 1.00 AKD (0% Slippage)',
-                    style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Color(0xFF0284C7), fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),

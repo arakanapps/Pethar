@@ -630,7 +630,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     category: 'Personal' | 'Family' | 'Friends' | 'Business'
   }>>([
     {
-      id: 'ARAK-1024',
+      id: '202610190002',
       name: 'user',
       fullName: 'user',
       mm: 'အသုံးပြုသူ',
@@ -641,7 +641,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       category: 'Personal',
     },
     {
-      id: 'ARAK-8891',
+      id: '202610190003',
       name: 'User',
       fullName: 'User',
       mm: 'မြတ်စိုး',
@@ -652,7 +652,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       category: 'Family',
     },
     {
-      id: 'ARAK-9921',
+      id: '202610190004',
       name: 'TONY',
       fullName: 'Tony',
       mm: 'တိုနီ',
@@ -663,7 +663,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       category: 'Friends',
     },
     {
-      id: 'ARAK-5501',
+      id: '202610190005',
       name: 'CIMB WIRE',
       fullName: 'CIMB Wire',
       mm: 'စီအိုင်အမ်ဘီ',
@@ -674,7 +674,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       category: 'Business',
     },
     {
-      id: 'ARAK-3305',
+      id: '202610190006',
       name: 'KO MIN AUNG',
       fullName: 'Ko Min Aung',
       mm: 'မင်းအောင်',
@@ -3720,39 +3720,35 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         ? topupPackages
         : topupPackages.filter((p) => p.category === topupSelectedCategory)
 
-    const renderMiniOpBadge = (op: string) => {
+    const getOperatorLogoSrc = (op: string) => {
       const norm = (op || '').toUpperCase()
-      if (norm === 'ATOM') {
-        return (
-          <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#0284C7] text-white">
-            ATOM
-          </span>
-        )
-      }
-      if (norm === 'MYTEL') {
-        return (
-          <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#EA580C] text-white">
-            MYTEL
-          </span>
-        )
-      }
-      if (norm === 'MPT') {
-        return (
-          <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#1E3A8A] text-[#FDB913]">
-            MPT
-          </span>
-        )
-      }
-      if (norm === 'MECTEL') {
-        return (
-          <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#15803D] text-white">
-            MecTel
-          </span>
-        )
-      }
+      if (norm === 'ATOM') return '/operators/atom.png'
+      if (norm === 'MYTEL') return '/operators/mytel.png'
+      if (norm === 'MPT') return '/operators/mpt.png'
+      if (norm === 'U9') return '/operators/u9.jpg'
+      if (norm.includes('MEC')) return '/operators/mectel.png'
+      return '/operators/atom.png'
+    }
+
+    const renderOperatorLogo = (op: string, sizeClass = 'w-6 h-6', roundedClass = 'rounded-md') => {
+      const src = getOperatorLogoSrc(op)
       return (
-        <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#D97706] text-white">
-          U9
+        <div className={`relative ${sizeClass} ${roundedClass} bg-white border border-slate-200 overflow-hidden flex items-center justify-center p-0.5 shadow-sm shrink-0`}>
+          <img
+            src={src}
+            alt={op}
+            className="w-full h-full object-contain"
+          />
+        </div>
+      )
+    }
+
+    const renderMiniOpBadge = (op: string) => {
+      const src = getOperatorLogoSrc(op)
+      return (
+        <span className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-md bg-white border border-slate-200 shadow-sm text-xs font-extrabold text-slate-800">
+          <img src={src} alt={op} className="h-3.5 w-4 object-contain" />
+          <span>{op}</span>
         </span>
       )
     }
@@ -3795,19 +3791,27 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     return (
       <div className="min-h-full bg-[#F8F9FA] text-slate-800 flex flex-col pb-12">
-        {/* HEADER: CLEAN WHITE WITH CENTERED "Top Up" */}
-        <div className="bg-white border-b border-slate-200 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30 transition-all">
-          <button
-            type="button"
-            onClick={() => setScreen('home')}
-            className="p-1 -ml-1 text-slate-700 hover:text-slate-900 cursor-pointer"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <div className="text-base font-extrabold text-slate-900 tracking-tight text-center flex-1">
-            Top Up
+        {/* HEADER: CLEAN WHITE WITH CENTERED "Top Up" & HISTORY BUTTON */}
+        <div className="bg-white text-slate-900 border-b border-slate-200 px-4 py-3 sticky top-0 z-30 transition-all">
+          <div className="relative flex items-center justify-between h-10">
+            <button
+              type="button"
+              onClick={() => setScreen('home')}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-700 cursor-pointer z-10"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <h1 className="absolute inset-0 flex items-center justify-center text-base font-extrabold text-slate-900 pointer-events-none">
+              Top Up
+            </h1>
+            <button
+              type="button"
+              onClick={() => setScreen('history')}
+              className="text-xs font-bold text-slate-700 hover:text-slate-900 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition cursor-pointer z-10"
+            >
+              {isAk ? 'မှတ်တမ်း' : 'History'}
+            </button>
           </div>
-          <div className="w-6" />
         </div>
 
         {/* BODY CONTAINER */}
@@ -3846,8 +3850,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
             {/* Operator Detected Subtitle */}
             {hasInput && currentOperator && (
-              <div className="flex items-center space-x-1.5 pt-1 text-xs font-bold text-slate-800 animate-in fade-in">
-                {renderMiniOpBadge(currentOperator)}
+              <div className="flex items-center space-x-2 pt-1 text-xs font-bold text-slate-800 animate-in fade-in">
+                {renderOperatorLogo(currentOperator, 'w-6 h-6', 'rounded-md')}
                 <span>
                   {currentOperator}{' '}
                   {topupActiveTab === 'phoneTopup' ? 'Eload' : 'DataPack'}
@@ -4052,9 +4056,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     className="w-full p-3 rounded-2xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 flex items-center justify-between transition cursor-pointer text-left"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-800 font-bold flex items-center justify-center text-sm">
-                        {c.name.substring(0, 1)}
-                      </div>
+                      {renderOperatorLogo(c.op, 'w-10 h-10', 'rounded-xl')}
                       <div>
                         <div className="text-xs font-bold text-slate-900">{c.name}</div>
                         <div className="text-[11px] text-slate-500 font-mono">{c.phone}</div>
@@ -4097,8 +4099,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-medium">Operator</span>
-                  <div className="flex items-center space-x-1.5 font-bold text-slate-900">
-                    {renderMiniOpBadge(currentOperator)}
+                  <div className="flex items-center space-x-2 font-bold text-slate-900">
+                    {renderOperatorLogo(currentOperator, 'w-6 h-6', 'rounded-md')}
                     <span>
                       {currentOperator}{' '}
                       {topupActiveTab === 'phoneTopup' ? 'Eload' : 'DataPack'}
@@ -4163,6 +4165,13 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               </div>
 
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-xs space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Operator</span>
+                  <div className="flex items-center space-x-1.5 font-bold text-slate-900">
+                    {renderOperatorLogo(topupLastSuccessInfo.operator, 'w-5 h-5', 'rounded')}
+                    <span>{topupLastSuccessInfo.operator}</span>
+                  </div>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Total Charged</span>
                   <span className="font-black text-slate-900">
@@ -4200,7 +4209,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     const thbRate = 115.0
     const akdRate = 4500.0
 
-    // Combined 14 Billers (Sorted A to Z)
+    // Combined 18 Billers (Sorted A to Z)
     const allBillers = [
       {
         id: 'mm_aia',
@@ -4245,6 +4254,28 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         defaultAmountThb: 278.26,
         primaryColor: '#0284C7',
         initials: 'ATOM',
+      },
+      {
+        id: 'mm_canal_plus',
+        name: 'Canal+',
+        category: 'Pay TV & Entertainment',
+        defaultAccount: 'CNL-882019',
+        accountLabel: 'Smartcard / Decoder ID',
+        defaultAmountMmk: 24000,
+        defaultAmountThb: 208.7,
+        primaryColor: '#1E293B',
+        initials: 'C+',
+      },
+      {
+        id: 'mm_customs',
+        name: 'Customs Department',
+        category: 'Government & Customs Duty',
+        defaultAccount: 'CD-TAX-90218',
+        accountLabel: 'Customs Declaration / Ref No',
+        defaultAmountMmk: 50000,
+        defaultAmountThb: 434.78,
+        primaryColor: '#B45309',
+        initials: 'CD',
       },
       {
         id: 'ak_fda',
@@ -4302,17 +4333,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         initials: 'MWA',
       },
       {
-        id: 'th_pwa',
-        name: 'Metropolitian Waterworks',
-        category: 'Waterworks',
-        defaultAccount: 'MWW-6651203',
-        accountLabel: 'User ID / Account No',
-        defaultAmountMmk: 21275,
-        defaultAmountThb: 185.0,
-        primaryColor: '#0369A1',
-        initials: 'MWW',
-      },
-      {
         id: 'mm_mytel_ftth',
         name: 'Mytel FTTH',
         category: 'Broadband & FTTH',
@@ -4335,6 +4355,17 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         initials: 'PEA',
       },
       {
+        id: 'th_pwa',
+        name: 'Provincial Waterworks',
+        category: 'Waterworks',
+        defaultAccount: 'PWA-6651203',
+        accountLabel: 'User ID / Account No',
+        defaultAmountMmk: 21275,
+        defaultAmountThb: 185.0,
+        primaryColor: '#0369A1',
+        initials: 'PWA',
+      },
+      {
         id: 'ak_rakhine_link',
         name: 'Rakhine Link',
         category: 'Broadband & Fiber',
@@ -4344,6 +4375,28 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         defaultAmountThb: 191.3,
         primaryColor: '#2563EB',
         initials: 'RLINK',
+      },
+      {
+        id: 'mm_skynet',
+        name: 'Skynet',
+        category: 'Satellite & Digital TV',
+        defaultAccount: 'SKY-401928',
+        accountLabel: 'Smart Card No',
+        defaultAmountMmk: 18000,
+        defaultAmountThb: 156.52,
+        primaryColor: '#0284C7',
+        initials: 'SKY',
+      },
+      {
+        id: 'intl_starlink',
+        name: 'Starlink',
+        category: 'Satellite Internet',
+        defaultAccount: 'ACC-89104-STL',
+        accountLabel: 'Account Number / Kit No',
+        defaultAmountMmk: 120000,
+        defaultAmountThb: 1043.48,
+        primaryColor: '#0F172A',
+        initials: 'STAR',
       },
       {
         id: 'ak_tlink_ftth',
@@ -4685,12 +4738,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   >
                     {biller.initials}
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold text-slate-900 truncate">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs sm:text-sm font-bold text-slate-900 truncate whitespace-nowrap">
                       {biller.name}
-                    </div>
-                    <div className="text-[10px] text-slate-400 truncate mt-0.5">
-                      {biller.category}
                     </div>
                   </div>
                 </div>

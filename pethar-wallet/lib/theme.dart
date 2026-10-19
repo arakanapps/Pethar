@@ -25,21 +25,8 @@ const Color paperCard = Color(0xFFFFFFFF);
 const Color emeraldSuccess = Color(0xFF10B981);
 
 ThemeData darkTheme() {
-  final baseTextTheme = ThemeData.dark().textTheme;
-  return ThemeData(
-    brightness: Brightness.dark,
-    scaffoldBackgroundColor: obsidian,
-    primaryColor: gold,
-    colorScheme: const ColorScheme.dark(
-      primary: gold,
-      secondary: crimson,
-      surface: surfaceCard,
-    ),
-    cardColor: surfaceCard,
-    textTheme: GoogleFonts.notoSansMyanmarTextTheme(baseTextTheme),
-    fontFamilyFallback: const ['Noto Sans Myanmar', 'Padauk', 'Pyidaungsu'],
-    useMaterial3: true,
-  );
+  // App is strictly designed for light theme across Android and iOS
+  return lightTheme();
 }
 
 ThemeData lightTheme() {

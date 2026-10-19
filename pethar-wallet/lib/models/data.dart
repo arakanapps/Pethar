@@ -52,7 +52,7 @@ class Transaction {
 
 UserProfile initialUserProfile = UserProfile(
   name: 'User', email: 'example@email.com', phone: '+95 9 881 204 991',
-  petharId: 'ARAK-8891-USER', location: 'Sittwe · စစ်တွေ', accountTier: 'Normal',
+  petharId: '202610190001', location: 'Sittwe · စစ်တွေ', accountTier: 'Normal',
   uid: '202610190001',
   avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
 );
@@ -101,8 +101,8 @@ List<NotificationItem> sampleNotifications = [
     type: 'transaction',
     titleEn: 'P2P Transfer Sent',
     titleMm: 'ငွေလွှဲပို့ခြင်း အောင်မြင်ပါသည်',
-    bodyEn: 'You sent ₳0.00 to Ko Min Aung (ARAK-8891). Settled instantly with zero fee.',
-    bodyMm: 'ကိုမင်းအောင် (ARAK-8891) ထံ ₳0.00 ပို့လွှဲခြင်း ချက်ချင်းပြီးစီးပါသည်။',
+    bodyEn: 'You sent ₳0.00 to Ko Min Aung (202610190002). Settled instantly with zero fee.',
+    bodyMm: 'ကိုမင်းအောင် (202610190002) ထံ ₳0.00 ပို့လွှဲခြင်း ချက်ချင်းပြီးစီးပါသည်။',
     time: '2:22 PM',
     dateGroup: 'Today',
     read: false,
