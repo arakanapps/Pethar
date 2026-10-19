@@ -27,12 +27,12 @@ CREATE TABLE IF NOT EXISTS public.users (
     phone_number               VARCHAR(30) UNIQUE,
     first_name                 VARCHAR(50) NOT NULL DEFAULT '',
     last_name                  VARCHAR(50) NOT NULL DEFAULT '',
-    full_name                  VARCHAR(100) NOT NULL DEFAULT 'User',
+    full_name                  VARCHAR(100) NOT NULL DEFAULT '',
     nickname                   VARCHAR(50) DEFAULT '',
     national_id_no             VARCHAR(50) DEFAULT '',
     dob                        DATE,
     address                    TEXT DEFAULT '',
-    usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19',
+    usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '',
     pin_hash                   VARCHAR(128) DEFAULT '',
     avatar_url                 TEXT DEFAULT '',
     kyc_tier                   INT NOT NULL DEFAULT 1 CHECK (kyc_tier IN (1, 2)),
@@ -51,7 +51,7 @@ ALTER TABLE public.users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT '
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) DEFAULT '';
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS dob DATE;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address TEXT DEFAULT '';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '';
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128) DEFAULT '';
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT '';
 
@@ -70,12 +70,12 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     phone                      VARCHAR(30) NOT NULL DEFAULT '',
     first_name                 VARCHAR(50) NOT NULL DEFAULT '',
     last_name                  VARCHAR(50) NOT NULL DEFAULT '',
-    name                       VARCHAR(100) NOT NULL DEFAULT 'User',
+    name                       VARCHAR(100) NOT NULL DEFAULT '',
     nickname                   VARCHAR(50) DEFAULT '',
     national_id_no             VARCHAR(50) NOT NULL DEFAULT '',
     dob                        DATE,
     address                    TEXT NOT NULL DEFAULT '',
-    usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19',
+    usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '',
     ak_id                      VARCHAR(64) GENERATED ALWAYS AS (uid) STORED,
     balance                    NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
     akd_wallet_balance         NUMERIC(18, 4) GENERATED ALWAYS AS (balance) STORED,
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     updated_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS username VARCHAR(50) NOT NULL DEFAULT '@user';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS username VARCHAR(50) NOT NULL DEFAULT '';
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS uid VARCHAR(64);
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT '';
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL DEFAULT '';
@@ -99,7 +99,7 @@ ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) D
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) NOT NULL DEFAULT '';
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS dob DATE;
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS address TEXT NOT NULL DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT 's';
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_balance NUMERIC(18, 4) NOT NULL DEFAULT 0.00;
 
 DO $$
@@ -247,12 +247,12 @@ CREATE TABLE IF NOT EXISTS public.agents (
     agent_code        VARCHAR(20) UNIQUE NOT NULL,
     display_name      VARCHAR(100) NOT NULL,
     display_name_mm   VARCHAR(150) DEFAULT '',
-    township          VARCHAR(100) NOT NULL DEFAULT 'Sittwe',
-    township_mm       VARCHAR(150) DEFAULT 'စစ်တွေ',
+    township          VARCHAR(100) NOT NULL DEFAULT '',
+    township_mm       VARCHAR(150) DEFAULT '',
     distance          VARCHAR(32) DEFAULT '0.5 km',
     float_status      VARCHAR(32) NOT NULL DEFAULT 'High' CHECK (float_status IN ('High', 'Medium', 'Low')),
     float_status_mm   VARCHAR(100) DEFAULT 'ငွေသားအပြည့်ရှိ',
-    phone             VARCHAR(30) NOT NULL DEFAULT '+95 9 881 000 101',
+    phone             VARCHAR(30) NOT NULL DEFAULT '',
     cash_reserve_akd  NUMERIC(18, 2) NOT NULL DEFAULT 50000.00,
     is_open           BOOLEAN NOT NULL DEFAULT true,
     commission_bps    INT NOT NULL DEFAULT 150 CHECK (commission_bps BETWEEN 0 AND 2000),
@@ -838,7 +838,7 @@ DECLARE
 BEGIN
     SELECT user_id, email INTO v_user_id, v_curr_email FROM public.user_profiles WHERE id = p_profile_id;
     IF v_curr_email IS NULL OR v_curr_email = '' THEN
-        v_curr_email := 'example@email.com';
+        v_curr_email := '';
     END IF;
 
     v_code := LPAD(FLOOR(random() * 900000 + 100000)::text, 6, '0');
@@ -1345,343 +1345,20 @@ END $$;
 -- 12. SEED ENTERPRISE DATA
 -- ----------------------------------------------------------------------------
 
--- 12.1. Seed Default Citizen Users & Profiles (Emails included for database exports & direct inspection)
-INSERT INTO public.users (
-    id, uid, username, email, phone_number, first_name, last_name, full_name, nickname, national_id_no, dob, address, usd_account_wallet_address, pin_hash, kyc_tier, status
-) VALUES 
-(
-    '00000000-0000-0000-0000-000000000001',
-    '202610190001',
-    '@user',
-    'user@pethar.com',
-    '+95912345678',
-    'User',
-    'Citizen',
-    'User Citizen',
-    'Citizen',
-    '',
-    NULL,
-    'Sittwe, Arakan',
-    '0x36a8F492C109bE742819aBcD8391048291045f19',
-    '',
-    1,
-    'ACTIVE'
-),
-(
-    '00000000-0000-0000-0000-000000000002',
-    '202610190002',
-    '@daw_thannwe',
-    'daw_thannwe@pethar.com',
-    '09791234567',
-    'Than Nwe',
-    'Daw',
-    'Daw Than Nwe',
-    'TN',
-    'RAK-STW-197821',
-    '1978-04-12',
-    'Strand Road, Sittwe',
-    '0x39a1c8b91048bc72619472ba1894cf82',
-    '',
-    2,
-    'ACTIVE'
-),
-(
-    '00000000-0000-0000-0000-000000000003',
-    '202610190003',
-    '@hsu_hnin',
-    'hsu_hnin@pethar.com',
-    '09951234567',
-    'Hsu Hnin',
-    'Wutt Yee',
-    'Hsu Hnin Wutt Yee',
-    'HW',
-    '',
-    NULL,
-    'Main Market, Mrauk-U',
-    '0x88219401bfca92847103829104fa2891',
-    '',
-    1,
-    'ACTIVE'
-),
-(
-    '00000000-0000-0000-0000-000000000004',
-    '202610190004',
-    '@hnin_thandar',
-    'hnin_thandar@pethar.com',
-    '09251234567',
-    'Hnin Thandar',
-    'Phyo',
-    'HNIN THANDAR PHYO',
-    'HT',
-    'RAK-MKU-198402',
-    '1984-08-23',
-    'Palace Road, Mrauk-U',
-    '0x1402849182abdc91827401928374bc10',
-    '',
-    2,
-    'ACTIVE'
-),
-(
-    '00000000-0000-0000-0000-000000000005',
-    '202610190005',
-    '@myo_min',
-    'myo_min@pethar.com',
-    '09451234567',
-    'Myo Min',
-    'Oo',
-    'Myo Min Oo',
-    'MO',
-    '',
-    NULL,
-    'Port Road, Kyaukphyu',
-    '0x55bc101a8829141bfa829471de990c74',
-    '',
-    1,
-    'ACTIVE'
-)
-ON CONFLICT (id) DO UPDATE SET
-    email = EXCLUDED.email,
-    uid = EXCLUDED.uid,
-    username = EXCLUDED.username,
-    kyc_tier = EXCLUDED.kyc_tier;
+-- 12.1. Citizen users & user profiles start empty (registered via app / API)
 
-INSERT INTO public.user_profiles (
-    id, user_id, uid, username, email, phone, first_name, last_name, name, nickname, national_id_no, dob, address, usd_account_wallet_address, balance, usd_account_balance, currency, kyc_tier
-) VALUES 
-(
-    'p0000000-0000-0000-0000-000000000001',
-    '00000000-0000-0000-0000-000000000001',
-    '202610190001',
-    '@user',
-    'user@pethar.com',
-    '+95912345678',
-    'User',
-    'Citizen',
-    'User Citizen',
-    'Citizen',
-    '',
-    NULL,
-    'Sittwe, Arakan',
-    '0x36a8F492C109bE742819aBcD8391048291045f19',
-    0.00,
-    0.00,
-    'AKD',
-    1
-),
-(
-    'p0000000-0000-0000-0000-000000000002',
-    '00000000-0000-0000-0000-000000000002',
-    '202610190002',
-    '@daw_thannwe',
-    'daw_thannwe@pethar.com',
-    '09791234567',
-    'Than Nwe',
-    'Daw',
-    'Daw Than Nwe',
-    'TN',
-    'RAK-STW-197821',
-    '1978-04-12',
-    'Strand Road, Sittwe',
-    '0x39a1c8b91048bc72619472ba1894cf82',
-    82500.00,
-    8500.00,
-    'AKD',
-    2
-),
-(
-    'p0000000-0000-0000-0000-000000000003',
-    '00000000-0000-0000-0000-000000000003',
-    '202610190003',
-    '@hsu_hnin',
-    'hsu_hnin@pethar.com',
-    '09951234567',
-    'Hsu Hnin',
-    'Wutt Yee',
-    'Hsu Hnin Wutt Yee',
-    'HW',
-    '',
-    NULL,
-    'Main Market, Mrauk-U',
-    '0x88219401bfca92847103829104fa2891',
-    1250.00,
-    200.00,
-    'AKD',
-    1
-),
-(
-    'p0000000-0000-0000-0000-000000000004',
-    '00000000-0000-0000-0000-000000000004',
-    '202610190004',
-    '@hnin_thandar',
-    'hnin_thandar@pethar.com',
-    '09251234567',
-    'Hnin Thandar',
-    'Phyo',
-    'HNIN THANDAR PHYO',
-    'HT',
-    'RAK-MKU-198402',
-    '1984-08-23',
-    'Palace Road, Mrauk-U',
-    '0x1402849182abdc91827401928374bc10',
-    4200.00,
-    500.00,
-    'AKD',
-    2
-),
-(
-    'p0000000-0000-0000-0000-000000000005',
-    '00000000-0000-0000-0000-000000000005',
-    '202610190005',
-    '@myo_min',
-    'myo_min@pethar.com',
-    '09451234567',
-    'Myo Min',
-    'Oo',
-    'Myo Min Oo',
-    'MO',
-    '',
-    NULL,
-    'Port Road, Kyaukphyu',
-    '0x55bc101a8829141bfa829471de990c74',
-    340.00,
-    50.00,
-    'AKD',
-    1
-)
-ON CONFLICT (id) DO UPDATE SET
-    email = EXCLUDED.email,
-    uid = EXCLUDED.uid,
-    username = EXCLUDED.username,
-    kyc_tier = EXCLUDED.kyc_tier;
-
--- 12.2. Seed Default Multi-currency Accounts
+-- 12.2. Seed System Reserve Accounts
 INSERT INTO public.accounts (id, user_id, currency, account_type)
 VALUES 
-    ('a0000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'AKD', 'USER_WALLET'),
-    ('a0000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'USDT', 'USER_WALLET'),
     ('a0000000-0000-0000-0000-000000000003', NULL, 'AKD', 'RESERVE_VAULT'),
     ('a0000000-0000-0000-0000-000000000004', NULL, 'AKD', 'FEE_INCOME')
 ON CONFLICT (id) DO NOTHING;
 
--- 12.3. Seed Verified Agents Directory
-INSERT INTO public.agents (
-    id, user_id, agent_code, display_name, display_name_mm,
-    township, township_mm, distance, float_status, float_status_mm,
-    phone, cash_reserve_akd, is_open
-)
-VALUES
-(
-    'b0000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001',
-    'AK-001', 'Shwe Sittwe Central Merchant Point', 'ရွှေစစ်တွေ အဓိကဘဏ္ဍာရေးအေးဂျင့်',
-    'Sittwe Strand Road', 'စစ်တွေမြို့၊ ကမ်းနားလမ်း', '180 m', 'High', 'ငွေသားအပြည့်ရှိ (High Float)',
-    '+95 9 881 000 101', 85000.00, true
-),
-(
-    'b0000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001',
-    'AK-042', 'Mrauk-U Ancient City Express Agent', 'မြောက်ဦး မြို့လယ် အေးဂျင့်ဆိုင်',
-    'Mrauk-U Palace Road', 'မြောက်ဦး နန်းရာလမ်း', '420 m', 'High', 'ငွေသားအပြည့်ရှိ (High Float)',
-    '+95 9 791 000 042', 54000.00, true
-),
-(
-    'b0000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000001',
-    'AK-088', 'Kyaukpyu Deep Port Financial Center', 'ကျောက်ဖြူ ဆိပ်ကမ်းကြီး ဘဏ္ဍာရေးကောင်တာ',
-    'Kyaukpyu Port Road', 'ကျောက်ဖြူ သင်္ဘောဆိပ်လမ်း', '950 m', 'Medium', 'ငွေသားသင့်တင့်စွာရှိ (Medium)',
-    '+95 9 440 000 088', 28000.00, true
-),
-(
-    'b0000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000001',
-    'AK-115', 'Thandwe Beach Gateway Agent', 'သံတွဲ ကမ်းခြေလမ်းဆုံ ငွေသားကောင်တာ',
-    'Thandwe Main Market', 'သံတွဲမြို့မဈေးကြီး', '1.4 km', 'Medium', 'ငွေသားသင့်တင့်စွာရှိ (Medium)',
-    '+95 9 961 000 115', 32000.00, true
-),
-(
-    'b0000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000001',
-    'AK-204', 'Ramree Island Agricultural Service', 'ရမ်းဗြဲကျွန်း စိုက်ပျိုးရေးနှင့်ငွေထုတ်အေးဂျင့်',
-    'Ramree Bogyoke Road', 'ရမ်းဗြဲ ဗိုလ်ချုပ်လမ်း', '2.1 km', 'Low', 'ငွေသားအနည်းငယ်သာရှိ (Low)',
-    '+95 9 250 000 204', 9500.00, true
-)
-ON CONFLICT (agent_code) DO UPDATE SET
-    display_name = EXCLUDED.display_name,
-    display_name_mm = EXCLUDED.display_name_mm,
-    township = EXCLUDED.township,
-    township_mm = EXCLUDED.township_mm,
-    cash_reserve_akd = EXCLUDED.cash_reserve_akd,
-    float_status = EXCLUDED.float_status;
+-- 12.3. Agents directory starts empty (managed via merchant / agent onboarding)
 
--- 12.4. Seed Verified Transactions in AKD
-INSERT INTO public.transactions 
-(id, ref_id, reference_id, title, title_mm, category, amount, currency, time, status, counterparty, counterparty_mm, fee, hash)
-VALUES
-(
-    'TXN-5001', '50059261069021', '50059261069021',
-    'Transfer to MR. User', 'ဦးမြတ်စိုး သို့ ငွေလွှဲခြင်း',
-    'p2p', -5.00, 'AKD', 'Today 17:35:10', 'SETTLED',
-    'MR. User (004-********* -689)', 'ဦးမြတ်စိုးပိုင် (PromptPay/Péthar)', 0.00,
-    '0x8a91f4c2901bfa829471de990c7412ae8b7244ef0182c81'
-),
-(
-    'TXN-5002', '50059261069022', '50059261069022',
-    'Receive money from MR. User', 'ဦးမြတ်စိုး ထံမှ ငွေလက်ခံရရှိခြင်း',
-    'p2p', 20.00, 'AKD', 'Today 14:50:22', 'SETTLED',
-    'MR. User', 'ဦးမြတ်စိုးပိုင်', 0.00,
-    '0x3e11f0a829141bfa829471de990c7412ae8b7244ef'
-),
-(
-    'TXN-5003', '50059261069023', '50059261069023',
-    'Grab Local Transportation', 'Grab ယာဉ်စီးခ ပေးချေခြင်း',
-    'pos', -94.00, 'AKD', 'Yesterday 19:12:05', 'SETTLED',
-    'Grab Merchant Connect', 'Grab ကုန်သည်ဝန်ဆောင်မှု', 0.00,
-    '0x4981fa12048bfa829471de990c7412ae8b7244ef'
-),
-(
-    'TXN-5004', '50059261069024', '50059261069024',
-    'USDT Treasury Deposit', 'USDT ဘဏ္ဍာတိုက် ငွေသွင်းခြင်း',
-    'crypto', 500.00, 'AKD', '12 Oct 2026', 'SETTLED',
-    'Tether TRC-20 Inflow', 'Tether တရားဝင်ငွေသွင်း', 0.00,
-    '0x77c29bf01a8829141bfa829471de990c7412ae8b72'
-),
-(
-    'TXN-5005', '50059261069025', '50059261069025',
-    'Starlink Mesh High-Speed Pass', 'Starlink ကွန်ရက် အသုံးပြုခ',
-    'pos', -15.00, 'AKD', '11 Oct 2026', 'SETTLED',
-    'Starlink Sittwe Ground Terminal', 'Starlink စစ်တွေကွန်ရက်', 0.00,
-    '0x99a18274f8829141bfa829471de990c7412ae8b72'
-),
-(
-    'TXN-5006', '50059261069026', '50059261069026',
-    'Coffee House Sittwe', 'စစ်တွေ ကော်ဖီဆိုင်',
-    'pos', -4.5000, 'AKD', '10 Oct 2026', 'SETTLED',
-    'Point of Sale Terminal #04', 'အရောင်းဆိုင် ကောင်တာ #၀၄', 0.00,
-    '0x12a9c4001bfa829471de990c7412ae8b7244ef'
-),
-(
-    'TXN-5007', '50059261069027', '50059261069027',
-    'P2P Inward Wire Settlement', 'အာရက္ခ P2P ပြည်တွင်းလွှဲငွေ',
-    'p2p', 120.00, 'AKD', '09 Oct 2026', 'SETTLED',
-    'Kyaw Zeya (Peer #8812)', 'ကျော်ဇေယျ', 0.00,
-    '0x55bc101a8829141bfa829471de990c7412ae8b72'
-)
-ON CONFLICT (id) DO UPDATE SET
-    title = EXCLUDED.title,
-    title_mm = EXCLUDED.title_mm,
-    category = EXCLUDED.category,
-    amount = EXCLUDED.amount,
-    currency = EXCLUDED.currency,
-    time = EXCLUDED.time,
-    status = EXCLUDED.status,
-    counterparty = EXCLUDED.counterparty;
+-- 12.4. Transactions ledger starts empty (recorded live during transfers & payments)
 
--- 12.5. Seed Favorite Contacts
-INSERT INTO public.favorite_contacts (id, name, username, uid, phone, initials, color_value, category)
-VALUES 
-    ('fav_01', 'Daw Than Nwe', '@daw_thannwe', '202610190002', '09791234567', 'TN', 4280391411, 'family'),
-    ('fav_02', 'Hsu Hnin Wutt Yee', '@hsu_hnin', '202610190003', '09951234567', 'HW', 4293998877, 'friends'),
-    ('fav_03', 'HNIN THANDAR PHYO', '@hnin_thandar', '202610190004', '09251234567', 'HT', 4279860608, 'business'),
-    ('fav_04', 'Myo Min Oo', '@myo_min', '202610190005', '09451234567', 'MO', 4281881855, 'friends')
-ON CONFLICT (id) DO UPDATE SET
-    name = EXCLUDED.name,
-    username = EXCLUDED.username,
-    uid = EXCLUDED.uid;
+-- 12.5. Favorite contacts start empty (managed dynamically by wallet users)
 
 -- 12.6. Seed Myanmar Bill Providers
 INSERT INTO public.bill_providers (id, name, name_mm, category, region, default_amount, account_label, primary_color, initials, has_kyo_phyae)
@@ -1727,18 +1404,7 @@ ON CONFLICT (pair) DO UPDATE SET
     rate = EXCLUDED.rate,
     updated_at = CURRENT_TIMESTAMP;
 
--- 12.9. Seed POS Merchant Terminals
-INSERT INTO public.pos_terminals (terminal_code, merchant_user_id, store_name, store_name_mm, township, daily_sales_limit, status)
-VALUES
-    ('POS-AK-001', '00000000-0000-0000-0000-000000000001', 'Arakan Fragrant Rice Wholesaler', 'အာရက္ခ ပေါ်ဆန်းမွှေး ဆန်ကုန်သည်ကြီးများ', 'Sittwe Port', 100000.00, 'ACTIVE'),
-    ('POS-AK-002', '00000000-0000-0000-0000-000000000001', 'Sittwe Central Generator & Fuel Depot', 'စစ်တွေ မီးစက်ဆီနှင့် စက်သုံးဆီဆိုင်', 'Strand Road', 75000.00, 'ACTIVE'),
-    ('POS-AK-003', '00000000-0000-0000-0000-000000000001', 'Mrauk-U Solar Technology Supplies', 'မြောက်ဦး ဆိုလာနှင့် ဘက်ထရီ အရောင်းဆိုင်', 'Palace Road', 80000.00, 'ACTIVE'),
-    ('POS-AK-004', '00000000-0000-0000-0000-000000000001', 'Sittwe Medical & Care Dispensary', 'စစ်တွေ ပြည်သူ့ဆေးဆိုင်', 'Bogyoke Road', 50000.00, 'ACTIVE'),
-    ('POS-AK-005', '00000000-0000-0000-0000-000000000001', 'Starlink Sittwe Ground Station Connect', 'စစ်တွေ ဂြိုဟ်တုဆက်သွယ်ရေးစခန်း', 'Airport Road', 120000.00, 'ACTIVE')
-ON CONFLICT (terminal_code) DO UPDATE SET
-    store_name = EXCLUDED.store_name,
-    store_name_mm = EXCLUDED.store_name_mm,
-    status = EXCLUDED.status;
+-- 12.9. POS merchant terminals start empty (registered via merchant onboarding)
 
 -- 13. DEDICATED DATABASE USERS & CITIZENS EXPORT VIEW
 -- Cleanly exposes all user accounts with Email for SQL exports, reporting and table inspectors.
@@ -1747,7 +1413,7 @@ SELECT
     up.id AS profile_id,
     up.uid,
     up.username,
-    COALESCE(NULLIF(up.email, ''), NULLIF(u.email, ''), 'user@pethar.com') AS email,
+    COALESCE(NULLIF(up.email, ''), NULLIF(u.email, ''), '') AS email,
     up.phone,
     up.first_name,
     up.last_name,
