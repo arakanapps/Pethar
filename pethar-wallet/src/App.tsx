@@ -183,13 +183,29 @@ export default function App() {
         case 'm': {
           const pathLower = location.pathname.toLowerCase()
           if (
+            pathLower.includes('/download') ||
             pathLower.includes('/ios') ||
             pathLower.includes('/android') ||
             pathLower.includes('/andriod')
           ) {
             return <DownloadPage lang={currentLang} />
           }
-          return <MobileWalletPage lang={currentLang} setLang={handleSetLang} />
+          const engine = new URLSearchParams(location.search).get('engine')
+          // Optional fallback to legacy React Mobile Wallet if explicitly requested
+          if (engine === 'react') {
+            return <MobileWalletPage lang={currentLang} setLang={handleSetLang} />
+          }
+          // Default: Unified Flutter Mobile Web to match native Android & iOS apps 1:1
+          return (
+            <div className="fixed inset-0 w-full h-full overflow-hidden bg-[#0B0F19]">
+              <iframe
+                src={`/flutter/index.html${location.search}`}
+                title="Péthar Flutter Mobile Web"
+                className="w-full h-full border-0 block"
+                style={{ width: '100%', height: '100%', border: 'none' }}
+              />
+            </div>
+          )
         }
         case 'wallet':
           return <WalletPage lang={currentLang} />

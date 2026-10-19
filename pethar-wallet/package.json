@@ -16,6 +16,8 @@
     "ios": "flutter run -d ios",
     "ios:xcode": "open ios/Runner.xcworkspace",
     "macos": "flutter run -d macos",
+    "flutter:web": "flutter run -d chrome",
+    "flutter:build:web": "flutter build web --release --base-href /flutter/ && rm -rf public/flutter && cp -rf build/web public/flutter",
     "lint:ui": "lintapple http://localhost:3000"
   },
   "dependencies": {

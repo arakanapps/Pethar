@@ -22,7 +22,9 @@
     "ios:xcode": "./apps/ios/open-xcode.sh",
     "pos": "./apps/pos/run.sh",
     "desktop": "./apps/desktop/run-macos.sh",
-    "desktop:electron": "./apps/desktop/run-electron.sh"
+    "desktop:electron": "./apps/desktop/run-electron.sh",
+    "flutter:web": "cd pethar-wallet && npm run flutter:web",
+    "flutter:build:web": "cd pethar-wallet && npm run flutter:build:web"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.4",

@@ -678,3 +678,109 @@ export async function fetchPosTerminalsFromDb(): Promise<any[]> {
   }
 }
 
+/**
+ * Fetch all users for Admin operations hub
+ */
+export async function fetchAllUsersForAdmin(): Promise<DbUserProfile[]> {
+  try {
+    const { data, error } = await db
+      .from('user_profiles')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('Supabase fetch users for admin warning:', error.message)
+      return []
+    }
+    return (data || []).map(mapDbProfile)
+  } catch (err) {
+    console.error('Error fetching all users for admin from Supabase:', err)
+    return []
+  }
+}
+
+/**
+ * Update user account status (ACTIVE, SUSPENDED, FROZEN)
+ */
+export async function updateUserStatusInDb(
+  uid: string,
+  status: 'ACTIVE' | 'SUSPENDED' | 'FROZEN',
+  reason?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const payload: any = {
+      status: status,
+      updated_at: new Date().toISOString(),
+    }
+    if (reason) {
+      payload.compliance_notes = reason
+    }
+    const { error: profileErr } = await db
+      .from('user_profiles')
+      .update(payload)
+      .eq('uid', uid)
+
+    if (profileErr) {
+      console.warn('Update user profile status warning:', profileErr.message)
+    }
+
+    // Also update users table if applicable
+    await db
+      .from('users')
+      .update({
+        status: status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('uid', uid)
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error updating user status:', err)
+    return { success: false, error: err.message }
+  }
+}
+
+/**
+ * Approve or Reject KYC for a citizen user
+ */
+export async function updateCitizenKycInDb(
+  uid: string,
+  kycStatus: 'verified' | 'rejected' | 'pending_review',
+  kycTier: 1 | 2,
+  rejectionReason?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const updatePayload: any = {
+      kyc_status: kycStatus,
+      kyc_tier: kycTier,
+      updated_at: new Date().toISOString(),
+    }
+    if (rejectionReason) {
+      updatePayload.kyc_rejection_reason = rejectionReason
+    }
+
+    const { error } = await db
+      .from('user_profiles')
+      .update(updatePayload)
+      .eq('uid', uid)
+
+    if (error) {
+      console.warn('Supabase update KYC status warning:', error.message)
+    }
+
+    // Also update users table
+    await db
+      .from('users')
+      .update({
+        kyc_tier: kycTier,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('uid', uid)
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('Exception updating citizen KYC:', err)
+    return { success: false, error: err.message }
+  }
+}
+

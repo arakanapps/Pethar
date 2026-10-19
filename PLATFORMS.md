@@ -57,6 +57,8 @@ From the root directory (`/Users/jack/Documents/Péthar`):
 | **🍎 iOS** | `npm run ios` | Runs native iOS app in iOS Simulator or iPhone |
 | **🛠️ iOS Xcode** | `npm run ios:xcode` | Opens Xcode workspace for signing and TestFlight |
 | **🛒 Merchant POS** | `npm run pos` | Opens the Touchscreen Register & Thermal Receipt Terminal |
+| **📱 Flutter Mobile Web (m.domain)** | `npm run flutter:web` | Runs the unified Flutter mobile wallet in Chrome |
+| **📦 Build Flutter Web** | `npm run flutter:build:web` | Compiles Flutter web bundle to `public/flutter/` |
 | **💻 macOS Desktop** | `npm run desktop` | Launches the compiled native macOS Flutter desktop app |
 | **⚡ Electron Desktop**| `npm run desktop:electron`| Launches standalone cross-platform Electron window |
 

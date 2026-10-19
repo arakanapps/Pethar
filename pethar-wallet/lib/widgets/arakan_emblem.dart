@@ -153,4 +153,72 @@ class WalletMinimalFlutterIcon extends StatelessWidget {
   }
 }
 
+/// Flag of Arakan (United League of Arakan)
+class FlagArakan extends StatelessWidget {
+  final double width;
+  final double? height;
+
+  const FlagArakan({Key? key, this.width = 22.0, this.height}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final h = height ?? (width * 2 / 3);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3),
+      child: Image.asset(
+        'assets/flags/united-league-of-arakan-flag.png',
+        width: width,
+        height: h,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Container(
+          width: width,
+          height: h,
+          color: const Color(0xFFD91624),
+          alignment: Alignment.center,
+          child: const Text('AK', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+        ),
+      ),
+    );
+  }
+}
+
+/// Great Britain / UK Flag for English language selector
+class FlagGB extends StatelessWidget {
+  final double width;
+  final double? height;
+
+  const FlagGB({Key? key, this.width = 22.0, this.height}) : super(key: key);
+
+  static const String _gbSvg = '''
+<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+  <clipPath id="gb-flag-clip">
+    <path d="M0,0 v40 h60 v-40 z" />
+  </clipPath>
+  <clipPath id="gb-flag-diag">
+    <path d="M30,20 L60,40 H0 z M30,20 L60,0 H0 z" />
+  </clipPath>
+  <g clipPath="url(#gb-flag-clip)">
+    <path d="M0,0 v40 h60 v-40 z" fill="#012169" />
+    <path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8" />
+    <path d="M0,0 L60,40 M60,0 L0,40" clip-path="url(#gb-flag-diag)" stroke="#C8102E" stroke-width="4" />
+    <path d="M30,0 v40 M0,20 h60" stroke="#fff" stroke-width="12" />
+    <path d="M30,0 v40 M0,20 h60" stroke="#C8102E" stroke-width="6" />
+  </g>
+</svg>
+''';
+
+  @override
+  Widget build(BuildContext context) {
+    final h = height ?? (width * 2 / 3);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3),
+      child: SizedBox(
+        width: width,
+        height: h,
+        child: SvgPicture.string(_gbSvg, fit: BoxFit.cover),
+      ),
+    );
+  }
+}
+
 

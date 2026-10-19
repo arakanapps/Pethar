@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import QRCode from 'qrcode'
 import {
   CheckCircle2, Download, Share2, Check, Copy, ShieldCheck,
@@ -6,6 +6,11 @@ import {
 } from 'lucide-react'
 import { ArakanEmblem } from './ArakanEmblem'
 import type { Language } from '../i18n'
+import {
+  generateReceiptBlob,
+  saveReceiptImageToGallery,
+  isAutoSaveReceiptEnabled,
+} from '../utils/receiptSaver'
 
 export interface TransactionSlipProps {
   lang?: Language
@@ -37,7 +42,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
   timestamp = '14 Oct 2026 17:35:10',
   location = 'Sittwe, Arakan',
   notes = 'Payment',
-  autoSaved = false,
+  autoSaved = true,
   onClose,
 }) => {
   const ak = lang === 'ak'
@@ -46,6 +51,12 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
   const [downloaded, setDownloaded] = useState(false)
   const [shared, setShared] = useState(false)
   const [verifyModalOpen, setVerifyModalOpen] = useState(false)
+
+  // Auto-save state
+  const [autoSavedDone, setAutoSavedDone] = useState(false)
+  const [saveStatusText, setSaveStatusText] = useState<string>('')
+  const [cachedBlob, setCachedBlob] = useState<Blob | null>(null)
+  const autoSavedRef = useRef<string | null>(null)
 
   // Verification URL that will be encoded in the QR code
   const verificationUrl = `https://app.pethar.co.uk/verify/${refId}`
@@ -64,28 +75,171 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
       .catch((err) => console.error('Failed to generate receipt QR:', err))
   }, [verificationUrl])
 
+  // Automatically save receipt into Phone Gallery upon transaction completion
+  useEffect(() => {
+    // Only auto-save if autoSaved is true and the user's setting in localStorage is enabled
+    const settingEnabled = isAutoSaveReceiptEnabled()
+    const shouldAutoSave = autoSaved !== false && settingEnabled
+    if (!shouldAutoSave) return
+
+    // Ensure we auto-save only once per transaction refId
+    if (autoSavedRef.current === refId) return
+    autoSavedRef.current = refId
+
+    const timer = setTimeout(async () => {
+      try {
+        const slipEl = document.getElementById('pethar-verified-slip')
+        const blob = await generateReceiptBlob(slipEl, {
+          refId,
+          amount,
+          recipientName,
+          recipientId,
+          recipientType,
+          senderName,
+          senderId,
+          fee,
+          timestamp,
+          location,
+          notes,
+          currency: 'AKD',
+          lang,
+        })
+        setCachedBlob(blob)
+        await saveReceiptImageToGallery(
+          blob,
+          `pethar-receipt-${refId}.png`,
+          `Péthar E-Receipt - ${refId}`,
+          false
+        )
+        setAutoSavedDone(true)
+        setSaveStatusText(
+          ak
+            ? 'ပြေစာကို ဖုန်း Gallery ထဲသို့ အလိုအလျောက် သိမ်းဆည်းပြီးပါပြီ ✓'
+            : 'Receipt Auto-Saved to Phone Gallery ✓'
+        )
+      } catch (err) {
+        console.warn('Auto save receipt failed, continuing safely:', err)
+      }
+    }, 400)
+
+    return () => clearTimeout(timer)
+  }, [
+    refId,
+    autoSaved,
+    ak,
+    amount,
+    recipientName,
+    recipientId,
+    recipientType,
+    senderName,
+    senderId,
+    fee,
+    timestamp,
+    location,
+    notes,
+    lang,
+  ])
+
   const handleCopyRef = () => {
     navigator.clipboard?.writeText(refId)
     setCopiedRef(true)
     setTimeout(() => setCopiedRef(false), 2000)
   }
 
-  const handleDownload = () => {
-    setDownloaded(true)
-    // Create temporary link to download slip image
-    if (qrDataUrl) {
-      const a = document.createElement('a')
-      a.href = qrDataUrl
-      a.download = `pethar-receipt-${refId}.png`
-      a.click()
+  // Manual save to phone gallery
+  const handleDownload = async () => {
+    try {
+      setDownloaded(true)
+      let blob = cachedBlob
+      if (!blob) {
+        const slipEl = document.getElementById('pethar-verified-slip')
+        blob = await generateReceiptBlob(slipEl, {
+          refId,
+          amount,
+          recipientName,
+          recipientId,
+          recipientType,
+          senderName,
+          senderId,
+          fee,
+          timestamp,
+          location,
+          notes,
+          currency: 'AKD',
+          lang,
+        })
+        setCachedBlob(blob)
+      }
+
+      await saveReceiptImageToGallery(
+        blob,
+        `pethar-receipt-${refId}.png`,
+        `Péthar E-Receipt - ${refId}`,
+        true // allow mobile share sheet on manual user gesture so user can tap "Save Image to Photos"
+      )
+
+      setAutoSavedDone(true)
+      setSaveStatusText(
+        ak
+          ? 'ဖုန်း Gallery ထဲသို့ သိမ်းဆည်းပြီးပါပြီ ✓'
+          : 'Saved to Phone Gallery ✓'
+      )
+    } catch (err) {
+      console.error('Manual save receipt error:', err)
+    } finally {
+      setTimeout(() => setDownloaded(false), 3000)
     }
-    setTimeout(() => setDownloaded(false), 2500)
   }
 
-  const handleShare = () => {
+  const handleShare = async () => {
     setShared(true)
     setTimeout(() => setShared(false), 2000)
-    if (navigator.share) {
+
+    let blob = cachedBlob
+    if (!blob) {
+      const slipEl = document.getElementById('pethar-verified-slip')
+      blob = await generateReceiptBlob(slipEl, {
+        refId,
+        amount,
+        recipientName,
+        recipientId,
+        recipientType,
+        senderName,
+        senderId,
+        fee,
+        timestamp,
+        location,
+        notes,
+        currency: 'AKD',
+        lang,
+      }).catch(() => null)
+      if (blob) setCachedBlob(blob)
+    }
+
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.share &&
+      blob &&
+      navigator.canShare &&
+      navigator.canShare({
+        files: [
+          new File([blob], `pethar-receipt-${refId}.png`, {
+            type: 'image/png',
+          }),
+        ],
+      })
+    ) {
+      const file = new File([blob], `pethar-receipt-${refId}.png`, {
+        type: 'image/png',
+      })
+      navigator
+        .share({
+          title: 'Péthar Transaction E-Receipt',
+          text: `Péthar E-Receipt: ₳ ${amount.toFixed(2)} to ${recipientName}. Ref: ${refId}. Verify at ${verificationUrl}`,
+          files: [file],
+        })
+        .catch(() => {})
+    } else if (typeof navigator !== 'undefined' && navigator.share) {
       navigator
         .share({
           title: 'Péthar Transaction E-Receipt',
@@ -101,10 +255,15 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
   return (
     <div className="flex flex-col items-center w-full max-w-sm mx-auto select-none animate-in fade-in zoom-in-95 duration-200">
       {/* Auto-saved notification badge */}
-      {autoSaved && (
-        <div className="mb-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-700 flex items-center gap-1.5 shadow-xs">
+      {(autoSavedDone || (autoSaved && isAutoSaveReceiptEnabled())) && (
+        <div className="mb-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-bold text-emerald-700 flex items-center gap-1.5 shadow-xs animate-in fade-in slide-in-from-top-1">
           <Check size={13} className="text-emerald-600" />
-          <span>{ak ? 'ဖြတ်ပိုင်းကို အလိုအလျောက် သိမ်းဆည်းပြီးပါပြီ' : 'Slip Auto-Saved to Photos'}</span>
+          <span>
+            {saveStatusText ||
+              (ak
+                ? 'ပြေစာကို ဖုန်း Gallery ထဲသို့ အလိုအလျောက် သိမ်းဆည်းပြီးပါပြီ'
+                : 'Receipt Auto-Saved to Phone Gallery')}
+          </span>
         </div>
       )}
 
@@ -155,7 +314,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
             </div>
           </div>
 
-          {/* Triple Downward Chevrons (matching ref_01.jpg) */}
+          {/* Triple Downward Chevrons */}
           <div className="pl-4.5 flex flex-col items-start -my-1 text-amber-500/80">
             <ChevronDown size={14} className="-mb-1.5" />
             <ChevronDown size={14} className="-mb-1.5" />
@@ -176,7 +335,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
           </div>
         </div>
 
-        {/* 4. Ticket Perforation Line with Scalloped Side Cutouts (matching ref_02.jpg) */}
+        {/* 4. Ticket Perforation Line with Scalloped Side Cutouts */}
         <div className="relative py-3">
           <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#0b0f19] border-r border-slate-700/40" />
           <div className="w-full border-t-2 border-dashed border-slate-200" />
@@ -230,7 +389,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
           </div>
         </div>
 
-        {/* 6. BOTTOM VERIFICATION SECTION WITH REAL SCANNABLE QR CODE (User Core Requirement) */}
+        {/* 6. BOTTOM VERIFICATION SECTION WITH REAL SCANNABLE QR CODE */}
         <div className="mt-4 p-5 bg-slate-50/90 border-t border-slate-200/80 flex items-center justify-between gap-4">
           <div className="space-y-1.5 flex-1">
             <div className="flex items-center gap-1 text-slate-900 font-extrabold text-xs">
@@ -245,7 +404,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
             <button
               type="button"
               onClick={() => setVerifyModalOpen(true)}
-              className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-amber-600 hover:text-amber-700 underline mt-1"
+              className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-amber-600 hover:text-amber-700 underline mt-1 cursor-pointer"
             >
               <span>{ak ? 'ကွင်းဆက်ပေါ်တွင် စစ်မည်' : 'Verify on Ledger'}</span>
               <ExternalLink size={10} />
@@ -277,19 +436,27 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
         <button
           type="button"
           onClick={handleDownload}
-          className="py-2.5 px-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 border border-white/10 shadow-xs active:scale-95"
+          className="py-2.5 px-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 border border-white/10 shadow-xs active:scale-95 cursor-pointer"
         >
           {downloaded ? <Check size={14} className="text-emerald-400" /> : <Download size={14} />}
-          <span>{downloaded ? (ak ? 'သိမ်းဆည်းပြီး ✓' : 'Saved ✓') : ak ? 'ပြေစာသိမ်းရန်' : 'Save Slip'}</span>
+          <span>
+            {downloaded
+              ? ak
+                ? 'သိမ်းဆည်းပြီး ✓'
+                : 'Saved ✓'
+              : ak
+              ? 'ဖုန်း Gallery သို့ သိမ်းရန်'
+              : 'Save to Gallery'}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={handleShare}
-          className="py-2.5 px-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 border border-white/10 shadow-xs active:scale-95"
+          className="py-2.5 px-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 border border-white/10 shadow-xs active:scale-95 cursor-pointer"
         >
           {shared ? <Check size={14} className="text-emerald-400" /> : <Share2 size={14} />}
-          <span>{shared ? (ak ? 'လင့်ခ်ကူးယူပြီး' : 'Copied Link') : ak ? 'မျှဝေရန်' : 'Share Slip'}</span>
+          <span>{shared ? (ak ? 'လင့်ခ်ကူးယူပြီး' : 'Shared ✓') : ak ? 'မျှဝေရန်' : 'Share Slip'}</span>
         </button>
       </div>
 
@@ -297,7 +464,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="w-full mt-2.5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all shadow-md active:scale-98"
+          className="w-full mt-2.5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all shadow-md active:scale-98 cursor-pointer"
         >
           {ak ? 'ပြီးပါပြီ' : 'Done'}
         </button>
@@ -323,7 +490,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
               <button
                 type="button"
                 onClick={() => setVerifyModalOpen(false)}
-                className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center"
+                className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
               >
                 ×
               </button>
@@ -364,7 +531,7 @@ export const TransactionSlip: React.FC<TransactionSlipProps> = ({
             <button
               type="button"
               onClick={() => setVerifyModalOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs"
+              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs cursor-pointer"
             >
               {ak ? 'ပိတ်မည်' : 'Close'}
             </button>

@@ -202,8 +202,8 @@ class _IntlScreenState extends State<IntlScreen> {
                     SnackBar(
                       content: Text(
                         lang == 'ak'
-                            ? 'Wise နိုင်ငံတကာငွေလွှဲစနစ် စတင်လုပ်ဆောင်နေပါသည်...'
-                            : 'Initiated Wise Global Remittance...',
+                            ? 'နိုင်ငံတကာငွေလွှဲစနစ် စတင်လုပ်ဆောင်နေပါသည်...'
+                            : 'Initiated Global Remittance...',
                       ),
                       backgroundColor: emeraldSuccess,
                       behavior: SnackBarBehavior.floating,

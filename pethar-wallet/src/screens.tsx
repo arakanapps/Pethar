@@ -20,6 +20,10 @@ import { FakeQR } from './components/FakeQR'
 import { ArakanEmblem, FlagArakan, FlagInternational } from './components/ArakanEmblem'
 import { TransactionSlip } from './components/TransactionSlip'
 import {
+  isAutoSaveReceiptEnabled,
+  setAutoSaveReceiptEnabled,
+} from './utils/receiptSaver'
+import {
   useNotifications, markAllRead, markRead,
   deleteNotification, clearAllNotifications, resetDemoNotifications,
   type NotiItem
@@ -1445,7 +1449,7 @@ export function SettingsScreen({
   const [saveToast, setSaveToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
 
-  const [autoSaveSlip, setAutoSaveSlip] = useState(true)
+  const [autoSaveSlip, setAutoSaveSlip] = useState<boolean>(() => isAutoSaveReceiptEnabled())
   const [twoFactorAuth, setTwoFactorAuth] = useState(true)
 
   const t = translations[lang]
@@ -1645,29 +1649,33 @@ export function SettingsScreen({
               </div>
 
               {/* Direct in-app Language Selection Buttons */}
-              <div className={`flex items-center p-1 rounded-xl border ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/10'
+              <div className={`flex items-center p-1 rounded-xl border gap-1 ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/10'
                 }`}>
                 <button
+                  type="button"
                   onClick={() => setLang && setLang('ak')}
-                  className={`flex items-center justify-center p-1.5 rounded-lg transition ${lang === 'ak'
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer select-none ${lang === 'ak'
                       ? 'bg-red-700 text-white shadow-sm'
-                      : 'text-gray-400 hover:text-gray-200'
+                      : isLight ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/60' : 'text-gray-400 hover:text-gray-200'
                     }`}
-                  title="ရခိုင်ဘာသာ"
-                  aria-label="ရခိုင်ဘာသာ"
+                  title="အာရက္ခ (Arakan)"
+                  aria-label="အာရက္ခ"
                 >
-                  <FlagArakan size={15} />
+                  <FlagArakan size={16} />
+                  <span>အာရက္ခ</span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => setLang && setLang('en')}
-                  className={`flex items-center justify-center p-1.5 rounded-lg transition ${lang === 'en'
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer select-none ${lang === 'en'
                       ? 'bg-blue-800 text-white shadow-sm'
-                      : 'text-gray-400 hover:text-gray-200'
+                      : isLight ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/60' : 'text-gray-400 hover:text-gray-200'
                     }`}
                   title="English"
                   aria-label="English"
                 >
-                  <FlagInternational size={15} />
+                  <FlagInternational size={16} />
+                  <span>English</span>
                 </button>
               </div>
             </div>
@@ -1690,7 +1698,11 @@ export function SettingsScreen({
 
               {/* Orange toggle switch */}
               <button
-                onClick={() => setAutoSaveSlip(!autoSaveSlip)}
+                onClick={() => {
+                  const next = !autoSaveSlip
+                  setAutoSaveSlip(next)
+                  setAutoSaveReceiptEnabled(next)
+                }}
                 className={`w-12 h-6 rounded-full transition-colors duration-200 p-0.5 flex items-center shrink-0 ${autoSaveSlip ? 'bg-[#FF5722] justify-end' : 'bg-gray-300 dark:bg-gray-700 justify-start'
                   }`}
               >
@@ -2362,7 +2374,7 @@ export function Send({
             senderName="User"
             senderId={initialUserProfile.uid || '202610190001'}
             fee={0.0}
-            autoSaved={true}
+            autoSaved={isAutoSaveReceiptEnabled()}
             onClose={() => go('home')}
           />
         </div>
