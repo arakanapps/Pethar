@@ -406,7 +406,7 @@ export const BaseLayout = ({
                   <li><button onClick={() => redirectToSubdomain('api')} className="hover:text-amber-700 transition">API Reference</button></li>
                   <li><button onClick={() => redirectToSubdomain('privacy')} className="hover:text-amber-700 transition">Privacy & Security</button></li>
                   <li><a href="https://t.me/petharsupport" target="_blank" rel="noreferrer" className="text-sky-700 font-bold no-underline hover:opacity-80 transition-opacity">Telegram: @petharsupport</a></li>
-                  <li><a href="mailto:pethar-app@protonmail.com" className="text-amber-800 font-bold no-underline hover:opacity-80 transition-opacity">Contact: pethar-app@protonmail.com</a></li>
+                  <li><a href="mailto:realjackhalder@gmail.com" className="text-amber-800 font-bold no-underline hover:opacity-80 transition-opacity">Contact: realjackhalder@gmail.com</a></li>
                 </ul>
               </div>
 

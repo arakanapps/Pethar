@@ -2681,10 +2681,10 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                   attempt to delete the information as soon as possible. If you believe that we might
                   have any Personal Data from a child under 13, please contact us at{' '}
                   <a
-                    href="mailto:pethar-app@protonmail.com"
+                    href="mailto:realjackhalder@gmail.com"
                     className={`underline font-semibold ${isDark ? 'text-white' : 'text-zinc-950'}`}
                   >
-                    pethar-app@protonmail.com
+                    realjackhalder@gmail.com
                   </a>
                   .
                 </p>
@@ -2729,10 +2729,10 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                   If you have a question or complaint about this Privacy Policy or our information
                   collection practices, please contact us at{' '}
                   <a
-                    href="mailto:pethar-app@protonmail.com"
+                    href="mailto:realjackhalder@gmail.com"
                     className={`underline font-semibold ${isDark ? 'text-white' : 'text-zinc-950'}`}
                   >
-                    pethar-app@protonmail.com
+                    realjackhalder@gmail.com
                   </a>
                   .
                 </p>
@@ -2986,10 +2986,10 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                   If you have any questions, complaints or claims with respect to Péthar Properties,
                   please contact us at:{' '}
                   <a
-                    href="mailto:pethar-app@protonmail.com"
+                    href="mailto:realjackhalder@gmail.com"
                     className={`underline font-semibold ${isDark ? 'text-white' : 'text-zinc-950'}`}
                   >
-                    pethar-app@protonmail.com
+                    realjackhalder@gmail.com
                   </a>
                   . We will do our best to address your concerns. If you feel that your concerns have
                   been addressed incompletely, we invite you to let us know for further
@@ -3291,12 +3291,12 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                   </li>
                   <li>
                     <a
-                      href="mailto:pethar-app@protonmail.com"
+                      href="mailto:realjackhalder@gmail.com"
                       className={`font-bold no-underline transition-opacity hover:opacity-80 ${
                         isDark ? 'text-amber-300' : 'text-amber-800'
                       }`}
                     >
-                      Contact: pethar-app@protonmail.com
+                      Contact: realjackhalder@gmail.com
                     </a>
                   </li>
                 </ul>

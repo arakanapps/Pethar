@@ -4,7 +4,7 @@ The **Android Mobile Client** for Péthar.
 
 ## Native Project Location
 The native Android Gradle project is located at:
-- `apps/android/project` ➔ points to `pethar-wallet/android/`
+- `pethar-wallet/android/`
   - `app/build.gradle.kts`
   - `app/src/main/AndroidManifest.xml`
   - `app/src/main/kotlin/com/example/pethar-wallet/MainActivity.kt`

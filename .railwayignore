@@ -1,0 +1,8 @@
+# Railway ignore rules
+pethar-wallet/android
+pethar-wallet/ios
+pethar-wallet/macos
+pethar-wallet/.dart_tool
+pethar-wallet/build
+.agents
+*.local
