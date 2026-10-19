@@ -1263,66 +1263,83 @@ ALTER TABLE public.bill_providers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.topup_packages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.name_change_reviews ENABLE ROW LEVEL SECURITY;
 
--- Permissive policies for client app connectivity
+-- Private authenticated policies for secure database operations
 DO $$
 BEGIN
     DROP POLICY IF EXISTS "allow_all_users" ON public.users;
-    CREATE POLICY "allow_all_users" ON public.users FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+    CREATE POLICY "allow_all_users" ON public.users FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_all_user_profiles" ON public.user_profiles;
-    CREATE POLICY "allow_all_user_profiles" ON public.user_profiles FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+    CREATE POLICY "allow_all_user_profiles" ON public.user_profiles FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_all_accounts" ON public.accounts;
-    CREATE POLICY "allow_all_accounts" ON public.accounts FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+    CREATE POLICY "allow_all_accounts" ON public.accounts FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_all_ledger_entries" ON public.ledger_entries;
-    CREATE POLICY "allow_all_ledger_entries" ON public.ledger_entries FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+    CREATE POLICY "allow_all_ledger_entries" ON public.ledger_entries FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_all_name_change_reviews" ON public.name_change_reviews;
-    CREATE POLICY "allow_all_name_change_reviews" ON public.name_change_reviews FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+    CREATE POLICY "allow_all_name_change_reviews" ON public.name_change_reviews FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_all_otp_challenges" ON public.otp_challenges;
-    CREATE POLICY "allow_all_otp_challenges" ON public.otp_challenges FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+    CREATE POLICY "allow_all_otp_challenges" ON public.otp_challenges FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_all_transactions" ON public.transactions;
-    CREATE POLICY "allow_all_transactions" ON public.transactions FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+    CREATE POLICY "allow_all_transactions" ON public.transactions FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_all_favorite_contacts" ON public.favorite_contacts;
-    CREATE POLICY "allow_all_favorite_contacts" ON public.favorite_contacts FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+    CREATE POLICY "allow_all_favorite_contacts" ON public.favorite_contacts FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_bill_providers" ON public.bill_providers;
-    CREATE POLICY "allow_read_bill_providers" ON public.bill_providers FOR SELECT TO anon, authenticated USING (true);
+    DROP POLICY IF EXISTS "allow_all_bill_providers" ON public.bill_providers;
+    CREATE POLICY "allow_all_bill_providers" ON public.bill_providers FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_topup_packages" ON public.topup_packages;
-    CREATE POLICY "allow_read_topup_packages" ON public.topup_packages FOR SELECT TO anon, authenticated USING (true);
+    DROP POLICY IF EXISTS "allow_all_topup_packages" ON public.topup_packages;
+    CREATE POLICY "allow_all_topup_packages" ON public.topup_packages FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_fx_rate_board" ON public.fx_rate_board;
-    CREATE POLICY "allow_read_fx_rate_board" ON public.fx_rate_board FOR SELECT TO anon, authenticated USING (true);
+    DROP POLICY IF EXISTS "allow_all_fx_rate_board" ON public.fx_rate_board;
+    CREATE POLICY "allow_all_fx_rate_board" ON public.fx_rate_board FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_fx_rates" ON public.fx_rates;
-    CREATE POLICY "allow_read_fx_rates" ON public.fx_rates FOR SELECT TO anon, authenticated USING (true);
+    DROP POLICY IF EXISTS "allow_all_fx_rates" ON public.fx_rates;
+    CREATE POLICY "allow_all_fx_rates" ON public.fx_rates FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_pos_terminals" ON public.pos_terminals;
-    CREATE POLICY "allow_read_pos_terminals" ON public.pos_terminals FOR SELECT TO anon, authenticated USING (true);
+    DROP POLICY IF EXISTS "allow_all_pos_terminals" ON public.pos_terminals;
+    CREATE POLICY "allow_all_pos_terminals" ON public.pos_terminals FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_agents" ON public.agents;
-    CREATE POLICY "allow_read_agents" ON public.agents FOR SELECT TO anon, authenticated USING (true);
+    DROP POLICY IF EXISTS "allow_all_agents" ON public.agents;
+    CREATE POLICY "allow_all_agents" ON public.agents FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_all_cyber_defense" ON public.cyber_defense_events;
-    CREATE POLICY "allow_all_cyber_defense" ON public.cyber_defense_events FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+    CREATE POLICY "allow_all_cyber_defense" ON public.cyber_defense_events FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
 END $$;
 
 -- ----------------------------------------------------------------------------
--- 11. GRANT PERMISSIONS & REALTIME REPLICATION
+-- 11. GRANT PERMISSIONS & REALTIME REPLICATION (PRIVATE AUTHENTICATED ACCESS)
 -- ----------------------------------------------------------------------------
-GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
-GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
-GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO anon, authenticated, service_role;
+-- Revoke all direct permissions from public anon role
+DO $$
+BEGIN
+    REVOKE ALL ON ALL TABLES IN SCHEMA public FROM anon;
+    REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon;
+    REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM anon;
+    REVOKE USAGE ON SCHEMA public FROM anon;
+EXCEPTION WHEN OTHERS THEN
+    NULL;
+END $$;
 
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO anon, authenticated, service_role;
+GRANT USAGE ON SCHEMA public TO authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated, service_role;
+GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO authenticated, service_role;
 
 -- Enable Realtime publication
 DO $$
@@ -1342,69 +1359,11 @@ EXCEPTION WHEN OTHERS THEN
 END $$;
 
 -- ----------------------------------------------------------------------------
--- 12. SEED ENTERPRISE DATA
+-- 12. CLEAN DATABASE INITIALIZATION (ZERO MOCK / SEED DATA)
 -- ----------------------------------------------------------------------------
-
--- 12.1. Citizen users & user profiles start empty (registered via app / API)
-
--- 12.2. Seed System Reserve Accounts
-INSERT INTO public.accounts (id, user_id, currency, account_type)
-VALUES 
-    ('a0000000-0000-0000-0000-000000000003', NULL, 'AKD', 'RESERVE_VAULT'),
-    ('a0000000-0000-0000-0000-000000000004', NULL, 'AKD', 'FEE_INCOME')
-ON CONFLICT (id) DO NOTHING;
-
--- 12.3. Agents directory starts empty (managed via merchant / agent onboarding)
-
--- 12.4. Transactions ledger starts empty (recorded live during transfers & payments)
-
--- 12.5. Favorite contacts start empty (managed dynamically by wallet users)
-
--- 12.6. Seed Myanmar Bill Providers
-INSERT INTO public.bill_providers (id, name, name_mm, category, region, default_amount, account_label, primary_color, initials, has_kyo_phyae)
-VALUES 
-    ('yesc', 'YESC', 'ရန်ကုန်လျှပ်စစ်မီတာခ', 'Electricity', 'myanmar', 65600, 'Account / Bill No', '#00A859', 'YE', false),
-    ('atom', 'ATOM Myanmar Limited', 'ဖုန်းနှင့်အင်တာနက်', 'Telecom', 'myanmar', 32000, 'Mobile No', '#0072BC', 'AT', false),
-    ('mesc', 'MESC', 'မန္တလေးလျှပ်စစ်မီတာခ', 'Electricity', 'myanmar', 45000, 'Account / Bill No', '#F58220', 'ME', false),
-    ('mpt', 'MPT Fiber & Postpaid', 'ဖုန်းနှင့်အင်တာနက်', 'Telecom', 'myanmar', 25000, 'Account / Phone No', '#FDB913', 'MP', false),
-    ('ooredoo', 'Ooredoo SuperNet', 'ဖုန်းနှင့်အင်တာနက်', 'Telecom', 'myanmar', 28000, 'Account / Phone No', '#ED1C24', 'OR', false),
-    ('mytel', 'Mytel Broadband', 'ဖုန်းနှင့်အင်တာနက်', 'Telecom', 'myanmar', 22000, 'Customer ID', '#FF5500', 'MY', false),
-    ('ycdc', 'YCDC Water & Tax', 'ရေခွန်နှင့် စည်ပင်ခွန်', 'Water & Tax', 'myanmar', 15000, 'Tax Registration No', '#009944', 'YC', false),
-    ('canal_plus', 'Canal+ Myanmar', 'ရုပ်သံလိုင်းကြေး', 'Cable TV', 'myanmar', 18000, 'Smart Card No', '#000000', 'CP', false),
-    ('aia', 'AIA Myanmar Insurance', 'အာမခံကြေး', 'Insurance', 'myanmar', 120000, 'Policy No', '#D31145', 'AIA', true)
-ON CONFLICT (id) DO UPDATE SET
-    name = EXCLUDED.name,
-    default_amount = EXCLUDED.default_amount;
-
--- 12.7. Seed Topup Packages
-INSERT INTO public.topup_packages (id, name, category, operator, mmk_price, thb_price, validity, quota, is_hot)
-VALUES 
-    ('pkg_1', 'Shal Suboo 999 MB (30Days)', 'Data', 'ATOM', 999, 8.69, '30 Days', '999 MB', false),
-    ('pkg_2', 'Shal Suboo 1290 MB (30Days)', 'Data', 'ATOM', 1999, 17.38, '30 Days', '1290 MB', true),
-    ('pkg_3', 'Shal Suboo 2500 MB (30Days)', 'Data', 'ATOM', 3500, 30.43, '30 Days', '2.5 GB', false),
-    ('pkg_4', 'Super Pack 1.5GB (30 Days)', 'Super Pack', 'ATOM', 3500, 30.43, '30 Days', '1.5 GB', false),
-    ('pkg_5', 'Super Pack 3.0GB (30 Days)', 'Super Pack', 'ATOM', 6500, 56.52, '30 Days', '3.0 GB', true),
-    ('pkg_6', 'Asia 9 Countries 1200MB (3 Days)', 'Data Roaming', 'ATOM', 14599, 126.95, '3 Days', '1200 MB', true)
-ON CONFLICT (id) DO UPDATE SET
-    name = EXCLUDED.name,
-    mmk_price = EXCLUDED.mmk_price,
-    thb_price = EXCLUDED.thb_price;
-
--- 12.8. Seed FX Rate Board
-INSERT INTO public.fx_rate_board (pair, rate, spread_bps, provider)
-VALUES
-    ('AKD/USD', 1.000000, 0, 'ARAKAN_CENTRAL_BANK'),
-    ('AKD/USDT', 1.000000, 0, 'ARAKAN_CENTRAL_BANK'),
-    ('AKD/THB', 35.800000, 15, 'WISE_PARTNER_API'),
-    ('AKD/MYR', 4.720000, 15, 'WISE_PARTNER_API'),
-    ('AKD/SGD', 1.340000, 15, 'PAYONEER_CORRIDOR'),
-    ('AKD/EUR', 0.920000, 15, 'GLOBAL_SWIFT_CORRIDOR'),
-    ('BTC/AKD', 64500.000000, 25, 'BINANCE_ORACLE')
-ON CONFLICT (pair) DO UPDATE SET
-    rate = EXCLUDED.rate,
-    updated_at = CURRENT_TIMESTAMP;
-
--- 12.9. POS merchant terminals start empty (registered via merchant onboarding)
+-- All citizen users, user profiles, accounts, agents, transactions, favorite contacts,
+-- bill providers, topup packages, fx rate board, and pos terminals start empty.
+-- All data is inserted, posted, updated, and deleted dynamically via the database.
 
 -- 13. DEDICATED DATABASE USERS & CITIZENS EXPORT VIEW
 -- Cleanly exposes all user accounts with Email for SQL exports, reporting and table inspectors.
@@ -1435,7 +1394,7 @@ SELECT
 FROM public.user_profiles up
 LEFT JOIN public.users u ON up.user_id = u.id OR up.uid = u.uid;
 
-GRANT SELECT ON public.v_database_users_export TO anon, authenticated, service_role, postgres;
+GRANT SELECT ON public.v_database_users_export TO authenticated, service_role, postgres;
 
 -- ============================================================================
 -- END OF CONSOLIDATED ENTERPRISE DATABASE SCHEMA

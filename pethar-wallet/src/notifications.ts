@@ -19,52 +19,7 @@ export interface NotiItem {
   read: boolean
 }
 
-const seed: NotiItem[] = [
-  {
-    id: 'N-004',
-    type: 'transaction',
-    titleEn: 'P2P Transfer Sent',
-    titleMm: 'ငွေလွှဲပို့ခြင်း အောင်မြင်ပါသည်',
-    bodyEn: 'You sent ₳0.00 to Ko Min Aung (202610190002). Settled instantly with zero fee.',
-    bodyMm: 'ကိုမင်းအောင် (202610190002) ထံ ₳0.00 ပို့လွှဲခြင်း ချက်ချင်းပြီးစီးပါသည်။',
-    time: '2:22 PM',
-    dateGroup: '23 Sep 2026',
-    read: false,
-  },
-  {
-    id: 'N-003',
-    type: 'transaction',
-    titleEn: 'Binance Pay USDT Inflow Received',
-    titleMm: 'Binance မှ USDT ငွေသွင်း ရရှိပါသည်',
-    bodyEn: '0.00 USDT converted 1:1 to ₳0.00 and credited to your vault.',
-    bodyMm: 'USDT 0.00 ကို ၁:၁ နှုန်းဖြင့် ₳0.00 အဖြစ် သင့်စာရင်းသို့ သွင်းပြီးပါပြီ။',
-    time: '11:05 AM',
-    dateGroup: '23 Sep 2026',
-    read: false,
-  },
-  {
-    id: 'N-002',
-    type: 'system',
-    titleEn: 'Arakan Ledger Upgrade Window',
-    titleMm: 'ဗဟိုစာရင်းစနစ် အဆင့်မြှင့်တင်ချိန်',
-    bodyEn: 'Scheduled maintenance 24 Sep, 01:00–06:00 AM. Offline vouchers remain fully active.',
-    bodyMm: 'စက်တင်ဘာ ၂၄ ရက် နံနက် ၀၁:၀၀–၀၆:၀၀ ထိန်းသိမ်းချိန်။ အော့ဖ်လိုင်းဘောက်ချာများ အသုံးပြုနိုင်ပါသည်။',
-    time: '9:00 AM',
-    dateGroup: '23 Sep 2026',
-    read: false,
-  },
-  {
-    id: 'N-001',
-    type: 'promotion',
-    titleEn: 'Zero-Fee THB Remittance Week',
-    titleMm: 'ထိုင်းဘတ် ငွေလွှဲ အခမဲ့အပတ်စဉ်',
-    bodyEn: 'Send THB corridor remittances with 0% markup until 30 Sep. Special FX rate locked.',
-    bodyMm: 'စက်တင်ဘာ ၃၀ ရက်အထိ ထိုင်းဘတ်လမ်းကြောင်း ငွေလွှဲများ အခမဲ့။ အထူးငွေလဲနှုန်း သော့ခတ်ထားပါသည်။',
-    time: '8:15 AM',
-    dateGroup: '23 Sep 2026',
-    read: true,
-  },
-]
+const seed: NotiItem[] = []
 
 let items: NotiItem[] = seed
 const listeners = new Set<() => void>()

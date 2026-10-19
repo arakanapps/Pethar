@@ -178,14 +178,15 @@ export interface FxRateItem {
 // Live data: FX rates are fetched dynamically from Supabase 'fx_rate_board'
 export const liveFxRates: FxRateItem[] = []
 
-export const quickPosItems = [
-  { id: '1', name: 'Arakan Fragrant Rice (1 Bag)', nameMm: 'အာရက္ခပေါ်ဆန်းမွှေးဆန် ၁ အိတ်', price: 28.0, category: 'Food' },
-  { id: '2', name: 'Diesel / Generator Fuel (5 Gal)', nameMm: 'ဒီဇယ် / မီးစက်ဆီ ၅ ဂါလံ', price: 22.5, category: 'Fuel' },
-  { id: '3', name: 'Solar Storage Battery (100Ah)', nameMm: 'ဆိုလာ ဘက်ထရီအိုး ၁၀၀Ah', price: 110.0, category: 'Solar' },
-  { id: '4', name: 'Essential Antibiotics & Care Kit', nameMm: 'အခြေခံဆေးဝါးနှင့် ရှေးဦးသူနာပြုစုစုံ', price: 15.0, category: 'Pharma' },
-  { id: '5', name: 'Starlink / High-Speed Satellite Data', nameMm: 'ဂြိုဟ်တု အင်တာနက် လစဉ်ဒေတာ', price: 45.0, category: 'Telecom' },
-  { id: '6', name: 'Cooking Oil & Kitchen Staples', nameMm: 'စားသုံးဆီနှင့် အခြေခံမီးဖိုချောင်သုံး', price: 12.0, category: 'Groceries' },
-]
+export interface QuickPosItem {
+  id: string
+  name: string
+  nameMm: string
+  price: number
+  category: string
+}
+
+export const quickPosItems: QuickPosItem[] = []
 
 export const legalDocs = {
   terms: {
