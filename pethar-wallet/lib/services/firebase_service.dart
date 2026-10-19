@@ -201,9 +201,9 @@ class FirebaseService {
         final walletDocRef = _firestore.collection('wallets').doc(user.uid);
         await walletDocRef.set({
           'uid': user.uid,
-          'balanceAKD': 1000.0,
-          'balanceUSD': 1000.0,
-          'balanceMMK': 3500000.0,
+          'balanceAKD': 0.00,
+          'balanceUSD': 0.00,
+          'balanceMMK': 0.00,
           'walletAddress': '0xAKD${user.uid.substring(0, user.uid.length >= 10 ? 10 : user.uid.length).toUpperCase()}',
           'tier': 'standard',
           'status': 'active',

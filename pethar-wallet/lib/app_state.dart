@@ -30,7 +30,7 @@ class AppState extends ChangeNotifier {
   List<Map<String, dynamic>> fxRatesList = [];
   List<Map<String, dynamic>> billProvidersList = [];
   List<Map<String, dynamic>> topupPackagesList = [];
-  double offlinePocketBalance = 150.0; // Pre-loaded offline bearer cash
+  double offlinePocketBalance = 0.00; // Offline bearer cash
   List<String> offlineTokens = [];     // Stored bearer tokens
   Map<String, dynamic>? pendingPayContact;
   bool dontShowQuickScanDialog = false;
@@ -58,6 +58,9 @@ class AppState extends ChangeNotifier {
       if (profileMap != null) {
         if (profileMap['name'] != null) profile.name = profileMap['name'].toString();
         if (profileMap['phone'] != null) profile.phone = profileMap['phone'].toString();
+        if (profileMap['uid'] != null && profileMap['uid'].toString().isNotEmpty) {
+          profile.uid = profileMap['uid'].toString();
+        }
         if (profileMap['balance'] != null) {
           final bal = double.tryParse(profileMap['balance'].toString()) ?? usdAccountBalance;
           usdAccountBalance = bal;
@@ -130,6 +133,7 @@ class AppState extends ChangeNotifier {
   void updateFavoriteContact(int index, FavoriteContact updated) {
     if (index >= 0 && index < favoriteContactsList.length) {
       favoriteContactsList[index] = updated;
+      SupabaseService().updateFavoriteContact(updated);
       notifyListeners();
     }
   }
@@ -553,7 +557,7 @@ class AppState extends ChangeNotifier {
     required String operatorName,
     required String phone,
     required String productTitle,
-    required double thbTotal,
+    double? thbTotal,
     required double akdTotal,
   }) {
     wallet.balance = (wallet.balance - akdTotal).clamp(0.0, double.infinity);
@@ -582,8 +586,8 @@ class AppState extends ChangeNotifier {
         id: 'N-TOP-${now.millisecondsSinceEpoch.toString().substring(8)}',
         titleEn: '$operatorName Top Up Successful',
         titleMm: '$operatorName ဖုန်းငွေဖြည့်ခြင်း အောင်မြင်ပါသည်',
-        bodyEn: 'Sent $productTitle to $phone. Charged ${akdTotal.toStringAsFixed(3)} AKD (${thbTotal.toStringAsFixed(2)} THB).',
-        bodyMm: '$phone သို့ $productTitle ဖြည့်သွင်းပြီးပါပြီ။ ကျသင့်ငွေ ₳ ${akdTotal.toStringAsFixed(3)} (${thbTotal.toStringAsFixed(2)} THB) ဖြစ်ပါသည်။',
+        bodyEn: 'Sent $productTitle to $phone. Charged ${akdTotal.toStringAsFixed(3)} AKD.',
+        bodyMm: '$phone သို့ $productTitle ဖြည့်သွင်းပြီးပါပြီ။ ကျသင့်ငွေ ₳ ${akdTotal.toStringAsFixed(3)} ဖြစ်ပါသည်။',
         time: 'Just now',
         dateGroup: 'Today',
         type: 'transaction',

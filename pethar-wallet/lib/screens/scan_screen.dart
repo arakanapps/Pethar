@@ -21,9 +21,11 @@ class _ScanScreenState extends State<ScanScreen> {
   void _shareMyQr(BuildContext context, AppState appState, bool isAk) {
     final username =
         '@${appState.profile.name.toLowerCase().replaceAll(RegExp(r'\s+'), '')}';
+    final myUid =
+        appState.profile.uid.isNotEmpty ? appState.profile.uid : '202610190001';
     Clipboard.setData(
       ClipboardData(
-        text: '${appState.profile.name} ($username) · UID: 000000000000',
+        text: '${appState.profile.name} ($username) · UID: $myUid',
       ),
     );
     setState(() => _sharedQr = true);
@@ -45,7 +47,7 @@ class _ScanScreenState extends State<ScanScreen> {
   void _fetchQrAndGoToPay(AppState appState, {String? name, String? uid, String? username}) {
     HapticFeedback.mediumImpact();
     final targetName = name ?? 'Zaw Myo Htet';
-    final targetUid = uid ?? '882194012345';
+    final targetUid = uid ?? '202610190002';
     final targetUsername = username ?? '@zawmyo';
 
     appState.startPayForContact(

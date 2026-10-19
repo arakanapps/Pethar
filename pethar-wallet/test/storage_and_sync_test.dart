@@ -71,11 +71,11 @@ void main() {
     });
 
     test('caches account balance projections locally', () async {
-      await storage.updateBalanceCache('acc-01', 'AKD', 14850.00, 42);
+      await storage.updateBalanceCache('acc-01', 'AKD', 0.00, 42);
 
       final cached = await storage.getCachedBalance('acc-01');
       expect(cached, isNotNull);
-      expect(cached!['balance'], 14850.00);
+      expect(cached!['balance'], 0.00);
       expect(cached['last_seq'], 42);
       expect(cached['currency'], 'AKD');
     });

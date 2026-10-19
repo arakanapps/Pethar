@@ -16,7 +16,7 @@ class DesktopPortalScreen extends StatefulWidget {
 class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
   String _selectedCategory = 'all';
   String _searchQuery = '';
-  final TextEditingController _quickAmtCtrl = TextEditingController(text: '150');
+  final TextEditingController _quickAmtCtrl = TextEditingController(text: '0.00');
   String _selectedContactId = '';
   bool _quickSentSuccess = false;
 

@@ -14,9 +14,7 @@ class PosTerminalScreen extends StatefulWidget {
 }
 
 class _PosTerminalScreenState extends State<PosTerminalScreen> {
-  final Map<String, int> _cart = {
-    'Arakan Fragrant Rice (1 Bag)': 1,
-  };
+  final Map<String, int> _cart = {};
   final TextEditingController _customAmtCtrl = TextEditingController();
   String _viewState = 'checkout'; // 'checkout', 'waiting', 'paid', 'receipt'
   String _paidTxnId = '';

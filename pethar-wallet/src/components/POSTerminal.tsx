@@ -26,9 +26,7 @@ interface CartItem {
 export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'light', onPaymentSettled }) => {
   const t = translations[lang]
   const isLight = theme === 'light'
-  const [cart, setCart] = useState<CartItem[]>([
-    { id: '1', name: quickPosItems[0].name, nameMm: quickPosItems[0].nameMm, price: quickPosItems[0].price, qty: 1 },
-  ])
+  const [cart, setCart] = useState<CartItem[]>([])
   const [customAmount, setCustomAmount] = useState('')
   const [viewState, setViewState] = useState<'checkout' | 'waiting' | 'paid' | 'receipt'>('checkout')
   const [paidTxnId, setPaidTxnId] = useState('')

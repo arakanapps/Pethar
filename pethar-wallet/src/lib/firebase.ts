@@ -244,9 +244,9 @@ export async function createOrUpdateUserProfile(
     const walletRef = doc(db, 'wallets', user.uid);
     await setDoc(walletRef, {
       uid: user.uid,
-      balanceAKD: 1000.0, // Starter demo balance for new accounts
-      balanceUSD: 1000.0,
-      balanceMMK: 3500000.0,
+      balanceAKD: 0.00,
+      balanceUSD: 0.00,
+      balanceMMK: 0.00,
       walletAddress: `0xAKD${user.uid.slice(0, 10).toUpperCase()}`,
       tier: 'standard',
       status: 'active',

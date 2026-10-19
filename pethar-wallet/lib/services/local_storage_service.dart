@@ -87,7 +87,7 @@ const String kCreateBalanceCacheTable = '''
 CREATE TABLE IF NOT EXISTS balance_cache (
   account_id TEXT PRIMARY KEY,
   currency TEXT NOT NULL,
-  balance REAL NOT NULL,
+  balance REAL NOT NULL DEFAULT 0.00,
   last_seq INTEGER NOT NULL DEFAULT 0,
   updated_at TEXT NOT NULL
 )

@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase'
 import type { Txn } from '../data'
+export { generateUserUid } from '../data'
 
 // Dynamic query client to interface cleanly with live Supabase tables
 const db = supabase as any

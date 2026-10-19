@@ -33,7 +33,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
   const [sendSuccess, setSendSuccess] = useState(false);
 
   // QR Request state
-  const [qrRequestAmount, setQrRequestAmount] = useState('50.00');
+  const [qrRequestAmount, setQrRequestAmount] = useState('0.00');
 
   // Dynamic state fetched from Supabase database
   const [profile, setProfile] = useState(initialUserProfile);
@@ -57,6 +57,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
           name: up.name || prev.name,
           phone: up.phone || prev.phone,
           petharId: up.ak_id || prev.petharId,
+          uid: up.uid || prev.uid || '202610190001',
         }));
       }
     });

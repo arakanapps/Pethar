@@ -270,7 +270,7 @@ export const ExchangePage = ({ lang }: ExchangePageProps) => {
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
                   <div className="flex justify-between items-center text-xs font-mono text-slate-400">
                     <span>You Pay</span>
-                    <span>Balance: 14,850.00 {fromPair}</span>
+                    <span>Balance: 0.00 {fromPair}</span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <input

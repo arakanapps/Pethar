@@ -215,10 +215,11 @@ class SupabaseService {
       final List<dynamic> data = response as List<dynamic>;
       return data.map((item) {
         final map = item as Map<String, dynamic>;
+        final noteVal = map['note']?.toString() ?? map['mm']?.toString() ?? '';
         return FavoriteContact(
           id: map['uid']?.toString() ?? map['id']?.toString() ?? '',
           name: map['name']?.toString() ?? '',
-          mm: map['name']?.toString() ?? '',
+          mm: noteVal.isNotEmpty ? noteVal : (map['name']?.toString() ?? ''),
           initials: map['initials']?.toString() ?? '',
           colorValue: (map['color_value'] is int)
               ? map['color_value'] as int
@@ -226,6 +227,7 @@ class SupabaseService {
           phone: map['phone']?.toString() ?? '',
           category: map['category']?.toString() ?? 'Friends',
           bank: 'Péthar Wallet',
+          note: noteVal,
         );
       }).toList();
     } catch (e) {
@@ -237,18 +239,51 @@ class SupabaseService {
   /// Insert a favorite contact into Supabase 'favorite_contacts' table
   Future<bool> insertFavoriteContact(FavoriteContact contact) async {
     try {
-      await client.from('favorite_contacts').insert({
+      final data = <String, dynamic>{
         'name': contact.name,
-        'username': '@${contact.name.toLowerCase().replaceAll(' ', '_')}',
+        'username': contact.phone.startsWith('@')
+            ? contact.phone
+            : '@${contact.name.toLowerCase().replaceAll(' ', '_')}',
         'uid': contact.id,
         'phone': contact.phone,
         'initials': contact.initials,
         'color_value': contact.colorValue,
         'category': contact.category,
-      });
+      };
+      if (contact.note.isNotEmpty) {
+        data['note'] = contact.note;
+      }
+      await client.from('favorite_contacts').insert(data);
       return true;
     } catch (e) {
       debugPrint('Error inserting favorite contact to Supabase: $e');
+      return false;
+    }
+  }
+
+  /// Update an existing favorite contact in Supabase
+  Future<bool> updateFavoriteContact(FavoriteContact contact) async {
+    try {
+      final updateData = <String, dynamic>{
+        'name': contact.name,
+        'username': contact.phone.startsWith('@')
+            ? contact.phone
+            : '@${contact.name.toLowerCase().replaceAll(' ', '_')}',
+        'phone': contact.phone,
+        'initials': contact.initials,
+        'color_value': contact.colorValue,
+        'category': contact.category,
+      };
+      if (contact.note.isNotEmpty) {
+        updateData['note'] = contact.note;
+      }
+      await client
+          .from('favorite_contacts')
+          .update(updateData)
+          .or('id.eq.${contact.id},uid.eq.${contact.id}');
+      return true;
+    } catch (e) {
+      debugPrint('Error updating favorite contact in Supabase: $e');
       return false;
     }
   }

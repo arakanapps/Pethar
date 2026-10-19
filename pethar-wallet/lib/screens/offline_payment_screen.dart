@@ -1052,7 +1052,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
   }
 
   void _showLoadPocketSheet(BuildContext context, AppState appState, String lang) {
-    final ctrl = TextEditingController(text: '50');
+    final ctrl = TextEditingController(text: '0.00');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1111,7 +1111,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
   }
 
   void _showDepositBackSheet(BuildContext context, AppState appState, String lang) {
-    final ctrl = TextEditingController(text: appState.offlinePocketBalance.toStringAsFixed(0));
+    final ctrl = TextEditingController(text: appState.offlinePocketBalance.toStringAsFixed(2));
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

@@ -22,7 +22,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
   const isLight = theme === 'light'
   const [activeTab, setActiveTab] = useState<'swap' | 'deposit' | 'exchanges' | 'por'>('swap')
   const [swapDirection, setSwapDirection] = useState<'usdt_to_akd' | 'akd_to_usdt'>('usdt_to_akd')
-  const [swapAmount, setSwapAmount] = useState('500')
+  const [swapAmount, setSwapAmount] = useState('0.00')
   const [selectedChain, setSelectedChain] = useState<'TRC20' | 'ERC20' | 'TON' | 'POLYGON'>('TRC20')
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [isSwapping, setIsSwapping] = useState(false)
@@ -132,7 +132,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
               <div className="p-3 rounded-xl bg-black/40 border border-white/10">
                 <div className="text-[10px] text-gray-400 flex items-center justify-between">
                   <span>{swapDirection === 'usdt_to_akd' ? 'You Pay (USDT)' : 'You Pay (₳)'}</span>
-                  <span className="text-amber-300">Balance: 2,450.00 USDT</span>
+                  <span className="text-amber-300">Balance: 0.00 USDT</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <input
@@ -169,7 +169,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <div className="text-xl font-bold font-mono text-white">
-                    {swapAmount || '0'}.00
+                    {(parseFloat(swapAmount || '0') || 0).toFixed(2)}
                   </div>
                   <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600/30 text-red-300 border border-red-500/40">
                     {swapDirection === 'usdt_to_akd' ? '₳' : 'USDT'}

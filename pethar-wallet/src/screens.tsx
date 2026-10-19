@@ -104,7 +104,7 @@ export function Keypad({
     <div>
       <div className="flex items-baseline justify-center gap-1.5 py-4">
         <span className={`text-2xl font-bold ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>{symbol}</span>
-        <span className={`text-4xl font-extrabold font-mono tabular-nums ${isLight ? 'text-gray-900' : 'text-white'}`}>{value || '0'}</span>
+        <span className={`text-4xl font-extrabold font-mono tabular-nums ${isLight ? 'text-gray-900' : 'text-white'}`}>{value || '0.00'}</span>
       </div>
       <div className="grid grid-cols-3 gap-2 px-6 pb-2">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'].map((k) => (
@@ -555,7 +555,7 @@ export function AccountScreen({
   const isAk = lang === 'ak'
 
   // Account Balances
-  const akdBal = wallets.length > 0 ? wallets[0].balance : 14840.0
+  const akdBal = wallets.length > 0 ? wallets[0].balance : 0.00
   const usdBal = 0.00 // Multi-stablecoin USD account
   const totalUsd = akdBal + usdBal
   const totalMmk = totalUsd * 4500.0
@@ -985,6 +985,7 @@ export function SettingsScreen({
       petharId: editPetharId.trim() || currentProfile.petharId,
       location: editLocation.trim() || currentProfile.location,
       accountTier: currentProfile.accountTier,
+      uid: currentProfile.uid || '202610190001',
       avatarUrl: currentProfile.avatarUrl,
     }
     if (setProfile) {
@@ -1587,7 +1588,7 @@ export function Receive({
   const isAk = lang === 'ak'
   const currentProfile = profile || initialUserProfile
   const usernameHandle = `@${currentProfile.name.toLowerCase().replace(/\s+/g, '') || 'username'}`
-  const uidNumber = '000000000000'
+  const uidNumber = currentProfile.uid || '202610190001'
 
   const handleCopyUid = () => {
     navigator.clipboard?.writeText(uidNumber)
@@ -1737,7 +1738,7 @@ export function Scan({
   const isAk = lang === 'ak'
   const currentProfile = profile || initialUserProfile
   const usernameHandle = `@${currentProfile.name.toLowerCase().replace(/\s+/g, '') || 'username'}`
-  const uidNumber = '000000000000'
+  const uidNumber = currentProfile.uid || '202610190001'
 
   const handleShareQr = async () => {
     const shareData = {
