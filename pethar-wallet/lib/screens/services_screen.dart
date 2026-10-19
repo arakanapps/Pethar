@@ -36,8 +36,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
         'items': [
           {
             'screen': Screen.send,
-            'nameEn': 'P2P Send Money',
-            'nameMm': 'ငွေလွှဲမည် (P2P Transfer)',
+            'nameEn': 'Send Money (Transfer)',
+            'nameMm': 'ငွေလွှဲမည် (Transfer)',
             'descEn': 'Send instantly to phone, Account ID, or Arakan UID',
             'descMm': 'ဖုန်းနံပါတ် သို့မဟုတ် ရခိုင် UID သို့ ချက်ချင်းငွေလွှဲပါ',
             'icon': Icons.arrow_outward_rounded,
@@ -154,16 +154,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
             'icon': Icons.contactless_rounded,
             'color': const Color(0xFF0D9488),
             'tag': isAk ? 'အော့ဖ်လိုင်း' : 'Offline',
-          },
-          {
-            'screen': Screen.pos,
-            'nameEn': 'Merchant POS Terminal',
-            'nameMm': 'အရောင်းကောင်တာ POS စနစ်',
-            'descEn': 'Turn your phone into a merchant checkout terminal',
-            'descMm': 'ဆိုင်သုံး အရောင်းကောင်တာအဖြစ် ပြောင်းလဲအသုံးပြုပါ',
-            'icon': Icons.point_of_sale_rounded,
-            'color': const Color(0xFFEA580C),
-            'tag': isAk ? 'အရောင်းဆိုင်' : 'POS Mode',
           },
         ],
       },
