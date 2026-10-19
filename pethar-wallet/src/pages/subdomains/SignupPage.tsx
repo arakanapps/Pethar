@@ -275,9 +275,7 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
 
           {/* Centered Péthar Branding */}
           <div className="flex items-center justify-center gap-3.5 pt-2 pb-4">
-            <div className="p-1 rounded-full bg-white shadow-md">
-              <ArakanEmblem size={44} />
-            </div>
+            <ArakanEmblem size={44} />
             <span className="text-white font-black tracking-tight text-3xl">
               Péthar
             </span>

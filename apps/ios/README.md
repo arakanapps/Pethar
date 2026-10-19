@@ -4,7 +4,7 @@ The **iOS (iPhone & iPad) Native Client** for Péthar.
 
 ## Native Project Location
 The native iOS Xcode workspace is located at:
-- `apps/ios/project` ➔ points to `pethar-wallet/ios/`
+- `pethar-wallet/ios/`
   - `Runner.xcworkspace`
   - `Runner.xcodeproj`
   - `Runner/Info.plist`

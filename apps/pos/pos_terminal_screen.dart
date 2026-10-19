@@ -1,1 +1,0 @@
-../../pethar-wallet/lib/screens/pos_terminal_screen.dart

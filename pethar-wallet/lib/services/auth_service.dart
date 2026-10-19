@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/data.dart';
 import 'supabase_service.dart';
@@ -136,6 +137,35 @@ class AuthService {
     }
   }
 
+  /// Dispatches OTP verification email via Gmail SMTP relay
+  Future<void> _dispatchOtpEmail({
+    required String email,
+    required String code,
+    required String purpose,
+  }) async {
+    final hosts = ['10.0.2.2', '127.0.0.1', 'localhost'];
+    for (final host in hosts) {
+      try {
+        final uri = Uri.parse('http://$host:3001/api/send-otp');
+        final response = await http
+            .post(
+              uri,
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({
+                'email': email,
+                'code': code,
+                'purpose': purpose,
+              }),
+            )
+            .timeout(const Duration(seconds: 4));
+        if (response.statusCode == 200) {
+          debugPrint('✅ [AuthService] OTP email dispatched via $uri to $email');
+          return;
+        }
+      } catch (_) {}
+    }
+  }
+
   /// Get active user email if remembered
   Future<String?> getSavedActiveUserEmail() async {
     try {
@@ -234,6 +264,9 @@ class AuthService {
       expiresAt: expiresAt,
       purpose: 'PIN_RESET',
     );
+
+    // Dispatch real email via Gmail SMTP
+    unawaited(_dispatchOtpEmail(email: cleanEmail, code: otp, purpose: 'PIN_RESET'));
 
     // Call Supabase RPC in background if possible
     try {
@@ -360,6 +393,9 @@ class AuthService {
       expiresAt: expiresAt,
       purpose: 'SIGN_UP',
     );
+
+    // Dispatch real email via Gmail SMTP
+    unawaited(_dispatchOtpEmail(email: cleanEmail, code: otp, purpose: 'SIGN_UP'));
 
     _pendingSignUpData = {
       'email': cleanEmail,

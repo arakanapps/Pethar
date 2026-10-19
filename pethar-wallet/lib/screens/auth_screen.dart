@@ -226,9 +226,7 @@ class _AuthScreenState extends State<AuthScreen> {
         _forgotSuccessMessage = isAk
             ? 'အတည်ပြုကုဒ် ၆ လုံးကို $email သို့ ပို့ပေးထားပါသည် (မိနစ် ၁၀ အတွင်း အကျုံးဝင်သည်)'
             : '6-digit OTP code sent to $email (Valid for 10 minutes)';
-        if (res['code'] != null) {
-          _forgotOtpCtrl.text = res['code'].toString();
-        }
+        _forgotOtpCtrl.clear();
       });
     } else {
       setState(() {
@@ -383,9 +381,7 @@ class _AuthScreenState extends State<AuthScreen> {
       _startTimer();
       setState(() {
         _signUpStep = SignUpStep.verifyOtp;
-        if (res['code'] != null) {
-          _signUpOtpCtrl.text = res['code'].toString();
-        }
+        _signUpOtpCtrl.clear();
       });
     } else {
       setState(() {
@@ -591,24 +587,10 @@ class _AuthScreenState extends State<AuthScreen> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.18),
-                                blurRadius: 10,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const ArakanEmblem(size: 44),
-                        ),
-                        const SizedBox(width: 14),
-                        const Text(
+                      children: const [
+                        ArakanEmblem(size: 44),
+                        SizedBox(width: 14),
+                        Text(
                           'Péthar',
                           style: TextStyle(
                             color: Colors.white,
