@@ -467,7 +467,7 @@ class _MainShellState extends State<MainShell> {
           final cred = await FirebaseService().signInWithGoogle();
           if (cred?.user != null) {
             appState.signIn(
-              email: cred!.user!.email ?? 'example@email.com',
+              email: cred!.user!.email ?? '',
               name: cred.user!.displayName ?? 'User',
             );
             if (mounted) setState(() => _loginLoading = false);
@@ -479,7 +479,7 @@ class _MainShellState extends State<MainShell> {
       }
       if (!mounted) return;
       setState(() => _loginLoading = false);
-      appState.signIn(email: 'example@email.com', name: 'User');
+      appState.signIn(email: '', name: 'User');
     }
 
     return Scaffold(
@@ -636,7 +636,7 @@ class _MainShellState extends State<MainShell> {
                         keyboardType: TextInputType.emailAddress,
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF18181B)),
                         decoration: InputDecoration(
-                          hintText: 'example@email.com',
+                          hintText: 'name@email.com',
                           hintStyle: const TextStyle(color: Color(0xFFA8A29E), fontSize: 13.5),
                           filled: true,
                           fillColor: const Color(0xFFFAFAF9),

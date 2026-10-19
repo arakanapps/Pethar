@@ -713,8 +713,8 @@ DECLARE
     v_curr_email VARCHAR(255);
 BEGIN
     SELECT user_id, email INTO v_user_id, v_curr_email FROM public.user_profiles WHERE id = p_profile_id;
-    IF v_curr_email IS NULL OR v_curr_email = '' THEN
-        v_curr_email := 'example@email.com';
+    IF v_curr_email IS NULL THEN
+        v_curr_email := '';
     END IF;
 
     v_code := LPAD(FLOOR(random() * 900000 + 100000)::text, 6, '0');
@@ -927,8 +927,8 @@ DECLARE
     v_target JSONB;
 BEGIN
     SELECT user_id, email INTO v_user_id, v_curr_email FROM public.user_profiles WHERE id = p_profile_id;
-    IF v_curr_email IS NULL OR v_curr_email = '' THEN
-        v_curr_email := 'example@email.com';
+    IF v_curr_email IS NULL THEN
+        v_curr_email := '';
     END IF;
 
     v_code := LPAD(FLOOR(random() * 900000 + 100000)::text, 6, '0');

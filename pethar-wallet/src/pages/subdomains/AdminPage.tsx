@@ -1779,7 +1779,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                         </td>
 
                         <td className="p-3.5">
-                          <div className="text-amber-300 font-bold">{user.email || 'user@pethar.com'}</div>
+                          <div className="text-amber-300 font-bold">{user.email || '—'}</div>
                           <div className="text-slate-300 text-[11px]">{user.phone}</div>
                           <div className="text-[10px] text-slate-500 font-mono">UID: {user.uid}</div>
                         </td>

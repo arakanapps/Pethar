@@ -6233,8 +6233,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               </div>
               <p className="leading-relaxed text-amber-700">
                 {isAk
-                  ? `သင့်အီးမေးလ် (${profile.email || 'user@pethar.com'}) သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပေးထားပါသည်။`
-                  : `A 6-digit verification OTP code has been sent to your verified email: ${profile.email || 'user@pethar.com'}`}
+                  ? `သင့်အီးမေးလ် (${profile.email || localStorage.getItem('pethar_active_email') || ''}) သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပေးထားပါသည်။`
+                  : `A 6-digit verification OTP code has been sent to your verified email: ${profile.email || localStorage.getItem('pethar_active_email') || ''}`}
               </p>
             </div>
 
@@ -6732,7 +6732,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-zinc-900">
-                  {showAllProfileInfo ? (profile.email || localStorage.getItem('pethar_active_email') || 'user@pethar.com') : '••••@pethar.com'}
+                  {showAllProfileInfo ? (profile.email || localStorage.getItem('pethar_active_email') || '—') : (profile.email || localStorage.getItem('pethar_active_email') ? '••••••••' : '—')}
                 </span>
                 <button
                   type="button"
@@ -6954,7 +6954,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     type="email"
                     value={newEmailInput}
                     onChange={(e) => setNewEmailInput(e.target.value)}
-                    placeholder="user@pethar.com"
+                    placeholder="your.email@example.com"
                     className="w-full px-4 py-3 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:border-[#0284C7] transition"
                   />
                   {emailEditError && (
