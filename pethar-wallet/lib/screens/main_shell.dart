@@ -852,7 +852,7 @@ class _MainShellState extends State<MainShell> {
                         children: [
                           Text('USD Account', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF18181B))),
                           SizedBox(height: 2),
-                          Text(_shortWalletAddress, style: TextStyle(fontSize: 12, fontFamily: 'monospace', color: Color(0xFF71717A))),
+                          Consumer<AppState>(builder: (ctx, st, _) { final a = st.profile.usdAccountWalletAddress; final s = a.length >= 8 ? '\${a.substring(0,4)}...\${a.substring(a.length-4)}' : a; return Text(s, style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: Color(0xFF71717A))); }),
                         ],
                       ),
                     ],
@@ -1322,7 +1322,7 @@ class _MainShellState extends State<MainShell> {
                     SizedBox(width: 12),
                     Text('USD Account', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF18181B))),
                     SizedBox(width: 10),
-                    Text(_shortWalletAddress, style: TextStyle(fontSize: 13, fontFamily: 'monospace', color: Color(0xFF71717A))),
+                    Consumer<AppState>(builder: (ctx, st, _) { final a = st.profile.usdAccountWalletAddress; final s = a.length >= 8 ? '\${a.substring(0,4)}...\${a.substring(a.length-4)}' : a; return Text(s, style: const TextStyle(fontSize: 13, fontFamily: 'monospace', color: Color(0xFF71717A))); }),
                   ],
                 ),
               ),
@@ -1484,7 +1484,7 @@ class _MainShellState extends State<MainShell> {
                             Text('USD Account', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF18181B))),
                           ],
                         ),
-                        const Text(_shortWalletAddress, style: TextStyle(fontSize: 12, fontFamily: 'monospace', color: Color(0xFF71717A))),
+                        const Consumer<AppState>(builder: (ctx, st, _) { final a = st.profile.usdAccountWalletAddress; final s = a.length >= 8 ? '\${a.substring(0,4)}...\${a.substring(a.length-4)}' : a; return Text(s, style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: Color(0xFF71717A))); }),
                       ],
                     ),
                     const Padding(
@@ -1817,7 +1817,7 @@ class _MainShellState extends State<MainShell> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(_shortWalletAddress, style: TextStyle(fontFamily: 'monospace', fontSize: 13.5, color: Color(0xFF71717A))),
+                          Consumer<AppState>(builder: (ctx, st, _) { final a = st.profile.usdAccountWalletAddress; final s = a.length >= 8 ? '\${a.substring(0,4)}...\${a.substring(a.length-4)}' : a; return Text(s, style: const TextStyle(fontFamily: 'monospace', fontSize: 13.5, color: Color(0xFF71717A))); }),
                           const SizedBox(width: 6),
                           Icon(
                             _copiedWalletAddr ? Icons.check : Icons.copy_rounded,
