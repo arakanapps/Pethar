@@ -1823,8 +1823,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildProfileDetailRow(
                   label: 'Email',
                   value: _showAllProfileInfo
-                      ? (p.email.isNotEmpty ? p.email : 'user@pethar.com')
-                      : _maskEmail(p.email.isNotEmpty ? p.email : 'user@pethar.com'),
+                      ? (p.email.isNotEmpty ? p.email : '—')
+                      : _maskEmail(p.email.isNotEmpty ? p.email : '—'),
                   onTap: () => _showChangeEmailModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),
@@ -2613,8 +2613,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 6),
                 Text(
                   isAk
-                      ? 'သင့်အီးမေးလ် (${appState.profile.email.isNotEmpty ? appState.profile.email : "user@pethar.com"}) သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပေးထားပါသည်။'
-                      : 'A 6-digit verification OTP code has been sent to your verified email: ${appState.profile.email.isNotEmpty ? appState.profile.email : "user@pethar.com"}',
+                      ? 'သင့်အီးမေးလ် (${appState.profile.email.isNotEmpty ? appState.profile.email : ""}) သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပေးထားပါသည်။'
+                      : 'A 6-digit verification OTP code has been sent to your verified email: ${appState.profile.email.isNotEmpty ? appState.profile.email : ""}',
                   style: const TextStyle(fontSize: 11.5, color: Color(0xFFB45309), height: 1.4),
                 ),
               ],

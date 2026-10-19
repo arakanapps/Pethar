@@ -300,14 +300,14 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
             final cred = await FirebaseService().signInWithGoogle();
             if (cred?.user != null) {
               appState.signIn(
-                email: cred!.user!.email ?? 'example@email.com',
+                email: cred!.user!.email ?? '',
                 name: cred.user!.displayName ?? 'User',
               );
               if (ctx.mounted) Navigator.pop(ctx);
               return;
             }
           } catch (_) {}
-          appState.signIn(email: 'example@email.com', name: 'User');
+          appState.signIn(email: '', name: 'User');
           if (ctx.mounted) Navigator.pop(ctx);
         }
 
@@ -409,7 +409,7 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
                   keyboardType: TextInputType.emailAddress,
                   style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: Color(0xFF18181B)),
                   decoration: InputDecoration(
-                    hintText: 'example@email.com',
+                    hintText: 'name@email.com',
                     hintStyle: const TextStyle(color: Color(0xFFA8A29E), fontSize: 13),
                     filled: true,
                     fillColor: const Color(0xFFFAFAF9),
