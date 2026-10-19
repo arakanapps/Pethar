@@ -128,319 +128,17 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
   const [auditSearch, setAuditSearch] = useState('');
   const [auditCategoryFilter, setAuditCategoryFilter] = useState<string>('all');
 
-  // Initial KYC Queue Seed with Rich Arakan Citizen Dossiers
-  const [kycQueue, setKycQueue] = useState<KycApplicant[]>([
-    {
-      id: 'KYC-801',
-      name: 'Ko Hlaing Min',
-      nameMm: 'ကိုလှိုင်မင်း',
-      fatherName: 'U Aung Kyaw',
-      township: 'Sittwe · Strand Rd',
-      townshipMm: 'စစ်တွေ · ကမ်းနားလမ်း',
-      idCard: 'ARAK-NAT-99102',
-      dob: '1992-04-12',
-      gender: 'Male',
-      occupation: 'Maritime Transport & Cargo',
-      phone: '+95 9 881 293 881',
-      email: 'hlaingmin@pethar.co.uk',
-      uid: '202610190001',
-      walletAddress: '0x7b231948ba28c9a173918a27b91c28f01',
-      submitted: '12 mins ago',
-      status: 'Pending',
-      riskScore: 'Low',
-      faceMatchScore: 99.4,
-      docQuality: 'High Resolution · Hologram Verified',
-      complianceNotes: 'Sanctions check negative. Verified against civil registry.',
-    },
-    {
-      id: 'KYC-802',
-      name: 'Ma Khin Thet',
-      nameMm: 'မခင်သက်',
-      fatherName: 'U Thaung Nyunt',
-      township: 'Mrauk-U · Palace Rd',
-      townshipMm: 'မြောက်ဦး · နန်းရာလမ်း',
-      idCard: 'ARAK-NAT-44120',
-      dob: '1995-09-24',
-      gender: 'Female',
-      occupation: 'Heritage Handicrafts Enterprise',
-      phone: '+95 9 772 104 992',
-      email: 'khinthet@gmail.com',
-      uid: '202610190002',
-      walletAddress: '0x39a1c8b91048bc72619472ba1894cf82',
-      submitted: '34 mins ago',
-      status: 'Pending',
-      riskScore: 'Low',
-      faceMatchScore: 98.7,
-      docQuality: 'Clean Scan · Liveness Passed',
-      complianceNotes: 'Merchant tier application requested simultaneously.',
-    },
-    {
-      id: 'KYC-803',
-      name: 'U San Kyaw',
-      nameMm: 'ဦးစံကျော်',
-      fatherName: 'U Ba Thein',
-      township: 'Kyaukphyu · Port Area',
-      townshipMm: 'ကျောက်ဖြူ · ဆိပ်ကမ်းရပ်',
-      idCard: 'ARAK-NAT-33019',
-      dob: '1981-11-03',
-      gender: 'Male',
-      occupation: 'Fisheries Cold Storage Logistics',
-      phone: '+95 9 443 891 002',
-      email: 'sankyaw.kp@outlook.com',
-      uid: '202610190003',
-      walletAddress: '0x88219401bfca92847103829104fa2891',
-      submitted: '1 hour ago',
-      status: 'Pending',
-      riskScore: 'Medium',
-      faceMatchScore: 94.1,
-      docQuality: 'Moderate Lighting · ID Corners Visible',
-      complianceNotes: 'Cross-checked with port authority vendor list.',
-    },
-    {
-      id: 'KYC-804',
-      name: 'Daw Mya Nwe',
-      nameMm: 'ဒေါ်မြနွယ်',
-      fatherName: 'U Shwe Tun',
-      township: 'Thandwe · Main Market',
-      townshipMm: 'သံတွဲ · စျေးမကြီး',
-      idCard: 'ARAK-NAT-12904',
-      dob: '1988-02-18',
-      gender: 'Female',
-      occupation: 'Wholesale Dry Goods & Grocery',
-      phone: '+95 9 250 188 941',
-      email: 'myanwe.thandwe@gmail.com',
-      uid: '202610190004',
-      walletAddress: '0x1402849182abdc91827401928374bc10',
-      submitted: '2 hours ago',
-      status: 'Pending',
-      riskScore: 'Low',
-      faceMatchScore: 99.1,
-      docQuality: 'Crystal Clear · NFC Authenticated',
-      complianceNotes: 'Clean AML record.',
-    },
-    {
-      id: 'KYC-805',
-      name: 'Ko Zaw Min Tun',
-      nameMm: 'ကိုဇော်မင်းထွန်း',
-      fatherName: 'U Tun Yin',
-      township: 'Maungdaw · Border Trade Zone',
-      townshipMm: 'မောင်တော · နယ်စပ်ကုန်သွယ်ရေး',
-      idCard: 'ARAK-NAT-88129',
-      dob: '1990-07-30',
-      gender: 'Male',
-      occupation: 'Cross-Border Logistics Agency',
-      phone: '+95 9 691 004 881',
-      email: 'zawmintun.md@pethar.co.uk',
-      uid: '202610190005',
-      walletAddress: '0x6291a8291048ba9284104928bfa10482',
-      submitted: '3 hours ago',
-      status: 'Flagged',
-      riskScore: 'High',
-      faceMatchScore: 82.4,
-      docQuality: 'Low Contrast · Potential Glare on Seal',
-      complianceNotes: 'High volume transfer corridor flag. Requires dual-operator signoff.',
-    },
-    {
-      id: 'KYC-800',
-      name: 'Daw Nu Nu Wai',
-      nameMm: 'ဒေါ်နုနုဝေ',
-      fatherName: 'U Ba Win',
-      township: 'Minbya · East Quarter',
-      townshipMm: 'မင်းပြား · အရှေ့ရပ်',
-      idCard: 'ARAK-NAT-55109',
-      dob: '1993-12-05',
-      gender: 'Female',
-      occupation: 'Pharmacy & Medical Supplies',
-      phone: '+95 9 421 990 128',
-      email: 'nunuwai@gmail.com',
-      uid: '202610190006',
-      walletAddress: '0x992019482ba189472019482918abcf81',
-      submitted: 'Yesterday',
-      status: 'Approved',
-      riskScore: 'Low',
-      faceMatchScore: 99.8,
-      docQuality: 'Verified · Enrolled in Tier-2',
-      complianceNotes: 'Approved by ROOT-OPERATOR-01.',
-    },
-  ]);
+  // KYC Queue starts empty and is fetched dynamically from database
+  const [kycQueue, setKycQueue] = useState<KycApplicant[]>([]);
 
-  // Initial Citizen Users Directory
-  const [usersList, setUsersList] = useState<AdminUserRecord[]>([
-    {
-      uid: '202610190001',
-      name: 'Ko Hlaing Min',
-      username: '@hlaingmin',
-      phone: '+95 9 881 293 881',
-      email: 'hlaingmin@pethar.co.uk',
-      walletAddress: '0x7b231948ba28c9a173918a27b91c28f01',
-      akdBalance: 14850.50,
-      usdBalance: 2400.00,
-      kycTier: 1,
-      status: 'ACTIVE',
-      dailyLimit: 50000,
-      dailyUsed: 12400,
-      registeredDate: '2026-10-10',
-      lastActive: '5 mins ago',
-      township: 'Sittwe',
-      complianceNotes: 'Standard verified account. No compliance alerts.',
-    },
-    {
-      uid: '202610190002',
-      name: 'Ma Khin Thet',
-      username: '@khinthet',
-      phone: '+95 9 772 104 992',
-      email: 'khinthet@gmail.com',
-      walletAddress: '0x39a1c8b91048bc72619472ba1894cf82',
-      akdBalance: 82500.00,
-      usdBalance: 8500.00,
-      kycTier: 2,
-      status: 'ACTIVE',
-      dailyLimit: 250000,
-      dailyUsed: 42000,
-      registeredDate: '2026-09-15',
-      lastActive: 'Just now',
-      township: 'Mrauk-U',
-      complianceNotes: 'Tier-2 verified artisan merchant. Consistent volume.',
-    },
-    {
-      uid: '202610190003',
-      name: 'U San Kyaw',
-      username: '@sankyaw_port',
-      phone: '+95 9 443 891 002',
-      email: 'sankyaw.kp@outlook.com',
-      walletAddress: '0x88219401bfca92847103829104fa2891',
-      akdBalance: 125000.75,
-      usdBalance: 14200.00,
-      kycTier: 2,
-      status: 'ACTIVE',
-      dailyLimit: 300000,
-      dailyUsed: 185000,
-      registeredDate: '2026-08-20',
-      lastActive: '12 mins ago',
-      township: 'Kyaukphyu',
-      complianceNotes: 'Port terminal operator float management.',
-    },
-    {
-      uid: '202610190004',
-      name: 'Daw Mya Nwe',
-      username: '@myanwe_store',
-      phone: '+95 9 250 188 941',
-      email: 'myanwe.thandwe@gmail.com',
-      walletAddress: '0x1402849182abdc91827401928374bc10',
-      akdBalance: 4200.00,
-      usdBalance: 450.00,
-      kycTier: 1,
-      status: 'ACTIVE',
-      dailyLimit: 50000,
-      dailyUsed: 1800,
-      registeredDate: '2026-10-18',
-      lastActive: '22 mins ago',
-      township: 'Thandwe',
-      complianceNotes: 'Pending Tier-2 verification review.',
-    },
-    {
-      uid: '202610190005',
-      name: 'Ko Zaw Min Tun',
-      username: '@zawmin_border',
-      phone: '+95 9 691 004 881',
-      email: 'zawmintun.md@pethar.co.uk',
-      walletAddress: '0x6291a8291048ba9284104928bfa10482',
-      akdBalance: 340500.00,
-      usdBalance: 45000.00,
-      kycTier: 1,
-      status: 'SUSPENDED',
-      dailyLimit: 50000,
-      dailyUsed: 49500,
-      registeredDate: '2026-10-01',
-      lastActive: '3 hours ago',
-      township: 'Maungdaw',
-      complianceNotes: 'Suspended pending KYC document review. High velocity alert.',
-    },
-    {
-      uid: '202610190007',
-      name: 'Unknown Operator #7',
-      username: '@shadow_flow',
-      phone: '+95 9 999 888 777',
-      email: 'suspicious_node@proton.me',
-      walletAddress: '0xfa019284710294829104829104fa2891',
-      akdBalance: 9800.00,
-      usdBalance: 0.00,
-      kycTier: 1,
-      status: 'FROZEN',
-      dailyLimit: 0,
-      dailyUsed: 0,
-      registeredDate: '2026-10-15',
-      lastActive: '1 day ago',
-      township: 'Sittwe',
-      complianceNotes: 'Wallet frozen by AML automated circuit breaker: rapid micro-mixing detected.',
-    },
-  ]);
+  // Citizen Users Directory starts empty and is fetched dynamically from database
+  const [usersList, setUsersList] = useState<AdminUserRecord[]>([]);
 
-  // System Audit Stream
-  const [auditLogs, setAuditLogs] = useState<SystemAuditLog[]>([
-    {
-      id: 'AUD-9941',
-      timestamp: '14:28:10',
-      operator: 'ROOT-OPERATOR-01',
-      category: 'KYC',
-      action: 'APPROVE_TIER_2',
-      details: 'Approved Tier-2 National ID verification for Daw Nu Nu Wai (KYC-800)',
-      targetId: '202610190006',
-      status: 'SUCCESS',
-    },
-    {
-      id: 'AUD-9940',
-      timestamp: '14:15:02',
-      operator: 'AML-AUTO-ENGINE',
-      category: 'SECURITY',
-      action: 'SUSPECT_VELOCITY_QUARANTINE',
-      details: 'Quarantined incoming remittance corridor for UID 202610190007 (Rate limit exceeded)',
-      targetId: '202610190007',
-      status: 'WARNING',
-    },
-    {
-      id: 'AUD-9939',
-      timestamp: '13:58:44',
-      operator: 'ROOT-OPERATOR-01',
-      category: 'USER_CONTROL',
-      action: 'LIMIT_ADJUST',
-      details: 'Increased daily merchant settlement limit to 300,000 AKD for U San Kyaw',
-      targetId: '202610190003',
-      status: 'SUCCESS',
-    },
-    {
-      id: 'AUD-9938',
-      timestamp: '13:30:19',
-      operator: 'CONSENSUS_ENGINE',
-      category: 'LEDGER',
-      action: 'EPOCH_SETTLEMENT',
-      details: 'Settled 1,894 blocks with 42/42 validator signatures. 0 orphaned transactions.',
-      targetId: 'BLOCK-1894204',
-      status: 'SUCCESS',
-    },
-    {
-      id: 'AUD-9937',
-      timestamp: '12:44:00',
-      operator: 'SYSTEM_POLICY',
-      category: 'POLICY',
-      action: 'RESERVE_AUDIT',
-      details: '100% USDT 1:1 Treasury Vault Reserve parity verified. No variance.',
-      targetId: 'VAULT-USDT-RESERVE',
-      status: 'SUCCESS',
-    },
-  ]);
+  // System Audit Stream starts empty and is recorded live from database events
+  const [auditLogs, setAuditLogs] = useState<SystemAuditLog[]>([]);
 
   // Consensus Validators
-  const [nodesList] = useState<ValidatorNode[]>([
-    { id: 'NODE-01', name: 'Sittwe Central Ledger Engine #01', region: 'Sittwe Central (HQ)', ip: '194.26.112.10', ping: 12, uptime: '99.999%', state: 'Active Master', blockHeight: 1894204, peers: 41, cpu: 28, mem: 44 },
-    { id: 'NODE-02', name: 'Mrauk-U Heritage Validator #02', region: 'Mrauk-U Station', ip: '194.26.112.11', ping: 18, uptime: '99.995%', state: 'Active Validator', blockHeight: 1894204, peers: 41, cpu: 22, mem: 38 },
-    { id: 'NODE-03', name: 'Kyaukphyu Deep Seaport Relay #03', region: 'Kyaukphyu Port Area', ip: '194.26.112.12', ping: 15, uptime: '99.998%', state: 'Active Validator', blockHeight: 1894204, peers: 41, cpu: 34, mem: 52 },
-    { id: 'NODE-04', name: 'Thandwe Beach Gateway Node #04', region: 'Thandwe Coastal', ip: '194.26.112.13', ping: 24, uptime: '99.991%', state: 'Active Validator', blockHeight: 1894204, peers: 40, cpu: 19, mem: 35 },
-    { id: 'NODE-05', name: 'Maungdaw Border Trade Node #05', region: 'Maungdaw Border Zone', ip: '194.26.112.14', ping: 29, uptime: '99.982%', state: 'Active Validator', blockHeight: 1894204, peers: 39, cpu: 41, mem: 58 },
-    { id: 'NODE-06', name: 'Minbya Valley Relay #06', region: 'Minbya Highway Hub', ip: '194.26.112.15', ping: 21, uptime: '99.994%', state: 'Active Validator', blockHeight: 1894204, peers: 41, cpu: 18, mem: 32 },
-    { id: 'NODE-07', name: 'Ann Mountain Spine Validator #07', region: 'Ann Transit Corridor', ip: '194.26.112.16', ping: 26, uptime: '99.989%', state: 'Active Validator', blockHeight: 1894204, peers: 41, cpu: 25, mem: 40 },
-    { id: 'NODE-08', name: 'Pauktaw Island Mesh Relay #08', region: 'Pauktaw Maritime Zone', ip: '194.26.112.17', ping: 22, uptime: '99.993%', state: 'Active Validator', blockHeight: 1894204, peers: 41, cpu: 16, mem: 30 },
-  ]);
+  const [nodesList] = useState<ValidatorNode[]>([]);
 
   // Monetary Policies
   const [p2pFee, setP2pFee] = useState<number>(0.00);
@@ -460,90 +158,10 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
     setLoadingTxs(true);
     try {
       const txs = await fetchTransactionsFromDb();
-      if (txs && txs.length > 0) {
-        setTxList(txs);
-      } else {
-        // Fallback realistic ledger sample if DB empty
-        setTxList([
-          {
-            id: 'TX-901',
-            refId: 'PETH-2026-9901',
-            title: 'P2P Instant Transfer',
-            titleMm: 'လူအချင်းချင်းငွေလွှဲခြင်း',
-            category: 'transfer',
-            amount: 2500.00,
-            currency: 'AKD',
-            time: '14:22:10 Today',
-            status: 'SETTLED',
-            counterparty: 'Ma Khin Thet (@khinthet)',
-            counterpartyMm: 'မခင်သက်',
-            fee: 0.00,
-            hash: '0x9fa1c8291048ba928471038291048291bc',
-          },
-          {
-            id: 'TX-902',
-            refId: 'PETH-2026-9902',
-            title: 'Arakan QR Merchant Settlement',
-            titleMm: 'Arakan QR ကုန်သည်ငွေရှင်းခြင်း',
-            category: 'pos',
-            amount: 14200.00,
-            currency: 'AKD',
-            time: '14:10:45 Today',
-            status: 'SETTLED',
-            counterparty: 'Sittwe Central Market Store #14',
-            counterpartyMm: 'စစ်တွေစျေးမကြီး ဆိုင်အမှတ် ၁၄',
-            fee: 0.00,
-            hash: '0x718a9c81928471048291048291048291ef',
-          },
-          {
-            id: 'TX-903',
-            refId: 'PETH-2026-9903',
-            title: 'Cross-Border USDT Remittance',
-            titleMm: 'နိုင်ငံတကာငွေလွှဲ အပ်နှံမှု',
-            category: 'remittance',
-            amount: 1000.00,
-            currency: 'USD',
-            time: '13:45:00 Today',
-            status: 'SETTLED',
-            counterparty: 'Bangkok FX Corridor Gate',
-            counterpartyMm: 'ဘန်ကောက် ငွေလွှဲစင်တာ',
-            fee: 0.00,
-            hash: '0xbb294018294829104829104829104829a1',
-          },
-          {
-            id: 'TX-904',
-            refId: 'PETH-2026-9904',
-            title: 'Agent Physical Float Cash-In',
-            titleMm: 'ကိုယ်စားလှယ် ငွေသားသွင်းခြင်း',
-            category: 'cashout',
-            amount: 50000.00,
-            currency: 'AKD',
-            time: '12:30:15 Today',
-            status: 'SETTLED',
-            counterparty: 'Kyaukphyu Seaport Agency #03',
-            counterpartyMm: 'ကျောက်ဖြူဆိပ်ကမ်း ကိုယ်စားလှယ် #၀၃',
-            fee: 0.00,
-            hash: '0x4910482910482910482910482910482902',
-          },
-          {
-            id: 'TX-905',
-            refId: 'PETH-2026-9905',
-            title: 'Offline BLE Mesh Voucher Redeem',
-            titleMm: 'အင်တာနက်မဲ့ Mesh Voucher ငွေထုတ်',
-            category: 'transfer',
-            amount: 250.00,
-            currency: 'AKD',
-            time: '11:15:30 Today',
-            status: 'SETTLED',
-            counterparty: 'Mrauk-U Rural Relay Node',
-            counterpartyMm: 'မြောက်ဦး ကျေးလက် ဆက်ကြောင်း',
-            fee: 0.00,
-            hash: '0x5501928471048291048291048291048293',
-          },
-        ]);
-      }
+      setTxList(txs || []);
     } catch (err) {
       console.warn('Error loading transactions:', err);
+      setTxList([]);
     } finally {
       setLoadingTxs(false);
     }
@@ -553,34 +171,61 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
     try {
       const dbUsers = await fetchAllUsersForAdmin();
       if (dbUsers && dbUsers.length > 0) {
-        // Merge DB profiles with state if any new users exist
-        setUsersList((prev) => {
-          const existingUids = new Set(prev.map(u => u.uid));
-          const newEntries: AdminUserRecord[] = dbUsers
-            .filter(u => !existingUids.has(u.uid))
-            .map(u => ({
-              uid: u.uid,
-              name: u.name,
-              username: u.username || `@${u.name.toLowerCase().replace(/\s+/g, '')}`,
-              phone: u.phone || '+95 9 000 000 000',
-              email: u.email || 'user@pethar.co.uk',
-              walletAddress: u.walletAddress || u.uid,
-              akdBalance: u.akdWalletBalance || u.balance || 0,
-              usdBalance: u.usdAccountBalance || 0,
-              kycTier: u.kyc_tier || 1,
-              status: 'ACTIVE',
-              dailyLimit: 50000,
-              dailyUsed: 0,
-              registeredDate: '2026-10-19',
-              lastActive: 'Active',
-              township: 'Sittwe',
-              complianceNotes: 'Registered user via mobile/web client.',
-            }));
-          return [...prev, ...newEntries];
-        });
+        setUsersList(
+          dbUsers.map(u => ({
+            uid: u.uid,
+            name: u.name || `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Citizen User',
+            username: u.username || `@${(u.name || 'user').toLowerCase().replace(/\s+/g, '')}`,
+            phone: u.phone || '',
+            email: u.email || '',
+            walletAddress: u.walletAddress || u.uid,
+            akdBalance: u.akdWalletBalance || u.balance || 0,
+            usdBalance: u.usdAccountBalance || 0,
+            kycTier: u.kyc_tier || 1,
+            status: 'ACTIVE',
+            dailyLimit: 50000,
+            dailyUsed: 0,
+            registeredDate: '2026-10-19',
+            lastActive: 'Active',
+            township: u.address || 'Arakan',
+            complianceNotes: 'Registered user via client app.',
+          }))
+        );
+
+        // Populate KYC queue dynamically from DB users
+        const kycApplicants: KycApplicant[] = dbUsers
+          .filter(u => u.nationalIdNo || u.kyc_status === 'pending_review' || u.kyc_status === 'verified')
+          .map(u => ({
+            id: `KYC-${u.uid.slice(-4) || '0001'}`,
+            name: u.name || `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Citizen Applicant',
+            nameMm: u.name || 'လျှောက်ထားသူ',
+            fatherName: 'Civil Registry Record',
+            township: u.address || 'Arakan',
+            townshipMm: u.address || 'အာရက္ခ',
+            idCard: u.nationalIdNo || 'ARAK-ID-PENDING',
+            dob: u.dob || '2000-01-01',
+            gender: 'Male',
+            occupation: 'Citizen Applicant',
+            phone: u.phone || '',
+            email: u.email || '',
+            uid: u.uid,
+            walletAddress: u.walletAddress || u.uid,
+            submitted: 'Recently',
+            status: (u.kyc_status === 'verified' ? 'Approved' : u.kyc_status === 'rejected' ? 'Rejected' : 'Pending') as any,
+            riskScore: 'Low',
+            faceMatchScore: 99.0,
+            docQuality: 'Database Verified',
+            complianceNotes: u.kyc_status === 'verified' ? 'Verified in database' : 'Pending review',
+          }));
+        setKycQueue(kycApplicants);
+      } else {
+        setUsersList([]);
+        setKycQueue([]);
       }
     } catch (err) {
       console.warn('Error fetching all users for admin:', err);
+      setUsersList([]);
+      setKycQueue([]);
     }
   };
 
@@ -2168,51 +1813,59 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
               </div>
 
               <div className="flex items-center gap-2 text-xs font-mono">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-emerald-400 font-bold">42 / 42 ONLINE (100%)</span>
+                <span className={`w-2.5 h-2.5 rounded-full ${nodesList.length > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
+                <span className={`${nodesList.length > 0 ? 'text-emerald-400' : 'text-slate-500'} font-bold`}>
+                  {nodesList.length > 0 ? `${nodesList.length} / ${nodesList.length} ONLINE (100%)` : (isAk ? 'NODE မရှိသေးပါ' : '0 NODES REGISTERED')}
+                </span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 font-mono text-xs">
-              {nodesList.map((node) => (
-                <div
-                  key={node.id}
-                  className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between gap-3 hover:border-slate-700 transition"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="font-bold text-white text-sm flex items-center gap-2">
-                        <span>{node.name}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">{node.id}</span>
+            {nodesList.length === 0 ? (
+              <div className="p-8 text-center text-slate-500 font-mono text-xs border border-dashed border-slate-800 rounded-2xl">
+                {isAk ? 'စာရင်းသွင်းထားသော Consensus Node မရှိသေးပါ (ဒေတာဘေ့စ်မှ ထည့်သွင်းနိုင်ပါသည်)' : 'No validator nodes registered. Insert nodes directly via the database.'}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 font-mono text-xs">
+                {nodesList.map((node) => (
+                  <div
+                    key={node.id}
+                    className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between gap-3 hover:border-slate-700 transition"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="font-bold text-white text-sm flex items-center gap-2">
+                          <span>{node.name}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">{node.id}</span>
+                        </div>
+                        <div className="text-slate-400 text-[11px] mt-0.5">{node.region} • IP: {node.ip}</div>
                       </div>
-                      <div className="text-slate-400 text-[11px] mt-0.5">{node.region} • IP: {node.ip}</div>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
+                        {node.state}
+                      </span>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
-                      {node.state}
-                    </span>
-                  </div>
 
-                  <div className="pt-2 border-t border-slate-900 grid grid-cols-4 gap-2 text-center text-[10px]">
-                    <div className="bg-slate-900/60 p-1.5 rounded-lg">
-                      <div className="text-slate-500">Latency</div>
-                      <div className="font-bold text-emerald-400">{node.ping}ms</div>
-                    </div>
-                    <div className="bg-slate-900/60 p-1.5 rounded-lg">
-                      <div className="text-slate-500">Uptime</div>
-                      <div className="font-bold text-white">{node.uptime}</div>
-                    </div>
-                    <div className="bg-slate-900/60 p-1.5 rounded-lg">
-                      <div className="text-slate-500">Block Height</div>
-                      <div className="font-bold text-amber-400">#{node.blockHeight}</div>
-                    </div>
-                    <div className="bg-slate-900/60 p-1.5 rounded-lg">
-                      <div className="text-slate-500">CPU Load</div>
-                      <div className="font-bold text-white">{node.cpu}%</div>
+                    <div className="pt-2 border-t border-slate-900 grid grid-cols-4 gap-2 text-center text-[10px]">
+                      <div className="bg-slate-900/60 p-1.5 rounded-lg">
+                        <div className="text-slate-500">Latency</div>
+                        <div className="font-bold text-emerald-400">{node.ping}ms</div>
+                      </div>
+                      <div className="bg-slate-900/60 p-1.5 rounded-lg">
+                        <div className="text-slate-500">Uptime</div>
+                        <div className="font-bold text-white">{node.uptime}</div>
+                      </div>
+                      <div className="bg-slate-900/60 p-1.5 rounded-lg">
+                        <div className="text-slate-500">Block Height</div>
+                        <div className="font-bold text-amber-400">#{node.blockHeight}</div>
+                      </div>
+                      <div className="bg-slate-900/60 p-1.5 rounded-lg">
+                        <div className="text-slate-500">CPU Load</div>
+                        <div className="font-bold text-white">{node.cpu}%</div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
