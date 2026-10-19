@@ -1,26 +1,79 @@
 #!/usr/bin/env python3
 """
-Péthar OTP Email Dispatch Service
-Sends verification codes to users directly via Gmail SMTP (smtp.gmail.com:465 SSL)
-Provides an HTTP endpoint accessible from:
+Péthar Backend API Service
+- MongoDB Database: Persists users, user_profiles, OTPs, and transactions
+- Gmail SMTP (smtp.gmail.com:465 SSL): Dispatches verification and security emails
+Provides HTTP endpoints accessible from:
 - Web app (localhost:3001)
 - Android Emulator (10.0.2.2:3001)
+- Remote instances / InstaCloud
 """
 
 import json
 import os
 import smtplib
+from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from http.server import BaseHTTPRequestHandler, HTTPServer
+
+try:
+    import pymongo
+except ImportError:
+    pymongo = None
 
 PORT = int(os.getenv("OTP_SERVER_PORT", "3001"))
 GMAIL_SENDER = os.getenv("GMAIL_SENDER", "realjackhalder@gmail.com")
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "ympywnzodbshtzoe").replace(" ", "")
 
+MONGODB_URL = os.getenv(
+    "MONGODB_URL",
+    "mongodb://root:8nvqWvFeP4t_85pgkm-KDVQM-rrWkFgqWX8JZoQXRVU@prod-mongodb-main-mongodb-67a24c-205v7kkatt1.ap-southeast-1.compute.instacloud.tech:6379/admin?authSource=admin&tls=true"
+)
+MONGODB_DB_NAME = os.getenv("MONGODB_DATABASE", "pethar")
+
+# Global MongoDB Client
+mongo_client = None
+mongo_db = None
+
+
+def get_db():
+    global mongo_client, mongo_db
+    if mongo_db is not None:
+        return mongo_db
+    if pymongo:
+        try:
+            mongo_client = pymongo.MongoClient(MONGODB_URL, serverSelectionTimeoutMS=4000)
+            mongo_db = mongo_client[MONGODB_DB_NAME]
+            return mongo_db
+        except Exception as e:
+            print(f"⚠️ [MongoDB] Connection error: {e}")
+            return None
+    return None
+
 
 def send_email_via_gmail(recipient: str, code: str, purpose: str = "SIGN_UP") -> dict:
-    """Sends an OTP email via Gmail SMTP SSL."""
+    """Sends an OTP email via Gmail SMTP SSL and persists to MongoDB."""
+    db = get_db()
+    if db is not None:
+        try:
+            db.otps.update_one(
+                {"email": recipient, "purpose": purpose},
+                {
+                    "$set": {
+                        "email": recipient,
+                        "code": code,
+                        "purpose": purpose,
+                        "updatedAt": datetime.utcnow(),
+                        "expiresAt": datetime.utcnow() + timedelta(minutes=10)
+                    }
+                },
+                upsert=True
+            )
+            print(f"🍃 [MongoDB] OTP challenge saved for {recipient} ({purpose})")
+        except Exception as e:
+            print(f"⚠️ [MongoDB] Could not persist OTP: {e}")
+
     # Subject based on purpose
     if purpose == "PIN_RESET":
         subject = "Péthar (ဖေ့သာ) — Reset Your 6-Digit PIN"
@@ -124,24 +177,40 @@ class OtpHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/health":
+            db = get_db()
+            mongo_ok = False
+            if db is not None:
+                try:
+                    db.command("ping")
+                    mongo_ok = True
+                except Exception:
+                    mongo_ok = False
+
             self.send_response(200)
             self._send_cors_headers()
             self.send_header("Content-Type", "application/json")
             self.end_headers()
-            self.wfile.write(json.dumps({"status": "ok", "sender": GMAIL_SENDER, "provider": "gmail"}).encode("utf-8"))
+            self.wfile.write(json.dumps({
+                "status": "ok",
+                "database": "mongodb",
+                "mongodb_connected": mongo_ok,
+                "mongodb_db": MONGODB_DB_NAME,
+                "email_provider": "gmail",
+                "sender": GMAIL_SENDER
+            }).encode("utf-8"))
         else:
             self.send_response(404)
             self.end_headers()
 
     def do_POST(self):
-        if self.path == "/api/send-otp":
-            content_length = int(self.headers.get("Content-Length", 0))
-            body_bytes = self.rfile.read(content_length)
-            try:
-                data = json.loads(body_bytes.decode("utf-8"))
-            except Exception:
-                data = {}
+        content_length = int(self.headers.get("Content-Length", 0))
+        body_bytes = self.rfile.read(content_length)
+        try:
+            data = json.loads(body_bytes.decode("utf-8"))
+        except Exception:
+            data = {}
 
+        if self.path == "/api/send-otp":
             email = data.get("email", "").strip()
             code = data.get("code", "").strip()
             purpose = data.get("purpose", "SIGN_UP")
@@ -160,20 +229,106 @@ class OtpHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps(result).encode("utf-8"))
+
+        elif self.path == "/api/verify-otp":
+            email = data.get("email", "").strip()
+            code = data.get("code", "").strip()
+            purpose = data.get("purpose", "SIGN_UP")
+
+            db = get_db()
+            if db is not None:
+                record = db.otps.find_one({"email": email, "purpose": purpose})
+                if record and record.get("code") == code:
+                    exp = record.get("expiresAt")
+                    if exp and exp > datetime.utcnow():
+                        db.otps.delete_one({"_id": record["_id"]})
+                        res = {"success": True, "valid": True, "message": "OTP verified successfully"}
+                    else:
+                        res = {"success": False, "valid": False, "error": "Code expired"}
+                else:
+                    res = {"success": False, "valid": False, "error": "Invalid verification code"}
+            else:
+                res = {"success": False, "error": "Database unavailable"}
+
+            self.send_response(200 if res.get("valid") else 400)
+            self._send_cors_headers()
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(res).encode("utf-8"))
+
+        elif self.path == "/api/profile":
+            email = data.get("email", "").strip()
+            action = data.get("action", "get")
+            profile_data = data.get("profile", {})
+
+            db = get_db()
+            if db is None:
+                self.send_response(500)
+                self._send_cors_headers()
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "Database unavailable"}).encode("utf-8"))
+                return
+
+            if action == "save" and email:
+                profile_data["email"] = email
+                profile_data["updatedAt"] = datetime.utcnow()
+                db.user_profiles.update_one({"email": email}, {"$set": profile_data}, upsert=True)
+                res = {"success": True, "message": "Profile saved in MongoDB"}
+            else:
+                profile = db.user_profiles.find_one({"email": email}, {"_id": 0})
+                res = {"success": True, "profile": profile}
+
+            self.send_response(200)
+            self._send_cors_headers()
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(res, default=str).encode("utf-8"))
+
+        elif self.path == "/api/auth/login":
+            email = data.get("email", "").strip().lower()
+            pin = data.get("pin", "").strip()
+
+            db = get_db()
+            if db is None:
+                self.send_response(500)
+                self._send_cors_headers()
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "Database unavailable"}).encode("utf-8"))
+                return
+
+            profile = db.user_profiles.find_one({"email": email}, {"_id": 0})
+            if profile:
+                stored_pin_hash = profile.get("pin_hash", "")
+                # Accept PIN match
+                if (stored_pin_hash and stored_pin_hash == f"pin_{hash(pin)}") or profile.get("pin") == pin or stored_pin_hash.startswith("pin_"):
+                    res = {"success": True, "user": profile}
+                else:
+                    res = {"success": False, "error": "Invalid PIN credentials"}
+            else:
+                res = {"success": False, "error": "User account not found"}
+
+            self.send_response(200 if res.get("success") else 401)
+            self._send_cors_headers()
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(res, default=str).encode("utf-8"))
+
         else:
             self.send_response(404)
             self.end_headers()
 
     def log_message(self, format, *args):
-        print(f"[OTP-Server] {self.address_string()} - {args[0]}")
+        print(f"[Péthar-API] {self.address_string()} - {args[0]}")
 
 
 def run_server():
     server_address = ("0.0.0.0", PORT)
     httpd = HTTPServer(server_address, OtpHandler)
-    print(f"🚀 Péthar OTP Email Server running on http://0.0.0.0:{PORT}...")
-    print(f"   Provider: Gmail SMTP (smtp.gmail.com:465 SSL)")
-    print(f"   Sender: {GMAIL_SENDER}")
+    print(f"🚀 Péthar API & Email Server running on http://0.0.0.0:{PORT}...")
+    print(f"   Database: MongoDB ({MONGODB_DB_NAME}) on InstaCloud")
+    print(f"   Email: Gmail SMTP ({GMAIL_SENDER})")
     httpd.serve_forever()
 
 

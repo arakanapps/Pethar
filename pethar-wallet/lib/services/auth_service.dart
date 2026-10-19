@@ -166,6 +166,45 @@ class AuthService {
     }
   }
 
+  /// Dispatches profile sync to MongoDB API relay
+  Future<void> _dispatchProfileToMongo({
+    required String email,
+    required String uid,
+    required String name,
+    required String username,
+  }) async {
+    final hosts = ['10.0.2.2', '127.0.0.1', 'localhost'];
+    for (final host in hosts) {
+      try {
+        final uri = Uri.parse('http://$host:3001/api/profile');
+        final response = await http
+            .post(
+              uri,
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({
+                'email': email,
+                'action': 'save',
+                'profile': {
+                  'id': 'user_$uid',
+                  'email': email,
+                  'name': name,
+                  'username': username,
+                  'uid': uid,
+                  'kyc_tier': 1,
+                  'balance': 0.00,
+                  'currency': 'AKD',
+                },
+              }),
+            )
+            .timeout(const Duration(seconds: 4));
+        if (response.statusCode == 200) {
+          debugPrint('✅ [AuthService] Profile synced to MongoDB via $uri');
+          return;
+        }
+      } catch (_) {}
+    }
+  }
+
   /// Get active user email if remembered
   Future<String?> getSavedActiveUserEmail() async {
     try {
@@ -489,19 +528,13 @@ class AuthService {
     _activeSignUpOtp = null;
     _pendingSignUpData = null;
 
-    // Background push to Supabase user_profiles if possible
-    try {
-      await SupabaseService.client.from('user_profiles').insert({
-        'id': 'user_$uid',
-        'email': cleanEmail,
-        'name': cleanName,
-        'username': cleanUsername,
-        'uid': uid,
-        'kyc_tier': 1,
-        'balance': 0.00,
-        'currency': 'AKD',
-      });
-    } catch (_) {}
+    // Background push to MongoDB user_profiles
+    unawaited(_dispatchProfileToMongo(
+      email: cleanEmail,
+      uid: uid,
+      name: cleanName,
+      username: cleanUsername,
+    ));
 
     return {
       'success': true,
