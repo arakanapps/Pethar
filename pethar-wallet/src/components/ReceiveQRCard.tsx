@@ -14,8 +14,8 @@ interface ReceiveQRCardProps {
 
 export const ReceiveQRCard: React.FC<ReceiveQRCardProps> = ({
   lang = 'ak',
-  name = 'User',
-  petharId = '202610190001',
+  name = '',
+  petharId = '',
   amount,
   onClose,
 }) => {

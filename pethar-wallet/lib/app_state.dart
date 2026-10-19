@@ -23,14 +23,9 @@ class AppState extends ChangeNotifier {
   bool twoFactorAuth = false;
   bool cardFrozen = false;
   bool showCardCvv = false;
-  List<NotificationItem> notifications = List.from(sampleNotifications);
+  List<NotificationItem> notifications = [];
   List<Transaction> txList = [];
-  List<String> recentUsdAddresses = [
-    '0x71C829038baC1294817aAb8291048291a49B',
-    '0x8F492C109bE742819aBcD8391048291045f22',
-    '0x3E11049281a742819abcd8391048291045f201',
-    '0x9A28C10892048291948291048291048290123',
-  ];
+  List<String> recentUsdAddresses = [];
   List<FavoriteContact> favoriteContactsList = [];
   List<Contact> contactsList = [];
   List<Agent> agentsList = [];
@@ -554,10 +549,7 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetDemoNotifications() {
-    notifications = List.from(sampleNotifications);
-    notifyListeners();
-  }
+  // Notifications are fetched from the database — no local demo reset
 
   void updateProfile({required String name, required String email, required String phone, required String petharId, required String location}) {
     profile.name = name;

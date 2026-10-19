@@ -147,7 +147,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           ...prev,
           name: up.name || prev.name,
           phone: up.phone || prev.phone,
-          uid: up.uid || prev.uid || '202610190001',
+          uid: up.uid || prev.uid,
         }))
       }
     })
@@ -1360,7 +1360,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             <ReceiveQRCard
               lang={lang}
               name={profile.name || 'User'}
-              petharId={profile.uid || profile.petharId || '202610190001'}
+              petharId={profile.uid || profile.petharId || ''}
               onClose={() => setReceiveModalOpen(false)}
             />
           </div>

@@ -404,9 +404,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               } else if (val == 'clear_all') {
                 appState.clearAllNotifications();
                 HapticFeedback.mediumImpact();
-              } else if (val == 'reset_demo') {
-                appState.resetDemoNotifications();
-                HapticFeedback.lightImpact();
               }
             },
             itemBuilder: (ctx) => [
@@ -443,23 +440,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         color: appState.notifications.isNotEmpty
                             ? (isDark ? Colors.white : const Color(0xFF0F172A))
                             : Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'reset_demo',
-                child: Row(
-                  children: [
-                    const Icon(Icons.restart_alt_rounded, size: 18, color: Color(0xFF64748B)),
-                    const SizedBox(width: 10),
-                    Text(
-                      lang == 'ak' ? 'နမူနာ အသိပေးချက်များ ပြန်တင်မည်' : 'Reset demo alerts',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDark ? Colors.white70 : const Color(0xFF475569),
                       ),
                     ),
                   ],
@@ -798,24 +778,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 ),
                                 onPressed: () {
                                   setState(() => _selectedFilter = 'all');
-                                },
-                              )
-                            else if (appState.notifications.isEmpty)
-                              OutlinedButton.icon(
-                                icon: const Icon(Icons.refresh_rounded, size: 16),
-                                label: Text(
-                                  lang == 'ak' ? 'နမူနာ အသိပေးချက်များ ထည့်မည်' : 'Load Demo Notifications',
-                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: paynoBlue,
-                                  side: const BorderSide(color: Color(0xFFBFDBFE), width: 1.2),
-                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                ),
-                                onPressed: () {
-                                  appState.resetDemoNotifications();
-                                  HapticFeedback.lightImpact();
                                 },
                               ),
                           ],

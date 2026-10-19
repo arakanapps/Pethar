@@ -34,11 +34,11 @@ class _AccountScreenState extends State<AccountScreen> {
     final double akdPercent = totalBalance > 0 ? (akdBalance / totalBalance) : 0.5;
     final double usdPercent = totalBalance > 0 ? (usdBalance / totalBalance) : 0.5;
 
-    final String userUid = appState.profile.uid.isNotEmpty
-        ? appState.profile.uid
-        : '202610190001';
-    const String usdWalletAddress = '0x36a8F492C109bE742819aBcD8391048291045f19';
-    const String usdWalletShort = '0x36...5f19';
+    final String userUid = appState.profile.uid;
+    final String usdWalletAddress = appState.profile.usdAccountWalletAddress;
+    final String usdWalletShort = usdWalletAddress.length >= 8
+        ? '${usdWalletAddress.substring(0, 4)}...${usdWalletAddress.substring(usdWalletAddress.length - 4)}'
+        : usdWalletAddress;
 
     return Scaffold(
       backgroundColor: isDark ? obsidian : const Color(0xFFF4F5F8),
