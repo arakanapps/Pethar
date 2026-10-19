@@ -1397,7 +1397,7 @@ VALUES
     ('fav_01', 'Daw Than Nwe', '@daw_thannwe', '202610190002', '09791234567', 'TN', 4280391411, 'family'),
     ('fav_02', 'Hsu Hnin Wutt Yee', '@hsu_hnin', '202610190003', '09951234567', 'HW', 4293998877, 'friends'),
     ('fav_03', 'HNIN THANDAR PHYO', '@hnin_thandar', '202610190004', '09251234567', 'HT', 4279860608, 'business'),
-    ('fav_04', 'Myo Min Paing', '@myo_min', '202610190005', '09451234567', 'MP', 4281881855, 'friends')
+    ('fav_04', 'Myo Min Oo', '@myo_min', '202610190005', '09451234567', 'MO', 4281881855, 'friends')
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     username = EXCLUDED.username,

@@ -28,7 +28,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
 
   // Card top-up state
   const [topUpAmount, setTopUpAmount] = useState('250')
-  const [selectedMethod, setSelectedMethod] = useState<'visa' | 'mastercard' | 'amex' | 'paypal' | 'wise'>('visa')
+  const [selectedMethod, setSelectedMethod] = useState<'visa' | 'mastercard' | 'amex' | 'paypal'>('visa')
   const [cardNumber, setCardNumber] = useState('4532 •••• •••• 8912')
   const [cardExpiry, setCardExpiry] = useState('08/29')
   const [cardCvv, setCardCvv] = useState('882')
@@ -86,7 +86,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            {lang === 'ak' ? 'Wise ငွေလွှဲ' : 'Wise Remit'}
+            {lang === 'ak' ? 'နိုင်ငံတကာငွေလွှဲ' : 'Global Remit'}
           </button>
           <button
             onClick={() => setActiveTab('topup')}
@@ -172,7 +172,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
 
               <button
                 onClick={() => {
-                  alert(lang === 'ak' ? 'နိုင်ငံတကာငွေလွှဲ အောင်မြင်စွာ ပို့ဆောင်ပြီးပါပြီ!' : 'Wise Remittance Corridor Settled Successfully!')
+                  alert(lang === 'ak' ? 'နိုင်ငံတကာငွေလွှဲ အောင်မြင်စွာ ပို့ဆောင်ပြီးပါပြီ!' : 'Global Remittance Corridor Settled Successfully!')
                 }}
                 className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-lg hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2"
               >
@@ -191,8 +191,8 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 <label className="text-xs text-gray-400 block mb-1.5 font-medium">
                   {lang === 'ak' ? 'ငွေသွင်းမည့် နည်းလမ်း ရွေးပါ' : 'Select Payment Method'}
                 </label>
-                <div className="grid grid-cols-5 gap-1.5">
-                  {(['visa', 'mastercard', 'amex', 'paypal', 'wise'] as const).map((method) => (
+                <div className="grid grid-cols-4 gap-1.5">
+                  {(['visa', 'mastercard', 'amex', 'paypal'] as const).map((method) => (
                     <button
                       key={method}
                       onClick={() => setSelectedMethod(method)}
