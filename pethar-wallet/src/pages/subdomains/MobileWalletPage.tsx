@@ -412,12 +412,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [withdrawAmount, setWithdrawAmount] = useState<string>('0.00')
   const [withdrawStep, setWithdrawStep] = useState<'address' | 'confirm'>('address')
   const [selectedSendToken, setSelectedSendToken] = useState<'USDT' | 'USDC'>('USDT')
-  const [recentUsdAddresses, setRecentUsdAddresses] = useState<string[]>([
-    '0x71C829038baC1294817aAb8291048291a49B',
-    '0x8F492C109bE742819aBcD8391048291045f22',
-    '0x3E11049281a742819abcd8391048291045f201',
-    '0x9A28C10892048291948291048291048290123',
-  ])
+  const [recentUsdAddresses, setRecentUsdAddresses] = useState<string[]>([])
   const [copiedWalletAddr, setCopiedWalletAddr] = useState<boolean>(false)
   const [selectedSlipTxn, setSelectedSlipTxn] = useState<Txn | null>(null)
 

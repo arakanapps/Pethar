@@ -63,7 +63,7 @@ export const KycLevel2Modal: React.FC<KycLevel2ModalProps> = ({
 
     setIsLoading(true)
     try {
-      const res = await submitKycLevel2Verification(currentProfile.uid || '202610190001', {
+      const res = await submitKycLevel2Verification(currentProfile.uid, {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         nationalIdNo: nationalIdNo.trim(),

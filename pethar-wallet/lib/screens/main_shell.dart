@@ -62,13 +62,7 @@ class _MainShellState extends State<MainShell> {
   bool _loginLoading = false;
   String? _loginError;
 
-  static const String _fullWalletAddress = '0x36a8F492C109bE742819aBcD8391048291045f19';
-  static const String _shortWalletAddress = '0x36...5f19';
-  static const List<String> _recoveryWords = [
-    'secure', 'arakan', 'crimson', 'harbor',
-    'shield', 'ledger', 'velvet', 'anchor',
-    'crystal', 'beacon', 'meadow', 'fortune',
-  ];
+  // Wallet address and recovery phrase are sourced from the authenticated user profile — not stored locally
 
   @override
   void initState() {
@@ -89,8 +83,8 @@ class _MainShellState extends State<MainShell> {
     super.dispose();
   }
 
-  void _copyWalletAddress(BuildContext context) {
-    Clipboard.setData(const ClipboardData(text: _fullWalletAddress));
+  void _copyWalletAddress(BuildContext context, String address) {
+    Clipboard.setData(ClipboardData(text: address));
     setState(() => _copiedWalletAddr = true);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -106,7 +100,7 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _copyRecoveryPhrase(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: _recoveryWords.join(' ')));
+    // Recovery phrase is server-side only — not stored locally
     setState(() => _phraseCopied = true);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -927,7 +921,7 @@ class _MainShellState extends State<MainShell> {
                         child: GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _recoveryWords.length,
+                          itemCount: 0,
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
                             mainAxisSpacing: 8,
@@ -944,7 +938,7 @@ class _MainShellState extends State<MainShell> {
                                 border: Border.all(color: const Color(0xFFE4E4E7)),
                               ),
                               child: Text(
-                                _phraseRevealed ? '${i + 1}. ${_recoveryWords[i]}' : '${i + 1}. ••••••',
+                                '${i + 1}. ••••••',
                                 style: const TextStyle(
                                   fontFamily: 'monospace',
                                   fontSize: 11,
@@ -1166,17 +1160,28 @@ class _MainShellState extends State<MainShell> {
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: const Color(0xFFF4F4F5)),
                           ),
-                          child: QrImageView(
-                            data: '$_fullWalletAddress?token=$_selectedDepositToken',
-                            version: QrVersions.auto,
-                            size: 190,
+                          child: Consumer<AppState>(
+                            builder: (ctx, state, _) {
+                              final addr = state.profile.usdAccountWalletAddress;
+                              final short = addr.length >= 8
+                                  ? '${addr.substring(0, 4)}...${addr.substring(addr.length - 4)}'
+                                  : addr;
+                              return Column(
+                                children: [
+                                  QrImageView(
+                                    data: '$addr?token=$_selectedDepositToken',
+                                    version: QrVersions.auto,
+                                    size: 190,
+                                  ),
+                                  const SizedBox(height: 14),
+                                  Text(
+                                    short,
+                                    style: const TextStyle(fontSize: 14, fontFamily: 'monospace', fontWeight: FontWeight.w800, color: Color(0xFF27272A)),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
-                        ),
-                        const SizedBox(height: 14),
-                        const Text(
-                          _shortWalletAddress,
-                          style: TextStyle(fontSize: 14, fontFamily: 'monospace', fontWeight: FontWeight.w800, color: Color(0xFF27272A)),
-                        ),
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -1197,7 +1202,7 @@ class _MainShellState extends State<MainShell> {
                       children: [
                         Expanded(
                           child: InkWell(
-                            onTap: () => _copyWalletAddress(context),
+                            onTap: () => _copyWalletAddress(context, Provider.of<AppState>(context, listen: false).profile.usdAccountWalletAddress),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               child: Row(
@@ -1221,7 +1226,7 @@ class _MainShellState extends State<MainShell> {
                         Container(width: 1, height: 48, color: const Color(0xFFE4E4E7)),
                         Expanded(
                           child: InkWell(
-                            onTap: () => _copyWalletAddress(context),
+                            onTap: () => _copyWalletAddress(context, Provider.of<AppState>(context, listen: false).profile.usdAccountWalletAddress),
                             child: const Padding(
                               padding: EdgeInsets.symmetric(vertical: 15),
                               child: Row(
@@ -1808,7 +1813,7 @@ class _MainShellState extends State<MainShell> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
-                      onTap: () => _copyWalletAddress(context),
+                      onTap: () => _copyWalletAddress(context, Provider.of<AppState>(context, listen: false).profile.usdAccountWalletAddress),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
