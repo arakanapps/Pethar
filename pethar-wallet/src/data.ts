@@ -69,6 +69,8 @@ export interface UserProfile {
   totalBalance: number // total balance change
   petharId: string
   location: string
+  gender?: string
+  idType?: string
   accountTier: string
   kycTier?: 1 | 2
   kycStatus?: 'unverified' | 'email_verified' | 'pending_review' | 'verified'
@@ -88,6 +90,8 @@ export const initialUserProfile: UserProfile = {
   email: '',
   phone: '',
   pin: '',
+  gender: 'Male',
+  idType: 'National ID',
   address: '',
   avatarUrl: '',
   akdWalletBalance: 0.00,

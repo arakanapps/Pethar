@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../services/supabase_service.dart';
@@ -230,108 +235,159 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // PROFILE MUTATION & VERIFICATION MODALS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  void _showEditAvatarModal(BuildContext context, AppState appState, bool isAk) {
-    final urlCtrl = TextEditingController(text: appState.profile.avatarUrl ?? '');
-    final presets = [
-      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    ];
+  ImageProvider? _buildAvatarImageProvider(String? avatarUrl) {
+    if (avatarUrl == null || avatarUrl.trim().isEmpty) return null;
+    final url = avatarUrl.trim();
+    if (url.startsWith('data:image') || url.startsWith('data:application')) {
+      try {
+        final commaIdx = url.indexOf(',');
+        final base64Str = commaIdx != -1 ? url.substring(commaIdx + 1) : url;
+        return MemoryImage(base64Decode(base64Str));
+      } catch (e) {
+        debugPrint('Error decoding base64 avatar: $e');
+        return null;
+      }
+    }
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return NetworkImage(url);
+    }
+    if (!kIsWeb) {
+      try {
+        final file = File(url);
+        if (file.existsSync()) {
+          return FileImage(file);
+        }
+      } catch (_) {}
+    }
+    return null;
+  }
 
+  Future<void> _pickAvatarFromSource(
+    BuildContext context,
+    AppState appState,
+    bool isAk,
+    ImageSource source,
+    BuildContext dialogCtx,
+  ) async {
+    try {
+      final picker = ImagePicker();
+      final XFile? picked = await picker.pickImage(
+        source: source,
+        maxWidth: 600,
+        maxHeight: 600,
+        imageQuality: 85,
+      );
+      if (picked != null) {
+        final bytes = await picked.readAsBytes();
+        final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+        appState.profile.avatarUrl = base64Image;
+        appState.notify();
+        Navigator.pop(dialogCtx);
+        _showToast(
+          context,
+          isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'Profile photo updated successfully!',
+        );
+        try {
+          await SupabaseService().updateAvatarUrl(
+            profileId: appState.profile.uid,
+            avatarUrl: base64Image,
+          );
+        } catch (_) {}
+      }
+    } catch (e) {
+      debugPrint('Error picking avatar image: $e');
+      _showToast(context, 'Unable to pick photo: $e');
+    }
+  }
+
+  void _showEditAvatarModal(BuildContext context, AppState appState, bool isAk) {
     showDialog(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-          backgroundColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(22),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isAk ? 'ပရိုဖိုင်ပုံ ပြောင်းလဲရန်' : 'Change Profile Picture',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text('Can Change', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                const Text('Choose Preset Avatar or enter Custom URL:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A))),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: presets.map((pUrl) {
-                    final isSel = urlCtrl.text == pUrl;
-                    return GestureDetector(
-                      onTap: () {
-                        setModalState(() => urlCtrl.text = pUrl);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: isSel ? const Color(0xFF0284C7) : Colors.transparent, width: 2.5),
-                        ),
-                        child: CircleAvatar(
-                          radius: 24,
-                          backgroundImage: NetworkImage(pUrl),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 14),
-                TextField(
-                  controller: urlCtrl,
-                  style: const TextStyle(fontSize: 12),
-                  decoration: InputDecoration(
-                    labelText: 'Image URL',
-                    filled: true,
-                    fillColor: const Color(0xFFF4F4F5),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    isAk ? 'ပရိုဖိုင်ပုံ ပြောင်းလဲရန်' : 'Change Profile Picture',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close, size: 20, color: Color(0xFF71717A)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+
+              // Option 1: Choose from Gallery (Primary)
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () => _pickAvatarFromSource(context, appState, isAk, ImageSource.gallery, ctx),
+                  icon: const Icon(Icons.photo_library_rounded, size: 20),
+                  label: Text(
+                    isAk ? 'ဖုန်းပြခန်းမှ ဓာတ်ပုံတင်မည်' : 'Upload from Phone Gallery',
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 0,
                   ),
                 ),
-                const SizedBox(height: 18),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text('Cancel'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final newUrl = urlCtrl.text.trim();
-                          appState.profile.avatarUrl = newUrl;
-                          await SupabaseService().updateAvatarUrl(profileId: appState.profile.uid, avatarUrl: newUrl);
-                          appState.notify();
-                          Navigator.pop(ctx);
-                          _showToast(context, 'Profile picture updated successfully');
-                        },
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
-                        child: const Text('Save Photo'),
-                      ),
-                    ),
-                  ],
+              ),
+              const SizedBox(height: 10),
+
+              // Option 2: Take Photo with Camera
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: OutlinedButton.icon(
+                  onPressed: () => _pickAvatarFromSource(context, appState, isAk, ImageSource.camera, ctx),
+                  icon: const Icon(Icons.camera_alt_outlined, size: 18),
+                  label: Text(
+                    isAk ? 'ကင်မရာဖြင့် ဓာတ်ပုံရိုက်မည်' : 'Take a Photo',
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF334155),
+                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 12),
+
+              // Cancel button
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF64748B),
+                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  child: Text(
+                    isAk ? 'ပယ်ဖျက်မည်' : 'Cancel',
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -357,22 +413,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isAk ? 'အီးမေးလ် ပြောင်းလဲရန်' : 'Change User Email',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2563EB).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text('Needs Verified OTP', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF2563EB))),
-                    ),
-                  ],
+                Text(
+                  isAk ? 'အီးမေးလ် ပြောင်းလဲရန်' : 'Change User Email',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -527,22 +570,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isAk ? 'ဖုန်းနံပါတ် ပြောင်းလဲရန်' : 'Change Phone Number',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0284C7).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text('Needs Email Verified OTP', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0284C7))),
-                    ),
-                  ],
+                Text(
+                  isAk ? 'ဖုန်းနံပါတ် ပြောင်းလဲရန်' : 'Change Phone Number',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -676,7 +706,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showChangePinModal(BuildContext context, AppState appState, bool isAk) {
+  void showChangePinModal(BuildContext context, AppState appState, bool isAk) {
     bool forgotMode = false;
     final currPinCtrl = TextEditingController();
     final newPinCtrl = TextEditingController();
@@ -697,25 +727,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      forgotMode ? 'Reset Forgotten PIN' : 'Change Security PIN',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDC2626).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        forgotMode ? 'Needs Email OTP' : 'Needs Current PIN',
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFDC2626)),
-                      ),
-                    ),
-                  ],
+                Text(
+                  forgotMode ? 'Reset Forgotten PIN' : 'Change Security PIN',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
                 ),
                 const SizedBox(height: 14),
                 if (!forgotMode) ...[
@@ -858,22 +872,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isAk ? 'တရားဝင်အမည် ပြင်ဆင်ရန်' : 'Legal Name Change',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text('Needs Review & Email OTP', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7C3AED))),
-                    ),
-                  ],
+                Text(
+                  isAk ? 'တရားဝင်အမည် ပြင်ဆင်ရန်' : 'Edit Full Name',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
                 ),
                 const SizedBox(height: 10),
                 const Text('First name and Last name changes require administrative compliance review and verified email OTP.', style: TextStyle(fontSize: 11, color: Color(0xFF71717A), height: 1.4)),
@@ -940,13 +941,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 return;
                               }
                               setModalState(() => isLoading = true);
-                              final res = await SupabaseService().verifyAndSubmitNameChange(
+                              final fn = firstCtrl.text.trim();
+                              final ln = lastCtrl.text.trim();
+                              final newFullName = '$fn $ln'.trim();
+                              if (appState.profile.nickname.trim().isEmpty ||
+                                  appState.profile.nickname.trim() == appState.profile.name.trim() ||
+                                  appState.profile.nickname.trim() == appState.profile.effectiveFullName) {
+                                appState.profile.nickname = '';
+                              }
+                              appState.profile.firstName = fn;
+                              appState.profile.lastName = ln;
+                              appState.profile.name = newFullName;
+                              await SupabaseService().verifyAndSubmitNameChange(
                                 profileId: appState.profile.uid,
-                                firstName: firstCtrl.text.trim(),
-                                lastName: lastCtrl.text.trim(),
+                                firstName: fn,
+                                lastName: ln,
                                 otpCode: otp,
                                 reason: reasonCtrl.text.trim(),
                               );
+                              appState.notify();
                               setModalState(() => isLoading = false);
                               Navigator.pop(ctx);
                               _showToast(context, 'Name change submitted for administrative review (Status: PENDING_REVIEW)');
@@ -965,7 +978,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showEditNicknameModal(BuildContext context, AppState appState, bool isAk) {
-    final nickCtrl = TextEditingController(text: appState.profile.nickname);
+    final nickCtrl = TextEditingController(text: appState.profile.effectiveNickname);
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -977,29 +990,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Edit Nickname', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B))),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
-                    child: const Text('Can Change', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
-                  ),
-                ],
+              Text(
+                isAk ? 'အမည်ပြောင် ပြင်ဆင်ရန်' : 'Edit Nickname',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
               ),
               const SizedBox(height: 14),
-              const Text('Nickname:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A))),
+              Text(
+                isAk ? 'အမည်ပြောင်:' : 'Nickname:',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A)),
+              ),
               const SizedBox(height: 6),
               TextField(
                 controller: nickCtrl,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                decoration: InputDecoration(filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+                decoration: InputDecoration(
+                  hintText: isAk ? 'အမည်ပြောင် ထည့်ပါ' : 'Enter nickname',
+                  filled: true,
+                  fillColor: const Color(0xFFF4F4F5),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                ),
               ),
               const SizedBox(height: 18),
               Row(
                 children: [
-                  Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel'))),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: Text(isAk ? 'မလုပ်တော့ပါ' : 'Cancel'),
+                    ),
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
@@ -1009,10 +1028,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         await SupabaseService().updateNickname(profileId: appState.profile.uid, nickname: nick);
                         appState.notify();
                         Navigator.pop(ctx);
-                        _showToast(context, 'Nickname updated to $nick');
+                        _showToast(context, isAk ? 'အမည်ပြောင် ပြင်ဆင်ပြီးပါပြီ' : 'Nickname updated to ${appState.profile.effectiveNickname}');
                       },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
-                      child: const Text('Save'),
+                      child: Text(isAk ? 'သိမ်းမည်' : 'Save'),
                     ),
                   ),
                 ],
@@ -1038,19 +1057,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    isAk ? 'လက်ရှိ နေရပ်လိပ်စာ ပြင်ဆင်ရန်' : 'Edit Current Address',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
-                    child: const Text('Can Change', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
-                  ),
-                ],
+              Text(
+                isAk ? 'လက်ရှိ နေရပ်လိပ်စာ ပြင်ဆင်ရန်' : 'Edit My Address',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -1111,6 +1120,326 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  void _showEditGenderModal(BuildContext context, AppState appState, bool isAk) {
+    final genders = ['Male', 'Female', 'Other'];
+    String selected = appState.profile.gender.isNotEmpty ? appState.profile.gender : 'Male';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isAk ? 'ကျား/မ ရွေးချယ်ရန်' : 'Select Gender',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                ),
+                const SizedBox(height: 16),
+                ...genders.map((g) {
+                  final isSelected = selected == g;
+                  return InkWell(
+                    onTap: () => setModalState(() => selected = g),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            g,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                              color: isSelected ? const Color(0xFF1E40AF) : const Color(0xFF334155),
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(Icons.check_circle_rounded, color: Color(0xFF2563EB), size: 20),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          appState.profile.gender = selected;
+                          appState.notify();
+                          Navigator.pop(ctx);
+                          _showToast(context, isAk ? 'ကျား/မ ပြင်ဆင်ပြီးပါပြီ' : 'Gender updated successfully');
+                          try {
+                            await SupabaseService.client
+                                .from('user_profiles')
+                                .update({'gender': selected})
+                                .eq('id', appState.profile.uid);
+                          } catch (_) {}
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2563EB),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('Save'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEditIdTypeModal(BuildContext context, AppState appState, bool isAk) {
+    final idTypes = ['National ID', 'Passport', 'Citizenship Card', 'Driver\'s License'];
+    String selected = appState.profile.idType.isNotEmpty ? appState.profile.idType : 'National ID';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isAk ? 'သက်သေခံကတ် အမျိုးအစား' : 'Select ID Type',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                ),
+                const SizedBox(height: 16),
+                ...idTypes.map((t) {
+                  final isSelected = selected == t;
+                  return InkWell(
+                    onTap: () => setModalState(() => selected = t),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            t,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                              color: isSelected ? const Color(0xFF1E40AF) : const Color(0xFF334155),
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(Icons.check_circle_rounded, color: Color(0xFF2563EB), size: 20),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          appState.profile.idType = selected;
+                          appState.notify();
+                          Navigator.pop(ctx);
+                          _showToast(context, isAk ? 'အမျိုးအစား ပြင်ဆင်ပြီးပါပြီ' : 'ID Type updated successfully');
+                          try {
+                            await SupabaseService.client
+                                .from('user_profiles')
+                                .update({'id_type': selected})
+                                .eq('id', appState.profile.uid);
+                          } catch (_) {}
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2563EB),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('Save'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEditIdNumberModal(BuildContext context, AppState appState, bool isAk) {
+    final ctrl = TextEditingController(text: appState.profile.nationalIdNo);
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isAk ? 'သက်သေခံကတ် အမှတ် ပြင်ဆင်ရန်' : 'Edit ID Number',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: ctrl,
+                decoration: InputDecoration(
+                  labelText: isAk ? 'ကတ်နံပါတ်' : 'ID Number',
+                  hintText: 'e.g. 12/KAMAYA(N)123456',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final val = ctrl.text.trim();
+                        if (val.isEmpty) return;
+                        appState.profile.nationalIdNo = val;
+                        appState.notify();
+                        Navigator.pop(ctx);
+                        _showToast(context, isAk ? 'ကတ်နံပါတ် ပြင်ဆင်ပြီးပါပြီ' : 'ID Number updated successfully');
+                        try {
+                          await SupabaseService.client
+                              .from('user_profiles')
+                              .update({'national_id_no': val})
+                              .eq('id', appState.profile.uid);
+                        } catch (_) {}
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2563EB),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text('Save'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showDatePickerModal(BuildContext context, AppState appState, bool isAk) async {
+    DateTime initial = DateTime(1998, 5, 14);
+    if (appState.profile.dob.isNotEmpty) {
+      try {
+        final parsed = DateTime.parse(appState.profile.dob);
+        initial = parsed;
+      } catch (_) {}
+    }
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1920),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF2563EB),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF1E293B),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      final formatted = '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      appState.profile.dob = formatted;
+      appState.notify();
+      _showToast(context, isAk ? 'မွေးသက္ကရာဇ် ပြင်ဆင်ပြီးပါပြီ' : 'Date of Birth updated successfully');
+      try {
+        await SupabaseService.client
+            .from('user_profiles')
+            .update({'dob': formatted})
+            .eq('id', appState.profile.uid);
+      } catch (_) {}
+    }
   }
 
   void _showSignOutDialog(BuildContext context, AppState appState, bool isAk) {
@@ -1335,12 +1664,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         centerTitle: true,
         title: Text(
-          isAk ? 'အသုံးပြုသူ ပရိုဖိုင်' : 'User & Profile Settings',
+          isAk ? 'ကျွန်ုပ်၏ ပရိုဖိုင်' : 'My Profile',
           style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 100),
+        padding: const EdgeInsets.only(bottom: 80),
         children: [
           // ── TOP AVATAR & HEADER SECTION ─────────────────────────────
           Container(
@@ -1352,17 +1681,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Stack(
                     children: [
                       CircleAvatar(
-                        radius: 46,
+                        radius: 48,
                         backgroundColor: const Color(0xFFE2E8F0),
                         child: CircleAvatar(
-                          radius: 43,
+                          radius: 45,
                           backgroundColor: const Color(0xFF0284C7),
-                          backgroundImage: (p.avatarUrl != null && p.avatarUrl!.isNotEmpty)
-                              ? NetworkImage(p.avatarUrl!)
-                              : null,
+                          backgroundImage: _buildAvatarImageProvider(p.avatarUrl),
                           child: (p.avatarUrl == null || p.avatarUrl!.isEmpty)
                               ? Text(
-                                  p.firstName.isNotEmpty ? p.firstName[0].toUpperCase() : 'U',
+                                  p.effectiveNickname.isNotEmpty
+                                      ? p.effectiveNickname[0].toUpperCase()
+                                      : 'U',
                                   style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white),
                                 )
                               : null,
@@ -1396,38 +1725,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  '${p.firstName} ${p.lastName}'.trim().isNotEmpty ? '${p.firstName} ${p.lastName}'.trim() : p.name,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(999),
+                // User Nick Name (Tap to edit with >, no verified mark, no edit button)
+                GestureDetector(
+                  onTap: () => _showEditNicknameModal(context, appState, isAk),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        p.effectiveNickname,
+                        style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
                       ),
-                      child: Text(
-                        p.username.isNotEmpty ? p.username : '@user',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF475569)),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        'Photo: Can Change',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669)),
-                      ),
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      const Icon(Icons.chevron_right, size: 20, color: Color(0xFF64748B)),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -1465,261 +1776,119 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 10),
 
-          // ── SECTION 1: ACCOUNT BALANCES & TOTAL BALANCE ──────────────
+          // ── PROFILE DETAILS CARD (10 REQUESTED FIELDS, NO BALANCES, NO BADGES) ──
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.account_balance_wallet_outlined, size: 18, color: Color(0xFF2563EB)),
-                        SizedBox(width: 8),
-                        Text(
-                          'Account Balances',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text('Total Balance Change', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
-                    ),
-                  ],
+                // 1. Full Name (tappable to edit, has >)
+                _buildProfileDetailRow(
+                  label: 'Full Name',
+                  value: p.effectiveFullName,
+                  onTap: () => _showChangeNameModal(context, appState, isAk),
+                  actionIcon: Icons.chevron_right,
                 ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Wallet balances are ledger-governed and cannot be directly modified. Total balance updates dynamically.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-                ),
-                const SizedBox(height: 14),
-                _buildBalanceRow(
-                  'AKD Wallet Balance',
-                  '${p.akdWalletBalance.toStringAsFixed(2)} AKD',
-                  isDynamic: false,
-                  subtext: 'Cant change directly',
-                ),
-                const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                _buildBalanceRow(
-                  'USD Account Balance',
-                  '\$${p.usdAccountBalance.toStringAsFixed(2)} USD',
-                  isDynamic: false,
-                  subtext: 'Cant change directly',
-                ),
-                const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                _buildBalanceRow(
-                  'Total Balance',
-                  '\$${p.totalBalance.toStringAsFixed(2)} USD',
-                  isDynamic: true,
-                  subtext: 'Dynamic calculated sum (Total balance change)',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
 
-          // ── SECTION 2: IMMUTABLE IDENTIFIERS (CANT CHANGE) ───────────
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.lock_outline, size: 18, color: Color(0xFFDC2626)),
-                        SizedBox(width: 8),
-                        Text(
-                          'Immutable Identifiers',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEF4444).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text('Cant Change', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFDC2626))),
-                    ),
-                  ],
+                // 2. username (click to copy, NO copy button, NO >)
+                _buildProfileDetailRow(
+                  label: 'username',
+                  value: p.username.isNotEmpty ? p.username : 'user',
+                  onTap: () {
+                    final uname = p.username.isNotEmpty ? p.username : 'user';
+                    Clipboard.setData(ClipboardData(text: uname));
+                    _showToast(context, isAk ? 'အသုံးပြုသူအမည် ကူးယူပြီးပါပြီ' : 'Username copied to clipboard');
+                  },
+                  actionIcon: null,
                 ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Core security and identity records are permanently anchored and cannot be changed.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+
+                // 3. Wallet Address (click to copy, NO copy button, NO >)
+                _buildProfileDetailRow(
+                  label: 'Wallet Address',
+                  value: _showAllProfileInfo
+                      ? (p.walletAddress.isNotEmpty ? p.walletAddress : p.uid)
+                      : _truncateAddress(p.walletAddress.isNotEmpty ? p.walletAddress : p.uid),
+                  onTap: () {
+                    final addr = p.walletAddress.isNotEmpty ? p.walletAddress : p.uid;
+                    Clipboard.setData(ClipboardData(text: addr));
+                    _showToast(context, isAk ? 'ပိုက်ဆံအိတ်လိပ်စာ ကူးယူပြီးပါပြီ' : 'Wallet address copied to clipboard');
+                  },
+                  actionIcon: null,
                 ),
-                const SizedBox(height: 14),
-                _buildImmutableInfoRow('Username', p.username, subtext: 'Username cant change'),
-                const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                _buildImmutableInfoRow(
-                  'UID / Wallet Address',
-                  p.uid,
-                  subtext: 'user_id = wallet address = uid (cant change)',
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+
+                // 4. Email (tappable to edit, has >)
+                _buildProfileDetailRow(
+                  label: 'Email',
+                  value: _showAllProfileInfo
+                      ? (p.email.isNotEmpty ? p.email : 'user@pethar.com')
+                      : _maskEmail(p.email.isNotEmpty ? p.email : 'user@pethar.com'),
+                  onTap: () => _showChangeEmailModal(context, appState, isAk),
+                  actionIcon: Icons.chevron_right,
                 ),
-                const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                _buildImmutableInfoRow(
-                  'USD Account Wallet Address',
-                  _showAllProfileInfo
-                      ? p.usdAccountWalletAddress
-                      : (p.usdAccountWalletAddress.length > 12
-                          ? '${p.usdAccountWalletAddress.substring(0, 6)}...${p.usdAccountWalletAddress.substring(p.usdAccountWalletAddress.length - 4)}'
-                          : p.usdAccountWalletAddress),
-                  subtext: 'USD account wallet address cant change',
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+
+                // 5. Mobile No (tappable to edit, has >)
+                _buildProfileDetailRow(
+                  label: 'Mobile No',
+                  value: _showAllProfileInfo
+                      ? (p.phone.isNotEmpty ? p.phone : '+95 9 789 012 345')
+                      : _maskPhone(p.phone.isNotEmpty ? p.phone : '+95 9 789 012 345'),
+                  onTap: () => _showChangePhoneModal(context, appState, isAk),
+                  actionIcon: Icons.chevron_right,
                 ),
-                const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                _buildImmutableInfoRow(
-                  'National ID No',
-                  _showAllProfileInfo
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+
+                // 6. Gender (tappable to edit, has >)
+                _buildProfileDetailRow(
+                  label: 'Gender',
+                  value: p.gender.isNotEmpty ? p.gender : 'Male',
+                  onTap: () => _showEditGenderModal(context, appState, isAk),
+                  actionIcon: Icons.chevron_right,
+                ),
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+
+                // 7. ID Type (tappable to edit, has >)
+                _buildProfileDetailRow(
+                  label: 'ID Type',
+                  value: p.idType.isNotEmpty ? p.idType : 'National ID',
+                  onTap: () => _showEditIdTypeModal(context, appState, isAk),
+                  actionIcon: Icons.chevron_right,
+                ),
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+
+                // 8. ID Number (tappable to edit, has >)
+                _buildProfileDetailRow(
+                  label: 'ID Number',
+                  value: _showAllProfileInfo
                       ? (p.nationalIdNo.isNotEmpty ? p.nationalIdNo : '---')
                       : '••••••••',
-                  subtext: 'National ID no cant change',
+                  onTap: () => _showEditIdNumberModal(context, appState, isAk),
+                  actionIcon: Icons.chevron_right,
                 ),
-                const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                _buildImmutableInfoRow(
-                  'Date of Birth (DOB)',
-                  _showAllProfileInfo
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+
+                // 9. Date of Birth (tappable to edit, has >)
+                _buildProfileDetailRow(
+                  label: 'Date of Birth',
+                  value: _showAllProfileInfo
                       ? (p.dob.isNotEmpty ? p.dob : '---')
                       : '••••-••-••',
-                  subtext: 'DOB cant change',
+                  onTap: () => _showDatePickerModal(context, appState, isAk),
+                  actionIcon: Icons.chevron_right,
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
 
-          // ── SECTION 3: VERIFIED CREDENTIALS (OTP & PIN FLOWS) ────────
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.verified_user_outlined, size: 18, color: Color(0xFF2563EB)),
-                        SizedBox(width: 8),
-                        Text(
-                          'Security & Verification',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2563EB).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text('Requires OTP', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF2563EB))),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                _buildEditableInfoRow(
-                  label: 'User Email',
-                  value: p.email,
-                  badgeText: 'Needs Verified OTP',
-                  badgeColor: const Color(0xFF2563EB),
-                  subtext: 'User email can change need verified OTP',
-                  onEdit: () => _showChangeEmailModal(context, appState, isAk),
-                ),
-                const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                _buildEditableInfoRow(
-                  label: 'Phone Number',
-                  value: _showAllProfileInfo
-                      ? p.phone
-                      : (p.phone.length > 5 ? p.phone.replaceRange(3, 7, '****') : p.phone),
-                  badgeText: 'Needs Email OTP',
-                  badgeColor: const Color(0xFF0284C7),
-                  subtext: 'ph no can change, need email verified OTP',
-                  onEdit: () => _showChangePhoneModal(context, appState, isAk),
-                ),
-                const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                _buildEditableInfoRow(
-                  label: 'Security PIN',
-                  value: '•••••• (6-digit PIN)',
-                  badgeText: 'Current PIN / OTP',
-                  badgeColor: const Color(0xFF7C3AED),
-                  subtext: 'user pin can change need current pin, if forgot pin need email otp',
-                  onEdit: () => _showChangePinModal(context, appState, isAk),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // ── SECTION 4: PERSONAL DETAILS & ADDRESS ────────────────────
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.person_outline, size: 18, color: Color(0xFF059669)),
-                        SizedBox(width: 8),
-                        Text(
-                          'Personal Profile',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text('Manageable', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                _buildEditableInfoRow(
-                  label: 'First & Last Name',
-                  value: '${p.firstName} ${p.lastName}'.trim(),
-                  badgeText: 'Needs Review & OTP',
-                  badgeColor: const Color(0xFFD97706),
-                  subtext: 'First name last name can change need review and email OTP',
-                  onEdit: () => _showChangeNameModal(context, appState, isAk),
-                ),
-                const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                _buildEditableInfoRow(
-                  label: 'Nickname',
-                  value: p.nickname.isNotEmpty ? p.nickname : (p.username.isNotEmpty ? p.username : 'User'),
-                  badgeText: 'Can Change',
-                  badgeColor: const Color(0xFF059669),
-                  subtext: 'Nickname can change freely',
-                  onEdit: () => _showEditNicknameModal(context, appState, isAk),
-                ),
-                const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                _buildEditableInfoRow(
-                  label: 'Address',
-                  value: p.address.isNotEmpty ? p.address : _streetAddress,
-                  badgeText: 'Can Change',
-                  badgeColor: const Color(0xFF059669),
-                  subtext: 'Address can change',
-                  onEdit: () => _showEditAddressModal(context, appState, isAk),
+                // 10. My Address (tappable to edit, has >)
+                _buildProfileDetailRow(
+                  label: 'My Address',
+                  value: p.address.isNotEmpty
+                      ? p.address
+                      : (_streetAddress.isNotEmpty ? _streetAddress : 'Sittwe, Arakan State'),
+                  onTap: () => _showEditAddressModal(context, appState, isAk),
+                  actionIcon: Icons.chevron_right,
                 ),
               ],
             ),
@@ -1729,169 +1898,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildImmutableInfoRow(String label, String value, {String? subtext}) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 4,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
-              if (subtext != null) ...[
-                const SizedBox(height: 2),
-                Text(subtext, style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
-              ],
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 5,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Flexible(
-                child: Text(
-                  value,
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
-                ),
-              ),
-              const SizedBox(width: 6),
-              const Icon(Icons.lock_rounded, size: 14, color: Color(0xFF94A3B8)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBalanceRow(String label, String value, {required bool isDynamic, String? subtext}) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isDynamic ? FontWeight.w800 : FontWeight.w600,
-                  color: isDynamic ? const Color(0xFF0F172A) : const Color(0xFF475569),
-                ),
-              ),
-              if (subtext != null) ...[
-                const SizedBox(height: 2),
-                Text(
-                  subtext,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: isDynamic ? FontWeight.w600 : FontWeight.normal,
-                    color: isDynamic ? const Color(0xFF059669) : const Color(0xFF94A3B8),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 5,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Flexible(
-                child: Text(
-                  value,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    fontSize: isDynamic ? 15 : 13,
-                    fontWeight: FontWeight.w800,
-                    color: isDynamic ? const Color(0xFF059669) : const Color(0xFF1E293B),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Icon(
-                isDynamic ? Icons.sync : Icons.lock_outline,
-                size: 14,
-                color: isDynamic ? const Color(0xFF059669) : const Color(0xFF94A3B8),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEditableInfoRow({
+  Widget _buildProfileDetailRow({
     required String label,
     required String value,
-    required String badgeText,
-    required Color badgeColor,
-    required VoidCallback onEdit,
-    String? subtext,
+    VoidCallback? onTap,
+    IconData? actionIcon,
   }) {
     return InkWell(
-      onTap: onEdit,
+      onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               flex: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
-                  if (subtext != null) ...[
-                    const SizedBox(height: 2),
-                    Text(subtext, style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
-                  ],
-                ],
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF64748B),
+                ),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
-              flex: 5,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              flex: 6,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          value,
-                          textAlign: TextAlign.right,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.edit_outlined, size: 14, color: Color(0xFF2563EB)),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: badgeColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+                  Flexible(
                     child: Text(
-                      badgeText,
-                      style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: badgeColor),
+                      value,
+                      textAlign: TextAlign.right,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0F172A),
+                      ),
                     ),
                   ),
+                  if (actionIcon != null) ...[
+                    const SizedBox(width: 6),
+                    Icon(actionIcon, size: 14, color: const Color(0xFF2563EB)),
+                  ],
                 ],
               ),
             ),
@@ -1899,6 +1953,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  String _truncateAddress(String addr) {
+    if (addr.length <= 12) return addr;
+    return '${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}';
+  }
+
+  String _maskEmail(String email) {
+    if (!email.contains('@')) return '••••••••';
+    final parts = email.split('@');
+    final name = parts[0];
+    final domain = parts[1];
+    if (name.length <= 2) {
+      return '${name[0]}••••@$domain';
+    }
+    return '${name.substring(0, 2)}••••@$domain';
+  }
+
+  String _maskPhone(String phone) {
+    if (phone.length <= 5) return '••••••';
+    final start = phone.length > 7 ? phone.substring(0, 5) : phone.substring(0, 3);
+    final end = phone.substring(phone.length - 3);
+    return '$start •••• $end';
   }
 
   Widget _buildAppSettingsView(BuildContext context, AppState appState, bool isAk) {
@@ -2843,66 +2920,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Center(
                       child: GestureDetector(
                         onTap: () => setState(() => _subView = 'personal_info'),
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 78,
-                              height: 78,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFF29B6F6), Color(0xFF0288D1)],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                              child: const Icon(Icons.person, size: 42, color: Colors.white),
+                        child: Container(
+                          width: 78,
+                          height: 78,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF29B6F6), Color(0xFF0288D1)],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
                             ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                width: 26,
-                                height: 26,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF10B981),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                ),
-                                child: const Icon(Icons.edit, size: 13, color: Colors.white),
-                              ),
-                            ),
-                          ],
+                            border: Border.all(color: Colors.white, width: 2),
+                            image: _buildAvatarImageProvider(appState.profile.avatarUrl) != null
+                                ? DecorationImage(
+                                    image: _buildAvatarImageProvider(appState.profile.avatarUrl)!,
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: _buildAvatarImageProvider(appState.profile.avatarUrl) == null
+                              ? const Icon(Icons.person, size: 42, color: Colors.white)
+                              : null,
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          appState.profile.name,
-                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.black87),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: const Text(
-                            'User',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black54),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
                     Text(
-                      appState.profile.email.isNotEmpty ? appState.profile.email : 'example@email.com',
-                      style: const TextStyle(fontSize: 13, color: Colors.black45),
+                      appState.profile.effectiveNickname,
+                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.black87),
                     ),
                     const SizedBox(height: 14),
                     const Divider(height: 1),
@@ -2982,7 +3027,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   _buildSettingTile(
                     icon: Icons.person_outline_rounded,
-                    title: isAk ? 'ကိုယ်ရေးအချက်အလက်နှင့် လိပ်စာ' : 'Personal Information',
+                    title: isAk ? 'ကျွန်ုပ်၏ ပရိုဖိုင်' : 'My Profile',
                     onTap: () => setState(() => _subView = 'personal_info'),
                   ),
                   const Divider(height: 1),

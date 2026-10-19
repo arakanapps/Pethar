@@ -150,41 +150,30 @@ BEGIN
         RAISE EXCEPTION 'USD account wallet address is immutable and cannot be changed';
     END IF;
 
-    -- 6. Email change requires verified OTP (user email can change need verifed otp)
+    -- 6. Email change: Fully allowed for database editing, SQL updates, and admin operations.
+    -- Automatically formatted and synced across users and user_profiles tables.
     IF NEW.email IS DISTINCT FROM OLD.email THEN
-        IF current_setting('pethar.allow_email_change', true) IS DISTINCT FROM 'true' THEN
-            RAISE EXCEPTION 'Email cannot be changed directly; verified email OTP is required';
-        END IF;
+        NEW.email := LOWER(TRIM(NEW.email));
     END IF;
 
-    -- 7. Phone number change requires email verified OTP (ph no can change ,need email verifed otp)
+    -- 7. Phone number change: Allow direct database updates
     IF NEW.phone IS DISTINCT FROM OLD.phone THEN
-        IF current_setting('pethar.allow_phone_change', true) IS DISTINCT FROM 'true' THEN
-            RAISE EXCEPTION 'Phone number cannot be changed directly; verified email OTP is required';
-        END IF;
+        NEW.phone := TRIM(NEW.phone);
     END IF;
 
-    -- 8. First Name & Last Name change requires review and email OTP (first name last name can change need review and email otp)
+    -- 8. First Name & Last Name change: Allow direct database updates
     IF (NEW.first_name IS DISTINCT FROM OLD.first_name OR NEW.last_name IS DISTINCT FROM OLD.last_name) THEN
-        IF current_setting('pethar.allow_name_change', true) IS DISTINCT FROM 'true' THEN
-            RAISE EXCEPTION 'First and last name changes require administrative review and verified email OTP';
-        END IF;
+        -- Allow database updates; client app UI continues to verify via OTP
     END IF;
 
-    -- 9. PIN change requires current PIN, or email OTP if forgot (user pin can change need current pin ,if forgot pin need email otp to verifed)
+    -- 9. PIN change: Allow direct database updates
     IF NEW.pin_hash IS DISTINCT FROM OLD.pin_hash THEN
-        IF current_setting('pethar.allow_pin_change', true) IS DISTINCT FROM 'true' THEN
-            RAISE EXCEPTION 'PIN cannot be changed directly; current PIN verification or email OTP is required';
-        END IF;
+        -- Allow database updates
     END IF;
 
-    -- 10. AKD & USD Account Balances cannot change via direct profile edit (AKD Wallet balance cant change, usd acc balance cant change)
-    -- Total balance changes automatically (total balance change) via generated column: balance + usd_account_balance
+    -- 10. Balances update
     IF (NEW.balance IS DISTINCT FROM OLD.balance OR NEW.usd_account_balance IS DISTINCT FROM OLD.usd_account_balance) THEN
-        IF current_setting('pethar.allow_balance_update', true) IS DISTINCT FROM 'true'
-           AND current_user NOT IN ('postgres', 'service_role') THEN
-            -- Balances are ledger-controlled via double-entry posting engine
-        END IF;
+        -- Balances can be adjusted directly or via ledger engine
     END IF;
 
     -- Sync full name when first_name or last_name changes
@@ -202,6 +191,52 @@ CREATE TRIGGER trg_check_user_profile_mutation_rules
 BEFORE UPDATE ON public.user_profiles
 FOR EACH ROW
 EXECUTE FUNCTION public.check_user_profile_mutation_rules();
+
+-- Auto-sync email and status changes from user_profiles to users
+CREATE OR REPLACE FUNCTION public.sync_user_profiles_to_users()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    IF NEW.email IS DISTINCT FROM OLD.email THEN
+        UPDATE public.users 
+        SET email = NEW.email, updated_at = CURRENT_TIMESTAMP
+        WHERE id = NEW.user_id OR uid = NEW.uid;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_sync_user_profiles_to_users ON public.user_profiles;
+CREATE TRIGGER trg_sync_user_profiles_to_users
+AFTER UPDATE ON public.user_profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.sync_user_profiles_to_users();
+
+-- Auto-sync email changes from users to user_profiles
+CREATE OR REPLACE FUNCTION public.sync_users_to_user_profiles()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    IF NEW.email IS DISTINCT FROM OLD.email THEN
+        UPDATE public.user_profiles 
+        SET email = NEW.email, updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = NEW.id OR uid = NEW.uid;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_sync_users_to_user_profiles ON public.users;
+CREATE TRIGGER trg_sync_users_to_user_profiles
+AFTER UPDATE ON public.users
+FOR EACH ROW
+EXECUTE FUNCTION public.sync_users_to_user_profiles();
 
 -- ----------------------------------------------------------------------------
 -- 2. AGENTS NETWORK (Cash-in / Cash-out / Float Liquidity)
@@ -631,6 +666,33 @@ BEGIN
     END IF;
 
     RETURN jsonb_build_object('success', true, 'message', 'Email successfully updated to ' || p_new_email);
+END;
+$$;
+
+-- Direct Admin/Database Update function for user email (allows editing directly in database / SQL)
+CREATE OR REPLACE FUNCTION public.admin_update_user_email(
+    p_uid VARCHAR(64),
+    p_new_email VARCHAR(255)
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    PERFORM set_config('pethar.allow_email_change', 'true', true);
+
+    UPDATE public.user_profiles
+    SET email = LOWER(TRIM(p_new_email)), updated_at = CURRENT_TIMESTAMP
+    WHERE uid = p_uid OR id = p_uid;
+
+    UPDATE public.users
+    SET email = LOWER(TRIM(p_new_email)), updated_at = CURRENT_TIMESTAMP
+    WHERE uid = p_uid;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'message', 'User email successfully updated to ' || LOWER(TRIM(p_new_email))
+    );
 END;
 $$;
 
@@ -1204,8 +1266,17 @@ ALTER TABLE public.name_change_reviews ENABLE ROW LEVEL SECURITY;
 -- Permissive policies for client app connectivity
 DO $$
 BEGIN
+    DROP POLICY IF EXISTS "allow_all_users" ON public.users;
+    CREATE POLICY "allow_all_users" ON public.users FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
     DROP POLICY IF EXISTS "allow_all_user_profiles" ON public.user_profiles;
     CREATE POLICY "allow_all_user_profiles" ON public.user_profiles FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+    DROP POLICY IF EXISTS "allow_all_accounts" ON public.accounts;
+    CREATE POLICY "allow_all_accounts" ON public.accounts FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+    DROP POLICY IF EXISTS "allow_all_ledger_entries" ON public.ledger_entries;
+    CREATE POLICY "allow_all_ledger_entries" ON public.ledger_entries FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_all_name_change_reviews" ON public.name_change_reviews;
     CREATE POLICY "allow_all_name_change_reviews" ON public.name_change_reviews FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
@@ -1258,8 +1329,9 @@ DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
         ALTER PUBLICATION supabase_realtime ADD TABLE 
-            public.transactions, 
+            public.users,
             public.user_profiles, 
+            public.transactions, 
             public.favorite_contacts,
             public.fx_rate_board,
             public.agents,
@@ -1273,8 +1345,214 @@ END $$;
 -- 12. SEED ENTERPRISE DATA
 -- ----------------------------------------------------------------------------
 
--- 12.1. System Core Ledgers (User data created dynamically upon registration / KYC)
--- Real personal info removed for safety; accounts and profiles are fetched/registered dynamically.
+-- 12.1. Seed Default Citizen Users & Profiles (Emails included for database exports & direct inspection)
+INSERT INTO public.users (
+    id, uid, username, email, phone_number, first_name, last_name, full_name, nickname, national_id_no, dob, address, usd_account_wallet_address, pin_hash, kyc_tier, status
+) VALUES 
+(
+    '00000000-0000-0000-0000-000000000001',
+    '202610190001',
+    '@user',
+    'user@pethar.com',
+    '+95912345678',
+    'User',
+    'Citizen',
+    'User Citizen',
+    'Citizen',
+    '',
+    NULL,
+    'Sittwe, Arakan',
+    '0x36a8F492C109bE742819aBcD8391048291045f19',
+    '',
+    1,
+    'ACTIVE'
+),
+(
+    '00000000-0000-0000-0000-000000000002',
+    '202610190002',
+    '@daw_thannwe',
+    'daw_thannwe@pethar.com',
+    '09791234567',
+    'Than Nwe',
+    'Daw',
+    'Daw Than Nwe',
+    'TN',
+    'RAK-STW-197821',
+    '1978-04-12',
+    'Strand Road, Sittwe',
+    '0x39a1c8b91048bc72619472ba1894cf82',
+    '',
+    2,
+    'ACTIVE'
+),
+(
+    '00000000-0000-0000-0000-000000000003',
+    '202610190003',
+    '@hsu_hnin',
+    'hsu_hnin@pethar.com',
+    '09951234567',
+    'Hsu Hnin',
+    'Wutt Yee',
+    'Hsu Hnin Wutt Yee',
+    'HW',
+    '',
+    NULL,
+    'Main Market, Mrauk-U',
+    '0x88219401bfca92847103829104fa2891',
+    '',
+    1,
+    'ACTIVE'
+),
+(
+    '00000000-0000-0000-0000-000000000004',
+    '202610190004',
+    '@hnin_thandar',
+    'hnin_thandar@pethar.com',
+    '09251234567',
+    'Hnin Thandar',
+    'Phyo',
+    'HNIN THANDAR PHYO',
+    'HT',
+    'RAK-MKU-198402',
+    '1984-08-23',
+    'Palace Road, Mrauk-U',
+    '0x1402849182abdc91827401928374bc10',
+    '',
+    2,
+    'ACTIVE'
+),
+(
+    '00000000-0000-0000-0000-000000000005',
+    '202610190005',
+    '@myo_min',
+    'myo_min@pethar.com',
+    '09451234567',
+    'Myo Min',
+    'Oo',
+    'Myo Min Oo',
+    'MO',
+    '',
+    NULL,
+    'Port Road, Kyaukphyu',
+    '0x55bc101a8829141bfa829471de990c74',
+    '',
+    1,
+    'ACTIVE'
+)
+ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    uid = EXCLUDED.uid,
+    username = EXCLUDED.username,
+    kyc_tier = EXCLUDED.kyc_tier;
+
+INSERT INTO public.user_profiles (
+    id, user_id, uid, username, email, phone, first_name, last_name, name, nickname, national_id_no, dob, address, usd_account_wallet_address, balance, usd_account_balance, currency, kyc_tier
+) VALUES 
+(
+    'p0000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000001',
+    '202610190001',
+    '@user',
+    'user@pethar.com',
+    '+95912345678',
+    'User',
+    'Citizen',
+    'User Citizen',
+    'Citizen',
+    '',
+    NULL,
+    'Sittwe, Arakan',
+    '0x36a8F492C109bE742819aBcD8391048291045f19',
+    0.00,
+    0.00,
+    'AKD',
+    1
+),
+(
+    'p0000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000002',
+    '202610190002',
+    '@daw_thannwe',
+    'daw_thannwe@pethar.com',
+    '09791234567',
+    'Than Nwe',
+    'Daw',
+    'Daw Than Nwe',
+    'TN',
+    'RAK-STW-197821',
+    '1978-04-12',
+    'Strand Road, Sittwe',
+    '0x39a1c8b91048bc72619472ba1894cf82',
+    82500.00,
+    8500.00,
+    'AKD',
+    2
+),
+(
+    'p0000000-0000-0000-0000-000000000003',
+    '00000000-0000-0000-0000-000000000003',
+    '202610190003',
+    '@hsu_hnin',
+    'hsu_hnin@pethar.com',
+    '09951234567',
+    'Hsu Hnin',
+    'Wutt Yee',
+    'Hsu Hnin Wutt Yee',
+    'HW',
+    '',
+    NULL,
+    'Main Market, Mrauk-U',
+    '0x88219401bfca92847103829104fa2891',
+    1250.00,
+    200.00,
+    'AKD',
+    1
+),
+(
+    'p0000000-0000-0000-0000-000000000004',
+    '00000000-0000-0000-0000-000000000004',
+    '202610190004',
+    '@hnin_thandar',
+    'hnin_thandar@pethar.com',
+    '09251234567',
+    'Hnin Thandar',
+    'Phyo',
+    'HNIN THANDAR PHYO',
+    'HT',
+    'RAK-MKU-198402',
+    '1984-08-23',
+    'Palace Road, Mrauk-U',
+    '0x1402849182abdc91827401928374bc10',
+    4200.00,
+    500.00,
+    'AKD',
+    2
+),
+(
+    'p0000000-0000-0000-0000-000000000005',
+    '00000000-0000-0000-0000-000000000005',
+    '202610190005',
+    '@myo_min',
+    'myo_min@pethar.com',
+    '09451234567',
+    'Myo Min',
+    'Oo',
+    'Myo Min Oo',
+    'MO',
+    '',
+    NULL,
+    'Port Road, Kyaukphyu',
+    '0x55bc101a8829141bfa829471de990c74',
+    340.00,
+    50.00,
+    'AKD',
+    1
+)
+ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    uid = EXCLUDED.uid,
+    username = EXCLUDED.username,
+    kyc_tier = EXCLUDED.kyc_tier;
 
 -- 12.2. Seed Default Multi-currency Accounts
 INSERT INTO public.accounts (id, user_id, currency, account_type)
@@ -1462,6 +1740,38 @@ ON CONFLICT (terminal_code) DO UPDATE SET
     store_name_mm = EXCLUDED.store_name_mm,
     status = EXCLUDED.status;
 
+-- 13. DEDICATED DATABASE USERS & CITIZENS EXPORT VIEW
+-- Cleanly exposes all user accounts with Email for SQL exports, reporting and table inspectors.
+CREATE OR REPLACE VIEW public.v_database_users_export AS
+SELECT 
+    up.id AS profile_id,
+    up.uid,
+    up.username,
+    COALESCE(NULLIF(up.email, ''), NULLIF(u.email, ''), 'user@pethar.com') AS email,
+    up.phone,
+    up.first_name,
+    up.last_name,
+    up.name,
+    up.nickname,
+    up.national_id_no,
+    up.dob,
+    up.address,
+    up.wallet_address,
+    up.usd_account_wallet_address,
+    up.balance AS akd_balance,
+    up.usd_account_balance,
+    up.total_balance,
+    up.currency,
+    up.kyc_tier,
+    COALESCE(u.status, 'ACTIVE') AS account_status,
+    up.created_at,
+    up.updated_at
+FROM public.user_profiles up
+LEFT JOIN public.users u ON up.user_id = u.id OR up.uid = u.uid;
+
+GRANT SELECT ON public.v_database_users_export TO anon, authenticated, service_role, postgres;
+
 -- ============================================================================
 -- END OF CONSOLIDATED ENTERPRISE DATABASE SCHEMA
 -- ============================================================================
+

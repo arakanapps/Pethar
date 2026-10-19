@@ -867,6 +867,38 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
     triggerToast(isAk ? 'စာရင်းစစ် မှတ်တမ်းအပြည့်အစုံ CSV ကို ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ' : 'Master Cryptographic Ledger exported to CSV');
   };
 
+  // --- EXPORT CITIZENS DIRECTORY CSV WITH EMAILS ---
+  const handleExportCitizensCsv = () => {
+    const headers = ['UID', 'Name', 'Username', 'Email', 'Phone', 'Wallet Address', 'AKD Balance', 'USD Balance', 'Total Balance', 'KYC Level', 'Status', 'Registered Date', 'Township'];
+    const rows = usersList.map(u => [
+      `"${u.uid}"`,
+      `"${u.name.replace(/"/g, '""')}"`,
+      `"${u.username.replace(/"/g, '""')}"`,
+      `"${(u.email || '').replace(/"/g, '""')}"`,
+      `"${(u.phone || '').replace(/"/g, '""')}"`,
+      `"${u.walletAddress}"`,
+      u.akdBalance,
+      u.usdBalance,
+      (u.akdBalance + u.usdBalance),
+      `"KYC Level ${u.kycTier}"`,
+      `"${u.status}"`,
+      `"${u.registeredDate}"`,
+      `"${u.township}"`,
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `pethar-citizens-directory-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    triggerToast(isAk ? 'နိုင်ငံသားများ အချက်အလက်နှင့် အီးမေးလ်စာရင်း CSV ကို ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ' : 'Citizens Directory with Emails exported to CSV');
+  };
+
   // --- EMERGENCY CIRCUIT BREAKER ---
   const handleToggleCircuitBreaker = () => {
     if (circuitBreakerPin !== '9991') {
@@ -1682,6 +1714,15 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                       Tier 2
                     </button>
                   </div>
+
+                  <button
+                    onClick={handleExportCitizensCsv}
+                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-xs font-mono font-bold transition shadow-sm cursor-pointer"
+                    title="Export Citizens Directory CSV"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>{isAk ? 'အသုံးပြုသူစာရင်း CSV ထုတ်ယူမည်' : 'Export Citizens CSV'}</span>
+                  </button>
                 </div>
               </div>
 
@@ -1714,7 +1755,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                   <thead className="bg-slate-950 text-slate-400 border-b border-slate-800">
                     <tr>
                       <th className="p-3.5 font-semibold">CITIZEN PROFILE</th>
-                      <th className="p-3.5 font-semibold">CONTACT / UID</th>
+                      <th className="p-3.5 font-semibold">EMAIL / CONTACT / UID</th>
                       <th className="p-3.5 font-semibold">TIER</th>
                       <th className="p-3.5 font-semibold text-right">AKD BALANCE</th>
                       <th className="p-3.5 font-semibold text-right">DAILY LIMIT</th>
@@ -1738,7 +1779,8 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                         </td>
 
                         <td className="p-3.5">
-                          <div className="text-slate-300">{user.phone}</div>
+                          <div className="text-amber-300 font-bold">{user.email || 'user@pethar.com'}</div>
+                          <div className="text-slate-300 text-[11px]">{user.phone}</div>
                           <div className="text-[10px] text-slate-500 font-mono">UID: {user.uid}</div>
                         </td>
 

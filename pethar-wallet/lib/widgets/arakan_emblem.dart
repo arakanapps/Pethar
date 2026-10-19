@@ -221,4 +221,74 @@ class FlagGB extends StatelessWidget {
   }
 }
 
+/// Myanmar National Flag for MM language selector
+class FlagMM extends StatelessWidget {
+  final double width;
+  final double? height;
+
+  const FlagMM({Key? key, this.width = 22.0, this.height}) : super(key: key);
+
+  static const String _mmSvg = '''
+<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+  <rect width="60" height="13.33" fill="#FECB00" />
+  <rect y="13.33" width="60" height="13.33" fill="#34B233" />
+  <rect y="26.66" width="60" height="13.34" fill="#EA2839" />
+  <polygon points="30,6 34.5,19 48,19 37.2,27 41.2,39.5 30,31.5 18.8,39.5 22.8,27 12,19 25.5,19" fill="#FFFFFF" />
+</svg>
+''';
+
+  @override
+  Widget build(BuildContext context) {
+    final h = height ?? (width * 2 / 3);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3),
+      child: SizedBox(
+        width: width,
+        height: h,
+        child: SvgPicture.string(_mmSvg, fit: BoxFit.cover),
+      ),
+    );
+  }
+}
+
+/// Spring Development Bank 4-Finger Salute / Hand Emblem matching mobile screenshots
+class SpringBankHandEmblem extends StatelessWidget {
+  final double size;
+  final Color color;
+
+  const SpringBankHandEmblem({
+    Key? key,
+    this.size = 46.0,
+    this.color = Colors.white,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final hex = '#${(color.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
+    final svg = '''
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 4 Fingers -->
+  <rect x="22" y="24" width="8" height="34" rx="4" fill="$hex" />
+  <rect x="34" y="14" width="8" height="44" rx="4" fill="$hex" />
+  <rect x="46" y="18" width="8" height="40" rx="4" fill="$hex" />
+  <rect x="58" y="26" width="8" height="32" rx="4" fill="$hex" />
+  <!-- Lower Ribbon / Palm Origami Chevron Fold -->
+  <path d="M19 54 C19 66 26 75 36 83 L44 89 L52 83 C62 75 69 66 69 54" stroke="$hex" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M25 64 L44 79 L63 64" stroke="$hex" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M34 76 L44 84 L54 76" stroke="$hex" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+''';
+    return SizedBox(
+      width: size,
+      height: size,
+      child: SvgPicture.string(
+        svg,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+}
+
 

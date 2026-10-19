@@ -60,6 +60,7 @@ import {
   Wifi,
   Wallet,
   ArrowUpRight,
+  Mail,
 } from 'lucide-react'
 import {
   AccountScreen,
@@ -85,6 +86,7 @@ import {
   fetchFavoriteContactsFromDb,
   subscribeToTransactions,
   resetPinWithEmail,
+  updateUserEmailInDb,
 } from '../../services/walletDatabase'
 import type { Language } from '../../i18n'
 import { WalletMinimalIcon } from '@/components/WalletMinimalIcon'
@@ -739,14 +741,38 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [forgotSimulatedOtp, setForgotSimulatedOtp] = useState<string>('839210')
   const [forgotError, setForgotError] = useState<string>('')
   const [forgotSuccess, setForgotSuccess] = useState<string>('')
-  const [profileDetails] = useState({
-    firstName: 'First Name',
-    lastName: 'Last Name',
-    passportNumber: '---',
-    dob: '----',
-    mobile: '---',
-    email: '---',
-  })
+
+  // Edit Email Modal States
+  const [emailEditModalOpen, setEmailEditModalOpen] = useState<boolean>(false)
+  const [newEmailInput, setNewEmailInput] = useState<string>('')
+  const [emailEditError, setEmailEditError] = useState<string>('')
+  const [emailEditSuccess, setEmailEditSuccess] = useState<string>('')
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState<boolean>(false)
+
+  const handleUpdateEmail = async () => {
+    if (!newEmailInput.trim() || !newEmailInput.includes('@')) {
+      setEmailEditError(isAk ? 'မှန်ကန်သော အီးမေးလ် ရိုက်ထည့်ပါ' : 'Please enter a valid email address')
+      return
+    }
+    setIsUpdatingEmail(true)
+    setEmailEditError('')
+    try {
+      const cleanEmail = newEmailInput.trim().toLowerCase()
+      await updateUserEmailInDb(profile.uid, cleanEmail)
+      setProfile((prev) => ({ ...prev, email: cleanEmail }))
+      setEmailEditSuccess(isAk ? 'အီးမေးလ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'Email updated successfully')
+      setTimeout(() => {
+        setEmailEditModalOpen(false)
+        setEmailEditSuccess('')
+        setNewEmailInput('')
+      }, 1200)
+    } catch (err: any) {
+      setEmailEditError(err.message || 'Failed to update email')
+    } finally {
+      setIsUpdatingEmail(false)
+    }
+  }
+
   const [profileAddress, setProfileAddress] = useState({
     subdistrict: 'Sittwe',
     street: 'Building C,A Rd',
@@ -6682,13 +6708,40 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             <h2 className="text-base font-bold text-zinc-900">
               {isAk ? 'အခြေခံ အချက်အလက်' : 'Basic information'}
             </h2>
+
+            {/* Email Address */}
             <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2 text-zinc-500">
+                <Mail size={15} className="text-zinc-400" />
+                <span>{isAk ? 'အီးမေးလ် လိပ်စာ' : 'Email address'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-zinc-900">
+                  {showAllProfileInfo ? (profile.email || localStorage.getItem('pethar_active_email') || 'user@pethar.com') : '••••@pethar.com'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewEmailInput(profile.email || '')
+                    setEmailEditError('')
+                    setEmailEditSuccess('')
+                    setEmailEditModalOpen(true)
+                  }}
+                  className="text-xs font-semibold text-[#0284C7] hover:underline cursor-pointer ml-1"
+                >
+                  {isAk ? 'ပြင်ဆင်ရန်' : 'Edit'}
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile number */}
+            <div className="flex items-center justify-between text-sm pt-1 border-t border-zinc-50">
               <div className="flex items-center gap-2 text-zinc-500">
                 <Smartphone size={15} className="text-zinc-400" />
                 <span>{isAk ? 'ဖုန်းနံပါတ်' : 'Mobile number'}</span>
               </div>
               <span className="font-semibold text-zinc-900">
-                {showAllProfileInfo ? profileDetails.mobile : '095-***-8295'}
+                {showAllProfileInfo ? (profile.phone || '095-***-8295') : '095-***-8295'}
               </span>
             </div>
           </div>
@@ -6712,7 +6765,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500">{isAk ? 'အမည်' : 'Name'}</span>
                 <span className="font-medium text-zinc-900">
-                  {profileDetails.firstName}
+                  {profile.firstName || profile.name || 'User'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -6720,7 +6773,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   {isAk ? 'မျိုးရိုးအမည်' : 'Last name'}
                 </span>
                 <span className="font-medium text-zinc-900">
-                  {profileDetails.lastName}
+                  {profile.lastName || ''}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -6847,6 +6900,73 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     className="w-full py-3 rounded-full border border-[#F97316] text-[#F97316] font-bold text-sm hover:bg-orange-50 transition cursor-pointer"
                   >
                     {isAk ? 'ပိတ်မည်' : 'Close'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Email Modal */}
+          {emailEditModalOpen && (
+            <div
+              className="fixed inset-0 z-50 bg-black/55 flex items-center justify-center p-5 animate-in fade-in"
+              onClick={() => setEmailEditModalOpen(false)}
+            >
+              <div
+                className="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="w-12 h-12 rounded-full bg-sky-50 text-[#0284C7] mx-auto flex items-center justify-center">
+                  <Mail size={24} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-lg font-bold text-zinc-900">
+                    {isAk ? 'အီးမေးလ် ပြောင်းလဲရန်' : 'Change Email Address'}
+                  </h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    {isAk
+                      ? 'သင်၏ အကောင့်အီးမေးလ်အသစ်ကို ရိုက်ထည့်ပါ။ ဒေတာဘေ့စ်တွင် တိုက်ရိုက် မွမ်းမံပေးသွားပါမည်။'
+                      : 'Enter your new account email address. It will update directly in the database.'}
+                  </p>
+                </div>
+
+                <div className="space-y-3 text-left">
+                  <label className="text-xs font-bold text-zinc-700">
+                    {isAk ? 'အီးမေးလ် လိပ်စာ အသစ်' : 'New Email Address'}
+                  </label>
+                  <input
+                    type="email"
+                    value={newEmailInput}
+                    onChange={(e) => setNewEmailInput(e.target.value)}
+                    placeholder="user@pethar.com"
+                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:border-[#0284C7] transition"
+                  />
+                  {emailEditError && (
+                    <p className="text-xs text-rose-500 font-medium">{emailEditError}</p>
+                  )}
+                  {emailEditSuccess && (
+                    <p className="text-xs text-emerald-600 font-medium">{emailEditSuccess}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleUpdateEmail}
+                    disabled={isUpdatingEmail}
+                    className="w-full py-3 rounded-full bg-gradient-to-r from-[#0284C7] to-[#0369A1] text-white font-bold text-sm shadow-md hover:brightness-105 transition cursor-pointer disabled:opacity-50"
+                  >
+                    {isUpdatingEmail
+                      ? (isAk ? 'မွမ်းမံနေပါသည်...' : 'Updating...')
+                      : (isAk ? 'အတည်ပြု မွမ်းမံမည်' : 'Update Email')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEmailEditModalOpen(false)}
+                    className="w-full py-3 rounded-full border border-zinc-200 text-zinc-600 font-bold text-sm hover:bg-zinc-50 transition cursor-pointer"
+                  >
+                    {isAk ? 'ပိတ်မည်' : 'Cancel'}
                   </button>
                 </div>
               </div>
@@ -7093,48 +7213,30 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             renderWelcomeSignInCard()
           ) : (
             <div className="bg-white rounded-[28px] p-5 shadow-[0_8px_28px_rgba(15,23,42,0.05)] border border-zinc-100 relative">
-              {/* Centered Avatar with Edit Pencil Badge */}
+              {/* Centered Avatar (Pic only, no edit badge here) */}
               <div className="flex flex-col items-center text-center pt-1">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setAccountSubScreen('personal_info')}
-                    className="w-20 h-20 rounded-full bg-gradient-to-b from-[#29B6F6] to-[#0288D1] flex items-center justify-center text-white shadow-md overflow-hidden border-2 border-white cursor-pointer"
-                  >
-                    {profile.avatarUrl ? (
-                      <img
-                        src={profile.avatarUrl}
-                        alt={profile.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User size={40} className="text-white" />
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAccountSubScreen('personal_info')}
-                    aria-label="Edit Personal Information"
-                    className="w-7 h-7 rounded-full bg-[#10B981] text-white border-2 border-white flex items-center justify-center absolute -bottom-0.5 -right-0.5 shadow-xs cursor-pointer"
-                  >
-                    <Pencil size={12} />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setAccountSubScreen('personal_info')}
+                  className="w-20 h-20 rounded-full bg-gradient-to-b from-[#29B6F6] to-[#0288D1] flex items-center justify-center text-white shadow-md overflow-hidden border-2 border-white cursor-pointer"
+                >
+                  {profile.avatarUrl ? (
+                    <img
+                      src={profile.avatarUrl}
+                      alt={profile.nickname || profile.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User size={40} className="text-white" />
+                  )}
+                </button>
 
-                {/* Name + User Badge */}
-                <div className="mt-3.5 flex items-center justify-center gap-2">
+                {/* User nick name */}
+                <div className="mt-3.5 flex items-center justify-center">
                   <h2 className="text-base font-extrabold text-zinc-900">
-                    {profile.name}
+                    {profile.nickname || profile.name || 'User'}
                   </h2>
-                  <span className="px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-500 text-xs font-semibold">
-                    User
-                  </span>
                 </div>
-
-                {/* Email */}
-                <p className="text-xs text-zinc-400 mt-1">
-                  {profileDetails.email}
-                </p>
 
                 {/* ID Verification Status Row */}
                 <div className="mt-4 pt-3.5 border-t border-zinc-100 w-full flex items-center justify-between">
@@ -8464,8 +8566,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <span className="w-6 h-6 flex items-center justify-center shrink-0">
                 <NavServicesIcon active={isServicesActive} />
               </span>
-              <span className="text-[11px] h-3.5 leading-[14px] tracking-tight truncate">
-                {isAk ? 'ဝန်ဆောင်မှု' : 'Services'}
+              <span className="text-[10px] h-3.5 leading-[14px] tracking-tight truncate">
+                {isAk ? 'ဝန်ဆောင်မှု' : 'Service'}
               </span>
             </button>
 

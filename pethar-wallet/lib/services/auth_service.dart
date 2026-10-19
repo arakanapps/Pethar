@@ -18,6 +18,8 @@ class StoredUser {
   String nationalIdNo;
   String dob;
   String address;
+  String gender;
+  String idType;
 
   StoredUser({
     required this.email,
@@ -30,6 +32,8 @@ class StoredUser {
     this.nationalIdNo = '',
     this.dob = '',
     this.address = '',
+    this.gender = 'Male',
+    this.idType = 'National ID',
   });
 
   Map<String, dynamic> toJson() => {
@@ -43,6 +47,8 @@ class StoredUser {
         'nationalIdNo': nationalIdNo,
         'dob': dob,
         'address': address,
+        'gender': gender,
+        'idType': idType,
       };
 
   factory StoredUser.fromJson(Map<String, dynamic> map) => StoredUser(
@@ -56,6 +62,8 @@ class StoredUser {
         nationalIdNo: map['nationalIdNo']?.toString() ?? '',
         dob: map['dob']?.toString() ?? '',
         address: map['address']?.toString() ?? '',
+        gender: map['gender']?.toString() ?? 'Male',
+        idType: map['idType']?.toString() ?? 'National ID',
       );
 }
 

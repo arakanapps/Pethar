@@ -110,7 +110,7 @@ class TranslationStrings {
       'currencyUnit': '₳',
       'navHome': 'Home',
       'navAccount': 'Account',
-      'navServices': 'Services',
+      'navServices': 'Service',
       'navSend': 'Send',
       'navReceive': 'Receive',
       'navScan': 'Scan/MyQR',

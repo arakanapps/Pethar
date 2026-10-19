@@ -17,6 +17,8 @@ class UserProfile {
   String pin; // can change (needs current pin, or if forgot pin needs email OTP)
   String address; // can change
   String? avatarUrl; // can change (user profile pic)
+  String gender; // Male, Female, Other
+  String idType; // National ID, Passport, Citizenship Card, etc.
 
   // Balances (ledger governed)
   double akdWalletBalance; // AKD Wallet balance (cant change via profile edit)
@@ -47,6 +49,8 @@ class UserProfile {
     this.pin = '',
     this.address = '',
     this.avatarUrl,
+    this.gender = 'Male',
+    this.idType = 'National ID',
     this.akdWalletBalance = 0.00,
     this.usdAccountBalance = 0.00,
     String? petharId,
@@ -58,6 +62,21 @@ class UserProfile {
   })  : walletAddress = walletAddress ?? uid,
         petharId = (petharId != null && petharId.isNotEmpty) ? petharId : uid,
         name = name ?? (firstName.isNotEmpty ? '$firstName ${lastName.trim()}'.trim() : (username.isNotEmpty ? username : 'User'));
+
+  /// Resolves full name from firstName + lastName, name, or username
+  String get effectiveFullName {
+    final combined = '$firstName $lastName'.trim();
+    if (combined.isNotEmpty) return combined;
+    if (name.trim().isNotEmpty) return name.trim();
+    if (username.trim().isNotEmpty) return username.trim();
+    return 'User';
+  }
+
+  /// Nickname defaults to full name until user makes a custom change
+  String get effectiveNickname {
+    if (nickname.trim().isNotEmpty) return nickname.trim();
+    return effectiveFullName;
+  }
 }
 
 /// Generates a standardized UID in format: yearmmddusercount (e.g. 202610190001)
@@ -108,7 +127,7 @@ UserProfile initialUserProfile = UserProfile(
   lastName: '',
   name: '',
   nickname: '',
-  email: '',
+  email: 'user@pethar.com',
   phone: '',
   pin: '',
   address: '',
@@ -118,6 +137,8 @@ UserProfile initialUserProfile = UserProfile(
   akdWalletBalance: 0.00,
   usdAccountBalance: 0.00,
   avatarUrl: null,
+  gender: 'Male',
+  idType: 'National ID',
   kycTier: 1,
   kycStatus: 'UNVERIFIED',
 );
