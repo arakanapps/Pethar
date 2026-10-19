@@ -316,7 +316,7 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                                   OutlinedButton.icon(
                                     onPressed: () => appState.navigate(Screen.intl),
                                     icon: const Icon(Icons.public, size: 14, color: Colors.cyanAccent),
-                                    label: const Text('Wise Remittance', style: TextStyle(color: Colors.white, fontSize: 11)),
+                                    label: const Text('Global Remittance', style: TextStyle(color: Colors.white, fontSize: 11)),
                                     style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.white30)),
                                   ),
                                   OutlinedButton.icon(

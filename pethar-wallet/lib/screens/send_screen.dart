@@ -1,4 +1,8 @@
+import 'dart:ui' as ui;
+import 'dart:io';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../app_state.dart';
@@ -23,6 +27,10 @@ class _SendScreenState extends State<SendScreen> {
   String amount = '';
   String pin = '';
   String _generatedRefId = '';
+  final GlobalKey _receiptKey = GlobalKey();
+  bool _isSavingSlip = false;
+  bool _slipSaved = false;
+  bool _hasAutoSaved = false;
 
   @override
   void dispose() {
@@ -54,6 +62,59 @@ class _SendScreenState extends State<SendScreen> {
     }
   }
 
+  Future<void> _captureAndSaveReceipt({bool showToast = true}) async {
+    if (_isSavingSlip) return;
+    try {
+      _isSavingSlip = true;
+      final boundary = _receiptKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) return;
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return;
+      final bytes = byteData.buffer.asUint8List();
+
+      Directory? targetDir;
+      if (Platform.isAndroid) {
+        final picturesDir = Directory('/storage/emulated/0/Pictures/Pethar');
+        if (await picturesDir.exists()) {
+          targetDir = picturesDir;
+        } else {
+          try {
+            await picturesDir.create(recursive: true);
+            targetDir = picturesDir;
+          } catch (_) {
+            targetDir = await getExternalStorageDirectory();
+          }
+        }
+      } else {
+        targetDir = await getApplicationDocumentsDirectory();
+      }
+
+      if (targetDir != null) {
+        final file = File('${targetDir.path}/pethar-receipt-$_generatedRefId.png');
+        await file.writeAsBytes(bytes);
+        if (mounted) {
+          setState(() {
+            _slipSaved = true;
+          });
+          if (showToast) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Receipt saved to Phone Gallery ✓'),
+                backgroundColor: emeraldSuccess,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error saving receipt slip: $e');
+    } finally {
+      _isSavingSlip = false;
+    }
+  }
+
   void _onPinDigit(String digit, AppState appState) {
     if (pin.length < 6) {
       setState(() => pin += digit);
@@ -66,7 +127,11 @@ class _SendScreenState extends State<SendScreen> {
             recipientName: selectedContact?.name ?? 'Ko Min Aung',
             recipientId: selectedContact?.id ?? '202610190002',
           );
-          setState(() => step = 4);
+          setState(() {
+            step = 4;
+            _hasAutoSaved = false;
+            _slipSaved = false;
+          });
         });
       }
     }
@@ -467,184 +532,240 @@ class _SendScreenState extends State<SendScreen> {
 
   // ── STEP 4: SUCCESS ELECTRONIC SLIP (e-Slip) ─────────────────────────────
   Widget _buildStep4(bool isDark, String lang, AppState appState) {
+    if (appState.autoSaveSlip && !_hasAutoSaved) {
+      _hasAutoSaved = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (mounted) {
+            _captureAndSaveReceipt(showToast: false);
+          }
+        });
+      });
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 20)],
-        ),
-        child: Column(
-          children: [
-            // Auto saved badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      child: Column(
+        children: [
+          RepaintBoundary(
+            key: _receiptKey,
+            child: Container(
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: emeraldSuccess.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.check_circle, color: emeraldSuccess, size: 14),
-                  SizedBox(width: 6),
-                  Text(
-                    'Slip Auto-Saved to Photos ✓',
-                    style: TextStyle(color: emeraldSuccess, fontWeight: FontWeight.bold, fontSize: 10),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Bank header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                ArakanEmblem(size: 28),
-                SizedBox(width: 8),
-                Text(
-                  'BANK OF ARAKAN',
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Electronic Transaction Slip',
-              style: TextStyle(color: Colors.grey[600], fontSize: 10),
-            ),
-            const SizedBox(height: 20),
-
-            // Amount Box
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey[200]!),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 20)],
               ),
               child: Column(
                 children: [
-                  Text(
-                    'TRANSFER AMOUNT',
-                    style: TextStyle(color: Colors.grey[500], fontSize: 9, letterSpacing: 1),
+                  // Auto saved badge
+                  if (appState.autoSaveSlip || _slipSaved) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: emeraldSuccess.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.check_circle, color: emeraldSuccess, size: 14),
+                          const SizedBox(width: 6),
+                          Text(
+                            lang == 'ak'
+                                ? 'ပြေစာကို ဖုန်း Gallery ထဲသို့ သိမ်းဆည်းပြီးပါပြီ ✓'
+                                : 'Slip Auto-Saved to Phone Gallery ✓',
+                            style: const TextStyle(color: emeraldSuccess, fontWeight: FontWeight.bold, fontSize: 10),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // Bank header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      ArakanEmblem(size: 28),
+                      SizedBox(width: 8),
+                      Text(
+                        'BANK OF ARAKAN',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '₳ $amount',
-                    style: const TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.black87,
-                      fontFamily: 'monospace',
+                    'Electronic Transaction Slip',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 10),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Amount Box
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'TRANSFER AMOUNT',
+                          style: TextStyle(color: Colors.grey[500], fontSize: 9, letterSpacing: 1),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '₳ $amount',
+                          style: const TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black87,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Fee: 0.00 ₳ (Network Free)',
+                          style: TextStyle(color: emeraldSuccess, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Fee: 0.00 ₳ (Network Free)',
-                    style: TextStyle(color: emeraldSuccess, fontSize: 10, fontWeight: FontWeight.bold),
+                  const SizedBox(height: 20),
+
+                  // Routing
+                  Row(
+                    children: [
+                      Column(
+                        children: [
+                          const Icon(Icons.arrow_circle_up, color: Colors.blueAccent, size: 20),
+                          Container(width: 1, height: 30, color: Colors.grey[300]),
+                          const Icon(Icons.arrow_circle_down, color: emeraldSuccess, size: 20),
+                        ],
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'From: ${appState.profile.name}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
+                            ),
+                            Text(
+                              appState.profile.uid.isNotEmpty ? appState.profile.uid : '202610190001',
+                              style: TextStyle(fontSize: 10, color: Colors.grey[500], fontFamily: 'monospace'),
+                            ),
+                            const SizedBox(height: 18),
+                            Text(
+                              'To: ${selectedContact?.name ?? 'Ko Min Aung'}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
+                            ),
+                            Text(
+                              selectedContact?.id ?? '202610190002',
+                              style: TextStyle(fontSize: 10, color: Colors.grey[500], fontFamily: 'monospace'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Divider
+                  Divider(color: Colors.grey[200]),
+                  const SizedBox(height: 8),
+
+                  // Reference and micro QR
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('REF NO', style: TextStyle(color: Colors.grey[500], fontSize: 8)),
+                          Text(
+                            _generatedRefId,
+                            style: const TextStyle(fontFamily: 'monospace', fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87),
+                          ),
+                          const SizedBox(height: 4),
+                          Text('DATE & TIME', style: TextStyle(color: Colors.grey[500], fontSize: 8)),
+                          const Text('Today · Just now', style: TextStyle(fontSize: 10, color: Colors.black87)),
+                        ],
+                      ),
+                      QrImageView(
+                        data: 'pethar://verify?ref=$_generatedRefId',
+                        version: QrVersions.auto,
+                        size: 55,
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+          ),
+          const SizedBox(height: 16),
 
-            // Routing
-            Row(
-              children: [
-                Column(
-                  children: [
-                    const Icon(Icons.arrow_circle_up, color: Colors.blueAccent, size: 20),
-                    Container(width: 1, height: 30, color: Colors.grey[300]),
-                    const Icon(Icons.arrow_circle_down, color: emeraldSuccess, size: 20),
-                  ],
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'From: ${appState.profile.name}',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
+          // Action Buttons: Save to Gallery & Done
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _captureAndSaveReceipt(showToast: true),
+                    icon: Icon(
+                      _slipSaved ? Icons.check_circle : Icons.download,
+                      size: 16,
+                      color: _slipSaved ? emeraldSuccess : (isDark ? Colors.white : Colors.black87),
+                    ),
+                    label: Text(
+                      _slipSaved
+                          ? (lang == 'ak' ? 'သိမ်းပြီး ✓' : 'Saved ✓')
+                          : (lang == 'ak' ? 'Gallery သိမ်းမည်' : 'Save to Gallery'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: _slipSaved ? emeraldSuccess : (isDark ? Colors.white : Colors.black87),
                       ),
-                      Text(
-                        appState.profile.uid.isNotEmpty ? appState.profile.uid : '202610190001',
-                        style: TextStyle(fontSize: 10, color: Colors.grey[500], fontFamily: 'monospace'),
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        'To: ${selectedContact?.name ?? 'Ko Min Aung'}',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
-                      ),
-                      Text(
-                        selectedContact?.id ?? '202610190002',
-                        style: TextStyle(fontSize: 10, color: Colors.grey[500], fontFamily: 'monospace'),
-                      ),
-                    ],
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: isDark ? Colors.white24 : Colors.grey[300]!),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
 
-            // Divider
-            Divider(color: Colors.grey[200]),
-            const SizedBox(height: 8),
-
-            // Reference and micro QR
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('REF NO', style: TextStyle(color: Colors.grey[500], fontSize: 8)),
-                    Text(
-                      _generatedRefId,
-                      style: const TextStyle(fontFamily: 'monospace', fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87),
-                    ),
-                    const SizedBox(height: 4),
-                    Text('DATE & TIME', style: TextStyle(color: Colors.grey[500], fontSize: 8)),
-                    const Text('Today · Just now', style: TextStyle(fontSize: 10, color: Colors.black87)),
-                  ],
-                ),
-                QrImageView(
-                  data: 'pethar://verify?ref=$_generatedRefId',
-                  version: QrVersions.auto,
-                  size: 55,
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Done Button
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () => appState.navigate(Screen.home),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: gold,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                child: const Text(
-                  'Done',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
-                ),
+          // Done Button
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: () => appState.navigate(Screen.home),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: gold,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              child: const Text(
+                'Done',
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

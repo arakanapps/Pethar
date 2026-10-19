@@ -102,54 +102,65 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: crimson.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: crimson.withOpacity(0.4)),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: crimson.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: crimson.withOpacity(0.4)),
+                        ),
+                        child: const Icon(Icons.store, color: Colors.redAccent, size: 20),
                       ),
-                      child: const Icon(Icons.store, color: Colors.redAccent, size: 22),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              TranslationStrings.tr('posTitle', lang),
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.black87,
-                              ),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    TranslationStrings.tr('posTitle', lang),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark ? Colors.white : Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white12,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Text(
+                                    '#AK-092',
+                                    style: TextStyle(fontFamily: 'monospace', fontSize: 8.5, color: gold),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.white12,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Text(
-                                'TERMINAL #AK-092',
-                                style: TextStyle(fontFamily: 'monospace', fontSize: 9, color: gold),
-                              ),
+                            Text(
+                              lang == 'ak' ? 'မြောက်ဦးတော်ဝင် စတိုး' : 'Mrauk-U Royal Register',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 10, color: Colors.grey[500]),
                             ),
                           ],
                         ),
-                        Text(
-                          lang == 'ak' ? 'မြောက်ဦးတော်ဝင် ကုန်မာနှင့် စတိုးဆိုင်' : 'Mrauk-U Royal Merchant Register',
-                          style: TextStyle(fontSize: 10, color: Colors.grey[500]),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Row(
                   children: [
                     Column(

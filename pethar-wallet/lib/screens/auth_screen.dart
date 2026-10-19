@@ -22,8 +22,8 @@ class _AuthScreenState extends State<AuthScreen> {
   AuthMode _mode = AuthMode.login;
 
   // Controllers - Login
-  final TextEditingController _loginEmailCtrl = TextEditingController();
-  final TextEditingController _loginPinCtrl = TextEditingController();
+  final TextEditingController _loginEmailCtrl = TextEditingController(text: 'user@pethar.com');
+  final TextEditingController _loginPinCtrl = TextEditingController(text: '123456');
   bool _showLoginPin = false;
   String? _loginError;
   bool _showForgotUnderWarning = false;

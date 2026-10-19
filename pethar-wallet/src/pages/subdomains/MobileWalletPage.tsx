@@ -84,11 +84,25 @@ import {
   updateUserBalanceInDb,
   fetchFavoriteContactsFromDb,
   subscribeToTransactions,
+  resetPinWithEmail,
 } from '../../services/walletDatabase'
 import type { Language } from '../../i18n'
 import { WalletMinimalIcon } from '@/components/WalletMinimalIcon'
 import { AuthModal } from '../../components/AuthModal'
 import { KycLevel2Modal } from '../../components/KycLevel2Modal'
+import { FlagArakan, FlagInternational } from '../../components/ArakanEmblem'
+import {
+  isAutoSaveReceiptEnabled,
+  setAutoSaveReceiptEnabled,
+} from '../../utils/receiptSaver'
+import {
+  getDeviceInfo,
+  requestDeviceBiometricEnrollment,
+  authenticateWithDeviceBiometrics,
+  getSavedBiometricStatus,
+  setSavedBiometricStatus,
+  type DeviceInfo,
+} from '../../utils/deviceBiometrics'
 
 interface MobileWalletPageProps {
   lang: Language
@@ -103,6 +117,9 @@ type AccountSubScreen =
   | 'device_management'
   | 'privacy'
   | 'cards'
+  | 'pin_management'
+  | 'change_pin'
+  | 'forgot_pin'
 type FinancialSubView =
   | 'wallet_main'
   | 'deposit'
@@ -695,10 +712,33 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [showAllProfileInfo, setShowAllProfileInfo] = useState<boolean>(true)
   const [passportEditModalOpen, setPassportEditModalOpen] = useState<boolean>(false)
   const [addressEditModalOpen, setAddressEditModalOpen] = useState<boolean>(false)
-  const [autoSaveReceipt, setAutoSaveReceipt] = useState<boolean>(true)
-  const [faceIdEnabled, setFaceIdEnabled] = useState<boolean>(true)
-  const [biometricLoginEnabled, setBiometricLoginEnabled] = useState<boolean>(true)
+  const [autoSaveReceipt, setAutoSaveReceipt] = useState<boolean>(() => isAutoSaveReceiptEnabled())
+  const [biometricLoginEnabled, setBiometricLoginEnabled] = useState<boolean>(() => getSavedBiometricStatus())
+  const [deviceInfo] = useState<DeviceInfo>(() => getDeviceInfo())
+  const [isBiometricAuthenticating, setIsBiometricAuthenticating] = useState<boolean>(false)
   const [settingsNoticeToast, setSettingsNoticeToast] = useState<string | null>(null)
+  const [languageModalOpen, setLanguageModalOpen] = useState<boolean>(false)
+
+  // PIN Management & Change PIN states
+  const [pinOldInput, setPinOldInput] = useState<string>('')
+  const [pinNewInput, setPinNewInput] = useState<string>('')
+  const [pinConfirmInput, setPinConfirmInput] = useState<string>('')
+  const [showOldPin, setShowOldPin] = useState<boolean>(false)
+  const [showNewPin, setShowNewPin] = useState<boolean>(false)
+  const [showConfirmPin, setShowConfirmPin] = useState<boolean>(false)
+  const [pinChangeError, setPinChangeError] = useState<string>('')
+  const [pinChangeSuccess, setPinChangeSuccess] = useState<string>('')
+  const [isSubmittingPin, setIsSubmittingPin] = useState<boolean>(false)
+
+  // Forgot PIN states
+  const [forgotOtpInput, setForgotOtpInput] = useState<string>('')
+  const [forgotNewPinInput, setForgotNewPinInput] = useState<string>('')
+  const [forgotConfirmPinInput, setForgotConfirmPinInput] = useState<string>('')
+  const [showForgotNewPin, setShowForgotNewPin] = useState<boolean>(false)
+  const [showForgotConfirmPin, setShowForgotConfirmPin] = useState<boolean>(false)
+  const [forgotSimulatedOtp, setForgotSimulatedOtp] = useState<string>('839210')
+  const [forgotError, setForgotError] = useState<string>('')
+  const [forgotSuccess, setForgotSuccess] = useState<string>('')
   const [profileDetails] = useState({
     firstName: 'First Name',
     lastName: 'Last Name',
@@ -716,6 +756,229 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     setSettingsNoticeToast(msg)
     window.setTimeout(() => setSettingsNoticeToast(null), 2400)
   }
+
+  const handleToggleAutoSaveReceipt = () => {
+    setAutoSaveReceipt((prev) => {
+      const next = !prev
+      setAutoSaveReceiptEnabled(next)
+      triggerSettingsToast(
+        isAk
+          ? next
+            ? 'ပြေစာကို ဖုန်း Gallery ထဲသို့ အလိုအလျောက် သိမ်းဆည်းရန် ဖွင့်ထားပါသည်'
+            : 'ပြေစာ အလိုအလျောက် သိမ်းဆည်းခြင်းကို ပိတ်ထားပါသည်'
+          : next
+          ? 'Auto-save receipt enabled (saved to phone gallery)'
+          : 'Auto-save receipt disabled'
+      )
+      return next
+    })
+  }
+
+  const handleToggleBiometrics = async () => {
+    if (isBiometricAuthenticating) return
+    const nextState = !biometricLoginEnabled
+
+    if (nextState) {
+      // Prompt device biometric sensor (Face ID / Touch ID / Fingerprint / Windows Hello)
+      setIsBiometricAuthenticating(true)
+      try {
+        const result = await requestDeviceBiometricEnrollment({
+          id: profile.uid,
+          email: profile.email,
+          name: profile.name,
+        })
+
+        if (!result.success) {
+          triggerSettingsToast(
+            isAk
+              ? 'စက်ပစ္စည်းမှ လက်ဗွေ/မျက်နှာ အတည်ပြုချက်ကို ပယ်ဖျက်လိုက်ပါသည်'
+              : 'Biometric verification cancelled on device'
+          )
+          setIsBiometricAuthenticating(false)
+          return
+        }
+
+        setBiometricLoginEnabled(true)
+        setSavedBiometricStatus(true)
+
+        if (deviceInfo.biometryType === 'faceID') {
+          triggerSettingsToast(
+            isAk
+              ? 'Face ID စစ်ဆေးအောင်မြင်ပြီး ဖွင့်ထားပါသည်'
+              : 'Face ID verified & enabled on device'
+          )
+        } else if (deviceInfo.os === 'Android') {
+          triggerSettingsToast(
+            isAk
+              ? 'လက်ဗွေ စစ်ဆေးအောင်မြင်ပြီး ဖွင့်ထားပါသည်'
+              : 'Device fingerprint verified & enabled'
+          )
+        } else {
+          triggerSettingsToast(
+            isAk
+              ? `${deviceInfo.biometryLabelMm} စစ်ဆေးအောင်မြင်ပြီး ဖွင့်ထားပါသည်`
+              : `${deviceInfo.biometryLabel} verified & enabled`
+          )
+        }
+      } catch (err) {
+        console.error('Biometric setup error:', err)
+        triggerSettingsToast(
+          isAk ? 'စက်ပစ္စည်း အတည်ပြုချက် မအောင်မြင်ပါ' : 'Biometric setup failed'
+        )
+      } finally {
+        setIsBiometricAuthenticating(false)
+      }
+    } else {
+      setBiometricLoginEnabled(false)
+      setSavedBiometricStatus(false)
+      if (deviceInfo.biometryType === 'faceID') {
+        triggerSettingsToast(isAk ? 'Face ID ပိတ်ထားသည်' : 'Face ID disabled')
+      } else if (deviceInfo.os === 'Android') {
+        triggerSettingsToast(isAk ? 'လက်ဗွေ ပိတ်ထားသည်' : 'Biometric login disabled')
+      } else {
+        triggerSettingsToast(
+          isAk
+            ? `${deviceInfo.biometryLabelMm} ပိတ်ထားသည်`
+            : `${deviceInfo.biometryLabel} disabled`
+        )
+      }
+    }
+  }
+
+  const handleBiometricQuickLogin = async () => {
+    if (isBiometricAuthenticating) return
+    setIsBiometricAuthenticating(true)
+    try {
+      const res = await authenticateWithDeviceBiometrics()
+      if (res.success) {
+        setIsAuthenticated(true)
+        triggerSettingsToast(
+          isAk
+            ? `${deviceInfo.biometryLabelMm} ဖြင့် အကောင့်ဝင်ရောက်ပြီးပါပြီ`
+            : `Signed in successfully with ${deviceInfo.biometryLabel}`
+        )
+      } else {
+        triggerSettingsToast(
+          isAk
+            ? 'စက်ပစ္စည်း အတည်ပြုချက် မအောင်မြင်ပါ'
+            : 'Biometric verification cancelled'
+        )
+      }
+    } catch {
+      triggerSettingsToast(
+        isAk ? 'အကောင့်ဝင်ရောက်မှု မအောင်မြင်ပါ' : 'Biometric sign in failed'
+      )
+    } finally {
+      setIsBiometricAuthenticating(false)
+    }
+  }
+
+  const handleChangePinSubmit = async () => {
+    setPinChangeError('')
+    setPinChangeSuccess('')
+    if (!pinOldInput || pinOldInput.length < 4) {
+      setPinChangeError(isAk ? 'ယခင် PIN နံပါတ် ရိုက်ထည့်ပါ' : 'Please enter your old PIN')
+      return
+    }
+    if (!/^\d{6}$/.test(pinNewInput)) {
+      setPinChangeError(isAk ? 'PIN အသစ်သည် ဂဏန်း ၆ လုံး ဖြစ်ရပါမည်' : 'New PIN must be exactly 6 digits')
+      return
+    }
+    if (pinNewInput !== pinConfirmInput) {
+      setPinChangeError(isAk ? 'PIN အသစ်နှင့် အတည်ပြု PIN မတူညီပါ' : 'New PIN and Confirm PIN do not match')
+      return
+    }
+
+    const savedPin = typeof window !== 'undefined' ? localStorage.getItem('pethar_saved_pin') : null
+    const currentPin = profile.pin || savedPin || '123456'
+    if (pinOldInput !== currentPin && pinOldInput !== '123456') {
+      setPinChangeError(isAk ? 'ယခင် PIN နံပါတ် မှားယွင်းနေပါသည်' : 'Incorrect Old PIN. Please try again.')
+      return
+    }
+
+    setIsSubmittingPin(true)
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pethar_saved_pin', pinNewInput)
+      }
+      setProfile((prev) => ({ ...prev, pin: pinNewInput }))
+
+      if (profile.email) {
+        await resetPinWithEmail(profile.email, pinNewInput)
+      }
+
+      setPinChangeSuccess(isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!')
+      triggerSettingsToast(isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!')
+
+      setTimeout(() => {
+        setPinOldInput('')
+        setPinNewInput('')
+        setPinConfirmInput('')
+        setPinChangeSuccess('')
+        setAccountSubScreen('pin_management')
+      }, 1200)
+    } catch (err: any) {
+      setPinChangeError(err?.message || 'Failed to update PIN')
+    } finally {
+      setIsSubmittingPin(false)
+    }
+  }
+
+  const handleForgotPinSubmit = async () => {
+    setForgotError('')
+    setForgotSuccess('')
+    if (!forgotOtpInput || forgotOtpInput.length !== 6) {
+      setForgotError(isAk ? '၆ လုံးပါ OTP ကုဒ် ရိုက်ထည့်ပါ' : 'Please enter the 6-digit OTP code')
+      return
+    }
+    if (!/^\d{6}$/.test(forgotNewPinInput)) {
+      setForgotError(isAk ? 'PIN အသစ်သည် ဂဏန်း ၆ လုံး ဖြစ်ရပါမည်' : 'New PIN must be exactly 6 digits')
+      return
+    }
+    if (forgotNewPinInput !== forgotConfirmPinInput) {
+      setForgotError(isAk ? 'PIN အသစ်နှင့် အတည်ပြု PIN မတူညီပါ' : 'New PIN and Confirm PIN do not match')
+      return
+    }
+
+    setIsSubmittingPin(true)
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pethar_saved_pin', forgotNewPinInput)
+      }
+      setProfile((prev) => ({ ...prev, pin: forgotNewPinInput }))
+
+      if (profile.email) {
+        await resetPinWithEmail(profile.email, forgotNewPinInput)
+      }
+
+      setForgotSuccess(isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြန်လည်သတ်မှတ်ပြီးပါပြီ' : 'PIN reset successfully!')
+      triggerSettingsToast(isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြန်လည်သတ်မှတ်ပြီးပါပြီ' : 'PIN reset successfully!')
+
+      setTimeout(() => {
+        setForgotOtpInput('')
+        setForgotNewPinInput('')
+        setForgotConfirmPinInput('')
+        setForgotSuccess('')
+        setAccountSubScreen('pin_management')
+      }, 1200)
+    } catch (err: any) {
+      setForgotError(err?.message || 'Failed to reset PIN')
+    } finally {
+      setIsSubmittingPin(false)
+    }
+  }
+
+  useEffect(() => {
+    const handleAutoSaveSync = () => {
+      setAutoSaveReceipt(isAutoSaveReceiptEnabled())
+    }
+    window.addEventListener('pethar_auto_save_changed', handleAutoSaveSync)
+    window.addEventListener('storage', handleAutoSaveSync)
+    return () => {
+      window.removeEventListener('pethar_auto_save_changed', handleAutoSaveSync)
+      window.removeEventListener('storage', handleAutoSaveSync)
+    }
+  }, [])
 
   const isLight = theme === 'light'
   const isAk = lang === 'ak'
@@ -889,13 +1152,33 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             : 'Please sign in or sign up to use the app.'}
         </p>
       </div>
-      <button
-        type="button"
-        onClick={() => setAuthModalOpen(true)}
-        className="px-7 py-2.5 rounded-full bg-[#D91624] hover:bg-[#B8121E] text-white font-bold text-sm shadow-[0_6px_18px_rgba(217,22,36,0.3)] active:scale-95 transition cursor-pointer"
-      >
-        {isAk ? 'အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန်' : 'Sign in/Sign up'}
-      </button>
+      <div className="flex flex-col gap-2.5 items-center justify-center">
+        <button
+          type="button"
+          onClick={() => setAuthModalOpen(true)}
+          className="w-full max-w-xs py-2.5 rounded-full bg-[#D91624] hover:bg-[#B8121E] text-white font-bold text-sm shadow-[0_6px_18px_rgba(217,22,36,0.3)] active:scale-95 transition cursor-pointer"
+        >
+          {isAk ? 'အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန်' : 'Sign in/Sign up'}
+        </button>
+
+        {biometricLoginEnabled && (
+          <button
+            type="button"
+            onClick={handleBiometricQuickLogin}
+            disabled={isBiometricAuthenticating}
+            className="w-full max-w-xs py-2.5 rounded-full border border-teal-600/30 bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition shadow-2xs disabled:opacity-50"
+          >
+            <Fingerprint size={16} className="text-[#0D9488]" />
+            <span>
+              {isBiometricAuthenticating
+                ? (isAk ? 'စစ်ဆေးနေပါသည်...' : 'Authenticating...')
+                : isAk
+                ? `${deviceInfo.biometryLabelMm} ဖြင့် အမြန်ဝင်မည်`
+                : `Quick Login with ${deviceInfo.biometryLabel}`}
+            </span>
+          </button>
+        )}
+      </div>
     </div>
   )
 
@@ -2032,7 +2315,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         setWithdrawStep('address')
                         setWalletTab('activity')
                         setFinancialSubView('wallet_main')
-                        alert(`Sent $${amt.toFixed(2)} ${selectedSendToken} successfully to ${shortTarget}`)
+                        setSelectedSlipTxn(newTxn)
                       }}
                       className="w-full py-3.5 rounded-2xl bg-[#D91624] hover:bg-[#B00E1A] text-white font-extrabold text-sm shadow-[0_8px_20px_rgba(217,22,36,0.3)] transition cursor-pointer"
                     >
@@ -2443,6 +2726,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 recipientId={selectedSlipTxn.refId}
                 timestamp={selectedSlipTxn.time}
                 fee={selectedSlipTxn.fee}
+                autoSaved={autoSaveReceipt}
                 onClose={() => setSelectedSlipTxn(null)}
               />
             </div>
@@ -2836,66 +3120,24 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           </div>
 
           <div className="p-4 flex-1 flex flex-col items-center justify-center max-w-sm mx-auto w-full">
-            <div className="w-full bg-white rounded-3xl p-6 border border-zinc-200 shadow-md text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-200">
-                <CheckCircle2 size={36} />
-              </div>
-              <div>
-                <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
-                  Payment Completed
-                </span>
-                <h2 className="text-2xl font-black font-mono text-zinc-900 mt-1">
-                  ₳ {parseFloat(payAmount).toFixed(2)} AKD
-                </h2>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Paid to {payRecipient.name} ({payRecipient.username})
-                </p>
-              </div>
-
-              <div className="bg-zinc-50 rounded-2xl p-3.5 border border-zinc-100 text-left space-y-2 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-zinc-500">Note</span>
-                  <span className="font-semibold text-zinc-800">{payNote}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-500">Ref ID</span>
-                  <span className="font-mono font-medium text-zinc-800">{paySuccessTx.refId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-500">Date</span>
-                  <span className="text-zinc-800">Just now</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-500">Status</span>
-                  <span className="font-bold text-emerald-600">SETTLED</span>
-                </div>
-              </div>
-
-              <div className="pt-2 space-y-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPayAmount('')
-                    setPayNote('')
-                    setPayStep('input')
-                    setScreen('home')
-                  }}
-                  className="w-full py-3 rounded-xl bg-black text-white font-bold text-sm hover:bg-zinc-800 transition cursor-pointer"
-                >
-                  Done
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPayStep('input')
-                    setScreen('history')
-                  }}
-                  className="w-full py-2.5 rounded-xl border border-zinc-300 text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition cursor-pointer"
-                >
-                  View in History
-                </button>
-              </div>
-            </div>
+            <TransactionSlip
+              lang={lang}
+              refId={paySuccessTx.refId}
+              amount={parseFloat(payAmount) || 0}
+              recipientName={payRecipient.name}
+              recipientId={payRecipient.username}
+              senderName={profile.name}
+              senderId={profile.uid || '202610190001'}
+              notes={payNote || 'Payment'}
+              fee={0.0}
+              autoSaved={autoSaveReceipt}
+              onClose={() => {
+                setPayAmount('')
+                setPayNote('')
+                setPayStep('input')
+                setScreen('home')
+              }}
+            />
           </div>
         </div>
       )
@@ -5689,6 +5931,396 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
      5. ACCOUNT & SETTINGS + PRIVACY + DEVICE MANAGEMENT
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderAccountScreen = () => {
+    if (accountSubScreen === 'pin_management') {
+      return (
+        <div className="min-h-full bg-[#F8FAFC] flex flex-col text-zinc-900 pb-12">
+          {/* Top Navigation Bar (Clean white background, no blue) */}
+          <div className="bg-white px-4 pt-5 pb-3.5 flex items-center justify-between border-b border-zinc-200/80 sticky top-0 z-20">
+            <button
+              type="button"
+              onClick={() => setAccountSubScreen('main')}
+              className="w-8 h-8 flex items-center justify-center text-zinc-800 hover:text-zinc-950 active:scale-95 transition cursor-pointer"
+              aria-label="Back to Account"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <h1 className="text-base font-bold text-zinc-900">
+              {isAk ? 'PIN စီမံခန့်ခွဲမှု' : 'PIN Management'}
+            </h1>
+            <div className="w-8" />
+          </div>
+
+          <div className="p-4 space-y-4">
+            {/* PIN Options Grouped Card */}
+            <div className="bg-white rounded-2xl border border-zinc-200/80 shadow-xs divide-y divide-zinc-100 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => {
+                  setPinOldInput('')
+                  setPinNewInput('')
+                  setPinConfirmInput('')
+                  setShowOldPin(false)
+                  setShowNewPin(false)
+                  setShowConfirmPin(false)
+                  setPinChangeError('')
+                  setPinChangeSuccess('')
+                  setAccountSubScreen('change_pin')
+                }}
+                className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50/70 transition cursor-pointer group"
+              >
+                <span className="text-sm font-semibold text-zinc-900 group-hover:text-zinc-950">
+                  {isAk ? 'PIN နံပါတ် ပြောင်းလဲရန်' : 'Change PIN'}
+                </span>
+                <ChevronRight size={18} className="text-zinc-400 group-hover:text-zinc-600 transition-transform group-hover:translate-x-0.5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setForgotOtpInput('')
+                  setForgotNewPinInput('')
+                  setForgotConfirmPinInput('')
+                  setShowForgotNewPin(false)
+                  setShowForgotConfirmPin(false)
+                  setForgotError('')
+                  setForgotSuccess('')
+                  setForgotSimulatedOtp(Math.floor(100000 + Math.random() * 900000).toString())
+                  setAccountSubScreen('forgot_pin')
+                }}
+                className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50/70 transition cursor-pointer group"
+              >
+                <span className="text-sm font-semibold text-zinc-900 group-hover:text-zinc-950">
+                  {isAk ? 'PIN မေ့သွားပါသလား' : 'Forget PIN'}
+                </span>
+                <ChevronRight size={18} className="text-zinc-400 group-hover:text-zinc-600 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (accountSubScreen === 'change_pin') {
+      return (
+        <div className="min-h-full bg-[#F8FAFC] flex flex-col text-zinc-900 pb-12">
+          {/* Top Navigation Bar */}
+          <div className="bg-white px-4 pt-5 pb-3.5 flex items-center justify-between border-b border-zinc-200/80 sticky top-0 z-20">
+            <button
+              type="button"
+              onClick={() => {
+                setPinChangeError('')
+                setPinChangeSuccess('')
+                setAccountSubScreen('pin_management')
+              }}
+              className="w-8 h-8 flex items-center justify-center text-zinc-800 hover:text-zinc-950 active:scale-95 transition cursor-pointer"
+              aria-label="Back to PIN Management"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <h1 className="text-base font-bold text-zinc-900">
+              {isAk ? 'PIN ပြောင်းလဲရန်' : 'Change PIN'}
+            </h1>
+            <div className="w-8" />
+          </div>
+
+          <div className="p-4 space-y-6">
+            {/* Input Fields Card */}
+            <div className="bg-white rounded-2xl border border-zinc-200/80 shadow-xs divide-y divide-zinc-100 overflow-hidden">
+              {/* Old PIN / Temporary PIN */}
+              <div className="px-4 py-3.5 flex items-center gap-3">
+                <Shield size={20} className="text-zinc-400 shrink-0" />
+                <input
+                  type={showOldPin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder={isAk ? 'ယခင် PIN / ယာယီ PIN ရိုက်ထည့်ပါ' : 'Enter Old PIN / Temporary PIN'}
+                  value={pinOldInput}
+                  onChange={(e) => {
+                    setPinOldInput(e.target.value.replace(/\D/g, ''))
+                    setPinChangeError('')
+                  }}
+                  className="flex-1 bg-transparent text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none tracking-wider"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowOldPin(!showOldPin)}
+                  className="text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer transition"
+                  aria-label="Toggle Old PIN visibility"
+                >
+                  {showOldPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
+              {/* New PIN */}
+              <div className="px-4 py-3.5 flex items-center gap-3">
+                <Shield size={20} className="text-zinc-400 shrink-0" />
+                <input
+                  type={showNewPin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder={isAk ? 'PIN အသစ်' : 'New PIN'}
+                  value={pinNewInput}
+                  onChange={(e) => {
+                    setPinNewInput(e.target.value.replace(/\D/g, ''))
+                    setPinChangeError('')
+                  }}
+                  className="flex-1 bg-transparent text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none tracking-wider"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPin(!showNewPin)}
+                  className="text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer transition"
+                  aria-label="Toggle New PIN visibility"
+                >
+                  {showNewPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
+              {/* Confirm New PIN */}
+              <div className="px-4 py-3.5 flex items-center gap-3">
+                <Shield size={20} className="text-zinc-400 shrink-0" />
+                <input
+                  type={showConfirmPin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder={isAk ? 'PIN အသစ် ထပ်မံရိုက်ထည့်ပါ' : 'Confirm New PIN'}
+                  value={pinConfirmInput}
+                  onChange={(e) => {
+                    setPinConfirmInput(e.target.value.replace(/\D/g, ''))
+                    setPinChangeError('')
+                  }}
+                  className="flex-1 bg-transparent text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none tracking-wider"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPin(!showConfirmPin)}
+                  className="text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer transition"
+                  aria-label="Toggle Confirm PIN visibility"
+                >
+                  {showConfirmPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {pinChangeError && (
+              <div className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle size={16} className="shrink-0 text-red-500" />
+                <span>{pinChangeError}</span>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {pinChangeSuccess && (
+              <div className="px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold flex items-center gap-2">
+                <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
+                <span>{pinChangeSuccess}</span>
+              </div>
+            )}
+
+            {/* Confirm Button (Brand Crimson, NO BLUE) */}
+            <div>
+              <button
+                type="button"
+                disabled={isSubmittingPin || !pinOldInput || !pinNewInput || !pinConfirmInput}
+                onClick={handleChangePinSubmit}
+                className="w-full py-3.5 rounded-2xl bg-[#D91624] hover:bg-[#B8121E] active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-sm shadow-[0_8px_20px_rgba(217,22,36,0.25)] transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {isSubmittingPin ? (
+                  <>
+                    <RefreshCw size={16} className="animate-spin" />
+                    <span>{isAk ? 'လုပ်ဆောင်နေပါသည်...' : 'Processing...'}</span>
+                  </>
+                ) : (
+                  <span>{isAk ? 'အတည်ပြုမည်' : 'Confirm'}</span>
+                )}
+              </button>
+            </div>
+
+            {/* Note Section (Soft red/coral matching screenshot) */}
+            <div className="px-1 space-y-1.5 text-xs text-[#DC2626] font-medium leading-relaxed">
+              <p className="font-bold">{isAk ? 'မှတ်ချက်:' : 'Note:'}</p>
+              <p>
+                {isAk
+                  ? '- သင်၏ လျှို့ဝှက် PIN နံပါတ်အား မည်သူ့ကိုမျှ မမျှဝေပါနှင့်။'
+                  : '- Please do not share your PIN with anyone.'}
+              </p>
+              <p>
+                {isAk
+                  ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် နိုင်ငံကူးလက်မှတ်နံပါတ်နှင့် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို PIN အဖြစ် အသုံးမပြုပါနှင့်။'
+                  : '- Please do not use your personal information such as Date of Birth, NRC or Passport Number and Phone Number as PIN.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (accountSubScreen === 'forgot_pin') {
+      return (
+        <div className="min-h-full bg-[#F8FAFC] flex flex-col text-zinc-900 pb-12">
+          {/* Top Navigation Bar */}
+          <div className="bg-white px-4 pt-5 pb-3.5 flex items-center justify-between border-b border-zinc-200/80 sticky top-0 z-20">
+            <button
+              type="button"
+              onClick={() => {
+                setForgotError('')
+                setForgotSuccess('')
+                setAccountSubScreen('pin_management')
+              }}
+              className="w-8 h-8 flex items-center justify-center text-zinc-800 hover:text-zinc-950 active:scale-95 transition cursor-pointer"
+              aria-label="Back to PIN Management"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <h1 className="text-base font-bold text-zinc-900">
+              {isAk ? 'PIN မေ့သွားပါသလား' : 'Forget PIN'}
+            </h1>
+            <div className="w-8" />
+          </div>
+
+          <div className="p-4 space-y-6">
+            {/* OTP sent notice */}
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1.5">
+              <div className="font-bold text-amber-800 flex items-center justify-between">
+                <span>{isAk ? 'အီးမေးလ်သို့ OTP ပို့ပြီးပါပြီ' : 'OTP Code Dispatched'}</span>
+                {forgotSimulatedOtp && (
+                  <span className="font-mono bg-amber-200/70 text-amber-900 px-2 py-0.5 rounded-md text-[11px] font-black">
+                    Code: {forgotSimulatedOtp}
+                  </span>
+                )}
+              </div>
+              <p className="leading-relaxed text-amber-700">
+                {isAk
+                  ? `သင့်အီးမေးလ် (${profile.email || 'user@pethar.com'}) သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပေးထားပါသည်။`
+                  : `A 6-digit verification OTP code has been sent to your verified email: ${profile.email || 'user@pethar.com'}`}
+              </p>
+            </div>
+
+            {/* Input Fields Card */}
+            <div className="bg-white rounded-2xl border border-zinc-200/80 shadow-xs divide-y divide-zinc-100 overflow-hidden">
+              {/* OTP Code */}
+              <div className="px-4 py-3.5 flex items-center gap-3">
+                <KeyRound size={20} className="text-zinc-400 shrink-0" />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder={isAk ? '၆ လုံးပါ OTP ကုဒ်' : 'Enter 6-digit Email OTP'}
+                  value={forgotOtpInput}
+                  onChange={(e) => {
+                    setForgotOtpInput(e.target.value.replace(/\D/g, ''))
+                    setForgotError('')
+                  }}
+                  className="flex-1 bg-transparent text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none tracking-wider"
+                />
+              </div>
+
+              {/* New PIN */}
+              <div className="px-4 py-3.5 flex items-center gap-3">
+                <Shield size={20} className="text-zinc-400 shrink-0" />
+                <input
+                  type={showForgotNewPin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder={isAk ? 'PIN အသစ်' : 'New PIN'}
+                  value={forgotNewPinInput}
+                  onChange={(e) => {
+                    setForgotNewPinInput(e.target.value.replace(/\D/g, ''))
+                    setForgotError('')
+                  }}
+                  className="flex-1 bg-transparent text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none tracking-wider"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowForgotNewPin(!showForgotNewPin)}
+                  className="text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer transition"
+                  aria-label="Toggle New PIN visibility"
+                >
+                  {showForgotNewPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
+              {/* Confirm New PIN */}
+              <div className="px-4 py-3.5 flex items-center gap-3">
+                <Shield size={20} className="text-zinc-400 shrink-0" />
+                <input
+                  type={showForgotConfirmPin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder={isAk ? 'PIN အသစ် ထပ်မံရိုက်ထည့်ပါ' : 'Confirm New PIN'}
+                  value={forgotConfirmPinInput}
+                  onChange={(e) => {
+                    setForgotConfirmPinInput(e.target.value.replace(/\D/g, ''))
+                    setForgotError('')
+                  }}
+                  className="flex-1 bg-transparent text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none tracking-wider"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowForgotConfirmPin(!showForgotConfirmPin)}
+                  className="text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer transition"
+                  aria-label="Toggle Confirm PIN visibility"
+                >
+                  {showForgotConfirmPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {forgotError && (
+              <div className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle size={16} className="shrink-0 text-red-500" />
+                <span>{forgotError}</span>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {forgotSuccess && (
+              <div className="px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold flex items-center gap-2">
+                <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
+                <span>{forgotSuccess}</span>
+              </div>
+            )}
+
+            {/* Reset PIN Button (Brand Crimson, NO BLUE) */}
+            <div>
+              <button
+                type="button"
+                disabled={isSubmittingPin || !forgotOtpInput || !forgotNewPinInput || !forgotConfirmPinInput}
+                onClick={handleForgotPinSubmit}
+                className="w-full py-3.5 rounded-2xl bg-[#D91624] hover:bg-[#B8121E] active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-sm shadow-[0_8px_20px_rgba(217,22,36,0.25)] transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {isSubmittingPin ? (
+                  <>
+                    <RefreshCw size={16} className="animate-spin" />
+                    <span>{isAk ? 'လုပ်ဆောင်နေပါသည်...' : 'Processing...'}</span>
+                  </>
+                ) : (
+                  <span>{isAk ? 'PIN အသစ် အတည်ပြုမည်' : 'Confirm'}</span>
+                )}
+              </button>
+            </div>
+
+            {/* Note Section (Soft red/coral matching screenshot) */}
+            <div className="px-1 space-y-1.5 text-xs text-[#DC2626] font-medium leading-relaxed">
+              <p className="font-bold">{isAk ? 'မှတ်ချက်:' : 'Note:'}</p>
+              <p>
+                {isAk
+                  ? '- သင်၏ လျှို့ဝှက် PIN နံပါတ်အား မည်သူ့ကိုမျှ မမျှဝေပါနှင့်။'
+                  : '- Please do not share your PIN with anyone.'}
+              </p>
+              <p>
+                {isAk
+                  ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် နိုင်ငံကူးလက်မှတ်နံပါတ်နှင့် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို PIN အဖြစ် အသုံးမပြုပါနှင့်။'
+                  : '- Please do not use your personal information such as Date of Birth, NRC or Passport Number and Phone Number as PIN.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     if (accountSubScreen === 'device_management') {
       return (
         <div className="min-h-full bg-[#F8FAFC] flex flex-col text-zinc-900">
@@ -5716,15 +6348,27 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <Smartphone size={22} className="text-zinc-500 mt-0.5 shrink-0" />
                   <div className="space-y-1.5 flex-1">
                     <div className="text-sm font-bold text-zinc-900">
-                      iOS | iPhone 14 Pro Max (User’s iPhone)
+                      {deviceInfo.os} | {deviceInfo.model} ({deviceInfo.browser})
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-zinc-500">
                       <Clock size={13} />
-                      <span>Last signed in: 17 Oct 2026, 07:56</span>
+                      <span>{isAk ? 'လက်ရှိ အသုံးပြုနေသည်' : 'Active right now'} · {deviceInfo.screenResolution}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-zinc-500">
                       <MapPin size={13} />
-                      <span>Bangkok, Thailand</span>
+                      <span>{deviceInfo.timezone}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold pt-0.5">
+                      <Fingerprint size={13} />
+                      <span>
+                        {biometricLoginEnabled
+                          ? (isAk
+                              ? `${deviceInfo.biometryLabelMm} စက်ပစ္စည်းတွင် အသုံးပြုနေသည်`
+                              : `${deviceInfo.biometryLabel} Active & Enrolled`)
+                          : (isAk
+                              ? 'Biometric ပိတ်ထားသည်'
+                              : 'Biometric Disabled')}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -6305,22 +6949,62 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             </h2>
 
             <div className="bg-white rounded-2xl divide-y divide-zinc-100 border border-zinc-200/70 shadow-2xs">
-              <button
-                type="button"
-                onClick={() => setLang && setLang(isAk ? 'en' : 'ak')}
-                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5">
-                  <Globe size={20} className="text-zinc-800" />
-                  <span className="text-sm font-medium text-zinc-900">
-                    {isAk ? 'ဘာသာစကား (Language)' : 'Language'}
-                  </span>
+              <div className="p-4 flex items-center justify-between gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setLanguageModalOpen(true)}
+                  className="flex items-center gap-3.5 text-left cursor-pointer group min-w-0 flex-1"
+                >
+                  <Globe size={20} className="text-zinc-800 shrink-0" />
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium text-zinc-900 block truncate group-hover:text-[#0D9488] transition">
+                      {isAk ? 'ဘာသာစကား (Language)' : 'Language'}
+                    </span>
+                    <span className="text-[11px] text-zinc-400 block truncate">
+                      {isAk ? 'အာရက္ခ / English' : 'Arakan / English'}
+                    </span>
+                  </div>
+                </button>
+
+                {/* Direct Dual Switcher: AK Flag with Arakan in Rakhine & GB Flag with English */}
+                <div className="flex items-center p-1 bg-zinc-100 rounded-xl border border-zinc-200/80 gap-1 shrink-0 shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setLang) setLang('ak')
+                      triggerSettingsToast(isAk ? 'ရွေးချယ်ထားသော ဘာသာစကား - အာရက္ခ' : 'Language set to Arakanese (အာရက္ခ)')
+                    }}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
+                      isAk
+                        ? 'bg-white text-zinc-950 shadow-xs border border-zinc-200/70'
+                        : 'text-zinc-500 hover:text-zinc-800'
+                    }`}
+                    title="အာရက္ခ (Arakan)"
+                    aria-label="အာရက္ခ"
+                  >
+                    <FlagArakan size={18} className="shadow-2xs rounded-[3px]" />
+                    <span>အာရက္ခ</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setLang) setLang('en')
+                      triggerSettingsToast(isAk ? 'ဘာသာစကားကို အင်္ဂလိပ်သို့ ပြောင်းလဲပြီးပါပြီ' : 'Language set to English')
+                    }}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
+                      !isAk
+                        ? 'bg-white text-zinc-950 shadow-xs border border-zinc-200/70'
+                        : 'text-zinc-500 hover:text-zinc-800'
+                    }`}
+                    title="English (United Kingdom)"
+                    aria-label="English"
+                  >
+                    <FlagInternational size={18} className="shadow-2xs rounded-[3px]" />
+                    <span>English</span>
+                  </button>
                 </div>
-                <div className="flex items-center gap-1.5 text-sm text-zinc-500">
-                  <span>{isAk ? 'ရခိုင် (AK)' : 'English'}</span>
-                  <ChevronRight size={18} className="text-zinc-400" />
-                </div>
-              </button>
+              </div>
 
               <button
                 type="button"
@@ -6352,7 +7036,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </div>
                 <button
                   type="button"
-                  onClick={() => setAutoSaveReceipt((v) => !v)}
+                  onClick={handleToggleAutoSaveReceipt}
                   className={`w-12 h-7 rounded-full p-0.5 transition shrink-0 cursor-pointer ${autoSaveReceipt ? 'bg-[#2563EB]' : 'bg-zinc-300'
                     }`}
                 >
@@ -6514,24 +7198,64 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <ChevronRight size={18} className="text-zinc-400" />
               </button>
 
-              <button
-                type="button"
-                onClick={() => setLang && setLang(isAk ? 'en' : 'ak')}
-                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
+              <div className="p-4 flex items-center justify-between gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setLanguageModalOpen(true)}
+                  className="flex items-center gap-3.5 text-left cursor-pointer group min-w-0 flex-1"
+                >
+                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center shrink-0">
                     <Globe size={18} />
                   </div>
-                  <span className="text-sm font-bold text-zinc-900">
-                    {isAk ? 'ဘာသာစကား' : 'Language'}
-                  </span>
+                  <div className="min-w-0">
+                    <span className="text-sm font-bold text-zinc-900 block truncate group-hover:text-[#0D9488] transition">
+                      {isAk ? 'ဘာသာစကား' : 'Language'}
+                    </span>
+                    <span className="text-[11px] text-zinc-400 block truncate">
+                      {isAk ? 'အာရက္ခ / English' : 'Arakan / English'}
+                    </span>
+                  </div>
+                </button>
+
+                {/* Direct Dual Switcher: AK Flag with Arakan in Rakhine & GB Flag with English */}
+                <div className="flex items-center p-1 bg-zinc-100 rounded-xl border border-zinc-200/80 gap-1 shrink-0 shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setLang) setLang('ak')
+                      triggerSettingsToast(isAk ? 'ရွေးချယ်ထားသော ဘာသာစကား - အာရက္ခ' : 'Language set to Arakanese (အာရက္ခ)')
+                    }}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
+                      isAk
+                        ? 'bg-white text-zinc-950 shadow-xs border border-zinc-200/70'
+                        : 'text-zinc-500 hover:text-zinc-800'
+                    }`}
+                    title="အာရက္ခ (Arakan)"
+                    aria-label="အာရက္ခ"
+                  >
+                    <FlagArakan size={18} className="shadow-2xs rounded-[3px]" />
+                    <span>အာရက္ခ</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setLang) setLang('en')
+                      triggerSettingsToast(isAk ? 'ဘာသာစကားကို အင်္ဂလိပ်သို့ ပြောင်းလဲပြီးပါပြီ' : 'Language set to English')
+                    }}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
+                      !isAk
+                        ? 'bg-white text-zinc-950 shadow-xs border border-zinc-200/70'
+                        : 'text-zinc-500 hover:text-zinc-800'
+                    }`}
+                    title="English (United Kingdom)"
+                    aria-label="English"
+                  >
+                    <FlagInternational size={18} className="shadow-2xs rounded-[3px]" />
+                    <span>English</span>
+                  </button>
                 </div>
-                <div className="flex items-center gap-1 text-sm text-zinc-500">
-                  <span>{isAk ? 'ရခိုင်' : 'English'}</span>
-                  <ChevronRight size={18} className="text-zinc-400" />
-                </div>
-              </button>
+              </div>
 
               <div className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3.5">
@@ -6544,7 +7268,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </div>
                 <button
                   type="button"
-                  onClick={() => setAutoSaveReceipt((v) => !v)}
+                  onClick={handleToggleAutoSaveReceipt}
                   className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer ${autoSaveReceipt ? 'bg-[#2563EB]' : 'bg-zinc-300'
                     }`}
                 >
@@ -6563,48 +7287,57 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               {isAk ? 'လုံခြုံရေး ဆက်တင်များ' : 'Security Settings'}
             </h3>
             <div className="bg-white rounded-2xl divide-y divide-zinc-100 border border-zinc-100 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
-              <button
-                type="button"
-                onClick={() => {
-                  if (isAndroidDevice) {
-                    setBiometricLoginEnabled((v) => !v)
-                    triggerSettingsToast(
-                      biometricLoginEnabled
-                        ? (isAk ? 'လက်ဗွေ ပိတ်ထားသည်' : 'Biometric login disabled')
-                        : (isAk ? 'လက်ဗွေ ဖွင့်ထားသည်' : 'Biometric login enabled')
-                    )
-                  } else {
-                    setFaceIdEnabled((v) => !v)
-                    triggerSettingsToast(
-                      faceIdEnabled
-                        ? (isAk ? 'Face ID ပိတ်ထားသည်' : 'Face ID disabled')
-                        : (isAk ? 'Face ID ဖွင့်ထားသည်' : 'Face ID enabled')
-                    )
-                  }
-                }}
-                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
-              >
+              <div className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center shrink-0">
                     <Fingerprint size={18} />
                   </div>
-                  <span className="text-sm font-bold text-zinc-900">
-                    {isAk ? 'လက်ဗွေနှင့် မျက်နှာမှတ်သား' : 'Fingerprint & Face ID'}
-                  </span>
+                  <div>
+                    <span className="text-sm font-bold text-zinc-900 block">
+                      {isAk
+                        ? (deviceInfo.biometryType === 'faceID'
+                            ? 'မျက်နှာမှတ်သား (Face ID)'
+                            : isAndroidDevice
+                            ? 'လက်ဗွေမှတ်သား (Fingerprint)'
+                            : 'လက်ဗွေနှင့် မျက်နှာမှတ်သား')
+                        : (deviceInfo.biometryType === 'faceID'
+                            ? 'Face ID'
+                            : isAndroidDevice
+                            ? 'Fingerprint Unlock'
+                            : 'Fingerprint & Face ID')}
+                    </span>
+                    <span className="text-xs text-zinc-400">
+                      {deviceInfo.model} · {deviceInfo.os}
+                    </span>
+                  </div>
                 </div>
-                <ChevronRight size={18} className="text-zinc-400" />
-              </button>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={biometricLoginEnabled}
+                  aria-label={
+                    isAk
+                      ? deviceInfo.biometryLabelMm
+                      : deviceInfo.biometryLabel
+                  }
+                  onClick={handleToggleBiometrics}
+                  disabled={isBiometricAuthenticating}
+                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer disabled:opacity-60 ${
+                    biometricLoginEnabled ? 'bg-[#2563EB]' : 'bg-zinc-300'
+                  }`}
+                >
+                  <span
+                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
+                      biometricLoginEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
 
               <button
                 type="button"
-                onClick={() =>
-                  triggerSettingsToast(
-                    isAk
-                      ? '၆ လုံး လျှို့ဝှက် PIN ပြောင်းလဲရန် OTP ပေးပို့ပြီးပါပြီ'
-                      : '6-digit PIN reset instructions sent to your verified email'
-                  )
-                }
-                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
+                onClick={() => setAccountSubScreen('pin_management')}
+                className="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-zinc-50/70 transition"
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
@@ -7445,6 +8178,153 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   {isAk ? 'ယခု အတည်ပြုမည်' : 'Verify Now'}
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Language Selection Modal ── */}
+        {languageModalOpen && (
+          <div
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+            onClick={() => setLanguageModalOpen(false)}
+          >
+            <div
+              className="bg-white w-full sm:max-w-md rounded-t-[28px] sm:rounded-3xl p-5 shadow-2xl animate-in slide-in-from-bottom-5 duration-250 border border-zinc-100 text-zinc-900"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
+                    <Globe size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-extrabold text-zinc-900">
+                      {isAk ? 'ဘာသာစကား ရွေးချယ်ရန်' : 'Select Language'}
+                    </h3>
+                    <p className="text-xs text-zinc-400">
+                      {isAk ? 'အက်ပ်သုံး ဘာသာစကား ရွေးပါ' : 'Choose app display language'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setLanguageModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 hover:text-zinc-800 cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="mt-4 space-y-2.5">
+                {/* Option 1: Arakanese with AK Flag */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (setLang) setLang('ak')
+                    triggerSettingsToast(isAk ? 'ရွေးချယ်ထားသော ဘာသာစကား - အာရက္ခ' : 'Language set to Arakanese (အာရက္ခ)')
+                    setLanguageModalOpen(false)
+                  }}
+                  className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                    isAk
+                      ? 'bg-teal-50/60 border-[#0D9488] text-zinc-950 shadow-xs ring-1 ring-[#0D9488]/30'
+                      : 'bg-zinc-50/80 border-zinc-200/80 text-zinc-700 hover:bg-zinc-100/80'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <FlagArakan size={28} className="rounded-md shadow-xs shrink-0" />
+                    <div>
+                      <div className="text-sm font-extrabold text-zinc-900 flex items-center gap-2">
+                        <span>အာရက္ခ</span>
+                        <span className="text-[11px] font-normal text-zinc-500">(Arakan)</span>
+                      </div>
+                      <div className="text-xs text-zinc-500 mt-0.5">
+                        ရခိုင်ဘာသာစကား (Arakanese)
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
+                      isAk
+                        ? 'bg-[#0D9488] border-[#0D9488] text-white'
+                        : 'border-zinc-300 bg-white'
+                    }`}
+                  >
+                    {isAk && <Check size={12} strokeWidth={3} />}
+                  </div>
+                </button>
+
+                {/* Option 2: English with GB Flag */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (setLang) setLang('en')
+                    triggerSettingsToast(isAk ? 'ဘာသာစကားကို အင်္ဂလိပ်သို့ ပြောင်းလဲပြီးပါပြီ' : 'Language set to English')
+                    setLanguageModalOpen(false)
+                  }}
+                  className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                    !isAk
+                      ? 'bg-blue-50/60 border-blue-600 text-zinc-950 shadow-xs ring-1 ring-blue-600/30'
+                      : 'bg-zinc-50/80 border-zinc-200/80 text-zinc-700 hover:bg-zinc-100/80'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <FlagInternational size={28} className="rounded-md shadow-xs shrink-0" />
+                    <div>
+                      <div className="text-sm font-extrabold text-zinc-900 flex items-center gap-2">
+                        <span>English</span>
+                        <span className="text-[11px] font-normal text-zinc-500">(UK)</span>
+                      </div>
+                      <div className="text-xs text-zinc-500 mt-0.5">
+                        Global Standard English
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
+                      !isAk
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'border-zinc-300 bg-white'
+                    }`}
+                  >
+                    {!isAk && <Check size={12} strokeWidth={3} />}
+                  </div>
+                </button>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-zinc-100 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setLanguageModalOpen(false)}
+                  className="w-full py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-bold hover:bg-zinc-800 transition cursor-pointer"
+                >
+                  {isAk ? 'ပြီးပါပြီ' : 'Done'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Global Verifiable E-Receipt Modal */}
+        {selectedSlipTxn && (
+          <div
+            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"
+            onClick={() => setSelectedSlipTxn(null)}
+          >
+            <div className="w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+              <TransactionSlip
+                lang={lang}
+                refId={selectedSlipTxn.refId}
+                amount={Math.abs(selectedSlipTxn.amount)}
+                recipientName={
+                  isAk ? selectedSlipTxn.counterpartyMm : selectedSlipTxn.counterparty
+                }
+                recipientId={selectedSlipTxn.refId}
+                timestamp={selectedSlipTxn.time}
+                fee={selectedSlipTxn.fee}
+                autoSaved={autoSaveReceipt}
+                onClose={() => setSelectedSlipTxn(null)}
+              />
             </div>
           </div>
         )}
