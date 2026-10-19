@@ -234,7 +234,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           border: Border.all(color: const Color(0xFFFDE68A)),
                         ),
                         child: Text(
-                          isAk ? '၁၁ ဝန်ဆောင်မှု' : '11 Services',
+                          isAk
+                              ? '${categories.fold<int>(0, (acc, c) => acc + (c['items'] as List).length)} ဝန်ဆောင်မှု'
+                              : '${categories.fold<int>(0, (acc, c) => acc + (c['items'] as List).length)} Services',
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
                         ),
                       ),
@@ -286,7 +288,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   _buildCategoryChip('payments', isAk ? 'ငွေလွှဲ' : 'Payments'),
                   _buildCategoryChip('bills', isAk ? 'ဘေလ်ဆောင်' : 'Bills & Top-Up'),
                   _buildCategoryChip('banking', isAk ? 'နိုင်ငံတကာ' : 'Banking'),
-                  _buildCategoryChip('crypto_pos', isAk ? 'ဒစ်ဂျစ်တယ် / POS' : 'Crypto & POS'),
+                  _buildCategoryChip('crypto_pos', isAk ? 'ဒစ်ဂျစ်တယ် / အော့ဖ်လိုင်း' : 'Crypto & Offline'),
                 ],
               ),
             ),
