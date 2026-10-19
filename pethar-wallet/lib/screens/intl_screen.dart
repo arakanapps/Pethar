@@ -13,7 +13,7 @@ class IntlScreen extends StatefulWidget {
 
 class _IntlScreenState extends State<IntlScreen> {
   String _selectedCorridor = 'THB';
-  final TextEditingController _amountCtrl = TextEditingController(text: '3580');
+  final TextEditingController _amountCtrl = TextEditingController(text: '0.00');
 
   @override
   void dispose() {

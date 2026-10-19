@@ -1197,7 +1197,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                               {isAk ? 'ပင်မလက်ကျန်ငွေ' : 'Main Balance'}
                             </div>
                             <div className="text-2xl font-extrabold tracking-tight mt-0.5">
-                              250.00
+                              0.00
                             </div>
                             <div className="text-[11px] font-semibold opacity-85">
                               {isAk ? 'အာရက္ခဒေါ်လာ' : 'Arakan Dollar'}
@@ -1392,7 +1392,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                               className={`px-3 py-2.5 rounded-xl border flex items-center justify-between ${subtleSurface}`}
                             >
                               <div>
-                                <div className="text-sm font-bold">100.00</div>
+                                <div className="text-sm font-bold">0.00</div>
                                 <div className="text-[9px] opacity-60">
                                   {isAk ? 'အာရက္ခဒေါ်လာ' : 'Arakan Dollar'}
                                 </div>
@@ -1772,7 +1772,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                               {isAk ? 'ပင်မလက်ကျန်ငွေ' : 'Main Balance'}
                             </div>
                             <div className="text-3xl font-extrabold mt-1">
-                              {previewBalanceVisible ? '250.00' : '••••••'}
+                              {previewBalanceVisible ? '0.00' : '••••••'}
                             </div>
                             <div className="text-xs font-semibold opacity-85">
                               {isAk ? 'အာရက္ခဒေါ်လာ' : 'Arakan Dollar'}
@@ -1830,7 +1830,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                           <div className={`p-4 rounded-2xl border space-y-3 ${subtleSurface}`}>
                             <div className="flex items-center justify-between text-xs">
                               <span className="opacity-70">{isAk ? 'အာရက္ခဒေါ်လာ' : 'Arakan Dollar'}</span>
-                              <span className="font-bold">250.00</span>
+                              <span className="font-bold">0.00</span>
                             </div>
                             <div className="flex justify-center">
                               <div className="w-7 h-7 rounded-full border border-current/20 flex items-center justify-center font-bold text-xs">
@@ -1839,7 +1839,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                             </div>
                             <div className="flex items-center justify-between text-xs">
                               <span className="opacity-70">{isAk ? 'အမေရိကန်ဒေါ်လာ တန်ဖိုး' : 'US Dollar Value'}</span>
-                              <span className="font-bold">$250.00 USD</span>
+                              <span className="font-bold">$0.00 USD</span>
                             </div>
                           </div>
                           <p className={`text-[11px] leading-relaxed ${mutedText}`}>

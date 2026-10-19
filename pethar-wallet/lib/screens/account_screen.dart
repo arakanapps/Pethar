@@ -17,7 +17,7 @@ class _AccountScreenState extends State<AccountScreen> {
   bool _hideBalances = false;
 
   void _showTransferDialog(BuildContext context, AppState appState) {
-    double transferAmt = 100.0;
+    double transferAmt = 0.00;
     bool usdToAkd = true;
 
     showModalBottomSheet(
@@ -154,7 +154,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                       Expanded(
                         child: TextFormField(
-                          initialValue: transferAmt.toStringAsFixed(0),
+                          initialValue: transferAmt.toStringAsFixed(2),
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                           decoration: const InputDecoration(border: InputBorder.none),
@@ -254,18 +254,24 @@ class _AccountScreenState extends State<AccountScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
+                color: isDark ? null : Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0B192C), Color(0xFF1E2A38), Color(0xFF101726)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                gradient: isDark
+                    ? const LinearGradient(
+                        colors: [Color(0xFF0B192C), Color(0xFF1E2A38), Color(0xFF101726)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                border: Border.all(
+                  color: isDark ? Colors.blueAccent.withOpacity(0.35) : const Color(0xFFE2E8F0),
+                  width: 1.2,
                 ),
-                border: Border.all(color: Colors.blueAccent.withOpacity(0.35), width: 1.2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
+                    color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -280,16 +286,22 @@ class _AccountScreenState extends State<AccountScreen> {
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF9E1B32).withOpacity(0.3),
+                              color: isDark
+                                  ? const Color(0xFF9E1B32).withOpacity(0.3)
+                                  : const Color(0xFFEFF6FF),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.pie_chart, size: 16, color: Colors.amberAccent),
+                            child: Icon(
+                              Icons.pie_chart,
+                              size: 16,
+                              color: isDark ? Colors.amberAccent : const Color(0xFF2563EB),
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Text(
                             lang == 'ak' ? 'စုစုပေါင်း ပိုင်ဆိုင်မှု အကျဉ်းချုပ်' : 'Total Portfolio Overview',
-                            style: const TextStyle(
-                              color: Colors.white70,
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : const Color(0xFF64748B),
                               fontWeight: FontWeight.w600,
                               fontSize: 12,
                             ),
@@ -299,14 +311,16 @@ class _AccountScreenState extends State<AccountScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
+                          color: isDark ? Colors.white.withOpacity(0.12) : const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white.withOpacity(0.15)),
+                          border: Border.all(
+                            color: isDark ? Colors.white.withOpacity(0.15) : const Color(0xFFE2E8F0),
+                          ),
                         ),
-                        child: const Text(
+                        child: Text(
                           '2 ACCOUNTS',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: isDark ? Colors.white : const Color(0xFF475569),
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
@@ -317,12 +331,12 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                   const SizedBox(height: 14),
                   _hideBalances
-                      ? const Text(
+                      ? Text(
                           '••••••••',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
-                            color: Colors.white,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
                             letterSpacing: 4,
                           ),
                         )
@@ -334,23 +348,31 @@ class _AccountScreenState extends State<AccountScreen> {
                             crossAxisAlignment: CrossAxisAlignment.baseline,
                             textBaseline: TextBaseline.alphabetic,
                             children: [
-                              const Text(
+                              Text(
                                 '\$ ',
-                                style: TextStyle(color: Colors.lightBlueAccent, fontSize: 24, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  color: isDark ? Colors.lightBlueAccent : const Color(0xFF2563EB),
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               Text(
                                 totalUsd.toStringAsFixed(2),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: 'monospace',
                                   fontSize: 32,
                                   fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
                                 ),
                               ),
                               const SizedBox(width: 6),
-                              const Text(
+                              Text(
                                 'USD',
-                                style: TextStyle(color: Colors.white60, fontSize: 13, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           ),
@@ -361,7 +383,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       '≈ ₳ ${totalUsd.toStringAsFixed(2)} AKD  ·  ≈ ${totalMmk.toStringAsFixed(0)} MMK  ·  ≈ ${totalThb.toStringAsFixed(2)} THB',
                       style: TextStyle(
                         fontSize: 11,
-                        color: Colors.white.withOpacity(0.65),
+                        color: isDark ? Colors.white.withOpacity(0.65) : const Color(0xFF64748B),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -402,7 +424,11 @@ class _AccountScreenState extends State<AccountScreen> {
                           const SizedBox(width: 6),
                           Text(
                             'Wallet: ${(akdPercent * 100).toStringAsFixed(1)}%',
-                            style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : const Color(0xFF475569),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
@@ -412,7 +438,11 @@ class _AccountScreenState extends State<AccountScreen> {
                           const SizedBox(width: 6),
                           Text(
                             'USD Account: ${(usdPercent * 100).toStringAsFixed(1)}%',
-                            style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : const Color(0xFF475569),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
@@ -425,14 +455,24 @@ class _AccountScreenState extends State<AccountScreen> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () => _showTransferDialog(context, appState),
-                      icon: const Icon(Icons.swap_horiz, size: 16, color: Colors.white),
+                      icon: Icon(
+                        Icons.swap_horiz,
+                        size: 16,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
                       label: Text(
                         lang == 'ak' ? 'အကောင့်များအကြား အပြန်အလှန်လွှဲမည်' : 'Transfer Between Accounts',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                        style: TextStyle(
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.08),
-                        side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                        backgroundColor: isDark ? Colors.white.withOpacity(0.08) : const Color(0xFFF8FAFC),
+                        side: BorderSide(
+                          color: isDark ? Colors.white.withOpacity(0.2) : const Color(0xFFE2E8F0),
+                        ),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         padding: const EdgeInsets.symmetric(vertical: 11),
                       ),

@@ -55,6 +55,7 @@ export interface UserProfile {
   petharId: string
   location: string
   accountTier: string
+  uid: string
   avatarUrl?: string
 }
 
@@ -65,7 +66,19 @@ export const initialUserProfile: UserProfile = {
   petharId: 'AK-992104-88',
   location: 'Sittwe · စစ်တွေ',
   accountTier: 'Tier 2 Verified',
+  uid: '202610190001',
   avatarUrl: '',
+}
+
+/**
+ * Generates a standardized UID in format: yearmmddusercount (e.g. 202610190001)
+ */
+export function generateUserUid(userCount: number = 1, date: Date = new Date()): string {
+  const y = date.getFullYear().toString().padStart(4, '0')
+  const m = (date.getMonth() + 1).toString().padStart(2, '0')
+  const d = date.getDate().toString().padStart(2, '0')
+  const count = userCount.toString().padStart(4, '0')
+  return `${y}${m}${d}${count}`
 }
 
 export interface Agent {

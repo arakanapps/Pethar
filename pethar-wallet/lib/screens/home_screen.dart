@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
-import '../models/data.dart';
 import '../theme.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/support_and_kyc_modals.dart';
@@ -796,65 +795,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 14),
 
-                // 5. SECONDARY 4-SERVICE BOX: (+) Topup | (Bill) Bill payment | (Card) Account | (Clock) History
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: const Color(0xFFE4E4E7)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0F172A).withValues(alpha: 0.04),
-                        blurRadius: 20,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: secondaryActions.map((act) {
-                      final label = act['label'] as String;
-                      return GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: act['onTap'] as VoidCallback,
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFAFAFA),
-                                shape: BoxShape.circle,
-                                border: Border.all(color: const Color(0xFFE4E4E7)),
-                              ),
-                              child: Center(child: act['iconWidget'] as Widget),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              label,
-                              style: const TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF27272A),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 6. FAVOURITES SECTION: Favourites + view all | (User) user + (+)
+                // 5. FAVORITES SECTION (MOVED TO MIDDLE): My Favourites + view all
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites',
+                        isAk ? 'ကျွန်ုပ်၏ စိတ်ကြိုက်များ' : 'My Favourites',
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
@@ -862,18 +810,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () => _runVerifiedAction(
                           context,
                           appState,
-                          isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites',
+                          isAk ? 'ကျွန်ုပ်၏ စိတ်ကြိုက်များ' : 'My Favourites',
                           () => appState.navigate(Screen.favourites),
                         ),
-                        child: Text(
-                          isAk ? 'အားလုံးကြည့်ရန်' : 'view all',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: crimson,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          child: Text(
+                            isAk ? 'အားလုံးကြည့်ရန်' : 'view all',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: crimson,
+                            ),
                           ),
                         ),
                       ),
@@ -951,13 +903,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       }),
-                      // (+) Add Favourite Button -> Go to Pay
+                      // (+) Add Favourite Button -> Go to Favorites
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => _runVerifiedAction(
                           context,
                           appState,
-                          isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites',
+                          isAk ? 'ကျွန်ုပ်၏ စိတ်ကြိုက်များ' : 'My Favourites',
                           () => appState.navigate(Screen.favourites),
                         ),
                         child: Column(
@@ -993,6 +945,57 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 6. SECONDARY 4-SERVICE BOX: (+) Topup | (Bill) Bill payment | (Card) Account | (Clock) History
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: const Color(0xFFE4E4E7)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                        blurRadius: 20,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: secondaryActions.map((act) {
+                      final label = act['label'] as String;
+                      return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: act['onTap'] as VoidCallback,
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFAFAFA),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: const Color(0xFFE4E4E7)),
+                              ),
+                              child: Center(child: act['iconWidget'] as Widget),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              label,
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF27272A),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
                 const SizedBox(height: 16),

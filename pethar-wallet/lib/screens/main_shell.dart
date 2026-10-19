@@ -47,7 +47,7 @@ class _MainShellState extends State<MainShell> {
   String _withdrawTab = 'your_account'; // 'your_account' | 'contacts'
   String _withdrawStep = 'address'; // 'address' | 'confirm'
   final TextEditingController _withdrawAddressCtrl = TextEditingController();
-  final TextEditingController _withdrawAmountCtrl = TextEditingController(text: '50.00');
+  final TextEditingController _withdrawAmountCtrl = TextEditingController(text: '0.00');
   bool _copiedWalletAddr = false;
   bool _phraseRevealed = false;
   bool _phraseCopied = false;
@@ -125,7 +125,7 @@ class _MainShellState extends State<MainShell> {
   void _showConvertModal(BuildContext context, AppState appState, bool isAk) {
     String fromToken = 'USDT';
     String toToken = 'AKD';
-    final amountCtrl = TextEditingController(text: '100.00');
+    final amountCtrl = TextEditingController(text: '0.00');
 
     showDialog(
       context: context,
@@ -294,7 +294,7 @@ class _MainShellState extends State<MainShell> {
 
   void _showTransferModal(BuildContext context, AppState appState, bool isAk) {
     bool usdToAkd = true;
-    final amountCtrl = TextEditingController(text: '250.00');
+    final amountCtrl = TextEditingController(text: '0.00');
 
     showDialog(
       context: context,

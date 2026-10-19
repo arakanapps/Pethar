@@ -147,6 +147,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           ...prev,
           name: up.name || prev.name,
           phone: up.phone || prev.phone,
+          uid: up.uid || prev.uid || '202610190001',
         }))
       }
     })
@@ -187,10 +188,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   // Balances
   const [walletBalance, setWalletBalance] = useState(0.00)
-  const [monthlyInflow] = useState(4200.0)
-  const [monthlyOutflow] = useState(1450.0)
-  const [offlineBalance] = useState(240.0)
-  const [coinsBalance, setCoinsBalance] = useState<number>(14)
+  const [monthlyInflow] = useState(0.00)
+  const [monthlyOutflow] = useState(0.00)
+  const [offlineBalance] = useState(0.00)
+  const [coinsBalance, setCoinsBalance] = useState<number>(0)
 
   // Virtual Card Controls
   const [cardLocked, setCardLocked] = useState(false)
@@ -223,7 +224,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [isSending, setIsSending] = useState(false)
 
   // Top Up form state
-  const [topUpAmount, setTopUpAmount] = useState('250')
+  const [topUpAmount, setTopUpAmount] = useState('0.00')
   const [topUpAsset, setTopUpAsset] = useState<'USDT' | 'USDC' | 'USD1'>('USDT')
   const [copiedAddress, setCopiedAddress] = useState(false)
 

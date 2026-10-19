@@ -157,7 +157,7 @@ export const OfflinePage = ({ lang }: OfflinePageProps) => {
               <div className="space-y-1 font-mono text-xs">
                 <p className="text-slate-400 text-[11px]">Received Offline Invoices:</p>
                 <p className="text-lg font-bold text-emerald-400">
-                  {syncStatus === 'synced' ? '+50.00 ₳ (Cached)' : '0.00 ₳ Pending'}
+                  {syncStatus === 'synced' ? '0.00 ₳ (Cached)' : '0.00 ₳ Pending'}
                 </p>
                 <p className="text-[10px] text-slate-500">Signature: Ed25519 Verified Locally</p>
               </div>

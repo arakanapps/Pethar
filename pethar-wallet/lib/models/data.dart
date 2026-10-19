@@ -1,8 +1,28 @@
 class UserProfile {
-  String name, email, phone, petharId, location, accountTier;
+  String name, email, phone, petharId, location, accountTier, uid;
   String? avatarUrl;
-  UserProfile({required this.name, required this.email, required this.phone, required this.petharId, required this.location, required this.accountTier, this.avatarUrl});
+  UserProfile({
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.petharId,
+    required this.location,
+    required this.accountTier,
+    this.uid = '202610190001',
+    this.avatarUrl,
+  });
 }
+
+/// Generates a standardized UID in format: yearmmddusercount (e.g. 202610190001)
+String generateUserUid({int userCount = 1, DateTime? date}) {
+  final now = date ?? DateTime.now();
+  final y = now.year.toString().padLeft(4, '0');
+  final m = now.month.toString().padLeft(2, '0');
+  final d = now.day.toString().padLeft(2, '0');
+  final count = userCount.toString().padLeft(4, '0');
+  return '$y$m$d$count';
+}
+
 
 class WalletBalance {
   String currency, code, symbol, labelEn, labelMm, totalLabelEn, totalLabelMm;
@@ -33,11 +53,12 @@ class Transaction {
 UserProfile initialUserProfile = UserProfile(
   name: 'User', email: 'example@email.com', phone: '+95 9 881 204 991',
   petharId: 'ARAK-8891-USER', location: 'Sittwe · စစ်တွေ', accountTier: 'Normal',
+  uid: '202610190001',
   avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
 );
 
 WalletBalance akdWallet = WalletBalance(
-  currency: 'Arakan Dollar', code: 'AKD', symbol: '₳', labelEn: 'Arakan Dollar Balance', labelMm: 'အာရက္ခဒေါ်လာ လက်ကျန်ငွေ', totalLabelEn: 'Total Balance', totalLabelMm: 'စုစုပေါင်း လက်ကျန်ငွေ', balance: 14850.00, totalBalance: 15200.00, pendingBalance: 350.00, usdEquivalent: 14850.00, isReserveBacked: true
+  currency: 'Arakan Dollar', code: 'AKD', symbol: '₳', labelEn: 'Arakan Dollar Balance', labelMm: 'အာရက္ခဒေါ်လာ လက်ကျန်ငွေ', totalLabelEn: 'Total Balance', totalLabelMm: 'စုစုပေါင်း လက်ကျန်ငွေ', balance: 0.00, totalBalance: 0.00, pendingBalance: 0.00, usdEquivalent: 0.00, isReserveBacked: true
 );
 
 // Live data: All contacts are fetched dynamically from Supabase 'favorite_contacts' table
@@ -80,8 +101,8 @@ List<NotificationItem> sampleNotifications = [
     type: 'transaction',
     titleEn: 'P2P Transfer Sent',
     titleMm: 'ငွေလွှဲပို့ခြင်း အောင်မြင်ပါသည်',
-    bodyEn: 'You sent ₳350.00 to Ko Min Aung (ARAK-8891). Settled instantly with zero fee.',
-    bodyMm: 'ကိုမင်းအောင် (ARAK-8891) ထံ ₳350.00 ပို့လွှဲခြင်း ချက်ချင်းပြီးစီးပါသည်။',
+    bodyEn: 'You sent ₳0.00 to Ko Min Aung (ARAK-8891). Settled instantly with zero fee.',
+    bodyMm: 'ကိုမင်းအောင် (ARAK-8891) ထံ ₳0.00 ပို့လွှဲခြင်း ချက်ချင်းပြီးစီးပါသည်။',
     time: '2:22 PM',
     dateGroup: 'Today',
     read: false,
@@ -91,8 +112,8 @@ List<NotificationItem> sampleNotifications = [
     type: 'transaction',
     titleEn: 'Binance Pay USDT Inflow Received',
     titleMm: 'Binance မှ USDT ငွေသွင်း ရရှိပါသည်',
-    bodyEn: '1,500 USDT converted 1:1 to ₳1,500.00 and credited to your vault.',
-    bodyMm: 'USDT 1,500 ကို ၁:၁ နှုန်းဖြင့် ₳1,500.00 အဖြစ် သင့်စာရင်းသို့ သွင်းပြီးပါပြီ။',
+    bodyEn: '0.00 USDT converted 1:1 to ₳0.00 and credited to your vault.',
+    bodyMm: 'USDT 0.00 ကို ၁:၁ နှုန်းဖြင့် ₳0.00 အဖြစ် သင့်စာရင်းသို့ သွင်းပြီးပါပြီ။',
     time: '11:05 AM',
     dateGroup: 'Today',
     read: false,
@@ -130,6 +151,7 @@ class FavoriteContact {
   String? _phone;
   String? _category;
   String? _bank;
+  String? _note;
 
   String get phone => _phone ?? '';
   set phone(String val) => _phone = val;
@@ -140,6 +162,12 @@ class FavoriteContact {
   String get bank => (_bank != null && _bank!.isNotEmpty) ? _bank! : 'Péthar Wallet';
   set bank(String val) => _bank = val;
 
+  String get note => _note ?? (mm.isNotEmpty && mm != name ? mm : '');
+  set note(String val) {
+    _note = val;
+    mm = val;
+  }
+
   FavoriteContact({
     required this.name,
     required this.mm,
@@ -149,9 +177,11 @@ class FavoriteContact {
     String phone = '',
     String category = 'Friends',
     String bank = 'Péthar Wallet',
+    String note = '',
   })  : _phone = phone,
         _category = category,
-        _bank = bank;
+        _bank = bank,
+        _note = note.isNotEmpty ? note : (mm.isNotEmpty && mm != name ? mm : '');
 }
 
 // Live data: Favorite contacts are fetched dynamically from Supabase 'favorite_contacts' table

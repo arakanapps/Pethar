@@ -20,10 +20,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
   bool _savedQr = false;
   bool _sharedQr = false;
 
-  static const String _uidNumber = '000000000000';
-
-  void _copyUid(BuildContext context, bool isAk) {
-    Clipboard.setData(const ClipboardData(text: _uidNumber));
+  void _copyUid(BuildContext context, String uid, bool isAk) {
+    Clipboard.setData(ClipboardData(text: uid));
     setState(() => _copiedUid = true);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -53,12 +51,12 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
     });
   }
 
-  void _shareQr(BuildContext context, AppState appState, bool isAk) {
+  void _shareQr(BuildContext context, AppState appState, String uid, bool isAk) {
     final username =
         '@${appState.profile.name.toLowerCase().replaceAll(RegExp(r'\s+'), '')}';
     Clipboard.setData(
       ClipboardData(
-        text: '${appState.profile.name} ($username) · UID: $_uidNumber',
+        text: '${appState.profile.name} ($username) · UID: $uid',
       ),
     );
     setState(() => _sharedQr = true);
@@ -84,6 +82,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
     final isAk = lang == 'ak';
     final usernameHandle =
         '@${appState.profile.name.toLowerCase().replaceAll(RegExp(r'\s+'), '')}';
+    final uidNumber =
+        appState.profile.uid.isNotEmpty ? appState.profile.uid : '202610190001';
 
     final content = Center(
       child: SingleChildScrollView(
@@ -141,7 +141,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                 ],
               ),
               child: QrImageView(
-                data: 'pethar://pay?uid=$_uidNumber&user=$usernameHandle&curr=AKD',
+                data: 'pethar://pay?uid=$uidNumber&user=$usernameHandle&curr=AKD',
                 version: QrVersions.auto,
                 size: 190.0,
               ),
@@ -159,9 +159,9 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              _uidNumber,
-              style: TextStyle(
+            Text(
+              uidNumber,
+              style: const TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 17,
                 fontWeight: FontWeight.w900,
@@ -178,7 +178,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () => _copyUid(context, isAk),
+                      onPressed: () => _copyUid(context, uidNumber, isAk),
                       icon: Icon(
                         _copiedUid ? Icons.check_rounded : Icons.copy_rounded,
                         size: 16,
@@ -290,7 +290,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => _shareQr(context, appState, isAk),
+                    onTap: () => _shareQr(context, appState, uidNumber, isAk),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(

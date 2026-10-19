@@ -337,7 +337,7 @@ class _SendScreenState extends State<SendScreen> {
           children: [
             const Text('₳ ', style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
             Text(
-              amount.isEmpty ? '0' : amount,
+              amount.isEmpty ? '0.00' : amount,
               style: TextStyle(
                 fontSize: 48,
                 fontWeight: FontWeight.w900,

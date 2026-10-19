@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../models/data.dart';
 import '../widgets/arakan_emblem.dart';
 
 enum PayStep {
@@ -71,7 +72,7 @@ class _PayScreenState extends State<PayScreen> {
         id: 'REC-1',
         name: 'Zaw Myo Htet',
         username: '@zawmyo',
-        uid: '882194012345',
+        uid: '202610190002',
         category: 'Friends',
         initials: 'ZM',
         avatarColor: const Color(0xFF10B981),
@@ -80,7 +81,7 @@ class _PayScreenState extends State<PayScreen> {
         id: 'REC-2',
         name: 'Ma Hnin Nu',
         username: '@hninnu',
-        uid: '440211987654',
+        uid: '202610190003',
         category: 'Family',
         initials: 'HN',
         avatarColor: const Color(0xFFF43F5E),
@@ -89,7 +90,7 @@ class _PayScreenState extends State<PayScreen> {
         id: 'REC-3',
         name: 'Ko Min Aung',
         username: '@minaung',
-        uid: '198273560912',
+        uid: '202610190004',
         category: 'Friends',
         initials: 'MA',
         avatarColor: const Color(0xFF3B82F6),
@@ -98,7 +99,7 @@ class _PayScreenState extends State<PayScreen> {
         id: 'REC-4',
         name: 'Daw Saw Mya',
         username: '@sawmya',
-        uid: '771902345678',
+        uid: '202610190005',
         category: 'Family',
         initials: 'SM',
         avatarColor: const Color(0xFFF59E0B),
@@ -107,7 +108,7 @@ class _PayScreenState extends State<PayScreen> {
         id: 'REC-5',
         name: 'Kyaukpyu Merchant Service',
         username: '@kyaukpyu_biz',
-        uid: '330549123456',
+        uid: '202610190006',
         category: 'other',
         initials: 'KM',
         avatarColor: const Color(0xFF8B5CF6),
@@ -149,7 +150,7 @@ class _PayScreenState extends State<PayScreen> {
             (customUid != null && c.uid == customUid) ||
             c.name.toLowerCase() == name.toLowerCase(),
         orElse: () {
-          final hash12 = customUid ?? ('${name.hashCode.abs()}987654321000').substring(0, 12);
+          final hash12 = customUid ?? generateUserUid(userCount: _recentContacts.length + 1);
           final newContact = RecentPayContact(
             id: 'REC-${name.toLowerCase().replaceAll(' ', '')}',
             name: name,
@@ -203,7 +204,7 @@ class _PayScreenState extends State<PayScreen> {
           c.uid.replaceAll(' ', '').toLowerCase() == cleanQuery ||
           c.name.toLowerCase() == query.toLowerCase(),
       orElse: () {
-        final hash12 = ('${query.replaceAll(' ', '').hashCode.abs()}102938475612').substring(0, 12);
+        final hash12 = generateUserUid(userCount: _recentContacts.length + 1);
         return RecentPayContact(
           id: 'REC-CUSTOM',
           name: query.startsWith('@') ? query.substring(1) : query,

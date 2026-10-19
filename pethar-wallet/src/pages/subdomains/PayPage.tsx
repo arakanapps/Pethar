@@ -304,7 +304,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
                             {t.methodBalance}
                           </div>
                           <div className="text-[10px] text-slate-500 font-mono">
-                            Available: 14,850.00 ₳
+                            Available: 0.00 ₳
                           </div>
                         </div>
                       </div>

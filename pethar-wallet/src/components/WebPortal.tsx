@@ -30,7 +30,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
   const isLight = theme === 'light'
   const [filterCat, setFilterCat] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [quickSendAmount, setQuickSendAmount] = useState('150')
+  const [quickSendAmount, setQuickSendAmount] = useState('0.00')
   const [quickSendContact, setQuickSendContact] = useState('')
   const [quickSentSuccess, setQuickSentSuccess] = useState(false)
   const [txList, setTxList] = useState<Txn[]>([])

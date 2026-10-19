@@ -28,6 +28,20 @@ CREATE TABLE IF NOT EXISTS public.users (
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE SEQUENCE IF NOT EXISTS public.user_uid_seq START WITH 1;
+
+CREATE OR REPLACE FUNCTION public.generate_user_uid()
+RETURNS VARCHAR(32) AS $$
+DECLARE
+    v_date_prefix VARCHAR(8);
+    v_seq_num BIGINT;
+BEGIN
+    v_date_prefix := to_char(CURRENT_DATE, 'YYYYMMDD');
+    v_seq_num := nextval('public.user_uid_seq');
+    RETURN v_date_prefix || lpad((v_seq_num % 10000)::text, 4, '0');
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE TABLE IF NOT EXISTS public.user_profiles (
     id            VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
     user_id       UUID REFERENCES public.users(id) ON DELETE SET NULL,
@@ -35,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     phone         VARCHAR(30) NOT NULL DEFAULT '09795220917',
     ak_id         VARCHAR(64) NOT NULL DEFAULT 'AK-992104-88',
     username      VARCHAR(50) NOT NULL DEFAULT '@user',
-    uid           VARCHAR(32) NOT NULL DEFAULT '710293847561',
+    uid           VARCHAR(32) NOT NULL DEFAULT '202610190001',
     balance       NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
     currency      VARCHAR(16) NOT NULL DEFAULT 'AKD',
     avatar_url    TEXT DEFAULT '',
@@ -558,7 +572,7 @@ VALUES ('00000000-0000-0000-0000-000000000001', '+959795220917', 'User', 2, 'ACT
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.user_profiles (id, user_id, name, phone, ak_id, username, uid, balance, currency, kyc_tier)
-VALUES ('user_default', '00000000-0000-0000-0000-000000000001', 'User', '09795220917', 'AK-992104-88', '@user', '710293847561', 0.00, 'AKD', 2)
+VALUES ('user_default', '00000000-0000-0000-0000-000000000001', 'User', '09795220917', 'AK-992104-88', '@user', '202610190001', 0.00, 'AKD', 2)
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     phone = EXCLUDED.phone,
@@ -685,10 +699,10 @@ ON CONFLICT (id) DO UPDATE SET
 -- 12.5. Seed Favorite Contacts
 INSERT INTO public.favorite_contacts (id, name, username, uid, phone, initials, color_value, category)
 VALUES 
-    ('fav_01', 'Daw Than Nwe', '@daw_thannwe', '109283746501', '09791234567', 'TN', 4280391411, 'family'),
-    ('fav_02', 'Hsu Hnin Wutt Yee', '@hsu_hnin', '991024881024', '09951234567', 'HW', 4293998877, 'friends'),
-    ('fav_03', 'HNIN THANDAR PHYO', '@hnin_thandar', '401928374619', '09251234567', 'HT', 4279860608, 'business'),
-    ('fav_04', 'Myo Min Paing', '@myo_min', '551029384712', '09451234567', 'MP', 4281881855, 'friends')
+    ('fav_01', 'Daw Than Nwe', '@daw_thannwe', '202610190002', '09791234567', 'TN', 4280391411, 'family'),
+    ('fav_02', 'Hsu Hnin Wutt Yee', '@hsu_hnin', '202610190003', '09951234567', 'HW', 4293998877, 'friends'),
+    ('fav_03', 'HNIN THANDAR PHYO', '@hnin_thandar', '202610190004', '09251234567', 'HT', 4279860608, 'business'),
+    ('fav_04', 'Myo Min Paing', '@myo_min', '202610190005', '09451234567', 'MP', 4281881855, 'friends')
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     username = EXCLUDED.username,

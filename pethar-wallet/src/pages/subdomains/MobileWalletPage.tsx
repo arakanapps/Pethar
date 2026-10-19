@@ -75,7 +75,7 @@ import { CryptoGateway } from '../../components/CryptoGateway'
 import { POSTerminal } from '../../components/POSTerminal'
 import { TransactionSlip } from '../../components/TransactionSlip'
 import { FakeQR } from '../../components/FakeQR'
-import { initialUserProfile, wallets, contacts, type UserProfile, type Txn } from '../../data'
+import { initialUserProfile, wallets, contacts, generateUserUid, type UserProfile, type Txn } from '../../data'
 import {
   fetchTransactionsFromDb,
   insertTransactionToDb,
@@ -383,6 +383,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [profile, setProfile] = useState<UserProfile>({
     ...initialUserProfile,
     name: 'User',
+    uid: '202610190001',
   })
 
   // Verification State: Verified vs Unverified + Verification Required Modal
@@ -422,7 +423,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [depositTokenDropdownOpen, setDepositTokenDropdownOpen] = useState<boolean>(false)
   const [withdrawRecipientAddress, setWithdrawRecipientAddress] = useState<string>('')
   const [withdrawTab, setWithdrawTab] = useState<'your_account' | 'contacts'>('your_account')
-  const [withdrawAmount, setWithdrawAmount] = useState<string>('50.00')
+  const [withdrawAmount, setWithdrawAmount] = useState<string>('0.00')
   const [withdrawStep, setWithdrawStep] = useState<'address' | 'confirm'>('address')
   const [copiedWalletAddr, setCopiedWalletAddr] = useState<boolean>(false)
   const [historyCategoryTab, setHistoryCategoryTab] = useState<'all' | 'wallet' | 'qr_pay'>('all')
@@ -468,7 +469,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           ...prev,
           name: up.name,
           phone: up.phone,
-          akId: up.ak_id,
+          petharId: up.ak_id || prev.petharId,
+          uid: up.uid || prev.uid || '202610190001',
         }))
       }
     })
@@ -512,12 +514,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [convertModalOpen, setConvertModalOpen] = useState<boolean>(false)
   const [convertFromToken, setConvertFromToken] = useState<'USDT' | 'USDC' | 'USD1'>('USDT')
   const [convertToToken, setConvertToToken] = useState<'AKD' | 'USDC' | 'USDT' | 'USD1'>('AKD')
-  const [convertAmount, setConvertAmount] = useState<string>('100.00')
+  const [convertAmount, setConvertAmount] = useState<string>('0.00')
   const [convertSuccessToast, setConvertSuccessToast] = useState<boolean>(false)
 
   const [transferModalOpen, setTransferModalOpen] = useState<boolean>(false)
   const [transferDirection, setTransferDirection] = useState<'usd_to_akd' | 'akd_to_usd'>('usd_to_akd')
-  const [transferAmount, setTransferAmount] = useState<string>('250.00')
+  const [transferAmount, setTransferAmount] = useState<string>('0.00')
   const [transferSuccessToast, setTransferSuccessToast] = useState<boolean>(false)
 
   // Secret Recovery Phrase states inside Financial Settings
@@ -542,7 +544,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     id: 'REC-1',
     name: 'Zaw Myo Htet',
     username: '@zawmyo',
-    uid: '882194012345',
+    uid: '202610190002',
     category: 'family' as 'family' | 'friends' | 'other',
     initials: 'ZH',
     avatarUrl: '',
@@ -563,21 +565,20 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   }, [])
 
   const [recentPayContacts, setRecentPayContacts] = useState([
-    { id: 'REC-1', name: 'Zaw Myo Htet', username: '@zawmyo', uid: '882194012345', category: 'family' as const, initials: 'ZH', avatarUrl: '' },
-    { id: 'REC-2', name: 'Ko Min Aung', username: '@minaung', uid: '198273560912', category: 'friends' as const, initials: 'MA', avatarUrl: '' },
-    { id: 'REC-3', name: 'Ma Hnin Nu', username: '@hninnu', uid: '440211987654', category: 'friends' as const, initials: 'HN', avatarUrl: '' },
-    { id: 'REC-4', name: 'Daw Saw Mya', username: '@sawmya', uid: '771902345678', category: 'family' as const, initials: 'SM', avatarUrl: '' },
-    { id: 'REC-5', name: 'U Ba Thein', username: '@bathein', uid: '550182390124', category: 'other' as const, initials: 'BT', avatarUrl: '' },
-    { id: 'REC-6', name: 'Ko Kyaw Sein', username: '@kyawsein', uid: '330549123456', category: 'other' as const, initials: 'KS', avatarUrl: '' },
+    { id: 'REC-1', name: 'Zaw Myo Htet', username: '@zawmyo', uid: '202610190002', category: 'family' as const, initials: 'ZH', avatarUrl: '' },
+    { id: 'REC-2', name: 'Ko Min Aung', username: '@minaung', uid: '202610190003', category: 'friends' as const, initials: 'MA', avatarUrl: '' },
+    { id: 'REC-3', name: 'Ma Hnin Nu', username: '@hninnu', uid: '202610190004', category: 'friends' as const, initials: 'HN', avatarUrl: '' },
+    { id: 'REC-4', name: 'Daw Saw Mya', username: '@sawmya', uid: '202610190005', category: 'family' as const, initials: 'SM', avatarUrl: '' },
+    { id: 'REC-5', name: 'U Ba Thein', username: '@bathein', uid: '202610190006', category: 'other' as const, initials: 'BT', avatarUrl: '' },
+    { id: 'REC-6', name: 'Ko Kyaw Sein', username: '@kyawsein', uid: '202610190007', category: 'other' as const, initials: 'KS', avatarUrl: '' },
   ])
   const [paySuccessTx, setPaySuccessTx] = useState<Txn | null>(null)
 
   // Topup screen states
   const [topupPhone, setTopupPhone] = useState<string>('09795220917')
   const [topupActiveTab, setTopupActiveTab] = useState<'phoneTopup' | 'packages'>('phoneTopup')
-  const [topupHeaderStyle, setTopupHeaderStyle] = useState<'crossborder' | 'royalBlue'>('crossborder')
   const [topupSelectedCategory, setTopupSelectedCategory] = useState<string>('All')
-  const [topupSelectedAmount, setTopupSelectedAmount] = useState<number>(500)
+  const [topupSelectedAmount, setTopupSelectedAmount] = useState<number>(0)
   const [topupSelectedPackageId, setTopupSelectedPackageId] = useState<string>('pkg_1')
   const [topupContactsModalOpen, setTopupContactsModalOpen] = useState<boolean>(false)
   const [topupReviewModalOpen, setTopupReviewModalOpen] = useState<boolean>(false)
@@ -586,26 +587,22 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     phone: string
     operator: string
     title: string
-    thb: number
+    thb?: number
     akd: number
   } | null>(null)
 
-  // Bill payment states (Screenshots 1, 2, 3)
-  const [billsRegion, setBillsRegion] = useState<'myanmar' | 'thailand'>('myanmar')
+  // Bill payment states
   const [billsSearchQuery, setBillsSearchQuery] = useState<string>('')
-  const [billsDismissBanner, setBillsDismissBanner] = useState<boolean>(false)
   const [selectedBiller, setSelectedBiller] = useState<{
     id: string
     name: string
     category: string
-    section?: string
     defaultAccount: string
     accountLabel: string
     defaultAmountMmk: number
     defaultAmountThb: number
     primaryColor: string
     initials: string
-    hasKyoPhyae?: boolean
   } | null>(null)
   const [billerAccountInput, setBillerAccountInput] = useState<string>('')
   const [isBillFetched, setIsBillFetched] = useState<boolean>(false)
@@ -625,6 +622,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     name: string
     fullName: string
     mm: string
+    note?: string
     phone: string
     initials: string
     bg: string
@@ -705,11 +703,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [favFormName, setFavFormName] = useState<string>('')
   const [favFormMm, setFavFormMm] = useState<string>('')
   const [favFormPhone, setFavFormPhone] = useState<string>('')
-  const [favFormBank, setFavFormBank] = useState<string>('Péthar Wallet')
   const [favFormCategory, setFavFormCategory] = useState<'Personal' | 'Family' | 'Friends' | 'Business'>('Friends')
   const [favFormBg, setFavFormBg] = useState<string>('from-blue-500 to-indigo-600')
+  const [favModalStep, setFavModalStep] = useState<1 | 2>(1)
 
   const [favDeleteTarget, setFavDeleteTarget] = useState<{ contact: any; index: number } | null>(null)
+  const [favIsEditMode, setFavIsEditMode] = useState<boolean>(false)
 
   // Account & Privacy / Security / Device Management / Sign Out States
   const [accountSubScreen, setAccountSubScreen] = useState<AccountSubScreen>('main')
@@ -1218,37 +1217,16 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
           </div>
 
-          {/* 5. SECONDARY 4-SERVICE BOX: (+) Topup | (Bill) Bill payment | (Card) Account | (Clock) History */}
-          <div className="bg-white rounded-[22px] px-3 py-4 shadow-[0_6px_20px_rgba(15,23,42,0.04)] border border-zinc-200/80">
-            <div className="grid grid-cols-4 gap-2">
-              {secondaryActions.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={item.action}
-                  className="flex flex-col items-center gap-2 group active:scale-95 transition cursor-pointer"
-                >
-                  <div className="w-11 h-11 rounded-full bg-zinc-50 border border-zinc-200/90 flex items-center justify-center shadow-2xs group-hover:border-[#D91624]/40 group-hover:bg-[#FFF1F2] transition">
-                    {item.icon()}
-                  </div>
-                  <span className="text-[11px] font-bold text-zinc-800 text-center leading-tight">
-                    {item.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 6. FAVOURITES SECTION: Favourites + view all | (User) user + (+) */}
+          {/* 5. FAVORITES SECTION (MOVED TO MIDDLE): My Favourites + view all */}
           <div className="pt-0.5">
             <div className="flex items-center justify-between px-1 mb-2">
               <span className="text-xs font-extrabold text-zinc-800">
-                {isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites'}
+                {isAk ? 'ကျွန်ုပ်၏ စိတ်ကြိုက်များ' : 'My Favourites'}
               </span>
               <button
                 type="button"
                 onClick={() =>
-                  requireVerified(isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites', () => {
+                  requireVerified(isAk ? 'ကျွန်ုပ်၏ စိတ်ကြိုက်များ' : 'My Favourites', () => {
                     setScreen('favourites')
                   })
                 }
@@ -1268,13 +1246,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       const matchedRecent = recentPayContacts.find(
                         (c) => c.name.toLowerCase() === fav.name.toLowerCase()
                       )
-                      const hash12 = (
-                        Math.abs(
-                          fav.name
-                            .split('')
-                            .reduce((acc, char) => (acc << 5) - acc + char.charCodeAt(0), 0)
-                        ).toString() + '987654321000'
-                      ).slice(0, 12)
+                      const hash12 = (fav as any).uid || generateUserUid(recentPayContacts.length + 1)
                       setPayRecipient({
                         id: fav.id,
                         name: fav.name,
@@ -1308,11 +1280,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </button>
               ))}
 
-              {/* Add (+) Favourite Button -> Go to Favourites */}
+              {/* Add (+) Favourite Button -> Go to Favorites */}
               <button
                 type="button"
                 onClick={() =>
-                  requireVerified(isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites', () => {
+                  requireVerified(isAk ? 'စိတ်ကြိုက်များ' : 'Favorites', () => {
                     setScreen('favourites')
                   })
                 }
@@ -1326,6 +1298,27 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   {isAk ? 'ထည့်ရန်' : 'Add'}
                 </span>
               </button>
+            </div>
+          </div>
+
+          {/* 6. SECONDARY 4-SERVICE BOX: (+) Topup | (Bill) Bill payment | (Card) Account | (Clock) History */}
+          <div className="bg-white rounded-[22px] px-3 py-4 shadow-[0_6px_20px_rgba(15,23,42,0.04)] border border-zinc-200/80">
+            <div className="grid grid-cols-4 gap-2">
+              {secondaryActions.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={item.action}
+                  className="flex flex-col items-center gap-2 group active:scale-95 transition cursor-pointer"
+                >
+                  <div className="w-11 h-11 rounded-full bg-zinc-50 border border-zinc-200/90 flex items-center justify-center shadow-2xs group-hover:border-[#D91624]/40 group-hover:bg-[#FFF1F2] transition">
+                    {item.icon()}
+                  </div>
+                  <span className="text-[11px] font-bold text-zinc-800 text-center leading-tight">
+                    {item.label}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 
@@ -2391,7 +2384,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderCameraScanScreen = () => {
     const usernameHandle = `@${profile.name.toLowerCase().replace(/\s+/g, '') || 'username'}`
-    const uidNumber = '000000000000'
+    const uidNumber = profile.uid || '202610190001'
 
     const handleShareMyQr = async () => {
       const shareData = {
@@ -2507,7 +2500,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         onClick={() => {
                           setScannedQrNotice(null)
                           setGalleryImagePreview(null)
-                          const zawMyo = recentPayContacts.find((c) => c.uid.includes('882194')) || recentPayContacts[0]
+                          const zawMyo = recentPayContacts.find((c) => c.uid.includes('202610190002') || c.id === 'REC-1') || recentPayContacts[0]
                           setPayRecipient(zawMyo)
                           setPayToInput(zawMyo.username)
                           setPayStep('detail')
@@ -2533,7 +2526,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => {
-                    const zawMyo = recentPayContacts.find((c) => c.uid.includes('882194')) || recentPayContacts[0]
+                    const zawMyo = recentPayContacts.find((c) => c.uid.includes('202610190002') || c.id === 'REC-1') || recentPayContacts[0]
                     setPayRecipient(zawMyo)
                     setPayToInput(zawMyo.username)
                     setPayStep('detail')
@@ -2542,7 +2535,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#FF2A38] to-[#D91624] text-white font-extrabold text-xs shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition"
                 >
                   <SendIcon size={16} />
-                  <span>{isAk ? 'QR ကုဒ်ဖတ်ပြီး ငွေလွှဲမည် (@zawmyo)' : 'Fetch Recipient QR (@zawmyo • 882194012345)'}</span>
+                  <span>{isAk ? 'QR ကုဒ်ဖတ်ပြီး ငွေလွှဲမည် (@zawmyo)' : 'Fetch Recipient QR (@zawmyo • 202610190002)'}</span>
                 </button>
 
                 <input
@@ -2676,13 +2669,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         if (match) {
           setPayRecipient(match)
         } else {
-          const hash12 = (
-            Math.abs(
-              trimmed
-                .split('')
-                .reduce((acc, char) => (acc << 5) - acc + char.charCodeAt(0), 0)
-            ).toString() + '102938475612'
-          ).slice(0, 12)
+          const hash12 = generateUserUid(recentPayContacts.length + 1)
           setPayRecipient({
             id: `USR-${hash12.slice(-4)}`,
             name: trimmed,
@@ -3591,7 +3578,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderTopupScreen = () => {
     const isAk = lang === 'ak'
-    const thbRate = 115.0
     const akdRate = 4500.0
 
     const topupAmounts = [
@@ -3604,7 +3590,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         name: 'Shal Suboo 195 MB (7Days)',
         category: 'Data',
         mmkPrice: 799,
-        thbPrice: 6.95,
+        akdPrice: 799 / 4500.0,
         validity: '7 Days',
         quota: '195 MB',
         isHot: false,
@@ -3614,7 +3600,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         name: 'Shal Suboo 263 MB (10Days)',
         category: 'Data',
         mmkPrice: 999,
-        thbPrice: 8.69,
+        akdPrice: 999 / 4500.0,
         validity: '10 Days',
         quota: '263 MB',
         isHot: false,
@@ -3624,7 +3610,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         name: 'Shal Suboo 421 MB (30Days)',
         category: 'Data',
         mmkPrice: 1599,
-        thbPrice: 13.90,
+        akdPrice: 1599 / 4500.0,
         validity: '30 Days',
         quota: '421 MB',
         isHot: false,
@@ -3634,7 +3620,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         name: 'Shal Suboo 526 MB (30Days)',
         category: 'Data',
         mmkPrice: 1999,
-        thbPrice: 17.38,
+        akdPrice: 1999 / 4500.0,
         validity: '30 Days',
         quota: '526 MB',
         isHot: false,
@@ -3644,7 +3630,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         name: 'Asia 9 Countries 1200MB (3 Days)',
         category: 'Data Roaming',
         mmkPrice: 14599,
-        thbPrice: 126.95,
+        akdPrice: 14599 / 4500.0,
         validity: '3 Days',
         quota: '1200 MB',
         isHot: true,
@@ -3654,7 +3640,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         name: 'Asia 5 Data Saver (2.5 GB) (5 Days)',
         category: 'Data Roaming',
         mmkPrice: 19997,
-        thbPrice: 173.88,
+        akdPrice: 19997 / 4500.0,
         validity: '5 Days',
         quota: '2.5 GB',
         isHot: true,
@@ -3664,7 +3650,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         name: 'Super Pack 1.5GB (30 Days)',
         category: 'Super Pack',
         mmkPrice: 3500,
-        thbPrice: 30.43,
+        akdPrice: 3500 / 4500.0,
         validity: '30 Days',
         quota: '1.5 GB',
         isHot: false,
@@ -3674,7 +3660,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         name: 'Super Pack 3.0GB (30 Days)',
         category: 'Super Pack',
         mmkPrice: 6500,
-        thbPrice: 56.52,
+        akdPrice: 6500 / 4500.0,
         validity: '30 Days',
         quota: '3.0 GB',
         isHot: false,
@@ -3684,24 +3670,32 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     const sampleContacts = [
       { name: 'User (Self)', phone: '09795220917', op: 'ATOM' },
       { name: 'Ko Min Aung', phone: '09251998791', op: 'MPT' },
-      { name: 'Daw Hla Hla', phone: '09691234567', op: 'mytel' },
+      { name: 'Daw Hla Hla', phone: '09691234567', op: 'MYTEL' },
       { name: 'Mg Zaw Myo', phone: '09971234567', op: 'U9' },
+      { name: 'U Thura', phone: '09312345678', op: 'MecTel' },
     ]
 
     const detectOperator = (num: string) => {
       const clean = num.replace(/[^0-9]/g, '')
-      if (clean.length < 3) return ''
-      if (clean.startsWith('097')) return 'ATOM'
-      if (
-        clean.startsWith('092') ||
-        clean.startsWith('094') ||
-        clean.startsWith('095') ||
-        clean.startsWith('098')
-      ) {
-        return 'MPT'
+      if (!clean) return ''
+      let normalized = clean
+      if (normalized.startsWith('959') && normalized.length > 3) {
+        normalized = normalized.substring(3)
+      } else if (normalized.startsWith('09') && normalized.length > 2) {
+        normalized = normalized.substring(2)
+      } else if (normalized.startsWith('9') && normalized.length > 2) {
+        const second = normalized[1]
+        if (['7', '6', '2', '4', '5', '8', '9', '3'].includes(second)) {
+          normalized = normalized.substring(1)
+        }
       }
-      if (clean.startsWith('096')) return 'mytel'
-      if (clean.startsWith('099') || clean.startsWith('093')) return 'U9'
+      if (!normalized) return ''
+      const first = normalized[0]
+      if (first === '7') return 'ATOM'
+      if (first === '6') return 'MYTEL'
+      if (first === '2' || first === '4' || first === '5') return 'MPT'
+      if (first === '8' || first === '9') return 'U9'
+      if (first === '3') return 'MecTel'
       return 'ATOM'
     }
 
@@ -3711,14 +3705,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     const selectedPkg =
       topupPackages.find((p) => p.id === topupSelectedPackageId) || topupPackages[0]
 
-    const calculatedThb =
-      topupActiveTab === 'phoneTopup'
-        ? topupSelectedAmount / thbRate
-        : selectedPkg.thbPrice
-
     const calculatedAkd =
       topupActiveTab === 'phoneTopup'
-        ? topupSelectedAmount / akdRate
+        ? (topupSelectedAmount || 0) / akdRate
         : selectedPkg.mmkPrice / akdRate
 
     const productTitle =
@@ -3732,34 +3721,40 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         : topupPackages.filter((p) => p.category === topupSelectedCategory)
 
     const renderMiniOpBadge = (op: string) => {
-      switch (op) {
-        case 'ATOM':
-          return (
-            <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#0284C7] text-white">
-              ATOM
-            </span>
-          )
-        case 'MPT':
-          return (
-            <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#EAB308] text-slate-900">
-              MPT
-            </span>
-          )
-        case 'mytel':
-          return (
-            <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#EA580C] text-white">
-              mytel
-            </span>
-          )
-        case 'U9':
-          return (
-            <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#D97706] text-white">
-              U9
-            </span>
-          )
-        default:
-          return null
+      const norm = (op || '').toUpperCase()
+      if (norm === 'ATOM') {
+        return (
+          <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#0284C7] text-white">
+            ATOM
+          </span>
+        )
       }
+      if (norm === 'MYTEL') {
+        return (
+          <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#EA580C] text-white">
+            MYTEL
+          </span>
+        )
+      }
+      if (norm === 'MPT') {
+        return (
+          <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#1E3A8A] text-[#FDB913]">
+            MPT
+          </span>
+        )
+      }
+      if (norm === 'MECTEL') {
+        return (
+          <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#15803D] text-white">
+            MecTel
+          </span>
+        )
+      }
+      return (
+        <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-black bg-[#D97706] text-white">
+          U9
+        </span>
+      )
     }
 
     const handleExecuteTopup = () => {
@@ -3791,7 +3786,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         phone: topupPhone,
         operator: currentOperator || 'Mobile',
         title: productTitle,
-        thb: calculatedThb,
         akd: calculatedAkd,
       })
 
@@ -3801,84 +3795,20 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     return (
       <div className="min-h-full bg-[#F8F9FA] text-slate-800 flex flex-col pb-12">
-        {/* HEADER: CLEAN WHITE (matching all app pages) */}
-        {topupHeaderStyle === 'royalBlue' ? (
-          <div className="bg-white text-slate-900 border-b border-slate-200 px-4 pt-4 pb-6 transition-all">
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => setScreen('home')}
-                className="flex items-center space-x-1.5 cursor-pointer font-bold text-base text-slate-900 hover:opacity-80 transition"
-              >
-                <ChevronLeft size={24} className="text-slate-800" />
-                <span>Top Up</span>
-              </button>
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setTopupHeaderStyle('crossborder')}
-                  className="px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition cursor-pointer"
-                >
-                  ⇄ Crossborder
-                </button>
-                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700">
-                  <MoreHorizontal size={18} />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between">
-              <div>
-                <div className="text-[11px] font-bold tracking-wider uppercase text-slate-500">
-                  {currentOperator || 'ATOM'}
-                </div>
-                <div className="text-2xl font-black tracking-tight mt-0.5 text-slate-900">
-                  {topupPhone || '09795220917'}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setTopupContactsModalOpen(true)}
-                className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center cursor-pointer transition text-slate-700"
-                title="Select Saved Contact"
-              >
-                <BookUser size={20} />
-              </button>
-            </div>
+        {/* HEADER: CLEAN WHITE WITH CENTERED "Top Up" */}
+        <div className="bg-white border-b border-slate-200 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30 transition-all">
+          <button
+            type="button"
+            onClick={() => setScreen('home')}
+            className="p-1 -ml-1 text-slate-700 hover:text-slate-900 cursor-pointer"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <div className="text-base font-extrabold text-slate-900 tracking-tight text-center flex-1">
+            Top Up
           </div>
-        ) : (
-          <div className="bg-white border-b border-slate-200 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30 transition-all">
-            <button
-              type="button"
-              onClick={() => setScreen('home')}
-              className="p-1 -ml-1 text-slate-700 hover:text-slate-900 cursor-pointer"
-            >
-              <ChevronLeft size={24} />
-            </button>
-            <div className="text-base font-extrabold text-slate-900 tracking-tight">
-              Péthar Myanmar | Crossborder
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                type="button"
-                onClick={() => setTopupHeaderStyle('royalBlue')}
-                className="p-1 text-slate-500 hover:text-slate-900 cursor-pointer"
-                title="Switch Header Style"
-              >
-                <span className="text-xs font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full border border-slate-200">
-                  ATOM style
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setScreen('home')}
-                className="p-1 text-slate-500 hover:text-slate-800 cursor-pointer"
-              >
-                <X size={20} />
-              </button>
-            </div>
-          </div>
-        )}
+          <div className="w-6" />
+        </div>
 
         {/* BODY CONTAINER */}
         <div className="flex-1 p-4 space-y-4 max-w-lg mx-auto w-full bg-white">
@@ -3906,7 +3836,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <button
                   type="button"
                   onClick={() => setTopupContactsModalOpen(true)}
-                  className="p-2 rounded-lg bg-[#9E1B32] text-white hover:bg-[#801426] transition cursor-pointer shadow-sm"
+                  className="p-2 rounded-lg bg-[#007AFF] text-white hover:bg-blue-600 transition cursor-pointer shadow-sm"
                   title="Select Contact"
                 >
                   <BookUser size={15} />
@@ -3917,9 +3847,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             {/* Operator Detected Subtitle */}
             {hasInput && currentOperator && (
               <div className="flex items-center space-x-1.5 pt-1 text-xs font-bold text-slate-800 animate-in fade-in">
-                <span className="w-4 h-4 rounded-full bg-[#9E1B32] text-white flex items-center justify-center text-[8px]">
-                  ▶
-                </span>
+                {renderMiniOpBadge(currentOperator)}
                 <span>
                   {currentOperator}{' '}
                   {topupActiveTab === 'phoneTopup' ? 'Eload' : 'DataPack'}
@@ -3928,7 +3856,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             )}
           </div>
 
-          {/* Segmented Pill Tabs: Phone Topup vs Packages (Screenshots 2-5) */}
+          {/* Segmented Pill Tabs: Phone Topup vs Packages */}
           <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-full">
             <button
               type="button"
@@ -3977,9 +3905,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 })}
               </div>
 
-              {/* Exchange Rate Card (Screenshots 2-5) */}
+              {/* Exchange Rate Card */}
               <div className="bg-[#E8F1FC] border border-[#BFDBFE] rounded-xl px-4 py-3 text-xs font-bold text-slate-800">
-                Exchange rate: 1 THB = 115 MMK
+                Exchange rate: 1 AKD = 4,500 MMK
               </div>
 
               {/* Dynamic Calculation Subtext */}
@@ -3987,7 +3915,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <div className="text-center text-xs font-medium text-slate-700">
                   Your total is{' '}
                   <span className="font-extrabold text-[#EA580C]">
-                    {(topupSelectedAmount / thbRate).toFixed(2)} THB
+                    {(topupSelectedAmount / akdRate).toFixed(3)} AKD
                   </span>{' '}
                   for {topupSelectedAmount.toLocaleString()} MMK
                 </div>
@@ -3998,7 +3926,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           {/* TAB 2: PACKAGES */}
           {topupActiveTab === 'packages' && (
             <div className="space-y-4 pt-1">
-              {/* Category Pills (Screenshot 1) */}
+              {/* Category Pills */}
               <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
                 {['All', 'Data Roaming', 'Super Pack', 'Data'].map((cat) => {
                   const isSel = topupSelectedCategory === cat
@@ -4008,7 +3936,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       type="button"
                       onClick={() => setTopupSelectedCategory(cat)}
                       className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center space-x-1.5 border ${isSel
-                        ? 'bg-[#9E1B32] text-white border-[#9E1B32]'
+                        ? 'bg-[#0052CC] text-white border-[#0052CC]'
                         : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
                         }`}
                     >
@@ -4023,10 +3951,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
               {/* Exchange Rate Banner */}
               <div className="bg-[#E8F1FC] border border-[#BFDBFE] rounded-xl px-4 py-3 text-xs font-bold text-slate-800">
-                Exchange rate: 1 THB = 115 MMK
+                Exchange rate: 1 AKD = 4,500 MMK
               </div>
 
-              {/* Package Cards List (Screenshots 1 & 5) */}
+              {/* Package Cards List */}
               <div className="space-y-2.5">
                 {filteredPackages.map((pkg) => {
                   const isSelected = topupSelectedPackageId === pkg.id
@@ -4058,7 +3986,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                           {pkg.mmkPrice.toLocaleString()} MMK
                         </div>
                         <div className="inline-block px-2.5 py-0.5 rounded-full border border-[#FF7A00] text-[11px] font-bold text-[#EA580C] bg-white">
-                          {pkg.thbPrice.toFixed(2)} THB
+                          {(pkg.mmkPrice / akdRate).toFixed(3)} AKD
                         </div>
                       </div>
                     </div>
@@ -4071,7 +3999,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <div className="text-center text-xs font-medium text-slate-700">
                   Selected package:{' '}
                   <span className="font-extrabold text-[#EA580C]">
-                    {selectedPkg.thbPrice.toFixed(2)} THB
+                    {(selectedPkg.mmkPrice / akdRate).toFixed(3)} AKD
                   </span>{' '}
                   ({selectedPkg.mmkPrice.toLocaleString()} MMK)
                 </div>
@@ -4079,7 +4007,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             </div>
           )}
 
-          {/* Action Button: Review Topup Details (Screenshots 2-5) */}
+          {/* Action Button: Review Topup Details */}
           <div className="pt-2">
             <button
               type="button"
@@ -4092,39 +4020,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             >
               {isAk ? 'အချက်အလက် စစ်ဆေးမည်' : 'Review Topup Details'}
             </button>
-          </div>
-
-          {/* Operator Logos Row (ATOM, MPT, mytel, U9) */}
-          <div className="pt-3">
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { name: 'ATOM', phone: '09795220917', color: 'text-[#0284C7]' },
-                { name: 'MPT', phone: '09251998791', color: 'text-[#EAB308]' },
-                { name: 'mytel', phone: '09691234567', color: 'text-[#EA580C]' },
-                { name: 'U9', phone: '09971234567', color: 'text-[#D97706]' },
-              ].map((op) => {
-                const isActive = currentOperator.toLowerCase() === op.name.toLowerCase()
-                return (
-                  <button
-                    key={op.name}
-                    type="button"
-                    onClick={() => setTopupPhone(op.phone)}
-                    className={`py-2 px-1 rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center space-y-0.5 ${isActive
-                      ? 'border-[#9E1B32] bg-red-50/50 shadow-sm'
-                      : 'border-slate-200 bg-white hover:border-slate-300'
-                      }`}
-                  >
-                    <span className={`text-[12px] font-black ${op.color}`}>{op.name}</span>
-                    <span className="text-[9px] text-slate-400 font-medium">Auto-test</span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Copyright Footer (Screenshots 2-5) */}
-          <div className="pt-4 text-center text-[11px] text-slate-400">
-            Copyright © TrueMoney / Péthar Myanmar 2026
           </div>
         </div>
 
@@ -4174,7 +4069,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         )}
 
         {/* ═══════════════════════════════════════════════════════════════════════
-           MODAL 2: REVIEW TOPUP DETAILS BOTTOM SHEET (MATCHING SCREENSHOT 3 & 4)
+           MODAL 2: REVIEW TOPUP DETAILS BOTTOM SHEET
         ═══════════════════════════════════════════════════════════════════════ */}
         {topupReviewModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
@@ -4218,7 +4113,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-medium">Exchange Rate</span>
-                  <span className="font-bold text-slate-900">1 THB = 115 MMK</span>
+                  <span className="font-bold text-slate-900">1 AKD = 4,500 MMK</span>
                 </div>
               </div>
 
@@ -4227,11 +4122,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <div>
                   <div className="text-[11px] font-bold text-[#C2410C]">Total Amount to Pay</div>
                   <div className="text-xl font-black text-[#EA580C] mt-0.5">
-                    {calculatedThb.toFixed(2)} THB
+                    {calculatedAkd.toFixed(3)} AKD
                   </div>
                 </div>
                 <div className="px-3 py-1 rounded-full bg-white border border-[#FDBA74] text-xs font-black text-[#C2410C]">
-                  ≈ {calculatedAkd.toFixed(3)} AKD
+                  {Math.round(calculatedAkd * akdRate).toLocaleString()} MMK
                 </div>
               </div>
 
@@ -4271,8 +4166,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <div className="flex justify-between">
                   <span className="text-slate-500">Total Charged</span>
                   <span className="font-black text-slate-900">
-                    {topupLastSuccessInfo.thb.toFixed(2)} THB (
-                    {topupLastSuccessInfo.akd.toFixed(3)} AKD)
+                    {topupLastSuccessInfo.akd.toFixed(3)} AKD
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -4306,8 +4200,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     const thbRate = 115.0
     const akdRate = 4500.0
 
-    // 9 Myanmar Billers (Screenshot 2)
-    const myanmarBillers = [
+    // Combined 14 Billers (Sorted A to Z)
+    const allBillers = [
       {
         id: 'mm_aia',
         name: 'AIA Myanmar Life Insurance',
@@ -4318,18 +4212,28 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         defaultAmountThb: 391.3,
         primaryColor: '#D91624',
         initials: 'AIA',
-        hasKyoPhyae: true,
       },
       {
-        id: 'mm_alliance',
-        name: 'Alliance Microfinance',
-        category: 'Microfinance',
-        defaultAccount: 'ALN-501923',
-        accountLabel: 'Customer / Loan ID',
-        defaultAmountMmk: 30000,
-        defaultAmountThb: 260.87,
-        primaryColor: '#0D9488',
-        initials: 'ALN',
+        id: 'ak_arakhanet',
+        name: 'Arakhanet',
+        category: 'Internet & Fiber',
+        defaultAccount: 'ANET-20849',
+        accountLabel: 'User ID / Account No',
+        defaultAmountMmk: 25000,
+        defaultAmountThb: 217.39,
+        primaryColor: '#0284C7',
+        initials: 'ANET',
+      },
+      {
+        id: 'ak_arakkha_comm',
+        name: 'Arakkha Public Communication Service',
+        category: 'Communication Service',
+        defaultAccount: 'APCS-78192',
+        accountLabel: 'Customer ID / Service No',
+        defaultAmountMmk: 20000,
+        defaultAmountThb: 173.91,
+        primaryColor: '#1E3A8A',
+        initials: 'APCS',
       },
       {
         id: 'mm_atom',
@@ -4343,104 +4247,42 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         initials: 'ATOM',
       },
       {
-        id: 'mm_aya',
-        name: 'AYA SOMPO Insurance',
-        category: 'General Insurance',
-        defaultAccount: 'AYS-771209',
-        accountLabel: 'Policy No / Vehicle Reg',
-        defaultAmountMmk: 50000,
-        defaultAmountThb: 434.78,
-        primaryColor: '#E11D48',
-        initials: 'AYA',
-      },
-      {
-        id: 'mm_moee',
-        name: 'Electricity Bill (Bago)',
-        category: 'Utilities & Power',
-        defaultAccount: 'BGO-E-10294',
-        accountLabel: 'Meter Box / Consumer No',
-        defaultAmountMmk: 65600,
-        defaultAmountThb: 570.43,
-        primaryColor: '#1D4ED8',
-        initials: 'MOEE',
-      },
-      {
-        id: 'mm_capital',
-        name: 'Capital Taiyo Life Insurance',
-        category: 'Life Insurance',
-        defaultAccount: 'CTL-441029',
-        accountLabel: 'Policy Number',
-        defaultAmountMmk: 28000,
-        defaultAmountThb: 243.48,
-        primaryColor: '#2563EB',
-        initials: 'CTL',
-      },
-      {
-        id: 'mm_city',
-        name: 'City Rewards',
-        category: 'Retail & Supermarket',
-        defaultAccount: 'CR-889102',
-        accountLabel: 'Member ID / Phone',
+        id: 'ak_fda',
+        name: 'FDA Arakan',
+        category: 'Public Health & Food Dept',
+        defaultAccount: 'FDA-AR-10492',
+        accountLabel: 'Registration / License No',
         defaultAmountMmk: 15000,
         defaultAmountThb: 130.43,
-        primaryColor: '#9333EA',
-        initials: 'CR',
-      },
-      {
-        id: 'mm_excise',
-        name: 'Excise Revenue (NayPyiTaw)',
-        category: 'Government Tax & Revenue',
-        defaultAccount: 'NPT-EX-3041',
-        accountLabel: 'Assessment / Tax ID',
-        defaultAmountMmk: 20000,
-        defaultAmountThb: 173.91,
-        primaryColor: '#DC2626',
-        initials: 'EXC',
-      },
-      {
-        id: 'mm_hana',
-        name: 'Hana Microfinance Limited',
-        category: 'Microfinance & Loans',
-        defaultAccount: 'HNA-19283',
-        accountLabel: 'Contract / Account No',
-        defaultAmountMmk: 25000,
-        defaultAmountThb: 217.39,
         primaryColor: '#059669',
-        initials: 'HNA',
-      },
-    ]
-
-    // Thailand Utility Billers (Screenshot 1)
-    const thailandBillers = [
-      {
-        id: 'th_dtac',
-        name: 'Dtac (Postpaid)',
-        category: 'Telecom',
-        section: 'Dtac Bills',
-        defaultAccount: '0812345678',
-        accountLabel: 'Mobile / Account No',
-        defaultAmountMmk: 68885,
-        defaultAmountThb: 599.0,
-        primaryColor: '#0284C7',
-        initials: 'DTAC',
+        initials: 'FDA',
       },
       {
-        id: 'th_true',
-        name: 'TrueMove H/Online/Visions/True Group',
-        category: 'Telecom & TV',
-        section: 'True Bills',
-        defaultAccount: '0958765432',
-        accountLabel: 'Subscriber / Service No',
-        defaultAmountMmk: 91885,
-        defaultAmountThb: 799.0,
-        primaryColor: '#EF4444',
-        initials: 'TRUE',
+        id: 'ak_hdco',
+        name: 'HDCO Arakan',
+        category: 'Humanitarian & Development',
+        defaultAccount: 'HDCO-88319',
+        accountLabel: 'Reference / ID No',
+        defaultAmountMmk: 10000,
+        defaultAmountThb: 86.96,
+        primaryColor: '#7C3AED',
+        initials: 'HDCO',
+      },
+      {
+        id: 'ak_mega_ftth',
+        name: 'Mega Network FTTH',
+        category: 'Broadband & FTTH',
+        defaultAccount: 'MEGA-FTTH-4402',
+        accountLabel: 'Customer Code / User ID',
+        defaultAmountMmk: 28000,
+        defaultAmountThb: 243.48,
+        primaryColor: '#EA580C',
+        initials: 'MEGA',
       },
       {
         id: 'th_mea',
-        name: 'Metropolitan Electricity',
-        category: 'Electricity',
-        section: 'Utility',
+        name: 'Metropolitian Electricity',
+        category: 'Electricity & Power',
         defaultAccount: 'CA-100293847',
         accountLabel: 'MEA CA / Account No',
         defaultAmountMmk: 143750,
@@ -4449,22 +4291,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         initials: 'MEA',
       },
       {
-        id: 'th_pea',
-        name: 'Provincial Electricity',
-        category: 'Electricity',
-        section: 'Utility',
-        defaultAccount: 'PEA-9920145',
-        accountLabel: 'PEA CA No',
-        defaultAmountMmk: 112700,
-        defaultAmountThb: 980.0,
-        primaryColor: '#7C3AED',
-        initials: 'PEA',
-      },
-      {
         id: 'th_mwa',
-        name: 'Metropolitan Water Authority',
+        name: 'Metropolitian Water Authority',
         category: 'Waterworks',
-        section: 'Utility',
         defaultAccount: 'MWA-4412098',
         accountLabel: 'Customer Code',
         defaultAmountMmk: 27600,
@@ -4474,55 +4303,62 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       },
       {
         id: 'th_pwa',
-        name: 'Provincial Waterworks',
+        name: 'Metropolitian Waterworks',
         category: 'Waterworks',
-        section: 'Utility',
-        defaultAccount: 'PWA-6651203',
-        accountLabel: 'User ID',
+        defaultAccount: 'MWW-6651203',
+        accountLabel: 'User ID / Account No',
         defaultAmountMmk: 21275,
         defaultAmountThb: 185.0,
         primaryColor: '#0369A1',
-        initials: 'PWA',
+        initials: 'MWW',
       },
       {
-        id: 'th_dlt',
-        name: 'Motor Vehicle Tax',
-        category: 'Transport & Tax',
-        section: 'Utility',
-        defaultAccount: '9กก-8821',
-        accountLabel: 'License Plate / Chassis No',
-        defaultAmountMmk: 172500,
-        defaultAmountThb: 1500.0,
-        primaryColor: '#9333EA',
-        initials: 'DLT',
+        id: 'mm_mytel_ftth',
+        name: 'Mytel FTTH',
+        category: 'Broadband & FTTH',
+        defaultAccount: 'MYT-90218',
+        accountLabel: 'Customer ID / CID',
+        defaultAmountMmk: 30000,
+        defaultAmountThb: 260.87,
+        primaryColor: '#F97316',
+        initials: 'MYTEL',
       },
       {
-        id: 'th_rd',
-        name: 'Tax (Revenue Dept.)',
-        category: 'Government Tax',
-        section: 'Utility',
-        defaultAccount: 'TAX-1102938475',
-        accountLabel: 'Taxpayer ID / Ref No',
-        defaultAmountMmk: 230000,
-        defaultAmountThb: 2000.0,
-        primaryColor: '#D97706',
-        initials: 'RD',
+        id: 'th_pea',
+        name: 'Provincial Electricity',
+        category: 'Electricity & Power',
+        defaultAccount: 'PEA-9920145',
+        accountLabel: 'PEA CA No',
+        defaultAmountMmk: 112700,
+        defaultAmountThb: 980.0,
+        primaryColor: '#7C3AED',
+        initials: 'PEA',
       },
       {
-        id: 'th_easypass',
-        name: 'Easy Pass',
-        category: 'Toll & Expressway',
-        section: 'Utility',
-        defaultAccount: 'OBU-88192039',
-        accountLabel: 'Smart Card No / OBU ID',
-        defaultAmountMmk: 57500,
-        defaultAmountThb: 500.0,
-        primaryColor: '#1D4ED8',
-        initials: 'PASS',
+        id: 'ak_rakhine_link',
+        name: 'Rakhine Link',
+        category: 'Broadband & Fiber',
+        defaultAccount: 'RL-552103',
+        accountLabel: 'Account No / User ID',
+        defaultAmountMmk: 22000,
+        defaultAmountThb: 191.3,
+        primaryColor: '#2563EB',
+        initials: 'RLINK',
       },
-    ]
+      {
+        id: 'ak_tlink_ftth',
+        name: 'T-Link FTTH',
+        category: 'Broadband & FTTH',
+        defaultAccount: 'TL-99412',
+        accountLabel: 'Subscriber ID',
+        defaultAmountMmk: 26000,
+        defaultAmountThb: 226.09,
+        primaryColor: '#0D9488',
+        initials: 'TLINK',
+      },
+    ].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
 
-    const handleSelectBiller = (biller: typeof myanmarBillers[0]) => {
+    const handleSelectBiller = (biller: typeof allBillers[0]) => {
       setSelectedBiller(biller)
       setBillerAccountInput(biller.defaultAccount)
       setIsBillFetched(true)
@@ -4530,7 +4366,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     const handleConfirmBillPayment = () => {
       if (!selectedBiller) return
-      const isMm = billsRegion === 'myanmar'
+      const isMm = selectedBiller.defaultAmountMmk > 0
       const mmkAmount = isMm ? selectedBiller.defaultAmountMmk : selectedBiller.defaultAmountThb * thbRate
       const thbAmount = isMm ? selectedBiller.defaultAmountMmk / thbRate : selectedBiller.defaultAmountThb
       const akdAmount = mmkAmount / akdRate
@@ -4573,9 +4409,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       setBillsSuccessModalOpen(true)
     }
 
-    // ── IF BILLER DETAIL VIEW IS OPEN (SCREENSHOT 3) ─────────────────────────
+    // ── IF BILLER DETAIL VIEW IS OPEN ─────────────────────────────────────────
     if (selectedBiller) {
-      const isMm = billsRegion === 'myanmar'
+      const isMm = selectedBiller.defaultAmountMmk > 0
       const mmkAmount = isMm ? selectedBiller.defaultAmountMmk : selectedBiller.defaultAmountThb * thbRate
       const thbAmount = isMm ? selectedBiller.defaultAmountMmk / thbRate : selectedBiller.defaultAmountThb
       const akdAmount = mmkAmount / akdRate
@@ -4623,14 +4459,14 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <span>How to make bill payment for {selectedBiller.name}</span>
             </div>
 
-            {/* 3-Step Guide Card (Screenshot 3) */}
+            {/* 3-Step Guide Card */}
             <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-3.5">
               <div>
                 <div className="text-[11px] font-black text-slate-900 uppercase tracking-wider">
                   STEP 1
                 </div>
                 <div className="text-xs text-slate-600 mt-0.5">
-                  Please enter Customer Policy Number and click "Next".
+                  Please enter {selectedBiller.accountLabel} and click the search icon.
                 </div>
               </div>
 
@@ -4639,7 +4475,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   STEP 2
                 </div>
                 <div className="text-xs text-slate-600 mt-0.5">
-                  Choose bill you would like to pay.
+                  Review outstanding bill statement and payment details.
                 </div>
               </div>
 
@@ -4648,7 +4484,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   STEP 3
                 </div>
                 <div className="text-xs text-slate-600 mt-0.5">
-                  Click "Pay" and enter PIN to complete the payment.
+                  Click "Confirm & Pay Bill" to complete the payment.
                 </div>
               </div>
             </div>
@@ -4671,7 +4507,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     <span className="font-bold text-slate-800">User</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Account / Policy</span>
+                    <span className="text-slate-500">{selectedBiller.accountLabel}</span>
                     <span className="font-mono font-bold text-slate-800">
                       {billerAccountInput || selectedBiller.defaultAccount}
                     </span>
@@ -4774,15 +4610,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       )
     }
 
-    // ── MAIN BILL LIST VIEW (SCREENSHOT 1 & SCREENSHOT 2) ───────────────────
-    const filteredThailandBillers = thailandBillers.filter(
-      (b) =>
-        b.name.toLowerCase().includes(billsSearchQuery.toLowerCase()) ||
-        b.category.toLowerCase().includes(billsSearchQuery.toLowerCase()) ||
-        b.section.toLowerCase().includes(billsSearchQuery.toLowerCase())
-    )
-
-    const filteredMyanmarBillers = myanmarBillers.filter(
+    // ── MAIN BILL LIST VIEW ──────────────────────────────────────────────────
+    const filteredBillers = allBillers.filter(
       (b) =>
         b.name.toLowerCase().includes(billsSearchQuery.toLowerCase()) ||
         b.category.toLowerCase().includes(billsSearchQuery.toLowerCase())
@@ -4790,216 +4619,89 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     return (
       <div className="min-h-full bg-[#F4F5F8] flex flex-col">
-        {/* Top Region Toggle Pill Bar */}
-        <div className="bg-white px-4 pt-3 pb-2.5 border-b border-slate-100">
-          <div className="flex items-center bg-slate-100 p-1 rounded-full">
+        {/* Header: Clean White with centered "Bill Payment", Back on left, History on right corner */}
+        <div className="bg-white text-slate-900 border-b border-slate-200 px-4 py-3 sticky top-0 z-30">
+          <div className="relative flex items-center justify-between h-10">
             <button
               type="button"
-              onClick={() => {
-                setBillsRegion('myanmar')
-                setBillsSearchQuery('')
-              }}
-              className={`flex-1 py-1.5 text-xs font-bold rounded-full transition cursor-pointer ${billsRegion === 'myanmar'
-                ? 'bg-[#9E1B32] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-                }`}
+              onClick={() => setScreen('home')}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-700 cursor-pointer z-10"
             >
-              Myanmar Bills
+              <ChevronLeft size={24} />
             </button>
+            <h1 className="absolute inset-0 flex items-center justify-center text-base font-extrabold text-slate-900 pointer-events-none">
+              {isAk ? 'ဘေလ်ပေးချေခြင်း' : 'Bill Payment'}
+            </h1>
             <button
               type="button"
-              onClick={() => {
-                setBillsRegion('thailand')
-                setBillsSearchQuery('')
-              }}
-              className={`flex-1 py-1.5 text-xs font-bold rounded-full transition cursor-pointer ${billsRegion === 'thailand'
-                ? 'bg-[#9E1B32] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-                }`}
+              onClick={() => setScreen('history')}
+              className="text-xs font-bold text-slate-700 hover:text-slate-900 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition cursor-pointer z-10"
             >
-              Crossborder (Thailand)
+              {isAk ? 'မှတ်တမ်း' : 'History'}
             </button>
+          </div>
+
+          {/* Under Search Bar with Search Bill Payment Text */}
+          <div className="pt-2 pb-1">
+            <div className="bg-slate-100 rounded-full px-4 py-2 flex items-center space-x-2 border border-slate-200/60">
+              <Search size={16} className="text-slate-400 shrink-0" />
+              <input
+                type="text"
+                value={billsSearchQuery}
+                onChange={(e) => setBillsSearchQuery(e.target.value)}
+                placeholder="Search Bill Payment"
+                className="w-full text-xs text-slate-800 font-medium outline-none bg-transparent"
+              />
+              {billsSearchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setBillsSearchQuery('')}
+                  className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* ── MYANMAR BILLS VIEW (SCREENSHOT 2) ──────────────────────────────── */}
-        {billsRegion === 'myanmar' && (
-          <div>
-            {/* Header: Clean White with < Bills Payment and History on Right */}
-            <div className="bg-white text-slate-900 border-b border-slate-200 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30">
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setScreen('home')}
-                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-700 cursor-pointer"
-                >
-                  <ChevronLeft size={24} />
-                </button>
-                <h1 className="text-base font-bold text-slate-900">
-                  {isAk ? 'ဘေလ်ပေးချေခြင်း' : 'Bills Payment'}
-                </h1>
-              </div>
-              <button
-                type="button"
-                onClick={() => setScreen('history')}
-                className="text-xs font-bold text-slate-700 hover:text-slate-900 px-2.5 py-1 rounded-full border border-slate-200 hover:bg-slate-100 cursor-pointer"
+        {/* Billers List (Sorted A to Z, No Kyo Phyae Button) */}
+        <div className="p-4 space-y-2.5 flex-1">
+          {filteredBillers.length === 0 ? (
+            <div className="text-center py-12 text-slate-400 text-xs font-semibold">
+              No billers found for "{billsSearchQuery}"
+            </div>
+          ) : (
+            filteredBillers.map((biller) => (
+              <div
+                key={biller.id}
+                onClick={() => handleSelectBiller(biller)}
+                className="relative bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs flex items-center justify-between hover:border-slate-300 hover:shadow-sm transition cursor-pointer active:scale-99"
               >
-                {isAk ? 'မှတ်တမ်း' : 'History'}
-              </button>
-            </div>
-
-            {/* List of 9 Myanmar Billers (Screenshot 2) */}
-            <div className="p-4 space-y-2.5">
-              {filteredMyanmarBillers.map((biller) => (
-                <div
-                  key={biller.id}
-                  onClick={() => handleSelectBiller(biller)}
-                  className="relative bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs flex items-center justify-between hover:border-slate-300 hover:shadow-sm transition cursor-pointer active:scale-99"
-                >
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <div
-                      className="w-10 h-10 rounded-full border-2 border-slate-100 flex items-center justify-center font-black text-xs shrink-0"
-                      style={{ color: biller.primaryColor }}
-                    >
-                      {biller.initials}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-bold text-slate-900 truncate">
-                        {biller.name}
-                      </div>
-                      <div className="text-[10px] text-slate-400 truncate mt-0.5">
-                        {biller.category}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2 shrink-0">
-                    {/* Floating Pill for Kyo Phyae badge on AIA (Screenshot 2) */}
-                    {biller.hasKyoPhyae && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-white text-[10px] font-bold shadow-xs flex items-center space-x-1">
-                        <span>Kyo Phyae &gt;</span>
-                      </span>
-                    )}
-                    <ChevronRight size={18} className="text-slate-400" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── THAILAND UTILITY BILLS VIEW (SCREENSHOT 1) ────────────────────── */}
-        {billsRegion === 'thailand' && (
-          <div>
-            {/* Header: Clean White Header < Pay Utility Bills */}
-            <div className="bg-white border-b border-slate-100 px-4 py-3.5 flex items-center space-x-2">
-              <button
-                type="button"
-                onClick={() => setScreen('home')}
-                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-800 cursor-pointer"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              <h1 className="text-base font-extrabold text-slate-900">
-                Pay Utility Bills
-              </h1>
-            </div>
-
-            {/* Rounded Search Bar */}
-            <div className="p-4 bg-white border-b border-slate-100">
-              <div className="bg-slate-100 rounded-full px-4 py-2 flex items-center space-x-2">
-                <Search size={16} className="text-slate-400 shrink-0" />
-                <input
-                  type="text"
-                  value={billsSearchQuery}
-                  onChange={(e) => setBillsSearchQuery(e.target.value)}
-                  placeholder="Search utility bill"
-                  className="w-full text-xs text-slate-800 font-medium outline-none bg-transparent"
-                />
-                {billsSearchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setBillsSearchQuery('')}
-                    className="text-slate-400 hover:text-slate-600"
+                <div className="flex items-center space-x-3 min-w-0">
+                  <div
+                    className="w-10 h-10 rounded-full border-2 border-slate-100 flex items-center justify-center font-black text-xs shrink-0"
+                    style={{ color: biller.primaryColor }}
                   >
-                    <X size={14} />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Thai Red Cross Charity Banner (Screenshot 1) */}
-            {!billsDismissBanner && (
-              <div className="m-4 p-3.5 rounded-2xl bg-[#FFF9E6] border border-amber-200/80 shadow-xs relative flex items-center justify-between">
-                <div className="flex items-center space-x-3 pr-6">
-                  <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                    <span className="text-lg">❤️</span>
+                    {biller.initials}
                   </div>
-                  <div>
-                    <div className="text-xs font-black text-[#D91624]">
-                      ร่วมสมทบทุน สภากาชาดไทย
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-slate-900 truncate">
+                      {biller.name}
                     </div>
-                    <div className="text-[11px] text-amber-900 mt-0.5">
-                      ช่วยเหลือผู้ป่วยปลูกถ่ายอวัยวะและดวงตา
+                    <div className="text-[10px] text-slate-400 truncate mt-0.5">
+                      {biller.category}
                     </div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setBillsDismissBanner(true)}
-                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 cursor-pointer absolute top-2 right-2"
-                >
-                  <X size={16} />
-                </button>
+
+                <div className="flex items-center space-x-2 shrink-0">
+                  <ChevronRight size={18} className="text-slate-400" />
+                </div>
               </div>
-            )}
-
-            {/* Categorized Sections: Dtac Bills, True Bills, Utility (Screenshot 1) */}
-            <div className="space-y-4 pb-6">
-              {['Dtac Bills', 'True Bills', 'Utility'].map((sec) => {
-                const secBillers = filteredThailandBillers.filter((b) => b.section === sec)
-                if (secBillers.length === 0) return null
-
-                return (
-                  <div key={sec} className="space-y-1">
-                    {/* Light Grey Divider Section Header */}
-                    <div className="bg-slate-200/70 px-4 py-1.5 text-xs font-bold text-slate-700">
-                      {sec}
-                    </div>
-
-                    <div className="bg-white divide-y divide-slate-100">
-                      {secBillers.map((biller) => (
-                        <div
-                          key={biller.id}
-                          onClick={() => handleSelectBiller(biller)}
-                          className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition cursor-pointer"
-                        >
-                          <div className="flex items-center space-x-3 min-w-0">
-                            <div
-                              className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center font-bold text-xs shrink-0"
-                              style={{ color: biller.primaryColor }}
-                            >
-                              {biller.initials}
-                            </div>
-                            <div className="min-w-0">
-                              <div className="text-xs font-bold text-slate-900 truncate">
-                                {biller.name}
-                              </div>
-                              <div className="text-[10px] text-slate-400">
-                                {biller.category}
-                              </div>
-                            </div>
-                          </div>
-                          <ChevronRight size={18} className="text-slate-400 shrink-0" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
     )
   }
@@ -5019,11 +4721,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         const matchesQuery =
           !query ||
           item.name.toLowerCase().includes(query) ||
-          item.fullName.toLowerCase().includes(query) ||
-          item.mm.toLowerCase().includes(query) ||
-          item.id.toLowerCase().includes(query) ||
-          item.phone.toLowerCase().includes(query) ||
-          item.bank.toLowerCase().includes(query)
+          item.category.toLowerCase().includes(query)
         return matchesCategory && matchesQuery
       })
 
@@ -5037,16 +4735,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       'from-teal-500 to-emerald-700', // Teal
     ]
 
-    const banksList = [
-      'Péthar Wallet',
-      'KBZPay',
-      'Wave Money',
-      'AYA Pay',
-      'CB Pay',
-      'CIMB Bank',
-      'Other',
-    ]
-
     const categoriesList: Array<'Personal' | 'Family' | 'Friends' | 'Business'> = [
       'Personal',
       'Family',
@@ -5055,24 +4743,33 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     ]
 
     const openAddModal = () => {
+      if (favouriteList.length >= 50) {
+        setFavSuccessToast(
+          isAk
+            ? 'စိတ်ကြိုက်စာရင်း အများဆုံး ၅၀ ထိသာ ထည့်နိုင်ပါသည်'
+            : 'Maximum limit of 50 favourites reached'
+        )
+        setTimeout(() => setFavSuccessToast(''), 3000)
+        return
+      }
       setEditingFavIndex(null)
       setFavFormName('')
       setFavFormMm('')
       setFavFormPhone('')
-      setFavFormBank('Péthar Wallet')
       setFavFormCategory('Friends')
       setFavFormBg('from-blue-500 to-indigo-600')
+      setFavModalStep(1)
       setFavEditModalOpen(true)
     }
 
     const openEditModal = (contact: (typeof favouriteList)[0], index: number) => {
       setEditingFavIndex(index)
       setFavFormName(contact.name)
-      setFavFormMm(contact.mm)
+      setFavFormMm(contact.note || (contact.mm !== contact.name && contact.mm !== contact.fullName ? contact.mm : ''))
       setFavFormPhone(contact.phone || contact.id)
-      setFavFormBank(contact.bank || 'Péthar Wallet')
       setFavFormCategory(contact.category || 'Friends')
       setFavFormBg(contact.bg || 'from-blue-500 to-indigo-600')
+      setFavModalStep(1)
       setFavEditModalOpen(true)
     }
 
@@ -5125,61 +4822,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       }
     }
 
-    const handleSaveContact = (e: React.FormEvent) => {
-      e.preventDefault()
-      if (!favFormName.trim() || !favFormPhone.trim()) return
-
-      const name = favFormName.trim()
-      const mm = favFormMm.trim() || name
-      const phoneOrId = favFormPhone.trim()
-      const initials = name
-        .split(' ')
-        .map((p) => (p ? p[0] : ''))
-        .filter(Boolean)
-        .slice(0, 2)
-        .join('')
-        .toUpperCase()
-
-      const newContact = {
-        id: phoneOrId.startsWith('ARAK') ? phoneOrId : `ARAK-${Math.floor(1000 + Math.random() * 9000)}`,
-        name,
-        fullName: name,
-        mm,
-        phone: phoneOrId,
-        initials: initials || 'U',
-        bg: favFormBg,
-        bank: favFormBank,
-        category: favFormCategory,
-      }
-
-      setFavEditModalOpen(false)
-
-      if (editingFavIndex !== null) {
-        requestPinAuthorization(
-          isAk ? 'အချက်အလက် ပြင်ဆင်ရန် အတည်ပြုပါ' : 'Authorize Edit Contact',
-          isAk
-            ? `"${name}" ၏ အချက်အလက်များကို ပြင်ဆင်ရန် PIN ၆ လုံး ရိုက်ထည့်ပါ`
-            : `Enter your 6-digit PIN to update recipient "${name}"`,
-          () => {
-            setFavouriteList((prev) => {
-              const updated = [...prev]
-              updated[editingFavIndex] = newContact
-              return updated
-            })
-          }
-        )
-      } else {
-        requestPinAuthorization(
-          isAk ? 'စိတ်ကြိုက်အသစ် ထည့်ရန် အတည်ပြုပါ' : 'Authorize Add Contact',
-          isAk
-            ? `"${name}" ကို စိတ်ကြိုက်စာရင်းသို့ ထည့်ရန် PIN ၆ လုံး ရိုက်ထည့်ပါ`
-            : `Enter your 6-digit PIN to add recipient "${name}"`,
-          () => {
-            setFavouriteList((prev) => [...prev, newContact])
-          }
-        )
-      }
-    }
 
     const handleDeleteContact = () => {
       if (!favDeleteTarget) return
@@ -5198,7 +4840,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     }
 
     return (
-      <div className="min-h-full bg-[#F8FAFC] flex flex-col text-zinc-900 pb-16 relative">
+      <div className="min-h-full bg-[#F8FAFC] flex flex-col text-zinc-900 pb-24 relative">
         {/* Success Toast */}
         {favSuccessToast && (
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-zinc-900 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 border border-zinc-700 animate-in fade-in slide-in-from-top-4">
@@ -5209,33 +4851,31 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
         {/* 1. TOP APP BAR */}
         <div className="bg-white px-4 py-3 border-b border-zinc-200 flex items-center justify-between sticky top-0 z-10 shadow-2xs">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setScreen('home')}
-              className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center hover:bg-zinc-200 text-zinc-700 transition cursor-pointer"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <div>
-              <h1 className="text-base font-extrabold text-zinc-900 leading-tight">
-                {isAk ? 'စိတ်ကြိုက် လွှဲသူများ' : 'Favourites'}
-              </h1>
-              <p className="text-[11px] font-medium text-zinc-500">
-                {isAk
-                  ? 'အချက်အလက် ပြင်ဆင်ရန်နှင့် အသစ်ထည့်ရန်'
-                  : 'Manage recipients & quick contacts'}
-              </p>
-            </div>
+          <button
+            type="button"
+            onClick={() => setScreen('home')}
+            className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center hover:bg-zinc-200 text-zinc-700 transition cursor-pointer"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <div className="text-center">
+            <h1 className="text-base font-extrabold text-zinc-900 leading-tight">
+              {isAk ? 'ကျွန်ုပ်၏ စိတ်ကြိုက်များ' : 'My Favourites'}
+            </h1>
           </div>
 
           <button
             type="button"
-            onClick={openAddModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 text-[#D91624] border border-rose-200 text-xs font-bold hover:bg-rose-100 transition cursor-pointer"
+            onClick={() => setFavIsEditMode(!favIsEditMode)}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${
+              favIsEditMode
+                ? 'bg-[#D91624] text-white shadow-2xs'
+                : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+            }`}
           >
-            <Plus size={15} />
-            <span>{isAk ? 'အသစ်ထည့်ရန်' : 'Add New'}</span>
+            {favIsEditMode ? <Check size={14} /> : <Pencil size={14} />}
+            <span>{favIsEditMode ? (isAk ? 'ပြီးပြီ' : 'Done') : (isAk ? 'ပြင်ဆင်ရန်' : 'Edit')}</span>
           </button>
         </div>
 
@@ -5252,8 +4892,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               onChange={(e) => setFavSearchQuery(e.target.value)}
               placeholder={
                 isAk
-                  ? 'အမည် သို့မဟုတ် ဖုန်းနံပါတ်ဖြင့် ရှာဖွေပါ...'
-                  : 'Search by name, phone or Arakan ID...'
+                  ? 'အမည်ဖြင့် ရှာဖွေပါ...'
+                  : 'Search by name...'
               }
               className="w-full h-10 pl-10 pr-9 bg-zinc-100/80 rounded-xl text-xs font-medium text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#D91624]/20 border border-transparent focus:border-[#D91624]/30"
             />
@@ -5282,11 +4922,23 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
                     }`}
                 >
-                  {cat === 'All' ? `All (${favouriteList.length})` : cat}
+                  {cat === 'All' ? (isAk ? 'အားလုံး' : 'All') : cat}
                 </button>
               )
             })}
           </div>
+
+          {/* Small info banner under category filter when Edit mode is active */}
+          {favIsEditMode && (
+            <div className="flex items-center gap-2 p-2 bg-zinc-50 rounded-xl border border-zinc-200/80 text-[11px] text-zinc-600 font-medium">
+              <Info size={14} className="shrink-0 text-zinc-500" />
+              <span>
+                {isAk
+                  ? 'ပင်မစာမျက်နှာတွင် စိတ်ကြိုက် ၅၀ ထိ နေရာရွှေ့ခြင်း၊ ဖျက်ခြင်း သို့မဟုတ် ထည့်သွင်းခြင်း ပြုလုပ်နိုင်ပါသည်'
+                  : 'You can reorder, remove or add up to 50 favourites on Home screen.'}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* 3. RECIPIENT CARDS LIST */}
@@ -5302,7 +4954,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <p className="text-xs text-zinc-500 mt-1 max-w-xs mx-auto">
                 {isAk
                   ? 'အခြားအချက်အလက်ဖြင့် ရှာဖွေပါ သို့မဟုတ် အသစ်ထည့်ပါ'
-                  : 'Try searching with a different name or add a new favourite recipient.'}
+                  : 'Try searching with a different name or category.'}
               </p>
               <button
                 type="button"
@@ -5328,116 +4980,102 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               return (
                 <div
                   key={item.id}
-                  className="bg-white rounded-2xl p-3.5 border border-zinc-200/90 shadow-2xs space-y-3 hover:border-zinc-300 transition"
+                  onClick={() => {
+                    if (favIsEditMode) {
+                      openEditModal(item, originalIndex)
+                    } else {
+                      requireVerified(isAk ? 'ငွေပေးချေရန်' : 'Pay', () => {
+                        const matchedRecent = recentPayContacts.find(
+                          (c) => c.name.toLowerCase() === item.name.toLowerCase()
+                        )
+                        setPayRecipient({
+                          id: item.id,
+                          name: item.name,
+                          username: matchedRecent
+                            ? matchedRecent.username
+                            : `@${item.name.toLowerCase().replace(/\s+/g, '_')}`,
+                          uid: item.id,
+                          category: (item.category.toLowerCase() === 'family'
+                            ? 'family'
+                            : item.category.toLowerCase() === 'friends'
+                              ? 'friends'
+                              : 'other') as 'family' | 'friends' | 'other',
+                          initials: item.initials,
+                          avatarUrl: '',
+                        })
+                        setPayToInput(
+                          matchedRecent
+                            ? matchedRecent.username
+                            : `@${item.name.toLowerCase().replace(/\s+/g, '_')}`
+                        )
+                        setPayStep('detail')
+                        setScreen('pay')
+                      })
+                    }
+                  }}
+                  className={`bg-white rounded-2xl p-3.5 border shadow-2xs transition flex items-center justify-between gap-3 cursor-pointer ${
+                    favIsEditMode ? 'border-zinc-300' : 'border-zinc-200/90 hover:border-zinc-300 active:scale-[0.99]'
+                  }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     {/* Circle Avatar */}
                     <div
-                      className={`w-12 h-12 rounded-full bg-gradient-to-b ${item.bg} flex items-center justify-center text-white font-extrabold text-sm shadow-xs border-2 border-white shrink-0`}
+                      className={`w-11 h-11 rounded-full bg-gradient-to-b ${item.bg} flex items-center justify-center text-white font-extrabold text-sm shadow-xs border-2 border-white shrink-0`}
                     >
-                      {item.initials === 'U' ? <User size={20} /> : item.initials}
+                      {item.initials === 'U' ? <User size={18} /> : item.initials}
                     </div>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-extrabold text-zinc-900 truncate">
-                          {item.name}
-                        </span>
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${catBadge}`}
-                        >
-                          {item.category}
-                        </span>
-                      </div>
-                      {item.mm && item.mm !== item.name && (
-                        <p className="text-[11px] font-semibold text-zinc-500 truncate">
-                          {item.mm}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-500 font-medium">
-                        <span className="font-semibold text-zinc-700">{item.bank}</span>
-                        <span>·</span>
-                        <span>{item.phone || item.id}</span>
-                      </div>
+                    <div className="min-w-0 flex-1 flex items-center gap-2">
+                      <span className="text-sm font-bold text-zinc-900 truncate">
+                        {item.name}
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${catBadge}`}
+                      >
+                        {item.category}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-zinc-100 flex items-center gap-2">
-                    {/* Quick Pay Button */}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        requireVerified(isAk ? 'ငွေပေးချေရန်' : 'Pay', () => {
-                          const matchedRecent = recentPayContacts.find(
-                            (c) => c.name.toLowerCase() === item.name.toLowerCase()
-                          )
-                          setPayRecipient({
-                            id: item.id,
-                            name: item.name,
-                            username: matchedRecent
-                              ? matchedRecent.username
-                              : `@${item.name.toLowerCase().replace(/\s+/g, '_')}`,
-                            uid: item.phone || item.id,
-                            category: (item.category.toLowerCase() === 'family'
-                              ? 'family'
-                              : item.category.toLowerCase() === 'friends'
-                                ? 'friends'
-                                : 'other') as 'family' | 'friends' | 'other',
-                            initials: item.initials,
-                            avatarUrl: '',
-                          })
-                          setPayToInput(
-                            matchedRecent
-                              ? matchedRecent.username
-                              : `@${item.name.toLowerCase().replace(/\s+/g, '_')}`
-                          )
-                          setPayStep('detail')
-                          setScreen('pay')
-                        })
-                      }
-                      className="flex-1 h-9 rounded-xl bg-[#9E1B32] hover:bg-[#801426] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs"
-                    >
-                      <SendIcon size={13} />
-                      <span>{isAk ? 'ငွေလွှဲမည်' : 'Quick Pay'}</span>
-                    </button>
-
-                    {/* Edit Pencil Button */}
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(item, originalIndex)}
-                      className="w-9 h-9 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 flex items-center justify-center transition cursor-pointer"
-                      title="Edit Contact"
-                    >
-                      <Pencil size={15} />
-                    </button>
-
-                    {/* Delete Trash Button */}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFavDeleteTarget({ contact: item, index: originalIndex })
-                      }
-                      className="w-9 h-9 rounded-xl bg-rose-50 hover:bg-rose-100 text-[#D91624] flex items-center justify-center transition cursor-pointer"
-                      title="Delete Contact"
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
+                  {/* Edit and Delete Buttons (only shown in Edit mode) */}
+                  {favIsEditMode && (
+                    <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(item, originalIndex)}
+                        className="w-8 h-8 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 flex items-center justify-center transition cursor-pointer"
+                        title="Edit Contact"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFavDeleteTarget({ contact: item, index: originalIndex })
+                        }
+                        className="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-[#D91624] flex items-center justify-center transition cursor-pointer"
+                        title="Delete Contact"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )
             })
           )}
         </div>
 
-        {/* Floating Add Favourite Action Button */}
+        {/* Floating Add Favorite Button */}
         <button
           type="button"
           onClick={openAddModal}
-          className="fixed bottom-6 right-6 px-4 py-3 rounded-full bg-[#D91624] hover:bg-[#b0101b] text-white text-xs font-extrabold shadow-lg flex items-center gap-2 cursor-pointer transition active:scale-95 z-20"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#D91624] text-white flex items-center justify-center shadow-lg hover:bg-rose-700 active:scale-95 transition cursor-pointer z-20"
+          title="Add Favorite"
         >
-          <Plus size={18} />
-          <span>{isAk ? 'အသစ်ထည့်မည်' : 'Add Favourite'}</span>
+          <Plus size={26} strokeWidth={2.5} />
         </button>
+
 
         {/* ── MODAL 1: ADD / EDIT FAVOURITE BOTTOM SHEET ── */}
         {favEditModalOpen && (
@@ -5446,166 +5084,348 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               {/* Drag Handle */}
               <div className="w-10 h-1 rounded-full bg-zinc-200 mx-auto" />
 
-              <div className="flex items-center justify-between pb-1 border-b border-zinc-100">
-                <div>
-                  <h2 className="text-base font-extrabold text-zinc-900">
-                    {editingFavIndex !== null
-                      ? isAk
-                        ? 'အချက်အလက် ပြင်ဆင်ရန်'
-                        : 'Edit Favourite'
-                      : isAk
-                        ? 'စိတ်ကြိုက်အသစ် ထည့်ရန်'
-                        : 'Add New Favourite'}
-                  </h2>
-                  <p className="text-[11px] text-zinc-500">
-                    {isAk
-                      ? 'အတည်ပြုရန် ၆ လုံး PIN လိုအပ်ပါသည်'
-                      : 'PIN verification required to save changes'}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setFavEditModalOpen(false)}
-                  className="w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 flex items-center justify-center hover:bg-zinc-200"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-
-              {/* Avatar Live Preview & Color Selector */}
-              <div className="flex flex-col items-center py-2 space-y-2.5">
-                <div
-                  className={`w-14 h-14 rounded-full bg-gradient-to-b ${favFormBg} flex items-center justify-center text-white font-black text-base shadow-md border-2 border-white`}
-                >
-                  {favFormName.trim()
-                    ? favFormName
-                      .trim()
-                      .split(' ')
-                      .map((p) => p[0] || '')
-                      .slice(0, 2)
-                      .join('')
-                      .toUpperCase()
-                    : 'U'}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {avatarGradients.map((g) => (
+              {favModalStep === 1 ? (
+                <>
+                  <div className="flex items-center justify-between pb-1 border-b border-zinc-100">
+                    <div>
+                      <h2 className="text-base font-extrabold text-zinc-900">
+                        {editingFavIndex !== null
+                          ? isAk
+                            ? 'အချက်အလက် ပြင်ဆင်ရန်'
+                            : 'Edit Favourite'
+                          : isAk
+                            ? 'စိတ်ကြိုက်အသစ် ထည့်ရန်'
+                            : 'Add New Favourite'}
+                      </h2>
+                      <p className="text-[11px] text-zinc-500">
+                        {isAk
+                          ? 'အောက်ပါ အချက်အလက်များကို ဖြည့်စွက်ပါ'
+                          : 'Fill in recipient information below'}
+                      </p>
+                    </div>
                     <button
-                      key={g}
                       type="button"
-                      onClick={() => setFavFormBg(g)}
-                      className={`w-6 h-6 rounded-full bg-gradient-to-b ${g} transition ${favFormBg === g ? 'ring-2 ring-zinc-900 ring-offset-2' : ''
-                        }`}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <form onSubmit={handleSaveContact} className="space-y-3.5">
-                {/* Name */}
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 mb-1">
-                    {isAk ? 'အမည် (အင်္ဂလိပ်)' : 'Recipient Name'}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={favFormName}
-                    onChange={(e) => setFavFormName(e.target.value)}
-                    placeholder="e.g. User"
-                    className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 text-xs font-semibold focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                  />
-                </div>
-
-                {/* Burmese Name */}
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 mb-1">
-                    {isAk ? 'မြန်မာအမည် / မှတ်ချက်' : 'Burmese Name / Note (Optional)'}
-                  </label>
-                  <input
-                    type="text"
-                    value={favFormMm}
-                    onChange={(e) => setFavFormMm(e.target.value)}
-                    placeholder="e.g. မြတ်စိုး"
-                    className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 text-xs font-semibold focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                  />
-                </div>
-
-                {/* Phone / Account ID */}
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 mb-1">
-                    {isAk ? 'ဖုန်းနံပါတ် သို့မဟုတ် Péthar ID' : 'Phone Number or Account ID'}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={favFormPhone}
-                    onChange={(e) => setFavFormPhone(e.target.value)}
-                    placeholder="e.g. 09951234567 or ARAK-1024"
-                    className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 text-xs font-semibold focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                  />
-                </div>
-
-                {/* Bank / Method */}
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 mb-1.5">
-                    {isAk ? 'ဘဏ် / ငွေပေးချေမှုစနစ်' : 'Bank / Payment Method'}
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {banksList.map((b) => (
-                      <button
-                        key={b}
-                        type="button"
-                        onClick={() => setFavFormBank(b)}
-                        className={`text-xs font-bold px-2.5 py-1 rounded-lg border transition ${favFormBank === b
-                          ? 'bg-[#9E1B32] text-white border-[#9E1B32]'
-                          : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
-                          }`}
-                      >
-                        {b}
-                      </button>
-                    ))}
+                      onClick={() => setFavEditModalOpen(false)}
+                      className="w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 flex items-center justify-center hover:bg-zinc-200"
+                    >
+                      <X size={16} />
+                    </button>
                   </div>
-                </div>
 
-                {/* Category */}
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 mb-1.5">
-                    {isAk ? 'အမျိုးအစား' : 'Category'}
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {categoriesList.map((cat) => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => setFavFormCategory(cat)}
-                        className={`text-xs font-bold px-3 py-1 rounded-lg border transition ${favFormCategory === cat
-                          ? 'bg-zinc-900 text-white border-zinc-900'
-                          : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
-                          }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
+                  {/* Avatar Live Preview & Color Selector */}
+                  <div className="flex flex-col items-center py-2 space-y-2.5">
+                    <div
+                      className={`w-14 h-14 rounded-full bg-gradient-to-b ${favFormBg} flex items-center justify-center text-white font-black text-base shadow-md border-2 border-white`}
+                    >
+                      {favFormName.trim()
+                        ? favFormName
+                          .trim()
+                          .split(' ')
+                          .map((p) => p[0] || '')
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()
+                        : 'U'}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {avatarGradients.map((g) => (
+                        <button
+                          key={g}
+                          type="button"
+                          onClick={() => setFavFormBg(g)}
+                          className={`w-6 h-6 rounded-full bg-gradient-to-b ${g} transition ${favFormBg === g ? 'ring-2 ring-zinc-900 ring-offset-2' : ''
+                            }`}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Submit button */}
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    className="w-full h-11 rounded-xl bg-[#D91624] hover:bg-[#b0101b] text-white font-extrabold text-xs shadow-md transition cursor-pointer"
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      if (favFormName.trim() && favFormPhone.trim()) {
+                        setFavModalStep(2)
+                      }
+                    }}
+                    className="space-y-3.5"
                   >
-                    {editingFavIndex !== null
-                      ? isAk
-                        ? 'ပြင်ဆင်မှု သိမ်းဆည်းမည် (PIN စစ်မည်)'
-                        : 'Save Changes (Verify PIN)'
-                      : isAk
-                        ? 'အသစ်ထည့်မည် (PIN စစ်မည်)'
-                        : 'Add Contact (Verify PIN)'}
-                  </button>
-                </div>
-              </form>
+                    {/* Favourite Name */}
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-700 mb-1">
+                        {isAk ? 'စိတ်ကြိုက်အမည်' : 'Favourite Name'}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={favFormName}
+                        onChange={(e) => setFavFormName(e.target.value)}
+                        placeholder={isAk ? 'စိတ်ကြိုက် အမည် ရိုက်ထည့်ပါ' : 'Enter favourite name'}
+                        className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 text-xs font-semibold focus:outline-none focus:border-[#9E1B32] focus:ring-1 focus:ring-[#9E1B32]"
+                      />
+                    </div>
+
+                    {/* Péthar wallet username or UID */}
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-700 mb-1">
+                        {isAk ? 'Péthar Wallet အသုံးပြုသူအမည် သို့မဟုတ် UID' : 'Péthar Wallet Username or UID'}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={favFormPhone}
+                        onChange={(e) => setFavFormPhone(e.target.value)}
+                        placeholder={isAk ? 'အသုံးပြုသူအမည် သို့မဟုတ် UID' : 'Username or UID'}
+                        className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 text-xs font-semibold focus:outline-none focus:border-[#9E1B32] focus:ring-1 focus:ring-[#9E1B32]"
+                      />
+                    </div>
+
+                    {/* Note optional */}
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-700 mb-1">
+                        {isAk ? 'မှတ်ချက် (စိတ်ကြိုက်)' : 'Note (Optional)'}
+                      </label>
+                      <input
+                        type="text"
+                        value={favFormMm}
+                        onChange={(e) => setFavFormMm(e.target.value)}
+                        placeholder={isAk ? 'မှတ်ချက်ရေးရန် (စိတ်ကြိုက်)' : 'Add note (optional)'}
+                        className="w-full h-10 px-3.5 rounded-xl border border-zinc-200 text-xs font-semibold focus:outline-none focus:border-[#9E1B32] focus:ring-1 focus:ring-[#9E1B32]"
+                      />
+                    </div>
+
+                    {/* Category */}
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-700 mb-1.5">
+                        {isAk ? 'အမျိုးအစား' : 'Category'}
+                      </label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {categoriesList.map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setFavFormCategory(cat)}
+                            className={`text-xs font-bold px-3 py-1 rounded-lg border transition ${favFormCategory === cat
+                              ? 'bg-zinc-900 text-white border-zinc-900'
+                              : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'
+                              }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Next Button */}
+                    <div className="pt-2">
+                      <button
+                        type="submit"
+                        disabled={!favFormName.trim() || !favFormPhone.trim()}
+                        className="w-full h-11 rounded-xl bg-[#D91624] hover:bg-[#b0101b] disabled:bg-zinc-200 disabled:text-zinc-400 text-white font-extrabold text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <span>{isAk ? 'ရှေ့သို့' : 'Next'}</span>
+                        <ChevronRight size={15} />
+                      </button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                /* ── STEP 2: CONFIRM DETAILS PAGE ── */
+                <>
+                  <div className="flex items-center justify-between pb-1 border-b border-zinc-100">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFavModalStep(1)}
+                        className="w-8 h-8 rounded-full bg-zinc-100 text-zinc-600 flex items-center justify-center hover:bg-zinc-200"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      <div>
+                        <h2 className="text-base font-extrabold text-zinc-900">
+                          {isAk ? 'အချက်အလက် အတည်ပြုပါ' : 'Confirm Details'}
+                        </h2>
+                        <p className="text-[11px] text-zinc-500">
+                          {isAk
+                            ? 'လက်ခံသူ အချက်အလက်ကို စစ်ဆေးပါ'
+                            : 'Please verify recipient information'}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFavEditModalOpen(false)}
+                      className="w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 flex items-center justify-center hover:bg-zinc-200"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  {/* Avatar Preview */}
+                  <div className="flex justify-center py-2">
+                    <div
+                      className={`w-16 h-16 rounded-full bg-gradient-to-b ${favFormBg} flex items-center justify-center text-white font-black text-lg shadow-md border-2 border-white`}
+                    >
+                      {favFormName.trim()
+                        ? favFormName
+                          .trim()
+                          .split(' ')
+                          .map((p) => p[0] || '')
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()
+                        : 'U'}
+                    </div>
+                  </div>
+
+                  {/* Confirm Details Card: First Nickname, Second User Name, Third Username, Fourth UID */}
+                  {(() => {
+                    const nickname = favFormName.trim()
+                    const rawInput = favFormPhone.trim()
+                    const note = favFormMm.trim()
+
+                    let username = ''
+                    let uid = ''
+                    let userName = ''
+
+                    if (rawInput.startsWith('@')) {
+                      username = rawInput
+                      const handle = rawInput.slice(1)
+                      userName = handle
+                        .split(/[_.]/)
+                        .filter(Boolean)
+                        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+                        .join(' ') || nickname
+                      uid = generateUserUid(recentPayContacts.length + 1)
+                    } else if (/^\d+$/.test(rawInput)) {
+                      uid = rawInput
+                      const slug = nickname.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '')
+                      username = slug ? `@${slug}` : `@user_${uid.slice(-4)}`
+                      userName = nickname
+                    } else if (rawInput.startsWith('ARAK-') || rawInput.startsWith('PTR-') || rawInput.startsWith('0x')) {
+                      uid = rawInput
+                      const slug = nickname.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '')
+                      username = slug ? `@${slug}` : '@user'
+                      userName = nickname
+                    } else {
+                      username = rawInput ? `@${rawInput}` : '@user'
+                      userName = rawInput
+                        .split(/[_.]/)
+                        .filter(Boolean)
+                        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+                        .join(' ') || nickname
+                      uid = generateUserUid(recentPayContacts.length + 1)
+                    }
+
+                    return (
+                      <div className="space-y-4">
+                        <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 space-y-2.5 text-xs">
+                          {/* Nickname */}
+                          <div className="flex items-center justify-between">
+                            <span className="text-zinc-500 font-semibold">{isAk ? 'အမည်ပြောင်' : 'Nickname'}</span>
+                            <span className="font-extrabold text-zinc-900">{nickname}</span>
+                          </div>
+                          <div className="border-t border-zinc-200/80" />
+
+                          {/* User Name */}
+                          <div className="flex items-center justify-between">
+                            <span className="text-zinc-500 font-semibold">{isAk ? 'အသုံးပြုသူ အမည်ရင်း' : 'User Name'}</span>
+                            <span className="font-extrabold text-zinc-900">{userName}</span>
+                          </div>
+                          <div className="border-t border-zinc-200/80" />
+
+                          {/* Username */}
+                          <div className="flex items-center justify-between">
+                            <span className="text-zinc-500 font-semibold">Username</span>
+                            <span className="font-mono font-bold text-[#D91624]">{username}</span>
+                          </div>
+                          <div className="border-t border-zinc-200/80" />
+
+                          {/* UID */}
+                          <div className="flex items-center justify-between">
+                            <span className="text-zinc-500 font-semibold">UID</span>
+                            <span className="font-mono font-bold text-zinc-800">{uid}</span>
+                          </div>
+
+                          {note && (
+                            <>
+                              <div className="border-t border-zinc-200/80" />
+                              <div className="flex items-center justify-between">
+                                <span className="text-zinc-500 font-semibold">{isAk ? 'မှတ်ချက်' : 'Note'}</span>
+                                <span className="font-semibold text-zinc-800">{note}</span>
+                              </div>
+                            </>
+                          )}
+
+                          <div className="border-t border-zinc-200/80" />
+                          <div className="flex items-center justify-between">
+                            <span className="text-zinc-500 font-semibold">{isAk ? 'အမျိုးအစား' : 'Category'}</span>
+                            <span className="font-semibold text-zinc-800">{favFormCategory}</span>
+                          </div>
+                        </div>
+
+                        {/* Confirm Button -> Asks PIN */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFavEditModalOpen(false)
+                            const initials = (nickname || 'U')
+                              .split(' ')
+                              .filter(Boolean)
+                              .map((p) => p[0])
+                              .slice(0, 2)
+                              .join('')
+                              .toUpperCase()
+
+                            const newContact = {
+                              id: uid,
+                              name: nickname,
+                              fullName: userName,
+                              mm: note || userName,
+                              note: note,
+                              phone: username,
+                              initials: initials || 'U',
+                              bg: favFormBg,
+                              bank: 'Péthar Wallet',
+                              category: favFormCategory,
+                            }
+
+                            if (editingFavIndex !== null) {
+                              requestPinAuthorization(
+                                isAk ? 'အချက်အလက် ပြင်ဆင်ရန် အတည်ပြုပါ' : 'Authorize Edit Contact',
+                                isAk
+                                  ? `"${nickname}" ၏ အချက်အလက်များကို ပြင်ဆင်ရန် PIN ၆ လုံး ရိုက်ထည့်ပါ`
+                                  : `Enter your 6-digit PIN to update recipient "${nickname}"`,
+                                () => {
+                                  setFavouriteList((prev) => {
+                                    const updated = [...prev]
+                                    updated[editingFavIndex] = newContact
+                                    return updated
+                                  })
+                                }
+                              )
+                            } else {
+                              requestPinAuthorization(
+                                isAk ? 'အသစ်ထည့်ရန် အတည်ပြုပါ' : 'Authorize Add Contact',
+                                isAk
+                                  ? `"${nickname}" အား စိတ်ကြိုက်ထည့်ရန် PIN ၆-လုံး ရိုက်ထည့်ပါ`
+                                  : `Enter your 6-digit PIN to save recipient "${nickname}"`,
+                                () => {
+                                  setFavouriteList((prev) => [...prev, newContact])
+                                }
+                              )
+                            }
+                          }}
+                          className="w-full h-11 rounded-xl bg-[#D91624] hover:bg-[#b0101b] text-white font-extrabold text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5"
+                        >
+                          <Check size={16} />
+                          <span>{isAk ? 'အတည်ပြုမည်' : 'Confirm'}</span>
+                        </button>
+                      </div>
+                    )
+                  })()}
+                </>
+              )}
             </div>
           </div>
         )}
