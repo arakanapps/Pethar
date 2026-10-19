@@ -53,6 +53,10 @@ interface StoredOtp {
 }
 const otpStore = new Map<string, StoredOtp>()
 
+const API_URL =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) ||
+  'http://localhost:3001'
+
 /**
  * Generate 6-digit OTP code with 10-minute validity
  */
@@ -61,6 +65,16 @@ export function generateOtpForEmail(email: string): string {
   const cleanEmail = email.trim().toLowerCase()
   const expiresAt = Date.now() + 10 * 60 * 1000 // 10 minutes
   otpStore.set(cleanEmail, { code, email: cleanEmail, expiresAt })
+
+  // Dispatch OTP email via Gmail and persist to MongoDB
+  if (typeof fetch !== 'undefined') {
+    fetch(`${API_URL}/api/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, code, purpose: 'SIGN_UP' }),
+    }).catch((err) => console.warn('Could not dispatch OTP email via server:', err))
+  }
+
   return code
 }
 
@@ -250,6 +264,29 @@ export async function authenticateWithEmailAndPin(
     const cleanEmail = email.trim().toLowerCase()
     const pinH = hashPin(pin.trim())
 
+    // 0. Query MongoDB user_profiles via API
+    if (typeof fetch !== 'undefined') {
+      try {
+        const res = await fetch(`${API_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, pin: pin.trim() }),
+        })
+        if (res.ok) {
+          const json = await res.json()
+          if (json.success && json.user) {
+            const profile = mapDbProfile(json.user)
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('pethar_logged_in', 'true')
+              localStorage.setItem('pethar_active_uid', profile.uid)
+              localStorage.setItem('pethar_active_email', profile.email)
+            }
+            return { success: true, user: profile }
+          }
+        }
+      } catch (_) {}
+    }
+
     // 1. Query Supabase user_profiles
     const { data, error } = await db
       .from('user_profiles')
@@ -365,6 +402,24 @@ export async function registerWithEmailAndPin(params: {
       currency: 'AKD',
       kyc_tier: 1, // KYC Level 1: Email verified!
       kyc_status: 'email_verified',
+    }
+
+    // Persist to MongoDB user_profiles via API
+    if (typeof fetch !== 'undefined') {
+      fetch(`${API_URL}/api/profile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          action: 'save',
+          profile: {
+            ...newProfile,
+            uid: newUid,
+            name: cleanName,
+            username: cleanUsername,
+          },
+        }),
+      }).catch((e) => console.warn('MongoDB profile save error:', e))
     }
 
     // Try inserting into Supabase user_profiles
