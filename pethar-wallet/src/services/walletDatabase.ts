@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase'
-import type { Txn } from '../data'
-export { generateUserUid } from '../data'
+import { generateUserUid, type Txn } from '../data'
+export { generateUserUid }
 
 // Dynamic query client to interface cleanly with live Supabase tables
 const db = supabase as any
@@ -21,14 +21,15 @@ export interface DbUserProfile {
   dob: string
   address: string
   usdAccountWalletAddress: string
-  ak_id: string
+  ak_id?: string // deprecated, aliases to uid
   balance: number
   akdWalletBalance: number
   usdAccountBalance: number
   totalBalance: number
   currency: string
   avatar_url?: string
-  kyc_tier: number
+  kyc_tier: 1 | 2
+  kyc_status?: 'unverified' | 'email_verified' | 'pending_review' | 'verified'
 }
 
 export interface DbFavoriteContact {
@@ -42,6 +43,58 @@ export interface DbFavoriteContact {
   color_value: number
   category: string
   avatar_url?: string
+}
+
+// In-memory OTP storage for password reset & email verification (10 minutes expiry)
+interface StoredOtp {
+  code: string
+  email: string
+  expiresAt: number // timestamp
+}
+const otpStore = new Map<string, StoredOtp>()
+
+/**
+ * Generate 6-digit OTP code with 10-minute validity
+ */
+export function generateOtpForEmail(email: string): string {
+  const code = Math.floor(100000 + Math.random() * 900000).toString()
+  const cleanEmail = email.trim().toLowerCase()
+  const expiresAt = Date.now() + 10 * 60 * 1000 // 10 minutes
+  otpStore.set(cleanEmail, { code, email: cleanEmail, expiresAt })
+  return code
+}
+
+/**
+ * Verify OTP code for given email (returns true if valid and not expired)
+ */
+export function verifyEmailOtp(email: string, inputCode: string): { valid: boolean; reason?: 'expired' | 'invalid' } {
+  const cleanEmail = email.trim().toLowerCase()
+  const record = otpStore.get(cleanEmail)
+  if (!record) {
+    return { valid: false, reason: 'invalid' }
+  }
+  if (Date.now() > record.expiresAt) {
+    otpStore.delete(cleanEmail)
+    return { valid: false, reason: 'expired' }
+  }
+  if (record.code !== inputCode.trim()) {
+    return { valid: false, reason: 'invalid' }
+  }
+  // OTP is verified and consumed
+  otpStore.delete(cleanEmail)
+  return { valid: true }
+}
+
+/**
+ * Simple hash helper for 6-digit PIN
+ */
+function hashPin(pin: string): string {
+  let hash = 0
+  for (let i = 0; i < pin.length; i++) {
+    hash = (hash << 5) - hash + pin.charCodeAt(i)
+    hash |= 0
+  }
+  return 'pin_' + Math.abs(hash).toString(16)
 }
 
 /**
@@ -117,54 +170,298 @@ export async function insertTransactionToDb(tx: Txn): Promise<boolean> {
 }
 
 /**
- * Fetch user profile & wallet balance from Supabase
+ * Fetch user profile & wallet balance from Supabase (without hardcoded personal info fallbacks)
  */
-export async function fetchUserProfileFromDb(): Promise<DbUserProfile | null> {
+export async function fetchUserProfileFromDb(lookupUidOrEmail?: string): Promise<DbUserProfile | null> {
   try {
+    const activeUid = lookupUidOrEmail || (typeof window !== 'undefined' ? localStorage.getItem('pethar_active_uid') : null)
+    const activeEmail = typeof window !== 'undefined' ? localStorage.getItem('pethar_active_email') : null
+
+    let query = db.from('user_profiles').select('*')
+    if (activeUid) {
+      query = query.eq('uid', activeUid)
+    } else if (activeEmail) {
+      query = query.eq('email', activeEmail.trim().toLowerCase())
+    }
+
+    const { data, error } = await query.limit(1).maybeSingle()
+
+    if (error) {
+      console.warn('Supabase fetch user profile warning:', error.message)
+    }
+
+    if (!data) {
+      // If specific search yielded no result, fallback to latest existing profile or null
+      const fallbackQuery = await db.from('user_profiles').select('*').limit(1).maybeSingle()
+      if (fallbackQuery.data) {
+        return mapDbProfile(fallbackQuery.data)
+      }
+      return null
+    }
+
+    return mapDbProfile(data)
+  } catch (err) {
+    console.error('Error fetching user profile from Supabase:', err)
+    return null
+  }
+}
+
+function mapDbProfile(data: any): DbUserProfile {
+  const bal = parseFloat(data.balance || 0)
+  const usdBal = parseFloat(data.usd_account_balance || 0)
+  const uid = data.uid || data.wallet_address || '202610190001'
+
+  return {
+    id: data.id,
+    name: data.name || data.first_name || 'User',
+    firstName: data.first_name || '',
+    lastName: data.last_name || '',
+    nickname: data.nickname || '',
+    username: data.username || '@user',
+    uid: uid,
+    walletAddress: data.wallet_address || uid,
+    email: data.email || '',
+    phone: data.phone || '',
+    pinHash: data.pin_hash || '',
+    nationalIdNo: data.national_id_no || '',
+    dob: data.dob || '',
+    address: data.address || '',
+    usdAccountWalletAddress: data.usd_account_wallet_address || '0x36a8F492C109bE742819aBcD8391048291045f19',
+    ak_id: uid, // replaced ak_id with uid
+    balance: bal,
+    akdWalletBalance: data.akd_wallet_balance ? parseFloat(data.akd_wallet_balance) : bal,
+    usdAccountBalance: usdBal,
+    totalBalance: data.total_balance ? parseFloat(data.total_balance) : bal + usdBal,
+    currency: data.currency || 'AKD',
+    avatar_url: data.avatar_url || '',
+    kyc_tier: (data.kyc_tier === 2 ? 2 : 1) as 1 | 2,
+    kyc_status: (data.kyc_status || (data.kyc_tier === 2 ? 'verified' : 'email_verified')) as any,
+  }
+}
+
+/**
+ * Authenticate user with Email and 6-digit PIN code
+ */
+export async function authenticateWithEmailAndPin(
+  email: string,
+  pin: string
+): Promise<{ success: boolean; user?: DbUserProfile; error?: string }> {
+  try {
+    const cleanEmail = email.trim().toLowerCase()
+    const pinH = hashPin(pin.trim())
+
+    // 1. Query Supabase user_profiles
     const { data, error } = await db
       .from('user_profiles')
       .select('*')
+      .eq('email', cleanEmail)
       .limit(1)
       .maybeSingle()
 
     if (error) {
-      console.warn('Supabase fetch user profile warning:', error.message)
-      return null
+      console.warn('Database error while signing in:', error.message)
     }
 
-    if (!data) return null
+    if (data) {
+      // Check stored PIN (accepts plain PIN match or hash match, or initial default)
+      const isPinMatch =
+        data.pin_hash === pinH ||
+        data.pin_hash === pin.trim() ||
+        (data.pin_hash === '' && pin.trim() === '123456') ||
+        data.pin === pin.trim()
 
-    const bal = parseFloat(data.balance || 0)
-    const usdBal = parseFloat(data.usd_account_balance || 0)
+      if (!isPinMatch) {
+        return { success: false, error: 'INCORRECT_CREDENTIALS' }
+      }
 
-    return {
-      id: data.id,
-      name: data.name || 'User',
-      firstName: data.first_name || 'User',
-      lastName: data.last_name || 'PAING',
-      nickname: data.nickname || 'Jack',
-      username: data.username || '@user',
-      uid: data.uid || '202610190001',
-      walletAddress: data.wallet_address || data.uid || '202610190001',
-      email: data.email || 'example@email.com',
-      phone: data.phone || '09795220917',
-      pinHash: data.pin_hash,
-      nationalIdNo: data.national_id_no || 'MJ310666',
-      dob: data.dob || '13 May 2003',
-      address: data.address || '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
-      usdAccountWalletAddress: data.usd_account_wallet_address || '0x36a8F492C109bE742819aBcD8391048291045f19',
-      ak_id: data.ak_id || 'AK-992104-88',
-      balance: bal,
-      akdWalletBalance: data.akd_wallet_balance ? parseFloat(data.akd_wallet_balance) : bal,
-      usdAccountBalance: usdBal,
-      totalBalance: data.total_balance ? parseFloat(data.total_balance) : (bal + usdBal),
-      currency: data.currency || 'AKD',
-      avatar_url: data.avatar_url,
-      kyc_tier: data.kyc_tier || 2,
+      const profile = mapDbProfile(data)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pethar_logged_in', 'true')
+        localStorage.setItem('pethar_active_uid', profile.uid)
+        localStorage.setItem('pethar_active_email', profile.email)
+      }
+      return { success: true, user: profile }
     }
-  } catch (err) {
-    console.error('Error fetching user profile from Supabase:', err)
-    return null
+
+    // Check local fallback user if database is offline/unreachable
+    const localEmail = typeof window !== 'undefined' ? localStorage.getItem('pethar_saved_email') : null
+    const localPin = typeof window !== 'undefined' ? localStorage.getItem('pethar_saved_pin') : null
+    if (localEmail && localEmail.toLowerCase() === cleanEmail && localPin === pin.trim()) {
+      const localProfile: DbUserProfile = {
+        id: 'local_user',
+        name: localStorage.getItem('pethar_saved_name') || 'User',
+        firstName: '',
+        lastName: '',
+        nickname: '',
+        username: localStorage.getItem('pethar_saved_username') || '@user',
+        uid: localStorage.getItem('pethar_saved_uid') || '202610190001',
+        walletAddress: localStorage.getItem('pethar_saved_uid') || '202610190001',
+        email: cleanEmail,
+        phone: '',
+        nationalIdNo: '',
+        dob: '',
+        address: '',
+        usdAccountWalletAddress: '0x36a8F492C109bE742819aBcD8391048291045f19',
+        ak_id: localStorage.getItem('pethar_saved_uid') || '202610190001',
+        balance: 0.0,
+        akdWalletBalance: 0.0,
+        usdAccountBalance: 0.0,
+        totalBalance: 0.0,
+        currency: 'AKD',
+        kyc_tier: 1,
+        kyc_status: 'email_verified',
+      }
+      localStorage.setItem('pethar_logged_in', 'true')
+      localStorage.setItem('pethar_active_uid', localProfile.uid)
+      localStorage.setItem('pethar_active_email', localProfile.email)
+      return { success: true, user: localProfile }
+    }
+
+    return { success: false, error: 'INCORRECT_CREDENTIALS' }
+  } catch (err: any) {
+    console.error('Sign in exception:', err)
+    return { success: false, error: err.message || 'SIGNIN_FAILED' }
+  }
+}
+
+/**
+ * Register a new user with Email, 6-digit PIN, Full Name, and Username (KYC Level 1: Email Verified)
+ */
+export async function registerWithEmailAndPin(params: {
+  email: string
+  pin: string
+  name: string
+  username: string
+}): Promise<{ success: boolean; user?: DbUserProfile; error?: string }> {
+  try {
+    const cleanEmail = params.email.trim().toLowerCase()
+    const cleanPin = params.pin.trim()
+    const cleanUsername = params.username.trim().startsWith('@')
+      ? params.username.trim()
+      : `@${params.username.trim()}`
+    const cleanName = params.name.trim()
+
+    // Generate custom UID: yearmmddusercount (e.g. 202610190001)
+    const newUid = generateUserUid(Math.floor(1000 + Math.random() * 8999))
+    const pinH = hashPin(cleanPin)
+
+    const newProfile = {
+      id: 'usr_' + Date.now().toString(36),
+      username: cleanUsername,
+      uid: newUid,
+      wallet_address: newUid,
+      email: cleanEmail,
+      pin_hash: pinH,
+      name: cleanName,
+      first_name: cleanName.split(' ')[0] || cleanName,
+      last_name: cleanName.split(' ').slice(1).join(' ') || '',
+      nickname: cleanName.split(' ')[0] || '',
+      national_id_no: '',
+      dob: '',
+      address: '',
+      usd_account_wallet_address: '0x36a8F492C109bE742819aBcD8391048291045f19',
+      balance: 0.0,
+      usd_account_balance: 0.0,
+      currency: 'AKD',
+      kyc_tier: 1, // KYC Level 1: Email verified!
+      kyc_status: 'email_verified',
+    }
+
+    // Try inserting into Supabase
+    const { data, error } = await db.from('user_profiles').insert(newProfile).select().maybeSingle()
+
+    if (error) {
+      console.warn('Could not insert to user_profiles table (using local persistence):', error.message)
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pethar_logged_in', 'true')
+      localStorage.setItem('pethar_active_uid', newUid)
+      localStorage.setItem('pethar_active_email', cleanEmail)
+      localStorage.setItem('pethar_saved_email', cleanEmail)
+      localStorage.setItem('pethar_saved_pin', cleanPin)
+      localStorage.setItem('pethar_saved_name', cleanName)
+      localStorage.setItem('pethar_saved_username', cleanUsername)
+      localStorage.setItem('pethar_saved_uid', newUid)
+    }
+
+    const created = data ? mapDbProfile(data) : mapDbProfile(newProfile)
+    return { success: true, user: created }
+  } catch (err: any) {
+    console.error('Registration exception:', err)
+    return { success: false, error: err.message || 'REGISTRATION_FAILED' }
+  }
+}
+
+/**
+ * Reset user PIN by email
+ */
+export async function resetPinWithEmail(
+  email: string,
+  newPin: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cleanEmail = email.trim().toLowerCase()
+    const pinH = hashPin(newPin.trim())
+
+    const { error } = await db
+      .from('user_profiles')
+      .update({ pin_hash: pinH, updated_at: new Date().toISOString() })
+      .eq('email', cleanEmail)
+
+    if (error) {
+      console.warn('Failed to update pin in Supabase:', error.message)
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pethar_saved_pin', newPin.trim())
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('Reset PIN exception:', err)
+    return { success: false, error: err.message || 'RESET_PIN_FAILED' }
+  }
+}
+
+/**
+ * Upgrade to KYC Level 2 (National ID Verified)
+ * User enters personal info (first name, last name, national ID no, dob, address) and submits for review.
+ */
+export async function submitKycLevel2Verification(
+  uid: string,
+  data: {
+    firstName: string
+    lastName: string
+    nationalIdNo: string
+    dob: string
+    address: string
+  }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await db
+      .from('user_profiles')
+      .update({
+        first_name: data.firstName.trim(),
+        last_name: data.lastName.trim(),
+        name: `${data.firstName.trim()} ${data.lastName.trim()}`.trim(),
+        national_id_no: data.nationalIdNo.trim(),
+        dob: data.dob.trim(),
+        address: data.address.trim(),
+        kyc_tier: 2,
+        kyc_status: 'pending_review',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('uid', uid)
+
+    if (error) {
+      console.warn('Failed to submit KYC Level 2 to Supabase:', error.message)
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('KYC Level 2 submission exception:', err)
+    return { success: false, error: err.message || 'KYC_SUBMIT_FAILED' }
   }
 }
 

@@ -20,8 +20,9 @@ export type Currency =
   | 'MMK'
   | 'PETHAR_UNIT';
 
+export type KycTier = 1 | 2;
+
 export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'FROZEN' | 'CLOSED';
-export type KycTier = 1 | 2 | 3;
 
 export type AccountType =
   | 'USER_WALLET'
@@ -315,7 +316,7 @@ export interface Database {
           dob: string;
           address: string;
           usd_account_wallet_address: string;
-          ak_id: string;
+          ak_id?: string;
           balance: number;
           akd_wallet_balance: number;
           usd_account_balance: number;

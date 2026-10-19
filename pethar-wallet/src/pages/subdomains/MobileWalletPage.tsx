@@ -26,7 +26,6 @@ import {
   Power,
   Globe,
   AppWindow,
-  MoreHorizontal,
   Copy,
   Share2,
   RefreshCw,
@@ -88,6 +87,8 @@ import {
 } from '../../services/walletDatabase'
 import type { Language } from '../../i18n'
 import { WalletMinimalIcon } from '@/components/WalletMinimalIcon'
+import { AuthModal } from '../../components/AuthModal'
+import { KycLevel2Modal } from '../../components/KycLevel2Modal'
 
 interface MobileWalletPageProps {
   lang: Language
@@ -99,7 +100,6 @@ type AccountSubScreen =
   | 'main'
   | 'personal_info'
   | 'app_settings'
-  | 'security_checkup'
   | 'device_management'
   | 'privacy'
   | 'cards'
@@ -337,23 +337,27 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     return () => window.clearTimeout(timer)
   }, [])
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true)
-  const [authModalOpen, setAuthModalOpen] = useState<boolean>(false)
-  const [loginEmail, setLoginEmail] = useState<string>('')
-  const [loginPassword, setLoginPassword] = useState<string>('')
-  const [showLoginPassword, setShowLoginPassword] = useState<boolean>(false)
-  const [isSignUpMode, setIsSignUpMode] = useState<boolean>(false)
-  const [loginError, setLoginError] = useState<string>('')
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('pethar_logged_in') === 'true'
+    }
+    return false
+  })
+  const [authModalOpen, setAuthModalOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('pethar_logged_in') !== 'true'
+    }
+    return true
+  })
+  const [authInitialMode, setAuthInitialMode] = useState<'login' | 'signup' | 'forgot_pin'>('login')
   const [screen, setScreen] = useState<MobileTab>('home')
   const [theme] = useState<ThemeMode>('light')
-  const [profile, setProfile] = useState<UserProfile>({
-    ...initialUserProfile,
-    name: 'User',
-    uid: '202610190001',
-  })
+  const [profile, setProfile] = useState<UserProfile>(initialUserProfile)
 
-  // Verification State: Verified vs Unverified + Verification Required Modal
-  const [isVerified, setIsVerified] = useState<boolean>(true)
+  // Verification State: KYC Level 1 vs KYC Level 2 (no Level 3)
+  const [isVerified, setIsVerified] = useState<boolean>(() => {
+    return initialUserProfile.kycTier === 2 && initialUserProfile.kycStatus === 'verified'
+  })
   const [verifyPromptModal, setVerifyPromptModal] = useState<{
     open: boolean
     featureName: string
@@ -439,8 +443,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           ...prev,
           name: up.name,
           phone: up.phone,
-          petharId: up.ak_id || prev.petharId,
-          uid: up.uid || prev.uid || '202610190001',
+          petharId: up.uid || prev.petharId,
+          uid: up.uid || prev.uid || '',
         }))
       }
     })
@@ -545,7 +549,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [paySuccessTx, setPaySuccessTx] = useState<Txn | null>(null)
 
   // Topup screen states
-  const [topupPhone, setTopupPhone] = useState<string>('09795220917')
+  const [topupPhone, setTopupPhone] = useState<string>('')
   const [topupActiveTab, setTopupActiveTab] = useState<'phoneTopup' | 'packages'>('phoneTopup')
   const [topupSelectedCategory, setTopupSelectedCategory] = useState<string>('All')
   const [topupSelectedAmount, setTopupSelectedAmount] = useState<number>(0)
@@ -604,7 +608,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       name: 'user',
       fullName: 'user',
       mm: 'အသုံးပြုသူ',
-      phone: '09795220917',
+      phone: '09123456789',
       initials: 'U',
       bg: 'from-[#38BDF8] to-[#0284C7]',
       bank: 'Péthar Wallet',
@@ -696,12 +700,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [biometricLoginEnabled, setBiometricLoginEnabled] = useState<boolean>(true)
   const [settingsNoticeToast, setSettingsNoticeToast] = useState<string | null>(null)
   const [profileDetails] = useState({
-    firstName: 'Firstname',
-    lastName: 'Lastname',
-    passportNumber: '123456789',
-    dob: '13 May 2003',
-    mobile: '095-126-8295',
-    email: 'example@email.com',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    passportNumber: '---',
+    dob: '----',
+    mobile: '---',
+    email: '---',
   })
   const [profileAddress, setProfileAddress] = useState({
     subdistrict: 'Sittwe',
@@ -720,6 +724,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   // Guard helper: if user is logged out, open Sign in/Sign up modal; if Unverified, tell them to verify
   const requireVerified = (featureName: string, action: () => void) => {
     if (!isAuthenticated) {
+      setAuthInitialMode('login')
       setAuthModalOpen(true)
       return
     }
@@ -1086,20 +1091,38 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   </div>
                 </div>
 
-                {isVerified ? (
+                {profile.kycTier === 2 && profile.kycStatus === 'verified' ? (
                   <button
                     type="button"
                     onClick={() => setKycFlowModalOpen(true)}
-                    className="px-4 py-1.5 rounded-full border border-[#0284C7]/50 bg-[#F0F9FF] text-[#0284C7] text-xs font-bold inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-full border border-emerald-500/50 bg-emerald-50 text-emerald-700 text-xs font-bold inline-flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs"
                   >
-                    <CheckCircle2 size={15} className="fill-[#0284C7] text-white" />
-                    <span>{isAk ? 'အတည်ပြုပြီး' : 'Verified'}</span>
+                    <CheckCircle2 size={15} className="fill-emerald-600 text-white" />
+                    <span>{isAk ? 'KYC အဆင့် ၂ အတည်ပြုပြီး' : 'KYC Level 2'}</span>
+                  </button>
+                ) : profile.kycStatus === 'pending_review' ? (
+                  <button
+                    type="button"
+                    onClick={() => setKycFlowModalOpen(true)}
+                    className="px-3.5 py-1.5 rounded-full border border-amber-500/50 bg-amber-50 text-amber-700 text-xs font-bold inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  >
+                    <Clock size={15} className="text-amber-600 animate-spin" />
+                    <span>{isAk ? 'အဆင့် ၂ စိစစ်နေဆဲ' : 'Level 2 Review'}</span>
+                  </button>
+                ) : profile.kycTier === 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => setKycFlowModalOpen(true)}
+                    className="px-3.5 py-1.5 rounded-full border border-sky-500/50 bg-sky-50 text-sky-700 text-xs font-bold inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  >
+                    <CheckCircle2 size={15} className="fill-sky-600 text-white" />
+                    <span>{isAk ? 'KYC အဆင့် ၁' : 'KYC Level 1'}</span>
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setKycFlowModalOpen(true)}
-                    className="px-4 py-1.5 rounded-full border border-[#D91624] bg-[#FFF1F2] text-[#D91624] text-xs font-extrabold inline-flex items-center gap-1.5 shrink-0 shadow-[0_4px_12px_rgba(217,22,36,0.18)] animate-pulse cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-full border border-[#D91624] bg-[#FFF1F2] text-[#D91624] text-xs font-extrabold inline-flex items-center gap-1.5 shrink-0 shadow-[0_4px_12px_rgba(217,22,36,0.18)] animate-pulse cursor-pointer"
                   >
                     <AlertCircle size={15} />
                     <span>{isAk ? 'အတည်မပြုရသေး' : 'Unverified'}</span>
@@ -1107,25 +1130,25 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 )}
               </div>
 
-              {!isVerified && (
-                <div className="p-3 rounded-2xl bg-[#FFF1F2] border border-[#FECDD3] flex items-center justify-between gap-3">
+              {!(profile.kycTier === 2 && profile.kycStatus === 'verified') && (
+                <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200/90 flex items-center justify-between gap-3">
                   <div className="flex items-start gap-2.5">
-                    <AlertCircle size={17} className="text-[#D91624] shrink-0 mt-0.5" />
+                    <ShieldCheck size={17} className="text-amber-700 shrink-0 mt-0.5" />
                     <div className="text-xs text-zinc-800 leading-relaxed">
-                      <span className="font-extrabold text-[#D91624] block">
-                        {isAk ? 'အကောင့်အတည်ပြုရန် လိုအပ်ပါသည်' : 'Account Verification Required'}
+                      <span className="font-extrabold text-amber-900 block">
+                        {isAk ? 'KYC Level 2 သို့ တိုးမြှင့်ရန်' : 'Upgrade to KYC Level 2 (National ID)'}
                       </span>
                       {isAk
-                        ? 'ငွေပေးချေခြင်း၊ လက်ခံခြင်း၊ ငွေသွင်း/ငွေထုတ် လုပ်ဆောင်ချက်များကို အသုံးပြုရန် သင့်အကောင့်ကို အတည်ပြုပေးပါ။'
-                        : 'Please verify your identity to unlock Pay, Receive, Deposit, and Withdraw.'}
+                        ? 'နိုင်ငံသားစိစစ်ရေးကတ် အချက်အလက်များ တင်ပြ၍ Level 2 သို့ တိုးမြှင့်ပါ (Level 3 မရှိပါ)'
+                        : 'Submit National ID to upgrade to Level 2 and unlock full limits (Level 1: Email, Level 2: ID).'}
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setKycFlowModalOpen(true)}
-                    className="px-3 py-1.5 rounded-full bg-[#D91624] text-white text-[11px] font-bold shrink-0 cursor-pointer"
+                    className="px-3 py-1.5 rounded-full bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold shrink-0 cursor-pointer shadow-xs"
                   >
-                    {isAk ? 'အတည်ပြုမည်' : 'Verify'}
+                    {isAk ? 'အဆင့် ၂ လျှောက်မည်' : 'Upgrade'}
                   </button>
                 </div>
               )}
@@ -2439,7 +2462,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     const handleShareMyQr = async () => {
       const shareData = {
         title: 'Péthar Receive QR',
-        text: `${profile.name} (${usernameHandle}) · UID: ${uidNumber}`,
+        text: `${profile.name} (${usernameHandle}) · Wallet Address: ${uidNumber}`,
         url: `pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`,
       }
       try {
@@ -3718,7 +3741,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     ]
 
     const sampleContacts = [
-      { name: 'User (Self)', phone: '09795220917', op: 'ATOM' },
+      { name: 'User (Self)', phone: '09123456789', op: 'ATOM' },
       { name: 'Ko Min Aung', phone: '09251998791', op: 'MPT' },
       { name: 'Daw Hla Hla', phone: '09691234567', op: 'MYTEL' },
       { name: 'Mg Zaw Myo', phone: '09971234567', op: 'U9' },
@@ -4298,7 +4321,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         id: 'mm_atom',
         name: 'ATOM Broadband & Smart Device',
         category: 'Broadband & Device',
-        defaultAccount: '09795220917',
+        defaultAccount: '09123456789',
         accountLabel: 'Account ID / Mobile No',
         defaultAmountMmk: 32000,
         defaultAmountThb: 278.26,
@@ -5663,90 +5686,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════
-     5. ACCOUNT & SETTINGS + PRIVACY + DEVICE MANAGEMENT + SECURITY CHECKUP
+     5. ACCOUNT & SETTINGS + PRIVACY + DEVICE MANAGEMENT
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderAccountScreen = () => {
-    if (accountSubScreen === 'security_checkup') {
-      return (
-        <div className="min-h-full bg-white flex flex-col text-zinc-900">
-          <div className="bg-[#2BB686] text-white px-4 pt-5 pb-10">
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => setAccountSubScreen('main')}
-                className="w-8 h-8 flex items-center justify-center cursor-pointer"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              <h1 className="text-base font-bold">
-                {isAk ? 'လုံခြုံရေး စစ်ဆေးချက်' : 'Security Checkup'}
-              </h1>
-              <Info size={20} className="opacity-90" />
-            </div>
-
-            <div className="mt-8 flex flex-col items-center text-center space-y-2">
-              <div className="w-20 h-20 rounded-2xl bg-white/15 border-2 border-white flex items-center justify-center shadow-lg">
-                <Shield size={42} className="text-white" />
-              </div>
-              <h2 className="text-lg font-extrabold pt-2">
-                {isAk ? 'လုံခြုံစိတ်ချရပြီး အသုံးပြုရန် အသင့်ရှိပါသည်' : 'Secured & ready to use'}
-              </h2>
-              <p className="text-xs text-white/90">
-                {isAk
-                  ? 'သင်၏ စနစ်နှင့် စက်ပစ္စည်းကို စစ်ဆေးပြီးပါပြီ။'
-                  : "We've checked your system and device."}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex-1 bg-white rounded-t-3xl -mt-5 px-5 pt-4 divide-y divide-zinc-100">
-            {[
-              {
-                icon: MoreHorizontal,
-                title: isAk ? 'Péthar စနစ် ဝင်ရောက်မှု' : 'Péthar system login',
-                sub: isAk ? 'PIN လုံခြုံရေးကုဒ် သတ်မှတ်ထားပြီး' : 'PIN authentication set up',
-              },
-              {
-                icon: AppWindow,
-                title: isAk ? 'အက်ပ်လီကေးရှင်းများ' : 'Applications',
-                sub: isAk
-                  ? 'အန္တရာယ်ရှိသော အက်ပ်များ မတွေ့ရှိပါ'
-                  : 'No risky applications affecting Péthar usage found',
-              },
-              {
-                icon: Globe,
-                title: isAk ? 'ကွန်ရက် ချိတ်ဆက်မှု' : 'Network',
-                sub: isAk
-                  ? 'လုံခြုံသော ကွန်ရက်ချိတ်ဆက်မှု ဖြစ်ပါသည်'
-                  : 'No risky connections according to Péthar database found',
-              },
-              {
-                icon: Smartphone,
-                title: isAk ? 'စက်ပစ္စည်း (Device)' : 'Device',
-                sub: isAk ? 'Péthar နှင့် အပြည့်အဝ ကိုက်ညီမှုရှိသည်' : 'Compatible with Péthar',
-              },
-            ].map((item, idx) => {
-              const Icon = item.icon
-              return (
-                <div key={idx} className="py-4 flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3.5">
-                    <Icon size={20} className="text-zinc-800 mt-0.5 shrink-0" />
-                    <div>
-                      <div className="text-sm font-semibold text-zinc-900">{item.title}</div>
-                      <div className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
-                        {item.sub}
-                      </div>
-                    </div>
-                  </div>
-                  <Check size={20} className="text-[#16A34A] shrink-0 mt-1" />
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )
-    }
-
     if (accountSubScreen === 'device_management') {
       return (
         <div className="min-h-full bg-[#F8FAFC] flex flex-col text-zinc-900">
@@ -6142,7 +6084,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   {isAk ? 'နိုင်ငံကူးလက်မှတ် အမှတ်' : 'Passport number'}
                 </span>
                 <span className="font-medium text-zinc-900">
-                  {showAllProfileInfo ? profileDetails.passportNumber : 'MJ3***66'}
+                  {showAllProfileInfo ? (profile.nationalIdNo || '---') : '••••••••'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -6150,7 +6092,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   {isAk ? 'မွေးသက္ကရာဇ်' : 'Date of birth'}
                 </span>
                 <span className="font-medium text-zinc-900">
-                  {showAllProfileInfo ? profileDetails.dob : '** May 2003'}
+                  {showAllProfileInfo ? (profile.dob || '---') : '••••-••-••'}
                 </span>
               </div>
             </div>
@@ -6220,9 +6162,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         M
                       </div>
                       <div className="text-[7px] text-zinc-700 font-mono leading-tight space-y-0.5">
-                        <div className="font-bold text-zinc-900">User</div>
-                        <div>NO: MJ310666</div>
-                        <div>DOB: 13 MAY 2003</div>
+                        <div className="font-bold text-zinc-900">{profile.name || 'User'}</div>
+                        <div>NO: {profile.nationalIdNo || '---'}</div>
+                        <div>DOB: {profile.dob || '---'}</div>
                       </div>
                     </div>
                     <div className="text-[6px] font-mono text-zinc-400 truncate">
@@ -6524,13 +6466,26 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <button
                     type="button"
                     onClick={() => setKycFlowModalOpen(true)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer ${isVerified
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                      : 'bg-rose-50 text-[#D91624] border border-rose-200'
-                      }`}
+                    className={`px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer ${
+                      profile.kycTier === 2 && profile.kycStatus === 'verified'
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : profile.kycStatus === 'pending_review'
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                        : profile.kycTier === 1
+                        ? 'bg-sky-50 text-sky-700 border border-sky-200'
+                        : 'bg-rose-50 text-[#D91624] border border-rose-200'
+                    }`}
                   >
                     <CheckCircle2 size={14} />
-                    <span>{isVerified ? 'Verified' : 'Unverified'}</span>
+                    <span>
+                      {profile.kycTier === 2 && profile.kycStatus === 'verified'
+                        ? 'KYC Level 2 Verified'
+                        : profile.kycStatus === 'pending_review'
+                        ? (isAk ? 'စိစစ်နေဆဲ' : 'Under Review')
+                        : profile.kycTier === 1
+                        ? 'KYC Level 1'
+                        : (isAk ? 'အတည်မပြုရသေး' : 'Unverified')}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -6662,21 +6617,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <ChevronRight size={18} className="text-zinc-400" />
               </button>
 
-              <button
-                type="button"
-                onClick={() => setAccountSubScreen('security_checkup')}
-                className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center">
-                    <ShieldCheck size={18} />
-                  </div>
-                  <span className="text-sm font-bold text-zinc-900">
-                    {isAk ? 'လုံခြုံရေး စစ်ဆေးချက်' : 'Security Checkup'}
-                  </span>
-                </div>
-                <ChevronRight size={18} className="text-zinc-400" />
-              </button>
 
               <button
                 type="button"
@@ -6853,9 +6793,18 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         return (
           <div className="min-h-full bg-[#F4F5F8]">
             <ServicesScreen
-              go={(target) =>
-                requireVerified(target.toUpperCase(), () => setScreen(target))
-              }
+              go={(target) => {
+                if (
+                  target === 'notifications' ||
+                  target === 'settings' ||
+                  target === 'account' ||
+                  target === 'history'
+                ) {
+                  setScreen(target)
+                } else {
+                  requireVerified(target.toUpperCase(), () => setScreen(target))
+                }
+              }}
               lang={lang}
               theme={theme}
             />
@@ -7500,195 +7449,64 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           </div>
         )}
 
-        {/* KYC Identity Verification Modal */}
-        {kycFlowModalOpen && (
-          <div
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 animate-in fade-in"
-            onClick={() => setKycFlowModalOpen(false)}
-          >
-            <div
-              className="w-full max-w-sm bg-white rounded-3xl p-6 space-y-4 shadow-2xl text-zinc-900"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-extrabold">
-                  {isAk ? 'အကောင့် အတည်ပြုချက် (KYC)' : 'Account Verification'}
-                </h3>
-                <span
-                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isVerified
-                    ? 'bg-emerald-500/15 text-emerald-700'
-                    : 'bg-rose-500/15 text-[#D91624]'
-                    }`}
-                >
-                  {isVerified ? 'Verified' : 'Unverified'}
-                </span>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                <div>
-                  <label className="text-zinc-500 font-semibold block mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.name}
-                    onChange={(e) =>
-                      setProfile((p) => ({ ...p, name: e.target.value }))
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-100 font-bold text-zinc-900 focus:outline-none"
-                  />
-                </div>
-                <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-200/80 space-y-1">
-                  <div className="font-bold text-zinc-800">
-                    {SINGLE_WALLET_ACCOUNT.name}
-                  </div>
-                  <div className="font-mono text-[11px] text-zinc-500">
-                    {SINGLE_WALLET_ACCOUNT.fullAddress}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5 pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsVerified(false)
-                    setKycFlowModalOpen(false)
-                  }}
-                  className="py-2.5 rounded-full border border-zinc-300 text-zinc-700 font-bold text-xs cursor-pointer"
-                >
-                  {isAk ? 'Unverified ထားမည်' : 'Set Unverified'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsVerified(true)
-                    setKycFlowModalOpen(false)
-                  }}
-                  className="py-2.5 rounded-full bg-emerald-600 text-white font-bold text-xs shadow-md cursor-pointer"
-                >
-                  {isAk ? 'အတည်ပြုမည် (Verify)' : 'Complete Verify'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* KYC Level 2 Verification Modal (Level 1: Email Verified, Level 2: National ID Verified, No Level 3) */}
+        <KycLevel2Modal
+          isOpen={kycFlowModalOpen}
+          onClose={() => setKycFlowModalOpen(false)}
+          currentProfile={profile}
+          onUpdateProfile={(up) => {
+            setProfile(up)
+            setIsVerified(up.kycTier === 2 && up.kycStatus === 'verified')
+          }}
+          lang={lang}
+        />
 
         {/* ═══════════════════════════════════════════════════════════════════
-            SIGN IN / SIGN UP MODAL (TRIGGERED FROM WELCOME CARD OR LOGGED-OUT ACTIONS)
+            SIGN IN / SIGN UP / FORGOT PIN MODAL
+            (Email + 6-digit PIN, 10-min OTP verification, KYC Level 1)
         ═══════════════════════════════════════════════════════════════════ */}
-        {authModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/55 flex items-center justify-center p-5 animate-in fade-in">
-            <div className="w-full max-w-sm bg-white rounded-3xl p-6 space-y-4 shadow-2xl relative">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <img
-                    src="/pethar-logo-red-white.svg"
-                    alt="Péthar"
-                    className="w-8 h-8 object-contain"
-                  />
-                  <h3 className="text-base font-extrabold text-zinc-900">
-                    {isSignUpMode
-                      ? isAk
-                        ? 'ဖေ့သာ အကောင့်သစ်ဖွင့်ရန်'
-                        : 'Create Péthar Account'
-                      : isAk
-                        ? 'ဖေ့သာ အကောင့်ဝင်ရန်'
-                        : 'Sign in to Péthar'}
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setAuthModalOpen(false)}
-                  className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 cursor-pointer"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-
-              {loginError && (
-                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-semibold text-[#D91624] flex items-center gap-2">
-                  <AlertCircle size={15} className="shrink-0" />
-                  <span>{loginError}</span>
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <div>
-                  <label className="text-[11px] font-bold text-zinc-500 block mb-1">
-                    {isAk ? 'အီးမေးလ် သို့မဟုတ် ဖုန်းနံပါတ်' : 'Email or Phone Number'}
-                  </label>
-                  <input
-                    type="text"
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="[EMAIL_ADDRESS]"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-sm font-semibold text-zinc-900 focus:outline-none focus:border-[#D91624]"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-zinc-500 block mb-1">
-                    {isAk ? 'စကားဝှက် သို့မဟုတ် PIN' : 'Password / PIN'}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showLoginPassword ? 'text' : 'password'}
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-zinc-50 border border-zinc-200 text-sm font-semibold text-zinc-900 focus:outline-none focus:border-[#D91624]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowLoginPassword((s) => !s)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer"
-                    >
-                      {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLoginError('')
-                    setIsAuthenticated(true)
-                    setAuthModalOpen(false)
-                  }}
-                  className="w-full py-3 rounded-full bg-[#D91624] hover:bg-[#B8121E] text-white font-bold text-sm shadow-md active:scale-95 transition cursor-pointer"
-                >
-                  {isSignUpMode
-                    ? isAk
-                      ? 'အကောင့်ဖွင့်မည်'
-                      : 'Sign Up'
-                    : isAk
-                      ? 'အကောင့်ဝင်မည်'
-                      : 'Sign In'}
-                </button>
-
-                <div className="text-center pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSignUpMode((m) => !m)
-                      setLoginError('')
-                    }}
-                    className="text-xs font-bold text-[#D91624] hover:underline cursor-pointer"
-                  >
-                    {isSignUpMode
-                      ? isAk
-                        ? 'အကောင့်ရှိပြီးသားလား? အကောင့်ဝင်ရန်'
-                        : 'Already have an account? Sign In'
-                      : isAk
-                        ? 'အကောင့်မရှိသေးဘူးလား? အကောင့်သစ်ဖွင့်ရန်'
-                        : 'New to Péthar? Create an account'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => {
+            if (isAuthenticated) {
+              setAuthModalOpen(false)
+            }
+          }}
+          initialMode={authInitialMode}
+          lang={lang}
+          onSuccess={(loggedUser) => {
+            setIsAuthenticated(true)
+            setAuthModalOpen(false)
+            if (loggedUser) {
+              setProfile((prev) => ({
+                ...prev,
+                name: loggedUser.name || prev.name,
+                firstName: loggedUser.firstName || prev.firstName,
+                lastName: loggedUser.lastName || prev.lastName,
+                username: loggedUser.username || prev.username,
+                email: loggedUser.email || prev.email,
+                phone: loggedUser.phone || prev.phone,
+                nationalIdNo: loggedUser.nationalIdNo || prev.nationalIdNo,
+                dob: loggedUser.dob || prev.dob,
+                address: loggedUser.address || prev.address,
+                uid: loggedUser.uid || prev.uid,
+                petharId: loggedUser.uid || prev.petharId,
+                walletAddress: loggedUser.walletAddress || prev.walletAddress,
+                kycTier: loggedUser.kyc_tier,
+                kycStatus: loggedUser.kyc_status,
+                accountTier:
+                  loggedUser.kyc_tier === 2 && loggedUser.kyc_status === 'verified'
+                    ? 'KYC Level 2 Verified'
+                    : loggedUser.kyc_status === 'pending_review'
+                    ? 'KYC Level 2 (Under Review)'
+                    : 'KYC Level 1 (Email Verified)',
+              }))
+              setAkdBalance(loggedUser.balance)
+              setUsdAccountBalance(loggedUser.usdAccountBalance)
+              setIsVerified(loggedUser.kyc_tier === 2 && loggedUser.kyc_status === 'verified')
+            }
+          }}
+        />
 
         {/* ═══════════════════════════════════════════════════════════════════
             LIQUID GLASS FLOATING PILL NAVBAR WITH RED EFFECT

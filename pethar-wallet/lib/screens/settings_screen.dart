@@ -14,7 +14,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _subView = 'main'; // 'main' | 'personal_info' | 'app_settings' | 'privacy' | 'security_checkup' | 'device_management'
+  String _subView = 'main'; // 'main' | 'personal_info' | 'app_settings' | 'privacy' | 'device_management'
   bool _showAllProfileInfo = true;
   bool _faceIdEnabled = true;
   bool _biometricLoginEnabled = true;
@@ -23,8 +23,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _biometricConsentToggle = true;
   bool _photosAccessAllowed = true;
 
-  String _subdistrict = 'Sanam Bin Don Mueang, Bangkok 10210';
-  String _streetAddress = '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd';
+  String _subdistrict = '';
+  String _streetAddress = '';
 
   void _showToast(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -107,7 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         Text(
-                          'User\nNO: MJ310666\nDOB: 13 MAY 2003',
+                          'User\nNO: ---\nDOB: ---',
                           style: TextStyle(
                             fontFamily: 'monospace',
                             fontSize: 8,
@@ -1160,82 +1160,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSecurityCheckupView(BuildContext context, bool isAk) {
-    final checks = [
-      {
-        'icon': Icons.apps_rounded,
-        'title': isAk ? 'အက်ပ်လီကေးရှင်းများ' : 'Applications',
-        'sub': isAk
-            ? 'အန္တရာယ်ရှိသော အက်ပ်များ မတွေ့ရှိပါ'
-            : 'No risky applications affecting Péthar usage found',
-      },
-      {
-        'icon': Icons.public_rounded,
-        'title': isAk ? 'ကွန်ရက် ချိတ်ဆက်မှု' : 'Network',
-        'sub': isAk
-            ? 'လုံခြုံသော ကွန်ရက်ချိတ်ဆက်မှု ဖြစ်ပါသည်'
-            : 'No risky connections according to Péthar database found',
-      },
-      {
-        'icon': Icons.smartphone_rounded,
-        'title': isAk ? 'စက်ပစ္စည်း (Device)' : 'Device',
-        'sub': isAk ? 'Péthar နှင့် အပြည့်အဝ ကိုက်ညီမှုရှိသည်' : 'Compatible with Péthar',
-      },
-    ];
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
-          onPressed: () => setState(() => _subView = 'main'),
-        ),
-        centerTitle: true,
-        title: Text(
-          isAk ? 'လုံခြုံရေး စစ်ဆေးချက်' : 'Security Checkup',
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
-        ),
-      ),
-      body: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
-        itemCount: checks.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (ctx, i) {
-          final item = checks[i];
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(item['icon'] as IconData, color: const Color(0xFF27272A), size: 22),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['title'] as String,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        item['sub'] as String,
-                        style: const TextStyle(fontSize: 12, color: Color(0xFF71717A), height: 1.4),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                const Icon(Icons.check_rounded, color: Color(0xFF16A34A), size: 22),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
 
   Widget _buildDeviceManagementView(BuildContext context, AppState appState, bool isAk, bool isAndroid) {
     return Scaffold(
@@ -1614,16 +1538,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildImmutableInfoRow(
                   'National ID No',
                   _showAllProfileInfo
-                      ? (p.nationalIdNo.isNotEmpty ? p.nationalIdNo : 'MJ310666')
-                      : 'MJ3***66',
+                      ? (p.nationalIdNo.isNotEmpty ? p.nationalIdNo : '---')
+                      : '••••••••',
                   subtext: 'National ID no cant change',
                 ),
                 const Divider(height: 20, color: Color(0xFFF1F5F9)),
                 _buildImmutableInfoRow(
                   'Date of Birth (DOB)',
                   _showAllProfileInfo
-                      ? (p.dob.isNotEmpty ? p.dob : '13 May 2003')
-                      : '** May 2003',
+                      ? (p.dob.isNotEmpty ? p.dob : '---')
+                      : '••••-••-••',
                   subtext: 'DOB cant change',
                 ),
               ],
@@ -1737,7 +1661,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Divider(height: 20, color: Color(0xFFF1F5F9)),
                 _buildEditableInfoRow(
                   label: 'Nickname',
-                  value: p.nickname.isNotEmpty ? p.nickname : 'Jack',
+                  value: p.nickname.isNotEmpty ? p.nickname : (p.username.isNotEmpty ? p.username : 'User'),
                   badgeText: 'Can Change',
                   badgeColor: const Color(0xFF059669),
                   subtext: 'Nickname can change freely',
@@ -2181,9 +2105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_subView == 'privacy') {
       return _buildPrivacyView(context, isAk);
     }
-    if (_subView == 'security_checkup') {
-      return _buildSecurityCheckupView(context, isAk);
-    }
+
     if (_subView == 'device_management') {
       return _buildDeviceManagementView(context, appState, isAk, isAndroid);
     }
@@ -2453,12 +2375,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           : '6-digit PIN reset instructions sent to your verified email',
                     ),
                   ),
-                  const Divider(height: 1),
-                  _buildSettingTile(
-                    icon: Icons.verified_user_outlined,
-                    title: isAk ? 'လုံခြုံရေး စစ်ဆေးချက်' : 'Security Checkup',
-                    onTap: () => setState(() => _subView = 'security_checkup'),
-                  ),
+
                   const Divider(height: 1),
                   _buildSettingTile(
                     icon: Icons.smartphone_rounded,

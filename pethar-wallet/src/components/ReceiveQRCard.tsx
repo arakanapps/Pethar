@@ -133,7 +133,7 @@ export const ReceiveQRCard: React.FC<ReceiveQRCardProps> = ({
           className="py-2.5 px-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition flex items-center justify-center gap-2 border border-white/10 shadow-xs"
         >
           {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-          <span>{copied ? (ak ? 'ကူးယူပြီး' : 'Copied') : ak ? 'အကောင့်နံပါတ်ကူးရန်' : 'Copy ID'}</span>
+          <span>{copied ? (ak ? 'ကူးယူပြီး' : 'Copied') : ak ? 'အကောင့်နံပါတ်ကူးရန်' : 'Copy'}</span>
         </button>
 
         <button

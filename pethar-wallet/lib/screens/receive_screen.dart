@@ -90,90 +90,90 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
     final content = Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
+        padding: const EdgeInsets.fromLTRB(20, 6, 20, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 1. App Logo + App Name (No background container)
-            const ArakanEmblem(size: 42),
-            const SizedBox(height: 4),
+            const ArakanEmblem(size: 38),
+            const SizedBox(height: 3),
             const Text(
               'Péthar',
               style: TextStyle(
-                fontSize: 13.5,
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF18181B),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // 2. User Name & @username
             Text(
               appState.profile.name,
               style: const TextStyle(
-                fontSize: 18.5,
+                fontSize: 17,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF18181B),
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 1),
             Text(
               usernameHandle,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 11.5,
                 fontFamily: 'monospace',
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF71717A),
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
 
             // 3. QR Code Box
             Container(
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: const Color(0xFFE4E4E7), width: 1.5),
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0xFF0F172A).withValues(alpha: 0.06),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
+                    blurRadius: 20,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
               child: QrImageView(
                 data: 'pethar://pay?uid=$uidNumber&user=$usernameHandle&curr=AKD',
                 version: QrVersions.auto,
-                size: 180.0,
+                size: 165.0,
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
 
             // 4. Wallet Address
             Text(
               isAk ? 'ပိုက်ဆံအိတ် လိပ်စာ' : 'Wallet Address',
               style: const TextStyle(
-                fontSize: 11,
+                fontSize: 10.5,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFFA1A1AA),
                 letterSpacing: 0.6,
               ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 2),
             Text(
               uidNumber,
               style: const TextStyle(
                 fontFamily: 'monospace',
-                fontSize: 16.5,
+                fontSize: 16,
                 fontWeight: FontWeight.w900,
-                letterSpacing: 2.0,
+                letterSpacing: 1.8,
                 color: Color(0xFF18181B),
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
 
             // 5. Bottom Action Buttons: [ Copy ] & [ Save ]
             SizedBox(
@@ -200,7 +200,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                       ),
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 10.5),
                         side: BorderSide(
                           color: _copiedUid ? emeraldSuccess : const Color(0xFFD4D4D8),
                         ),
@@ -231,7 +231,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                       ),
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 10.5),
                         side: BorderSide(
                           color: _savedQr ? emeraldSuccess : const Color(0xFFD4D4D8),
                         ),

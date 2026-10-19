@@ -82,7 +82,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       id: 'mm_atom',
       name: 'ATOM Broadband & Smart Device',
       category: 'Broadband & Fiber',
-      defaultAccount: '09795220917',
+      defaultAccount: '09123456789',
       accountLabel: 'Account ID / Mobile No',
       defaultAmountMmk: 32000.0,
       primaryColor: Color(0xFF0284C7),

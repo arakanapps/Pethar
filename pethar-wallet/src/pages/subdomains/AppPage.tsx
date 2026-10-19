@@ -56,8 +56,8 @@ export const AppPage = ({ lang }: AppPageProps) => {
           ...prev,
           name: up.name || prev.name,
           phone: up.phone || prev.phone,
-          petharId: up.ak_id || prev.petharId,
-          uid: up.uid || prev.uid || '202610190001',
+          petharId: up.uid || prev.petharId,
+          uid: up.uid || prev.uid || '',
         }));
       }
     });

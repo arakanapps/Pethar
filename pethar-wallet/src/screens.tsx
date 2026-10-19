@@ -12,7 +12,8 @@ import {
   Receipt, User, Sun, KeyRound, ShieldCheck,
   Bell, ArrowLeftRight, Share2, PieChart,
   ChevronLeft, BellOff, Sparkles, CheckCheck, Trash2, MoreVertical, RotateCcw,
-  History as HistoryIcon
+  History as HistoryIcon,
+  Search, SmartphoneCharging, Send as SendIcon, Heart, Landmark, Layers, MonitorSmartphone
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { FakeQR } from './components/FakeQR'
@@ -57,6 +58,7 @@ export type Screen =
   | 'topup'
   | 'bills'
   | 'favourites'
+  | 'financial'
 
 // ── Shared Header ───────────────────────────────────────────────────────
 export function ScreenHeader({
@@ -811,7 +813,7 @@ export function AccountScreen({
   )
 }
 
-// ── SERVICES SCREEN (Full catalog of services from Krungthai style) ────────
+// ── SERVICES SCREEN (Comprehensive, Premium Financial Directory) ────────
 export function ServicesScreen({
   go,
   lang,
@@ -821,68 +823,587 @@ export function ServicesScreen({
   lang: Language
   theme?: ThemeMode
 }) {
+  const isAk = lang === 'ak'
+  const isLight = theme === 'light'
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<
+    'all' | 'payments' | 'topup_bills' | 'banking' | 'crypto_pos' | 'security'
+  >('all')
+
   const serviceCategories = [
     {
-      titleEn: 'Money Movement & Cash',
-      titleMm: 'ငွေလွှဲနှင့် ငွေသားဝန်ဆောင်မှုများ',
+      id: 'payments' as const,
+      titleEn: 'Payments & Transfers',
+      titleMm: 'ငွေလွှဲနှင့် ငွေပေးချေမှုစနစ်များ',
+      descEn: 'Instant P2P, merchant QR payment, and recipient lists',
+      descMm: 'ချက်ချင်းငွေလွှဲ၊ ဆိုင်ငွေပေးချေမှုနှင့် စိတ်ကြိုက်စာရင်းများ',
       items: [
-        { id: 'cashout' as Screen, nameEn: 'Agent Cash-Out', nameMm: 'အေးဂျင့်မှ ငွေသားထုတ်ယူ', desc: 'Physical cash at Sittwe, Mrauk-U, Kyaukpyu', icon: Store, color: 'text-emerald-400 bg-emerald-500/20' },
+        {
+          id: 'send' as Screen,
+          nameEn: 'P2P Send Money',
+          nameMm: 'ငွေလွှဲမည် (P2P Transfer)',
+          descEn: 'Send instantly to phone number, Account ID, or Arakan UID',
+          descMm: 'မည်သည့် ဖုန်းနံပါတ်၊ အကောင့်နံပါတ် သို့မဟုတ် ရခိုင် UID သို့မဆို ချက်ချင်းငွေလွှဲပါ',
+          tagEn: 'Instant',
+          tagMm: 'ချက်ချင်း',
+          icon: SendIcon,
+          color: 'from-emerald-500 to-teal-600',
+          badgeColor: 'bg-emerald-50 text-emerald-600 border-emerald-200/60',
+        },
+        {
+          id: 'receive' as Screen,
+          nameEn: 'Receive Money & QR',
+          nameMm: 'ငွေလက်ခံမည် (Receive & QR)',
+          descEn: 'Generate personal QR code, Arakan ID address, or payment link',
+          descMm: 'ကိုယ်ပိုင် QR ကုဒ်၊ ရခိုင် ID လိပ်စာ သို့မဟုတ် ငွေလက်ခံလင့်ခ် ထုတ်ယူပါ',
+          tagEn: 'QR & Link',
+          tagMm: 'QR ကုဒ်',
+          icon: QrCode,
+          color: 'from-blue-500 to-cyan-600',
+          badgeColor: 'bg-blue-50 text-blue-600 border-blue-200/60',
+        },
+        {
+          id: 'pay' as Screen,
+          nameEn: 'Scan & Merchant Pay',
+          nameMm: 'စကင်ဖတ်၍ ငွေချေမည် (Scan & Pay)',
+          descEn: 'Scan store QR codes, bill invoices, or merchant counters across Arakan',
+          descMm: 'ရခိုင်ပြည်နယ်အတွင်း ဆိုင်များနှင့် မိတ်ဆွေများ၏ QR ကုဒ်ကို စကင်ဖတ်၍ ငွေချေပါ',
+          tagEn: 'Merchant Pay',
+          tagMm: 'ဆိုင်ငွေချေ',
+          icon: ScanLine,
+          color: 'from-red-500 to-rose-600',
+          badgeColor: 'bg-red-50 text-red-600 border-red-200/60',
+        },
+        {
+          id: 'favourites' as Screen,
+          nameEn: 'Saved Recipients',
+          nameMm: 'စိတ်ကြိုက် စာရင်းများ (Favourites)',
+          descEn: 'Fast 1-tap transfers to frequent friends, family, and merchant contacts',
+          descMm: 'ပုံမှန်ငွေလွှဲနေကျ မိသားစု၊ မိတ်ဆွေများနှင့် ဆိုင်များသို့ တစ်ချက်နှိပ်ရုံဖြင့် လွှဲနိုင်သည်',
+          tagEn: 'Quick Send',
+          tagMm: 'အမြန်လွှဲ',
+          icon: Heart,
+          color: 'from-pink-500 to-rose-500',
+          badgeColor: 'bg-pink-50 text-pink-600 border-pink-200/60',
+        },
       ],
     },
     {
-      titleEn: 'Global Banking & Remittance',
-      titleMm: 'နိုင်ငံတကာငွေလွှဲနှင့် ဘဏ်လုပ်ငန်း',
+      id: 'topup_bills' as const,
+      titleEn: 'Airtime & Utility Bills',
+      titleMm: 'ဖုန်းဘေလ်ဖြည့်နှင့် အသုံးစရိတ်ပေးဆောင်မှု',
+      descEn: 'Mobile packages, electricity, water supply, fiber internet and TV',
+      descMm: 'ဖုန်းလိုင်းအားလုံး၊ မီးဘေလ်၊ ရေဘေလ်၊ ဖိုင်ဘာအင်တာနက်နှင့် ရုပ်သံလိုင်းများ',
       items: [
-        { id: 'intl' as Screen, nameEn: 'Wise Global Wire', nameMm: 'Wise ပြည်ပငွေလွှဲ', desc: 'Thailand, Malaysia, Singapore, USA, Europe', icon: Globe, color: 'text-cyan-400 bg-cyan-500/20' },
+        {
+          id: 'topup' as Screen,
+          nameEn: 'Mobile Top-Up & Data',
+          nameMm: 'ဖုန်းဘေလ်နှင့် ဒေတာဖြည့်ရန်',
+          descEn: 'MPT, ATOM, Ooredoo & MyTel instant airtime reload and data packs',
+          descMm: 'MPT, ATOM, Ooredoo, MyTel ဖုန်းဘေလ်နှင့် အထူးဒေတာပက်ကေ့ချ်များ ချက်ချင်းဖြည့်ပါ',
+          tagEn: 'All Telcos',
+          tagMm: 'လိုင်းအားလုံး',
+          icon: SmartphoneCharging,
+          color: 'from-violet-500 to-purple-600',
+          badgeColor: 'bg-violet-50 text-violet-600 border-violet-200/60',
+        },
+        {
+          id: 'bills' as Screen,
+          nameEn: 'Utility & Bill Payments',
+          nameMm: 'ဘေလ်ပေးဆောင်ရန် (Bills)',
+          descEn: 'Electricity, municipal water, high-speed fiber internet, and streaming TV',
+          descMm: 'လျှပ်စစ်မီးဘေလ်၊ စည်ပင်ရေဘေလ်၊ ဖိုင်ဘာအင်တာနက်လိုင်းများနှင့် ရုပ်သံလိုင်းများ ဘေလ်ဆောင်ပါ',
+          tagEn: 'Zero Fee',
+          tagMm: 'အခမဲ့',
+          icon: Receipt,
+          color: 'from-amber-500 to-orange-600',
+          badgeColor: 'bg-amber-50 text-amber-600 border-amber-200/60',
+        },
       ],
     },
     {
-      titleEn: 'Digital Assets & Arakan Retail',
+      id: 'banking' as const,
+      titleEn: 'Cash & Multi-Currency Banking',
+      titleMm: 'ငွေသားထုတ်ယူမှုနှင့် နိုင်ငံခြားငွေစာရင်း',
+      descEn: 'Agent network cash settlement, multi-currency accounts and statements',
+      descMm: 'အေးဂျင့်ငွေသားထုတ်ယူမှု၊ နိုင်ငံခြားငွေစာရင်းနှင့် ငွေစာရင်းရှင်းတမ်းများ',
+      items: [
+        {
+          id: 'cashout' as Screen,
+          nameEn: 'Agent Cash-Out & Cash-In',
+          nameMm: 'အေးဂျင့်မှ ငွေသားထုတ်ယူ / ငွေသွင်း',
+          descEn: 'Physical cash at verified agents across Sittwe, Mrauk-U, Kyaukpyu & Ramree',
+          descMm: 'စစ်တွေ၊ မြောက်ဦး၊ ကျောက်ဖြူ၊ ရမ်းဗြဲမြို့နယ်များရှိ အေးဂျင့်များတွင် ငွေသားထုတ်/သွင်းနိုင်သည်',
+          tagEn: 'Physical Cash',
+          tagMm: 'ငွေသား',
+          icon: Store,
+          color: 'from-emerald-500 to-teal-600',
+          badgeColor: 'bg-emerald-50 text-emerald-600 border-emerald-200/60',
+        },
+        {
+          id: 'financial' as Screen,
+          nameEn: 'USD & Foreign Accounts',
+          nameMm: 'USD နှင့် နိုင်ငံခြားငွေစာရင်း',
+          descEn: 'Multi-currency balances, USD virtual debit cards, conversions and yields',
+          descMm: 'USD ဒေါ်လာစာရင်း၊ ဗာချူရယ်ကတ်များ၊ နိုင်ငံခြားငွေလဲလှယ်မှုနှင့် အတိုးနှုန်းများ',
+          tagEn: 'USD Account',
+          tagMm: 'နိုင်ငံခြားငွေ',
+          icon: CreditCard,
+          color: 'from-blue-600 to-indigo-700',
+          badgeColor: 'bg-blue-50 text-blue-600 border-blue-200/60',
+        },
+        {
+          id: 'history' as Screen,
+          nameEn: 'Statements & Verified Slips',
+          nameMm: 'ငွေစာရင်းရှင်းတမ်းနှင့် ပြေစာများ',
+          descEn: 'Official digital transaction slips, PDF receipts, and monthly activity ledger',
+          descMm: 'တရားဝင် ဒစ်ဂျစ်တယ်ပြေစာများ၊ PDF ထုတ်ယူမှုနှင့် လစဉ် ငွေစာရင်းမှတ်တမ်းများ',
+          tagEn: 'Verified Ledger',
+          tagMm: 'မှတ်တမ်း',
+          icon: HistoryIcon,
+          color: 'from-slate-600 to-zinc-700',
+          badgeColor: 'bg-zinc-100 text-zinc-700 border-zinc-200/60',
+        },
+      ],
+    },
+    {
+      id: 'crypto_pos' as const,
+      titleEn: 'Digital Assets & Merchant Retail',
       titleMm: 'ဒစ်ဂျစ်တယ်ဒင်္ဂါးနှင့် အရောင်းစနစ်',
+      descEn: 'Web3 bridges, cryptocurrency gateway and retail merchant terminal',
+      descMm: 'Binance / MEXC ချိတ်ဆက်မှု၊ ဒစ်ဂျစ်တယ်ဒင်္ဂါးနှင့် အရောင်းဆိုင်စနစ်',
       items: [
-        { id: 'crypto' as Screen, nameEn: 'Binance & MEXC Bridge', nameMm: 'Binance / MEXC ချိတ်ဆက်မှု', desc: 'Direct 0-fee crypto deposit and withdrawal', icon: Coins, color: 'text-purple-400 bg-purple-500/20' },
+        {
+          id: 'crypto' as Screen,
+          nameEn: 'Binance & MEXC Bridge',
+          nameMm: 'Binance / MEXC ချိတ်ဆက်မှု',
+          descEn: 'Direct 0-fee cryptocurrency deposit & withdrawal bridge (USDT/USDC/BTC)',
+          descMm: 'အခမဲ့ ချက်ချင်း အပ်နှံ/ထုတ်ယူနိုင်သော Binance နှင့် MEXC USDT ခရစ်ပတိုတံတား',
+          tagEn: '0% Web3 Bridge',
+          tagMm: '၀% ဝန်ဆောင်ခ',
+          icon: Coins,
+          color: 'from-purple-600 to-violet-700',
+          badgeColor: 'bg-purple-50 text-purple-600 border-purple-200/60',
+        },
+        {
+          id: 'pos' as Screen,
+          nameEn: 'Merchant POS Terminal',
+          nameMm: 'အရောင်းစနစ် ကောင်တာ (Merchant POS)',
+          descEn: 'Arakan retail merchant point-of-sale terminal for shops and local businesses',
+          descMm: 'ရခိုင်ဒေသတွင်း ဆိုင်များနှင့် စီးပွားရေးလုပ်ငန်းများအတွက် အရောင်းကောင်တာစနစ်',
+          tagEn: 'Retail POS',
+          tagMm: 'အရောင်းဆိုင်',
+          icon: MonitorSmartphone,
+          color: 'from-teal-600 to-cyan-700',
+          badgeColor: 'bg-teal-50 text-teal-600 border-teal-200/60',
+        },
+      ],
+    },
+    {
+      id: 'security' as const,
+      titleEn: 'Security & System Alerts',
+      titleMm: 'လုံခြုံရေးနှင့် အသိပေးချက်များ',
+      descEn: 'Biometric locks, PIN protection, notifications and official notices',
+      descMm: 'လက်ဗွေ/မျက်နှာ လုံခြုံရေး၊ PIN နံပါတ်နှင့် တရားဝင် အသိပေးချက်များ',
+      items: [
+        {
+          id: 'settings' as Screen,
+          nameEn: 'Security Center & PIN',
+          nameMm: 'လုံခြုံရေး စင်တာနှင့် PIN',
+          descEn: 'Manage 2FA authentication, biometric Touch/Face ID, and transaction limits',
+          descMm: '2FA နှစ်ဆင့်လုံခြုံရေး၊ မျက်နှာ/လက်ဗွေစနစ်နှင့် ငွေလွှဲကန့်သတ်ချက်များ စီမံပါ',
+          tagEn: 'Protected',
+          tagMm: 'လုံခြုံရေး',
+          icon: ShieldCheck,
+          color: 'from-emerald-600 to-green-700',
+          badgeColor: 'bg-emerald-50 text-emerald-600 border-emerald-200/60',
+        },
+        {
+          id: 'notifications' as Screen,
+          nameEn: 'Notifications & Alerts',
+          nameMm: 'အသိပေးချက်များ (Notifications)',
+          descEn: 'Real-time transaction alerts, payment confirmations, and system announcements',
+          descMm: 'အချိန်နှင့်တပြေးညီ ငွေလွှဲအသိပေးချက်များ၊ ပြေစာများနှင့် အရေးကြီးသတင်းများ',
+          tagEn: 'Live Alerts',
+          tagMm: 'အသိပေးချက်',
+          icon: Bell,
+          color: 'from-red-500 to-rose-600',
+          badgeColor: 'bg-red-50 text-red-600 border-red-200/60',
+        },
       ],
     },
   ]
 
-  return (
-    <div className={`flex h-full flex-col overflow-y-auto ${th.root(theme)}`}>
-      <ScreenHeader
-        title={lang === 'ak' ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services'}
-        subtitle="Péthar Platform Directory"
-        theme={theme}
-      />
+  const categoryTabs = [
+    { id: 'all' as const, labelEn: 'All Services', labelMm: 'အားလုံး', icon: Layers },
+    { id: 'payments' as const, labelEn: 'Transfers & Pay', labelMm: 'ငွေလွှဲ/ငွေချေ', icon: ArrowLeftRight },
+    { id: 'topup_bills' as const, labelEn: 'Top-Up & Bills', labelMm: 'ဘေလ်/ဖုန်း', icon: SmartphoneCharging },
+    { id: 'banking' as const, labelEn: 'Cash & Banking', labelMm: 'ငွေသား/ဘဏ်', icon: Landmark },
+    { id: 'crypto_pos' as const, labelEn: 'Digital Assets & POS', labelMm: 'ဒစ်ဂျစ်တယ်/အရောင်း', icon: Coins },
+    { id: 'security' as const, labelEn: 'Security', labelMm: 'လုံခြုံရေး', icon: ShieldCheck },
+  ]
 
-      <div className="p-4 space-y-5">
-        {serviceCategories.map((cat, i) => (
-          <div key={i} className="space-y-2">
-            <h3 className={`text-xs font-bold uppercase tracking-wider font-mono ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>
-              {lang === 'ak' ? cat.titleMm : cat.titleEn}
-            </h3>
-            <div className="space-y-2">
-              {cat.items.map((item, idx) => (
+  // Filter categories and items based on search query and active tab
+  const filteredCategories = serviceCategories
+    .map((cat) => {
+      if (selectedCategory !== 'all' && cat.id !== selectedCategory) {
+        return null
+      }
+      const q = searchQuery.trim().toLowerCase()
+      if (!q) {
+        return cat
+      }
+      const matchingItems = cat.items.filter(
+        (it) =>
+          it.nameEn.toLowerCase().includes(q) ||
+          it.nameMm.toLowerCase().includes(q) ||
+          it.descEn.toLowerCase().includes(q) ||
+          it.descMm.toLowerCase().includes(q) ||
+          cat.titleEn.toLowerCase().includes(q) ||
+          cat.titleMm.toLowerCase().includes(q)
+      )
+      if (matchingItems.length === 0) return null
+      return { ...cat, items: matchingItems }
+    })
+    .filter(Boolean) as typeof serviceCategories
+
+  const totalResults = filteredCategories.reduce(
+    (acc, cat) => acc + cat.items.length,
+    0
+  )
+
+  return (
+    <div
+      className={`flex h-full flex-col overflow-y-auto pb-32 transition-colors ${
+        isLight ? 'bg-[#F4F5F8] text-zinc-900' : 'bg-[#090D14] text-white'
+      }`}
+    >
+      {/* ── Top Hero Header with Red Brand Gradient & Search Bar ── */}
+      <div className="relative bg-gradient-to-br from-[#D91624] via-[#C0121F] to-[#990D18] text-white pt-5 pb-6 px-4 rounded-b-[32px] shadow-[0_12px_32px_rgba(217,22,36,0.22)] overflow-hidden">
+        {/* Glow Effects */}
+        <div className="absolute -top-16 -right-12 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-black/20 blur-xl pointer-events-none" />
+
+        <div className="relative z-10 max-w-lg mx-auto">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/20 backdrop-blur-md text-[11px] font-semibold tracking-wide text-white/95 mb-2 shadow-xs">
+            <Sparkles size={12} className="text-amber-300" />
+            <span>
+              {isAk ? 'ရခိုင်ဘဏ္ဍာရေး ဝန်ဆောင်မှု ကွန်ရက်' : 'PÉTHAR ECOSYSTEM DIRECTORY'}
+            </span>
+          </div>
+
+          {/* Title */}
+          <h1 className="text-2xl font-black tracking-tight text-white">
+            {isAk ? 'ဘဏ္ဍာရေး ဝန်ဆောင်မှုများ' : 'All Financial Services'}
+          </h1>
+          <p className="text-xs text-white/85 font-medium mt-1 leading-relaxed">
+            {isAk
+              ? 'လွယ်ကူလျင်မြန်ပြီး လုံခြုံစိတ်ချရသော ပြည်တွင်းငွေလွှဲ၊ ဘေလ်ဆောင်၊ ငွေသားထုတ်ယူမှုနှင့် ဒစ်ဂျစ်တယ်ဒင်္ဂါးစနစ်'
+              : 'Fast, secure local transfers, utility bills, agent cashout, and Web3 crypto gateway.'}
+          </p>
+
+          {/* Search Input Box */}
+          <div className="relative mt-4">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+              <Search size={17} />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={
+                isAk
+                  ? 'ဝန်ဆောင်မှု၊ ဘေလ်၊ ငွေဖြည့်၊ ဒစ်ဂျစ်တယ်ဒင်္ဂါး ရှာဖွေပါ...'
+                  : 'Search services, top-up, bills, cashout...'
+              }
+              className="w-full pl-10 pr-10 py-3 rounded-2xl bg-white text-zinc-900 placeholder:text-zinc-400 text-xs font-semibold border-0 shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-400 hover:text-zinc-700 cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main Content Container ── */}
+      <div className="p-4 space-y-6 max-w-lg mx-auto w-full">
+        {/* Category Filter Chips */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-1 px-1">
+          {categoryTabs.map((tab) => {
+            const active = selectedCategory === tab.id
+            const Icon = tab.icon
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setSelectedCategory(tab.id)}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer ${
+                  active
+                    ? 'bg-[#D91624] text-white shadow-[0_4px_14px_rgba(217,22,36,0.32)] border border-transparent'
+                    : isLight
+                    ? 'bg-white text-zinc-700 border border-zinc-200/80 hover:bg-zinc-50 shadow-2xs'
+                    : 'bg-[#151D2A] text-zinc-300 border border-white/10 hover:bg-[#1D2838]'
+                }`}
+              >
+                <Icon size={14} className={active ? 'text-white' : 'text-zinc-400'} />
+                <span>{isAk ? tab.labelMm : tab.labelEn}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* ── Quick Spotlight Grid (Only when not searching) ── */}
+        {!searchQuery && selectedCategory === 'all' && (
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider font-mono text-zinc-500">
+                {isAk ? 'လူသုံးအများဆုံး ဝန်ဆောင်မှုများ' : 'Featured Quick Access'}
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-[#D91624] border border-red-100">
+                {isAk ? '၀% ဝန်ဆောင်ခ' : 'Fast & Free'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2.5">
+              {[
+                {
+                  id: 'topup' as Screen,
+                  titleEn: 'Top-Up',
+                  titleMm: 'ငွေဖြည့်',
+                  subEn: 'Telcos',
+                  subMm: 'ဖုန်းဘေလ်',
+                  badge: '24/7',
+                  icon: SmartphoneCharging,
+                  gradient: 'from-violet-500 to-purple-600',
+                },
+                {
+                  id: 'bills' as Screen,
+                  titleEn: 'Bills',
+                  titleMm: 'ဘေလ်ဆောင်',
+                  subEn: 'Utility',
+                  subMm: 'မီး/ရေ/လိုင်း',
+                  badge: '0% Fee',
+                  icon: Receipt,
+                  gradient: 'from-amber-500 to-orange-600',
+                },
+                {
+                  id: 'cashout' as Screen,
+                  titleEn: 'Cash Out',
+                  titleMm: 'ငွေထုတ်ယူ',
+                  subEn: 'Agents',
+                  subMm: 'စစ်တွေ/မြောက်ဦး',
+                  badge: 'Cash',
+                  icon: Store,
+                  gradient: 'from-emerald-500 to-teal-600',
+                },
+                {
+                  id: 'crypto' as Screen,
+                  titleEn: 'Crypto',
+                  titleMm: 'ဒစ်ဂျစ်တယ်',
+                  subEn: 'MEXC/Binance',
+                  subMm: 'USDT တံတား',
+                  badge: 'Web3',
+                  icon: Coins,
+                  gradient: 'from-purple-600 to-indigo-600',
+                },
+              ].map((item, idx) => (
                 <button
                   key={idx}
+                  type="button"
                   onClick={() => go(item.id)}
-                  className={`w-full p-3 rounded-2xl border text-left transition flex items-center justify-between ${th.card(theme)} ${th.cardHover(theme)} hover:border-amber-500/30`}
+                  className={`p-2.5 rounded-2xl flex flex-col items-center justify-center text-center transition-all cursor-pointer relative group active:scale-95 ${
+                    isLight
+                      ? 'bg-white border border-zinc-200/70 shadow-2xs hover:shadow-md hover:border-[#D91624]/30'
+                      : 'bg-[#121926] border border-white/10 hover:border-[#D91624]/40'
+                  }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-2xl ${item.color} flex items-center justify-center`}>
-                      <item.icon size={20} />
-                    </div>
-                    <div>
-                      <div className={`text-xs font-bold ${th.textMain(theme)}`}>
-                        {lang === 'ak' ? item.nameMm : item.nameEn}
-                      </div>
-                      <div className="text-[10px] text-gray-400">{item.desc}</div>
-                    </div>
+                  <div
+                    className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.gradient} text-white flex items-center justify-center shadow-xs mb-1.5 group-hover:scale-105 transition-transform`}
+                  >
+                    <item.icon size={20} />
                   </div>
-                  <ChevronRight size={16} className="text-gray-500" />
+                  <div
+                    className={`text-[11px] font-bold truncate max-w-full leading-tight ${
+                      isLight ? 'text-zinc-900' : 'text-white'
+                    }`}
+                  >
+                    {isAk ? item.titleMm : item.titleEn}
+                  </div>
+                  <div className="text-[9px] text-zinc-400 font-medium truncate max-w-full">
+                    {isAk ? item.subMm : item.subEn}
+                  </div>
                 </button>
               ))}
             </div>
           </div>
-        ))}
+        )}
+
+        {/* ── Search Match Header if Searching ── */}
+        {searchQuery && (
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-semibold text-zinc-600">
+              {isAk
+                ? `"${searchQuery}" အတွက် ဝန်ဆောင်မှု ${totalResults} ခု တွေ့ရှိပါသည်`
+                : `Found ${totalResults} services matching "${searchQuery}"`}
+            </span>
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="text-xs font-bold text-[#D91624] hover:underline cursor-pointer"
+            >
+              {isAk ? 'ရှာဖွေမှု ဖျက်မည်' : 'Clear'}
+            </button>
+          </div>
+        )}
+
+        {/* ── Service Categories & Cards ── */}
+        {filteredCategories.length > 0 ? (
+          filteredCategories.map((category) => (
+            <div key={category.id} className="space-y-2.5">
+              {/* Category Header */}
+              <div className="flex items-center justify-between px-1 pt-1">
+                <div>
+                  <h2
+                    className={`text-xs font-black uppercase tracking-wider font-mono ${
+                      isLight ? 'text-zinc-800' : 'text-zinc-200'
+                    }`}
+                  >
+                    {isAk ? category.titleMm : category.titleEn}
+                  </h2>
+                  <p className="text-[10px] text-zinc-400 mt-0.5">
+                    {isAk ? category.descMm : category.descEn}
+                  </p>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-200/70 text-zinc-600">
+                  {category.items.length}
+                </span>
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-2.5">
+                {category.items.map((item) => {
+                  const Icon = item.icon as React.ComponentType<{ size?: number; className?: string }>
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => go(item.id)}
+                      className={`w-full p-3.5 rounded-2xl border text-left transition-all flex items-center justify-between group active:scale-[0.99] cursor-pointer ${
+                        isLight
+                          ? 'bg-white border-zinc-200/80 shadow-2xs hover:shadow-md hover:border-[#D91624]/40 hover:bg-white'
+                          : 'bg-[#121926] border-white/10 hover:border-[#D91624]/40 hover:bg-[#162030]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
+                        {/* Squircle Gradient Icon Badge */}
+                        <div
+                          className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-200`}
+                        >
+                          <Icon size={22} />
+                        </div>
+
+                        {/* Title & Description */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                            <span
+                              className={`text-xs font-bold leading-tight ${
+                                isLight ? 'text-zinc-900' : 'text-white'
+                              }`}
+                            >
+                              {isAk ? item.nameMm : item.nameEn}
+                            </span>
+                            <span
+                              className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${item.badgeColor}`}
+                            >
+                              {isAk ? item.tagMm : item.tagEn}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-zinc-500 line-clamp-1 leading-snug">
+                            {isAk ? item.descMm : item.descEn}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right Action Chevron */}
+                      <div className="w-8 h-8 rounded-full bg-zinc-100/80 flex items-center justify-center text-zinc-400 group-hover:text-[#D91624] group-hover:bg-red-50 group-hover:translate-x-0.5 transition-all shrink-0">
+                        <ChevronRight size={16} />
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))
+        ) : (
+          /* Empty Search Results State */
+          <div
+            className={`p-8 rounded-3xl border text-center space-y-3 ${
+              isLight
+                ? 'bg-white border-zinc-200/80 shadow-xs'
+                : 'bg-[#121926] border-white/10'
+            }`}
+          >
+            <div className="w-12 h-12 rounded-full bg-red-50 text-[#D91624] mx-auto flex items-center justify-center">
+              <Search size={22} />
+            </div>
+            <div>
+              <h3
+                className={`text-sm font-bold ${
+                  isLight ? 'text-zinc-900' : 'text-white'
+                }`}
+              >
+                {isAk ? 'ရှာဖွေတွေ့ရှိမှု မရှိပါ' : 'No services found'}
+              </h3>
+              <p className="text-xs text-zinc-400 mt-1 max-w-xs mx-auto">
+                {isAk
+                  ? `"${searchQuery}" နှင့် ကိုက်ညီသော ဘဏ္ဍာရေးဝန်ဆောင်မှု မရှိပါ။`
+                  : `We couldn't find any financial services matching "${searchQuery}".`}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('')
+                setSelectedCategory('all')
+              }}
+              className="px-4 py-2 rounded-xl bg-[#D91624] text-white text-xs font-bold hover:brightness-105 active:scale-95 transition cursor-pointer"
+            >
+              {isAk ? 'ဝန်ဆောင်မှု အားလုံး ပြန်ကြည့်ရန်' : 'View All Services'}
+            </button>
+          </div>
+        )}
+
+        {/* ── Arakan Sovereign Financial Security Guarantee Card ── */}
+        <div className="p-4 rounded-3xl bg-gradient-to-br from-zinc-900 via-zinc-950 to-black text-white border border-zinc-800 shadow-md space-y-2 relative overflow-hidden">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-red-600/30 border border-red-500/40 flex items-center justify-center text-red-400">
+              <ShieldCheck size={16} />
+            </div>
+            <span className="text-[11px] font-bold tracking-wider uppercase text-zinc-300 font-mono">
+              {isAk ? 'ရခိုင်ဘဏ္ဍာရေး အာမခံချက်' : 'Arakan Sovereign Protocol'}
+            </span>
+          </div>
+          <p className="text-[11px] text-zinc-400 leading-relaxed">
+            {isAk
+              ? 'ငွေလွှဲ၊ ငွေသွင်း၊ ငွေထုတ်နှင့် ကုန်သွယ်မှု အားလုံးကို 256-bit စစ်တပ်အဆင့် လုံခြုံရေးဖြင့် ကာကွယ်ထားပြီး မြို့နယ်အလိုက် အေးဂျင့်များဖြင့် ချက်ချင်းငွေသား အာမခံပါသည်။'
+              : 'All operations are protected by 256-bit cryptographic security and real-time sovereign ledger settlement with physical cash guarantees.'}
+          </p>
+          <div className="flex items-center gap-3 pt-1 text-[10px] text-zinc-400">
+            <span className="flex items-center gap-1 text-emerald-400 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              {isAk ? 'စနစ် ပုံမှန်လည်ပတ်နေသည်' : 'All systems operational'}
+            </span>
+            <span>•</span>
+            <span>{isAk ? '၂၄ နာရီ အသင့်' : '24/7 Availability'}</span>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -909,9 +1430,9 @@ export function SettingsScreen({
   const currentProfile = profile || localProfile
 
   const [editModalOpen, setEditModalOpen] = useState(false)
-  const [editFirstName, setEditFirstName] = useState(currentProfile.firstName || 'User')
-  const [editLastName, setEditLastName] = useState(currentProfile.lastName || 'PAING')
-  const [editNickname, setEditNickname] = useState(currentProfile.nickname || 'Jack')
+  const [editFirstName, setEditFirstName] = useState(currentProfile.firstName || '')
+  const [editLastName, setEditLastName] = useState(currentProfile.lastName || '')
+  const [editNickname, setEditNickname] = useState(currentProfile.nickname || '')
   const [editAvatarUrl, setEditAvatarUrl] = useState(currentProfile.avatarUrl || '')
   const [editEmail, setEditEmail] = useState(currentProfile.email)
   const [editPhone, setEditPhone] = useState(currentProfile.phone)
@@ -930,9 +1451,9 @@ export function SettingsScreen({
   const t = translations[lang]
 
   const syncProfileState = () => {
-    setEditFirstName(currentProfile.firstName || 'User')
-    setEditLastName(currentProfile.lastName || 'PAING')
-    setEditNickname(currentProfile.nickname || 'Jack')
+    setEditFirstName(currentProfile.firstName || '')
+    setEditLastName(currentProfile.lastName || '')
+    setEditNickname(currentProfile.nickname || '')
     setEditAvatarUrl(currentProfile.avatarUrl || '')
     setEditEmail(currentProfile.email)
     setEditPhone(currentProfile.phone)
@@ -1381,11 +1902,11 @@ export function SettingsScreen({
                     </div>
                     <div>
                       <div className="text-gray-400 text-[10px]">National ID No:</div>
-                      <div className="font-bold truncate">{currentProfile.nationalIdNo || 'MJ310666'}</div>
+                      <div className="font-bold truncate">{currentProfile.nationalIdNo || '---'}</div>
                     </div>
                     <div>
                       <div className="text-gray-400 text-[10px]">Date of Birth (DOB):</div>
-                      <div className="font-bold truncate">{currentProfile.dob || '13 May 2003'}</div>
+                      <div className="font-bold truncate">{currentProfile.dob || '---'}</div>
                     </div>
                   </div>
 
@@ -1930,37 +2451,37 @@ export function Receive({
       )}
 
       {/* Main Content Body */}
-      <div className="flex-1 flex flex-col items-center justify-start px-6 pt-5 pb-8 text-center space-y-3.5 overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-start px-6 pt-2.5 pb-6 text-center space-y-2.5 overflow-y-auto">
         {/* 1. App Logo + App Name (No container under logo) */}
-        <div className="flex flex-col items-center space-y-1">
+        <div className="flex flex-col items-center space-y-0.5">
           <img
             src="/pethar-logo-red-white.svg"
             alt="Péthar Logo"
-            className="w-11 h-11 object-contain"
+            className="w-10 h-10 object-contain"
           />
-          <div className="text-sm font-extrabold text-zinc-900 tracking-tight">
+          <div className="text-xs font-extrabold text-zinc-900 tracking-tight">
             Péthar
           </div>
         </div>
 
         {/* 2. User Name & @username */}
         <div className="space-y-0.5">
-          <div className="text-lg font-extrabold text-zinc-900 leading-tight">
+          <div className="text-base font-extrabold text-zinc-900 leading-tight">
             {currentProfile.name}
           </div>
-          <div className="text-xs font-semibold text-zinc-500 font-mono">
+          <div className="text-[11px] font-semibold text-zinc-500 font-mono">
             {usernameHandle}
           </div>
         </div>
 
         {/* 3. QR Box */}
-        <div className="p-4 bg-white rounded-3xl border-2 border-zinc-200/90 shadow-[0_10px_28px_rgba(15,23,42,0.06)] flex items-center justify-center">
-          <FakeQR size={178} value={`pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`} />
+        <div className="p-3.5 bg-white rounded-2xl border-2 border-zinc-200/90 shadow-[0_8px_24px_rgba(15,23,42,0.06)] flex items-center justify-center">
+          <FakeQR size={164} value={`pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`} />
         </div>
 
         {/* 4. Wallet Address */}
-        <div className="pt-0.5">
-          <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+        <div>
+          <div className="text-[10.5px] font-semibold text-zinc-400 uppercase tracking-wider">
             {isAk ? 'ပိုက်ဆံအိတ် လိပ်စာ' : 'Wallet Address'}
           </div>
           <div className="text-base font-extrabold font-mono tracking-widest text-zinc-900 mt-0.5 tabular-nums">
@@ -1973,7 +2494,7 @@ export function Receive({
           <button
             type="button"
             onClick={handleCopyUid}
-            className="py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-900 font-bold text-xs flex items-center justify-center gap-2 shadow-2xs active:scale-95 transition cursor-pointer"
+            className="py-2 px-4 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-900 font-bold text-xs flex items-center justify-center gap-2 shadow-2xs active:scale-95 transition cursor-pointer"
           >
             {copiedUid ? (
               <Check size={15} className="text-emerald-600" />
@@ -1986,7 +2507,7 @@ export function Receive({
           <button
             type="button"
             onClick={handleSaveQr}
-            className="py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-900 font-bold text-xs flex items-center justify-center gap-2 shadow-2xs active:scale-95 transition cursor-pointer"
+            className="py-2 px-4 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-900 font-bold text-xs flex items-center justify-center gap-2 shadow-2xs active:scale-95 transition cursor-pointer"
           >
             {savedQr ? (
               <Check size={15} className="text-emerald-600" />
@@ -2025,7 +2546,7 @@ export function Scan({
   const handleShareQr = async () => {
     const shareData = {
       title: 'Péthar Receive QR',
-      text: `${currentProfile.name} (${usernameHandle}) · UID: ${uidNumber}`,
+      text: `${currentProfile.name} (${usernameHandle}) · Wallet Address: ${uidNumber}`,
       url: `pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`,
     }
     try {

@@ -25,17 +25,17 @@ CREATE TABLE IF NOT EXISTS public.users (
     wallet_address             VARCHAR(64),
     email                      VARCHAR(255) UNIQUE,
     phone_number               VARCHAR(30) UNIQUE,
-    first_name                 VARCHAR(50) NOT NULL DEFAULT 'User',
-    last_name                  VARCHAR(50) NOT NULL DEFAULT 'PAING',
+    first_name                 VARCHAR(50) NOT NULL DEFAULT '',
+    last_name                  VARCHAR(50) NOT NULL DEFAULT '',
     full_name                  VARCHAR(100) NOT NULL DEFAULT 'User',
-    nickname                   VARCHAR(50) DEFAULT 'Jack',
-    national_id_no             VARCHAR(50) DEFAULT 'MJ310666',
-    dob                        DATE DEFAULT '2003-05-13',
-    address                    TEXT DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+    nickname                   VARCHAR(50) DEFAULT '',
+    national_id_no             VARCHAR(50) DEFAULT '',
+    dob                        DATE,
+    address                    TEXT DEFAULT '',
     usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19',
     pin_hash                   VARCHAR(128) DEFAULT '',
     avatar_url                 TEXT DEFAULT '',
-    kyc_tier                   INT NOT NULL DEFAULT 2 CHECK (kyc_tier IN (1, 2, 3)),
+    kyc_tier                   INT NOT NULL DEFAULT 1 CHECK (kyc_tier IN (1, 2)),
     status                     VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'SUSPENDED', 'FROZEN', 'CLOSED')),
     created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -45,12 +45,12 @@ ALTER TABLE public.users ADD COLUMN IF NOT EXISTS username VARCHAR(50) UNIQUE;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS uid VARCHAR(64) UNIQUE;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS wallet_address VARCHAR(64);
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email VARCHAR(255) UNIQUE;
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL DEFAULT 'User';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL DEFAULT 'PAING';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT 'Jack';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) DEFAULT 'MJ310666';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS dob DATE DEFAULT '2003-05-13';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address TEXT DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT '';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) DEFAULT '';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS dob DATE;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address TEXT DEFAULT '';
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19';
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128) DEFAULT '';
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT '';
@@ -62,43 +62,43 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     id                         VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
     user_id                    UUID REFERENCES public.users(id) ON DELETE SET NULL,
     username                   VARCHAR(50) NOT NULL DEFAULT '@user',
-    uid                        VARCHAR(64) NOT NULL DEFAULT '202610190001',
+    uid                        VARCHAR(64) NOT NULL,
     wallet_address             VARCHAR(64) GENERATED ALWAYS AS (uid) STORED,
     avatar_url                 TEXT DEFAULT '',
-    email                      VARCHAR(255) NOT NULL DEFAULT 'example@email.com',
+    email                      VARCHAR(255) NOT NULL DEFAULT '',
     pin_hash                   VARCHAR(128) DEFAULT '',
-    phone                      VARCHAR(30) NOT NULL DEFAULT '09795220917',
-    first_name                 VARCHAR(50) NOT NULL DEFAULT 'User',
-    last_name                  VARCHAR(50) NOT NULL DEFAULT 'PAING',
+    phone                      VARCHAR(30) NOT NULL DEFAULT '',
+    first_name                 VARCHAR(50) NOT NULL DEFAULT '',
+    last_name                  VARCHAR(50) NOT NULL DEFAULT '',
     name                       VARCHAR(100) NOT NULL DEFAULT 'User',
-    nickname                   VARCHAR(50) DEFAULT 'Jack',
-    national_id_no             VARCHAR(50) NOT NULL DEFAULT 'MJ310666',
-    dob                        DATE NOT NULL DEFAULT '2003-05-13',
-    address                    TEXT NOT NULL DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
+    nickname                   VARCHAR(50) DEFAULT '',
+    national_id_no             VARCHAR(50) NOT NULL DEFAULT '',
+    dob                        DATE,
+    address                    TEXT NOT NULL DEFAULT '',
     usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19',
-    ak_id                      VARCHAR(64) NOT NULL DEFAULT 'AK-992104-88',
+    ak_id                      VARCHAR(64) GENERATED ALWAYS AS (uid) STORED,
     balance                    NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
     akd_wallet_balance         NUMERIC(18, 4) GENERATED ALWAYS AS (balance) STORED,
     usd_account_balance        NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
     total_balance              NUMERIC(18, 4) GENERATED ALWAYS AS (balance + usd_account_balance) STORED,
     currency                   VARCHAR(16) NOT NULL DEFAULT 'AKD',
-    kyc_tier                   INT NOT NULL DEFAULT 2,
+    kyc_tier                   INT NOT NULL DEFAULT 1,
     created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS username VARCHAR(50) NOT NULL DEFAULT '@user';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS uid VARCHAR(64) NOT NULL DEFAULT '202610190001';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS uid VARCHAR(64);
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL DEFAULT 'example@email.com';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL DEFAULT '';
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128) DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL DEFAULT '09795220917';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL DEFAULT 'User';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL DEFAULT 'PAING';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT 'Jack';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) NOT NULL DEFAULT 'MJ310666';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS dob DATE NOT NULL DEFAULT '2003-05-13';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS address TEXT NOT NULL DEFAULT '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS dob DATE;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS address TEXT NOT NULL DEFAULT '';
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '0x36a8F492C109bE742819aBcD8391048291045f19';
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_balance NUMERIC(18, 4) NOT NULL DEFAULT 0.00;
 
@@ -1273,65 +1273,8 @@ END $$;
 -- 12. SEED ENTERPRISE DATA
 -- ----------------------------------------------------------------------------
 
--- 12.1. Seed Core System User & Default User Profile
-INSERT INTO public.users (
-    id, username, uid, wallet_address, email, phone_number,
-    first_name, last_name, full_name, nickname, national_id_no,
-    dob, address, usd_account_wallet_address, pin_hash, avatar_url, kyc_tier, status
-)
-VALUES (
-    '00000000-0000-0000-0000-000000000001', '@user', '202610190001', '202610190001',
-    'example@email.com', '09795220917', 'User', 'PAING', 'User', 'Jack', 'MJ310666',
-    '2003-05-13', '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
-    '0x36a8F492C109bE742819aBcD8391048291045f19', encode(digest('123456', 'sha256'), 'hex'),
-    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-    2, 'ACTIVE'
-)
-ON CONFLICT (id) DO UPDATE SET
-    username = EXCLUDED.username,
-    uid = EXCLUDED.uid,
-    wallet_address = EXCLUDED.wallet_address,
-    email = EXCLUDED.email,
-    phone_number = EXCLUDED.phone_number,
-    first_name = EXCLUDED.first_name,
-    last_name = EXCLUDED.last_name,
-    full_name = EXCLUDED.full_name,
-    nickname = EXCLUDED.nickname,
-    national_id_no = EXCLUDED.national_id_no,
-    dob = EXCLUDED.dob,
-    address = EXCLUDED.address,
-    usd_account_wallet_address = EXCLUDED.usd_account_wallet_address;
-
-INSERT INTO public.user_profiles (
-    id, user_id, username, uid, email, pin_hash, phone, first_name, last_name,
-    name, nickname, national_id_no, dob, address, usd_account_wallet_address,
-    ak_id, balance, usd_account_balance, currency, kyc_tier, avatar_url
-)
-VALUES (
-    'user_default', '00000000-0000-0000-0000-000000000001', '@user', '202610190001',
-    'example@email.com', encode(digest('123456', 'sha256'), 'hex'), '09795220917',
-    'User', 'PAING', 'User', 'Jack', 'MJ310666', '2003-05-13',
-    '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
-    '0x36a8F492C109bE742819aBcD8391048291045f19', 'AK-992104-88', 0.00, 0.00, 'AKD', 2,
-    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
-)
-ON CONFLICT (id) DO UPDATE SET
-    username = EXCLUDED.username,
-    uid = EXCLUDED.uid,
-    email = EXCLUDED.email,
-    phone = EXCLUDED.phone,
-    first_name = EXCLUDED.first_name,
-    last_name = EXCLUDED.last_name,
-    name = EXCLUDED.name,
-    nickname = EXCLUDED.nickname,
-    national_id_no = EXCLUDED.national_id_no,
-    dob = EXCLUDED.dob,
-    address = EXCLUDED.address,
-    usd_account_wallet_address = EXCLUDED.usd_account_wallet_address,
-    balance = EXCLUDED.balance,
-    usd_account_balance = EXCLUDED.usd_account_balance,
-    currency = EXCLUDED.currency,
-    avatar_url = EXCLUDED.avatar_url;
+-- 12.1. System Core Ledgers (User data created dynamically upon registration / KYC)
+-- Real personal info removed for safety; accounts and profiles are fetched/registered dynamically.
 
 -- 12.2. Seed Default Multi-currency Accounts
 INSERT INTO public.accounts (id, user_id, currency, account_type)
@@ -1456,7 +1399,7 @@ VALUES
     ('fav_01', 'Daw Than Nwe', '@daw_thannwe', '202610190002', '09791234567', 'TN', 4280391411, 'family'),
     ('fav_02', 'Hsu Hnin Wutt Yee', '@hsu_hnin', '202610190003', '09951234567', 'HW', 4293998877, 'friends'),
     ('fav_03', 'HNIN THANDAR PHYO', '@hnin_thandar', '202610190004', '09251234567', 'HT', 4279860608, 'business'),
-    ('fav_04', 'Myo Min Paing', '@myo_min', '202610190005', '09451234567', 'MP', 4281881855, 'friends')
+    ('fav_04', 'Myo Min Oo', '@myo_min', '202610190005', '09451234567', 'MO', 4281881855, 'friends')
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     username = EXCLUDED.username,

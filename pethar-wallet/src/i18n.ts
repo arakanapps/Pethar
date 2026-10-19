@@ -183,7 +183,7 @@ export const translations: Record<Language, TranslationStrings> = {
 
     // Banking
     intlTitle: 'နိုင်ငံတကာဘဏ်နှင့် ငွေလွှဲစနစ်',
-    intlSubtitle: 'Payoneer, Wise, PayPal, Visa, Mastercard, AMEX တို့မှ တိုက်ရိုက်ငွေသွင်း/ငွေလွှဲနိုင်ပါသည်',
+    intlSubtitle: 'Payoneer, PayPal, Visa, Mastercard, AMEX တို့မှ တိုက်ရိုက်ငွေသွင်း/ငွေလွှဲနိုင်ပါသည်',
     intlRemittance: 'ပြည်ပနိုင်ငံများမှ ငွေလွှဲလက်ခံမှု (ထိုင်း၊ မလေး၊ စင်ကာပူ၊ အမေရိကန်)',
     intlSendAbroad: 'ပြည်ပသို့ ငွေလွှဲပို့ရန်',
     intlTopUpCard: 'နိုင်ငံတကာ ကတ်များဖြင့် ငွေသွင်းရန် (Visa / Master / AMEX)',
@@ -305,7 +305,7 @@ export const translations: Record<Language, TranslationStrings> = {
 
     // Banking
     intlTitle: 'Global Banking & Cross-Border Remittance',
-    intlSubtitle: 'Direct incoming and outgoing rails for Payoneer, Wise, PayPal, Visa, Mastercard, and AMEX',
+    intlSubtitle: 'Direct incoming and outgoing rails for Payoneer, PayPal, Visa, Mastercard, and AMEX',
     intlRemittance: 'Global Inward Corridors (Thailand, Malaysia, Singapore, USA, Europe)',
     intlSendAbroad: 'Send Outward Wire',
     intlTopUpCard: 'Top Up with Global Cards (Visa / Mastercard / AMEX)',

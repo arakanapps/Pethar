@@ -70,30 +70,34 @@ export interface UserProfile {
   petharId: string
   location: string
   accountTier: string
+  kycTier?: 1 | 2
+  kycStatus?: 'unverified' | 'email_verified' | 'pending_review' | 'verified'
 }
 
 export const initialUserProfile: UserProfile = {
-  username: '@user',
-  uid: '202610190001',
-  walletAddress: '202610190001',
-  usdAccountWalletAddress: '0x36a8F492C109bE742819aBcD8391048291045f19',
-  nationalIdNo: 'MJ310666',
-  dob: '13 May 2003',
-  firstName: 'User',
-  lastName: 'PAING',
-  name: 'User',
-  nickname: 'Jack',
-  email: 'example@email.com',
-  phone: '09795220917',
-  pin: '123456',
-  address: '6/64, Building C, Den Vibhavadi, Vibhavadi Rangsit Rd, Sanam Bin Don Mueang, Bangkok 10210',
-  avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+  username: '',
+  uid: '',
+  walletAddress: '',
+  usdAccountWalletAddress: '',
+  nationalIdNo: '',
+  dob: '',
+  firstName: '',
+  lastName: '',
+  name: '',
+  nickname: '',
+  email: '',
+  phone: '',
+  pin: '',
+  address: '',
+  avatarUrl: '',
   akdWalletBalance: 0.00,
   usdAccountBalance: 0.00,
   totalBalance: 0.00,
-  petharId: '202610190001',
+  petharId: '',
   location: 'Sittwe · စစ်တွေ',
-  accountTier: 'Tier 2 Verified',
+  accountTier: 'KYC Level 1',
+  kycTier: 1,
+  kycStatus: 'unverified',
 }
 
 /**

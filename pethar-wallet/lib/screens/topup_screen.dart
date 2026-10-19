@@ -35,7 +35,7 @@ class TopupScreen extends StatefulWidget {
 }
 
 class _TopupScreenState extends State<TopupScreen> {
-  final TextEditingController _phoneCtrl = TextEditingController(text: '09795220917');
+  final TextEditingController _phoneCtrl = TextEditingController(text: '');
   TopupTab _activeTab = TopupTab.phoneTopup;
   String _selectedCategory = 'All';
 
@@ -203,7 +203,7 @@ class _TopupScreenState extends State<TopupScreen> {
 
   void _showContactsPicker(BuildContext context) {
     final sampleContacts = [
-      {'name': 'User (Self)', 'phone': '09795220917', 'op': 'ATOM'},
+      {'name': 'User (Self)', 'phone': '09123456789', 'op': 'ATOM'},
       {'name': 'Ko Min Aung', 'phone': '09251998791', 'op': 'MPT'},
       {'name': 'Daw Hla Hla', 'phone': '09691234567', 'op': 'MYTEL'},
       {'name': 'Mg Zaw Myo', 'phone': '09971234567', 'op': 'U9'},
