@@ -3,9 +3,9 @@ import { ArakanEmblem, FlagArakanCircle, FlagUKCircle } from '../../components/A
 import type { Language } from '../../i18n';
 import { redirectToSubdomain, getSubdomain } from '../../utils/subdomain';
 import {
-  ShieldCheck, LayoutDashboard, Wallet, Smartphone, Building2,
+  ShieldCheck, Wallet, Smartphone, Building2,
   Lock, ArrowRight, Menu, X, ChevronDown, CheckCircle2,
-  Server, Globe, CreditCard, QrCode, FileText
+  Server, Globe, CreditCard, QrCode
 } from 'lucide-react';
 
 interface BaseLayoutProps {
@@ -65,14 +65,12 @@ export const BaseLayout = ({
       items: [
         { id: 'platform', label: lang === 'ak' ? 'ဗဟိုဘဏ် ပလက်ဖောင်း' : 'Central Platform', icon: Building2 },
         { id: 'admin', label: lang === 'ak' ? 'အုပ်ချုပ်သူ အင်တာဖေ့စ်' : 'Admin Operations', icon: Server },
-        { id: 'merchant', label: lang === 'ak' ? 'ကုန်သည် POS စနစ်' : 'Merchant Terminal', icon: LayoutDashboard },
         { id: 'offline', label: lang === 'ak' ? 'BLE အော့ဖ်လိုင်းစနစ်' : 'Offline Protocol', icon: ShieldCheck },
       ]
     },
     {
-      category: lang === 'ak' ? 'နည်းပညာနှင့် လုံခြုံရေး' : 'Developers & Compliance',
+      category: lang === 'ak' ? 'နည်းပညာနှင့် လုံခြုံရေး' : 'API & Compliance',
       items: [
-        { id: 'developer', label: lang === 'ak' ? 'ဆော့ဖ်ဝဲရေးသားသူများ' : 'Developer Hub', icon: FileText },
         { id: 'api', label: lang === 'ak' ? 'API စာရွက်စာတမ်း' : 'REST & RPC API', icon: Server },
         { id: 'privacy', label: lang === 'ak' ? 'လုံခြုံရေးနှင့် မူဝါဒ' : 'Privacy & Security', icon: Lock },
       ]
@@ -211,12 +209,12 @@ export const BaseLayout = ({
                   {lang === 'ak' ? 'ကုမ္ပဏီ ပလက်ဖောင်း' : 'Internal Platform'}
                 </button>
                 <button
-                  onClick={() => redirectToSubdomain('developer')}
+                  onClick={() => redirectToSubdomain('api')}
                   className={`px-3 py-1.5 rounded-xl transition-all ${
-                    currentSubdomain === 'developer' || currentSubdomain === 'api' ? 'bg-slate-100 text-slate-950 font-bold' : 'hover:bg-slate-50 hover:text-slate-950'
+                    currentSubdomain === 'api' ? 'bg-slate-100 text-slate-950 font-bold' : 'hover:bg-slate-50 hover:text-slate-950'
                   }`}
                 >
-                  {lang === 'ak' ? 'နည်းပညာ' : 'Developer & API'}
+                  {lang === 'ak' ? 'API စာရွက်စာတမ်း' : 'API & Docs'}
                 </button>
               </nav>
 
@@ -390,19 +388,18 @@ export const BaseLayout = ({
                 <ul className="space-y-2">
                   <li><button onClick={() => redirectToSubdomain('platform')} className="hover:text-amber-700 transition">Internal Platform</button></li>
                   <li><button onClick={() => redirectToSubdomain('admin')} className="hover:text-amber-700 transition">Administration Hub</button></li>
-                  <li><button onClick={() => redirectToSubdomain('merchant')} className="hover:text-amber-700 transition">Merchant POS Terminal</button></li>
                   <li><button onClick={() => redirectToSubdomain('offline')} className="hover:text-amber-700 transition">BLE Mesh Protocol</button></li>
                   <li><button onClick={() => redirectToSubdomain('exchange')} className="hover:text-amber-700 transition">Crypto & FX Bridge</button></li>
                 </ul>
               </div>
 
-              {/* Col 3: Developers & Contact */}
+              {/* Col 3: API & Support */}
               <div>
                 <h4 className="font-bold text-slate-900 mb-3 text-xs uppercase tracking-wider font-mono">
-                  {lang === 'ak' ? 'နည်းပညာနှင့် အကူအညီ' : 'Developer & Support'}
+                  {lang === 'ak' ? 'နည်းပညာနှင့် အကူအညီ' : 'API & Support'}
                 </h4>
                 <ul className="space-y-2">
-                  <li><button onClick={() => redirectToSubdomain('developer')} className="hover:text-amber-700 transition">Developer Docs</button></li>
+                  <li><button onClick={() => redirectToSubdomain('docs')} className="hover:text-amber-700 transition">System Docs</button></li>
                   <li><button onClick={() => redirectToSubdomain('api')} className="hover:text-amber-700 transition">API Reference</button></li>
                   <li><button onClick={() => redirectToSubdomain('privacy')} className="hover:text-amber-700 transition">Privacy & Security</button></li>
                   <li><a href="https://t.me/petharsupport" target="_blank" rel="noreferrer" className="text-sky-700 font-bold no-underline hover:opacity-80 transition-opacity">Telegram: @petharsupport</a></li>

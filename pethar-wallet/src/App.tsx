@@ -10,12 +10,10 @@ const LoginPage = lazy(() => import('./pages/subdomains/LoginPage').then((m) => 
 const SignupPage = lazy(() => import('./pages/subdomains/SignupPage').then((m) => ({ default: m.SignupPage })))
 const PayPage = lazy(() => import('./pages/subdomains/PayPage').then((m) => ({ default: m.PayPage })))
 const CardPage = lazy(() => import('./pages/subdomains/CardPage').then((m) => ({ default: m.CardPage })))
-const MerchantPage = lazy(() => import('./pages/subdomains/MerchantPage').then((m) => ({ default: m.MerchantPage })))
 const IBankingPage = lazy(() => import('./pages/subdomains/IBankingPage').then((m) => ({ default: m.IBankingPage })))
 const AccountsPage = lazy(() => import('./pages/subdomains/AccountsPage').then((m) => ({ default: m.AccountsPage })))
 const SupportPage = lazy(() => import('./pages/subdomains/SupportPage').then((m) => ({ default: m.SupportPage })))
 const HelpPage = lazy(() => import('./pages/subdomains/HelpPage').then((m) => ({ default: m.HelpPage })))
-const DeveloperPage = lazy(() => import('./pages/subdomains/DeveloperPage').then((m) => ({ default: m.DeveloperPage })))
 const ApiPage = lazy(() => import('./pages/subdomains/ApiPage').then((m) => ({ default: m.ApiPage })))
 const DocsPage = lazy(() => import('./pages/subdomains/DocsPage').then((m) => ({ default: m.DocsPage })))
 const WalletPage = lazy(() => import('./pages/subdomains/WalletPage').then((m) => ({ default: m.WalletPage })))
@@ -24,7 +22,6 @@ const OnlinePage = lazy(() => import('./pages/subdomains/OnlinePage').then((m) =
 const AdminPage = lazy(() => import('./pages/subdomains/AdminPage').then((m) => ({ default: m.AdminPage })))
 const CloudPage = lazy(() => import('./pages/subdomains/CloudPage').then((m) => ({ default: m.CloudPage })))
 const BetaPage = lazy(() => import('./pages/subdomains/BetaPage').then((m) => ({ default: m.BetaPage })))
-const RootPage = lazy(() => import('./pages/subdomains/RootPage').then((m) => ({ default: m.RootPage })))
 const P2MPage = lazy(() => import('./pages/subdomains/P2MPage').then((m) => ({ default: m.P2MPage })))
 const P2CPage = lazy(() => import('./pages/subdomains/P2CPage').then((m) => ({ default: m.P2CPage })))
 const C2CPage = lazy(() => import('./pages/subdomains/C2CPage').then((m) => ({ default: m.C2CPage })))
@@ -32,11 +29,9 @@ const TransferPage = lazy(() => import('./pages/subdomains/TransfersPage').then(
 const M2MPage = lazy(() => import('./pages/subdomains/M2MPage').then((m) => ({ default: m.M2MPage })))
 const Web3Page = lazy(() => import('./pages/subdomains/Web3Page').then((m) => ({ default: m.Web3Page })))
 const ExchangePage = lazy(() => import('./pages/subdomains/ExchangePage').then((m) => ({ default: m.ExchangePage })))
-const GlobalPage = lazy(() => import('./pages/subdomains/GlobalPage').then((m) => ({ default: m.GlobalPage })))
 const DataPage = lazy(() => import('./pages/subdomains/DataPage').then((m) => ({ default: m.DataPage })))
 const SearchPage = lazy(() => import('./pages/subdomains/SearchPage').then((m) => ({ default: m.SearchPage })))
 const InfoPage = lazy(() => import('./pages/subdomains/InfoPage').then((m) => ({ default: m.InfoPage })))
-const CareersPage = lazy(() => import('./pages/subdomains/CareersPage').then((m) => ({ default: m.CareersPage })))
 const AdsPage = lazy(() => import('./pages/subdomains/AdsPage').then((m) => ({ default: m.AdsPage })))
 const ChatPage = lazy(() => import('./pages/subdomains/ChatPage').then((m) => ({ default: m.ChatPage })))
 const ConnectPage = lazy(() => import('./pages/subdomains/ConnectPage').then((m) => ({ default: m.ConnectPage })))
@@ -229,8 +224,6 @@ export default function App() {
           return <PayPage lang={currentLang} />
         case 'card':
           return <CardPage lang={currentLang} />
-        case 'merchant':
-          return <MerchantPage lang={currentLang} />
         case 'ibanking':
           return <IBankingPage lang={currentLang} />
         case 'accounts':
@@ -239,16 +232,12 @@ export default function App() {
           return <SupportPage lang={currentLang} />
         case 'help':
           return <HelpPage lang={currentLang} />
-        case 'developer':
-          return <DeveloperPage lang={currentLang} />
         case 'api':
           return <ApiPage lang={currentLang} />
         case 'data':
           return <DataPage lang={currentLang} />
         case 'exchange':
           return <ExchangePage lang={currentLang} />
-        case 'global':
-          return <GlobalPage lang={currentLang} />
         case 'docs':
           return <DocsPage lang={currentLang} />
         case 'offline':
@@ -270,8 +259,6 @@ export default function App() {
           return <CloudPage lang={currentLang} />
         case 'beta':
           return <BetaPage lang={currentLang} />
-        case 'root':
-          return <RootPage lang={currentLang} />
         case 'p2m':
           return <P2MPage lang={currentLang} />
         case 'p2c':
@@ -290,8 +277,6 @@ export default function App() {
           return <ChatPage lang={currentLang} />
         case 'connect':
           return <ConnectPage lang={currentLang} />
-        case 'careers':
-          return <CareersPage lang={currentLang} />
         case 'download':
           return <DownloadPage lang={currentLang} />
         case 'info':

@@ -178,7 +178,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
-              onClick={() => redirectToSubdomain('developer')}
+              onClick={() => redirectToSubdomain('docs')}
               className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono shadow-xs transition-all active:scale-[0.98] flex items-center gap-2"
             >
               <span>Get API Credentials</span>

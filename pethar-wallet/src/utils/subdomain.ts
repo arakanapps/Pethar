@@ -11,19 +11,16 @@ export type Subdomain =
   | 'download'
   | 'beta'
   | 'search'
-  | 'careers'
   | 'ads'
   | 'support'
   | 'help'
   | 'chat'
   | 'pay'
   | 'card'
-  | 'merchant'
   | 'p2m'
   | 'p2c'
   | 'c2c'
   | 'exchange'
-  | 'global'
   | 'data'
   | 'transfer'
   | 'm2m'
@@ -34,9 +31,6 @@ export type Subdomain =
   | 'online'
   | 'offline'
   | 'admin'
-  | 'root'
-  | 'developer'
-  | 'dev'
   | 'api'
   | 'docs'
   | 'cloud'
@@ -59,23 +53,19 @@ export const KNOWN_SUBDOMAINS: string[] = [
   'platform',
   'pay',
   'card',
-  'merchant',
   'ibanking',
   'accounts',
   'support',
   'help',
-  'developer',
   'api',
   'data',
   'exchange',
-  'global',
   'docs',
   'offline',
   'online',
   'admin',
   'cloud',
   'beta',
-  'root',
   'p2m',
   'p2c',
   'c2c',
@@ -85,7 +75,6 @@ export const KNOWN_SUBDOMAINS: string[] = [
   'ads',
   'chat',
   'connect',
-  'careers',
   'download',
   'info',
   'search',
@@ -253,7 +242,5 @@ export const getRedirectMap = (): Record<string, string> => {
   return {
     'dashboard': 'app',
     'esearch': 'search',
-    'carreers': 'careers',
-    'dev': 'developer',
   };
 };
