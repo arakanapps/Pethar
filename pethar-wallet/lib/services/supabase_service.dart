@@ -291,7 +291,7 @@ class SupabaseService {
       return Map<String, dynamic>.from(res as Map);
     } catch (e) {
       debugPrint('Error requesting email OTP from Supabase: $e');
-      return {'success': true, 'simulated_otp': '123456', 'message': 'Verification code sent to $newEmail'};
+      return {'success': false, 'message': 'Failed to send verification code. Please try again.'};
     }
   }
 
@@ -324,7 +324,7 @@ class SupabaseService {
       return Map<String, dynamic>.from(res as Map);
     } catch (e) {
       debugPrint('Error requesting phone OTP from Supabase: $e');
-      return {'success': true, 'simulated_otp': '123456', 'message': 'Verification code sent to registered email'};
+      return {'success': false, 'message': 'Failed to send verification code. Please try again.'};
     }
   }
 
@@ -375,7 +375,7 @@ class SupabaseService {
       return Map<String, dynamic>.from(res as Map);
     } catch (e) {
       debugPrint('Error requesting PIN reset OTP from Supabase: $e');
-      return {'success': true, 'simulated_otp': '123456', 'message': 'Reset code sent to registered email'};
+      return {'success': false, 'message': 'Failed to send reset code. Please try again.'};
     }
   }
 
@@ -415,7 +415,7 @@ class SupabaseService {
       return Map<String, dynamic>.from(res as Map);
     } catch (e) {
       debugPrint('Error requesting name change OTP from Supabase: $e');
-      return {'success': true, 'simulated_otp': '123456', 'message': 'Verification code sent to registered email'};
+      return {'success': false, 'message': 'Failed to send verification code. Please try again.'};
     }
   }
 
@@ -562,12 +562,12 @@ class SupabaseService {
           code: map['agent_code']?.toString() ?? '',
           name: map['display_name']?.toString() ?? '',
           mm: map['display_name_mm']?.toString() ?? map['display_name']?.toString() ?? '',
-          township: map['township']?.toString() ?? 'Sittwe',
-          townshipMm: map['township_mm']?.toString() ?? 'စစ်တွေ',
-          distance: map['distance']?.toString() ?? '0.5 km',
+          township: map['township']?.toString() ?? '',
+          townshipMm: map['township_mm']?.toString() ?? '',
+          distance: map['distance']?.toString() ?? '',
           floatStatus: map['float_status']?.toString() ?? 'High',
-          floatStatusMm: map['float_status_mm']?.toString() ?? 'ငွေသားအလုံအလောက်ရှိ',
-          phone: map['phone']?.toString() ?? '+95 9 881 000 101',
+          floatStatusMm: map['float_status_mm']?.toString() ?? '',
+          phone: map['phone']?.toString() ?? '',
           cashReserveAkd: (map['cash_reserve_akd'] is num)
               ? (map['cash_reserve_akd'] as num).toDouble()
               : double.tryParse(map['cash_reserve_akd']?.toString() ?? '50000') ?? 50000.0,
