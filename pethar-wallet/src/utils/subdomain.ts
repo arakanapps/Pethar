@@ -8,7 +8,6 @@ export type Subdomain =
   | 'auth'
   | 'connect'
   | 'info'
-  | 'demo'
   | 'download'
   | 'beta'
   | 'search'
@@ -23,11 +22,10 @@ export type Subdomain =
   | 'p2m'
   | 'p2c'
   | 'c2c'
-  | 'trade'
   | 'exchange'
   | 'global'
   | 'data'
-  | 'p2p'
+  | 'transfer'
   | 'm2m'
   | 'web3'
   | 'ibanking'
@@ -68,7 +66,6 @@ export const KNOWN_SUBDOMAINS: string[] = [
   'help',
   'developer',
   'api',
-  'trade',
   'data',
   'exchange',
   'global',
@@ -82,14 +79,13 @@ export const KNOWN_SUBDOMAINS: string[] = [
   'p2m',
   'p2c',
   'c2c',
-  'p2p',
+  'transfer',
   'm2m',
   'web3',
   'ads',
   'chat',
   'connect',
   'careers',
-  'demo',
   'download',
   'info',
   'search',

@@ -340,8 +340,8 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
   // Interactive Features Page states
   const [activeFlowTab, setActiveFlowTab] = useState<number>(0)
   const [previewBalanceVisible, setPreviewBalanceVisible] = useState(true)
-  const [p2pRecipient, setP2pRecipient] = useState('0x8F4...A92B')
-  const [p2pSentToast, setP2pSentToast] = useState(false)
+  const [transferRecipient, setTransferRecipient] = useState('')
+  const [transferSentToast, setTransferSentToast] = useState(false)
   const [copiedAddress, setCopiedAddress] = useState(false)
 
   // FAQ state
@@ -1256,7 +1256,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                       </div>
                     </div>
 
-                    {/* 2. CENTER PHONE: Instant Free P2P Transfer (from @user & wallet address) */}
+                    {/* 2. CENTER PHONE: Instant Free Transfer (from @user & wallet address) */}
                     <div
                       className={`w-[222px] sm:w-[244px] h-[450px] sm:h-[480px] rounded-[40px] p-[7px] border z-30 relative shrink-0 transition-transform duration-500 hover:scale-[1.02] ${
                         isDark
@@ -1301,7 +1301,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                               {isAk ? 'ပိုက်ဆံအိတ်လိပ်စာသို့ ပေးပို့ရန်' : 'Send to Wallet Address'}
                             </div>
                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-current/15 text-xs font-mono font-bold">
-                              <span>0x8F4...A92B</span>
+                              <span>@yourwallet</span>
                               <CheckCircle2 className="w-3.5 h-3.5" />
                             </div>
                           </div>
@@ -1855,27 +1855,16 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                           <div className="text-xs font-bold">
                             {isAk ? 'ပိုက်ဆံအိတ်လိပ်စာသို့ ချက်ချင်းငွေလွှဲရန်' : 'Instant Wallet Address Send'}
                           </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {['0x8F4...A92B', '0x3C1...E409', '0x7D2...F118'].map((addr) => (
-                              <button
-                                key={addr}
-                                type="button"
-                                onClick={() => setP2pRecipient(addr)}
-                                className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border cursor-pointer ${
-                                  p2pRecipient === addr
-                                    ? isDark
-                                      ? 'bg-white text-zinc-950 border-white'
-                                      : 'bg-zinc-950 text-white border-zinc-950'
-                                    : subtleSurface
-                                }`}
-                              >
-                                {addr}
-                              </button>
-                            ))}
-                          </div>
+                          <input
+                            type="text"
+                            value={transferRecipient}
+                            onChange={(event) => setTransferRecipient(event.target.value)}
+                            placeholder={isAk ? 'ပိုက်ဆံအိတ်လိပ်စာ ထည့်ပါ' : 'Enter a wallet address'}
+                            className={`w-full px-3 py-2 rounded-xl border text-xs font-mono ${subtleSurface}`}
+                          />
                           <div className={`p-3.5 rounded-2xl border text-center ${subtleSurface}`}>
                             <div className="text-[10px] opacity-65 font-mono">
-                              {isAk ? `ပေးပို့မည့်လိပ်စာ: ${p2pRecipient}` : `Wallet Address: ${p2pRecipient}`}
+                              {isAk ? `ပေးပို့မည့်လိပ်စာ: ${transferRecipient}` : `Wallet Address: ${transferRecipient}`}
                             </div>
                             <div className="text-2xl font-black mt-1">50.00</div>
                             <div className="text-[10px] opacity-75">
@@ -1885,14 +1874,14 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                           <button
                             type="button"
                             onClick={() => {
-                              setP2pSentToast(true)
-                              setTimeout(() => setP2pSentToast(false), 2000)
+                              setTransferSentToast(true)
+                              setTimeout(() => setTransferSentToast(false), 2000)
                             }}
                             className={`w-full py-2.5 rounded-xl font-bold text-xs cursor-pointer ${
                               isDark ? 'bg-white text-zinc-950' : 'bg-zinc-950 text-white'
                             }`}
                           >
-                            {p2pSentToast
+                            {transferSentToast
                               ? isAk
                                 ? 'ချက်ချင်း ပေးပို့ပြီးပါပြီ ✓'
                                 : 'Sent Instantly ✓'
@@ -1998,12 +1987,12 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                 </div>
                 <div className={`mt-6 flex items-center justify-between gap-2 p-3 rounded-xl border ${subtleSurface}`}>
                   <div className="text-xs font-mono">
-                    {isAk ? 'ပိုက်ဆံအိတ်လိပ်စာ: 0x8F4...A92B' : 'Wallet Address: 0x8F4...A92B'}
+                    {isAk ? 'ပိုက်ဆံအိတ်လိပ်စာကို အက်ပ်ထဲတွင် ကြည့်ပါ' : 'Wallet address is shown in the app'}
                   </div>
                   <button
                     type="button"
                     onClick={() => {
-                      navigator.clipboard?.writeText('0x8F4...A92B')
+                      navigator.clipboard?.writeText('')
                       setCopiedAddress(true)
                       setTimeout(() => setCopiedAddress(false), 2000)
                     }}

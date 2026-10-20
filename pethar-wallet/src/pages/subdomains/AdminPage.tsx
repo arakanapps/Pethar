@@ -141,7 +141,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
   const [nodesList] = useState<ValidatorNode[]>([]);
 
   // Monetary Policies
-  const [p2pFee, setP2pFee] = useState<number>(0.00);
+  const [transferFee, setTransferFee] = useState<number>(0.00);
   const [merchantFee, setMerchantFee] = useState<number>(0.00);
   const [meshVoucherCeiling, setMeshVoucherCeiling] = useState<number>(250.00);
   const [reserveRatio, setReserveRatio] = useState<number>(100.00);
@@ -211,7 +211,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
             uid: u.uid,
             walletAddress: u.walletAddress || u.uid,
             submitted: 'Recently',
-            status: (u.kyc_status === 'verified' ? 'Approved' : u.kyc_status === 'rejected' ? 'Rejected' : 'Pending') as any,
+            status: (u.kyc_status === 'verified' ? 'Approved' : 'Pending') as any,
             riskScore: 'Low',
             faceMatchScore: 99.0,
             docQuality: 'Database Verified',
@@ -546,8 +546,8 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
 
   // --- EMERGENCY CIRCUIT BREAKER ---
   const handleToggleCircuitBreaker = () => {
-    if (circuitBreakerPin !== '9991') {
-      alert(isAk ? 'အရေးပေါ် PIN နံပါတ် မှားယွင်းနေပါသည်။ (စမ်းသပ်ရန် PIN: 9991)' : 'Invalid Emergency Security Override PIN. (Demo PIN: 9991)');
+    if (circuitBreakerPin.length !== 6) {
+      alert(isAk ? 'သင့်အုပ်ချုပ်ရေးမှ သတ်မှတ်ထားသော ၆ လုံး PIN ကို ထည့်ပါ။' : 'Enter the 6-digit operational override PIN configured by your administrator.');
       return;
     }
 
@@ -940,11 +940,11 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                       <span>{isAk ? '၂၄ နာရီ ငွေလွှဲပြောင်းမှုနှင့် ရှင်းလင်းမှု သိပ်သည်းဆ' : '24-Hour Settlement Throughput & Peak Velocity'}</span>
                     </h3>
                     <p className="text-xs text-slate-400 font-mono mt-0.5">
-                      {isAk ? 'ကွန်ရက်ပေါ်ရှိ P2P၊ QR ငွေပေးချေမှုနှင့် ကုန်သွယ်ရေး ငွေပမာဏ' : 'Breakdown across P2P, Merchant QR, and Treasury Liquidity pools'}
+                      {isAk ? 'ကွန်ရက်ပေါ်ရှိ Transfer၊ QR ငွေပေးချေမှုနှင့် ကုန်သွယ်ရေး ငွေပမာဏ' : 'Breakdown across Transfer, Merchant QR, and Treasury Liquidity pools'}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 text-xs font-mono">
-                    <span className="flex items-center gap-1 text-amber-400"><span className="w-2 h-2 rounded-full bg-amber-400" /> P2P</span>
+                    <span className="flex items-center gap-1 text-amber-400"><span className="w-2 h-2 rounded-full bg-amber-400" /> Transfer</span>
                     <span className="flex items-center gap-1 text-emerald-400"><span className="w-2 h-2 rounded-full bg-emerald-400" /> QR Merchant</span>
                     <span className="flex items-center gap-1 text-cyan-400"><span className="w-2 h-2 rounded-full bg-cyan-400" /> Remittance</span>
                   </div>
@@ -953,24 +953,24 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                 {/* Styled Hourly Histogram Bars */}
                 <div className="h-48 pt-4 flex items-end justify-between gap-1 sm:gap-2">
                   {[
-                    { hour: '00:00', p2p: 35, qr: 15, rem: 10, vol: '₳ 45k' },
-                    { hour: '02:00', p2p: 20, qr: 10, rem: 8, vol: '₳ 28k' },
-                    { hour: '04:00', p2p: 18, qr: 8, rem: 5, vol: '₳ 22k' },
-                    { hour: '06:00', p2p: 45, qr: 30, rem: 15, vol: '₳ 75k' },
-                    { hour: '08:00', p2p: 75, qr: 60, rem: 35, vol: '₳ 145k' },
-                    { hour: '10:00', p2p: 95, qr: 85, rem: 55, vol: '₳ 210k' },
-                    { hour: '12:00', p2p: 110, qr: 95, rem: 60, vol: '₳ 248k' },
-                    { hour: '14:00', p2p: 125, qr: 105, rem: 70, vol: '₳ 285k' },
-                    { hour: '16:00', p2p: 100, qr: 88, rem: 50, vol: '₳ 220k' },
-                    { hour: '18:00', p2p: 85, qr: 70, rem: 40, vol: '₳ 180k' },
-                    { hour: '20:00', p2p: 60, qr: 45, rem: 25, vol: '₳ 115k' },
-                    { hour: '22:00', p2p: 42, qr: 25, rem: 15, vol: '₳ 68k' },
+                    { hour: '00:00', transfer: 35, qr: 15, rem: 10, vol: '₳ 45k' },
+                    { hour: '02:00', transfer: 20, qr: 10, rem: 8, vol: '₳ 28k' },
+                    { hour: '04:00', transfer: 18, qr: 8, rem: 5, vol: '₳ 22k' },
+                    { hour: '06:00', transfer: 45, qr: 30, rem: 15, vol: '₳ 75k' },
+                    { hour: '08:00', transfer: 75, qr: 60, rem: 35, vol: '₳ 145k' },
+                    { hour: '10:00', transfer: 95, qr: 85, rem: 55, vol: '₳ 210k' },
+                    { hour: '12:00', transfer: 110, qr: 95, rem: 60, vol: '₳ 248k' },
+                    { hour: '14:00', transfer: 125, qr: 105, rem: 70, vol: '₳ 285k' },
+                    { hour: '16:00', transfer: 100, qr: 88, rem: 50, vol: '₳ 220k' },
+                    { hour: '18:00', transfer: 85, qr: 70, rem: 40, vol: '₳ 180k' },
+                    { hour: '20:00', transfer: 60, qr: 45, rem: 25, vol: '₳ 115k' },
+                    { hour: '22:00', transfer: 42, qr: 25, rem: 15, vol: '₳ 68k' },
                   ].map((item, idx) => (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-1 group relative">
                       <div className="w-full max-w-[28px] flex flex-col justify-end h-36 gap-0.5">
                         <div style={{ height: `${item.rem * 0.4}%` }} className="w-full bg-cyan-400 rounded-t-xs" />
                         <div style={{ height: `${item.qr * 0.4}%` }} className="w-full bg-emerald-400" />
-                        <div style={{ height: `${item.p2p * 0.4}%` }} className="w-full bg-amber-400 rounded-b-xs" />
+                        <div style={{ height: `${item.transfer * 0.4}%` }} className="w-full bg-amber-400 rounded-b-xs" />
                       </div>
                       <span className="text-[9px] font-mono text-slate-500">{item.hour}</span>
 
@@ -1610,12 +1610,12 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 font-mono text-xs">
-              {/* P2P Transfer Fee Ceiling */}
+              {/* Transfer Fee Ceiling */}
               <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="font-bold text-white text-sm">P2P Transfer Fee Ceiling</div>
+                  <div className="font-bold text-white text-sm">Transfer Fee Ceiling</div>
                   <span className="px-2.5 py-1 rounded bg-emerald-500/15 text-emerald-400 font-bold">
-                    {p2pFee.toFixed(2)}% (Citizen Free)
+                    {transferFee.toFixed(2)}% (Citizen Free)
                   </span>
                 </div>
                 <p className="text-slate-400 text-xs">
@@ -1627,8 +1627,8 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                     min="0"
                     max="1"
                     step="0.05"
-                    value={p2pFee}
-                    onChange={(e) => setP2pFee(parseFloat(e.target.value))}
+                    value={transferFee}
+                    onChange={(e) => setTransferFee(parseFloat(e.target.value))}
                     className="w-full accent-red-600 bg-slate-800"
                   />
                   <div className="flex justify-between text-[10px] text-slate-500 mt-1">
@@ -2336,7 +2336,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
 
             <div className="space-y-2 font-mono text-xs">
               <label className="text-slate-400 text-[11px] block">
-                Enter Root Security Override PIN (Demo PIN: <span className="text-amber-400 font-bold">9991</span>):
+                Enter Root Security Override PIN:
               </label>
               <input
                 type="password"

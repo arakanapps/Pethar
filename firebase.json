@@ -6,7 +6,6 @@
         "oAuthBrandDisplayName": "Péthar",
         "supportEmail": "pethar-app@protonmail.com",
         "authorizedRedirectUris": [
-          "https://pe-thar.firebaseapp.com/__/auth/handler",
           "http://localhost"
         ]
       }

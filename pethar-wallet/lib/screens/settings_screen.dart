@@ -48,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? _forgotPinError;
   String? _forgotPinSuccess;
 
-  String _subdistrict = '';
+  final String _subdistrict = '';
   String _streetAddress = '';
 
   @override
@@ -130,10 +130,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: emeraldSuccess, width: 2),
                     ),
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
+                      children: [
                         Text(
                           'PASSPORT · VERIFIED',
                           style: TextStyle(
@@ -778,7 +778,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 return;
                               }
                               setModalState(() => isLoading = true);
-                              final res = await SupabaseService().changeUserPin(profileId: appState.profile.uid, currentPin: curr, newPin: np);
+                              final res = await SupabaseService().setUserPin(currentPin: curr, newPin: np);
                               setModalState(() => isLoading = false);
                               if (res['success'] == true) {
                                 appState.profile.pin = np;
@@ -1562,16 +1562,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
                           ),
                           const SizedBox(height: 6),
-                          Row(
-                            children: const [
+                          const Row(
+                            children: [
                               Icon(Icons.access_time_rounded, size: 13, color: Color(0xFF71717A)),
                               SizedBox(width: 6),
                               Text('Last signed in: 17 Oct 2026, 07:56', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Row(
-                            children: const [
+                          const Row(
+                            children: [
                               Icon(Icons.location_on_outlined, size: 13, color: Color(0xFF71717A)),
                               SizedBox(width: 6),
                               Text('Bangkok, Thailand', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
@@ -1623,10 +1623,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF52525B)),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 44, horizontal: 24),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 44, horizontal: 24),
             child: Column(
-              children: const [
+              children: [
                 Icon(Icons.smartphone_rounded, size: 28, color: Color(0xFFD4D4D8)),
                 SizedBox(height: 8),
                 Text(
@@ -3064,12 +3064,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     color: isAk ? Colors.white : Colors.transparent,
                                     borderRadius: BorderRadius.circular(8),
                                     boxShadow: isAk
-                                        ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4, offset: const Offset(0, 1))]
+                                        ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 1))]
                                         : null,
                                   ),
-                                  child: Row(
+                                  child: const Row(
                                     mainAxisSize: MainAxisSize.min,
-                                    children: const [
+                                    children: [
                                       FlagArakan(width: 20),
                                       SizedBox(width: 5),
                                       Text(
@@ -3095,12 +3095,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     color: !isAk ? Colors.white : Colors.transparent,
                                     borderRadius: BorderRadius.circular(8),
                                     boxShadow: !isAk
-                                        ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4, offset: const Offset(0, 1))]
+                                        ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 1))]
                                         : null,
                                   ),
-                                  child: Row(
+                                  child: const Row(
                                     mainAxisSize: MainAxisSize.min,
-                                    children: const [
+                                    children: [
                                       FlagGB(width: 20),
                                       SizedBox(width: 5),
                                       Text(

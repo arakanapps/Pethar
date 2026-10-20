@@ -28,10 +28,9 @@ const RootPage = lazy(() => import('./pages/subdomains/RootPage').then((m) => ({
 const P2MPage = lazy(() => import('./pages/subdomains/P2MPage').then((m) => ({ default: m.P2MPage })))
 const P2CPage = lazy(() => import('./pages/subdomains/P2CPage').then((m) => ({ default: m.P2CPage })))
 const C2CPage = lazy(() => import('./pages/subdomains/C2CPage').then((m) => ({ default: m.C2CPage })))
-const P2PPage = lazy(() => import('./pages/subdomains/P2PPage').then((m) => ({ default: m.P2PPage })))
+const TransferPage = lazy(() => import('./pages/subdomains/TransfersPage').then((m) => ({ default: m.TransferPage })))
 const M2MPage = lazy(() => import('./pages/subdomains/M2MPage').then((m) => ({ default: m.M2MPage })))
 const Web3Page = lazy(() => import('./pages/subdomains/Web3Page').then((m) => ({ default: m.Web3Page })))
-const TradePage = lazy(() => import('./pages/subdomains/TradePage').then((m) => ({ default: m.TradePage })))
 const ExchangePage = lazy(() => import('./pages/subdomains/ExchangePage').then((m) => ({ default: m.ExchangePage })))
 const GlobalPage = lazy(() => import('./pages/subdomains/GlobalPage').then((m) => ({ default: m.GlobalPage })))
 const DataPage = lazy(() => import('./pages/subdomains/DataPage').then((m) => ({ default: m.DataPage })))
@@ -42,7 +41,6 @@ const AdsPage = lazy(() => import('./pages/subdomains/AdsPage').then((m) => ({ d
 const ChatPage = lazy(() => import('./pages/subdomains/ChatPage').then((m) => ({ default: m.ChatPage })))
 const ConnectPage = lazy(() => import('./pages/subdomains/ConnectPage').then((m) => ({ default: m.ConnectPage })))
 const DownloadPage = lazy(() => import('./pages/subdomains/DownloadPage').then((m) => ({ default: m.DownloadPage })))
-const DemoPage = lazy(() => import('./pages/subdomains/DemoPage').then((m) => ({ default: m.DemoPage })))
 const PrivacyPage = lazy(() => import('./pages/subdomains/PrivacyPage').then((m) => ({ default: m.PrivacyPage })))
 const MobileWalletPage = lazy(() => import('./pages/subdomains/MobileWalletPage').then((m) => ({ default: m.MobileWalletPage })))
 
@@ -245,8 +243,6 @@ export default function App() {
           return <DeveloperPage lang={currentLang} />
         case 'api':
           return <ApiPage lang={currentLang} />
-        case 'trade':
-          return <TradePage lang={currentLang} />
         case 'data':
           return <DataPage lang={currentLang} />
         case 'exchange':
@@ -282,8 +278,8 @@ export default function App() {
           return <P2CPage lang={currentLang} />
         case 'c2c':
           return <C2CPage lang={currentLang} />
-        case 'p2p':
-          return <P2PPage lang={currentLang} />
+        case 'transfer':
+          return <TransferPage lang={currentLang} />
         case 'm2m':
           return <M2MPage lang={currentLang} />
         case 'web3':
@@ -296,8 +292,6 @@ export default function App() {
           return <ConnectPage lang={currentLang} />
         case 'careers':
           return <CareersPage lang={currentLang} />
-        case 'demo':
-          return <DemoPage lang={currentLang} />
         case 'download':
           return <DownloadPage lang={currentLang} />
         case 'info':

@@ -11,7 +11,7 @@ import {
   Download,
   Receipt, User, Sun, KeyRound, ShieldCheck, Camera,
   Bell, ArrowLeftRight, Share2, PieChart,
-  ChevronLeft, BellOff, Sparkles, CheckCheck, Trash2, MoreVertical, RotateCcw,
+  ChevronLeft, BellOff, Sparkles, CheckCheck, Trash2, MoreVertical,
   History as HistoryIcon,
   Layers, Radio
 } from 'lucide-react'
@@ -266,10 +266,10 @@ export function Home({
       accentBg: 'bg-indigo-500/20 text-indigo-400',
     },
     {
-      titleEn: '100% Gold-Backed AKD Vault',
-      titleAk: 'ရွှေအာမခံ ၁၀၀% အပြည့်ဖြင့် ထိန်းသိမ်းထားသော ငွေကြေး',
-      descEn: 'Audited reserve backed 1:1 by gold',
-      descAk: 'ရုပ်ပိုင်းဆိုင်ရာ ရွှေနှင့် ဒေါ်လာဖြင့် အပြည့်အဝ အာမခံထားသည်',
+      titleEn: 'Ledger-Backed Arakan Dollar',
+      titleAk: 'စာရင်းမှ အာမခံထားသော အာရက္ခဒေါ်လာ',
+      descEn: 'Fixed 1:1 peg to the US dollar',
+      descAk: 'အမေရိကန်ဒေါ်လာနှင့် ၁:၁ ပုံသေနှုန်း ချိတ်ဆက်ထားသည်',
       gradient: 'from-amber-950 via-stone-900 to-stone-800',
       icon: ShieldCheck,
       accentBg: 'bg-amber-500/20 text-amber-400',
@@ -734,7 +734,7 @@ export function AccountScreen({
   const userUid = initialUserProfile.uid
 
   const copyAddress = () => {
-    navigator.clipboard.writeText(currentProfile.usdAccountWalletAddress || '')
+    navigator.clipboard.writeText(initialUserProfile.usdAccountWalletAddress || '')
     setCopiedAddr(true)
     setTimeout(() => setCopiedAddr(false), 2000)
   }
@@ -1636,7 +1636,6 @@ export function SettingsScreen({
   const [currentPinInput, setCurrentPinInput] = useState('')
   const [otpStage, setOtpStage] = useState<'idle' | 'email_otp' | 'phone_otp' | 'name_otp' | 'pin_otp'>('idle')
   const [otpInput, setOtpInput] = useState('')
-  const [simulatedOtp, setSimulatedOtp] = useState('123456')
   const [saveToast, setSaveToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
 
@@ -1701,13 +1700,11 @@ export function SettingsScreen({
     e.preventDefault()
     // 1. If email changed -> requires verified OTP
     if (editEmail.trim() !== currentProfile.email) {
-      setSimulatedOtp('654321')
       setOtpStage('email_otp')
       return
     }
     // 2. If phone changed -> requires email verified OTP
     if (editPhone.trim() !== currentProfile.phone) {
-      setSimulatedOtp('987654')
       setOtpStage('phone_otp')
       return
     }
@@ -1716,15 +1713,13 @@ export function SettingsScreen({
       editFirstName.trim() !== currentProfile.firstName ||
       editLastName.trim() !== currentProfile.lastName
     ) {
-      setSimulatedOtp('123456')
       setOtpStage('name_otp')
       return
     }
     // 4. If pin changed
     if (editPin.trim().length === 6) {
       if (!currentPinInput && currentProfile.pin) {
-        setSimulatedOtp('456789')
-        setOtpStage('pin_otp')
+          setOtpStage('pin_otp')
         return
       }
     }
@@ -2083,9 +2078,6 @@ export function SettingsScreen({
                       <span className="font-mono underline">{currentProfile.email}</span>.
                     </p>
                   )}
-                  <p className="mt-1 text-[11px] font-mono font-bold text-amber-400">
-                    [Demo Simulator OTP: {simulatedOtp}]
-                  </p>
                 </div>
 
                 <div>

@@ -61,7 +61,6 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
 
   // Step 2 OTP Fields
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', ''])
-  const [generatedOtpHint, setGeneratedOtpHint] = useState<string | null>(null)
 
   // 10-minute timer for OTP
   const [timerSeconds, setTimerSeconds] = useState(600) // 10 minutes = 600s
@@ -145,8 +144,7 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
     }
 
     setErrorMsg('')
-    const code = generateOtpForEmail(email.trim())
-    setGeneratedOtpHint(code)
+    generateOtpForEmail(email.trim())
     startOtpCountdown()
     setStep('otp')
   }
@@ -179,8 +177,7 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
   // Resend OTP
   const handleResendOtp = () => {
     setErrorMsg('')
-    const code = generateOtpForEmail(email.trim())
-    setGeneratedOtpHint(code)
+    generateOtpForEmail(email.trim())
     startOtpCountdown()
     setOtpCode(['', '', '', '', '', ''])
     setToastMsg(ak ? 'OTP အသစ် ပြန်ပို့ပြီးပါပြီ (၁၀ မိနစ် သက်တမ်းရှိ)' : 'New 10-minute OTP sent to your email!')
@@ -480,13 +477,6 @@ export const SignupPage = ({ lang }: SignupPageProps) => {
                 <span>{ak ? 'အီးမေးလ် ပြန်ပို့မည်' : 'Resend Email'}</span>
               </button>
             </div>
-
-            {generatedOtpHint && (
-              <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between font-mono">
-                <span>Demo OTP:</span>
-                <span className="font-bold text-sm tracking-widest">{generatedOtpHint}</span>
-              </div>
-            )}
 
             <div className="flex justify-between gap-2">
               {otpCode.map((digit, idx) => (

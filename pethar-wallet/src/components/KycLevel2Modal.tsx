@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {
   X, ShieldCheck, CheckCircle2, Clock,
-  Upload, FileText, Check, AlertCircle, Sparkles
+  Upload, FileText, Check, AlertCircle
 } from 'lucide-react'
 import type { Language } from '../i18n'
 import type { UserProfile } from '../data'
@@ -98,25 +98,6 @@ export const KycLevel2Modal: React.FC<KycLevel2ModalProps> = ({
       setIsLoading(false)
       setErrorMsg(err.message || 'Submission error')
     }
-  }
-
-  // Helper for demo/testing to instantly approve review
-  const handleInstantApprove = () => {
-    const updated: UserProfile = {
-      ...currentProfile,
-      firstName: firstName || currentProfile.firstName || 'User',
-      lastName: lastName || currentProfile.lastName || 'Verified',
-      name: `${firstName || 'User'} ${lastName || 'Verified'}`.trim(),
-      nationalIdNo: nationalIdNo || currentProfile.nationalIdNo || 'ID-992100',
-      dob: dob || currentProfile.dob || '1998-05-12',
-      address: address || currentProfile.address || 'Sittwe, Arakan',
-      accountTier: 'KYC Level 2 Verified',
-      kycTier: 2,
-      kycStatus: 'verified',
-    }
-    onUpdateProfile(updated)
-    setSuccessToast(isAk ? 'KYC Level 2 အတည်ပြုချက် အောင်မြင်ပါသည်!' : 'KYC Level 2 National ID Verification Approved!')
-    setTimeout(() => onClose(), 1200)
   }
 
   return (
@@ -235,14 +216,6 @@ export const KycLevel2Modal: React.FC<KycLevel2ModalProps> = ({
                 : 'Your submitted National ID details are currently queued for compliance review. Review usually takes 5-15 minutes.'}
             </p>
 
-            <button
-              type="button"
-              onClick={handleInstantApprove}
-              className="w-full py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{isAk ? 'ချက်ချင်း အတည်ပြုချက် စမ်းသပ်မည်' : 'Simulate Instant Approval (Demo)'}</span>
-            </button>
           </div>
         )}
 

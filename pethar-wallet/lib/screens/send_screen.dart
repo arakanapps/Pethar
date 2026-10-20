@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../app_state.dart';
+import '../services/supabase_service.dart';
 import '../theme.dart';
 import '../i18n.dart';
 import '../models/data.dart';
@@ -31,6 +32,9 @@ class _SendScreenState extends State<SendScreen> {
   bool _isSavingSlip = false;
   bool _slipSaved = false;
   bool _hasAutoSaved = false;
+  bool _isProcessing = false;
+  String? _transferIdempotencyKey;
+  String? _sendError;
 
   @override
   void dispose() {
@@ -42,6 +46,8 @@ class _SendScreenState extends State<SendScreen> {
     setState(() {
       selectedContact = contact;
       step = 2;
+      _sendError = null;
+      _transferIdempotencyKey = null;
     });
   }
 
@@ -50,12 +56,13 @@ class _SendScreenState extends State<SendScreen> {
     if (query.isNotEmpty) {
       setState(() {
         selectedContact = Contact(
-          name: query,
-          mm: query,
-          id: query.startsWith('ARAK') ? query : 'ARAK-8899',
-          location: 'Arakan Network',
-          phone: query,
-          initials: 'AK',
+          name: query.startsWith('@') ? query.substring(1) : query,
+          mm: '',
+          // The server resolves this UID or username; do not fabricate a user ID.
+          id: query.trim(),
+          location: '',
+          phone: '',
+          initials: query.isNotEmpty ? query[0].toUpperCase() : 'U',
         );
         step = 2;
       });
@@ -66,7 +73,8 @@ class _SendScreenState extends State<SendScreen> {
     if (_isSavingSlip) return;
     try {
       _isSavingSlip = true;
-      final boundary = _receiptKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary = _receiptKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary == null) return;
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -91,7 +99,8 @@ class _SendScreenState extends State<SendScreen> {
       }
 
       if (targetDir != null) {
-        final file = File('${targetDir.path}/pethar-receipt-$_generatedRefId.png');
+        final file =
+            File('${targetDir.path}/pethar-receipt-$_generatedRefId.png');
         await file.writeAsBytes(bytes);
         if (mounted) {
           setState(() {
@@ -116,24 +125,66 @@ class _SendScreenState extends State<SendScreen> {
   }
 
   void _onPinDigit(String digit, AppState appState) {
-    if (pin.length < 6) {
-      setState(() => pin += digit);
-      if (pin.length == 6) {
-        Future.delayed(const Duration(milliseconds: 400), () {
-          final amt = double.tryParse(amount) ?? 0.0;
-          _generatedRefId = 'ARAK-TRANSFER-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
-          appState.recordTransfer(
-            amount: amt,
-            recipientName: selectedContact?.name ?? 'Ko Min Aung',
-            recipientId: selectedContact?.id ?? '202610190002',
-          );
-          setState(() {
-            step = 4;
-            _hasAutoSaved = false;
-            _slipSaved = false;
-          });
-        });
-      }
+    if (_isProcessing || pin.length >= 6) return;
+    setState(() {
+      pin += digit;
+      _sendError = null;
+    });
+    if (pin.length == 6) {
+      Future.delayed(
+          const Duration(milliseconds: 300), () => _submitTransfer(appState));
+    }
+  }
+
+  Future<void> _submitTransfer(AppState appState) async {
+    if (_isProcessing) return;
+
+    final amt = double.tryParse(amount) ?? 0.0;
+    final recipient = (selectedContact?.id ?? '').trim();
+
+    if (recipient.isEmpty || amt <= 0) {
+      setState(() {
+        pin = '';
+        _sendError = 'Enter a valid recipient UID and amount';
+      });
+      return;
+    }
+
+    setState(() => _isProcessing = true);
+
+    final result = await SupabaseService().transferFunds(
+      recipient: recipient,
+      amount: amt,
+      pin: pin,
+      idempotencyKey: _transferIdempotencyKey ??=
+          SupabaseService().createTransferIdempotencyKey(),
+    );
+
+    if (!mounted) return;
+
+    if (result['success'] == true) {
+      await appState.loadSupabaseData();
+      if (!mounted) return;
+      setState(() {
+        _isProcessing = false;
+        _transferIdempotencyKey = null;
+        _generatedRefId =
+            (result['transaction_id'] ?? result['reference_id'] ?? '')
+                .toString();
+        step = 4;
+        _hasAutoSaved = false;
+        _slipSaved = false;
+      });
+    } else {
+      setState(() {
+        _isProcessing = false;
+        pin = '';
+        // Retain this key after any failure: a response can be lost after the
+        // database committed, and retrying with a fresh key could double-send.
+        _transferIdempotencyKey ??=
+            SupabaseService().createTransferIdempotencyKey();
+        _sendError = result['message']?.toString() ?? 'Transfer failed';
+      });
     }
   }
 
@@ -158,20 +209,10 @@ class _SendScreenState extends State<SendScreen> {
         ),
         backgroundColor: isDark ? surfaceDark : Colors.white,
         elevation: 0,
-        actions: [
-          if (step == 1)
-            TextButton.icon(
-              onPressed: () => appState.navigate(Screen.offlinePayment),
-              icon: const Icon(Icons.offline_bolt_rounded, color: gold, size: 16),
-              label: Text(
-                lang == 'ak' ? 'အော့ဖ်လိုင်း' : 'Offline',
-                style: const TextStyle(color: gold, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-            ),
-        ],
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
+            if (_isProcessing) return;
             if (step == 4) {
               appState.navigate(Screen.home);
             } else if (step > 1) {
@@ -208,19 +249,22 @@ class _SendScreenState extends State<SendScreen> {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isDark ? gold.withOpacity(0.12) : const Color(0xFFFFF9E6),
+              color: isDark
+                  ? gold.withValues(alpha: 0.12)
+                  : const Color(0xFFFFF9E6),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: gold.withOpacity(0.35)),
+              border: Border.all(color: gold.withValues(alpha: 0.35)),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: gold.withOpacity(0.2),
+                    color: gold.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.offline_bolt_rounded, color: gold, size: 18),
+                  child: const Icon(Icons.offline_bolt_rounded,
+                      color: gold, size: 18),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -228,14 +272,19 @@ class _SendScreenState extends State<SendScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        lang == 'ak' ? 'အင်တာနက်မရှိဘဲ ငွေလွှဲမည်လား?' : 'Need to send money offline?',
+                        lang == 'ak'
+                            ? 'အင်တာနက်မရှိဘဲ ငွေလွှဲမည်လား?'
+                            : 'Need to send money offline?',
                         style: TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
                           color: isDark ? Colors.white : Colors.black87,
                         ),
                       ),
                       Text(
-                        lang == 'ak' ? 'QR၊ NFC သို့မဟုတ် ဘလူးတုသ် မက်ရှ်ဖြင့် တိုက်ရိုက်လွှဲပါ' : 'Use Bearer eCash via NFC, BLE mesh or QR',
+                        lang == 'ak'
+                            ? 'QR၊ NFC သို့မဟုတ် ဘလူးတုသ် မက်ရှ်ဖြင့် တိုက်ရိုက်လွှဲပါ'
+                            : 'Use Bearer eCash via NFC, BLE mesh or QR',
                         style: TextStyle(fontSize: 10, color: Colors.grey[500]),
                       ),
                     ],
@@ -261,8 +310,10 @@ class _SendScreenState extends State<SendScreen> {
                 child: TextField(
                   controller: _searchCtrl,
                   decoration: InputDecoration(
-                    hintText: TranslationStrings.tr('sendRecipientPlaceholder', lang),
-                    hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
+                    hintText:
+                        TranslationStrings.tr('sendRecipientPlaceholder', lang),
+                    hintStyle:
+                        const TextStyle(fontSize: 12, color: Colors.grey),
                     border: InputBorder.none,
                   ),
                   onSubmitted: (_) => _onCustomRecipientSubmit(),
@@ -279,14 +330,20 @@ class _SendScreenState extends State<SendScreen> {
         const SizedBox(height: 20),
         Text(
           TranslationStrings.tr('sendRecentContacts', lang),
-          style: const TextStyle(color: gold, fontSize: 12, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+              color: gold, fontSize: 12, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
-        if ((appState.contactsList.isNotEmpty ? appState.contactsList : contacts).isEmpty)
+        if ((appState.contactsList.isNotEmpty
+                ? appState.contactsList
+                : contacts)
+            .isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Text(
-              lang == 'ak' ? 'လတ်တလော ဆက်သွယ်သူ မရှိသေးပါ' : 'No saved contacts yet',
+              lang == 'ak'
+                  ? 'လတ်တလော ဆက်သွယ်သူ မရှိသေးပါ'
+                  : 'No saved contacts yet',
               style: const TextStyle(
                 color: Color(0xFF94A3B8),
                 fontSize: 13,
@@ -294,62 +351,71 @@ class _SendScreenState extends State<SendScreen> {
             ),
           )
         else
-          ...(appState.contactsList.isNotEmpty ? appState.contactsList : contacts).map((c) {
+          ...(appState.contactsList.isNotEmpty
+                  ? appState.contactsList
+                  : contacts)
+              .map((c) {
             return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: Material(
-              color: isDark ? surfaceCard : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              child: InkWell(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: Material(
+                color: isDark ? surfaceCard : Colors.white,
                 borderRadius: BorderRadius.circular(18),
-                onTap: () => _onContactSelected(c),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [crimson, gold]),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Center(
-                          child: Text(
-                            c.initials,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: () => _onContactSelected(c),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            gradient:
+                                const LinearGradient(colors: [crimson, gold]),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Center(
+                            child: Text(
+                              c.initials,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              lang == 'ak' ? c.mm : c.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                                color: isDark ? Colors.white : Colors.black87,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                lang == 'ak' ? c.mm : c.name,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: isDark ? Colors.white : Colors.black87,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${c.id} • ${c.location}',
-                              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-                            ),
-                          ],
+                              const SizedBox(height: 2),
+                              Text(
+                                '${c.id} • ${c.location}',
+                                style: TextStyle(
+                                    fontSize: 11, color: Colors.grey[500]),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const Icon(Icons.chevron_right, color: Colors.grey, size: 18),
-                    ],
+                        const Icon(Icons.chevron_right,
+                            color: Colors.grey, size: 18),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }),
+            );
+          }),
       ],
     );
   }
@@ -371,10 +437,11 @@ class _SendScreenState extends State<SendScreen> {
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: gold.withOpacity(0.2),
+                backgroundColor: gold.withValues(alpha: 0.2),
                 child: Text(
                   selectedContact?.initials ?? 'AK',
-                  style: const TextStyle(color: gold, fontWeight: FontWeight.bold, fontSize: 12),
+                  style: const TextStyle(
+                      color: gold, fontWeight: FontWeight.bold, fontSize: 12),
                 ),
               ),
               const SizedBox(width: 12),
@@ -383,8 +450,11 @@ class _SendScreenState extends State<SendScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      lang == 'ak' ? (selectedContact?.mm ?? '') : (selectedContact?.name ?? ''),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      lang == 'ak'
+                          ? (selectedContact?.mm ?? '')
+                          : (selectedContact?.name ?? ''),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                     Text(
                       selectedContact?.id ?? '',
@@ -396,10 +466,14 @@ class _SendScreenState extends State<SendScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: emeraldSuccess.withOpacity(0.2),
+                  color: emeraldSuccess.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text('VERIFIED', style: TextStyle(color: emeraldSuccess, fontSize: 9, fontWeight: FontWeight.bold)),
+                child: const Text('VERIFIED',
+                    style: TextStyle(
+                        color: emeraldSuccess,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -412,7 +486,9 @@ class _SendScreenState extends State<SendScreen> {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            const Text('₳ ', style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
+            const Text('₳ ',
+                style: TextStyle(
+                    color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
             Text(
               amount.isEmpty ? '0.00' : amount,
               style: TextStyle(
@@ -434,7 +510,10 @@ class _SendScreenState extends State<SendScreen> {
             ),
             Text(
               TranslationStrings.tr('sendFeeFree', lang),
-              style: const TextStyle(fontSize: 12, color: emeraldSuccess, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  fontSize: 12,
+                  color: emeraldSuccess,
+                  fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -452,12 +531,17 @@ class _SendScreenState extends State<SendScreen> {
                     onPressed: () => setState(() => amount = v.toString()),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      side: BorderSide(color: isDark ? Colors.white12 : Colors.grey[300]!),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      side: BorderSide(
+                          color: isDark ? Colors.white12 : Colors.grey[300]!),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
                       '₳ $v',
-                      style: const TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: gold,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -473,7 +557,8 @@ class _SendScreenState extends State<SendScreen> {
             if (amount.length < 9) setState(() => amount += v);
           },
           onDelete: () {
-            if (amount.isNotEmpty) setState(() => amount = amount.substring(0, amount.length - 1));
+            if (amount.isNotEmpty)
+              setState(() => amount = amount.substring(0, amount.length - 1));
           },
         ),
 
@@ -484,16 +569,21 @@ class _SendScreenState extends State<SendScreen> {
             width: double.infinity,
             height: 50,
             child: ElevatedButton(
-              onPressed: (amount.isNotEmpty && (double.tryParse(amount) ?? 0) > 0)
-                  ? () => setState(() => step = 3)
-                  : null,
+              onPressed:
+                  (amount.isNotEmpty && (double.tryParse(amount) ?? 0) > 0)
+                      ? () => setState(() => step = 3)
+                      : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: gold,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
               ),
               child: Text(
                 '${TranslationStrings.tr('sendContinue', lang)} (₳ ${amount.isEmpty ? '0' : amount})',
-                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14),
               ),
             ),
           ),
@@ -511,7 +601,7 @@ class _SendScreenState extends State<SendScreen> {
           width: 54,
           height: 54,
           decoration: BoxDecoration(
-            color: gold.withOpacity(0.15),
+            color: gold.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(16),
           ),
           child: const Icon(Icons.fingerprint, color: gold, size: 30),
@@ -528,13 +618,35 @@ class _SendScreenState extends State<SendScreen> {
         ),
         const SizedBox(height: 24),
         OtpDots(length: 6, filledCount: pin.length),
+        if (_isProcessing) ...[
+          const SizedBox(height: 18),
+          const SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(strokeWidth: 2.4, color: gold),
+          ),
+        ],
+        if (_sendError != null) ...[
+          const SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              _sendError!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 12, color: crimson, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
         const Spacer(),
         Keypad(
           onKeyPressed: (v) {
             if (v != '.') _onPinDigit(v, appState);
           },
           onDelete: () {
-            if (pin.isNotEmpty) setState(() => pin = pin.substring(0, pin.length - 1));
+            if (!_isProcessing && pin.isNotEmpty) {
+              setState(() => pin = pin.substring(0, pin.length - 1));
+            }
           },
         ),
         const SizedBox(height: 20),
@@ -566,28 +678,35 @@ class _SendScreenState extends State<SendScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(28),
-                boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 20)],
+                boxShadow: const [
+                  BoxShadow(color: Colors.black38, blurRadius: 20)
+                ],
               ),
               child: Column(
                 children: [
                   // Auto saved badge
                   if (appState.autoSaveSlip || _slipSaved) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: emeraldSuccess.withOpacity(0.12),
+                        color: emeraldSuccess.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.check_circle, color: emeraldSuccess, size: 14),
+                          const Icon(Icons.check_circle,
+                              color: emeraldSuccess, size: 14),
                           const SizedBox(width: 6),
                           Text(
                             lang == 'ak'
                                 ? 'ပြေစာကို ဖုန်း Gallery ထဲသို့ သိမ်းဆည်းပြီးပါပြီ ✓'
                                 : 'Slip Auto-Saved to Phone Gallery ✓',
-                            style: const TextStyle(color: emeraldSuccess, fontWeight: FontWeight.bold, fontSize: 10),
+                            style: const TextStyle(
+                                color: emeraldSuccess,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10),
                           ),
                         ],
                       ),
@@ -596,9 +715,9 @@ class _SendScreenState extends State<SendScreen> {
                   ],
 
                   // Bank header
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       ArakanEmblem(size: 28),
                       SizedBox(width: 8),
                       Text(
@@ -632,7 +751,10 @@ class _SendScreenState extends State<SendScreen> {
                       children: [
                         Text(
                           'TRANSFER AMOUNT',
-                          style: TextStyle(color: Colors.grey[500], fontSize: 9, letterSpacing: 1),
+                          style: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 9,
+                              letterSpacing: 1),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -647,7 +769,10 @@ class _SendScreenState extends State<SendScreen> {
                         const SizedBox(height: 4),
                         const Text(
                           'Fee: 0.00 ₳ (Network Free)',
-                          style: TextStyle(color: emeraldSuccess, fontSize: 10, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: emeraldSuccess,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -659,9 +784,12 @@ class _SendScreenState extends State<SendScreen> {
                     children: [
                       Column(
                         children: [
-                          const Icon(Icons.arrow_circle_up, color: Colors.blueAccent, size: 20),
-                          Container(width: 1, height: 30, color: Colors.grey[300]),
-                          const Icon(Icons.arrow_circle_down, color: emeraldSuccess, size: 20),
+                          const Icon(Icons.arrow_circle_up,
+                              color: Colors.blueAccent, size: 20),
+                          Container(
+                              width: 1, height: 30, color: Colors.grey[300]),
+                          const Icon(Icons.arrow_circle_down,
+                              color: emeraldSuccess, size: 20),
                         ],
                       ),
                       const SizedBox(width: 14),
@@ -671,20 +799,32 @@ class _SendScreenState extends State<SendScreen> {
                           children: [
                             Text(
                               'From: ${appState.profile.name}',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.black87),
                             ),
                             Text(
-                              appState.profile.uid.isNotEmpty ? appState.profile.uid : '202610190001',
-                              style: TextStyle(fontSize: 10, color: Colors.grey[500], fontFamily: 'monospace'),
+                              appState.profile.uid,
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey[500],
+                                  fontFamily: 'monospace'),
                             ),
                             const SizedBox(height: 18),
                             Text(
-                              'To: ${selectedContact?.name ?? 'Ko Min Aung'}',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
+                              'To: ${selectedContact?.name ?? ''}',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.black87),
                             ),
                             Text(
-                              selectedContact?.id ?? '202610190002',
-                              style: TextStyle(fontSize: 10, color: Colors.grey[500], fontFamily: 'monospace'),
+                              selectedContact?.id ?? '',
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey[500],
+                                  fontFamily: 'monospace'),
                             ),
                           ],
                         ),
@@ -704,14 +844,24 @@ class _SendScreenState extends State<SendScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('REF NO', style: TextStyle(color: Colors.grey[500], fontSize: 8)),
+                          Text('REF NO',
+                              style: TextStyle(
+                                  color: Colors.grey[500], fontSize: 8)),
                           Text(
                             _generatedRefId,
-                            style: const TextStyle(fontFamily: 'monospace', fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87),
+                            style: const TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87),
                           ),
                           const SizedBox(height: 4),
-                          Text('DATE & TIME', style: TextStyle(color: Colors.grey[500], fontSize: 8)),
-                          const Text('Today · Just now', style: TextStyle(fontSize: 10, color: Colors.black87)),
+                          Text('DATE & TIME',
+                              style: TextStyle(
+                                  color: Colors.grey[500], fontSize: 8)),
+                          const Text('Today · Just now',
+                              style: TextStyle(
+                                  fontSize: 10, color: Colors.black87)),
                         ],
                       ),
                       QrImageView(
@@ -738,21 +888,29 @@ class _SendScreenState extends State<SendScreen> {
                     icon: Icon(
                       _slipSaved ? Icons.check_circle : Icons.download,
                       size: 16,
-                      color: _slipSaved ? emeraldSuccess : (isDark ? Colors.white : Colors.black87),
+                      color: _slipSaved
+                          ? emeraldSuccess
+                          : (isDark ? Colors.white : Colors.black87),
                     ),
                     label: Text(
                       _slipSaved
                           ? (lang == 'ak' ? 'သိမ်းပြီး ✓' : 'Saved ✓')
-                          : (lang == 'ak' ? 'Gallery သိမ်းမည်' : 'Save to Gallery'),
+                          : (lang == 'ak'
+                              ? 'Gallery သိမ်းမည်'
+                              : 'Save to Gallery'),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: _slipSaved ? emeraldSuccess : (isDark ? Colors.white : Colors.black87),
+                        color: _slipSaved
+                            ? emeraldSuccess
+                            : (isDark ? Colors.white : Colors.black87),
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: isDark ? Colors.white24 : Colors.grey[300]!),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      side: BorderSide(
+                          color: isDark ? Colors.white24 : Colors.grey[300]!),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
                     ),
                   ),
                 ),
@@ -769,11 +927,15 @@ class _SendScreenState extends State<SendScreen> {
               onPressed: () => appState.navigate(Screen.home),
               style: ElevatedButton.styleFrom(
                 backgroundColor: gold,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
               ),
               child: const Text(
                 'Done',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14),
               ),
             ),
           ),

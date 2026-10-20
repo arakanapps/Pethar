@@ -56,7 +56,7 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
       method: 'GET',
       path: '/v1/rates/live',
       category: 'Market',
-      description: 'Stream continuous institutional FX quotes backed by 1:1 USDT reserves and London physical gold bullion.',
+      description: 'Stream institutional FX quotes for AKD, USD, USDT, and USDC.',
       responseBody: JSON.stringify({
         base: "AKD",
         timestamp: 1728901200,
@@ -74,12 +74,12 @@ export const ApiPage = ({ lang }: ApiPageProps) => {
       method: 'POST',
       path: '/v1/escrow/create',
       category: 'Escrow',
-      description: 'Lock fiat or gold collateral into an immutable 2-of-3 multisig smart escrow contract for cross-border trade.',
+      description: 'Lock fiat collateral into an immutable 2-of-3 multisig smart escrow contract for cross-border trade.',
       requestBody: JSON.stringify({
         buyer_id: "akd_node_buyer",
         seller_id: "akd_node_seller",
         arbiter: "pethar_chamber",
-        collateral_asset: "GOLD_GRAMS",
+        collateral_asset: "USD",
         collateral_amount: 15.0,
         timelock_hours: 72
       }, null, 2),

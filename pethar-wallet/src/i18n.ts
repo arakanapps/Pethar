@@ -269,7 +269,7 @@ export const translations: Record<Language, TranslationStrings> = {
     quickActions: 'Quick Financial Actions',
     recentTransactions: 'Recent Ledger Postings',
     seeAll: 'View All',
-    reserveBacked: '100% Fully Backed by Arakan Gold & Tier-1 Reserves',
+    reserveBacked: 'Fixed 1:1 peg to the US dollar',
 
     // Send Screen
     sendTitle: 'Send Money',

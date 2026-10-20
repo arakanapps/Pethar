@@ -8,17 +8,9 @@ export type Json =
 
 export type Currency =
   | 'AKD'
-  | 'USDT'
-  | 'USDC'
   | 'USD'
-  | 'THB'
-  | 'MYR'
-  | 'SGD'
-  | 'EUR'
-  | 'BTC'
-  | 'ETH'
-  | 'MMK'
-  | 'PETHAR_UNIT';
+  | 'USDC'
+  | 'USDT';
 
 export type KycTier = 1 | 2;
 
@@ -33,7 +25,7 @@ export type AccountType =
   | 'SUSPENSE';
 
 export type TransactionType =
-  | 'P2P_TRANSFER'
+  | 'TRANSFER'
   | 'CASH_IN'
   | 'CASH_OUT'
   | 'POS_CHECKOUT'
@@ -316,7 +308,6 @@ export interface Database {
           dob: string;
           address: string;
           usd_account_wallet_address: string;
-          ak_id?: string;
           balance: number;
           akd_wallet_balance: number;
           usd_account_balance: number;
@@ -344,7 +335,6 @@ export interface Database {
           dob?: string;
           address?: string;
           usd_account_wallet_address?: string;
-          ak_id?: string;
           balance?: number;
           akd_wallet_balance?: number;
           usd_account_balance?: number;
@@ -372,7 +362,6 @@ export interface Database {
           dob?: string;
           address?: string;
           usd_account_wallet_address?: string;
-          ak_id?: string;
           balance?: number;
           akd_wallet_balance?: number;
           usd_account_balance?: number;

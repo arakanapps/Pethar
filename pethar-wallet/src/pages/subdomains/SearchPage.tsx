@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BaseLayout } from './BaseLayout';
 import type { Language } from '../../i18n';
 import {
-  Search, ShieldCheck, CheckCircle2, ArrowRight,
+  Search, CheckCircle2, ArrowRight,
   User, Hash, Box
 } from 'lucide-react';
 import { redirectToSubdomain } from '../../utils/subdomain';
@@ -14,7 +14,7 @@ interface SearchPageProps {
 
 interface SearchResultItem {
   id: string;
-  type: 'tx' | 'node' | 'block' | 'gold_serial';
+  type: 'tx' | 'node' | 'block';
   title: string;
   subtitle: string;
   timestamp: string;
@@ -179,7 +179,6 @@ export const SearchPage = ({ lang }: SearchPageProps) => {
                     {item.type === 'tx' && <Hash className="w-5 h-5" />}
                     {item.type === 'node' && <User className="w-5 h-5" />}
                     {item.type === 'block' && <Box className="w-5 h-5" />}
-                    {item.type === 'gold_serial' && <ShieldCheck className="w-5 h-5" />}
                   </div>
                   <div className="space-y-0.5">
                     <h3 className="text-xs font-mono font-bold text-slate-950 group-hover:text-amber-600 transition-colors">

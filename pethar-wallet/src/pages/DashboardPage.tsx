@@ -60,7 +60,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   // User Profile
   const [profile, setProfile] = useState<UserProfile>(() => {
-    if (typeof window !== 'undefined' && auth.currentUser) {
+    if (typeof window !== 'undefined' && auth?.currentUser) {
       const u = auth.currentUser
       return {
         ...initialUserProfile,
@@ -101,7 +101,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       }
     })
 
-    if (auth.currentUser) {
+    if (auth?.currentUser) {
       const u = auth.currentUser
       setProfile((prev) => ({
         ...prev,
@@ -112,7 +112,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       }))
     }
 
-    const unsubscribe = onAuthStateChange((u) => {
+    const unsubscribe = auth ? onAuthStateChange((u) => {
       if (u) {
         setProfile((prev) => ({
           ...prev,
@@ -122,7 +122,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           avatarUrl: u.photoURL || prev.avatarUrl,
         }))
       }
-    })
+    }) : () => {}
 
     return () => {
       subscription.unsubscribe()
@@ -240,7 +240,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
       if (!matchesSearch) return false
 
-      if (txCategoryFilter === 'transfer') return tx.category === 'transfer' || tx.category === 'p2p'
+      if (txCategoryFilter === 'transfer') return tx.category === 'transfer'
       if (txCategoryFilter === 'inflow') return tx.amount > 0
       if (txCategoryFilter === 'merchant') return tx.category === 'pos'
       if (txCategoryFilter === 'offline') return tx.counterparty.toLowerCase().includes('offline') || tx.title.toLowerCase().includes('offline')
@@ -1331,7 +1331,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               amount={Math.abs(selectedTx.amount)}
               recipientName={selectedTx.counterparty}
               recipientId={selectedTx.id}
-              recipientType={selectedTx.category === 'transfer' || selectedTx.category === 'p2p' ? 'Péthar Instant Pay' : 'Offline Mode Token'}
+              recipientType={selectedTx.category === 'transfer' ? 'Péthar Instant Pay' : 'Offline Mode Token'}
               senderName={profile.name || 'User'}
               senderId={`Péthar Wallet ${profile.petharId}`}
               fee={selectedTx.fee}

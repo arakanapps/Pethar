@@ -124,7 +124,7 @@ class TranslationStrings {
       'quickActions': 'Quick Financial Actions',
       'recentTransactions': 'Recent Ledger Postings',
       'seeAll': 'View All',
-      'reserveBacked': '100% Fully Backed by Arakan Gold & Tier-1 Reserves',
+      'reserveBacked': 'Fully backed by liquid USD reserves at a fixed 1:1 peg',
       'sendTitle': 'Send Money',
       'sendRecipientPlaceholder': 'Enter Phone or Péthar ID (e.g. ARAK-0842)',
       'sendRecentContacts': 'Frequent Recipients',

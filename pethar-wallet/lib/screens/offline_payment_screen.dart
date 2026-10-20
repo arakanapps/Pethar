@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:nfc_manager/nfc_manager.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../app_state.dart';
 import '../theme.dart';
 import '../services/offline_payment_service.dart';
@@ -73,7 +72,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
             ),
             Text(
               lang == 'ak' ? 'QR • NFC • ဘလူးတုသ် မက်ရှ်' : 'Cashu eCash • NFC • BLE Mesh',
-              style: TextStyle(fontSize: 11, color: gold),
+              style: const TextStyle(fontSize: 11, color: gold),
             ),
           ],
         ),
@@ -155,10 +154,10 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: gold.withOpacity(0.35), width: 1.2),
+        border: Border.all(color: gold.withValues(alpha: 0.35), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -174,7 +173,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: gold.withOpacity(0.2),
+                      color: gold.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.offline_bolt_rounded, color: gold, size: 18),
@@ -202,9 +201,9 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: emeraldSuccess.withOpacity(0.15),
+                  color: emeraldSuccess.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: emeraldSuccess.withOpacity(0.3)),
+                  border: Border.all(color: emeraldSuccess.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -368,7 +367,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
                 lang == 'ak'
                     ? 'အိတ်ကပ်ထဲရှိ: ₳ ${appState.offlinePocketBalance.toStringAsFixed(2)}'
                     : 'Pocket: ₳ ${appState.offlinePocketBalance.toStringAsFixed(2)}',
-                style: TextStyle(fontSize: 11, color: gold, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 11, color: gold, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -415,7 +414,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey[200],
+                    color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: _amount == preset.toString() ? gold : Colors.transparent,
@@ -469,7 +468,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF131F33) : const Color(0xFFF0F7FF),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.blue.withOpacity(0.2)),
+              border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -553,15 +552,15 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
             width: 120, height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isDark ? gold.withOpacity(0.12) : Colors.amber[50],
+              color: isDark ? gold.withValues(alpha: 0.12) : Colors.amber[50],
               border: Border.all(
-                color: _isScanning ? emeraldSuccess : gold.withOpacity(0.4),
+                color: _isScanning ? emeraldSuccess : gold.withValues(alpha: 0.4),
                 width: 2.5,
               ),
               boxShadow: _isScanning
                   ? [
                       BoxShadow(
-                        color: emeraldSuccess.withOpacity(0.3),
+                        color: emeraldSuccess.withValues(alpha: 0.3),
                         blurRadius: 20,
                         spreadRadius: 4,
                       )
@@ -627,7 +626,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: isDark ? Colors.white : Colors.black87,
-                    side: BorderSide(color: gold.withOpacity(0.6)),
+                    side: BorderSide(color: gold.withValues(alpha: 0.6)),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
@@ -658,7 +657,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: _isScanning ? crimson : Colors.grey.withOpacity(0.3)),
+                side: BorderSide(color: _isScanning ? crimson : Colors.grey.withValues(alpha: 0.3)),
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
@@ -684,7 +683,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           decoration: BoxDecoration(
             color: isSelected
-                ? gold.withOpacity(0.18)
+                ? gold.withValues(alpha: 0.18)
                 : (isDark ? surfaceCard : Colors.grey[100]),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
@@ -828,7 +827,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
       contentPadding: EdgeInsets.zero,
       leading: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: gold.withOpacity(0.15), shape: BoxShape.circle),
+        decoration: BoxDecoration(color: gold.withValues(alpha: 0.15), shape: BoxShape.circle),
         child: const Icon(Icons.phone_android_rounded, color: gold, size: 18),
       ),
       title: Text(name, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
@@ -883,8 +882,8 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
             Wrap(
               spacing: 6,
               children: token.proofs.map((p) => Chip(
-                backgroundColor: gold.withOpacity(0.15),
-                side: BorderSide(color: gold.withOpacity(0.4)),
+                backgroundColor: gold.withValues(alpha: 0.15),
+                side: BorderSide(color: gold.withValues(alpha: 0.4)),
                 label: Text('₳${p.amount}', style: const TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.bold)),
               )).toList(),
             ),

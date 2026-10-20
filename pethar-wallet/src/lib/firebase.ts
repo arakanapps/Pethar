@@ -32,31 +32,47 @@ import {
   addDoc
 } from 'firebase/firestore';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase client configuration is public, but is supplied by the deployment environment
+// so project-specific identifiers and keys are not embedded in tracked source.
 export const firebaseConfig = {
-  apiKey: "AIzaSyAy-e6MbSsYNNxvNxjJweepuTszhX4odyU",
-  authDomain: "pe-thar.firebaseapp.com",
-  projectId: "pe-thar",
-  storageBucket: "pe-thar.firebasestorage.app",
-  messagingSenderId: "895411020406",
-  appId: "1:895411020406:web:0cb9516ba0356b70fb3557",
-  measurementId: "G-0L8V1028JD"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase (singleton pattern prevents duplicate app initialization)
-export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const hasFirebaseConfig = Boolean(
+  firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId && firebaseConfig.appId
+);
+
+// Initialize Firebase only when explicitly configured for this deployment.
+export const app = hasFirebaseConfig
+  ? (getApps().length === 0 ? initializeApp(firebaseConfig) : getApp())
+  : null;
 
 // Initialize Firebase Auth
-export const auth = getAuth(app);
+export const auth = app ? getAuth(app) : null;
 export const googleAuthProvider = new GoogleAuthProvider();
 
-// Initialize Cloud Firestore Database
-export const db = getFirestore(app);
+// Initialize Cloud Firestore Database only when Firebase is configured.
+export const db = app ? getFirestore(app) : null;
+
+function requireFirebaseAuth() {
+  if (!auth) throw new Error('Firebase is not configured for this deployment.');
+  return auth;
+}
+
+function requireFirestore() {
+  if (!db) throw new Error('Firebase is not configured for this deployment.');
+  return db;
+}
 
 // Initialize Firebase Analytics safely in supported browser environments
 export let analytics: Analytics | null = null;
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && app) {
   isSupported().then((supported) => {
     if (supported) {
       analytics = getAnalytics(app);
@@ -74,7 +90,7 @@ if (typeof window !== 'undefined') {
 export async function signInWithGooglePopup() {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
-  const result = await signInWithPopup(auth, provider);
+  const result = await signInWithPopup(requireFirebaseAuth(), provider);
   if (result.user) {
     createOrUpdateUserProfile(result.user).catch((err) => {
       console.warn('Firestore profile sync notice (non-fatal):', err);
@@ -88,14 +104,14 @@ export async function signInWithGooglePopup() {
  */
 export async function signInWithGoogleRedirect() {
   const provider = new GoogleAuthProvider();
-  return signInWithRedirect(auth, provider);
+  return signInWithRedirect(requireFirebaseAuth(), provider);
 }
 
 /**
  * Sign in with Email and Password
  */
 export async function signInWithEmail(email: string, pass: string) {
-  const result = await signInWithEmailAndPassword(auth, email, pass);
+  const result = await signInWithEmailAndPassword(requireFirebaseAuth(), email, pass);
   if (result.user) {
     createOrUpdateUserProfile(result.user).catch((err) => {
       console.warn('Firestore profile sync notice (non-fatal):', err);
@@ -108,7 +124,7 @@ export async function signInWithEmail(email: string, pass: string) {
  * Sign up with Email and Password
  */
 export async function signUpWithEmail(email: string, pass: string, displayName?: string) {
-  const result = await createUserWithEmailAndPassword(auth, email, pass);
+  const result = await createUserWithEmailAndPassword(requireFirebaseAuth(), email, pass);
   if (result.user) {
     if (displayName) {
       updateProfile(result.user, { displayName }).catch(() => {});
@@ -124,7 +140,7 @@ export async function signUpWithEmail(email: string, pass: string, displayName?:
  * Configure invisible or normal reCAPTCHA for Phone Authentication
  */
 export function setupRecaptchaVerifier(containerId: string, invisible = true): RecaptchaVerifier {
-  return new RecaptchaVerifier(auth, containerId, {
+  return new RecaptchaVerifier(requireFirebaseAuth(), containerId, {
     size: invisible ? 'invisible' : 'normal',
     callback: () => {
       // reCAPTCHA solved - allow signInWithPhoneNumber
@@ -142,7 +158,7 @@ export async function sendPhoneVerificationCode(
   phoneNumber: string,
   appVerifier: RecaptchaVerifier
 ): Promise<ConfirmationResult> {
-  return signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+  return signInWithPhoneNumber(requireFirebaseAuth(), phoneNumber, appVerifier);
 }
 
 /**
@@ -163,14 +179,14 @@ export async function verifyPhoneCode(
  * Sign out from Firebase Auth
  */
 export async function signOutFirebase() {
-  return firebaseSignOut(auth);
+  return firebaseSignOut(requireFirebaseAuth());
 }
 
 /**
  * Listen to auth state changes
  */
 export function onAuthStateChange(callback: (user: User | null) => void) {
-  return onAuthStateChanged(auth, callback);
+  return auth ? onAuthStateChanged(auth, callback) : () => {};
 }
 
 // ── Cloud Firestore Helpers ──
@@ -191,7 +207,6 @@ export interface WalletData {
   uid: string;
   balanceAKD: number;
   balanceUSD: number;
-  balanceMMK: number;
   walletAddress: string;
   tier: string;
   status: 'active' | 'suspended';
@@ -217,7 +232,8 @@ export async function createOrUpdateUserProfile(
   user: User,
   additionalData?: Partial<UserProfile>
 ): Promise<UserProfile> {
-  const userRef = doc(db, 'users', user.uid);
+  const firestore = requireFirestore();
+  const userRef = doc(firestore, 'users', user.uid);
   const userSnap = await getDoc(userRef);
 
   const baseProfile = {
@@ -241,12 +257,11 @@ export async function createOrUpdateUserProfile(
     await setDoc(userRef, newProfile);
 
     // Initialize wallet
-    const walletRef = doc(db, 'wallets', user.uid);
+    const walletRef = doc(firestore, 'wallets', user.uid);
     await setDoc(walletRef, {
       uid: user.uid,
       balanceAKD: 0.00,
       balanceUSD: 0.00,
-      balanceMMK: 0.00,
       walletAddress: `0xAKD${user.uid.slice(0, 10).toUpperCase()}`,
       tier: 'standard',
       status: 'active',
@@ -269,7 +284,7 @@ export async function createOrUpdateUserProfile(
  * Get user profile from Firestore
  */
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
-  const snap = await getDoc(doc(db, 'users', uid));
+  const snap = await getDoc(doc(requireFirestore(), 'users', uid));
   return snap.exists() ? (snap.data() as UserProfile) : null;
 }
 
@@ -277,7 +292,7 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
  * Get wallet data from Firestore
  */
 export async function getUserWallet(uid: string): Promise<WalletData | null> {
-  const snap = await getDoc(doc(db, 'wallets', uid));
+  const snap = await getDoc(doc(requireFirestore(), 'wallets', uid));
   return snap.exists() ? (snap.data() as WalletData) : null;
 }
 
@@ -285,7 +300,7 @@ export async function getUserWallet(uid: string): Promise<WalletData | null> {
  * Record a transaction in Firestore
  */
 export async function recordTransaction(data: Omit<TransactionRecord, 'createdAt'>) {
-  return addDoc(collection(db, 'transactions'), {
+  return addDoc(collection(requireFirestore(), 'transactions'), {
     ...data,
     createdAt: serverTimestamp(),
   });
@@ -296,7 +311,7 @@ export async function recordTransaction(data: Omit<TransactionRecord, 'createdAt
  */
 export async function getUserTransactions(uid: string, limitCount = 20): Promise<TransactionRecord[]> {
   const q = query(
-    collection(db, 'transactions'),
+    collection(requireFirestore(), 'transactions'),
     where('senderUid', '==', uid),
     orderBy('createdAt', 'desc'),
     limit(limitCount)

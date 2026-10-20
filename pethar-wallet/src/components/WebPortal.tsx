@@ -69,7 +69,7 @@ export const WebPortal: React.FC<WebPortalProps> = ({
     const matchesCat =
       filterCat === 'all' ||
       tx.category === filterCat ||
-      (filterCat === 'transfer' && tx.category === 'p2p')
+      (filterCat === 'transfer' && tx.category === 'transfer')
     const matchesSearch =
       tx.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tx.titleMm.includes(searchQuery) ||

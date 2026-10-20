@@ -159,7 +159,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         escrow_id: "esc_99104fa2",
         fiat_amount: 15000.00,
         currency: "THB",
-        gold_collateral_grams: 5.42,
+        usd_collateral: 5.42,
         timelock_expires_at: 1728987580,
         status: "bonded_active"
       }
@@ -363,7 +363,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                   <span className="text-xs font-mono font-bold text-slate-900">transfer.settled</span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">200 OK</span>
                 </div>
-                <p className="text-xs text-slate-500 mt-1">Fires when P2P or merchant payment clears</p>
+                <p className="text-xs text-slate-500 mt-1">Fires when Transfer or merchant payment clears</p>
               </button>
 
               <button
@@ -378,7 +378,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                   <span className="text-xs font-mono font-bold text-slate-900">escrow.locked</span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-bold">Bonded</span>
                 </div>
-                <p className="text-xs text-slate-500 mt-1">Fires when gold or fiat deposit locks in multi-sig</p>
+                <p className="text-xs text-slate-500 mt-1">Fires when a fiat deposit locks in multi-sig</p>
               </button>
 
               <button
@@ -426,7 +426,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
               <CheckCircle2 className="w-6 h-6 text-emerald-600" />
             </div>
-            <h3 className="text-base font-black text-slate-950">Zero-Gas P2P Rails</h3>
+            <h3 className="text-base font-black text-slate-950">Zero-Gas Transfer Rails</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
               Native transfers between verified citizen IDs have zero network fees, funded sustainably by institutional bullion settlements.
             </p>

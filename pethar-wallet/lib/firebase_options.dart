@@ -1,23 +1,32 @@
-// File generated for Péthar Firebase Project (pe-thar)
+// Firebase client settings are supplied per build using --dart-define values.
+// These are public client configuration values, not server credentials.
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
+String _requiredFirebaseValue(String key) {
+  const values = <String, String>{
+    'apiKey': String.fromEnvironment('FIREBASE_API_KEY'),
+    'appId': String.fromEnvironment('FIREBASE_APP_ID'),
+    'messagingSenderId': String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID'),
+    'projectId': String.fromEnvironment('FIREBASE_PROJECT_ID'),
+    'authDomain': String.fromEnvironment('FIREBASE_AUTH_DOMAIN'),
+    'storageBucket': String.fromEnvironment('FIREBASE_STORAGE_BUCKET'),
+    'measurementId': String.fromEnvironment('FIREBASE_MEASUREMENT_ID'),
+    'iosBundleId': String.fromEnvironment('FIREBASE_IOS_BUNDLE_ID'),
+  };
+  final value = values[key] ?? '';
+  if (value.isEmpty && key == 'measurementId') return '';
+  if (value.isEmpty && key == 'iosBundleId') return '';
+  if (value.isEmpty) {
+    throw StateError('Missing required Firebase build setting: FIREBASE_${key.replaceAllMapped(RegExp(r'[A-Z]'), (m) => '_${m[0]}').toUpperCase()}');
+  }
+  return value;
+}
+
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return web;
-    }
+    if (kIsWeb) return web;
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
@@ -26,53 +35,46 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
       case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        throw UnsupportedError('Firebase is not configured for this platform.');
       default:
         return android;
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAy-e6MbSsYNNxvNxjJweepuTszhX4odyU',
-    appId: '1:895411020406:web:0cb9516ba0356b70fb3557',
-    messagingSenderId: '895411020406',
-    projectId: 'pe-thar',
-    authDomain: 'pe-thar.firebaseapp.com',
-    storageBucket: 'pe-thar.firebasestorage.app',
-    measurementId: 'G-0L8V1028JD',
-  );
+  static FirebaseOptions get web => FirebaseOptions(
+        apiKey: _requiredFirebaseValue('apiKey'),
+        appId: _requiredFirebaseValue('appId'),
+        messagingSenderId: _requiredFirebaseValue('messagingSenderId'),
+        projectId: _requiredFirebaseValue('projectId'),
+        authDomain: _requiredFirebaseValue('authDomain'),
+        storageBucket: _requiredFirebaseValue('storageBucket'),
+        measurementId: const String.fromEnvironment('FIREBASE_MEASUREMENT_ID'),
+      );
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAy-e6MbSsYNNxvNxjJweepuTszhX4odyU',
-    appId: '1:895411020406:android:e93f80c55fbfeb4b0b0f14',
-    messagingSenderId: '895411020406',
-    projectId: 'pe-thar',
-    storageBucket: 'pe-thar.firebasestorage.app',
-  );
+  static FirebaseOptions get android => FirebaseOptions(
+        apiKey: _requiredFirebaseValue('apiKey'),
+        appId: _requiredFirebaseValue('appId'),
+        messagingSenderId: _requiredFirebaseValue('messagingSenderId'),
+        projectId: _requiredFirebaseValue('projectId'),
+        storageBucket: _requiredFirebaseValue('storageBucket'),
+      );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAy-e6MbSsYNNxvNxjJweepuTszhX4odyU',
-    appId: '1:895411020406:ios:0cb9516ba0356b70fb3557',
-    messagingSenderId: '895411020406',
-    projectId: 'pe-thar',
-    storageBucket: 'pe-thar.firebasestorage.app',
-    iosBundleId: 'com.example.petharMobile',
-  );
+  static FirebaseOptions get ios => FirebaseOptions(
+        apiKey: _requiredFirebaseValue('apiKey'),
+        appId: _requiredFirebaseValue('appId'),
+        messagingSenderId: _requiredFirebaseValue('messagingSenderId'),
+        projectId: _requiredFirebaseValue('projectId'),
+        storageBucket: _requiredFirebaseValue('storageBucket'),
+        iosBundleId: _requiredFirebaseValue('iosBundleId'),
+      );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAy-e6MbSsYNNxvNxjJweepuTszhX4odyU',
-    appId: '1:895411020406:ios:0cb9516ba0356b70fb3557',
-    messagingSenderId: '895411020406',
-    projectId: 'pe-thar',
-    storageBucket: 'pe-thar.firebasestorage.app',
-    iosBundleId: 'com.example.petharMobile',
-  );
+  static FirebaseOptions get macos => FirebaseOptions(
+        apiKey: _requiredFirebaseValue('apiKey'),
+        appId: _requiredFirebaseValue('appId'),
+        messagingSenderId: _requiredFirebaseValue('messagingSenderId'),
+        projectId: _requiredFirebaseValue('projectId'),
+        storageBucket: _requiredFirebaseValue('storageBucket'),
+        iosBundleId: _requiredFirebaseValue('iosBundleId'),
+      );
 }

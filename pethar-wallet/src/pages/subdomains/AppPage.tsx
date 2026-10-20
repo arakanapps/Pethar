@@ -115,7 +115,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
         welcome: 'Welcome back',
         idLabel: 'Péthar ID',
         balanceLabel: 'Total Arakan Dollar (AKD) Balance',
-        reserveVerified: '100% Backed by Tier-1 Gold & USD Reserves',
+        reserveVerified: 'Backed by USD reserves at a fixed 1:1 peg',
         quickActions: 'Quick Financial Services',
         actionSend: 'Send Money',
         actionReceive: 'Receive QR',
@@ -169,7 +169,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
     const matchesCat =
       filterCategory === 'all' ||
       tx.category === filterCategory ||
-      (filterCategory === 'transfer' && tx.category === 'p2p');
+      (filterCategory === 'transfer' && tx.category === 'transfer');
     const matchesSearch =
       tx.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tx.titleMm.includes(searchQuery) ||

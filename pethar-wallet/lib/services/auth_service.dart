@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/data.dart';
 import 'supabase_service.dart';
 
 /// Stored user identity record for email + 6-digit PIN auth and KYC
@@ -251,14 +249,74 @@ class AuthService {
     }
 
     // Check stored registered users
-    final user = _users[cleanEmail];
+    StoredUser? user = _users[cleanEmail];
 
-    if (user == null || user.pin != cleanPin) {
+    if (user != null && user.pin != cleanPin) {
       return {
         'success': false,
         'error': 'Wrong email or PIN code',
         'isPinOrEmailWrong': true,
       };
+    }
+
+    // The PIN unlocks the app locally, but database access requires a live
+    // Supabase session (auth.uid()). If the refresh token has expired we send
+    // a one-time code instead of failing silently.
+    if (SupabaseService().authUserId == null) {
+      try {
+        await SupabaseService().sendEmailOtp(cleanEmail);
+      } catch (e) {
+        debugPrint('Supabase login OTP dispatch failed: $e');
+        return {
+          'success': false,
+          'error': 'Could not start a secure session. Check your connection and try again.',
+          'isPinOrEmailWrong': false,
+        };
+      }
+      return {
+        'success': true,
+        'requiresOtp': true,
+        'user': user,
+        'message': 'Enter the verification code sent to $cleanEmail',
+      };
+    }
+
+    // Fresh install or new device: no local record yet. Verify the PIN against
+    // the server hash and rebuild the local identity from the profile row.
+    if (user == null) {
+      final pinResult = await SupabaseService().verifyUserPin(cleanPin);
+      if (pinResult['valid'] != true) {
+        return {
+          'success': false,
+          'error': pinResult['message']?.toString() ?? 'Wrong PIN code',
+          'isPinOrEmailWrong': true,
+        };
+      }
+
+      final profileMap = await SupabaseService().fetchMyProfile();
+      if (profileMap == null) {
+        return {
+          'success': false,
+          'error': 'No wallet profile found for this account',
+          'isPinOrEmailWrong': false,
+        };
+      }
+
+      user = StoredUser(
+        email: cleanEmail,
+        pin: cleanPin,
+        name: profileMap['name']?.toString() ?? cleanEmail.split('@').first,
+        username: profileMap['username']?.toString() ?? '@${cleanEmail.split('@').first}',
+        uid: profileMap['uid']?.toString() ?? '',
+        kycTier: (profileMap['kyc_tier'] is num)
+            ? (profileMap['kyc_tier'] as num).toInt()
+            : 1,
+        kycStatus: (profileMap['kyc_tier'] is num) && (profileMap['kyc_tier'] as num).toInt() >= 2
+            ? 'VERIFIED_LVL2'
+            : 'VERIFIED_LVL1',
+      );
+      _users[cleanEmail] = user;
+      await _saveUsers();
     }
 
     await setActiveUserEmail(cleanEmail);
@@ -279,29 +337,27 @@ class AuthService {
       };
     }
 
-    // Generate random 6-digit OTP
-    final random = Random();
-    final otp = (100000 + random.nextInt(900000)).toString();
+    try {
+      await SupabaseService().sendEmailOtp(cleanEmail);
+    } catch (e) {
+      debugPrint('Supabase PIN reset OTP failed: $e');
+      return {
+        'success': false,
+        'error': 'Could not send the verification code. Check your connection and try again.',
+      };
+    }
+
     final expiresAt = DateTime.now().add(const Duration(minutes: 10));
 
     _activePinResetOtp = OtpChallenge(
       email: cleanEmail,
-      code: otp,
+      code: '',
       expiresAt: expiresAt,
       purpose: 'PIN_RESET',
     );
 
-    // Dispatch real email via Gmail SMTP
-    unawaited(_dispatchOtpEmail(email: cleanEmail, code: otp, purpose: 'PIN_RESET'));
-
-    // Call Supabase RPC in background if possible
-    try {
-      await SupabaseService().requestPinResetOtp(profileId: cleanEmail);
-    } catch (_) {}
-
     return {
       'success': true,
-      'code': otp,
       'expiresAt': expiresAt,
       'message': '6-digit verification code sent to $cleanEmail (expires in 10 minutes)',
     };
@@ -310,10 +366,10 @@ class AuthService {
   OtpChallenge? get activePinResetChallenge => _activePinResetOtp;
 
   /// 3. Verify PIN Reset OTP
-  Map<String, dynamic> verifyPinResetOtp({
+  Future<Map<String, dynamic>> verifyPinResetOtp({
     required String email,
     required String otp,
-  }) {
+  }) async {
     final cleanEmail = email.trim().toLowerCase();
     final cleanOtp = otp.trim();
 
@@ -333,11 +389,21 @@ class AuthService {
       };
     }
 
-    if (_activePinResetOtp!.code != cleanOtp) {
+    try {
+      final verified = await SupabaseService().verifyEmailOtp(cleanEmail, cleanOtp);
+      if (!verified) {
+        return {
+          'success': false,
+          'expired': false,
+          'error': 'Incorrect or expired verification code.',
+        };
+      }
+    } catch (e) {
+      debugPrint('Supabase PIN reset verification failed: $e');
       return {
         'success': false,
         'expired': false,
-        'error': 'Incorrect verification code. Please check your email or tap Resend Email.',
+        'error': 'Incorrect or expired verification code.',
       };
     }
 
@@ -366,17 +432,47 @@ class AuthService {
     if (user != null) {
       user.pin = p1;
     } else {
-      // If user had not registered locally, create record
+      // The email was verified by Supabase, so the profile may exist remotely
+      // even if this device has no local record.
+      final profileMap = await SupabaseService().fetchMyProfile();
+      if (profileMap == null) {
+        return {
+          'success': false,
+          'error': 'No wallet profile found for this email.',
+        };
+      }
       user = StoredUser(
         email: cleanEmail,
         pin: p1,
-        name: cleanEmail.split('@').first,
-        username: '@${cleanEmail.split('@').first}',
-        uid: generateUserUid(userCount: _users.length + 1),
-        kycTier: 1,
+        name: profileMap['name']?.toString() ?? cleanEmail.split('@').first,
+        username: profileMap['username']?.toString() ?? '@${cleanEmail.split('@').first}',
+        uid: profileMap['uid']?.toString() ?? '',
+        kycTier: (profileMap['kyc_tier'] is num)
+            ? (profileMap['kyc_tier'] as num).toInt()
+            : 1,
         kycStatus: 'VERIFIED_LVL1',
       );
       _users[cleanEmail] = user;
+    }
+
+    // Persist the new bcrypt hash server-side.
+    try {
+      final result = await SupabaseService.client.rpc(
+        'reset_user_pin',
+        params: {'p_new_pin': p1},
+      );
+      if (result is Map && result['success'] == false) {
+        return {
+          'success': false,
+          'error': result['message']?.toString() ?? 'Could not reset PIN.',
+        };
+      }
+    } catch (e) {
+      debugPrint('Error resetting PIN on the server: $e');
+      return {
+        'success': false,
+        'error': 'Could not reset PIN. Please try again.',
+      };
     }
 
     await _saveUsers();
@@ -409,19 +505,24 @@ class AuthService {
       return {'success': false, 'error': 'PIN and confirmation PIN do not match.'};
     }
 
-    final random = Random();
-    final otp = (100000 + random.nextInt(900000)).toString();
+    try {
+      await SupabaseService().sendEmailOtp(cleanEmail);
+    } catch (e) {
+      debugPrint('Supabase OTP dispatch failed: $e');
+      return {
+        'success': false,
+        'error': 'Could not send the verification code. Check your connection and try again.',
+      };
+    }
+
     final expiresAt = DateTime.now().add(const Duration(minutes: 10));
 
     _activeSignUpOtp = OtpChallenge(
       email: cleanEmail,
-      code: otp,
+      code: '',
       expiresAt: expiresAt,
       purpose: 'SIGN_UP',
     );
-
-    // Dispatch real email via Gmail SMTP
-    unawaited(_dispatchOtpEmail(email: cleanEmail, code: otp, purpose: 'SIGN_UP'));
 
     _pendingSignUpData = {
       'email': cleanEmail,
@@ -430,7 +531,6 @@ class AuthService {
 
     return {
       'success': true,
-      'code': otp,
       'expiresAt': expiresAt,
       'message': 'Verification code sent to $cleanEmail (expires in 10 minutes)',
     };
@@ -439,10 +539,10 @@ class AuthService {
   OtpChallenge? get activeSignUpChallenge => _activeSignUpOtp;
 
   /// 6. Sign Up Step 2: Verify Email OTP
-  Map<String, dynamic> verifySignUpOtp({
+  Future<Map<String, dynamic>> verifySignUpOtp({
     required String email,
     required String otp,
-  }) {
+  }) async {
     final cleanEmail = email.trim().toLowerCase();
     final cleanOtp = otp.trim();
 
@@ -462,11 +562,29 @@ class AuthService {
       };
     }
 
-    if (_activeSignUpOtp!.code != cleanOtp) {
+    if (cleanOtp.length != 6) {
       return {
         'success': false,
         'expired': false,
-        'error': 'Incorrect verification code. Please check your email or tap Resend Email.',
+        'error': 'Enter the 6-digit verification code.',
+      };
+    }
+
+    try {
+      final verified = await SupabaseService().verifyEmailOtp(cleanEmail, cleanOtp);
+      if (!verified) {
+        return {
+          'success': false,
+          'expired': false,
+          'error': 'Incorrect or expired verification code.',
+        };
+      }
+    } catch (e) {
+      debugPrint('Supabase OTP verification failed: $e');
+      return {
+        'success': false,
+        'expired': false,
+        'error': 'Incorrect or expired verification code.',
       };
     }
 
@@ -498,8 +616,27 @@ class AuthService {
     if (pendingPin.length != 6) {
       return {'success': false, 'error': 'Security PIN is required to complete registration.'};
     }
-    final userCount = _users.length + 1;
-    final uid = generateUserUid(userCount: userCount);
+
+    final nameParts = cleanName.split(RegExp(r'\s+'));
+    final firstName = nameParts.first;
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
+    final profileMap = await SupabaseService().ensureUserProfile(
+      email: cleanEmail,
+      firstName: firstName,
+      lastName: lastName,
+      username: cleanUsername.replaceAll('@', ''),
+      pin: pendingPin,
+    );
+
+    if (profileMap == null) {
+      return {
+        'success': false,
+        'error': 'Could not create your wallet profile. Please check your connection and try again.',
+      };
+    }
+
+    final uid = profileMap['uid']?.toString() ?? '';
 
     final newUser = StoredUser(
       email: cleanEmail,
@@ -517,14 +654,6 @@ class AuthService {
 
     _activeSignUpOtp = null;
     _pendingSignUpData = null;
-
-    // Background push to MongoDB user_profiles
-    unawaited(_dispatchProfileToMongo(
-      email: cleanEmail,
-      uid: uid,
-      name: cleanName,
-      username: cleanUsername,
-    ));
 
     return {
       'success': true,
@@ -557,19 +686,20 @@ class AuthService {
 
     await _saveUsers();
 
-    // Background notification / audit insertion
-    try {
-      await SupabaseService.client.from('kyc_verifications').insert({
-        'profile_id': user.uid,
-        'email': cleanEmail,
-        'national_id_no': user.nationalIdNo,
-        'dob': user.dob,
-        'name': user.name,
-        'address': user.address,
-        'status': 'PENDING_REVIEW',
-        'submitted_at': DateTime.now().toIso8601String(),
-      });
-    } catch (_) {}
+    // Persist the KYC submission and open an administrator review.
+    final remote = await SupabaseService().submitKycLevel2(
+      nationalId: nationalIdNo.trim(),
+      dob: dob.trim(),
+      fullName: fullName.trim(),
+      address: address.trim(),
+    );
+
+    if (remote['success'] != true) {
+      return {
+        'success': false,
+        'error': remote['message']?.toString() ?? 'Could not submit KYC. Please try again.',
+      };
+    }
 
     return {
       'success': true,

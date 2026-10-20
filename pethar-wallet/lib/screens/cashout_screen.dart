@@ -87,9 +87,9 @@ class _CashOutScreenState extends State<CashOutScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: gold.withOpacity(0.12),
+                    color: gold.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: gold.withOpacity(0.3)),
+                    border: Border.all(color: gold.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     TranslationStrings.tr('cashOutSubtitle', lang),
@@ -127,10 +127,10 @@ class _CashOutScreenState extends State<CashOutScreen> {
                                 height: 44,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [crimson.withOpacity(0.2), gold.withOpacity(0.2)],
+                                    colors: [crimson.withValues(alpha: 0.2), gold.withValues(alpha: 0.2)],
                                   ),
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: gold.withOpacity(0.3)),
+                                  border: Border.all(color: gold.withValues(alpha: 0.3)),
                                 ),
                                 child: const Icon(Icons.store, color: gold, size: 22),
                               ),
@@ -181,7 +181,7 @@ class _CashOutScreenState extends State<CashOutScreen> {
                     end: Alignment.bottomCenter,
                   ),
                   borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: gold.withOpacity(0.4)),
+                  border: Border.all(color: gold.withValues(alpha: 0.4)),
                   boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 20)],
                 ),
                 child: Column(
