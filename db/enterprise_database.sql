@@ -61,7 +61,7 @@ DROP SEQUENCE IF EXISTS public.user_uid_seq;
 CREATE TABLE IF NOT EXISTS public.user_profiles (
     id                         VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
     user_id                    UUID REFERENCES public.users(id) ON DELETE SET NULL,
-    username                   VARCHAR(50) NOT NULL DEFAULT '@user',
+    username                   VARCHAR(50) NOT NULL DEFAULT '',
     uid                        VARCHAR(64) NOT NULL,
     wallet_address             VARCHAR(64) GENERATED ALWAYS AS (uid) STORED,
     avatar_url                 TEXT DEFAULT '',
@@ -99,7 +99,7 @@ ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) D
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) NOT NULL DEFAULT '';
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS dob DATE;
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS address TEXT NOT NULL DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT 's';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '';
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_balance NUMERIC(18, 4) NOT NULL DEFAULT 0.00;
 
 DO $$
@@ -249,9 +249,9 @@ CREATE TABLE IF NOT EXISTS public.agents (
     display_name_mm   VARCHAR(150) DEFAULT '',
     township          VARCHAR(100) NOT NULL DEFAULT '',
     township_mm       VARCHAR(150) DEFAULT '',
-    distance          VARCHAR(32) DEFAULT '0.5 km',
+    distance          VARCHAR(32) DEFAULT '',
     float_status      VARCHAR(32) NOT NULL DEFAULT 'High' CHECK (float_status IN ('High', 'Medium', 'Low')),
-    float_status_mm   VARCHAR(100) DEFAULT 'ငွေသားအပြည့်ရှိ',
+    float_status_mm   VARCHAR(100) DEFAULT '',
     phone             VARCHAR(30) NOT NULL DEFAULT '',
     cash_reserve_akd  NUMERIC(18, 2) NOT NULL DEFAULT 50000.00,
     is_open           BOOLEAN NOT NULL DEFAULT true,
@@ -265,12 +265,12 @@ CREATE INDEX IF NOT EXISTS idx_agents_code ON public.agents(agent_code);
 CREATE INDEX IF NOT EXISTS idx_agents_parent ON public.agents(parent_agent_id);
 
 ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS display_name_mm VARCHAR(150) DEFAULT '';
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS township VARCHAR(100) NOT NULL DEFAULT 'Sittwe';
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS township_mm VARCHAR(150) DEFAULT 'စစ်တွေ';
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS distance VARCHAR(32) DEFAULT '0.5 km';
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS township VARCHAR(100) NOT NULL DEFAULT '';
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS township_mm VARCHAR(150) DEFAULT '';
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS distance VARCHAR(32) DEFAULT '';
 ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS float_status VARCHAR(32) NOT NULL DEFAULT 'High';
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS float_status_mm VARCHAR(100) DEFAULT 'ငွေသားအပြည့်ရှိ';
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL DEFAULT '+95 9 881 000 101';
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS float_status_mm VARCHAR(100) DEFAULT '';
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL DEFAULT '';
 ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS cash_reserve_akd NUMERIC(18, 2) NOT NULL DEFAULT 50000.00;
 ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS is_open BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE public.agents DROP CONSTRAINT IF EXISTS agents_user_id_key;
@@ -806,9 +806,7 @@ BEGIN
     v_new_hash := encode(digest(p_new_pin, 'sha256'), 'hex');
 
     IF v_current_hash IS NOT NULL AND v_current_hash <> '' AND v_current_hash <> v_input_hash THEN
-        IF p_current_pin <> '123456' AND v_current_hash <> p_current_pin THEN
-            RETURN jsonb_build_object('success', false, 'message', 'Current PIN does not match.');
-        END IF;
+        RETURN jsonb_build_object('success', false, 'message', 'Current PIN does not match.');
     END IF;
 
     PERFORM set_config('pethar.allow_pin_change', 'true', true);
@@ -1263,59 +1261,161 @@ ALTER TABLE public.bill_providers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.topup_packages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.name_change_reviews ENABLE ROW LEVEL SECURITY;
 
--- Private authenticated policies for secure database operations
+-- ========================================================================
+-- PER-USER ROW LEVEL SECURITY POLICIES
+-- Principle: Users access only their own data. Service role has full access.
+-- Reference/public data tables are read-only for authenticated users.
+-- ========================================================================
 DO $$
 BEGIN
+    -- ---- USERS: own row only ----
     DROP POLICY IF EXISTS "allow_all_users" ON public.users;
-    CREATE POLICY "allow_all_users" ON public.users FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "users_own_data" ON public.users;
+    CREATE POLICY "users_own_data" ON public.users
+        FOR ALL TO authenticated
+        USING (id = auth.uid())
+        WITH CHECK (id = auth.uid());
+    DROP POLICY IF EXISTS "users_service_full" ON public.users;
+    CREATE POLICY "users_service_full" ON public.users
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+    -- ---- USER PROFILES: own profile only ----
     DROP POLICY IF EXISTS "allow_all_user_profiles" ON public.user_profiles;
-    CREATE POLICY "allow_all_user_profiles" ON public.user_profiles FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "profiles_own_data" ON public.user_profiles;
+    CREATE POLICY "profiles_own_data" ON public.user_profiles
+        FOR ALL TO authenticated
+        USING (user_id = auth.uid())
+        WITH CHECK (user_id = auth.uid());
+    DROP POLICY IF EXISTS "profiles_service_full" ON public.user_profiles;
+    CREATE POLICY "profiles_service_full" ON public.user_profiles
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+    -- ---- ACCOUNTS: own accounts only ----
     DROP POLICY IF EXISTS "allow_all_accounts" ON public.accounts;
-    CREATE POLICY "allow_all_accounts" ON public.accounts FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "accounts_own_data" ON public.accounts;
+    CREATE POLICY "accounts_own_data" ON public.accounts
+        FOR ALL TO authenticated
+        USING (user_id = auth.uid())
+        WITH CHECK (user_id = auth.uid());
+    DROP POLICY IF EXISTS "accounts_service_full" ON public.accounts;
+    CREATE POLICY "accounts_service_full" ON public.accounts
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+    -- ---- LEDGER ENTRIES: own entries only (via account ownership) ----
     DROP POLICY IF EXISTS "allow_all_ledger_entries" ON public.ledger_entries;
-    CREATE POLICY "allow_all_ledger_entries" ON public.ledger_entries FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "ledger_own_data" ON public.ledger_entries;
+    CREATE POLICY "ledger_own_data" ON public.ledger_entries
+        FOR SELECT TO authenticated
+        USING (account_id IN (SELECT id FROM public.accounts WHERE user_id = auth.uid()));
+    DROP POLICY IF EXISTS "ledger_service_full" ON public.ledger_entries;
+    CREATE POLICY "ledger_service_full" ON public.ledger_entries
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+    -- ---- NAME CHANGE REVIEWS: own reviews only ----
     DROP POLICY IF EXISTS "allow_all_name_change_reviews" ON public.name_change_reviews;
-    CREATE POLICY "allow_all_name_change_reviews" ON public.name_change_reviews FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "name_reviews_own_data" ON public.name_change_reviews;
+    CREATE POLICY "name_reviews_own_data" ON public.name_change_reviews
+        FOR ALL TO authenticated
+        USING (user_id = auth.uid())
+        WITH CHECK (user_id = auth.uid());
+    DROP POLICY IF EXISTS "name_reviews_service_full" ON public.name_change_reviews;
+    CREATE POLICY "name_reviews_service_full" ON public.name_change_reviews
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+    -- ---- OTP CHALLENGES: own challenges only ----
     DROP POLICY IF EXISTS "allow_all_otp_challenges" ON public.otp_challenges;
-    CREATE POLICY "allow_all_otp_challenges" ON public.otp_challenges FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "otp_own_data" ON public.otp_challenges;
+    CREATE POLICY "otp_own_data" ON public.otp_challenges
+        FOR ALL TO authenticated
+        USING (user_id = auth.uid())
+        WITH CHECK (user_id = auth.uid());
+    DROP POLICY IF EXISTS "otp_service_full" ON public.otp_challenges;
+    CREATE POLICY "otp_service_full" ON public.otp_challenges
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+    -- ---- TRANSACTIONS: own transactions only (via metadata->user_id) ----
     DROP POLICY IF EXISTS "allow_all_transactions" ON public.transactions;
-    CREATE POLICY "allow_all_transactions" ON public.transactions FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "txn_own_data" ON public.transactions;
+    CREATE POLICY "txn_own_data" ON public.transactions
+        FOR ALL TO authenticated
+        USING (metadata->>'user_id' = auth.uid()::text)
+        WITH CHECK (metadata->>'user_id' = auth.uid()::text);
+    DROP POLICY IF EXISTS "txn_service_full" ON public.transactions;
+    CREATE POLICY "txn_service_full" ON public.transactions
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+    -- ---- FAVORITE CONTACTS: own contacts only ----
     DROP POLICY IF EXISTS "allow_all_favorite_contacts" ON public.favorite_contacts;
-    CREATE POLICY "allow_all_favorite_contacts" ON public.favorite_contacts FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "contacts_own_data" ON public.favorite_contacts;
+    CREATE POLICY "contacts_own_data" ON public.favorite_contacts
+        FOR ALL TO authenticated
+        USING (user_id = auth.uid()::text)
+        WITH CHECK (user_id = auth.uid()::text);
+    DROP POLICY IF EXISTS "contacts_service_full" ON public.favorite_contacts;
+    CREATE POLICY "contacts_service_full" ON public.favorite_contacts
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+    -- ---- REFERENCE DATA: Read-only for authenticated, full access for service_role ----
 
     DROP POLICY IF EXISTS "allow_read_bill_providers" ON public.bill_providers;
     DROP POLICY IF EXISTS "allow_all_bill_providers" ON public.bill_providers;
-    CREATE POLICY "allow_all_bill_providers" ON public.bill_providers FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "bill_providers_read" ON public.bill_providers;
+    CREATE POLICY "bill_providers_read" ON public.bill_providers
+        FOR SELECT TO authenticated USING (true);
+    DROP POLICY IF EXISTS "bill_providers_service_full" ON public.bill_providers;
+    CREATE POLICY "bill_providers_service_full" ON public.bill_providers
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_topup_packages" ON public.topup_packages;
     DROP POLICY IF EXISTS "allow_all_topup_packages" ON public.topup_packages;
-    CREATE POLICY "allow_all_topup_packages" ON public.topup_packages FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "topup_packages_read" ON public.topup_packages;
+    CREATE POLICY "topup_packages_read" ON public.topup_packages
+        FOR SELECT TO authenticated USING (true);
+    DROP POLICY IF EXISTS "topup_packages_service_full" ON public.topup_packages;
+    CREATE POLICY "topup_packages_service_full" ON public.topup_packages
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_fx_rate_board" ON public.fx_rate_board;
     DROP POLICY IF EXISTS "allow_all_fx_rate_board" ON public.fx_rate_board;
-    CREATE POLICY "allow_all_fx_rate_board" ON public.fx_rate_board FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "fx_rate_board_read" ON public.fx_rate_board;
+    CREATE POLICY "fx_rate_board_read" ON public.fx_rate_board
+        FOR SELECT TO authenticated USING (true);
+    DROP POLICY IF EXISTS "fx_rate_board_service_full" ON public.fx_rate_board;
+    CREATE POLICY "fx_rate_board_service_full" ON public.fx_rate_board
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_fx_rates" ON public.fx_rates;
     DROP POLICY IF EXISTS "allow_all_fx_rates" ON public.fx_rates;
-    CREATE POLICY "allow_all_fx_rates" ON public.fx_rates FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "fx_rates_read" ON public.fx_rates;
+    CREATE POLICY "fx_rates_read" ON public.fx_rates
+        FOR SELECT TO authenticated USING (true);
+    DROP POLICY IF EXISTS "fx_rates_service_full" ON public.fx_rates;
+    CREATE POLICY "fx_rates_service_full" ON public.fx_rates
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_pos_terminals" ON public.pos_terminals;
     DROP POLICY IF EXISTS "allow_all_pos_terminals" ON public.pos_terminals;
-    CREATE POLICY "allow_all_pos_terminals" ON public.pos_terminals FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "pos_terminals_read" ON public.pos_terminals;
+    CREATE POLICY "pos_terminals_read" ON public.pos_terminals
+        FOR SELECT TO authenticated USING (true);
+    DROP POLICY IF EXISTS "pos_terminals_service_full" ON public.pos_terminals;
+    CREATE POLICY "pos_terminals_service_full" ON public.pos_terminals
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_agents" ON public.agents;
     DROP POLICY IF EXISTS "allow_all_agents" ON public.agents;
-    CREATE POLICY "allow_all_agents" ON public.agents FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "agents_read" ON public.agents;
+    CREATE POLICY "agents_read" ON public.agents
+        FOR SELECT TO authenticated USING (true);
+    DROP POLICY IF EXISTS "agents_service_full" ON public.agents;
+    CREATE POLICY "agents_service_full" ON public.agents
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+    -- ---- CYBER DEFENSE: service_role only ----
     DROP POLICY IF EXISTS "allow_all_cyber_defense" ON public.cyber_defense_events;
-    CREATE POLICY "allow_all_cyber_defense" ON public.cyber_defense_events FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);
+    DROP POLICY IF EXISTS "cyber_defense_service_full" ON public.cyber_defense_events;
+    CREATE POLICY "cyber_defense_service_full" ON public.cyber_defense_events
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
 END $$;
 
 -- ----------------------------------------------------------------------------
