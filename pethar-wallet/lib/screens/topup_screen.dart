@@ -202,13 +202,28 @@ class _TopupScreenState extends State<TopupScreen> {
   }
 
   void _showContactsPicker(BuildContext context) {
-    final sampleContacts = [
-      {'name': 'User (Self)', 'phone': '09123456789', 'op': 'ATOM'},
-      {'name': 'Ko Min Aung', 'phone': '09251998791', 'op': 'MPT'},
-      {'name': 'Daw Hla Hla', 'phone': '09691234567', 'op': 'MYTEL'},
-      {'name': 'Mg Zaw Myo', 'phone': '09971234567', 'op': 'U9'},
-      {'name': 'U Thura', 'phone': '09312345678', 'op': 'MecTel'},
-    ];
+    final appState = Provider.of<AppState>(context, listen: false);
+    final contacts = <Map<String, String>>[];
+
+    if (appState.profile.phone.isNotEmpty) {
+      final op = _detectOperator(appState.profile.phone);
+      contacts.add({
+        'name': appState.profile.name.isNotEmpty ? '${appState.profile.name} (My Number)' : 'My Phone Number',
+        'phone': appState.profile.phone,
+        'op': op.isNotEmpty ? op : 'ATOM',
+      });
+    }
+
+    for (final fav in appState.favoriteContactsList) {
+      if (fav.phone.isNotEmpty) {
+        final op = _detectOperator(fav.phone);
+        contacts.add({
+          'name': fav.name.isNotEmpty ? fav.name : fav.phone,
+          'phone': fav.phone,
+          'op': op.isNotEmpty ? op : 'ATOM',
+        });
+      }
+    }
 
     showModalBottomSheet(
       context: context,
@@ -237,17 +252,29 @@ class _TopupScreenState extends State<TopupScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              ...sampleContacts.map((c) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: _buildOperatorLogo(c['op']!, size: 38, borderRadius: 8),
-                    title: Text(c['name']!, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                    subtitle: Text('${c['phone']} • ${c['op']}', style: const TextStyle(fontSize: 12, color: Color(0xFF71717A))),
-                    trailing: _buildMiniOperatorBadge(c['op']!),
-                    onTap: () {
-                      _phoneCtrl.text = c['phone']!;
-                      Navigator.pop(ctx);
-                    },
-                  )),
+              if (contacts.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      'No saved phone contacts found.\nEnter mobile number above.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 13, color: Color(0xFF71717A)),
+                    ),
+                  ),
+                )
+              else
+                ...contacts.map((c) => ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: _buildOperatorLogo(c['op']!, size: 38, borderRadius: 8),
+                      title: Text(c['name']!, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                      subtitle: Text('${c['phone']} • ${c['op']}', style: const TextStyle(fontSize: 12, color: Color(0xFF71717A))),
+                      trailing: _buildMiniOperatorBadge(c['op']!),
+                      onTap: () {
+                        _phoneCtrl.text = c['phone']!;
+                        Navigator.pop(ctx);
+                      },
+                    )),
             ],
           ),
         ),

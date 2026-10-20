@@ -543,9 +543,9 @@ class _AccountScreenState extends State<AccountScreen> {
                               const SizedBox(height: 2),
                               Row(
                                 children: [
-                                  const Text(
+                                  Text(
                                     usdWalletShort,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontFamily: 'monospace',
                                       fontSize: 11,
                                       color: Colors.grey,
@@ -555,7 +555,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   const SizedBox(width: 6),
                                   InkWell(
                                     onTap: () {
-                                      Clipboard.setData(const ClipboardData(text: usdWalletAddress));
+                                      Clipboard.setData(ClipboardData(text: usdWalletAddress));
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
                                           content: Text('USD wallet address copied to clipboard!'),

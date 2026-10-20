@@ -47,7 +47,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _showForgotConfirmPin = false;
   String? _forgotPinError;
   String? _forgotPinSuccess;
-  String _simulatedOtp = '839210';
 
   String _subdistrict = '';
   String _streetAddress = '';
@@ -398,7 +397,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final emailCtrl = TextEditingController();
     final otpCtrl = TextEditingController();
     int step = 1; // 1: request, 2: verify
-    String simulatedOtp = '';
     bool isLoading = false;
 
     showDialog(
@@ -461,7 +459,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               setModalState(() {
                                 isLoading = false;
                                 step = 2;
-                                simulatedOtp = res['simulated_otp']?.toString() ?? '123456';
                               });
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2563EB), foregroundColor: Colors.white),
@@ -474,18 +471,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
+                      color: const Color(0xFFEFF6FF),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFF59E0B)),
+                      border: Border.all(color: const Color(0xFF93C5FD)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline, size: 16, color: Color(0xFFB45309)),
+                        const Icon(Icons.mark_email_read_outlined, size: 16, color: Color(0xFF1D4ED8)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Demo OTP sent to ${emailCtrl.text}: $simulatedOtp',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                            'A 6-digit verification code has been sent to ${emailCtrl.text}',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF)),
                           ),
                         ),
                       ],
@@ -555,7 +552,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final phoneCtrl = TextEditingController();
     final otpCtrl = TextEditingController();
     int step = 1;
-    String simulatedOtp = '';
     bool isLoading = false;
 
     showDialog(
@@ -616,7 +612,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               setModalState(() {
                                 isLoading = false;
                                 step = 2;
-                                simulatedOtp = res['simulated_otp']?.toString() ?? '123456';
                               });
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
@@ -629,18 +624,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
+                      color: const Color(0xFFEFF6FF),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFF59E0B)),
+                      border: Border.all(color: const Color(0xFF93C5FD)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline, size: 16, color: Color(0xFFB45309)),
+                        const Icon(Icons.mark_email_read_outlined, size: 16, color: Color(0xFF1D4ED8)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Demo Email OTP sent to ${appState.profile.email}: $simulatedOtp',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                            'A 6-digit verification code has been sent to your registered email: ${appState.profile.email}',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF)),
                           ),
                         ),
                       ],
@@ -712,7 +707,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final newPinCtrl = TextEditingController();
     final confirmPinCtrl = TextEditingController();
     final otpCtrl = TextEditingController();
-    String simulatedOtp = '';
     bool isLoading = false;
 
     showDialog(
@@ -763,7 +757,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           setModalState(() {
                             isLoading = false;
                             forgotMode = true;
-                            simulatedOtp = res['simulated_otp']?.toString() ?? '123456';
                           });
                         },
                         child: const Text('Forgot PIN? Reset with Email OTP', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF2563EB))),
@@ -802,8 +795,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ] else ...[
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFFF59E0B))),
-                    child: Text('Demo Reset OTP sent to ${appState.profile.email}: $simulatedOtp', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E))),
+                    decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFF93C5FD))),
+                    child: Text('A 6-digit reset code has been sent to your registered email: ${appState.profile.email}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF))),
                   ),
                   const SizedBox(height: 12),
                   const Text('Enter 6-digit Email OTP:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
@@ -857,7 +850,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final reasonCtrl = TextEditingController();
     final otpCtrl = TextEditingController();
     int step = 1;
-    String simulatedOtp = '';
     bool isLoading = false;
 
     showDialog(
@@ -910,7 +902,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               setModalState(() {
                                 isLoading = false;
                                 step = 2;
-                                simulatedOtp = res['simulated_otp']?.toString() ?? '123456';
                               });
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7C3AED), foregroundColor: Colors.white),
@@ -920,8 +911,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ] else ...[
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFFF59E0B))),
-                    child: Text('Demo OTP sent to ${appState.profile.email}: $simulatedOtp', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E))),
+                    decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFF93C5FD))),
+                    child: Text('A 6-digit verification code has been sent to your registered email: ${appState.profile.email}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF))),
                   ),
                   const SizedBox(height: 12),
                   const Text('Enter 6-digit Email OTP to Confirm & Submit for Review:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
@@ -1886,7 +1877,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   label: 'My Address',
                   value: p.address.isNotEmpty
                       ? p.address
-                      : (_streetAddress.isNotEmpty ? _streetAddress : 'Sittwe, Arakan State'),
+                      : (_streetAddress.isNotEmpty ? _streetAddress : (isAk ? 'လိပ်စာ ထည့်သွင်းထားခြင်း မရှိပါ' : 'Not Set')),
                   onTap: () => _showEditAddressModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),
@@ -2270,6 +2261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   trailing: const Icon(Icons.chevron_right, color: Colors.black38, size: 20),
                   onTap: () {
+                    final appState = Provider.of<AppState>(context, listen: false);
                     _forgotOtpCtrl.clear();
                     _forgotNewPinCtrl.clear();
                     _forgotConfirmPinCtrl.clear();
@@ -2278,9 +2270,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _showForgotConfirmPin = false;
                       _forgotPinError = null;
                       _forgotPinSuccess = null;
-                      _simulatedOtp = (100000 + (DateTime.now().millisecondsSinceEpoch % 900000)).toString();
                       _subView = 'forgot_pin';
                     });
+                    SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
                   },
                 ),
               ],
@@ -2488,7 +2480,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       }
 
                       final currentPin = appState.profile.pin;
-                      if (currentPin.isNotEmpty && oldP != currentPin && oldP != '123456') {
+                      if (currentPin.isNotEmpty && oldP != currentPin) {
                         setState(() => _pinChangeError = isAk ? 'ယခင် PIN နံပါတ် မှားယွင်းနေပါသည်' : 'Incorrect Old PIN. Please try again.');
                         return;
                       }
@@ -2596,17 +2588,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Text(
                       isAk ? 'အီးမေးလ်သို့ OTP ပို့ပြီးပါပြီ' : 'OTP Code Dispatched',
                       style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFDE68A),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        'Code: $_simulatedOtp',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF78350F)),
-                      ),
                     ),
                   ],
                 ),

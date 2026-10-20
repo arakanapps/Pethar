@@ -300,12 +300,11 @@ export async function authenticateWithEmailAndPin(
     }
 
     if (data) {
-      // Check stored PIN (accepts plain PIN match or hash match, or initial default)
+      // Check stored PIN (accepts plain PIN match or hash match)
       const isPinMatch =
-        data.pin_hash === pinH ||
-        data.pin_hash === pin.trim() ||
-        (data.pin_hash === '' && pin.trim() === '123456') ||
-        data.pin === pin.trim()
+        (data.pin_hash && data.pin_hash === pinH) ||
+        (data.pin_hash && data.pin_hash === pin.trim()) ||
+        (data.pin && data.pin === pin.trim())
 
       if (!isPinMatch) {
         return { success: false, error: 'INCORRECT_CREDENTIALS' }

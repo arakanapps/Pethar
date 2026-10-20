@@ -81,12 +81,9 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                 HapticFeedback.lightImpact();
 
                 if (enteredPin.length == 6) {
-                  // Verify PIN (Accept user profile PIN or default test PINs)
+                  // Verify PIN strictly against user profile PIN
                   final currentPin = Provider.of<AppState>(context, listen: false).profile.pin;
-                  final isPinValid = enteredPin == currentPin ||
-                      (currentPin.isEmpty && (enteredPin == '123456' || enteredPin == '000000')) ||
-                      enteredPin == '123456' ||
-                      enteredPin == '000000';
+                  final isPinValid = currentPin.isNotEmpty && enteredPin == currentPin;
                   if (isPinValid) {
                     Navigator.pop(bottomSheetContext);
                     HapticFeedback.mediumImpact();
@@ -132,7 +129,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                   } else {
                     HapticFeedback.heavyImpact();
                     setModalState(() {
-                      pinError = 'Incorrect PIN. Try 123456';
+                      pinError = 'Incorrect PIN. Please try again.';
                       enteredPin = '';
                     });
                   }
@@ -226,16 +223,6 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: crimson,
-                      ),
-                    ),
-                  ] else ...[
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Default PIN: 123456',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF94A3B8),
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],

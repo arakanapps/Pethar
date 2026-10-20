@@ -251,20 +251,7 @@ class AuthService {
     }
 
     // Check stored registered users
-    var user = _users[cleanEmail];
-    if (user == null && cleanPin == '123456') {
-      user = StoredUser(
-        email: cleanEmail,
-        pin: '123456',
-        name: cleanEmail.contains('@') ? cleanEmail.split('@').first : 'User',
-        username: cleanEmail.contains('@') ? cleanEmail.split('@').first : 'user',
-        uid: generateUserUid(userCount: _users.length + 1),
-        kycTier: 2,
-        kycStatus: 'VERIFIED_LVL2',
-      );
-      _users[cleanEmail] = user;
-      await _saveUsers();
-    }
+    final user = _users[cleanEmail];
 
     if (user == null || user.pin != cleanPin) {
       return {
@@ -507,7 +494,10 @@ class AuthService {
       cleanUsername = '@$cleanUsername';
     }
 
-    final pendingPin = _pendingSignUpData?['pin']?.toString() ?? '123456';
+    final pendingPin = _pendingSignUpData?['pin']?.toString() ?? '';
+    if (pendingPin.length != 6) {
+      return {'success': false, 'error': 'Security PIN is required to complete registration.'};
+    }
     final userCount = _users.length + 1;
     final uid = generateUserUid(userCount: userCount);
 
