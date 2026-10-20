@@ -94,7 +94,7 @@ const Invariant = {
       desc: ak
         ? 'အင်တာနက်မရှိချိန်တွင် Cashu ကဲ့သို့ Bearer Token ဖြင့် ဖုန်းအချင်းချင်း ဒေတာလွှဲပြောင်းပုံနှင့် အလိုအလျောက် စင့်ခ်လုပ်ပုံ။'
         : 'Cashu-inspired bearer e-cash tokens for offline peer-to-peer data transfers without internet, cellular networks, or SIM cards.',
-      tag: ak ? 'အော့ဖ်လိုင်း' : 'Offline P2P',
+      tag: ak ? 'အော့ဖ်လိုင်း' : 'Offline Transfer',
       readTime: '8 min read',
       content: {
         overview: ak
@@ -107,7 +107,7 @@ const Invariant = {
           'စက်တစ်လုံးလုံး အင်တာနက် (သို့မဟုတ် Starlink) ပြန်ရသည်နှင့် တစ်ပြိုင်နက် ဗဟိုစာရင်းသို့ အလိုအလျောက် စင့်ခ် (Sync) လုပ်သည်။',
         ] : [
           'Cryptographic bearer notes stored in on-device encrypted hardware storage (StrongBox / Secure Enclave).',
-          'P2P data transfer channels: Bluetooth Low Energy (BLE), NFC tap-to-pay, and offline animated QR camera scanner.',
+          'Transfer data transfer channels: Bluetooth Low Energy (BLE), NFC tap-to-pay, and offline animated QR camera scanner.',
           'Contextual OS permissions: Prompts only when "Send Offline" is initiated.',
           'Automatic reconciliation: As soon as either phone reconnects to internet, the transaction settles to the cloud ledger.',
         ],
@@ -488,7 +488,7 @@ POST https://api.pethar.co.uk/v1/invoices
             <Zap className="w-5 h-5 text-emerald-600 mb-2" />
             <h4 className="font-bold text-slate-950">Offline Mode (Mobile)</h4>
             <p className="text-[11px] text-slate-500 mt-1">
-              {ak ? 'Android နှင့် iOS တွင် အင်တာနက်မရှိဘဲ ဖုန်းအချင်းချင်း ဒေတာလွှဲနိုင်သည်။' : 'Cashu-inspired bearer e-cash allows P2P transfers during network blackouts.'}
+              {ak ? 'Android နှင့် iOS တွင် အင်တာနက်မရှိဘဲ ဖုန်းအချင်းချင်း ဒေတာလွှဲနိုင်သည်။' : 'Cashu-inspired bearer e-cash allows Transfer transfers during network blackouts.'}
             </p>
           </div>
           <div className="p-5 rounded-2xl bg-white border border-slate-200/70 shadow-xs font-mono text-xs">

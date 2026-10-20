@@ -1,85 +1,53 @@
-# Péthar (ဖေ့သာ) — Enterprise System Architecture
+# Péthar architecture and production roadmap
 
-```
-                                  [ DNS Gateway: Cloudflare / AWS ]
-                                                  │
-                 ┌────────────────────────────────┴────────────────────────────────┐
-                 ▼                                                                 ▼
-      [ Public Edge: pethar.co.uk ]                                     [ Subdomain Applications ]
-      • Enterprise Landing                                              • app.pethar.co.uk (Wallet Hub)
-      • Direct Mobile Download Hub                                      • auth.pethar.co.uk (Identity)
-      • 1 ₳ = $1.00 USD Collateral Transparency                         • admin.pethar.co.uk (Treasury)
-                 │                                                      • docs.pethar.co.uk (API Specs)
-                 │
+## Current state (verified in this repository)
+
+- The browser application is React + TypeScript + Vite in `pethar-wallet/`; Vercel hosts the website according to the project owner. Hosting the site does not provide a secure financial transaction backend.
+- Web data access uses the Supabase JavaScript client. SQL migrations and `drizzle.config.ts` target PostgreSQL. **Supabase PostgreSQL should be the sole system of record for user identities, accounts, and the financial ledger.** Firebase/Firestore code remains in the Flutter client and needs an explicit migration or narrowly defined non-financial role before production. MongoDB and MySQL appear in environment templates only; no production use is confirmed here.
+- Screens still contain prototype/demo flows. The current web build can pass, but project-wide lint/test errors remain; the project must not be represented as production-ready.
+- This repository does not establish that AKD has reserves, a peg, licenses, banking rails, live exchange markets, or offline settlement. Do not state such claims as facts unless independently verified and approved.
+
+## Target production topology
+
+```text
+Flutter Android/iOS + React/Vercel web
+                 │ HTTPS; user-scoped identity
                  ▼
- ┌───────────────────────────────┐
- │       Péthar Monorepo         │
- ├───────────────────────────────┤
- │ 🌐 pethar-wallet (Web & PWA)  │ ◄── React 19 + TypeScript + Vite + Tailwind CSS (m.pethar.co.uk)
- │ 📱 pethar-wallet (Mobile Core)│ ◄── Flutter 3.x / Swift / Kotlin (android/, ios/, macos/, lib/)
- │ 🗄️ Database & Cloud Firestore  │ ◄── Drizzle ORM + PostgreSQL + Firebase Auth
- └───────────────────────────────┘
+       Trusted API / transaction service
+                 │ restricted server credential; validated inputs
+                 ▼
+       Supabase PostgreSQL (system of record)
+       ├── profiles and KYC references
+       ├── accounts and immutable double-entry journal
+       ├── transfer state machine/idempotency records
+       └── audit/security events
 ```
 
----
+Vercel can serve static/frontend code and host server functions if suitable for your operational model; never send a Supabase service-role key to a browser or mobile app. Client access to Supabase must use the publishable/anon key only with rigorously tested RLS. Financial writes should go through a trusted endpoint or carefully reviewed database RPC that verifies identity, authorization, limits, idempotency, and account status, then posts balanced journal entries atomically. Derive balances from ledger entries or maintain transactionally updated projections; do not accept client-supplied balances. Keep credentials in Vercel/Supabase secret management, not repository files.
 
-## 1. Multi-Tier Distributed Topology
+## Database and migration procedure
 
-```mermaid
-graph TD
-    Client[Web & Mobile Clients] -->|HTTPS / TLS 1.3| Edge[Edge Proxy & Subdomain Router]
-    
-    subgraph "Public Services"
-        Edge --> Landing[pethar.co.uk - Public Hub]
-        Edge --> Download[download.pethar.co.uk - APK & iOS OTA]
-        Edge --> Auth[auth.pethar.co.uk - Firebase Identity]
-    end
-    
-    subgraph "Core Wallet Infrastructure"
-        Edge --> Wallet[app.pethar.co.uk - Enterprise Dashboard]
-        Wallet --> Ledger[Cryptographic Ledger & Receipt Verifier]
-        Wallet --> Treasury[Treasury Gateway: USDT / USDC / USD1]
-    end
-    
-    subgraph "Offline Mesh"
-        Client -.->|BLE / NFC| DeviceB[Peer Mobile Device]
-        DeviceB -.->|Chaumian Cashu Tokens| DeviceC[Local Merchant POS]
-        DeviceC -.->|Reconciliation via Starlink| Ledger
-    end
-```
+1. Confirm the intended Supabase project and take a verified backup. Do not run migrations against production until staging validation and a recovery plan exist.
+2. Establish one migration source of truth (`supabase/migrations`). Review the existing schema for ownership keys and legacy data; reconcile unsupported currencies before applying the supported set: **AKD, USD, USDC, USDT, MMK**.
+3. Test migrations against a disposable/staging Supabase database. Verify authenticated owner reads, participant transaction reads, anonymous denial, cross-user denial, and prohibited direct financial writes. Review every `SECURITY DEFINER` function and its `search_path`/grants.
+4. Apply reviewed migrations through the Supabase CLI / deployment process, then verify schema, policy behavior, backups, and application health. Never hand out database credentials or expose service-role credentials.
+5. Current owner-scoped policies need a schema audit: transactions are scoped through JSON metadata in the new policy, which is less robust than explicit sender/recipient user/account relationships; accounts use `user_id = auth.uid()`, so confirm type and identity mapping. Ensure no permissive pre-existing policy grants broader access. Policy migrations alone do not guarantee private data.
 
----
+The OTP server still optionally contains legacy MongoDB behavior for OTP persistence; it is not a financial system of record and requires a secure migration or explicit retirement. MongoDB/MySQL placeholders were removed from the root environment template. Remove unused dependencies after verifying actual deployments. `DATABASE_URL` is an administrative/migration credential and must be server/CI-only. Vite `VITE_*` values are public by design.
 
-## 2. Stable Currency Peg (1 ₳ = $1.00 USD)
+## Android release checklist
 
-* **Arakan Dollar (₳):** Unit of account for community commerce, remittances, and retail settlements.
-* **Collateralization:** 100% backed by segregated reserves in **USDT**, **USDC**, and **USD1**.
-* **Zero Gas Exposure:** End-users interact purely with ₳ without needing gas tokens (ETH, TRX, SOL). Gas abstraction is managed through internal enterprise relayer pools.
+- Replace `com.example.pethar_mobile` with a company-owned application ID before first public release; align Firebase registration and OAuth package/signing SHA fingerprints.
+- Configure production release signing with a protected keystore/signing service; current Gradle config signs release with the **debug** key. Never commit signing secrets.
+- Build and test release artifacts on supported physical Android versions and devices; run Flutter analysis/tests, dependency/license/security scans, accessibility and network-failure tests, crash reporting, staged rollout, and update/rollback drills.
+- The local storage service currently has an in-memory implementation; its SQLCipher code is only documented example, not active persistence. Do not cache authoritative balances or claim encrypted persistent storage until implemented and independently reviewed. Use Android Keystore-backed key protection, safe session renewal, and minimize sensitive local data.
+- Add server-side idempotent transfer handling, atomic double-entry accounting, limits, fraud monitoring, audit trails, reconciliation, support/dispute paths, backup/restore drills, and incident response before any real funds.
+- Before offering a financial/crypto product, get qualified advice on UK and every target-market licensing, safeguarding, KYC/AML/sanctions, consumer disclosures, privacy/data retention, and app-store obligations. Technology changes do not confer authorization.
 
----
+## Immediate priorities
 
-## 3. Dual Connectivity Engine: Online + Offline
-
-### Online Mode
-* Real-time balance updates via WebSocket listeners.
-* Instant P2P transfers settled in sub-500ms.
-* Deterministic e-Receipt generation with cryptographic verification QR codes.
-
-### Offline Mode (Exclusively on Android & iOS)
-* Built upon a **Cashu-inspired Chaumian e-cash** blind signature model.
-* Bearer tokens stored encrypted in device hardware secure storage (KeyStore / Secure Enclave).
-* Transported peer-to-peer via Bluetooth Low Energy (BLE) peripheral/central handshakes, NFC Tap-to-Pay, and dynamic 2D animated QR matrices.
-* Zero requirement for cell towers, cellular data, or internet connectivity.
-* When either party re-establishes internet or connects to a Starlink terminal, batched signatures are posted and settled to the central ledger.
-
----
-
-## 4. Subdomain Mapping & Routing
-
-* `pethar.co.uk` & `www.pethar.co.uk`: Public marketing, value proposition, and technology overview.
-* `download.pethar.co.uk`: Direct APK downloads with SHA-256 integrity checksums, and iOS configuration profiles (`.mobileconfig`).
-* `auth.pethar.co.uk`: High-security authentication gateway with Google Sign-In and email credentials.
-* `app.pethar.co.uk`: Unified customer wallet, cards center, analytics, and transaction verification.
-* `admin.pethar.co.uk`: Treasury ops, multi-sig reserve auditing, and node telemetry.
-* `docs.pethar.co.uk`: Technical documentation, API endpoints, and SDK specifications.
-* `privacy.pethar.co.uk`: Regulatory disclosures, Google limited use compliance, and data subject rights.
+1. Resolve project-wide lint errors and eliminate remaining demo content/claims from launch paths.
+2. Choose the supported product scope and jurisdictions with legal/compliance guidance.
+3. Complete schema/ownership/RLS review and build an authenticated server-side ledger API.
+4. Validate on staging with automated multi-user isolation, concurrency, idempotency, and recovery tests.
+5. Only then run a limited, appropriately authorized pilot and monitor it continuously.

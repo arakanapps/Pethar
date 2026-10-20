@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,78 +19,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final PageController _adsPageController = PageController();
-  int _currentAdIndex = 0;
-  Timer? _adsTimer;
-
-  final List<Map<String, dynamic>> _promoAds = const [
-    {
-      'titleEn': 'Péthar Zero-Fee Global Remittance',
-      'titleAk': 'ဖေ့သာ ၀% ဝန်ဆောင်ခ အထူးအစီအစဉ်',
-      'descEn': 'Instant transfers & zero network gas fees',
-      'descAk': 'နယ်စပ်ဖြတ်ကျော် ငွေလွှဲခမဲ့နှင့် လက်ငင်းလွှဲပို့ခြင်း',
-      'bgGradient': [Color(0xFFFFFFFF), Color(0xFFFFF1F2)],
-      'borderColor': Color(0xFFFECDD3),
-      'icon': Icons.bolt_rounded,
-      'iconColor': Color(0xFFE11D48),
-      'iconBg': Color(0xFFFFE4E6),
-    },
-    {
-      'titleEn': 'Arakan Merchant 5% Cashback',
-      'titleAk': 'ကုန်သည်ဆိုင်များတွင် ၅% ပြန်အမ်းငွေ',
-      'descEn': 'Earn 5% cashback at verified partner merchants',
-      'descAk': 'အတည်ပြုစတိုးဆိုင်များတွင် QR ဖြင့် ပေးချေပါ',
-      'bgGradient': [Color(0xFFFFFFFF), Color(0xFFECFDF5)],
-      'borderColor': Color(0xFFA7F3D0),
-      'icon': Icons.redeem_rounded,
-      'iconColor': Color(0xFF059669),
-      'iconBg': Color(0xFFD1FAE5),
-    },
-    {
-      'titleEn': 'Péthar Offline Bearer eCash',
-      'titleAk': 'အင်တာနက်မလိုဘဲ ငွေသားကဲ့သို့ ပေးချေခြင်း',
-      'descEn': 'NFC & soundwave offline tap-to-pay anywhere',
-      'descAk': 'အသံလှိုင်းနှင့် NFC ဖြင့် အင်တာနက်မဲ့ သုံးစွဲနိုင်သည်',
-      'bgGradient': [Color(0xFFFFFFFF), Color(0xFFEEF2FF)],
-      'borderColor': Color(0xFFC7D2FE),
-      'icon': Icons.wifi_tethering_off_rounded,
-      'iconColor': Color(0xFF4F46E5),
-      'iconBg': Color(0xFFE0E7FF),
-    },
-    {
-      'titleEn': '100% Gold-Backed AKD Vault',
-      'titleAk': 'ရွှေအာမခံ ၁၀၀% အပြည့်ဖြင့် ထိန်းသိမ်းထားသော ငွေကြေး',
-      'descEn': 'Audited reserve backed 1:1 by gold',
-      'descAk': 'ရုပ်ပိုင်းဆိုင်ရာ ရွှေနှင့် ဒေါ်လာဖြင့် အပြည့်အဝ အာမခံထားသည်',
-      'bgGradient': [Color(0xFFFFFFFF), Color(0xFFFEFCE8)],
-      'borderColor': Color(0xFFFDE68A),
-      'icon': Icons.shield_rounded,
-      'iconColor': Color(0xFFD97706),
-      'iconBg': Color(0xFFFEF3C7),
-    },
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _adsTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      if (_adsPageController.hasClients) {
-        final nextPage = (_currentAdIndex + 1) % _promoAds.length;
-        _adsPageController.animateToPage(
-          nextPage,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _adsTimer?.cancel();
-    _adsPageController.dispose();
-    super.dispose();
-  }
 
   void _runVerifiedAction(
     BuildContext context,
@@ -424,37 +351,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
-  Widget _buildLandmarkArrowIcon({required bool isDown}) {
-    return SizedBox(
-      width: 24,
-      height: 24,
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.center,
-        children: [
-          const Icon(Icons.account_balance_rounded, color: crimson, size: 20),
-          Positioned(
-            right: -2,
-            bottom: -2,
-            child: Container(
-              width: 12,
-              height: 12,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isDown ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
-                color: crimson,
-                size: 9,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
@@ -462,18 +358,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final isAk = lang == 'ak';
     final currencyFmt = NumberFormat('#,##0.00', 'en_US');
 
-    // 3. Primary 4-Action Row: Pay | Receive | Deposit | Withdraw
+    // The dashboard exposes exactly two money actions: Receive and Pay.
+    // Pay is the single transfer action (person, merchant or UID).
     final homeActions = [
-      {
-        'label': isAk ? 'ငွေပေးချေ' : 'Pay',
-        'iconWidget': const WalletMinimalFlutterIcon(size: 21, color: Colors.black),
-        'onTap': () => _runVerifiedAction(
-              context,
-              appState,
-              isAk ? 'ငွေပေးချေရန် (Pay)' : 'Pay',
-              () => appState.navigate(Screen.pay),
-            ),
-      },
       {
         'label': isAk ? 'ငွေလက်ခံ' : 'Receive',
         'iconWidget': const Icon(Icons.qr_code_2_rounded, color: crimson, size: 22),
@@ -485,49 +372,19 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
       },
       {
-        'label': isAk ? 'ငွေသွင်း' : 'Deposit',
-        'iconWidget': _buildLandmarkArrowIcon(isDown: true),
+        'label': isAk ? 'ငွေပေးချေ' : 'Pay',
+        'iconWidget': const WalletMinimalFlutterIcon(size: 21, color: Colors.black),
         'onTap': () => _runVerifiedAction(
               context,
               appState,
-              isAk ? 'ငွေသွင်းရန် (Deposit)' : 'Deposit',
-              () => appState.navigate(Screen.notifications, financialView: 'deposit'),
-            ),
-      },
-      {
-        'label': isAk ? 'ငွေထုတ်' : 'Withdraw',
-        'iconWidget': _buildLandmarkArrowIcon(isDown: false),
-        'onTap': () => _runVerifiedAction(
-              context,
-              appState,
-              isAk ? 'ငွေထုတ်ရန် (Withdraw)' : 'Withdraw',
-              () => appState.navigate(Screen.notifications, financialView: 'withdraw'),
+              isAk ? 'ငွေပေးချေရန် (Pay)' : 'Pay',
+              () => appState.navigate(Screen.pay),
             ),
       },
     ];
 
-    // 5. Secondary 4-Service Row: Topup | Bill payment | Account | History
+    // Secondary navigation only. No additional money-moving actions.
     final secondaryActions = [
-      {
-        'label': isAk ? 'ငွေဖြည့်' : 'Topup',
-        'iconWidget': const Icon(Icons.add_rounded, color: crimson, size: 22),
-        'onTap': () => _runVerifiedAction(
-              context,
-              appState,
-              isAk ? 'ငွေဖြည့်ရန် (Topup)' : 'Topup',
-              () => appState.navigate(Screen.topup),
-            ),
-      },
-      {
-        'label': isAk ? 'ဘေလ်ဆောင်' : 'Bill payment',
-        'iconWidget': const Icon(Icons.receipt_long_rounded, color: crimson, size: 20),
-        'onTap': () => _runVerifiedAction(
-              context,
-              appState,
-              isAk ? 'ဘေလ်ဆောင်ရန် (Bill payment)' : 'Bill payment',
-              () => appState.navigate(Screen.billPayment),
-            ),
-      },
       {
         'label': isAk ? 'ငွေစာရင်း' : 'Account',
         'iconWidget': const Icon(Icons.credit_card_rounded, color: crimson, size: 20),
@@ -830,8 +687,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           Expanded(
                             child: Text(
                               isAk
-                                  ? 'ငွေပေးချေခြင်း၊ လက်ခံခြင်း၊ ငွေသွင်း/ငွေထုတ် လုပ်ဆောင်ချက်များကို အသုံးပြုရန် သင့်အကောင့်ကို အတည်ပြုပေးပါ။'
-                                  : 'Please verify your identity to unlock Pay, Receive, Deposit, and Withdraw.',
+                                  ? 'ငွေပေးချေခြင်းနှင့် ငွေလက်ခံခြင်း လုပ်ဆောင်ချက်များကို အသုံးပြုရန် သင့်အကောင့်ကို အတည်ပြုပေးပါ။'
+                                  : 'Please verify your identity to unlock Pay and Receive.',
                               style: const TextStyle(
                                 fontSize: 11.5,
                                 color: Color(0xFF27272A),
@@ -867,7 +724,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
                 const SizedBox(height: 14),
 
-                // 3. PRIMARY 4-ACTION BOX: (Pay) | (Receive) | (Deposit) | (Withdraw)
+                // 3. PRIMARY ACTIONS: Receive | Pay
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                   decoration: BoxDecoration(
@@ -965,6 +822,22 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                           ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF1F2),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(color: const Color(0xFFFECDD3)),
+                            ),
+                            child: const Text(
+                              '1 ₳ = \$1.00',
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w800,
+                                color: crimson,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -1019,6 +892,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             );
                           },
+                        ),
+                      if (!appState.balanceHidden)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            '= \$${currencyFmt.format(appState.isAuthenticated ? appState.wallet.balance : 0.0)} USD',
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF71717A),
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -1266,120 +1151,74 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // 7. 4 MOVING ADS BANNER CAROUSEL (NO "ADS" TEXT)
-                Column(
-                  children: [
-                    SizedBox(
-                      height: 76,
-                      child: PageView.builder(
-                        controller: _adsPageController,
-                        onPageChanged: (idx) {
-                          setState(() {
-                            _currentAdIndex = idx;
-                          });
-                        },
-                        itemCount: _promoAds.length,
-                        itemBuilder: (context, index) {
-                          final ad = _promoAds[index];
-                          return Container(
-                            width: double.infinity,
-                            margin: const EdgeInsets.symmetric(horizontal: 2),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: ad['bgGradient'] as List<Color>,
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
+                // 7. ANNOUNCEMENTS — published from public.announcements
+                if (appState.announcementsList.isNotEmpty)
+                  Column(
+                    children: appState.announcementsList.take(2).map((item) {
+                      final titleMm = item['title_mm']?.toString() ?? '';
+                      final bodyMm = item['body_mm']?.toString() ?? '';
+                      final titleEn = item['title_en']?.toString() ?? '';
+                      final bodyEn = item['body_en']?.toString() ?? '';
+                      final title = isAk && titleMm.isNotEmpty ? titleMm : titleEn;
+                      final body = isAk && bodyMm.isNotEmpty ? bodyMm : bodyEn;
+                      if (title.isEmpty) return const SizedBox.shrink();
+                      return Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: const Color(0xFFE4E4E7)),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFFFF1F2),
+                                shape: BoxShape.circle,
                               ),
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(
-                                color: ad['borderColor'] as Color,
-                                width: 1.1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF0F172A).withValues(alpha: 0.04),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
+                              alignment: Alignment.center,
+                              child: const Icon(Icons.campaign_rounded, color: crimson, size: 19),
                             ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 38,
-                                  height: 38,
-                                  decoration: BoxDecoration(
-                                    color: ad['iconBg'] as Color,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: (ad['iconColor'] as Color).withValues(alpha: 0.25),
-                                      width: 1.2,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    title,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF18181B),
                                     ),
                                   ),
-                                  alignment: Alignment.center,
-                                  child: Icon(
-                                    ad['icon'] as IconData,
-                                    color: ad['iconColor'] as Color,
-                                    size: 19,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        isAk ? ad['titleAk'] : ad['titleEn'],
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: Color(0xFF0F172A),
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w800,
-                                        ),
+                                  if (body.isNotEmpty) ...[
+                                    const SizedBox(height: 3),
+                                    Text(
+                                      body,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 11.5,
+                                        height: 1.35,
+                                        color: Color(0xFF71717A),
                                       ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        isAk ? ad['descAk'] : ad['descEn'],
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: Color(0xFF64748B),
-                                          fontSize: 11.5,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Moving Indicator Dots
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(_promoAds.length, (idx) {
-                        final isActive = idx == _currentAdIndex;
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
-                          width: isActive ? 18 : 6,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: isActive ? crimson : const Color(0xFFE2E8F0),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                        );
-                      }),
-                    ),
-                  ],
-                ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
                 // Breathing space above floating navigation bar
                 const SizedBox(height: 100),
               ],

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
-import '../models/data.dart';
+import '../services/supabase_service.dart';
 import '../widgets/arakan_emblem.dart';
+import '../widgets/pin_prompt.dart';
 
 enum PayStep {
   input, // Screen 1 (Pic 1): From, To, Next, Recent Transfers + Filters + Search
@@ -63,6 +64,8 @@ class _PayScreenState extends State<PayScreen> {
   DateTime? _successTxTime;
   double _successAmount = 0.0;
   String _successNote = '';
+  bool _isProcessing = false;
+  String? _transferIdempotencyKey;
 
   @override
   void initState() {
@@ -72,7 +75,9 @@ class _PayScreenState extends State<PayScreen> {
       return RecentPayContact(
         id: f.id,
         name: f.name,
-        username: f.phone.startsWith('@') ? f.phone : '@${f.name.toLowerCase().replaceAll(' ', '_')}',
+        username: f.phone.startsWith('@')
+            ? f.phone
+            : '@${f.name.toLowerCase().replaceAll(' ', '_')}',
         uid: f.id,
         category: f.category,
         initials: f.initials,
@@ -126,12 +131,15 @@ class _PayScreenState extends State<PayScreen> {
             (customUid != null && c.uid == customUid) ||
             c.name.toLowerCase() == name.toLowerCase(),
         orElse: () {
-          final hash12 = customUid ?? generateUserUid(userCount: _recentContacts.length + 1);
+          // Only real DB contacts are stored. If the pending contact has no
+          // wallet UID we keep it empty and let the server resolve the
+          // username instead of inventing an identifier.
           final newContact = RecentPayContact(
             id: 'REC-${name.toLowerCase().replaceAll(' ', '')}',
             name: name,
-            username: customUsername ?? '@${name.toLowerCase().replaceAll(' ', '_')}',
-            uid: hash12,
+            username:
+                customUsername ?? '@${name.toLowerCase().replaceAll(' ', '_')}',
+            uid: customUid ?? '',
             category: 'Friends',
             initials: initials,
             avatarColor: Color(colorVal),
@@ -168,11 +176,13 @@ class _PayScreenState extends State<PayScreen> {
   void _onNextPressed() {
     final query = _toInputCtrl.text.trim();
     if (query.isEmpty) {
-      setState(() => _errorMessage = 'Please enter a valid 12-digit ID or username');
+      setState(
+          () => _errorMessage = 'Please enter a valid 12-digit ID or username');
       return;
     }
 
-    // Check if matching contact in recent list, or create dynamic recipient
+    // Check if matching contact in recent list. Otherwise treat the input as a
+    // wallet UID or username and let the server resolve the real recipient.
     final cleanQuery = query.replaceAll(' ', '').toLowerCase();
     final matched = _recentContacts.firstWhere(
       (c) =>
@@ -180,12 +190,11 @@ class _PayScreenState extends State<PayScreen> {
           c.uid.replaceAll(' ', '').toLowerCase() == cleanQuery ||
           c.name.toLowerCase() == query.toLowerCase(),
       orElse: () {
-        final hash12 = generateUserUid(userCount: _recentContacts.length + 1);
         return RecentPayContact(
           id: 'REC-CUSTOM',
           name: query.startsWith('@') ? query.substring(1) : query,
           username: query.startsWith('@') ? query : '@$query',
-          uid: hash12,
+          uid: query.replaceAll('@', '').trim(),
           category: 'other',
           initials: query.isNotEmpty ? query[0].toUpperCase() : 'U',
           avatarColor: const Color(0xFF0284C7),
@@ -200,7 +209,9 @@ class _PayScreenState extends State<PayScreen> {
     });
   }
 
-  void _onProcessPay(AppState appState) {
+  Future<void> _onProcessPay(AppState appState) async {
+    if (_isProcessing) return;
+
     final amount = double.tryParse(_amountCtrl.text.trim()) ?? 0.0;
     final note = _noteCtrl.text.trim();
 
@@ -220,28 +231,64 @@ class _PayScreenState extends State<PayScreen> {
     }
 
     if (note.isEmpty) {
-      setState(() => _errorMessage = 'Add Notes is mandatory. Please provide a note');
+      setState(() =>
+          _errorMessage = 'Add Notes is mandatory. Please provide a note');
       return;
     }
 
-    // Deduct balance and record transaction
-    appState.recordTransfer(
-      amount: amount,
-      recipientName: _selectedRecipient.name,
-      recipientId: _selectedRecipient.uid,
-    );
+    final recipient = _selectedRecipient.uid.isNotEmpty
+        ? _selectedRecipient.uid
+        : _selectedRecipient.username.replaceAll('@', '').trim();
 
-    final txId = 'TX-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}';
-    final now = DateTime.now();
+    if (recipient.isEmpty) {
+      setState(() => _errorMessage = isAk
+          ? 'လက်ခံသူ၏ UID သို့မဟုတ် username ထည့်ပါ'
+          : 'Enter the recipient UID or username');
+      return;
+    }
+
+    final pin = await showPinPrompt(context, isAk: isAk);
+    if (pin == null || !mounted) return;
 
     setState(() {
+      _isProcessing = true;
       _errorMessage = null;
-      _successTxId = txId;
-      _successTxTime = now;
-      _successAmount = amount;
-      _successNote = note;
-      _step = PayStep.success;
     });
+
+    final key = _transferIdempotencyKey ??=
+        SupabaseService().createTransferIdempotencyKey();
+    final result = await SupabaseService().transferFunds(
+      recipient: recipient,
+      amount: amount,
+      pin: pin,
+      idempotencyKey: key,
+      note: note,
+    );
+
+    if (!mounted) return;
+
+    if (result['success'] == true) {
+      await appState.loadSupabaseData();
+      if (!mounted) return;
+      setState(() {
+        _isProcessing = false;
+        _transferIdempotencyKey = null;
+        _successTxId =
+            (result['transaction_id'] ?? result['reference_id'] ?? '')
+                .toString();
+        _successTxTime = DateTime.now();
+        _successAmount = amount;
+        _successNote = note;
+        _step = PayStep.success;
+      });
+    } else {
+      setState(() {
+        _isProcessing = false;
+        // Retain key for safe retry after ambiguous network failures.
+        _transferIdempotencyKey = key;
+        _errorMessage = result['message']?.toString() ?? 'Transfer failed';
+      });
+    }
   }
 
   void _openScanInNavbar() {
@@ -325,7 +372,8 @@ class _PayScreenState extends State<PayScreen> {
                 ],
               ),
               child: const Center(
-                child: Icon(Icons.chevron_left_rounded, color: Colors.black87, size: 24),
+                child: Icon(Icons.chevron_left_rounded,
+                    color: Colors.black87, size: 24),
               ),
             ),
           ),
@@ -361,7 +409,8 @@ class _PayScreenState extends State<PayScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.history_rounded, size: 14, color: Color(0xFF334155)),
+                  const Icon(Icons.history_rounded,
+                      size: 14, color: Color(0xFF334155)),
                   const SizedBox(width: 4),
                   Text(
                     isAk ? 'မှတ်တမ်း' : 'History',
@@ -475,15 +524,18 @@ class _PayScreenState extends State<PayScreen> {
                           ),
                           const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 7, vertical: 2),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                              color: const Color(0xFF0284C7)
+                                  .withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.check_circle_rounded, size: 11, color: Color(0xFF0284C7)),
+                                const Icon(Icons.check_circle_rounded,
+                                    size: 11, color: Color(0xFF0284C7)),
                                 const SizedBox(width: 3),
                                 Text(
                                   isAk ? 'အတည်ပြုပြီး' : 'Verified',
@@ -559,13 +611,20 @@ class _PayScreenState extends State<PayScreen> {
                         child: TextField(
                           controller: _toInputCtrl,
                           decoration: InputDecoration(
-                            hintText: isAk ? '12-digit ID သို့မဟုတ် username ရိုက်ထည့်ပါ' : 'enter 12-digit ID or username',
-                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                            hintText: isAk
+                                ? '12-digit ID သို့မဟုတ် username ရိုက်ထည့်ပါ'
+                                : 'enter 12-digit ID or username',
+                            hintStyle: const TextStyle(
+                                color: Color(0xFF94A3B8), fontSize: 13),
                             border: InputBorder.none,
                             isDense: true,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 14),
                           ),
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF0F172A)),
                           onSubmitted: (_) => _onNextPressed(),
                         ),
                       ),
@@ -576,7 +635,8 @@ class _PayScreenState extends State<PayScreen> {
                           behavior: HitTestBehavior.opaque,
                           onTap: _openScanInNavbar,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 7),
                             decoration: BoxDecoration(
                               color: Colors.black,
                               borderRadius: BorderRadius.circular(12),
@@ -584,11 +644,15 @@ class _PayScreenState extends State<PayScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.qr_code_scanner_rounded, size: 14, color: Colors.white),
+                                const Icon(Icons.qr_code_scanner_rounded,
+                                    size: 14, color: Colors.white),
                                 const SizedBox(width: 4),
                                 Text(
                                   isAk ? 'စကင်' : 'Scan',
-                                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -603,7 +667,10 @@ class _PayScreenState extends State<PayScreen> {
                   const SizedBox(height: 8),
                   Text(
                     _errorMessage!,
-                    style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
 
@@ -618,7 +685,8 @@ class _PayScreenState extends State<PayScreen> {
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(999)),
                     ),
                     onPressed: _onNextPressed,
                     child: Row(
@@ -626,7 +694,8 @@ class _PayScreenState extends State<PayScreen> {
                       children: [
                         Text(
                           isAk ? 'ရှေ့သို့' : 'Next',
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 6),
                         const Icon(Icons.arrow_forward_rounded, size: 16),
@@ -656,21 +725,28 @@ class _PayScreenState extends State<PayScreen> {
               GestureDetector(
                 onTap: () => setState(() => _deleteMode = !_deleteMode),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
                     color: _deleteMode ? Colors.red.shade50 : Colors.white,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
-                      color: _deleteMode ? Colors.red.shade300 : const Color(0xFFCBD5E1),
+                      color: _deleteMode
+                          ? Colors.red.shade300
+                          : const Color(0xFFCBD5E1),
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        _deleteMode ? Icons.check_rounded : Icons.delete_outline_rounded,
+                        _deleteMode
+                            ? Icons.check_rounded
+                            : Icons.delete_outline_rounded,
                         size: 13,
-                        color: _deleteMode ? Colors.red.shade700 : const Color(0xFF64748B),
+                        color: _deleteMode
+                            ? Colors.red.shade700
+                            : const Color(0xFF64748B),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -680,7 +756,9 @@ class _PayScreenState extends State<PayScreen> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: _deleteMode ? Colors.red.shade700 : const Color(0xFF64748B),
+                          color: _deleteMode
+                              ? Colors.red.shade700
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -703,12 +781,15 @@ class _PayScreenState extends State<PayScreen> {
                   child: GestureDetector(
                     onTap: () => setState(() => _selectedCategoryTab = tab),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 7),
                       decoration: BoxDecoration(
                         color: isSelected ? Colors.black : Colors.white,
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(
-                          color: isSelected ? Colors.black : const Color(0xFFE2E8F0),
+                          color: isSelected
+                              ? Colors.black
+                              : const Color(0xFFE2E8F0),
                         ),
                         boxShadow: isSelected
                             ? [
@@ -724,8 +805,11 @@ class _PayScreenState extends State<PayScreen> {
                         tab == 'other' ? 'Other' : tab,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? Colors.white : const Color(0xFF475569),
+                          fontWeight:
+                              isSelected ? FontWeight.w800 : FontWeight.w600,
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF475569),
                         ),
                       ),
                     ),
@@ -748,7 +832,8 @@ class _PayScreenState extends State<PayScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.search_rounded, size: 18, color: Color(0xFF94A3B8)),
+                const Icon(Icons.search_rounded,
+                    size: 18, color: Color(0xFF94A3B8)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
@@ -756,17 +841,20 @@ class _PayScreenState extends State<PayScreen> {
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
                       hintText: isAk ? 'ရှာဖွေရန်...' : 'search',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                      hintStyle: const TextStyle(
+                          color: Color(0xFF94A3B8), fontSize: 13),
                       border: InputBorder.none,
                       isDense: true,
                     ),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                 ),
                 if (_searchCtrl.text.isNotEmpty)
                   GestureDetector(
                     onTap: () => setState(() => _searchCtrl.clear()),
-                    child: const Icon(Icons.cancel_rounded, size: 16, color: Color(0xFF94A3B8)),
+                    child: const Icon(Icons.cancel_rounded,
+                        size: 16, color: Color(0xFF94A3B8)),
                   ),
               ],
             ),
@@ -797,7 +885,9 @@ class _PayScreenState extends State<PayScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    isAk ? 'လတ်တလော လွှဲပြောင်းသူ မရှိသေးပါ' : 'No saved recipients yet',
+                    isAk
+                        ? 'လတ်တလော လွှဲပြောင်းသူ မရှိသေးပါ'
+                        : 'No saved recipients yet',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -810,7 +900,8 @@ class _PayScreenState extends State<PayScreen> {
                         ? 'အထက်တွင် ID သို့မဟုတ် Username ရိုက်ထည့်၍ လွှဲနိုင်ပါသည်'
                         : 'Enter recipient Username or 12-digit ID above to transfer.',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                    style:
+                        const TextStyle(color: Color(0xFF64748B), fontSize: 12),
                   ),
                 ],
               ),
@@ -836,7 +927,8 @@ class _PayScreenState extends State<PayScreen> {
                     }
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(18),
@@ -888,7 +980,8 @@ class _PayScreenState extends State<PayScreen> {
                                   ),
                                   const SizedBox(width: 6),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 1),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFF1F5F9),
                                       borderRadius: BorderRadius.circular(999),
@@ -925,10 +1018,12 @@ class _PayScreenState extends State<PayScreen> {
                               color: Colors.red.shade50,
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(Icons.delete_rounded, size: 16, color: Colors.red.shade700),
+                            child: Icon(Icons.delete_rounded,
+                                size: 16, color: Colors.red.shade700),
                           )
                         else
-                          const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8), size: 22),
+                          const Icon(Icons.chevron_right_rounded,
+                              color: Color(0xFF94A3B8), size: 22),
                       ],
                     ),
                   ),
@@ -947,8 +1042,10 @@ class _PayScreenState extends State<PayScreen> {
   Widget _buildScreen2Detail(AppState appState, bool isAk) {
     final noteChips = ['Salary', 'Payment', 'Bill', 'Family & Friends'];
     final enteredAmount = double.tryParse(_amountCtrl.text.trim());
-    final isOverBalance = enteredAmount != null && enteredAmount > appState.wallet.balance;
-    final isUnderMin = enteredAmount != null && enteredAmount > 0 && enteredAmount < 0.01;
+    final isOverBalance =
+        enteredAmount != null && enteredAmount > appState.wallet.balance;
+    final isUnderMin =
+        enteredAmount != null && enteredAmount > 0 && enteredAmount < 0.01;
 
     return SingleChildScrollView(
       key: const ValueKey('screen2'),
@@ -983,7 +1080,8 @@ class _PayScreenState extends State<PayScreen> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: _selectedRecipient.avatarColor.withValues(alpha: 0.3),
+                        color: _selectedRecipient.avatarColor
+                            .withValues(alpha: 0.3),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),
@@ -1011,7 +1109,8 @@ class _PayScreenState extends State<PayScreen> {
                 ),
                 const SizedBox(height: 5),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2.5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 2.5),
                   decoration: BoxDecoration(
                     color: const Color(0xFF10B981).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(999),
@@ -1019,7 +1118,8 @@ class _PayScreenState extends State<PayScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF059669)),
+                      const Icon(Icons.check_circle_rounded,
+                          size: 12, color: Color(0xFF059669)),
                       const SizedBox(width: 4),
                       Text(
                         isAk ? 'အတည်ပြုထားသော အကောင့်' : 'Verified Recipient',
@@ -1097,13 +1197,16 @@ class _PayScreenState extends State<PayScreen> {
                   ),
                   child: TextField(
                     controller: _amountCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(
                       hintText: '0.00',
-                      hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 18),
+                      hintStyle:
+                          TextStyle(color: Color(0xFF94A3B8), fontSize: 18),
                       border: InputBorder.none,
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     ),
                     style: const TextStyle(
                       fontSize: 20,
@@ -1130,7 +1233,8 @@ class _PayScreenState extends State<PayScreen> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.error_outline_rounded, size: 12, color: Color(0xFFDC2626)),
+                          const Icon(Icons.error_outline_rounded,
+                              size: 12, color: Color(0xFFDC2626)),
                           const SizedBox(width: 3),
                           Text(
                             isAk ? 'လက်ကျန်ထက် ကျော်လွန်ပါသည်' : 'Over balance',
@@ -1146,7 +1250,8 @@ class _PayScreenState extends State<PayScreen> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.info_outline_rounded, size: 12, color: Color(0xFFEA580C)),
+                          const Icon(Icons.info_outline_rounded,
+                              size: 12, color: Color(0xFFEA580C)),
                           const SizedBox(width: 3),
                           Text(
                             isAk ? 'အနည်းဆုံး 0.01' : 'At least 0.01',
@@ -1197,13 +1302,20 @@ class _PayScreenState extends State<PayScreen> {
                   child: TextField(
                     controller: _noteCtrl,
                     decoration: InputDecoration(
-                      hintText: isAk ? 'ငွေလွှဲရသည့် အကြောင်းအရင်း ရိုက်ထည့်ပါ...' : 'Enter note for this transfer...',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                      hintText: isAk
+                          ? 'ငွေလွှဲရသည့် အကြောင်းအရင်း ရိုက်ထည့်ပါ...'
+                          : 'Enter note for this transfer...',
+                      hintStyle: const TextStyle(
+                          color: Color(0xFF94A3B8), fontSize: 13),
                       border: InputBorder.none,
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
                     ),
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF0F172A)),
                   ),
                 ),
 
@@ -1222,20 +1334,28 @@ class _PayScreenState extends State<PayScreen> {
                         });
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: isCurrent ? Colors.black : const Color(0xFFF1F5F9),
+                          color: isCurrent
+                              ? Colors.black
+                              : const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(999),
                           border: Border.all(
-                            color: isCurrent ? Colors.black : const Color(0xFFE2E8F0),
+                            color: isCurrent
+                                ? Colors.black
+                                : const Color(0xFFE2E8F0),
                           ),
                         ),
                         child: Text(
                           chip,
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight: isCurrent ? FontWeight.w800 : FontWeight.w600,
-                            color: isCurrent ? Colors.white : const Color(0xFF475569),
+                            fontWeight:
+                                isCurrent ? FontWeight.w800 : FontWeight.w600,
+                            color: isCurrent
+                                ? Colors.white
+                                : const Color(0xFF475569),
                           ),
                         ),
                       ),
@@ -1255,7 +1375,8 @@ class _PayScreenState extends State<PayScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline_rounded, color: Colors.red.shade700, size: 16),
+                        Icon(Icons.error_outline_rounded,
+                            color: Colors.red.shade700, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -1276,7 +1397,8 @@ class _PayScreenState extends State<PayScreen> {
                   const SizedBox(height: 12),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFEF2F2),
                       borderRadius: BorderRadius.circular(14),
@@ -1284,7 +1406,8 @@ class _PayScreenState extends State<PayScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626), size: 16),
+                        const Icon(Icons.error_outline_rounded,
+                            color: Color(0xFFDC2626), size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -1306,7 +1429,8 @@ class _PayScreenState extends State<PayScreen> {
                   const SizedBox(height: 12),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF7ED),
                       borderRadius: BorderRadius.circular(14),
@@ -1314,7 +1438,8 @@ class _PayScreenState extends State<PayScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline_rounded, color: Color(0xFFEA580C), size: 16),
+                        const Icon(Icons.info_outline_rounded,
+                            color: Color(0xFFEA580C), size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -1341,22 +1466,44 @@ class _PayScreenState extends State<PayScreen> {
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isOverBalance ? const Color(0xFFDC2626) : Colors.black,
+                      backgroundColor: isOverBalance
+                          ? const Color(0xFFDC2626)
+                          : Colors.black,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(999)),
                     ),
-                    onPressed: isOverBalance ? null : () => _onProcessPay(appState),
+                    onPressed: (isOverBalance || _isProcessing)
+                        ? null
+                        : () => _onProcessPay(appState),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const WalletMinimalFlutterIcon(size: 20, color: Colors.white),
+                        if (_isProcessing)
+                          const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        else
+                          const WalletMinimalFlutterIcon(
+                              size: 20, color: Colors.white),
                         const SizedBox(width: 8),
                         Text(
-                          isOverBalance
-                              ? (isAk ? 'လက်ကျန်ထက် ကျော်လွန်ပါသည် (Over Balance)' : 'Over Balance')
-                              : (isAk ? 'ငွေပေးချေမည်' : 'Pay'),
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                          _isProcessing
+                              ? (isAk ? 'လုပ်ဆောင်နေသည်…' : 'Processing…')
+                              : isOverBalance
+                                  ? (isAk
+                                      ? 'လက်ကျန်ထက် ကျော်လွန်ပါသည် (Over Balance)'
+                                      : 'Over Balance')
+                                  : (isAk ? 'ငွေပေးချေမည်' : 'Pay'),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w900),
                         ),
                       ],
                     ),
@@ -1389,7 +1536,8 @@ class _PayScreenState extends State<PayScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_amber_rounded, size: 16, color: Color(0xFFD97706)),
+              const Icon(Icons.warning_amber_rounded,
+                  size: 16, color: Color(0xFFD97706)),
               const SizedBox(width: 6),
               Text(
                 isAk ? 'အရေးကြီး သတိပေးချက်' : 'Important Warning',
@@ -1475,12 +1623,15 @@ class _PayScreenState extends State<PayScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: const Center(
-                    child: Icon(Icons.check_rounded, color: Color(0xFF059669), size: 36),
+                    child: Icon(Icons.check_rounded,
+                        color: Color(0xFF059669), size: 36),
                   ),
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  isAk ? 'ငွေလွှဲပြောင်းမှု အောင်မြင်ပါသည်' : 'Payment Successful!',
+                  isAk
+                      ? 'ငွေလွှဲပြောင်းမှု အောင်မြင်ပါသည်'
+                      : 'Payment Successful!',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -1507,7 +1658,8 @@ class _PayScreenState extends State<PayScreen> {
                 _buildReceiptRow(
                   'Date',
                   _successTxTime != null
-                      ? DateFormat('MMM dd, yyyy · hh:mm a').format(_successTxTime!)
+                      ? DateFormat('MMM dd, yyyy · hh:mm a')
+                          .format(_successTxTime!)
                       : '-',
                 ),
                 _buildReceiptRow('Status', 'Completed (Settled on-chain)'),
@@ -1522,7 +1674,8 @@ class _PayScreenState extends State<PayScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999)),
               ),
               onPressed: () {
                 setState(() {
@@ -1535,7 +1688,8 @@ class _PayScreenState extends State<PayScreen> {
               },
               child: Text(
                 isAk ? 'နောက်ထပ် လွှဲမည်' : 'Done',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -1550,7 +1704,8 @@ class _PayScreenState extends State<PayScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+          Text(label,
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
           Text(
             value,
             style: const TextStyle(

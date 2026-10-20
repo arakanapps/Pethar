@@ -23,13 +23,10 @@ except ImportError:
     pymongo = None
 
 PORT = int(os.getenv("OTP_SERVER_PORT", "3001"))
-GMAIL_SENDER = os.getenv("GMAIL_SENDER", "realjackhalder@gmail.com")
-GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "ympywnzodbshtzoe").replace(" ", "")
+GMAIL_SENDER = os.getenv("GMAIL_SENDER", "")
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "").replace(" ", "")
 
-MONGODB_URL = os.getenv(
-    "MONGODB_URL",
-    "mongodb://root:8nvqWvFeP4t_85pgkm-KDVQM-rrWkFgqWX8JZoQXRVU@prod-mongodb-main-mongodb-67a24c-205v7kkatt1.ap-southeast-1.compute.instacloud.tech:6379/admin?authSource=admin&tls=true"
-)
+MONGODB_URL = os.getenv("MONGODB_URL", "")
 MONGODB_DB_NAME = os.getenv("MONGODB_DATABASE", "pethar")
 
 # Global MongoDB Client

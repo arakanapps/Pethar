@@ -31,7 +31,7 @@ export interface Txn {
   refId: string
   title: string
   titleMm: string
-  category: 'transfer' | 'p2p' | 'cashout' | 'crypto' | 'remittance' | 'pos' | 'card' | 'Bills' | string
+  category: 'transfer' | 'cashout' | 'crypto' | 'remittance' | 'pos' | 'card' | 'Bills' | string
   amount: number
   currency: string
   time: string
@@ -196,8 +196,8 @@ export const legalDocs = {
       {
         hEn: '1. Legal Status & Arakan Currency',
         hMm: '၁။ ဥပဒေရေးရာ အဆင့်အတန်းနှင့် အမျိုးသားဒစ်ဂျစ်တယ် ငွေကြေး',
-        pEn: 'Péthar is the institutional financial technology infrastructure for the Arakan nation. The platform operates under the authority of the Arakan Digital Financial Regulatory Commission. The official unit of account is the Arakan Dollar, pegged 1:1 against USD value reserves. Myanmar Kyat (MMK) is completely deprecated and non-circulating on this ledger.',
-        pMm: 'ဖေ့သာသည် အာရက္ခပြည်သူများအတွက် ဖွဲ့စည်းတည်ထောင်ထားသော အမျိုးသားအဆင့် ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်ဖြစ်ပါသည်။ တရားဝင်သုံးစွဲငွေကြေးမှာ "အာရက္ခဒေါ်လာ" ဖြစ်ပြီး ၁၀၀% အမေရိကန်ဒေါ်လာနှင့် ရွှေအာမခံဘဏ္ဍာတိုက်ဖြင့် ကျောထောက်နောက်ခံပြုထားပါသည်။ မြန်မာကျပ်ငွေ (MMK) အဟောင်း/ပြတ်လပ်မှုများကို လုံးဝအသုံးမပြုတော့ဘဲ စာရင်းစနစ်မှ ဖယ်ထုတ်ထားပြီးဖြစ်ပါသည်။',
+        pEn: 'Péthar is the institutional financial technology infrastructure for the Arakan nation. The platform operates under the authority of the Arakan Digital Financial Regulatory Commission. The official unit of account is the Arakan Dollar, pegged 1:1 to USD.',
+        pMm: 'ဖေ့သာသည် အာရက္ခပြည်သူများအတွက် ဖွဲ့စည်းတည်ထောင်ထားသော အမျိုးသားအဆင့် ဒစ်ဂျစ်တယ်ဘဏ္ဍာရေးကွန်ရက်ဖြစ်ပါသည်။ တရားဝင်သုံးစွဲငွေကြေးမှာ "အာရက္ခဒေါ်လာ" ဖြစ်ပြီး အမေရိကန်ဒေါ်လာနှင့် ၁:၁ ပုံသေနှုန်းဖြင့် ချိတ်ဆက်ထားပါသည်။',
       },
       {
         hEn: '2. Ledger Invariants & Double-Entry Integrity',

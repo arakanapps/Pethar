@@ -109,9 +109,9 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
                         width: 38,
                         height: 38,
                         decoration: BoxDecoration(
-                          color: crimson.withOpacity(0.2),
+                          color: crimson.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: crimson.withOpacity(0.4)),
+                          border: Border.all(color: crimson.withValues(alpha: 0.4)),
                         ),
                         child: const Icon(Icons.store, color: Colors.redAccent, size: 20),
                       ),
@@ -376,7 +376,7 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
                             decoration: BoxDecoration(
                               color: isDark ? surfaceCard : Colors.white,
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: isDark ? Colors.white.withOpacity(0.04) : Colors.grey[200]!),
+                              border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey[200]!),
                             ),
                             child: Row(
                               children: [
@@ -549,7 +549,7 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
             Container(
               width: 60,
               height: 60,
-              decoration: BoxDecoration(color: emeraldSuccess.withOpacity(0.15), shape: BoxShape.circle),
+              decoration: BoxDecoration(color: emeraldSuccess.withValues(alpha: 0.15), shape: BoxShape.circle),
               child: const Icon(Icons.check_circle, color: emeraldSuccess, size: 36),
             ),
             const SizedBox(height: 16),

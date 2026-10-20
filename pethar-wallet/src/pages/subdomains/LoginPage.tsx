@@ -57,7 +57,6 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
   const [view, setView] = useState<'login' | 'forgot_email' | 'forgot_otp' | 'forgot_new_pin'>('login')
   const [forgotEmail, setForgotEmail] = useState('')
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', ''])
-  const [generatedOtpHint, setGeneratedOtpHint] = useState<string | null>(null)
   const [newPin, setNewPin] = useState('')
   const [confirmNewPin, setConfirmNewPin] = useState('')
   const [showNewPin, setShowNewPin] = useState(false)
@@ -157,8 +156,7 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
       return
     }
     setErrorMsg('')
-    const code = generateOtpForEmail(forgotEmail.trim())
-    setGeneratedOtpHint(code)
+    generateOtpForEmail(forgotEmail.trim())
     startOtpTimer()
     setOtpCode(['', '', '', '', '', ''])
     setView('forgot_otp')
@@ -221,8 +219,7 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
 
   const handleResendOtp = () => {
     setErrorMsg('')
-    const code = generateOtpForEmail(forgotEmail.trim())
-    setGeneratedOtpHint(code)
+    generateOtpForEmail(forgotEmail.trim())
     startOtpTimer()
     setOtpCode(['', '', '', '', '', ''])
     setToastMsg(ak ? 'OTP အသစ် ပြန်ပို့ပြီးပါပြီ (၁၀ မိနစ် သက်တမ်းရှိ)' : 'New OTP code sent (valid for 10 minutes)!')
@@ -342,13 +339,6 @@ export const LoginPage = ({ lang }: LoginPageProps) => {
                   <span>{ak ? 'အီးမေးလ် ပြန်ပို့မည်' : 'Resend Email'}</span>
                 </button>
               </div>
-
-              {generatedOtpHint && (
-                <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between font-mono">
-                  <span>Demo OTP:</span>
-                  <span className="font-bold text-sm tracking-widest">{generatedOtpHint}</span>
-                </div>
-              )}
 
               <div className="flex justify-between gap-2">
                 {otpCode.map((digit, idx) => (

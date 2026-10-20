@@ -78,7 +78,7 @@ import { CryptoGateway } from '../../components/CryptoGateway'
 import { POSTerminal } from '../../components/POSTerminal'
 import { TransactionSlip } from '../../components/TransactionSlip'
 import { FakeQR } from '../../components/FakeQR'
-import { initialUserProfile, wallets, generateUserUid, type UserProfile, type Txn } from '../../data'
+import { initialUserProfile, generateUserUid, type UserProfile, type Txn } from '../../data'
 import {
   fetchTransactionsFromDb,
   insertTransactionToDb,
@@ -330,10 +330,10 @@ const PROMO_ADS = [
     borderColor: 'border-amber-200/80',
     accentBg: 'bg-amber-100 text-amber-600 border-amber-200',
     icon: ShieldCheck,
-    titleEn: '100% Gold-Backed AKD Vault',
-    titleAk: 'ရွှေအာမခံ ၁၀၀% အပြည့်ဖြင့် ထိန်းသိမ်းထားသော ငွေကြေး',
-    descEn: 'Audited reserve backed 1:1 by physical gold',
-    descAk: 'ရုပ်ပိုင်းဆိုင်ရာ ရွှေနှင့် ဒေါ်လာဖြင့် အပြည့်အဝ အာမခံထားသည်',
+    titleEn: 'Ledger-Backed Arakan Dollar',
+    titleAk: 'စာရင်းမှ အာမခံထားသော အာရက္ခဒေါ်လာ',
+    descEn: 'Fixed 1:1 peg to the US dollar',
+    descAk: 'အမေရိကန်ဒေါ်လာနှင့် ၁:၁ ပုံသေနှုန်း ချိတ်ဆက်ထားသည်',
   },
 ]
 
@@ -609,8 +609,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     category: string
     defaultAccount: string
     accountLabel: string
-    defaultAmountMmk: number
-    defaultAmountThb: number
+    defaultAmountAkd: number
+    defaultAmountUsd: number
     primaryColor: string
     initials: string
   } | null>(null)
@@ -3919,7 +3919,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderTopupScreen = () => {
     const isAk = lang === 'ak'
-    const akdRate = 4500.0
+    const akdRate = 1.0
 
     const topupAmounts = [
       500, 1000, 2000, 2500, 3000, 5000, 6000, 7500, 10000, 15000, 20000, 30000, 50000,
@@ -4008,13 +4008,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       },
     ]
 
-    const sampleContacts = [
-      { name: 'User (Self)', phone: '09123456789', op: 'ATOM' },
-      { name: 'Ko Min Aung', phone: '09251998791', op: 'MPT' },
-      { name: 'Daw Hla Hla', phone: '09691234567', op: 'MYTEL' },
-      { name: 'Mg Zaw Myo', phone: '09971234567', op: 'U9' },
-      { name: 'U Thura', phone: '09312345678', op: 'MecTel' },
-    ]
+    const sampleContacts: { name: string; phone: string; op: string }[] = []
 
     const detectOperator = (num: string) => {
       const clean = num.replace(/[^0-9]/g, '')
@@ -4053,7 +4047,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     const productTitle =
       topupActiveTab === 'phoneTopup'
-        ? `${topupSelectedAmount.toLocaleString()} MMK Phone Topup`
+        ? `${topupSelectedAmount.toLocaleString()} AKD Phone Topup`
         : selectedPkg.name
 
     const filteredPackages =
@@ -4228,7 +4222,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           {/* TAB 1: PHONE TOPUP */}
           {topupActiveTab === 'phoneTopup' && (
             <div className="space-y-4 pt-1">
-              <div className="text-xs font-bold text-slate-700">Select Amount (MMK)</div>
+              <div className="text-xs font-bold text-slate-700">Select Amount (AKD)</div>
 
               {/* 3-Column Amount Denomination Grid */}
               <div className="grid grid-cols-3 gap-2.5">
@@ -4252,7 +4246,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
               {/* Exchange Rate Card */}
               <div className="bg-[#E8F1FC] border border-[#BFDBFE] rounded-xl px-4 py-3 text-xs font-bold text-slate-800">
-                Exchange rate: 1 AKD = 4,500 MMK
+                Fixed rate: 1 AKD = $1.00 USD
               </div>
 
               {/* Dynamic Calculation Subtext */}
@@ -4262,7 +4256,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <span className="font-extrabold text-[#EA580C]">
                     {(topupSelectedAmount / akdRate).toFixed(3)} AKD
                   </span>{' '}
-                  for {topupSelectedAmount.toLocaleString()} MMK
+                  for {topupSelectedAmount.toFixed(2)} AKD
                 </div>
               )}
             </div>
@@ -4292,11 +4286,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 })}
               </div>
 
-              <div className="text-xs font-bold text-slate-700">Select Package (MMK)</div>
+              <div className="text-xs font-bold text-slate-700">Select Package (AKD)</div>
 
               {/* Exchange Rate Banner */}
               <div className="bg-[#E8F1FC] border border-[#BFDBFE] rounded-xl px-4 py-3 text-xs font-bold text-slate-800">
-                Exchange rate: 1 AKD = 4,500 MMK
+                Fixed rate: 1 AKD = $1.00 USD
               </div>
 
               {/* Package Cards List */}
@@ -4328,7 +4322,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
                       <div className="text-right space-y-1 shrink-0 pl-2">
                         <div className="text-xs font-bold text-slate-900">
-                          {pkg.mmkPrice.toLocaleString()} MMK
+                          {pkg.mmkPrice.toFixed(2)} AKD
                         </div>
                         <div className="inline-block px-2.5 py-0.5 rounded-full border border-[#FF7A00] text-[11px] font-bold text-[#EA580C] bg-white">
                           {(pkg.mmkPrice / akdRate).toFixed(3)} AKD
@@ -4346,7 +4340,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <span className="font-extrabold text-[#EA580C]">
                     {(selectedPkg.mmkPrice / akdRate).toFixed(3)} AKD
                   </span>{' '}
-                  ({selectedPkg.mmkPrice.toLocaleString()} MMK)
+                  ({selectedPkg.mmkPrice.toFixed(2)} AKD)
                 </div>
               )}
             </div>
@@ -4456,7 +4450,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-medium">Exchange Rate</span>
-                  <span className="font-bold text-slate-900">1 AKD = 4,500 MMK</span>
+                  <span className="font-bold text-slate-900">1 AKD = $1.00 USD</span>
                 </div>
               </div>
 
@@ -4469,7 +4463,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   </div>
                 </div>
                 <div className="px-3 py-1 rounded-full bg-white border border-[#FDBA74] text-xs font-black text-[#C2410C]">
-                  {Math.round(calculatedAkd * akdRate).toLocaleString()} MMK
+                  {Math.round(calculatedAkd * akdRate).toFixed(2)} AKD
                 </div>
               </div>
 
@@ -4547,8 +4541,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderBillPaymentScreen = () => {
     const isAk = lang === 'ak'
-    const thbRate = 115.0
-    const akdRate = 4500.0
+    const thbRate = 1.0
+    const akdRate = 1.0
 
     // Combined 18 Billers (Sorted A to Z)
     const allBillers = [
@@ -4558,8 +4552,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Insurance',
         defaultAccount: 'POL-982140021',
         accountLabel: 'Policy Number',
-        defaultAmountMmk: 45000,
-        defaultAmountThb: 391.3,
+        defaultAmountAkd: 45000,
+        defaultAmountUsd: 391.3,
         primaryColor: '#D91624',
         initials: 'AIA',
       },
@@ -4569,8 +4563,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Internet & Fiber',
         defaultAccount: 'ANET-20849',
         accountLabel: 'User ID / Account No',
-        defaultAmountMmk: 25000,
-        defaultAmountThb: 217.39,
+        defaultAmountAkd: 25000,
+        defaultAmountUsd: 217.39,
         primaryColor: '#0284C7',
         initials: 'ANET',
       },
@@ -4580,8 +4574,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Communication Service',
         defaultAccount: 'APCS-78192',
         accountLabel: 'Customer ID / Service No',
-        defaultAmountMmk: 20000,
-        defaultAmountThb: 173.91,
+        defaultAmountAkd: 20000,
+        defaultAmountUsd: 173.91,
         primaryColor: '#1E3A8A',
         initials: 'APCS',
       },
@@ -4591,8 +4585,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Broadband & Device',
         defaultAccount: '09123456789',
         accountLabel: 'Account ID / Mobile No',
-        defaultAmountMmk: 32000,
-        defaultAmountThb: 278.26,
+        defaultAmountAkd: 32000,
+        defaultAmountUsd: 278.26,
         primaryColor: '#0284C7',
         initials: 'ATOM',
       },
@@ -4602,8 +4596,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Pay TV & Entertainment',
         defaultAccount: 'CNL-882019',
         accountLabel: 'Smartcard / Decoder ID',
-        defaultAmountMmk: 24000,
-        defaultAmountThb: 208.7,
+        defaultAmountAkd: 24000,
+        defaultAmountUsd: 208.7,
         primaryColor: '#1E293B',
         initials: 'C+',
       },
@@ -4613,8 +4607,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Government & Customs Duty',
         defaultAccount: 'CD-TAX-90218',
         accountLabel: 'Customs Declaration / Ref No',
-        defaultAmountMmk: 50000,
-        defaultAmountThb: 434.78,
+        defaultAmountAkd: 50000,
+        defaultAmountUsd: 434.78,
         primaryColor: '#B45309',
         initials: 'CD',
       },
@@ -4624,8 +4618,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Public Health & Food Dept',
         defaultAccount: 'FDA-AR-10492',
         accountLabel: 'Registration / License No',
-        defaultAmountMmk: 15000,
-        defaultAmountThb: 130.43,
+        defaultAmountAkd: 15000,
+        defaultAmountUsd: 130.43,
         primaryColor: '#059669',
         initials: 'FDA',
       },
@@ -4635,8 +4629,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Humanitarian & Development',
         defaultAccount: 'HDCO-88319',
         accountLabel: 'Reference / ID No',
-        defaultAmountMmk: 10000,
-        defaultAmountThb: 86.96,
+        defaultAmountAkd: 10000,
+        defaultAmountUsd: 86.96,
         primaryColor: '#7C3AED',
         initials: 'HDCO',
       },
@@ -4646,8 +4640,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Broadband & FTTH',
         defaultAccount: 'MEGA-FTTH-4402',
         accountLabel: 'Customer Code / User ID',
-        defaultAmountMmk: 28000,
-        defaultAmountThb: 243.48,
+        defaultAmountAkd: 28000,
+        defaultAmountUsd: 243.48,
         primaryColor: '#EA580C',
         initials: 'MEGA',
       },
@@ -4657,8 +4651,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Electricity & Power',
         defaultAccount: 'CA-100293847',
         accountLabel: 'MEA CA / Account No',
-        defaultAmountMmk: 143750,
-        defaultAmountThb: 1250.0,
+        defaultAmountAkd: 143750,
+        defaultAmountUsd: 1250.0,
         primaryColor: '#EA580C',
         initials: 'MEA',
       },
@@ -4668,8 +4662,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Waterworks',
         defaultAccount: 'MWA-4412098',
         accountLabel: 'Customer Code',
-        defaultAmountMmk: 27600,
-        defaultAmountThb: 240.0,
+        defaultAmountAkd: 27600,
+        defaultAmountUsd: 240.0,
         primaryColor: '#0284C7',
         initials: 'MWA',
       },
@@ -4679,8 +4673,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Broadband & FTTH',
         defaultAccount: 'MYT-90218',
         accountLabel: 'Customer ID / CID',
-        defaultAmountMmk: 30000,
-        defaultAmountThb: 260.87,
+        defaultAmountAkd: 30000,
+        defaultAmountUsd: 260.87,
         primaryColor: '#F97316',
         initials: 'MYTEL',
       },
@@ -4690,8 +4684,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Electricity & Power',
         defaultAccount: 'PEA-9920145',
         accountLabel: 'PEA CA No',
-        defaultAmountMmk: 112700,
-        defaultAmountThb: 980.0,
+        defaultAmountAkd: 112700,
+        defaultAmountUsd: 980.0,
         primaryColor: '#7C3AED',
         initials: 'PEA',
       },
@@ -4701,8 +4695,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Waterworks',
         defaultAccount: 'PWA-6651203',
         accountLabel: 'User ID / Account No',
-        defaultAmountMmk: 21275,
-        defaultAmountThb: 185.0,
+        defaultAmountAkd: 21275,
+        defaultAmountUsd: 185.0,
         primaryColor: '#0369A1',
         initials: 'PWA',
       },
@@ -4712,8 +4706,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Broadband & Fiber',
         defaultAccount: 'RL-552103',
         accountLabel: 'Account No / User ID',
-        defaultAmountMmk: 22000,
-        defaultAmountThb: 191.3,
+        defaultAmountAkd: 22000,
+        defaultAmountUsd: 191.3,
         primaryColor: '#2563EB',
         initials: 'RLINK',
       },
@@ -4723,8 +4717,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Satellite & Digital TV',
         defaultAccount: 'SKY-401928',
         accountLabel: 'Smart Card No',
-        defaultAmountMmk: 18000,
-        defaultAmountThb: 156.52,
+        defaultAmountAkd: 18000,
+        defaultAmountUsd: 156.52,
         primaryColor: '#0284C7',
         initials: 'SKY',
       },
@@ -4734,8 +4728,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Satellite Internet',
         defaultAccount: 'ACC-89104-STL',
         accountLabel: 'Account Number / Kit No',
-        defaultAmountMmk: 120000,
-        defaultAmountThb: 1043.48,
+        defaultAmountAkd: 120000,
+        defaultAmountUsd: 1043.48,
         primaryColor: '#0F172A',
         initials: 'STAR',
       },
@@ -4745,8 +4739,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         category: 'Broadband & FTTH',
         defaultAccount: 'TL-99412',
         accountLabel: 'Subscriber ID',
-        defaultAmountMmk: 26000,
-        defaultAmountThb: 226.09,
+        defaultAmountAkd: 26000,
+        defaultAmountUsd: 226.09,
         primaryColor: '#0D9488',
         initials: 'TLINK',
       },
@@ -4760,9 +4754,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     const handleConfirmBillPayment = () => {
       if (!selectedBiller) return
-      const isMm = selectedBiller.defaultAmountMmk > 0
-      const mmkAmount = isMm ? selectedBiller.defaultAmountMmk : selectedBiller.defaultAmountThb * thbRate
-      const thbAmount = isMm ? selectedBiller.defaultAmountMmk / thbRate : selectedBiller.defaultAmountThb
+      const isMm = selectedBiller.defaultAmountAkd > 0
+      const mmkAmount = isMm ? selectedBiller.defaultAmountAkd : selectedBiller.defaultAmountUsd * thbRate
+      const thbAmount = isMm ? selectedBiller.defaultAmountAkd / thbRate : selectedBiller.defaultAmountUsd
       const akdAmount = mmkAmount / akdRate
 
       // Deduct balance (UI state only — source of truth is the database via updateUserBalanceInDb below)
@@ -4802,9 +4796,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     // ── IF BILLER DETAIL VIEW IS OPEN ─────────────────────────────────────────
     if (selectedBiller) {
-      const isMm = selectedBiller.defaultAmountMmk > 0
-      const mmkAmount = isMm ? selectedBiller.defaultAmountMmk : selectedBiller.defaultAmountThb * thbRate
-      const thbAmount = isMm ? selectedBiller.defaultAmountMmk / thbRate : selectedBiller.defaultAmountThb
+      const isMm = selectedBiller.defaultAmountAkd > 0
+      const mmkAmount = isMm ? selectedBiller.defaultAmountAkd : selectedBiller.defaultAmountUsd * thbRate
+      const thbAmount = isMm ? selectedBiller.defaultAmountAkd / thbRate : selectedBiller.defaultAmountUsd
       const akdAmount = mmkAmount / akdRate
 
       return (
@@ -4921,14 +4915,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       Outstanding Bill
                     </span>
                     <span className="text-lg font-black text-[#FF7A00]">
-                      {isMm
-                        ? `${mmkAmount.toLocaleString()} MMK`
-                        : `${thbAmount.toFixed(2)} THB`}
+                      {akdAmount.toFixed(2)} AKD
                     </span>
                   </div>
                   <div className="flex justify-between text-[11px] font-semibold text-sky-600 mt-0.5">
-                    <span>≈ {thbAmount.toFixed(2)} THB</span>
-                    <span>≈ {akdAmount.toFixed(3)} AKD</span>
+                    <span>≈ {thbAmount.toFixed(2)} USD</span>
+                    <span>1 AKD = $1.00 USD</span>
                   </div>
                 </div>
               </div>
@@ -4972,7 +4964,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <div className="flex justify-between">
                     <span className="text-slate-500">Amount Paid</span>
                     <span className="font-bold text-slate-900">
-                      {lastBillSuccess.amountMmk.toLocaleString()} MMK
+                      {lastBillSuccess.amountAkd.toFixed(2)} AKD
                     </span>
                   </div>
                   <div className="flex justify-between">

@@ -7,7 +7,7 @@
 --   1. Double-entry immutable ledger with cryptographic SHA-256 chain hashes.
 --   2. Atomic posting engine via post_transaction() RPC with overdraft protection.
 --   3. Unified transactions model bridging the core ledger & consumer wallet UI.
---   4. Multi-currency & foreign exchange corridor support (AKD, USDT, USDC, THB, etc.).
+--   4. Supported currencies: AKD, USD, USDC, and USDT.
 --   5. Offline voucher infrastructure with Ed25519 digital signature validation.
 --   6. Live consumer wallet integration (user_profiles, contacts, billers, packages).
 --   7. Enterprise Row Level Security (RLS) and real-time streaming publication.
@@ -25,16 +25,16 @@ CREATE TABLE IF NOT EXISTS public.users (
     wallet_address             VARCHAR(64),
     email                      VARCHAR(255) UNIQUE,
     phone_number               VARCHAR(30) UNIQUE,
-    first_name                 VARCHAR(50) NOT NULL DEFAULT '',
-    last_name                  VARCHAR(50) NOT NULL DEFAULT '',
-    full_name                  VARCHAR(100) NOT NULL DEFAULT '',
-    nickname                   VARCHAR(50) DEFAULT '',
-    national_id_no             VARCHAR(50) DEFAULT '',
+    first_name                 VARCHAR(50) NOT NULL,
+    last_name                  VARCHAR(50) NOT NULL,
+    full_name                  VARCHAR(100) NOT NULL,
+    nickname                   VARCHAR(50),
+    national_id_no             VARCHAR(50),
     dob                        DATE,
-    address                    TEXT DEFAULT '',
-    usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '',
-    pin_hash                   VARCHAR(128) DEFAULT '',
-    avatar_url                 TEXT DEFAULT '',
+    address                    TEXT,
+    usd_account_wallet_address VARCHAR(64) NOT NULL,
+    pin_hash                   VARCHAR(128),
+    avatar_url                 TEXT,
     kyc_tier                   INT NOT NULL DEFAULT 1 CHECK (kyc_tier IN (1, 2)),
     status                     VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'SUSPENDED', 'FROZEN', 'CLOSED')),
     created_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -45,15 +45,15 @@ ALTER TABLE public.users ADD COLUMN IF NOT EXISTS username VARCHAR(50) UNIQUE;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS uid VARCHAR(64) UNIQUE;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS wallet_address VARCHAR(64);
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email VARCHAR(255) UNIQUE;
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL DEFAULT '';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL DEFAULT '';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT '';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) DEFAULT '';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50);
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50);
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS dob DATE;
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address TEXT DEFAULT '';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128) DEFAULT '';
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT '';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128);
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
 DROP FUNCTION IF EXISTS public.generate_user_uid();
 DROP SEQUENCE IF EXISTS public.user_uid_seq;
@@ -61,22 +61,21 @@ DROP SEQUENCE IF EXISTS public.user_uid_seq;
 CREATE TABLE IF NOT EXISTS public.user_profiles (
     id                         VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
     user_id                    UUID REFERENCES public.users(id) ON DELETE SET NULL,
-    username                   VARCHAR(50) NOT NULL DEFAULT '',
+    username                   VARCHAR(50) NOT NULL,
     uid                        VARCHAR(64) NOT NULL,
     wallet_address             VARCHAR(64) GENERATED ALWAYS AS (uid) STORED,
-    avatar_url                 TEXT DEFAULT '',
-    email                      VARCHAR(255) NOT NULL DEFAULT '',
-    pin_hash                   VARCHAR(128) DEFAULT '',
-    phone                      VARCHAR(30) NOT NULL DEFAULT '',
-    first_name                 VARCHAR(50) NOT NULL DEFAULT '',
-    last_name                  VARCHAR(50) NOT NULL DEFAULT '',
-    name                       VARCHAR(100) NOT NULL DEFAULT '',
-    nickname                   VARCHAR(50) DEFAULT '',
-    national_id_no             VARCHAR(50) NOT NULL DEFAULT '',
+    avatar_url                 TEXT,
+    email                      VARCHAR(255) NOT NULL,
+    pin_hash                   VARCHAR(128),
+    phone                      VARCHAR(30) NOT NULL,
+    first_name                 VARCHAR(50) NOT NULL,
+    last_name                  VARCHAR(50) NOT NULL,
+    name                       VARCHAR(100) NOT NULL,
+    nickname                   VARCHAR(50),
+    national_id_no             VARCHAR(50) NOT NULL,
     dob                        DATE,
-    address                    TEXT NOT NULL DEFAULT '',
-    usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '',
-    ak_id                      VARCHAR(64) GENERATED ALWAYS AS (uid) STORED,
+    address                    TEXT NOT NULL,
+    usd_account_wallet_address VARCHAR(64) NOT NULL,
     balance                    NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
     akd_wallet_balance         NUMERIC(18, 4) GENERATED ALWAYS AS (balance) STORED,
     usd_account_balance        NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
@@ -87,20 +86,21 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     updated_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS username VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS username VARCHAR(50) NOT NULL;
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS uid VARCHAR(64);
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128) DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS nickname VARCHAR(50) DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128);
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS nickname VARCHAR(50);
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) NOT NULL;
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS dob DATE;
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS address TEXT NOT NULL DEFAULT '';
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL DEFAULT '';
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS address TEXT NOT NULL;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL;
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_balance NUMERIC(18, 4) NOT NULL DEFAULT 0.00;
+ALTER TABLE public.user_profiles DROP COLUMN IF EXISTS ak_id;
 
 DO $$
 BEGIN
@@ -114,6 +114,14 @@ BEGIN
         ALTER TABLE public.user_profiles ADD COLUMN total_balance NUMERIC(18, 4) GENERATED ALWAYS AS (balance + usd_account_balance) STORED;
     END IF;
 END $$;
+
+-- Level 1 accounts do not have national ID, address, phone or a USD wallet yet.
+-- These fields become required only when the user starts KYC Level 2.
+ALTER TABLE public.user_profiles ALTER COLUMN phone DROP NOT NULL;
+ALTER TABLE public.user_profiles ALTER COLUMN national_id_no DROP NOT NULL;
+ALTER TABLE public.user_profiles ALTER COLUMN address DROP NOT NULL;
+ALTER TABLE public.user_profiles ALTER COLUMN usd_account_wallet_address DROP NOT NULL;
+ALTER TABLE public.users ALTER COLUMN usd_account_wallet_address DROP NOT NULL;
 
 -- ----------------------------------------------------------------------------
 -- IMMUTABILITY & MUTATION GOVERNANCE TRIGGER
@@ -246,13 +254,13 @@ CREATE TABLE IF NOT EXISTS public.agents (
     user_id           UUID REFERENCES public.users(id) ON DELETE RESTRICT,
     agent_code        VARCHAR(20) UNIQUE NOT NULL,
     display_name      VARCHAR(100) NOT NULL,
-    display_name_mm   VARCHAR(150) DEFAULT '',
-    township          VARCHAR(100) NOT NULL DEFAULT '',
-    township_mm       VARCHAR(150) DEFAULT '',
-    distance          VARCHAR(32) DEFAULT '',
+    display_name_mm   VARCHAR(150),
+    township          VARCHAR(100) NOT NULL,
+    township_mm       VARCHAR(150),
+    distance          VARCHAR(32),
     float_status      VARCHAR(32) NOT NULL DEFAULT 'High' CHECK (float_status IN ('High', 'Medium', 'Low')),
-    float_status_mm   VARCHAR(100) DEFAULT '',
-    phone             VARCHAR(30) NOT NULL DEFAULT '',
+    float_status_mm   VARCHAR(100),
+    phone             VARCHAR(30) NOT NULL,
     cash_reserve_akd  NUMERIC(18, 2) NOT NULL DEFAULT 50000.00,
     is_open           BOOLEAN NOT NULL DEFAULT true,
     commission_bps    INT NOT NULL DEFAULT 150 CHECK (commission_bps BETWEEN 0 AND 2000),
@@ -264,26 +272,26 @@ CREATE TABLE IF NOT EXISTS public.agents (
 CREATE INDEX IF NOT EXISTS idx_agents_code ON public.agents(agent_code);
 CREATE INDEX IF NOT EXISTS idx_agents_parent ON public.agents(parent_agent_id);
 
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS display_name_mm VARCHAR(150) DEFAULT '';
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS township VARCHAR(100) NOT NULL DEFAULT '';
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS township_mm VARCHAR(150) DEFAULT '';
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS distance VARCHAR(32) DEFAULT '';
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS display_name_mm VARCHAR(150);
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS township VARCHAR(100) NOT NULL;
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS township_mm VARCHAR(150);
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS distance VARCHAR(32);
 ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS float_status VARCHAR(32) NOT NULL DEFAULT 'High';
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS float_status_mm VARCHAR(100) DEFAULT '';
-ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL DEFAULT '';
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS float_status_mm VARCHAR(100);
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL;
 ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS cash_reserve_akd NUMERIC(18, 2) NOT NULL DEFAULT 50000.00;
 ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS is_open BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE public.agents DROP CONSTRAINT IF EXISTS agents_user_id_key;
 ALTER TABLE public.agents ALTER COLUMN user_id DROP NOT NULL;
 
 -- ----------------------------------------------------------------------------
--- 3. MULTI-CURRENCY ACCOUNTS (Ledger Wallets & Reserve Vaults)
+-- 3. CURRENCY ACCOUNTS (Ledger Wallets & Reserve Vaults)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.accounts (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id       UUID REFERENCES public.users(id) ON DELETE RESTRICT,
     currency      VARCHAR(16) NOT NULL CHECK (currency IN (
-                    'AKD', 'USDT', 'USDC', 'USD', 'THB', 'MYR', 'SGD', 'EUR', 'BTC', 'ETH', 'MMK', 'PETHAR_UNIT'
+                    'AKD', 'USD', 'USDC', 'USDT'
                   )),
     account_type  VARCHAR(30) NOT NULL CHECK (account_type IN (
                     'USER_WALLET', 'AGENT_FLOAT', 'RESERVE_VAULT', 'FEE_INCOME', 'COMMISSION_PAYABLE', 'SUSPENSE'
@@ -292,7 +300,14 @@ CREATE TABLE IF NOT EXISTS public.accounts (
     UNIQUE (user_id, currency, account_type)
 );
 
+ALTER TABLE public.accounts DROP CONSTRAINT IF EXISTS accounts_currency_check;
+ALTER TABLE public.accounts ADD CONSTRAINT accounts_currency_check
+    CHECK (currency IN ('AKD', 'USD', 'USDC', 'USDT'));
+
 CREATE INDEX IF NOT EXISTS idx_accounts_user ON public.accounts(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_accounts_reserve_vault
+    ON public.accounts(currency, account_type)
+    WHERE user_id IS NULL;
 
 -- ----------------------------------------------------------------------------
 -- 4. UNIFIED TRANSACTIONS (Bridging Core Ledger & Client Apps)
@@ -301,18 +316,18 @@ CREATE TABLE IF NOT EXISTS public.transactions (
     id                      VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
     ref_id                  VARCHAR(64) UNIQUE,
     reference_id            VARCHAR(64) UNIQUE,
-    title                   VARCHAR(255) NOT NULL DEFAULT '',
-    title_mm                VARCHAR(255) DEFAULT '',
-    transaction_type        VARCHAR(32) NOT NULL DEFAULT 'P2P_TRANSFER',
-    category                VARCHAR(64) NOT NULL DEFAULT 'p2p',
+    title                   VARCHAR(255) NOT NULL,
+    title_mm                VARCHAR(255),
+    transaction_type        VARCHAR(32) NOT NULL DEFAULT 'TRANSFER',
+    category                VARCHAR(64) NOT NULL DEFAULT 'transfer',
     amount                  NUMERIC(28, 8) NOT NULL DEFAULT 0.0,
     currency                VARCHAR(16) NOT NULL DEFAULT 'AKD',
     time                    VARCHAR(64) NOT NULL DEFAULT 'Today',
     status                  VARCHAR(32) NOT NULL DEFAULT 'SETTLED',
-    counterparty            VARCHAR(255) DEFAULT '',
-    counterparty_mm         VARCHAR(255) DEFAULT '',
+    counterparty            VARCHAR(255),
+    counterparty_mm         VARCHAR(255),
     fee                     NUMERIC(28, 8) NOT NULL DEFAULT 0.0,
-    hash                    VARCHAR(128) DEFAULT '',
+    hash                    VARCHAR(128),
     reverses_transaction_id VARCHAR(64) REFERENCES public.transactions(id) ON DELETE RESTRICT,
     metadata                JSONB NOT NULL DEFAULT '{}'::jsonb,
     created_at              TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -354,7 +369,7 @@ CREATE TABLE IF NOT EXISTS public.ledger_entries (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     transaction_id  VARCHAR(64) NOT NULL REFERENCES public.transactions(id) ON DELETE RESTRICT,
     account_id      UUID NOT NULL REFERENCES public.accounts(id) ON DELETE RESTRICT,
-    currency        VARCHAR(16) NOT NULL,
+    currency        VARCHAR(16) NOT NULL CHECK (currency IN ('AKD', 'USD', 'USDC', 'USDT')),
     amount          NUMERIC(28, 8) NOT NULL CHECK (amount <> 0),
     seq             BIGINT NOT NULL,
     balance_after   NUMERIC(28, 8) NOT NULL,
@@ -512,6 +527,613 @@ END;
 $$;
 
 -- ----------------------------------------------------------------------------
+-- 6b. AUTHENTICATED WALLET BOOTSTRAP, PIN VERIFICATION & TRANSFER RPCs
+-- ----------------------------------------------------------------------------
+
+-- Creates the public.users + public.user_profiles + wallet accounts for the
+-- currently authenticated Supabase user. Safe to call repeatedly.
+CREATE OR REPLACE FUNCTION public.ensure_user_profile(
+    p_email       TEXT,
+    p_first_name  TEXT,
+    p_last_name   TEXT,
+    p_username    TEXT DEFAULT NULL,
+    p_pin         TEXT DEFAULT NULL
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_uid       UUID := auth.uid();
+    v_username  TEXT;
+    v_uid_code  TEXT;
+    v_seq       BIGINT;
+    v_pin_hash  TEXT;
+    v_profile   RECORD;
+BEGIN
+    IF v_uid IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+
+    v_username := NULLIF(LOWER(TRIM(COALESCE(p_username, ''))), '');
+
+    IF v_username IS NOT NULL AND EXISTS (
+        SELECT 1 FROM public.user_profiles WHERE LOWER(username) = v_username
+    ) THEN
+        v_username := NULL;
+    END IF;
+
+    INSERT INTO public.users (
+        id, email, first_name, last_name, full_name, username, uid,
+        kyc_tier, status
+    )
+    VALUES (
+        v_uid,
+        LOWER(TRIM(p_email)),
+        COALESCE(NULLIF(TRIM(p_first_name), ''), 'Péthar User'),
+        COALESCE(TRIM(p_last_name), ''),
+        TRIM(COALESCE(NULLIF(TRIM(p_first_name), ''), 'Péthar User') || ' ' || COALESCE(TRIM(p_last_name), '')),
+        v_username,
+        NULL,
+        1,
+        'ACTIVE'
+    )
+    ON CONFLICT (id) DO NOTHING;
+
+    IF EXISTS (SELECT 1 FROM public.user_profiles WHERE user_id = v_uid) THEN
+        SELECT * INTO v_profile FROM public.user_profiles WHERE user_id = v_uid;
+        RETURN to_jsonb(v_profile);
+    END IF;
+
+    SELECT COUNT(*) + 1 INTO v_seq FROM public.user_profiles;
+    v_uid_code := to_char(CURRENT_DATE, 'YYYYMMDD') || lpad(v_seq::TEXT, 4, '0');
+
+    IF p_pin IS NOT NULL AND length(p_pin) >= 6 THEN
+        v_pin_hash := crypt(p_pin, gen_salt('bf'));
+    END IF;
+
+    INSERT INTO public.user_profiles (
+        user_id, username, uid, email, first_name, last_name, name,
+        phone, national_id_no, address, usd_account_wallet_address,
+        pin_hash, balance, usd_account_balance, kyc_tier
+    )
+    VALUES (
+        v_uid,
+        COALESCE(v_username, 'user' || right(v_uid_code, 4)),
+        v_uid_code,
+        LOWER(TRIM(p_email)),
+        COALESCE(NULLIF(TRIM(p_first_name), ''), 'Péthar User'),
+        COALESCE(TRIM(p_last_name), ''),
+        TRIM(COALESCE(NULLIF(TRIM(p_first_name), ''), 'Péthar User') || ' ' || COALESCE(TRIM(p_last_name), '')),
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        v_pin_hash,
+        0,
+        0,
+        1
+    )
+    RETURNING * INTO v_profile;
+
+    UPDATE public.users
+       SET uid = v_uid_code
+     WHERE id = v_uid AND uid IS NULL;
+
+    -- Every user gets an AKD wallet immediately. The USD/USDT/USDC wallet is
+    -- created but remains unusable until KYC Level 2 is approved.
+    INSERT INTO public.accounts (user_id, currency, account_type)
+    VALUES (v_uid, 'AKD', 'USER_WALLET'),
+           (v_uid, 'USD', 'USER_WALLET')
+    ON CONFLICT (user_id, currency, account_type) DO NOTHING;
+
+    RETURN to_jsonb(v_profile);
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.ensure_user_profile(TEXT, TEXT, TEXT, TEXT, TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.ensure_user_profile(TEXT, TEXT, TEXT, TEXT, TEXT) TO authenticated;
+
+-- Verifies a 6-digit PIN with bcrypt and applies lockout after five failures.
+CREATE OR REPLACE FUNCTION public.verify_user_pin(p_pin TEXT)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_uid       UUID := auth.uid();
+    v_profile   RECORD;
+    v_attempts  INT;
+BEGIN
+    IF v_uid IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+
+    SELECT pin_hash, pin_attempts, pin_locked_until
+      INTO v_profile
+      FROM public.user_profiles
+     WHERE user_id = v_uid;
+
+    IF NOT FOUND OR v_profile.pin_hash IS NULL THEN
+        RETURN jsonb_build_object('valid', false, 'message', 'PIN not configured');
+    END IF;
+
+    IF v_profile.pin_locked_until IS NOT NULL AND v_profile.pin_locked_until > now() THEN
+        RETURN jsonb_build_object('valid', false, 'locked', true, 'message', 'Account temporarily locked');
+    END IF;
+
+    IF crypt(p_pin, v_profile.pin_hash) = v_profile.pin_hash THEN
+        UPDATE public.user_profiles
+           SET pin_attempts = 0, pin_locked_until = NULL
+         WHERE user_id = v_uid;
+        RETURN jsonb_build_object('valid', true, 'attempts_remaining', 5);
+    END IF;
+
+    v_attempts := COALESCE(v_profile.pin_attempts, 0) + 1;
+
+    IF v_attempts >= 5 THEN
+        UPDATE public.user_profiles
+           SET pin_attempts = v_attempts,
+               pin_locked_until = now() + interval '30 minutes'
+         WHERE user_id = v_uid;
+        RETURN jsonb_build_object('valid', false, 'locked', true, 'attempts_remaining', 0);
+    END IF;
+
+    UPDATE public.user_profiles SET pin_attempts = v_attempts WHERE user_id = v_uid;
+    RETURN jsonb_build_object('valid', false, 'attempts_remaining', 5 - v_attempts);
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.verify_user_pin(TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.verify_user_pin(TEXT) TO authenticated, service_role;
+
+-- Changes the PIN after verifying the current one.
+CREATE OR REPLACE FUNCTION public.set_user_pin(p_current_pin TEXT, p_new_pin TEXT)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_uid    UUID := auth.uid();
+    v_check  JSONB;
+BEGIN
+    IF v_uid IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+    IF p_new_pin IS NULL OR length(p_new_pin) <> 6 OR p_new_pin !~ '^[0-9]{6}$' THEN
+        RETURN jsonb_build_object('success', false, 'message', 'PIN must be exactly 6 digits');
+    END IF;
+
+    v_check := public.verify_user_pin(p_current_pin);
+    IF (v_check->>'valid')::boolean IS NOT TRUE THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Current PIN is incorrect');
+    END IF;
+
+    UPDATE public.user_profiles
+       SET pin_hash = crypt(p_new_pin, gen_salt('bf')),
+           pin_attempts = 0,
+           pin_locked_until = NULL
+     WHERE user_id = v_uid;
+
+    RETURN jsonb_build_object('success', true, 'message', 'PIN updated');
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.set_user_pin(TEXT, TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.set_user_pin(TEXT, TEXT) TO authenticated;
+
+-- Resets the PIN after the user has proven email ownership with a Supabase OTP.
+CREATE OR REPLACE FUNCTION public.reset_user_pin(p_new_pin TEXT)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_uid UUID := auth.uid();
+BEGIN
+    IF v_uid IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+    IF p_new_pin IS NULL OR length(p_new_pin) <> 6 OR p_new_pin !~ '^[0-9]{6}$' THEN
+        RETURN jsonb_build_object('success', false, 'message', 'PIN must be exactly 6 digits');
+    END IF;
+
+    UPDATE public.user_profiles
+       SET pin_hash = crypt(p_new_pin, gen_salt('bf')),
+           pin_attempts = 0,
+           pin_locked_until = NULL
+     WHERE user_id = v_uid;
+
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Profile not found');
+    END IF;
+
+    RETURN jsonb_build_object('success', true, 'message', 'PIN reset');
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.reset_user_pin(TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.reset_user_pin(TEXT) TO authenticated;
+
+-- Level 2 KYC submission. Stores identity fields and opens an admin review.
+CREATE OR REPLACE FUNCTION public.submit_kyc_level2(
+    p_national_id TEXT,
+    p_dob         DATE,
+    p_full_name   TEXT,
+    p_address     TEXT
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_uid       UUID := auth.uid();
+    v_parts     TEXT[];
+    v_request   UUID;
+BEGIN
+    IF v_uid IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+    IF NULLIF(TRIM(p_national_id), '') IS NULL THEN
+        RETURN jsonb_build_object('success', false, 'message', 'National ID is required');
+    END IF;
+    IF p_dob IS NULL THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Date of birth is required');
+    END IF;
+    IF NULLIF(TRIM(p_address), '') IS NULL THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Address is required');
+    END IF;
+
+    v_parts := regexp_split_to_array(TRIM(COALESCE(p_full_name, '')), '\s+');
+
+    UPDATE public.user_profiles
+       SET national_id_no = TRIM(p_national_id),
+           dob = p_dob,
+           address = TRIM(p_address),
+           first_name = COALESCE(NULLIF(v_parts[1], ''), first_name),
+           last_name = CASE
+               WHEN array_length(v_parts, 1) > 1 THEN array_to_string(v_parts[2:], ' ')
+               ELSE last_name
+           END
+     WHERE user_id = v_uid;
+
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Profile not found');
+    END IF;
+
+    INSERT INTO public.pending_approvals (user_id, transaction_type, status, metadata)
+    VALUES (
+        v_uid,
+        'KYC_UPGRADE',
+        'PENDING',
+        jsonb_build_object('national_id_no', TRIM(p_national_id), 'submitted_at', now())
+    )
+    RETURNING id INTO v_request;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'request_id', v_request,
+        'message', 'KYC Level 2 submitted for review'
+    );
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.submit_kyc_level2(TEXT, DATE, TEXT, TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.submit_kyc_level2(TEXT, DATE, TEXT, TEXT) TO authenticated;
+
+-- Keeps the denormalised profile balances in step with the immutable ledger.
+CREATE OR REPLACE FUNCTION public.sync_profile_balance_from_ledger()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_user     UUID;
+    v_currency VARCHAR(16);
+BEGIN
+    SELECT user_id, currency INTO v_user, v_currency
+      FROM public.accounts WHERE id = NEW.account_id;
+
+    IF v_user IS NULL THEN
+        RETURN NEW;
+    END IF;
+
+    IF v_currency = 'AKD' THEN
+        UPDATE public.user_profiles
+           SET balance = NEW.balance_after
+         WHERE user_id = v_user;
+    ELSIF v_currency IN ('USD', 'USDC', 'USDT') THEN
+        UPDATE public.user_profiles
+           SET usd_account_balance = (
+               SELECT COALESCE(SUM(latest.balance_after), 0)
+                 FROM (
+                     SELECT DISTINCT ON (le.account_id) le.balance_after
+                       FROM public.ledger_entries le
+                       JOIN public.accounts a ON a.id = le.account_id
+                      WHERE a.user_id = v_user
+                        AND a.currency IN ('USD', 'USDC', 'USDT')
+                        AND a.account_type = 'USER_WALLET'
+                      ORDER BY le.account_id, le.seq DESC
+                 ) latest
+           )
+         WHERE user_id = v_user;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_sync_profile_balance ON public.ledger_entries;
+CREATE TRIGGER trg_sync_profile_balance
+AFTER INSERT ON public.ledger_entries
+FOR EACH ROW EXECUTE FUNCTION public.sync_profile_balance_from_ledger();
+
+-- Returns the current spendable balance for a wallet account.
+CREATE OR REPLACE FUNCTION public.current_account_balance(p_account_id UUID)
+RETURNS NUMERIC
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+    SELECT COALESCE((
+        SELECT balance_after FROM public.ledger_entries
+         WHERE account_id = p_account_id
+         ORDER BY seq DESC LIMIT 1
+    ), 0);
+$$;
+
+-- Transfers funds between two Péthar wallets. The sender is always auth.uid();
+-- callers can never supply an account id or debit another user's wallet.
+CREATE OR REPLACE FUNCTION public.transfer_funds(
+    p_recipient TEXT,
+    p_amount    NUMERIC,
+    p_currency  TEXT DEFAULT 'AKD',
+    p_note      TEXT DEFAULT NULL
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_from        UUID := auth.uid();
+    v_to          UUID;
+    v_currency    VARCHAR(16);
+    v_from_acct   UUID;
+    v_to_acct     UUID;
+    v_reference   VARCHAR(64);
+    v_txn_id      VARCHAR(64);
+    v_available   NUMERIC;
+    v_recipient   RECORD;
+BEGIN
+    IF v_from IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+
+    v_currency := UPPER(TRIM(p_currency));
+    IF v_currency NOT IN ('AKD', 'USD', 'USDC', 'USDT') THEN
+        RAISE EXCEPTION 'Unsupported currency: %', p_currency;
+    END IF;
+
+    IF p_amount IS NULL OR p_amount <= 0 THEN
+        RAISE EXCEPTION 'Amount must be greater than zero';
+    END IF;
+
+    IF p_amount <> round(p_amount, 2) THEN
+        RAISE EXCEPTION 'Amount supports at most two decimal places';
+    END IF;
+
+    SELECT user_id, uid, username, first_name, last_name
+      INTO v_recipient
+      FROM public.user_profiles
+     WHERE uid = p_recipient
+        OR wallet_address = p_recipient
+        OR LOWER(username) = LOWER(TRIM(BOTH '@' FROM p_recipient))
+     LIMIT 1;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Recipient not found';
+    END IF;
+
+    v_to := v_recipient.user_id;
+
+    IF v_to = v_from THEN
+        RAISE EXCEPTION 'You cannot transfer funds to yourself';
+    END IF;
+
+    SELECT id INTO v_from_acct
+      FROM public.accounts
+     WHERE user_id = v_from AND currency = v_currency AND account_type = 'USER_WALLET';
+
+    IF v_from_acct IS NULL THEN
+        RAISE EXCEPTION 'Sender wallet not found';
+    END IF;
+
+    INSERT INTO public.accounts (user_id, currency, account_type)
+    VALUES (v_to, v_currency, 'USER_WALLET')
+    ON CONFLICT (user_id, currency, account_type) DO NOTHING;
+
+    SELECT id INTO v_to_acct
+      FROM public.accounts
+     WHERE user_id = v_to AND currency = v_currency AND account_type = 'USER_WALLET';
+
+    v_available := public.current_account_balance(v_from_acct);
+    IF v_available < p_amount THEN
+        RAISE EXCEPTION 'Insufficient funds';
+    END IF;
+
+    v_reference := 'TX-' || replace(gen_random_uuid()::text, '-', '');
+
+    v_txn_id := public.post_transaction(
+        v_reference,
+        'TRANSFER',
+        jsonb_build_object(
+            'user_id', v_from,
+            'recipient_user_id', v_to,
+            'recipient_uid', v_recipient.uid,
+            'note', p_note,
+            'channel', 'mobile'
+        ),
+        jsonb_build_array(
+            jsonb_build_object('account_id', v_from_acct, 'amount', -p_amount),
+            jsonb_build_object('account_id', v_to_acct, 'amount', p_amount)
+        )
+    );
+
+    UPDATE public.transactions
+       SET amount = p_amount,
+           currency = v_currency,
+           title = 'Transfer',
+           title_mm = 'ငွေလွှဲခြင်း',
+           category = 'transfer',
+           counterparty = COALESCE(NULLIF(TRIM(v_recipient.first_name || ' ' || COALESCE(v_recipient.last_name, '')), ''), v_recipient.username),
+           time = to_char(now(), 'YYYY-MM-DD HH24:MI'),
+           metadata = metadata || jsonb_build_object('recipient_uid', v_recipient.uid)
+     WHERE id = v_txn_id;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'transaction_id', v_txn_id,
+        'reference_id', v_reference,
+        'amount', p_amount,
+        'currency', v_currency,
+        'recipient_uid', v_recipient.uid,
+        'message', 'Transfer completed successfully'
+    );
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.transfer_funds(TEXT, NUMERIC, TEXT, TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.transfer_funds(TEXT, NUMERIC, TEXT, TEXT) TO authenticated;
+
+-- AKD -> USD requires an administrator decision.
+CREATE OR REPLACE FUNCTION public.request_akd_to_usd(p_amount NUMERIC)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_uid     UUID := auth.uid();
+    v_acct    UUID;
+    v_request UUID;
+BEGIN
+    IF v_uid IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+    IF p_amount IS NULL OR p_amount <= 0 THEN
+        RAISE EXCEPTION 'Amount must be greater than zero';
+    END IF;
+
+    SELECT id INTO v_acct FROM public.accounts
+     WHERE user_id = v_uid AND currency = 'AKD' AND account_type = 'USER_WALLET';
+
+    IF public.current_account_balance(v_acct) < p_amount THEN
+        RAISE EXCEPTION 'Insufficient funds';
+    END IF;
+
+    INSERT INTO public.pending_approvals (user_id, transaction_type, amount, currency, status)
+    VALUES (v_uid, 'AKD_TO_USD', p_amount, 'AKD', 'PENDING')
+    RETURNING id INTO v_request;
+
+    RETURN jsonb_build_object('success', true, 'request_id', v_request, 'requires_approval', true);
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.request_akd_to_usd(NUMERIC) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.request_akd_to_usd(NUMERIC) TO authenticated;
+
+-- USD (USDT/USDC) -> AKD is instant at the 1:1 peg.
+CREATE OR REPLACE FUNCTION public.convert_usd_to_akd(p_amount NUMERIC)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_uid         UUID := auth.uid();
+    v_kyc         INT;
+    v_akd_acct    UUID;
+    v_usd_acct    UUID;
+    v_res_akd     UUID;
+    v_res_usd     UUID;
+    v_available   NUMERIC;
+    v_txn_id      VARCHAR(64);
+    v_reference   VARCHAR(64);
+BEGIN
+    IF v_uid IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+
+    SELECT kyc_tier INTO v_kyc FROM public.user_profiles WHERE user_id = v_uid;
+    IF COALESCE(v_kyc, 1) < 2 THEN
+        RAISE EXCEPTION 'KYC Level 2 approval is required';
+    END IF;
+
+    IF p_amount IS NULL OR p_amount <= 0 THEN
+        RAISE EXCEPTION 'Amount must be greater than zero';
+    END IF;
+
+    SELECT id INTO v_akd_acct FROM public.accounts
+     WHERE user_id = v_uid AND currency = 'AKD' AND account_type = 'USER_WALLET';
+    SELECT id INTO v_usd_acct FROM public.accounts
+     WHERE user_id = v_uid AND currency = 'USD' AND account_type = 'USER_WALLET';
+
+    IF v_usd_acct IS NULL THEN
+        RAISE EXCEPTION 'USD wallet not found';
+    END IF;
+
+    v_available := public.current_account_balance(v_usd_acct);
+    IF v_available < p_amount THEN
+        RAISE EXCEPTION 'Insufficient USD balance';
+    END IF;
+
+    INSERT INTO public.accounts (user_id, currency, account_type)
+    VALUES (NULL, 'AKD', 'RESERVE_VAULT'),
+           (NULL, 'USD', 'RESERVE_VAULT')
+    ON CONFLICT DO NOTHING;
+
+    SELECT id INTO v_res_akd FROM public.accounts
+     WHERE user_id IS NULL AND currency = 'AKD' AND account_type = 'RESERVE_VAULT'
+     LIMIT 1;
+    SELECT id INTO v_res_usd FROM public.accounts
+     WHERE user_id IS NULL AND currency = 'USD' AND account_type = 'RESERVE_VAULT'
+     LIMIT 1;
+
+    v_reference := 'CV-' || replace(gen_random_uuid()::text, '-', '');
+
+    v_txn_id := public.post_transaction(
+        v_reference,
+        'CONVERSION',
+        jsonb_build_object('user_id', v_uid, 'direction', 'USD_TO_AKD', 'rate', 1),
+        jsonb_build_array(
+            jsonb_build_object('account_id', v_usd_acct, 'amount', -p_amount),
+            jsonb_build_object('account_id', v_res_usd, 'amount', p_amount)
+        )
+    );
+
+    PERFORM public.post_transaction(
+        v_reference || '-AKD',
+        'CONVERSION',
+        jsonb_build_object('user_id', v_uid, 'direction', 'USD_TO_AKD', 'rate', 1),
+        jsonb_build_array(
+            jsonb_build_object('account_id', v_res_akd, 'amount', -p_amount),
+            jsonb_build_object('account_id', v_akd_acct, 'amount', p_amount)
+        )
+    );
+
+    RETURN jsonb_build_object('success', true, 'transaction_id', v_txn_id, 'amount', p_amount);
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.convert_usd_to_akd(NUMERIC) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.convert_usd_to_akd(NUMERIC) TO authenticated;
+
+-- ----------------------------------------------------------------------------
 -- 7. BALANCES PROJECTION VIEW
 -- ----------------------------------------------------------------------------
 CREATE OR REPLACE VIEW public.account_balances AS
@@ -537,7 +1159,7 @@ CREATE TABLE IF NOT EXISTS public.otp_challenges (
     purpose        VARCHAR(30) NOT NULL CHECK (purpose IN ('CASH_IN', 'CASH_OUT', 'TRANSFER_CONFIRM', 'LOGIN', 'DEVICE_BINDING', 'EMAIL_CHANGE', 'PHONE_CHANGE', 'PIN_RESET', 'NAME_CHANGE')),
     code_hash      VARCHAR(128) NOT NULL,
     channel        VARCHAR(10) NOT NULL DEFAULT 'EMAIL' CHECK (channel IN ('SMS', 'PUSH', 'TOTP', 'EMAIL')),
-    target_value   TEXT DEFAULT '',
+    target_value   TEXT,
     attempts       INT NOT NULL DEFAULT 0,
     max_attempts   INT NOT NULL DEFAULT 5,
     expires_at     TIMESTAMPTZ NOT NULL,
@@ -556,7 +1178,7 @@ ALTER TABLE public.otp_challenges ADD CONSTRAINT otp_challenges_channel_check
 
 ALTER TABLE public.otp_challenges ALTER COLUMN user_id DROP NOT NULL;
 ALTER TABLE public.otp_challenges ADD COLUMN IF NOT EXISTS profile_id VARCHAR(64) REFERENCES public.user_profiles(id) ON DELETE CASCADE;
-ALTER TABLE public.otp_challenges ADD COLUMN IF NOT EXISTS target_value TEXT DEFAULT '';
+ALTER TABLE public.otp_challenges ADD COLUMN IF NOT EXISTS target_value TEXT;
 
 -- Administrative Review Queue for Legal Name Changes
 CREATE TABLE IF NOT EXISTS public.name_change_reviews (
@@ -567,7 +1189,7 @@ CREATE TABLE IF NOT EXISTS public.name_change_reviews (
     old_last_name  VARCHAR(50) NOT NULL,
     new_first_name VARCHAR(50) NOT NULL,
     new_last_name  VARCHAR(50) NOT NULL,
-    reason         TEXT DEFAULT '',
+    reason         TEXT,
     otp_verified   BOOLEAN NOT NULL DEFAULT true,
     status         VARCHAR(20) NOT NULL DEFAULT 'PENDING_REVIEW' CHECK (status IN ('PENDING_REVIEW', 'APPROVED', 'REJECTED')),
     reviewed_by    UUID REFERENCES public.users(id),
@@ -907,7 +1529,7 @@ CREATE OR REPLACE FUNCTION public.request_name_change_otp(
     p_profile_id VARCHAR(64),
     p_first_name VARCHAR(50),
     p_last_name VARCHAR(50),
-    p_reason TEXT DEFAULT ''
+    p_reason TEXT
 ) RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -950,7 +1572,7 @@ CREATE OR REPLACE FUNCTION public.verify_and_submit_name_change(
     p_first_name VARCHAR(50),
     p_last_name VARCHAR(50),
     p_otp_code VARCHAR(10),
-    p_reason TEXT DEFAULT ''
+    p_reason TEXT
 ) RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -1134,7 +1756,8 @@ CREATE TABLE IF NOT EXISTS public.offline_vouchers (
     issued_at          TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expires_at         TIMESTAMPTZ NOT NULL,
     redeemed_at        TIMESTAMPTZ,
-    offline_redeem_ref VARCHAR(64) UNIQUE
+    offline_redeem_ref VARCHAR(64) UNIQUE,
+    CHECK (currency IN ('AKD', 'USD', 'USDC', 'USDT'))
 );
 
 CREATE TABLE IF NOT EXISTS public.pos_terminals (
@@ -1157,17 +1780,42 @@ CREATE TABLE IF NOT EXISTS public.fx_rates (
     source         VARCHAR(30) NOT NULL,
     spread_bps     INT NOT NULL DEFAULT 0,
     created_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (base_currency, quote_currency)
+    UNIQUE (base_currency, quote_currency),
+    CHECK (base_currency IN ('AKD', 'USD', 'USDC', 'USDT')),
+    CHECK (quote_currency IN ('AKD', 'USD', 'USDC', 'USDT'))
 );
+
+ALTER TABLE public.fx_rates DROP CONSTRAINT IF EXISTS fx_rates_base_currency_check;
+ALTER TABLE public.fx_rates ADD CONSTRAINT fx_rates_base_currency_check
+    CHECK (base_currency IN ('AKD', 'USD', 'USDC', 'USDT'));
+ALTER TABLE public.fx_rates DROP CONSTRAINT IF EXISTS fx_rates_quote_currency_check;
+ALTER TABLE public.fx_rates ADD CONSTRAINT fx_rates_quote_currency_check
+    CHECK (quote_currency IN ('AKD', 'USD', 'USDC', 'USDT'));
 
 CREATE TABLE IF NOT EXISTS public.fx_rate_board (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pair                VARCHAR(20) UNIQUE NOT NULL,
+    pair                VARCHAR(20) UNIQUE NOT NULL CHECK (pair ~ '^(AKD|USD|USDC|USDT)/(AKD|USD|USDC|USDT)$'),
     rate                NUMERIC(18, 6) NOT NULL,
     spread_bps          INT NOT NULL DEFAULT 0,
-    provider            VARCHAR(50) NOT NULL DEFAULT 'ARAKAN_CENTRAL_BANK',
+    provider            VARCHAR(50) NOT NULL DEFAULT 'PETHAR',
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE public.fx_rate_board DROP CONSTRAINT IF EXISTS fx_rate_board_pair_check;
+ALTER TABLE public.fx_rate_board ADD CONSTRAINT fx_rate_board_pair_check
+    CHECK (pair ~ '^(AKD|USD|USDC|USDT)/(AKD|USD|USDC|USDT)$');
+
+DO $$
+DECLARE
+    invalid_pair RECORD;
+BEGIN
+    FOR invalid_pair IN
+        SELECT pair FROM public.fx_rate_board
+        WHERE pair !~ '^(AKD|USD|USDC|USDT)/(AKD|USD|USDC|USDT)$'
+    LOOP
+        DELETE FROM public.fx_rate_board WHERE pair = invalid_pair.pair;
+    END LOOP;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.offline_signed_vouchers (
     id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -1175,13 +1823,17 @@ CREATE TABLE IF NOT EXISTS public.offline_signed_vouchers (
     issuer_account_id    UUID NOT NULL REFERENCES public.accounts(id) ON DELETE RESTRICT,
     recipient_identifier VARCHAR(64) NOT NULL,
     amount               NUMERIC(15, 2) NOT NULL CHECK (amount > 0),
-    currency             VARCHAR(16) NOT NULL DEFAULT 'AKD',
+    currency             VARCHAR(16) NOT NULL DEFAULT 'AKD' CHECK (currency IN ('AKD', 'USD', 'USDC', 'USDT')),
     ed25519_signature    TEXT NOT NULL,
     expires_at           TIMESTAMPTZ NOT NULL,
     redeemed_at          TIMESTAMPTZ,
     status               VARCHAR(20) NOT NULL DEFAULT 'ISSUED' CHECK (status IN ('ISSUED', 'REDEEMED', 'EXPIRED', 'REVOKED')),
     created_at           TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE public.offline_signed_vouchers DROP CONSTRAINT IF EXISTS offline_signed_vouchers_currency_check;
+ALTER TABLE public.offline_signed_vouchers ADD CONSTRAINT offline_signed_vouchers_currency_check
+    CHECK (currency IN ('AKD', 'USD', 'USDC', 'USDT'));
 
 CREATE TABLE IF NOT EXISTS public.cyber_defense_events (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -1197,15 +1849,15 @@ CREATE TABLE IF NOT EXISTS public.cyber_defense_events (
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.favorite_contacts (
     id               VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
-    user_id          VARCHAR(64) DEFAULT '',
+    user_id          VARCHAR(64),
     name             VARCHAR(100) NOT NULL,
     username         VARCHAR(50) NOT NULL,
     uid              VARCHAR(32) NOT NULL,
-    phone            VARCHAR(30) DEFAULT '',
-    initials         VARCHAR(8) DEFAULT '',
+    phone            VARCHAR(30),
+    initials         VARCHAR(8),
     color_value      BIGINT DEFAULT 4280391411,
     category         VARCHAR(32) NOT NULL DEFAULT 'friends',
-    avatar_url       TEXT DEFAULT '',
+    avatar_url       TEXT,
     created_at       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -1218,7 +1870,7 @@ CREATE TABLE IF NOT EXISTS public.bill_providers (
     default_amount   NUMERIC(18, 2) NOT NULL DEFAULT 0.00,
     account_label    VARCHAR(64) NOT NULL DEFAULT 'Account No',
     primary_color    VARCHAR(16) NOT NULL DEFAULT '#00A859',
-    initials         VARCHAR(8) NOT NULL DEFAULT '',
+    initials         VARCHAR(8) NOT NULL,
     has_kyo_phyae    BOOLEAN NOT NULL DEFAULT false,
     created_at       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -1228,13 +1880,46 @@ CREATE TABLE IF NOT EXISTS public.topup_packages (
     name             VARCHAR(150) NOT NULL,
     category         VARCHAR(64) NOT NULL DEFAULT 'Data',
     operator         VARCHAR(32) NOT NULL DEFAULT 'ATOM',
-    mmk_price        NUMERIC(18, 2) NOT NULL,
-    thb_price        NUMERIC(18, 2) NOT NULL,
-    validity         VARCHAR(64) NOT NULL DEFAULT '30 Days',
-    quota            VARCHAR(64) NOT NULL DEFAULT '',
+    price_akd        NUMERIC(18, 2) NOT NULL DEFAULT 0.00,
+    validity         VARCHAR(64) NOT NULL,
+    quota            VARCHAR(64) NOT NULL,
     is_hot           BOOLEAN NOT NULL DEFAULT false,
     created_at       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Reference announcements shown on the mobile dashboard.
+CREATE TABLE IF NOT EXISTS public.announcements (
+    id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title_en         VARCHAR(160) NOT NULL,
+    title_mm         VARCHAR(200),
+    body_en          VARCHAR(400) NOT NULL,
+    body_mm          VARCHAR(500),
+    icon             VARCHAR(40) NOT NULL DEFAULT 'info',
+    is_active        BOOLEAN NOT NULL DEFAULT true,
+    sort_order       INT NOT NULL DEFAULT 0,
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Requests that require an administrator decision (AKD -> USD, KYC upgrades).
+CREATE TABLE IF NOT EXISTS public.pending_approvals (
+    id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id            UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    transaction_type   VARCHAR(20) NOT NULL CHECK (transaction_type IN ('AKD_TO_USD', 'KYC_UPGRADE', 'WITHDRAWAL')),
+    amount             NUMERIC(18, 4),
+    currency           VARCHAR(16) CHECK (currency IS NULL OR currency IN ('AKD', 'USD', 'USDC', 'USDT')),
+    status             VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+    requested_at       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    reviewed_at        TIMESTAMPTZ,
+    reviewed_by        UUID REFERENCES public.users(id),
+    admin_notes        TEXT,
+    metadata           JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at         TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_pending_approvals_user ON public.pending_approvals(user_id);
+CREATE INDEX IF NOT EXISTS idx_pending_approvals_status ON public.pending_approvals(status);
+CREATE INDEX IF NOT EXISTS idx_pending_approvals_type ON public.pending_approvals(transaction_type);
 
 -- ----------------------------------------------------------------------------
 -- 10. ROW LEVEL SECURITY (RLS) & ACCESS CONTROL
@@ -1255,12 +1940,14 @@ ALTER TABLE public.cyber_defense_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.favorite_contacts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bill_providers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.topup_packages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.pending_approvals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.name_change_reviews ENABLE ROW LEVEL SECURITY;
 
 -- ========================================================================
 -- PER-USER ROW LEVEL SECURITY POLICIES
 -- Principle: Users access only their own data. Service role has full access.
--- Reference/public data tables are read-only for authenticated users.
+-- Reference data is private to authenticated users; no anonymous access.
 -- ========================================================================
 DO $$
 BEGIN
@@ -1334,7 +2021,7 @@ BEGIN
     DROP POLICY IF EXISTS "txn_own_data" ON public.transactions;
     CREATE POLICY "txn_own_data" ON public.transactions
         FOR ALL TO authenticated
-        USING (metadata->>'user_id' = auth.uid()::text)
+        USING (metadata->>'user_id' = auth.uid()::text OR metadata->>'recipient_user_id' = auth.uid()::text)
         WITH CHECK (metadata->>'user_id' = auth.uid()::text);
     DROP POLICY IF EXISTS "txn_service_full" ON public.transactions;
     CREATE POLICY "txn_service_full" ON public.transactions
@@ -1357,7 +2044,7 @@ BEGIN
     DROP POLICY IF EXISTS "allow_all_bill_providers" ON public.bill_providers;
     DROP POLICY IF EXISTS "bill_providers_read" ON public.bill_providers;
     CREATE POLICY "bill_providers_read" ON public.bill_providers
-        FOR SELECT TO authenticated USING (true);
+        FOR SELECT TO authenticated USING (auth.uid() IS NOT NULL);
     DROP POLICY IF EXISTS "bill_providers_service_full" ON public.bill_providers;
     CREATE POLICY "bill_providers_service_full" ON public.bill_providers
         FOR ALL TO service_role USING (true) WITH CHECK (true);
@@ -1366,16 +2053,30 @@ BEGIN
     DROP POLICY IF EXISTS "allow_all_topup_packages" ON public.topup_packages;
     DROP POLICY IF EXISTS "topup_packages_read" ON public.topup_packages;
     CREATE POLICY "topup_packages_read" ON public.topup_packages
-        FOR SELECT TO authenticated USING (true);
+        FOR SELECT TO authenticated USING (auth.uid() IS NOT NULL);
     DROP POLICY IF EXISTS "topup_packages_service_full" ON public.topup_packages;
     CREATE POLICY "topup_packages_service_full" ON public.topup_packages
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+    DROP POLICY IF EXISTS "announcements_read" ON public.announcements;
+    CREATE POLICY "announcements_read" ON public.announcements
+        FOR SELECT TO authenticated USING (is_active = true);
+    DROP POLICY IF EXISTS "announcements_service_full" ON public.announcements;
+    CREATE POLICY "announcements_service_full" ON public.announcements
+        FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+    DROP POLICY IF EXISTS "users_own_approvals" ON public.pending_approvals;
+    CREATE POLICY "users_own_approvals" ON public.pending_approvals
+        FOR SELECT TO authenticated USING (user_id = auth.uid());
+    DROP POLICY IF EXISTS "service_full_approvals" ON public.pending_approvals;
+    CREATE POLICY "service_full_approvals" ON public.pending_approvals
         FOR ALL TO service_role USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "allow_read_fx_rate_board" ON public.fx_rate_board;
     DROP POLICY IF EXISTS "allow_all_fx_rate_board" ON public.fx_rate_board;
     DROP POLICY IF EXISTS "fx_rate_board_read" ON public.fx_rate_board;
     CREATE POLICY "fx_rate_board_read" ON public.fx_rate_board
-        FOR SELECT TO authenticated USING (true);
+        FOR SELECT TO authenticated USING (auth.uid() IS NOT NULL);
     DROP POLICY IF EXISTS "fx_rate_board_service_full" ON public.fx_rate_board;
     CREATE POLICY "fx_rate_board_service_full" ON public.fx_rate_board
         FOR ALL TO service_role USING (true) WITH CHECK (true);
@@ -1384,7 +2085,7 @@ BEGIN
     DROP POLICY IF EXISTS "allow_all_fx_rates" ON public.fx_rates;
     DROP POLICY IF EXISTS "fx_rates_read" ON public.fx_rates;
     CREATE POLICY "fx_rates_read" ON public.fx_rates
-        FOR SELECT TO authenticated USING (true);
+        FOR SELECT TO authenticated USING (auth.uid() IS NOT NULL);
     DROP POLICY IF EXISTS "fx_rates_service_full" ON public.fx_rates;
     CREATE POLICY "fx_rates_service_full" ON public.fx_rates
         FOR ALL TO service_role USING (true) WITH CHECK (true);
@@ -1393,7 +2094,7 @@ BEGIN
     DROP POLICY IF EXISTS "allow_all_pos_terminals" ON public.pos_terminals;
     DROP POLICY IF EXISTS "pos_terminals_read" ON public.pos_terminals;
     CREATE POLICY "pos_terminals_read" ON public.pos_terminals
-        FOR SELECT TO authenticated USING (true);
+        FOR SELECT TO authenticated USING (auth.uid() IS NOT NULL);
     DROP POLICY IF EXISTS "pos_terminals_service_full" ON public.pos_terminals;
     CREATE POLICY "pos_terminals_service_full" ON public.pos_terminals
         FOR ALL TO service_role USING (true) WITH CHECK (true);
@@ -1402,7 +2103,7 @@ BEGIN
     DROP POLICY IF EXISTS "allow_all_agents" ON public.agents;
     DROP POLICY IF EXISTS "agents_read" ON public.agents;
     CREATE POLICY "agents_read" ON public.agents
-        FOR SELECT TO authenticated USING (true);
+        FOR SELECT TO authenticated USING (auth.uid() IS NOT NULL);
     DROP POLICY IF EXISTS "agents_service_full" ON public.agents;
     CREATE POLICY "agents_service_full" ON public.agents
         FOR ALL TO service_role USING (true) WITH CHECK (true);
@@ -1468,7 +2169,7 @@ SELECT
     up.id AS profile_id,
     up.uid,
     up.username,
-    COALESCE(NULLIF(up.email, ''), NULLIF(u.email, ''), '') AS email,
+    COALESCE(NULLIF(up.email, ''), NULLIF(u.email, '')) AS email,
     up.phone,
     up.first_name,
     up.last_name,

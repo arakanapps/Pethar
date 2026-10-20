@@ -19,12 +19,12 @@ export const DataPage = ({ lang }: DataPageProps) => {
     ? {
         badge: 'Péthar ပွင့်လင်းမြင်သာသော စီးပွားရေး စာရင်းအင်း · On-Chain Analytics',
         heroTitle: 'အာရက္ခ ဒစ်ဂျစ်တယ် စီးပွားရေးနှင့် စာရင်းအင်း အချက်အလက်များ',
-        heroSubtitle: 'စုစုပေါင်း အာမခံထားသော ပိုင်ဆိုင်မှုများ၊ နေ့စဉ် ငွေလွှဲပြောင်းမှု ပမာဏနှင့် ဒေသတွင်း စီးပွားရေး တိုးတက်မှု ညွှန်းကိန်းများကို အချိန်နှင့်တပြေးညီ ကြည့်ရှုနိုင်ပါသည်',
+        heroSubtitle: 'စာရင်းမှ ထုတ်ယူထားသော ငွေရန်ပုံငွေ၊ ငွေလွှဲပြောင်းမှု ပမာဏနှင့် ဒေသတွင်း စီးပွားရေး ညွှန်းကိန်းများကို ကြည့်ရှုနိုင်ပါသည်',
         ctaApi: 'Data API စာရွက်စာတမ်း',
         ctaDownload: 'CSV စာရင်းအင်း အချက်အလက် ရယူမည်',
         tvlLabel: 'လည်ပတ်နေသော စုစုပေါင်း အာမခံပိုင်ဆိုင်မှု (TVL)',
         volumeLabel: '၂၄ နာရီ ငွေလွှဲပြောင်းမှု ပမာဏ (24h Volume)',
-        goldLabel: 'သီးသန့်သိမ်းဆည်းထားသော ရွှေတုံး အရန်ပမာဏ',
+        reserveLabel: 'ငွေရန်ပုံငွေ ထုတ်ဖော်ချက်',
         circulatingLabel: 'လည်ပတ်နေသော ဖေ့သာဒေါ်လာ (AKD Supply)',
         parityLabel: '1:1 USDT Peg တည်ငြိမ်မှု',
         townshipTitle: 'မြို့နယ်အလိုက် ဒစ်ဂျစ်တယ် စီးပွားရေး တိုးတက်မှု ညွှန်းကိန်း',
@@ -32,12 +32,12 @@ export const DataPage = ({ lang }: DataPageProps) => {
     : {
         badge: 'Public Economic Intelligence & Macro Ledger Analytics',
         heroTitle: 'Macroeconomic & On-Chain Intelligence',
-        heroSubtitle: 'Real-time transparent verification of physical bullion reserves, 1:1 USDT peg stability, transaction velocity, and regional commerce indices',
+        heroSubtitle: 'Transparent ledger analytics, 1:1 peg status, transaction velocity, and regional commerce indices',
         ctaApi: 'Developer Data API',
         ctaDownload: 'Download Open Data CSV',
         tvlLabel: 'Total Value Locked & Reserve Assets (TVL)',
         volumeLabel: '24-Hour Settlement Volume',
-        goldLabel: 'Allocated Physical Bullion Custody',
+        reserveLabel: 'Reserve Disclosure',
         circulatingLabel: 'Circulating Arakan Dollars (AKD)',
         parityLabel: '1:1 USDT Peg Stability Index',
         townshipTitle: 'Regional Commerce Velocity by Township',
@@ -127,12 +127,12 @@ export const DataPage = ({ lang }: DataPageProps) => {
 
           <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
             <div className="flex items-center justify-between text-slate-400">
-              <span className="text-xs font-mono font-bold">{t.goldLabel}</span>
+              <span className="text-xs font-mono font-bold">{t.reserveLabel}</span>
               <ShieldCheck className="w-4 h-4 text-amber-600" />
             </div>
-            <p className="text-2xl font-black text-slate-950 font-mono">84.50 kg Au</p>
+            <p className="text-2xl font-black text-slate-950 font-mono">—</p>
             <p className="text-[11px] font-mono text-amber-700 font-bold">
-              100% Fine Gold 999.9 Audited
+              Published from the operator ledger
             </p>
           </div>
 

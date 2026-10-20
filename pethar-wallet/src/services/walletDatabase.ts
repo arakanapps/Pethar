@@ -21,7 +21,6 @@ export interface DbUserProfile {
   dob: string
   address: string
   usdAccountWalletAddress: string
-  ak_id?: string // deprecated, aliases to uid
   balance: number
   akdWalletBalance: number
   usdAccountBalance: number
@@ -205,11 +204,6 @@ export async function fetchUserProfileFromDb(lookupUidOrEmail?: string): Promise
     }
 
     if (!data) {
-      // If specific search yielded no result, fallback to latest existing profile or null
-      const fallbackQuery = await db.from('user_profiles').select('*').limit(1).maybeSingle()
-      if (fallbackQuery.data) {
-        return mapDbProfile(fallbackQuery.data)
-      }
       return null
     }
 
@@ -241,7 +235,6 @@ function mapDbProfile(data: any): DbUserProfile {
     dob: data.dob || '',
     address: data.address || '',
     usdAccountWalletAddress: data.usd_account_wallet_address || '',
-    ak_id: uid,
     balance: bal,
     akdWalletBalance: data.akd_wallet_balance ? parseFloat(data.akd_wallet_balance) : bal,
     usdAccountBalance: usdBal,
@@ -573,23 +566,64 @@ export async function submitKycLevel2Verification(
 }
 
 /**
- * Update user balance in Supabase
+ * ⚠️ DEPRECATED - DO NOT USE
+ * Balances are now managed server-side only for security.
+ * Use processTransaction() instead.
  */
-export async function updateUserBalanceInDb(newBalance: number): Promise<boolean> {
+export async function updateUserBalanceInDb(_newBalance: number): Promise<boolean> {
+  console.error('❌ SECURITY: updateUserBalanceInDb() is deprecated. Use processTransaction() instead.')
+  throw new Error('Direct balance updates are disabled. Use server-side API.')
+}
+
+/**
+ * Process transaction securely via server-side API
+ * Supports: transfers, USD -> AKD instant, AKD -> USD with approval
+ */
+export async function processTransaction(
+  recipient: string,
+  amount: number,
+  currency: 'AKD' | 'USDT' | 'USDC',
+  transactionType: 'TRANSFER' | 'USD_TO_AKD' | 'AKD_TO_USD',
+  pin: string,
+  description?: string
+): Promise<{
+  success: boolean
+  transactionId?: string
+  message: string
+  requiresApproval?: boolean
+}> {
   try {
-    const { error } = await db
-      .from('user_profiles')
-      .update({ balance: newBalance, updated_at: new Date().toISOString() })
-      .neq('id', '') // updates active profile
+    const { data, error } = await db.functions.invoke('process-transaction', {
+      body: {
+        recipient,
+        amount,
+        currency,
+        transaction_type: transactionType,
+        pin,
+        description,
+      },
+    })
 
     if (error) {
-      console.warn('Failed to update balance in Supabase:', error.message)
-      return false
+      console.error('Transaction processing failed:', error)
+      return {
+        success: false,
+        message: error.message || 'Transaction failed',
+      }
     }
-    return true
-  } catch (err) {
-    console.error('Exception updating balance in Supabase:', err)
-    return false
+
+    return {
+      success: data.success,
+      transactionId: data.transaction_id,
+      message: data.message,
+      requiresApproval: data.requires_approval,
+    }
+  } catch (err: any) {
+    console.error('Transaction exception:', err)
+    return {
+      success: false,
+      message: err.message || 'Network error',
+    }
   }
 }
 

@@ -52,7 +52,7 @@ export const ChatPage = ({ lang }: ChatPageProps) => {
         activeChannel: 'Péthar Support Desk',
         onlineStatus: 'Online • Average Response Time < 60s',
         placeholder: 'Type your inquiry or transaction ID...',
-        quickQ1: 'How do I audit the 100% Gold Reserves?',
+        quickQ1: 'How do I audit the reserves?',
         quickQ2: 'How does offline BLE mesh function?',
       };
 
@@ -75,12 +75,12 @@ export const ChatPage = ({ lang }: ChatPageProps) => {
       setIsTyping(false);
       let reply = lang === 'ak'
         ? 'ကျေးဇူးပြု၍ စောင့်ဆိုင်းပေးပါ။ သင်၏ မေးမြန်းချက်ကို စိစစ်ပြီး လိုအပ်သော အချက်အလက်များကို ချက်ချင်း ဖြေကြားပေးပါမည်။'
-        : 'Thank you for your message. Your inquiry has been matched with our verification ledger. You can inspect continuous audits directly on /trade and /accounts.';
+        : 'Thank you for your message. Your inquiry has been matched with our verification ledger. You can inspect ledger information directly on /accounts.';
 
-      if (text.includes('Gold') || text.includes('ရွှေ')) {
+      if (text.includes('reserve') || text.includes('အာမခံ')) {
         reply = lang === 'ak'
-          ? 'ဖေ့သာရှိ AKD တိုင်းသည် လန်ဒန်နှင့် ဘန်ကောက်ရှိ စစ်ဆေးပြီး ရွှေတုံး 999.9 နှင့် 1:1 USDT အပြည့်အဝ အာမခံထားရှိပါသည်။ /accounts စာမျက်နှာတွင် စစ်ဆေးနိုင်ပါသည်။'
-          : 'All Arakan Dollars (AKD) maintain verifiable 100% reserve backing in London allocated bullion (999.9 Fine Gold) and 1:1 USDT reserves. View certificates under /accounts.';
+          ? 'အာရက္ခဒေါ်လာ (AKD) သည် အမေရိကန်ဒေါ်လာနှင့် ၁:၁ ပုံသေနှုန်းဖြင့် သတ်မှတ်ထားပါသည်။ ငွေရန်ပုံငွေ အခြေအနေကို /accounts စာမျက်နှာတွင် ကြည့်နိုင်ပါသည်။'
+          : 'The Arakan Dollar (AKD) is defined at a fixed 1:1 peg to the US dollar. Reserve information is available under /accounts.';
       } else if (text.includes('BLE') || text.includes('အော့ဖ်လိုင်း')) {
         reply = lang === 'ak'
           ? 'အော့ဖ်လိုင်း BLE ငွေလွှဲခြင်းသည် အင်တာနက်မလိုဘဲ ဖုန်းအချင်းချင်း 10m အကွာအဝေးအတွင်း Cryptographic Vouchers ဖလှယ်ပြီး အင်တာနက်ရချိန်တွင် ပြန်လည်စာရင်းရှင်းပေးပါသည်။'

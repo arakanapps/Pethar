@@ -1,4 +1,4 @@
-package com.example.pethar_mobile
+package uk.co.pethar.wallet
 
 import android.graphics.Color
 import android.os.Build

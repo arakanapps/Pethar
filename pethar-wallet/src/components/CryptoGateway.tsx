@@ -316,7 +316,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
                   </div>
                   <div>
                     <h3 className="font-bold text-white text-sm">MEXC Global UID Direct Bridge</h3>
-                    <p className="text-[10px] text-blue-300/80">Fast P2P exchange corridor</p>
+                    <p className="text-[10px] text-blue-300/80">Fast Transfer exchange corridor</p>
                   </div>
                 </div>
                 <span className="px-2 py-0.5 rounded-full text-[9px] bg-emerald-500/20 text-emerald-400">
@@ -338,7 +338,7 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
               </div>
 
               <button
-                onClick={() => alert('MEXC Direct P2P transfer bridge simulation active!')}
+                onClick={() => alert('MEXC Direct Transfer transfer bridge simulation active!')}
                 className="w-full py-2 rounded-xl text-xs font-bold bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center gap-1.5 transition"
               >
                 <ExternalLink size={13} />
@@ -348,68 +348,26 @@ export const CryptoGateway: React.FC<CryptoGatewayProps> = ({
           </div>
         )}
 
-        {/* Tab 4: Proof of Reserves (PoR) */}
+        {/* Tab 4: Reserve disclosure */}
         {activeTab === 'por' && (
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-[#131B26] border border-[#283852] space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-                    <ShieldCheck size={16} className="text-emerald-400" />
-                    {t.cryptoProofOfReserves}
-                  </h3>
-                  <p className="text-[11px] text-gray-400 mt-0.5">
-                    {lang === 'ak'
-                      ? 'လွတ်လပ်သော နိုင်ငံတကာ စာရင်းစစ်အဖွဲ့မှ တိုက်ရိုက်စစ်ဆေးမှု'
-                      : 'Real-time cryptographic audit backing all assets in circulation'}
-                  </p>
-                </div>
-                <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  105.0% Backed
-                </span>
+            <div className="p-5 rounded-2xl bg-[#131B26] border border-[#283852] space-y-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={16} className="text-emerald-400" />
+                <h3 className="text-sm font-bold text-white">
+                  {lang === 'ak' ? 'ငွေရန်ပုံငွေ ထုတ်ဖော်ချက်' : 'Reserve disclosure'}
+                </h3>
               </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-3 rounded-xl bg-black/40 border border-white/5">
-                  <div className="text-[10px] text-gray-400">Total in Circulation</div>
-                  <div className="text-base font-bold text-white font-mono mt-1">₳ 48,500,000</div>
-                </div>
-                <div className="p-3 rounded-xl bg-black/40 border border-white/5">
-                  <div className="text-[10px] text-gray-400">Total Liquid Reserves</div>
-                  <div className="text-base font-bold text-emerald-400 font-mono mt-1">$ 50,925,000</div>
-                </div>
-              </div>
-
-              {/* Asset Allocation Breakdown */}
-              <div className="space-y-2 pt-2 border-t border-white/10 text-xs">
-                <div className="text-[11px] font-semibold text-gray-300">Reserve Asset Breakdown:</div>
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-gray-300">
-                    <span>US Treasury Bills & Cash Escrow</span>
-                    <span className="font-mono font-bold text-white">45% ($22.9M)</span>
-                  </div>
-                  <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-amber-400 h-full rounded-full" style={{ width: '45%' }} />
-                  </div>
-
-                  <div className="flex justify-between items-center text-gray-300 pt-1">
-                    <span>Physical Arakan Gold Bullion</span>
-                    <span className="font-mono font-bold text-white">35% ($17.8M)</span>
-                  </div>
-                  <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-amber-500 h-full rounded-full" style={{ width: '35%' }} />
-                  </div>
-
-                  <div className="flex justify-between items-center text-gray-300 pt-1">
-                    <span>Liquid USDT / USDC Custody</span>
-                    <span className="font-mono font-bold text-white">20% ($10.2M)</span>
-                  </div>
-                  <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-emerald-400 h-full rounded-full" style={{ width: '20%' }} />
-                  </div>
-                </div>
-              </div>
+              <p className="text-[11px] leading-relaxed text-gray-400">
+                {lang === 'ak'
+                  ? 'ဤအက်ပ်တွင် စာရင်းစစ်မထားသော ရန်ပုံငွေ ပမာဏများကို မပြသပါ။ လက်ရှိ လက်ကျန်နှင့် ငွေရန်ပုံငွေ အခြေအနေကို သင့်အကောင့်၏ စာရင်းမှသာ ကြည့်ရှုပါ။'
+                  : 'This build does not display unaudited reserve totals. Your available balance is read directly from your account ledger.'}
+              </p>
+              <p className="text-[11px] leading-relaxed text-gray-400">
+                {lang === 'ak'
+                  ? 'အာရက္ခဒေါ်လာ (AKD) သည် အမေရိကန်ဒေါ်လာနှင့် ၁:၁ ပုံသေနှုန်းဖြင့် သတ်မှတ်ထားပါသည်။'
+                  : 'The Arakan Dollar (AKD) is defined at a fixed 1:1 peg to the US dollar.'}
+              </p>
             </div>
           </div>
         )}

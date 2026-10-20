@@ -4,12 +4,15 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 # Gmail SMTP Configuration
-GMAIL_SENDER = os.getenv("GMAIL_SENDER", "realjackhalder@gmail.com")
-GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "ympywnzodbshtzoe").replace(" ", "")
+GMAIL_SENDER = os.getenv("GMAIL_SENDER")
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "").replace(" ", "")
 
 
 def send_verification_code(recipient_email: str, auth_code: str) -> bool:
     """Send an OTP verification code via Gmail SMTP."""
+    if not GMAIL_SENDER or not GMAIL_APP_PASSWORD:
+        raise RuntimeError("GMAIL_SENDER and GMAIL_APP_PASSWORD must be configured in the runtime environment.")
+
     msg = MIMEMultipart("alternative")
     msg["From"] = f"Péthar Wallet <{GMAIL_SENDER}>"
     msg["To"] = recipient_email
@@ -40,6 +43,8 @@ def send_verification_code(recipient_email: str, auth_code: str) -> bool:
 if __name__ == "__main__":
     import sys
 
-    to_addr = sys.argv[1] if len(sys.argv) > 1 else "realjackhalder@gmail.com"
-    code = sys.argv[2] if len(sys.argv) > 2 else "582194"
+    if len(sys.argv) < 3:
+        raise SystemExit("Usage: send_verification_email.py <recipient-email> <verification-code>")
+    to_addr = sys.argv[1]
+    code = sys.argv[2]
     send_verification_code(to_addr, code)

@@ -23,7 +23,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
   const [activeTab, setActiveTab] = useState<'remit' | 'topup' | 'card'>('remit')
 
   // Remittance state
-  const [sendCorridor, setSendCorridor] = useState<'THB' | 'MYR' | 'SGD' | 'USD' | 'EUR'>('THB')
+  const [sendCorridor, setSendCorridor] = useState<'USD' | 'USDC' | 'USDT'>('USD')
   const [foreignAmount, setForeignAmount] = useState('10000')
 
   // Card top-up state
@@ -41,11 +41,9 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
 
   // FX calculation
   const fxRates: Record<string, number> = {
-    THB: 35.8,
-    MYR: 4.72,
-    SGD: 1.34,
     USD: 1.0,
-    EUR: 0.92,
+    USDC: 1.0,
+    USDT: 1.0,
   }
 
   const calculatedAkd = (parseFloat(foreignAmount || '0') / (fxRates[sendCorridor] || 1)).toFixed(2)
@@ -120,8 +118,8 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 <label className="text-xs text-gray-400 block mb-1.5 font-medium">
                   {lang === 'ak' ? 'ပေးပို့မည့် နိုင်ငံခြားငွေကြေး ရွေးပါ' : 'Sender Corridor & Currency'}
                 </label>
-                <div className="grid grid-cols-5 gap-1.5">
-                  {(['THB', 'MYR', 'SGD', 'USD', 'EUR'] as const).map((curr) => (
+                <div className="grid grid-cols-3 gap-1.5">
+                  {(['USD', 'USDC', 'USDT'] as const).map((curr) => (
                     <button
                       key={curr}
                       onClick={() => setSendCorridor(curr)}
@@ -191,7 +189,7 @@ export const InternationalBanking: React.FC<InternationalBankingProps> = ({
                 <label className="text-xs text-gray-400 block mb-1.5 font-medium">
                   {lang === 'ak' ? 'ငွေသွင်းမည့် နည်းလမ်း ရွေးပါ' : 'Select Payment Method'}
                 </label>
-                <div className="grid grid-cols-4 gap-1.5">
+                <div className="grid grid-cols-3 gap-1.5">
                   {(['visa', 'mastercard', 'amex', 'paypal'] as const).map((method) => (
                     <button
                       key={method}

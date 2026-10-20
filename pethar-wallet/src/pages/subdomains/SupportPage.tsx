@@ -37,7 +37,7 @@ export const SupportPage = ({ lang }: SupportPageProps) => {
     : {
         badge: 'Official Péthar Support & Assistance · 24/7 Rails',
         heroTitle: 'How Can Our Global Support Assist You?',
-        heroSubtitle: 'Dedicated assistance for enclave security, remittance tracking, merchant POS hardware, and physical gold audits',
+        heroSubtitle: 'Dedicated assistance for account security, remittance tracking, merchant tools, and reserve disclosures',
         ctaChat: 'Launch Live Encrypted Chat',
         channelChatTitle: 'In-App Live Chat',
         channelChatDesc: 'Average response time < 60 seconds with hardware-encrypted privacy',

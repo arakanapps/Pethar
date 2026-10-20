@@ -1,5 +1,5 @@
 // Supabase Edge Function: fx-rates
-// Retrieves active exchange rates board (AKD, USD, THB, MYR, USDT, BTC)
+// Retrieves the supported currency exchange rates board (AKD, USD, USDC, USDT, MMK)
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";

@@ -29,7 +29,7 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
         badge: 'Péthar Help Center & Knowledge Base · 24/7 FAQ',
         heroTitle: 'How Can We Assist You Today?',
         heroSubtitle: 'Instant answers to cryptographic key recovery, 1:1 bullion reserve audits, offline BLE mesh payments, and corporate treasury management',
-        searchPlaceholder: 'Search FAQs, offline mesh, gold audits, debit cards...',
+        searchPlaceholder: 'Search FAQs, transfers, reserve disclosures...',
         faqTitle: 'Frequently Answered Questions',
         askSupport: 'Need Direct Assistance?',
         contactUs: 'Launch Live 24/7 Chat',
@@ -49,10 +49,10 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
         : 'Péthar uses localized BLE (2.4GHz) and NFC pulses to broadcast cryptographically signed payment vouchers up to 10 meters. The recipient\'s hardware validates the monotonic counter locally, and the transaction is automatically gossiped to the main ledger once any nearby node connects to satellite or cell signals.'
     },
     {
-      q: lang === 'ak' ? 'Arakan Dollar (AKD) ၏ တန်ဖိုးတည်ငြိမ်မှုနှင့် ရွှေအာမခံစနစ်က မည်သို့ရှိသနည်း။' : 'How does the 1:1 parity and gold bullion backing work?',
+      q: lang === 'ak' ? 'အာရက္ခဒေါ်လာ (AKD) ၏ ၁:၁ ပုံသေနှုန်းနှင့် ငွေရန်ပုံငွေ အာမခံစနစ်က မည်သို့ရှိသနည်း။' : 'How does the 1:1 parity and reserve backing work?',
       a: lang === 'ak'
         ? 'ဖေ့သာရှိ AKD တိုင်းသည် 1:1 USDT အရန်ငွေကြေးနှင့် လန်ဒန်/ဘန်ကောက်ရှိ စစ်ဆေးပြီး ရွှေစင်ရွှေတုံး 999.9 တို့ဖြင့် အပြည့်အဝ အာမခံထားရှိပါသည်။ နိုင်ငံတကာ စစ်ဆေးရေးအဖွဲ့များ၏ Audit အထောက်အထားများကို /accounts နှင့် /data တွင် ပွင့်လင်းမြင်သာစွာ ကြည့်ရှုနိုင်ပါသည်။'
-        : 'Every minted Arakan Dollar (AKD) is mathematically anchored 1:1 to audited USDT reserves and London physical gold bullion (999.9 purity). Real-time custody certificates and proof-of-reserves can be publicly inspected at any time on /data and /accounts.'
+        : 'Every Arakan Dollar (AKD) is defined at a fixed 1:1 peg to the US dollar. Reserve and ledger information is published by the operator on /data and /accounts.'
     },
     {
       q: lang === 'ak' ? 'ထိုင်း၊ မလေးရှား၊ စင်ကာပူမှ မိသားစုထံသို့ ငွေလွှဲပေးပို့ရာတွင် မည်မျှကြာသနည်း။' : 'How fast are remittances from Thailand, Singapore, and Europe?',

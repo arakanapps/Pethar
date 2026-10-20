@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../services/supabase_service.dart';
 import '../widgets/arakan_emblem.dart';
 
 enum AuthMode { login, signup, forgotPassword }
@@ -167,6 +168,29 @@ class _AuthScreenState extends State<AuthScreen> {
     final res = await appState.loginWithEmailAndPin(email: email, pin: pin);
 
     if (!mounted) return;
+
+    if (res['success'] == true && res['requiresOtp'] == true) {
+      final otp = await _promptLoginOtp(email, isAk);
+      if (otp == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+      final verified = await SupabaseService().verifyEmailOtp(email, otp);
+      if (verified) {
+        final retry = await appState.loginWithEmailAndPin(email: email, pin: pin);
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        if (retry['success'] == true) return;
+      }
+      setState(() {
+        _isLoading = false;
+        _loginError = isAk
+            ? 'အတည်ပြုကုဒ် မှားယွင်းနေပါသည်'
+            : 'Incorrect or expired verification code';
+      });
+      return;
+    }
+
     setState(() => _isLoading = false);
 
     if (res['success'] == true) {
@@ -178,6 +202,60 @@ class _AuthScreenState extends State<AuthScreen> {
             : 'Wrong email or PIN code';
       });
     }
+  }
+
+  Future<String?> _promptLoginOtp(String email, bool isAk) async {
+    final controller = TextEditingController();
+    final otp = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        title: Text(
+          isAk ? 'အီးမေးလ် အတည်ပြုပါ' : 'Verify your email',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isAk
+                  ? '$email သို့ ပို့ထားသော ၆ လုံး ကုဒ်ကို ထည့်ပါ။'
+                  : 'Enter the 6-digit code sent to $email.',
+              style: const TextStyle(fontSize: 12.5, color: Color(0xFF71717A), height: 1.4),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 22, letterSpacing: 8, fontWeight: FontWeight.w700),
+              decoration: const InputDecoration(counterText: '', hintText: '••••••'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(null),
+            child: Text(isAk ? 'မလုပ်တော့ပါ' : 'Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final value = controller.text.trim();
+              if (value.length == 6) {
+                Navigator.of(dialogContext).pop(value);
+              }
+            },
+            child: Text(isAk ? 'အတည်ပြုမည်' : 'Verify'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    return otp;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -235,7 +313,7 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _handleVerifyResetOtp(AppState appState) {
+  Future<void> _handleVerifyResetOtp(AppState appState) async {
     final email = _forgotEmailCtrl.text.trim();
     final otp = _forgotOtpCtrl.text.trim();
     final isAk = appState.language == 'ak';
@@ -256,7 +334,10 @@ class _AuthScreenState extends State<AuthScreen> {
       return;
     }
 
-    final res = appState.verifyPinResetOtp(email, otp);
+    setState(() => _isLoading = true);
+    final res = await appState.verifyPinResetOtp(email, otp);
+    if (!mounted) return;
+    setState(() => _isLoading = false);
     if (res['success'] == true) {
       _countdownTimer?.cancel();
       setState(() {
@@ -390,7 +471,7 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _handleSignUpStep2(AppState appState) {
+  Future<void> _handleSignUpStep2(AppState appState) async {
     final email = _signUpEmailCtrl.text.trim();
     final otp = _signUpOtpCtrl.text.trim();
     final isAk = appState.language == 'ak';
@@ -411,7 +492,10 @@ class _AuthScreenState extends State<AuthScreen> {
       return;
     }
 
-    final res = appState.verifySignUpOtp(email, otp);
+    setState(() => _isLoading = true);
+    final res = await appState.verifySignUpOtp(email, otp);
+    if (!mounted) return;
+    setState(() => _isLoading = false);
     if (res['success'] == true) {
       _countdownTimer?.cancel();
       final derivedUsername = email.split('@').first;
@@ -584,10 +668,10 @@ class _AuthScreenState extends State<AuthScreen> {
                     const Spacer(),
 
                     // Centered Péthar Logo & Typography
-                    Row(
+                    const Row(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
+                      children: [
                         ArakanEmblem(size: 44),
                         SizedBox(width: 14),
                         Text(

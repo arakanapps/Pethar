@@ -29,12 +29,12 @@ except ImportError:
     print("Error: boto3 is required. Install with: pip3 install boto3", file=sys.stderr)
     sys.exit(1)
 
-# Default configuration from InstaCloud
+# S3 Configuration (Tigris / S3 compatible)
 ENDPOINT_URL = os.getenv("AWS_ENDPOINT_URL_S3", os.getenv("AWS_ENDPOINT_URL", "https://t3.storage.dev"))
-ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID", "tid_OeqDmOlIavghoWiIXYiFOQrqPZvhpbgWNetLbhZkbkKaWeEypM")
-SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "tsec_0t8ArjRI6LG7mwSP19Fyu8L4CTZS1v6T-4HU_H5nJKgzYUpvCSc5OeSu3VsMgA-W5l_I-E")
+ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID", "")
+SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "")
 REGION = os.getenv("AWS_REGION", "auto")
-DEFAULT_BUCKET = os.getenv("BUCKET_NAME", "insta-abf312b2-e292-468f-a6f0-a19c00-6003d553")
+DEFAULT_BUCKET = os.getenv("BUCKET_NAME", "pethar-kyc-storage")
 
 
 def get_client():

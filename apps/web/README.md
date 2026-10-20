@@ -5,7 +5,7 @@ The **Customer Web App & Operations Console** for Péthar.
 ## Features
 - **Institutional Treasury & Net Worth Overview**: Live AKD balance, USD equivalence ($21,526.00), and reserve audit status.
 - **Arakan FX Ticker Bar**: Real-time rates for `AKD/USD`, `AKD/USDT`, `AKD/THB`, `AKD/MYR`, `AKD/SGD`, and `BTC/AKD`.
-- **Searchable Ledger Table**: Filterable double-entry transaction history by category (P2P, Crypto, Merchant POS, Cash Out, Remittance, Cards).
+- **Searchable Ledger Table**: Filterable double-entry transaction history by category (Transfer, Crypto, Merchant POS, Cash Out, Remittance, Cards).
 - **Quick Send Widget**: 1-click transfers to frequent contacts.
 - **Interactive Mobile Simulator**: Built-in side-by-side simulator for Android and iOS testing.
 

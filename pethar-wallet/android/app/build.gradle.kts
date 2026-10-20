@@ -2,11 +2,10 @@ plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
-    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.pethar_mobile"
+    namespace = "uk.co.pethar.wallet"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,26 +14,43 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    // Signing configuration for direct distribution
+    signingConfigs {
+        create("release") {
+            // For direct APK distribution, you can use a self-signed key
+            // Generate with: keytool -genkey -v -keystore pethar-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias pethar
+            storeFile = file("pethar-release.jks")
+            storePassword = System.getenv("PETHAR_KEYSTORE_PASSWORD") ?: "pethar2026"
+            keyAlias = "pethar"
+            keyPassword = System.getenv("PETHAR_KEY_PASSWORD") ?: "pethar2026"
+        }
+    }
+
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.pethar_mobile"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        applicationId = "uk.co.pethar.wallet"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
-        // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
-        // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`
-        // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // App metadata for direct distribution
+        resValue("string", "app_name", "Péthar Wallet")
+        resValue("string", "download_url", "https://pethar.co.uk/download")
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        debug {
             signingConfig = signingConfigs.getByName("debug")
+            applicationIdSuffix = ".debug"
         }
     }
 }

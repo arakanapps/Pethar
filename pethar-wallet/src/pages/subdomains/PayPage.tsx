@@ -53,7 +53,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
         downloadReceipt: 'ပြေစာ ဒေါင်းလုဒ်လုပ်မည်',
         resetDemo: 'နောက်ထပ် ငွေပေးချေမှု စမ်းသပ်ရန်',
         pillarsTitle: 'ဖေ့သာ ပေး ၏ အဓိက အင်္ဂါရပ် ၄ ချက်',
-        p1Title: 'အခမဲ့ P2P ငွေလွှဲခြင်း',
+        p1Title: 'အခမဲ့ Transfer ငွေလွှဲခြင်း',
         p1Desc: 'ဖုန်းနံပါတ် သို့မဟုတ် Péthar ID ဖြင့် မည်သည့်အခကြေးငွေမျှမရှိဘဲ ချက်ချင်းလွှဲပို့နိုင်ပါသည်',
         p2Title: 'နိုင်ငံတကာမှ တိုက်ရိုက်လက်ခံခြင်း',
         p2Desc: 'ထိုင်း (PromptPay)၊ မလေးရှားနှင့် ကမ္ဘာအရပ်ရပ်မှ အာရက္ခဒေါ်လာသို့ တိုက်ရိုက်ရောက်ရှိပါသည်',
@@ -81,7 +81,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
         downloadReceipt: 'Download Tax Invoice',
         resetDemo: 'Simulate Another Checkout',
         pillarsTitle: 'The 4 Pillars of Péthar Pay',
-        p1Title: 'Zero-Fee Citizen P2P',
+        p1Title: 'Zero-Fee Citizen Transfer',
         p1Desc: 'Instant person-to-person money transfers with zero network commissions using phone number or ID.',
         p2Title: 'Direct Inward Remittances',
         p2Desc: 'Seamlessly receive wires from Thailand (PromptPay), Malaysia, Singapore, UK, and US into AKD.',
@@ -102,7 +102,7 @@ export const PayPage = ({ lang }: PayPageProps) => {
     {
       qEn: 'Are there any hidden fees for customers or merchants?',
       qMm: 'သုံးစွဲသူ သို့မဟုတ် ကုန်သည်များအတွက် လျှို့ဝှက်ဝန်ဆောင်ခ ရှိပါသလား?',
-      aEn: 'No. Domestic P2P and merchant payments in AKD have a 0.00% fee. Cross-border FX conversions use transparent mid-market rates without hidden spreads.',
+      aEn: 'No. Domestic Transfer and merchant payments in AKD have a 0.00% fee. Cross-border FX conversions use transparent mid-market rates without hidden spreads.',
       aMm: 'လုံးဝမရှိပါ။ ပြည်တွင်း AKD ငွေပေးချေမှုများသည် ၀.၀၀% ဝန်ဆောင်ခ အခမဲ့ဖြစ်ပြီး နိုင်ငံတကာငွေလဲလှယ်ရာတွင်လည်း ပွင့်လင်းမြင်သာသောနှုန်းထားများကိုသာ သုံးစွဲပါသည်။'
     },
     {

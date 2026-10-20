@@ -35,7 +35,7 @@ Future<void> main() async {
   try {
     await Supabase.initialize(
       url: 'https://uklqksioruxvatwpvopm.supabase.co',
-      anonKey: 'sb_publishable_rUiqzJYfjRLzNK0d6xyg-g_5Z6WmTya',
+      publishableKey: 'sb_publishable_rUiqzJYfjRLzNK0d6xyg-g_5Z6WmTya',
     );
   } catch (e) {
     debugPrint('Supabase initialization notice: $e');

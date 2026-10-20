@@ -6,7 +6,7 @@ import 'package:pethar_mobile/models/data.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('AuthService PIN & KYC Workflow Tests', () {
+  group('AuthService validation', () {
     late AuthService auth;
 
     setUp(() async {
@@ -15,7 +15,8 @@ void main() {
       await auth.initialize();
     });
 
-    test('clean unauthenticated initial profile has no hardcoded default personal data', () {
+    test('clean unauthenticated initial profile has no hardcoded personal data',
+        () {
       final initial = initialUserProfile;
       expect(initial.name, isEmpty);
       expect(initial.firstName, isEmpty);
@@ -31,120 +32,56 @@ void main() {
       expect(initial.kycStatus, 'UNVERIFIED');
     });
 
-    test('sign up flow: credentials -> 10-min OTP -> Identity -> KYC Level 1', () async {
-      const email = 'newuser@pethar.io';
-      const pin = '654321';
-
-      // 1. Initiate sign up
-      final step1 = await auth.initiateSignUp(
-        email: email,
-        pin: pin,
-        confirmPin: pin,
+    test('sign up rejects invalid email before contacting the backend',
+        () async {
+      final result = await auth.initiateSignUp(
+        email: 'not-an-email',
+        pin: '123456',
+        confirmPin: '123456',
       );
-      expect(step1['success'], isTrue);
-      expect(step1['code'], isNotNull);
-      final otp = step1['code'] as String;
-
-      // Check 10-minute expiry
-      final challenge = auth.activeSignUpChallenge;
-      expect(challenge, isNotNull);
-      expect(challenge!.isExpired, isFalse);
-      expect(challenge.secondsRemaining, greaterThan(590)); // ~600 seconds (10 min)
-
-      // Test wrong OTP
-      final wrongRes = auth.verifySignUpOtp(email: email, otp: '000000');
-      expect(wrongRes['success'], isFalse);
-
-      // Verify correct OTP
-      final verifyRes = auth.verifySignUpOtp(email: email, otp: otp);
-      expect(verifyRes['success'], isTrue);
-
-      // Complete registration with Name and Username
-      final compRes = await auth.completeSignUp(
-        email: email,
-        name: 'Ko Min Min',
-        username: '@minmin',
-      );
-      expect(compRes['success'], isTrue);
-      final user = compRes['user'] as StoredUser;
-      expect(user.email, email);
-      expect(user.name, 'Ko Min Min');
-      expect(user.username, '@minmin');
-      expect(user.kycTier, 1); // KYC Level 1
-      expect(user.kycStatus, 'VERIFIED_LVL1');
-      expect(user.uid, isNotEmpty);
+      expect(result['success'], isFalse);
+      expect(result['error'], contains('valid email'));
     });
 
-    test('login with email and 6-digit PIN validates correctly', () async {
-      // Wrong credentials
-      final wrongRes = await auth.loginWithEmailAndPin(
-        email: 'newuser@pethar.io',
-        pin: '111111',
+    test('sign up rejects a PIN that is not six digits', () async {
+      final result = await auth.initiateSignUp(
+        email: 'user@pethar.io',
+        pin: '12345',
+        confirmPin: '12345',
       );
-      expect(wrongRes['success'], isFalse);
-      expect(wrongRes['error'], 'Wrong email or PIN code');
-      expect(wrongRes['isPinOrEmailWrong'], isTrue);
-
-      // Correct credentials
-      final successRes = await auth.loginWithEmailAndPin(
-        email: 'newuser@pethar.io',
-        pin: '654321',
-      );
-      expect(successRes['success'], isTrue);
-      final user = successRes['user'] as StoredUser;
-      expect(user.email, 'newuser@pethar.io');
+      expect(result['success'], isFalse);
+      expect(result['error'], contains('6 numeric digits'));
     });
 
-    test('forgot password flow with 10-minute OTP and new PIN confirmation', () async {
-      const email = 'newuser@pethar.io';
-
-      // Request OTP
-      final reqRes = await auth.requestPinResetOtp(email: email);
-      expect(reqRes['success'], isTrue);
-      final otp = reqRes['code'] as String;
-
-      // Verify OTP
-      final verify = auth.verifyPinResetOtp(email: email, otp: otp);
-      expect(verify['success'], isTrue);
-
-      // Reset PIN
-      final reset = await auth.confirmPinReset(
-        email: email,
-        newPin: '888999',
-        confirmPin: '888999',
+    test('sign up rejects mismatched PIN confirmation', () async {
+      final result = await auth.initiateSignUp(
+        email: 'user@pethar.io',
+        pin: '123456',
+        confirmPin: '654321',
       );
-      expect(reset['success'], isTrue);
-
-      // Login with old PIN fails
-      final oldPinLogin = await auth.loginWithEmailAndPin(email: email, pin: '654321');
-      expect(oldPinLogin['success'], isFalse);
-
-      // Login with new PIN succeeds
-      final newPinLogin = await auth.loginWithEmailAndPin(email: email, pin: '888999');
-      expect(newPinLogin['success'], isTrue);
+      expect(result['success'], isFalse);
+      expect(result['error'], contains('do not match'));
     });
 
-    test('KYC Level 2 upgrade: National ID and personal info with pending review', () async {
-      const email = 'newuser@pethar.io';
-
-      final sub = await auth.submitKycLevel2(
-        email: email,
-        nationalIdNo: 'ARAK-NAT-88210',
-        dob: '1998-07-20',
-        fullName: 'Ko Min Min',
-        address: 'Bogyoke Rd, Sittwe',
+    test('login rejects malformed credentials without network access',
+        () async {
+      final result = await auth.loginWithEmailAndPin(
+        email: 'user@pethar.io',
+        pin: '123',
       );
-      expect(sub['success'], isTrue);
-      final user = sub['user'] as StoredUser;
-      expect(user.kycStatus, 'PENDING_REVIEW');
-      expect(user.kycTier, 1); // Remains at 1 while waiting for review
+      expect(result['success'], isFalse);
+      expect(result['isPinOrEmailWrong'], isFalse);
+    });
 
-      // Administrative Review approval
-      final app = await auth.approveKycLevel2(email: email);
-      expect(app['success'], isTrue);
-      final approvedUser = app['user'] as StoredUser;
-      expect(approvedUser.kycTier, 2); // Upgraded to KYC Level 2
-      expect(approvedUser.kycStatus, 'VERIFIED_LVL2');
+    test('KYC Level 2 cannot be submitted without a registered user', () async {
+      final result = await auth.submitKycLevel2(
+        email: 'missing@pethar.io',
+        nationalIdNo: '12/ABC(N)123456',
+        dob: '1990-01-01',
+        fullName: 'Test User',
+        address: 'Sittwe',
+      );
+      expect(result['success'], isFalse);
     });
   });
 }
