@@ -82,7 +82,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       id: 'mm_atom',
       name: 'ATOM Broadband & Smart Device',
       category: 'Broadband & Fiber',
-      defaultAccount: '09123456789',
+      defaultAccount: '',
       accountLabel: 'Account ID / Mobile No',
       defaultAmountMmk: 32000.0,
       primaryColor: Color(0xFF0284C7),
@@ -253,8 +253,8 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
   void _openBillerDetail(BillItem item) {
     setState(() {
       _selectedBiller = item;
-      _accountCtrl.text = item.defaultAccount;
-      _isBillFetched = true;
+      _accountCtrl.text = '';
+      _isBillFetched = false;
     });
   }
 

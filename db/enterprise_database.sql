@@ -612,8 +612,7 @@ BEGIN
     RETURN jsonb_build_object(
         'success', true,
         'challenge_id', v_challenge_id,
-        'message', 'Verification OTP sent to ' || p_new_email,
-        'simulated_otp', v_code
+        'message', 'Verification OTP sent to ' || p_new_email
     );
 END;
 $$;
@@ -729,8 +728,7 @@ BEGIN
     RETURN jsonb_build_object(
         'success', true,
         'challenge_id', v_challenge_id,
-        'message', 'Verification OTP sent to your registered email ' || v_curr_email,
-        'simulated_otp', v_code
+        'message', 'Verification OTP sent to your registered email ' || v_curr_email
     );
 END;
 $$;
@@ -851,8 +849,7 @@ BEGIN
     RETURN jsonb_build_object(
         'success', true,
         'challenge_id', v_challenge_id,
-        'message', 'Reset OTP sent to your registered email ' || v_curr_email,
-        'simulated_otp', v_code
+        'message', 'Reset OTP sent to your registered email ' || v_curr_email
     );
 END;
 $$;
@@ -942,8 +939,7 @@ BEGIN
     RETURN jsonb_build_object(
         'success', true,
         'challenge_id', v_challenge_id,
-        'message', 'Verification OTP sent to registered email ' || v_curr_email,
-        'simulated_otp', v_code
+        'message', 'Verification OTP sent to registered email ' || v_curr_email
     );
 END;
 $$;

@@ -840,8 +840,8 @@ class _MainShellState extends State<MainShell> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
-                    children: const [
-                      CircleAvatar(
+                    children: [
+                      const CircleAvatar(
                         radius: 20,
                         backgroundColor: crimson,
                         child: Text('\$', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
@@ -1182,6 +1182,7 @@ class _MainShellState extends State<MainShell> {
                               );
                             },
                           ),
+                        ),
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -1313,8 +1314,8 @@ class _MainShellState extends State<MainShell> {
                   border: Border.all(color: const Color(0xFFE4E4E7)),
                 ),
                 child: Row(
-                  children: const [
-                    CircleAvatar(
+                  children: [
+                    const CircleAvatar(
                       radius: 16,
                       backgroundColor: crimson,
                       child: Text('\$', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
@@ -1484,7 +1485,7 @@ class _MainShellState extends State<MainShell> {
                             Text('USD Account', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF18181B))),
                           ],
                         ),
-                        const Consumer<AppState>(builder: (ctx, st, _) { final a = st.profile.usdAccountWalletAddress; final s = a.length >= 8 ? '\${a.substring(0,4)}...\${a.substring(a.length-4)}' : a; return Text(s, style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: Color(0xFF71717A))); }),
+                        Consumer<AppState>(builder: (ctx, st, _) { final a = st.profile.usdAccountWalletAddress; final s = a.length >= 8 ? '${a.substring(0,4)}...${a.substring(a.length-4)}' : a; return Text(s, style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: Color(0xFF71717A))); }),
                       ],
                     ),
                     const Padding(
