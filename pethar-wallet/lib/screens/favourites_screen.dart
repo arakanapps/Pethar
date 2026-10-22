@@ -334,17 +334,17 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                   .replaceAll(RegExp(r'^_|_$'), '');
               username = slug.isNotEmpty
                   ? '@$slug'
-                  : '@user_${uid.substring(uid.length > 4 ? uid.length - 4 : 0)}';
+                  : (uid.isNotEmpty ? '@$uid' : '');
               userName = favName;
             } else if (rawInput.startsWith('ARAK-') ||
                 rawInput.startsWith('PTR-') ||
                 rawInput.startsWith('0x')) {
               uid = rawInput;
               final slug = favName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
-              username = slug.isNotEmpty ? '@$slug' : '@user';
+              username = slug.isNotEmpty ? '@$slug' : (uid.isNotEmpty ? '@$uid' : '');
               userName = favName;
             } else {
-              username = rawInput.isNotEmpty ? '@$rawInput' : '@user';
+              username = rawInput.isNotEmpty ? '@$rawInput' : '';
               userName = rawInput
                   .split(RegExp(r'[_.]'))
                   .where((s) => s.isNotEmpty)

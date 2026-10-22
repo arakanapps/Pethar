@@ -283,10 +283,10 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
               await FirebaseService().signInWithEmail(email: email, password: pass);
             }
           } catch (_) {}
-          final derived = email.contains('@') ? email.split('@').first : 'User';
+          final derived = email.contains('@') ? email.split('@').first : '';
           final name = derived.isNotEmpty
               ? '${derived[0].toUpperCase()}${derived.substring(1)}'
-              : 'User';
+              : '';
           appState.signIn(email: email, name: name);
           if (ctx.mounted) Navigator.pop(ctx);
         }
@@ -299,16 +299,26 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
           try {
             final cred = await FirebaseService().signInWithGoogle();
             if (cred?.user != null) {
+              final fbEmail = cred!.user!.email ?? '';
+              final fallbackName = fbEmail.contains('@') ? fbEmail.split('@').first : '';
               appState.signIn(
-                email: cred!.user!.email ?? '',
-                name: cred.user!.displayName ?? 'User',
+                email: fbEmail,
+                name: cred.user!.displayName ?? fallbackName,
               );
               if (ctx.mounted) Navigator.pop(ctx);
               return;
             }
-          } catch (_) {}
-          appState.signIn(email: '', name: 'User');
-          if (ctx.mounted) Navigator.pop(ctx);
+          } catch (e) {
+            setModalState(() {
+              isLoading = false;
+              errorMsg = 'Google sign-in unavailable: $e';
+            });
+            return;
+          }
+          setModalState(() {
+            isLoading = false;
+            errorMsg = 'Google sign-in was cancelled.';
+          });
         }
 
         return Dialog(

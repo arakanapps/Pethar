@@ -1288,7 +1288,9 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                                 {isAk ? 'ချက်ချင်း အခမဲ့ငွေလွှဲမှု' : 'Instant Transfer Free'}
                               </div>
                               <div className="text-[9px] opacity-80">
-                                Received 50.00 Arakan Dollar from @user • now
+                                {isAk
+                                  ? '₳ 50.00 အာရက္ခဒေါ်လာ လက်ခံရရှိသည် • ယခုလေးတင်'
+                                  : 'Received 50.00 Arakan Dollar • now'}
                               </div>
                             </div>
                           </div>
@@ -1807,7 +1809,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                             </div>
                             <div className="flex items-center justify-between text-xs">
                               <div>
-                                <div className="font-semibold">from @user</div>
+                                <div className="font-semibold">{isAk ? 'ချက်ချင်း ငွေလွှဲလက်ခံ' : 'Direct Transfer'}</div>
                                 <div className="text-[10px] opacity-65">Instant Transfer • 0% Fee</div>
                               </div>
                               <span className="font-bold">+50.00</span>
@@ -2033,8 +2035,8 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                   </h3>
                   <p className={`text-sm leading-relaxed ${mutedText}`}>
                     {isAk
-                      ? 'ငွေဝင်လာသည်နှင့် ချက်ချင်း ဖုန်းအသိပေးချက် ရရှိနိုင်ပါသည် — ဥပမာ “Received 50.00 Arakan Dollar from @user • now”။'
-                      : 'Get instant mobile notifications the second funds arrive—like “Received 50.00 Arakan Dollar from @user • now”.'}
+                      ? 'ငွေဝင်လာသည်နှင့် ချက်ချင်း ဖုန်းအသိပေးချက် ရရှိနိုင်ပါသည် — ဥပမာ “Received 50.00 Arakan Dollar • now”။'
+                      : 'Get instant mobile notifications the second funds arrive—like “Received 50.00 Arakan Dollar • now”.'}
                   </p>
                 </div>
               </div>

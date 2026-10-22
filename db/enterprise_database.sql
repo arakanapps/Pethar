@@ -25,14 +25,14 @@ CREATE TABLE IF NOT EXISTS public.users (
     wallet_address             VARCHAR(64),
     email                      VARCHAR(255) UNIQUE,
     phone_number               VARCHAR(30) UNIQUE,
-    first_name                 VARCHAR(50) NOT NULL,
-    last_name                  VARCHAR(50) NOT NULL,
-    full_name                  VARCHAR(100) NOT NULL,
+    first_name                 VARCHAR(50),
+    last_name                  VARCHAR(50),
+    full_name                  VARCHAR(100),
     nickname                   VARCHAR(50),
     national_id_no             VARCHAR(50),
     dob                        DATE,
     address                    TEXT,
-    usd_account_wallet_address VARCHAR(64) NOT NULL,
+    usd_account_wallet_address VARCHAR(64),
     pin_hash                   VARCHAR(128),
     avatar_url                 TEXT,
     kyc_tier                   INT NOT NULL DEFAULT 1 CHECK (kyc_tier IN (1, 2)),
@@ -45,13 +45,13 @@ ALTER TABLE public.users ADD COLUMN IF NOT EXISTS username VARCHAR(50) UNIQUE;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS uid VARCHAR(64) UNIQUE;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS wallet_address VARCHAR(64);
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email VARCHAR(255) UNIQUE;
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL;
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first_name VARCHAR(50);
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_name VARCHAR(50);
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50);
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50);
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS dob DATE;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address TEXT;
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64);
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128);
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
@@ -61,21 +61,21 @@ DROP SEQUENCE IF EXISTS public.user_uid_seq;
 CREATE TABLE IF NOT EXISTS public.user_profiles (
     id                         VARCHAR(64) PRIMARY KEY DEFAULT gen_random_uuid()::text,
     user_id                    UUID REFERENCES public.users(id) ON DELETE SET NULL,
-    username                   VARCHAR(50) NOT NULL,
+    username                   VARCHAR(50),
     uid                        VARCHAR(64) NOT NULL,
     wallet_address             VARCHAR(64) GENERATED ALWAYS AS (uid) STORED,
     avatar_url                 TEXT,
     email                      VARCHAR(255) NOT NULL,
     pin_hash                   VARCHAR(128),
-    phone                      VARCHAR(30) NOT NULL,
-    first_name                 VARCHAR(50) NOT NULL,
-    last_name                  VARCHAR(50) NOT NULL,
-    name                       VARCHAR(100) NOT NULL,
+    phone                      VARCHAR(30),
+    first_name                 VARCHAR(50),
+    last_name                  VARCHAR(50),
+    name                       VARCHAR(100),
     nickname                   VARCHAR(50),
-    national_id_no             VARCHAR(50) NOT NULL,
+    national_id_no             VARCHAR(50),
     dob                        DATE,
-    address                    TEXT NOT NULL,
-    usd_account_wallet_address VARCHAR(64) NOT NULL,
+    address                    TEXT,
+    usd_account_wallet_address VARCHAR(64),
     balance                    NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
     akd_wallet_balance         NUMERIC(18, 4) GENERATED ALWAYS AS (balance) STORED,
     usd_account_balance        NUMERIC(18, 4) NOT NULL DEFAULT 0.00,
@@ -86,19 +86,19 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     updated_at                 TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS username VARCHAR(50) NOT NULL;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS username VARCHAR(50);
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS uid VARCHAR(64);
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS email VARCHAR(255);
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(128);
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL;
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS first_name VARCHAR(50) NOT NULL;
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS last_name VARCHAR(50) NOT NULL;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS phone VARCHAR(30);
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS first_name VARCHAR(50);
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS last_name VARCHAR(50);
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS nickname VARCHAR(50);
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50) NOT NULL;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS national_id_no VARCHAR(50);
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS dob DATE;
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS address TEXT NOT NULL;
-ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64) NOT NULL;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_wallet_address VARCHAR(64);
 ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS usd_account_balance NUMERIC(18, 4) NOT NULL DEFAULT 0.00;
 ALTER TABLE public.user_profiles DROP COLUMN IF EXISTS ak_id;
 
