@@ -48,6 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? _forgotPinError;
   String? _forgotPinSuccess;
 
+  final String _subdistrict = '';
   String _streetAddress = '';
 
   @override
@@ -69,6 +70,162 @@ class _SettingsScreenState extends State<SettingsScreen> {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _showPassportEditModal(BuildContext context, AppState appState, bool isAk) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 78,
+                    height: 108,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E3A8A),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'PASSPORT',
+                          style: TextStyle(
+                            color: Color(0xFFFDE68A),
+                            fontSize: 8,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const Icon(Icons.public, color: Color(0xFFFDE68A), size: 32),
+                        Container(
+                          width: 18,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: const Color(0xFFFDE68A)),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    width: 136,
+                    height: 108,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0F9FF),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: emeraldSuccess, width: 2),
+                    ),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'PASSPORT · VERIFIED',
+                          style: TextStyle(
+                            fontSize: 7,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF1E3A8A),
+                          ),
+                        ),
+                        Text(
+                          'User\nNO: ---\nDOB: ---',
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                            height: 1.35,
+                          ),
+                        ),
+                        Text(
+                          'P<MMR<USER<<<<<<<<<<<<<<<<<',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 6,
+                            color: Colors.black45,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Text(
+                isAk ? 'ကိုယ်ရေးအချက်အလက် ပြင်ဆင်နည်း' : 'How to edit your personal information',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                isAk
+                    ? 'ဤအချက်အလက်များသည် သင်၏ နိုင်ငံကူးလက်မှတ်မှ ဖြစ်ပါသည်။ ပြင်ဆင်လိုပါက Document Update စာမျက်နှာသို့ သွား၍ သင်၏ ပတ်စ်ပို့ကို စကင်ဖတ်ပေးပါ။'
+                    : 'This info is from your passport. To edit it, please go to the Document Update page and scan your passport. Once approved, your details will be updated automatically.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, color: Colors.black54, height: 1.45),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    showKycVerificationModal(context, appState);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF97316),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    isAk ? 'စာရွက်စာတမ်း အသစ်တင်ရန်' : 'Go to Document Update',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFFF97316),
+                    side: const BorderSide(color: Color(0xFFF97316)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                  ),
+                  child: Text(
+                    isAk ? 'ပိတ်မည်' : 'Close',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -295,7 +452,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 return;
                               }
                               setModalState(() => isLoading = true);
-                              await SupabaseService().requestEmailChangeOtp(
+                              final res = await SupabaseService().requestEmailChangeOtp(
                                 profileId: appState.profile.uid,
                                 newEmail: newEmail,
                               );
@@ -448,7 +605,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 return;
                               }
                               setModalState(() => isLoading = true);
-                              await SupabaseService().requestPhoneChangeOtp(
+                              final res = await SupabaseService().requestPhoneChangeOtp(
                                 profileId: appState.profile.uid,
                                 newPhone: newPhone,
                               );
@@ -596,7 +753,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       GestureDetector(
                         onTap: () async {
                           setModalState(() => isLoading = true);
-                          await SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
+                          final res = await SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
                           setModalState(() {
                             isLoading = false;
                             forgotMode = true;
@@ -741,7 +898,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 return;
                               }
                               setModalState(() => isLoading = true);
-                              await SupabaseService().requestNameChangeOtp(profileId: appState.profile.uid, firstName: fn, lastName: ln, reason: reasonCtrl.text.trim());
+                              final res = await SupabaseService().requestNameChangeOtp(profileId: appState.profile.uid, firstName: fn, lastName: ln, reason: reasonCtrl.text.trim());
                               setModalState(() {
                                 isLoading = false;
                                 step = 2;

@@ -24,6 +24,7 @@ class _IntlScreenState extends State<IntlScreen> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final lang = appState.language;
 
     final corridors = [
