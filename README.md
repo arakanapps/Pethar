@@ -10,7 +10,7 @@
 [![Connectivity](https://img.shields.io/badge/Mode-Online%20%2B%20Offline%20BLE%2FNFC-10B981.svg)](https://download.pethar.co.uk)
 [![License](https://img.shields.io/badge/License-Proprietary%20Enterprise-blue.svg)](LICENSE)
 
-[Platform](https://pethar.co.uk) • [Download](https://download.pethar.co.uk) • [Wallet App](https://app.pethar.co.uk) • [Documentation](https://docs.pethar.co.uk) • [Architecture](ARCHITECTURE.md) • [Compliance](COMPLIANCE.md)
+[Platform](https://pethar.co.uk) • [Download](https://download.pethar.co.uk) • [Wallet App](https://app.pethar.co.uk) • [Documentation](docs/) • [Architecture](ARCHITECTURE.md) • [Compliance](COMPLIANCE.md) • [Changelog](CHANGELOG.md)
 
 </div>
 
@@ -107,11 +107,19 @@ PeThar/
 │
 ├── docs/                        # 📚 Enterprise Documentation & ADRs
 │   ├── architecture/            # System Architecture and Topology
+│   ├── security/                # Threat Model and Cryptographic Specs
 │   ├── compliance/              # Privacy, Google OAuth, and Regulatory Policies
-│   └── security/                # Threat Model and Cryptographic Specs
+│   ├── api/                     # Versioned API Contracts
+│   ├── auth/                    # Authentication, KYC, and Identity Flows
+│   ├── guides/                  # Setup, Maintenance, and Platform Guides
+│   ├── implementation/          # Roadmaps and Implementation Details
+│   └── product/                 # Product Vision and Principles
 │
-├── db/                          # 🗄️ Database & Ledger Migrations (PostgreSQL)
+├── db/                          # 🗄️ Database Client & SQL Migrations (PostgreSQL)
 ├── drizzle/                     # ⚡ Drizzle ORM Schema & Migrations
+├── supabase/                    # 🔒 Supabase Migrations & Edge Functions
+├── scripts/                     # 🔧 Build, Signing, and Utility Scripts
+├── apps/                        # 📲 Platform Launcher Scripts (Android, iOS, Desktop, POS, Web)
 └── vercel.json                  # 🚀 Enterprise Edge Deployment Configuration
 ```
 

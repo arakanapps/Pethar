@@ -121,7 +121,13 @@ ALTER TABLE public.user_profiles ALTER COLUMN phone DROP NOT NULL;
 ALTER TABLE public.user_profiles ALTER COLUMN national_id_no DROP NOT NULL;
 ALTER TABLE public.user_profiles ALTER COLUMN address DROP NOT NULL;
 ALTER TABLE public.user_profiles ALTER COLUMN usd_account_wallet_address DROP NOT NULL;
+ALTER TABLE public.user_profiles ALTER COLUMN first_name DROP NOT NULL;
+ALTER TABLE public.user_profiles ALTER COLUMN last_name DROP NOT NULL;
+ALTER TABLE public.user_profiles ALTER COLUMN username DROP NOT NULL;
 ALTER TABLE public.users ALTER COLUMN usd_account_wallet_address DROP NOT NULL;
+ALTER TABLE public.users ALTER COLUMN first_name DROP NOT NULL;
+ALTER TABLE public.users ALTER COLUMN last_name DROP NOT NULL;
+ALTER TABLE public.users ALTER COLUMN full_name DROP NOT NULL;
 
 -- ----------------------------------------------------------------------------
 -- IMMUTABILITY & MUTATION GOVERNANCE TRIGGER
@@ -570,9 +576,9 @@ BEGIN
     VALUES (
         v_uid,
         LOWER(TRIM(p_email)),
-        COALESCE(NULLIF(TRIM(p_first_name), ''), 'Péthar User'),
-        COALESCE(TRIM(p_last_name), ''),
-        TRIM(COALESCE(NULLIF(TRIM(p_first_name), ''), 'Péthar User') || ' ' || COALESCE(TRIM(p_last_name), '')),
+        NULLIF(TRIM(p_first_name), ''),
+        NULLIF(TRIM(p_last_name), ''),
+        NULLIF(TRIM(COALESCE(TRIM(p_first_name), '') || ' ' || COALESCE(TRIM(p_last_name), '')), ''),
         v_username,
         NULL,
         1,
@@ -599,12 +605,12 @@ BEGIN
     )
     VALUES (
         v_uid,
-        COALESCE(v_username, 'user' || right(v_uid_code, 4)),
+        COALESCE(v_username, v_uid_code),
         v_uid_code,
         LOWER(TRIM(p_email)),
-        COALESCE(NULLIF(TRIM(p_first_name), ''), 'Péthar User'),
-        COALESCE(TRIM(p_last_name), ''),
-        TRIM(COALESCE(NULLIF(TRIM(p_first_name), ''), 'Péthar User') || ' ' || COALESCE(TRIM(p_last_name), '')),
+        NULLIF(TRIM(p_first_name), ''),
+        NULLIF(TRIM(p_last_name), ''),
+        NULLIF(TRIM(COALESCE(TRIM(p_first_name), '') || ' ' || COALESCE(TRIM(p_last_name), '')), ''),
         NULL,
         NULL,
         NULL,

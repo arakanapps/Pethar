@@ -61,11 +61,11 @@ jobs:
           cache: true
 
       - name: Install Flutter Dependencies
-        working-directory: pethar_mobile
+        working-directory: pethar-wallet
         run: flutter pub get
 
       - name: Run Flutter Static Analysis
-        working-directory: pethar_mobile
+        working-directory: pethar-wallet
         run: flutter analyze --no-fatal-infos
 
   security-compliance:

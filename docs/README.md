@@ -1,17 +1,43 @@
-# Péthar documentation
+# Péthar Documentation
 
-This directory is the working product and engineering record for Péthar. Documents should describe decisions, controls, and user-visible behavior in plain language.
+This directory is the working product and engineering record for Péthar (ဖေ့သာ). Documents describe decisions, controls, and user-visible behavior in plain language.
 
-## Suggested document set
+---
 
-- `product-principles.md`: mission, user needs, safety principles, and non-negotiable experience rules
-- `architecture.md`: service boundaries, data flows, trust boundaries, and failure modes
-- `api/`: versioned API contracts and webhook behavior
-- `runbooks/`: reconciliation, incident response, agent support, and disaster recovery
-- `compliance/`: jurisdiction-specific requirements, control owners, and evidence links
-- `legal/`: approved terms, privacy notice, fees, risk disclosures, and agent agreements
+## Directory Structure
 
-## Documentation rules
+```
+docs/
+├── architecture/          # System design, topology, and service boundaries
+│   └── ENTERPRISE_ARCHITECTURE.md
+├── security/              # Threat model, cryptographic specs
+│   └── THREAT_MODEL_AND_SECURITY.md
+├── compliance/            # Privacy, Google OAuth, and regulatory policies
+│   └── COMPLIANCE_AND_PRIVACY.md
+├── api/                   # Versioned API contracts
+│   └── API_SPECIFICATION.md
+├── auth/                  # Authentication, KYC, and identity flows
+│   ├── AUTH_SECURITY_FLOW.md
+│   ├── NO_PASSWORD_AUTH_FLOW.md
+│   └── KYC_LEVEL2_IMPLEMENTATION.md
+├── guides/                # Setup, maintenance, and platform guides
+│   ├── QUICKSTART.md
+│   ├── PLATFORMS.md
+│   ├── MAINTENANCE_GUIDE.md
+│   └── admin-dashboard-setup.md
+├── implementation/        # Implementation details and roadmaps
+│   ├── IMPLEMENTATION_ROADMAP.md
+│   ├── FINAL_IMPLEMENTATION_SUMMARY.md
+│   ├── USER_FLOW_IMPLEMENTATION.md
+│   ├── UPDATED_DASHBOARD_IMPLEMENTATION.md
+│   └── SIMPLIFIED_DASHBOARD_FINAL.md
+└── product/               # Product vision, principles, and roadmap
+    ├── FOUNDER_ROADMAP.md
+    ├── product-principles.md
+    └── pethar-landing-outline.md
+```
+
+## Documentation Rules
 
 1. Mark mock behavior, planned behavior, and production behavior explicitly.
 2. Record the owner and review date for operational or compliance documents.
