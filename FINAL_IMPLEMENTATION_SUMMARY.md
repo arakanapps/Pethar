@@ -220,8 +220,7 @@ adb install pethar-wallet/build/app/outputs/flutter-apk/app-release.apk
 ✅ AKD Wallet
    ├── Balance: ₳0.00
    ├── Receive (QR code/UID)
-   ├── Transfer to other users
-   └── Pay (scan merchant QR)
+   └── Pay (scan or Transfer to other users with QR or UID and merchant QR)
 
 ❌ USD Account (Locked)
    ├── Deposit (disabled)
