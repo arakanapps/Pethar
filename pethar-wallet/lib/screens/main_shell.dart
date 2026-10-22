@@ -7,8 +7,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../app_state.dart';
 import '../theme.dart';
 import '../i18n.dart';
-import '../services/firebase_service.dart';
-import '../services/supabase_service.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/support_and_kyc_modals.dart';
 import 'home_screen.dart';
