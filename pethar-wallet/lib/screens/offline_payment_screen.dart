@@ -806,9 +806,9 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               appState.sendOfflineCash(amount: amount, recipient: '202610190002');
               _showSuccessSnackBar(lang == 'ak' ? '202610190002 သို့ BLE မက်ရှ်ဖြင့် ငွေလွှဲပြီးပါပြီ' : 'Delivered to 202610190002 over BLE Mesh');
             }),
-            _buildBlePeerTile('Merchant Sittwe Station (POS)', 'RSSI: -62 dBm • 4.5m', () {
+            _buildBlePeerTile('Merchant POS Terminal', 'RSSI: -62 dBm • 4.5m', () {
               Navigator.pop(ctx);
-              appState.sendOfflineCash(amount: amount, recipient: 'Merchant Sittwe');
+              appState.sendOfflineCash(amount: amount, recipient: 'Merchant POS');
               _showSuccessSnackBar(lang == 'ak' ? 'ဆိုင်ရှင်ထံသို့ BLE ဖြင့် ပို့ပြီးပါပြီ' : 'Delivered to Merchant POS over BLE');
             }),
             _buildBlePeerTile('Mesh Relay Courier (Hop 2)', 'RSSI: -78 dBm • Multi-hop', () {

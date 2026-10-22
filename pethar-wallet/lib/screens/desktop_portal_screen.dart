@@ -513,7 +513,7 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                                               name: 'Arakan Network',
                                               mm: 'အာရက္ခ',
                                               id: 'ARAK-001',
-                                              location: 'Sittwe',
+                                              location: '',
                                               phone: '',
                                               initials: 'AK'),
                                     );

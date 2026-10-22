@@ -285,7 +285,7 @@ export async function drawReceiptToCanvasBlob(
     [isAk ? 'ငွေလွှဲချိန်' : 'Transaction Date', data.timestamp || new Date().toLocaleString()],
     [isAk ? 'ပြေစာအမှတ်' : 'Reference Number', data.refId],
     [isAk ? 'ငွေလွှဲအမျိုးအစား' : 'Transaction Type', isAk ? 'တိုက်ရိုက်လွှဲပြောင်းမှု' : 'Direct Transfer'],
-    [isAk ? 'တည်နေရာ / ကွန်ရက်' : 'Location / Network', data.location || 'Sittwe, Arakan'],
+    [isAk ? 'တည်နေရာ / ကွန်ရက်' : 'Location / Network', data.location || ''],
     [isAk ? 'မှတ်ချက်' : 'Notes / Memo', data.notes || 'Payment Transfer'],
     [
       isAk ? 'ဝန်ဆောင်ခ' : 'Fee',

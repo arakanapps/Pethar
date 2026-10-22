@@ -740,7 +740,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
-                      placeholder="@user"
+                      placeholder="username"
                       className="w-full px-3.5 py-3 pl-10 rounded-xl bg-zinc-50 border border-zinc-200 text-sm font-semibold text-zinc-900 focus:outline-none focus:border-[#D91624]"
                       required
                     />

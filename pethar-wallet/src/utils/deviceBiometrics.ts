@@ -225,8 +225,8 @@ export async function requestDeviceBiometricEnrollment(user: {
             },
             user: {
               id: userId,
-              name: user.email || 'user@pethar.co.uk',
-              displayName: user.name || 'Péthar User',
+              name: user.email || '',
+              displayName: user.name || user.email || '',
             },
             pubKeyCredParams: [
               { alg: -7, type: 'public-key' }, // ES256

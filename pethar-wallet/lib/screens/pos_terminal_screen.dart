@@ -603,7 +603,7 @@ class _PosTerminalScreenState extends State<PosTerminalScreen> {
                 'PETHAR MERCHANT REGISTER',
                 style: TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black),
               ),
-              const Text('Terminal #AK-092 · Sittwe-Mrauk-U Highway', style: TextStyle(fontFamily: 'monospace', fontSize: 9, color: Colors.black54)),
+              const Text('Terminal #AK-092', style: TextStyle(fontFamily: 'monospace', fontSize: 9, color: Colors.black54)),
               const Text('TAX ID: ARAK-REG-2026-9921', style: TextStyle(fontFamily: 'monospace', fontSize: 9, color: Colors.black54)),
               const SizedBox(height: 12),
               const Text('----------------------------------------', style: TextStyle(fontFamily: 'monospace', fontSize: 10, color: Colors.black38)),

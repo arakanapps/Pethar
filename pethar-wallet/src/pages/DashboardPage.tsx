@@ -1336,7 +1336,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               senderId={`Péthar Wallet ${profile.petharId}`}
               fee={selectedTx.fee}
               timestamp={selectedTx.time}
-              location="Sittwe, Arakan"
+              location={profile.location || ''}
               notes="Payment"
               autoSaved={true}
               onClose={() => setReceiptModalOpen(false)}
@@ -1727,7 +1727,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 <div className="grid grid-cols-4 gap-2 text-center">
                   <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 flex flex-col items-center gap-1.5 cursor-pointer">
                     <Store size={20} className="text-rose-500" />
-                    <span className="text-[10px] font-semibold">Sittwe POS</span>
+                    <span className="text-[10px] font-semibold">Local POS</span>
                   </div>
                   <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 flex flex-col items-center gap-1.5 cursor-pointer">
                     <Wifi size={20} className="text-cyan-500" />
