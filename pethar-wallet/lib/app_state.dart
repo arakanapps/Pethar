@@ -229,7 +229,7 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  void addTransaction(Transaction tx) {
+  void _addTransaction(Transaction tx) {
     txList.insert(0, tx);
     transactions = txList;
     final uid = profile.uid.isNotEmpty ? profile.uid : profile.email;
