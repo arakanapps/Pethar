@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { Language } from '../../i18n'
-import { redirectToSubdomain } from '../../utils/subdomain'
+import type { Language } from '../i18n'
 
 /* ─── NON-DRAGGABLE ARAKAN FLAG & UK FLAG ICONS (MATCHING HOME PAGE) ──────── */
 function NonDraggableArakanFlag({ size = 20 }: { size?: number }) {
@@ -198,7 +197,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ lang }) => {
   }
 
   const handleBack = () => {
-    redirectToSubdomain('', { path: `/${currentLang}`, search: '' })
+    navigate(`/${currentLang}`)
   }
 
   const currentDomain =
@@ -846,3 +845,5 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ lang }) => {
     </div>
   )
 }
+
+export default DownloadPage

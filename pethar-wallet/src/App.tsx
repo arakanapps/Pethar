@@ -3,8 +3,12 @@ import { useLocation, useNavigate } from 'react-router'
 import type { Language } from './i18n'
 import Main from './pages/Main'
 
-// Lazy-load secondary pages
+// Lazy-load secondary consolidated pages
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
+const AppPage = lazy(() => import('./pages/AppPage'))
+const SupportPage = lazy(() => import('./pages/SupportPage'))
+const DownloadPage = lazy(() => import('./pages/DownloadPage'))
+const ExchangePage = lazy(() => import('./pages/ExchangePage'))
 
 function PageFallback() {
   return (
@@ -34,21 +38,52 @@ export default function App() {
     return savedLang
   }, [location.pathname, savedLang])
 
-  // Determine view ('landing' or 'banking') from URL pathname or search params
-  const isBanking = useMemo(() => {
+  // Determine current route target
+  const routeTarget = useMemo(() => {
+    const pathname = location.pathname.toLowerCase()
     const searchParams = new URLSearchParams(location.search)
+
+    if (
+      pathname.includes('/support') ||
+      pathname.includes('/chat') ||
+      pathname.includes('/help')
+    ) {
+      return 'support'
+    }
+
+    if (
+      pathname === '/app' ||
+      pathname.endsWith('/app') ||
+      pathname.startsWith('/app/') ||
+      pathname.includes('/customer')
+    ) {
+      return 'app'
+    }
+
+    if (pathname.includes('/download')) {
+      return 'download'
+    }
+
+    if (pathname.includes('/exchange') || pathname.includes('/swap')) {
+      return 'exchange'
+    }
+
     const paramBanking =
-      searchParams.get('app') === 'true' ||
       searchParams.get('banking') === 'true' ||
       searchParams.get('portal') === 'true' ||
-      searchParams.get('dashboard') === 'true'
-    return (
-      location.pathname.includes('/banking') ||
-      location.pathname.includes('/dashboard') ||
-      location.pathname.endsWith('/app') ||
-      location.pathname.startsWith('/app') ||
+      searchParams.get('dashboard') === 'true' ||
+      searchParams.get('admin') === 'true'
+
+    if (
+      pathname.includes('/banking') ||
+      pathname.includes('/dashboard') ||
+      pathname.includes('/admin') ||
       paramBanking
-    )
+    ) {
+      return 'dashboard'
+    }
+
+    return 'main'
   }, [location.pathname, location.search])
 
   // Normalize unprefixed main landing routes to /en/... or /ak/... while allowing /privacy and /terms
@@ -78,14 +113,24 @@ export default function App() {
     }
   }, [currentLang, location.pathname])
 
-  // Change language handler: updates /en <-> /ak in the current URL path (or in place on /privacy and /terms)
+  // Change language handler: updates /en <-> /ak in current URL path
   const handleSetLang = (newLang: Language) => {
     localStorage.setItem('pethar_lang', newLang)
     setSavedLang(newLang)
-    if (isBanking) {
+
+    if (routeTarget === 'dashboard') {
       navigate(`/${newLang}/dashboard${location.search}${location.hash}`)
       return
     }
+    if (routeTarget === 'app') {
+      navigate(`/${newLang}/app${location.search}${location.hash}`)
+      return
+    }
+    if (routeTarget === 'support') {
+      navigate(`/${newLang}/support${location.search}${location.hash}`)
+      return
+    }
+
     const pathname = location.pathname
     if (pathname === '/privacy' || pathname === '/terms') {
       return
@@ -94,9 +139,6 @@ export default function App() {
       navigate(`/${newLang}${location.search}${location.hash}`)
     } else if (/^\/(en|ak)(\/|$)/.test(pathname)) {
       const updated = pathname.replace(/^\/(en|ak)(?=\/|$)/, `/${newLang}`)
-      navigate(`${updated}${location.search}${location.hash}`)
-    } else if (/\/(en|ak)(\/|$)/.test(pathname)) {
-      const updated = pathname.replace(/\/(en|ak)(?=\/|$)/, `/${newLang}`)
       navigate(`${updated}${location.search}${location.hash}`)
     } else {
       navigate(`/${newLang}${pathname}${location.search}${location.hash}`)
@@ -129,7 +171,41 @@ export default function App() {
       )
     }
 
-    if (isBanking) {
+    if (routeTarget === 'support') {
+      return (
+        <SupportPage
+          lang={currentLang}
+          setLang={handleSetLang}
+          onBack={() => navigate(`/${currentLang}`)}
+        />
+      )
+    }
+
+    if (routeTarget === 'app') {
+      return (
+        <AppPage
+          lang={currentLang}
+          setLang={handleSetLang}
+          onBack={() => navigate(`/${currentLang}`)}
+        />
+      )
+    }
+
+    if (routeTarget === 'download') {
+      return <DownloadPage lang={currentLang} />
+    }
+
+    if (routeTarget === 'exchange') {
+      return (
+        <ExchangePage
+          lang={currentLang}
+          setLang={handleSetLang}
+          onBack={() => navigate(`/${currentLang}`)}
+        />
+      )
+    }
+
+    if (routeTarget === 'dashboard') {
       return (
         <DashboardPage
           lang={currentLang}
