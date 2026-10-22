@@ -55,10 +55,10 @@ export const HelpPage = ({ lang }: HelpPageProps) => {
         : 'Every Arakan Dollar (AKD) is defined at a fixed 1:1 peg to the US dollar. Reserve and ledger information is published by the operator on /data and /accounts.'
     },
     {
-      q: lang === 'ak' ? 'မလေးရှားနှင့် ဥရောပမှ မိသားစုထံသို့ ငွေလွှဲပေးပို့ရာတွင် မည်မျှကြာသနည်း။' : 'How fast are remittances from Malaysia and Europe?',
+      q: lang === 'ak' ? 'နိုင်ငံတကာမှ မိသားစုထံသို့ ငွေလွှဲပေးပို့ရာတွင် မည်မျှကြာသနည်း။' : 'How fast are global remittances?',
       a: lang === 'ak'
-        ? 'Péthar ကွန်ရက်တွင် DuitNow, FPS စသည်တို့ဖြင့် ချိတ်ဆက်ထားသောကြောင့် နယ်စပ်ဖြတ်ကျော် ငွေလွှဲမှုများသည် စက္ကန့် ၆၀ အတွင်း မိသားစု၏ ပိုက်ဆံအိတ်ထဲသို့ ကော်မရှင်ခ အနိမ့်ဆုံးဖြင့် တိုက်ရိုက်ရောက်ရှိပါသည်။'
-        : 'Cross-border corridors (MYR DuitNow, GBP FPS) settle into the recipient\'s Péthar Wallet in under 60 seconds with 0% hidden FX spread and instantaneous Arakan Dollar parity.'
+        ? 'Péthar ကွန်ရက်တွင် ကမ္ဘာတစ်ဝှမ်း ချိတ်ဆက်ထားသောကြောင့် နယ်စပ်ဖြတ်ကျော် ငွေလွှဲမှုများသည် စက္ကန့် ၆၀ အတွင်း မိသားစု၏ ပိုက်ဆံအိတ်ထဲသို့ ကော်မရှင်ခ အနိမ့်ဆုံးဖြင့် တိုက်ရိုက်ရောက်ရှိပါသည်။'
+        : 'Cross-border corridors settle into the recipient\'s Péthar Wallet in under 60 seconds with 0% hidden FX spread and instantaneous Arakan Dollar parity.'
     }
   ];
 

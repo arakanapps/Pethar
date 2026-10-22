@@ -29,9 +29,8 @@ class _IntlScreenState extends State<IntlScreen> {
 
     final corridors = [
       {'code': 'USD', 'name': 'US Dollar (အမေရိကန်ဒေါ်လာ)', 'rate': 1.0},
-      {'code': 'MYR', 'name': 'Malaysian Ringgit (မလေးရှားရင်းဂစ်)', 'rate': 4.72},
-      {'code': 'EUR', 'name': 'Euro (ယူရို)', 'rate': 0.92},
-      {'code': 'GBP', 'name': 'British Pound (ဗြိတိသျှပေါင်)', 'rate': 0.79},
+      {'code': 'USDT', 'name': 'Tether (USDT)', 'rate': 1.0},
+      {'code': 'USDC', 'name': 'USD Coin (USDC)', 'rate': 1.0},
     ];
 
     final currentRate = corridors.firstWhere((c) => c['code'] == _selectedCorridor)['rate'] as double;
