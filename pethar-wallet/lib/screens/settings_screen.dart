@@ -2012,7 +2012,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        isAk ? 'ရခိုင်' : 'English',
+                        isAk ? 'အာရက္ခ' : 'English',
                         style: const TextStyle(fontSize: 13, color: Colors.black54),
                       ),
                       const SizedBox(width: 4),
@@ -2539,7 +2539,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   isAk
                       ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် နိုင်ငံကူးလက်မှတ်နံပါတ်နှင့် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို PIN အဖြစ် အသုံးမပြုပါနှင့်။'
-                      : '- Please do not use your personal information such as Date of Birth, NRC or Passport Number and Phone Number as PIN.',
+                      : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.',
                   style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
                 ),
               ],
@@ -2826,7 +2826,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   isAk
                       ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် နိုင်ငံကူးလက်မှတ်နံပါတ်နှင့် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို PIN အဖြစ် အသုံးမပြုပါနှင့်။'
-                      : '- Please do not use your personal information such as Date of Birth, NRC or Passport Number and Phone Number as PIN.',
+                      : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.',
                   style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
                 ),
               ],

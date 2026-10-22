@@ -698,7 +698,6 @@ class AppState extends ChangeNotifier {
     required String operatorName,
     required String phone,
     required String productTitle,
-    double? thbTotal,
     required double akdTotal,
   }) {}
 
@@ -708,8 +707,6 @@ class AppState extends ChangeNotifier {
     required String billerName,
     required String billerCategory,
     required String accountNo,
-    required double mmkAmount,
-    required double thbAmount,
     required double akdAmount,
   }) {}
 }

@@ -157,7 +157,7 @@ function NonDraggableArakanFlag({ size = 20 }: { size?: number }) {
   return (
     <span
       role="img"
-      aria-label="ရခိုင်"
+      aria-label="အာရက္ခ"
       onDragStart={(e) => e.preventDefault()}
       onContextMenu={(e) => e.preventDefault()}
       className="inline-block rounded-full overflow-hidden shrink-0 border border-current/20 select-none pointer-events-none bg-[#ec201c]"
@@ -306,13 +306,13 @@ const ABOUT_DROPDOWN_ITEMS: {
   { key: 'roadmap', label: 'Roadmap', labelAk: 'ရှေ့လုပ်ငန်းစဉ်', path: '/about/roadmap', icon: Map },
 ]
 
-/* ─── ONLY ENGLISH AND ရခိုင် LANGUAGES ───────────────────────────────────── */
+/* ─── ONLY ENGLISH AND အာရက္ခ LANGUAGES ───────────────────────────────────── */
 const LANGUAGES: {
   code: Language
   label: string
 }[] = [
   { code: 'en', label: 'English' },
-  { code: 'ak', label: 'ရခိုင်' },
+  { code: 'ak', label: 'အာရက္ခ' },
 ]
 
 export default function Main({ lang = 'en', setLang }: MainProps) {
@@ -873,7 +873,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
               )}
             </button>
 
-            {/* Language Change Button Right Beside Theme Change Button (Only English & ရခိုင် with Non-Draggable Arakan Flag) */}
+            {/* Language Change Button Right Beside Theme Change Button (Only English & အာရက္ခ with Non-Draggable Arakan Flag) */}
             <div
               className="relative select-none"
               onDragStart={(e) => e.preventDefault()}
@@ -2439,12 +2439,12 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                       ? [
                           'တိုးချဲ့ထားသော ချက်ချင်းငွေထုတ်ယူမှု လမ်းကြောင်းများ',
                           'အလိုအလျောက် 1.0% ဝန်ဆောင်ခ တွက်ချက်မှုစနစ်',
-                          'English နှင့် ရခိုင် နှစ်ဘာသာသုံး မျက်နှာပြင်',
+                          'English နှင့် အာရက္ခ နှစ်ဘာသာသုံး မျက်နှာပြင်',
                         ]
                       : [
                           'Expanded instant cash-out corridors',
                           'Automated 1.0% low-fee deduction',
-                          'English & ရခိုင် wallet interface',
+                          'English & Arakanese wallet interface',
                         ],
                   },
                   {

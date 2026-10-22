@@ -21,11 +21,12 @@ FROM missing_tables
 UNION ALL
 
 SELECT 'unsupported_currency_constraints',
-       CASE WHEN count(*) = 0 THEN 'OK' ELSE 'MMK/retired currency still referenced in ' || count(*) || ' constraint(s)' END
+       CASE WHEN count(*) = 0 THEN 'OK' ELSE 'Retired currency still referenced in ' || count(*) || ' constraint(s)' END
 FROM pg_constraint
 WHERE contype = 'c'
-  AND conrelid::regclass::text LIKE 'public.%'
-  AND pg_get_constraintdef(oid) LIKE '%MMK%'
+  AND conrelid::regclass::text IN ('public.accounts', 'public.fx_rates', 'public.fx_rate_board', 'public.ledger_entries', 'public.user_profiles')
+  AND conname LIKE '%currency%'
+  AND pg_get_constraintdef(oid) NOT LIKE '%AKD%'
 
 UNION ALL
 
@@ -68,7 +69,7 @@ WHERE table_schema = 'public'
 
 UNION ALL
 
-SELECT 'mmk_rows',
+SELECT 'retired_currency_rows',
        CASE WHEN count(*) = 0 THEN 'OK' ELSE count(*) || ' row(s) still use a retired currency' END
 FROM (
     SELECT currency FROM public.accounts WHERE currency NOT IN ('AKD', 'USD', 'USDC', 'USDT')

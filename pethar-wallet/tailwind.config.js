@@ -9,7 +9,6 @@ module.exports = {
         sans: ['Geist', '"Plus Jakarta Sans"', '"Noto Sans Myanmar"', 'Pyidaungsu', 'Padauk', '"Myanmar Text"', 'sans-serif'],
         mono: ['"Geist Mono"', '"JetBrains Mono"', '"Noto Sans Myanmar"', 'monospace'],
         arakan: ['"Noto Sans Myanmar"', 'Pyidaungsu', 'Padauk', '"Myanmar Text"', 'sans-serif'],
-        myanmar: ['"Noto Sans Myanmar"', 'Pyidaungsu', 'Padauk', '"Myanmar Text"', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

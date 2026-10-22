@@ -545,7 +545,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   isDarkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-slate-100 text-slate-800'
                 }`}
               >
-                {ak ? 'AK · ရခိုင်' : 'EN · English'}
+                {ak ? 'AK · အာရက္ခ' : 'EN · English'}
               </button>
             )}
 
@@ -1214,7 +1214,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 <div className="flex items-center gap-2">
                   <Wifi size={18} className="text-[#FF6B00]" />
                   <span className="font-bold text-xs text-slate-900 dark:text-white">
-                    {ak ? 'ရခိုင် စတားလင့်ခ် ကွန်ရက် အခြေအနေ' : 'Arakan Mesh Node'}
+                    {ak ? 'အာရက္ခ စတားလင့်ခ် ကွန်ရက် အခြေအနေ' : 'Arakan Mesh Node'}
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">

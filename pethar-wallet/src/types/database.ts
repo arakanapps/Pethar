@@ -470,7 +470,6 @@ export interface Database {
           title: string;
           data_allowance: string;
           validity: string;
-          cost_thb: number;
           cost_akd: number;
           is_best_seller: boolean;
           created_at: string;
@@ -481,7 +480,6 @@ export interface Database {
           title: string;
           data_allowance: string;
           validity: string;
-          cost_thb: number;
           cost_akd: number;
           is_best_seller?: boolean;
           created_at?: string;
@@ -492,7 +490,6 @@ export interface Database {
           title?: string;
           data_allowance?: string;
           validity?: string;
-          cost_thb?: number;
           cost_akd?: number;
           is_best_seller?: boolean;
           created_at?: string;

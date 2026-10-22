@@ -25,7 +25,6 @@ service cloud.firestore {
     //   - uid: string (required, immutable) - user ID
     //   - balanceAKD: number (required, >= 0) - Arakan Dollar balance
     //   - balanceUSD: number (required, >= 0) - USD balance
-    //   - balanceMMK: number (required, >= 0) - MMK balance
     //   - walletAddress: string (required, immutable, max 50 chars) - on-chain address
     //   - tier: string (required, immutable by user, enum ['standard', 'premium', 'merchant'])
     //   - status: string (required, immutable by user, enum ['active', 'suspended'])
@@ -38,7 +37,7 @@ service cloud.firestore {
     //   - senderUid: string (required, matches request.auth.uid)
     //   - recipientUid: string (required, max 128 chars)
     //   - amount: number (required, > 0)
-    //   - currency: string (required, enum ['AKD', 'USD', 'MMK'])
+    //   - currency: string (required, enum ['AKD', 'USD'])
     //   - type: string (required, enum ['transfer', 'topup', 'exchange', 'payout'])
     //   - status: string (required, enum ['completed', 'pending', 'failed'])
     //   - note: string (optional, max 200 chars)
@@ -104,13 +103,12 @@ service cloud.firestore {
     }
 
     function isValidWallet(data) {
-      return hasRequiredFields(['uid', 'balanceAKD', 'balanceUSD', 'balanceMMK', 'walletAddress', 'tier', 'status']) &&
-        hasOnlyAllowedFields(['uid', 'balanceAKD', 'balanceUSD', 'balanceMMK', 'walletAddress', 'tier', 'status', 'createdAt', 'updatedAt']) &&
+      return hasRequiredFields(['uid', 'balanceAKD', 'balanceUSD', 'walletAddress', 'tier', 'status']) &&
+        hasOnlyAllowedFields(['uid', 'balanceAKD', 'balanceUSD', 'walletAddress', 'tier', 'status', 'createdAt', 'updatedAt']) &&
         data.uid is string &&
         data.uid.size() > 0 &&
         data.balanceAKD is number && data.balanceAKD >= 0 &&
         data.balanceUSD is number && data.balanceUSD >= 0 &&
-        data.balanceMMK is number && data.balanceMMK >= 0 &&
         data.walletAddress is string && data.walletAddress.size() > 0 && data.walletAddress.size() <= 50 &&
         data.tier in ['standard', 'premium', 'merchant'] &&
         data.status in ['active', 'suspended'];
@@ -122,7 +120,7 @@ service cloud.firestore {
         data.senderUid is string && data.senderUid.size() > 0 && data.senderUid.size() <= 128 &&
         data.recipientUid is string && data.recipientUid.size() > 0 && data.recipientUid.size() <= 128 &&
         data.amount is number && data.amount > 0 &&
-        data.currency in ['AKD', 'USD', 'MMK'] &&
+        data.currency in ['AKD', 'USD'] &&
         data.type in ['transfer', 'topup', 'exchange', 'payout'] &&
         data.status in ['completed', 'pending', 'failed'] &&
         (!('note' in data) || (data.note is string && data.note.size() <= 200));

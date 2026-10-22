@@ -1872,7 +1872,7 @@ CREATE TABLE IF NOT EXISTS public.bill_providers (
     name             VARCHAR(120) NOT NULL,
     name_mm          VARCHAR(150) NOT NULL,
     category         VARCHAR(64) NOT NULL,
-    region           VARCHAR(32) NOT NULL DEFAULT 'myanmar',
+    region           VARCHAR(32) NOT NULL DEFAULT 'arakan',
     default_amount   NUMERIC(18, 2) NOT NULL DEFAULT 0.00,
     account_label    VARCHAR(64) NOT NULL DEFAULT 'Account No',
     primary_color    VARCHAR(16) NOT NULL DEFAULT '#00A859',

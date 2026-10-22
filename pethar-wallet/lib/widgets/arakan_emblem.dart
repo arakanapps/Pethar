@@ -221,36 +221,6 @@ class FlagGB extends StatelessWidget {
   }
 }
 
-/// Myanmar National Flag for MM language selector
-class FlagMM extends StatelessWidget {
-  final double width;
-  final double? height;
-
-  const FlagMM({Key? key, this.width = 22.0, this.height}) : super(key: key);
-
-  static const String _mmSvg = '''
-<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
-  <rect width="60" height="13.33" fill="#FECB00" />
-  <rect y="13.33" width="60" height="13.33" fill="#34B233" />
-  <rect y="26.66" width="60" height="13.34" fill="#EA2839" />
-  <polygon points="30,6 34.5,19 48,19 37.2,27 41.2,39.5 30,31.5 18.8,39.5 22.8,27 12,19 25.5,19" fill="#FFFFFF" />
-</svg>
-''';
-
-  @override
-  Widget build(BuildContext context) {
-    final h = height ?? (width * 2 / 3);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(3),
-      child: SizedBox(
-        width: width,
-        height: h,
-        child: SvgPicture.string(_mmSvg, fit: BoxFit.cover),
-      ),
-    );
-  }
-}
-
 /// Spring Development Bank 4-Finger Salute / Hand Emblem matching mobile screenshots
 class SpringBankHandEmblem extends StatelessWidget {
   final double size;

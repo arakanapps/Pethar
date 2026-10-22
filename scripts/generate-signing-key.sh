@@ -22,7 +22,7 @@ keytool -genkey -v \
     -keyalg RSA \
     -keysize 2048 \
     -validity 10000 \
-    -dname "CN=Péthar Wallet, OU=Engineering, O=Péthar, L=Arakan, ST=Rakhine, C=MM" \
+    -dname "CN=Péthar Wallet, OU=Engineering, O=Péthar, L=Arakan, ST=Arakanese, C=MM" \
     -storepass pethar2026 \
     -keypass pethar2026
 

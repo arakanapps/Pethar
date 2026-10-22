@@ -10,7 +10,7 @@ function NonDraggableArakanFlag({ size = 20 }: { size?: number }) {
   return (
     <span
       role="img"
-      aria-label="ရခိုင်"
+      aria-label="အာရက္ခ"
       onDragStart={(e) => e.preventDefault()}
       onContextMenu={(e) => e.preventDefault()}
       className="inline-block rounded-full overflow-hidden shrink-0 border border-current/20 select-none pointer-events-none bg-[#ec201c]"
@@ -51,7 +51,7 @@ const LANGUAGES: {
   label: string
 }[] = [
   { code: 'en', label: 'English' },
-  { code: 'ak', label: 'ရခိုင်' },
+  { code: 'ak', label: 'အာရက္ခ' },
 ]
 
 interface BeforeInstallPromptEvent extends Event {

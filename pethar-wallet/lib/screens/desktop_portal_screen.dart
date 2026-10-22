@@ -211,7 +211,7 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                   onPressed: () =>
                       appState.setLanguage(lang == 'ak' ? 'en' : 'ak'),
                   child: Text(
-                    lang == 'ak' ? 'EN' : 'ရခိုင်',
+                    lang == 'ak' ? 'EN' : 'အာရက္ခ',
                     style: const TextStyle(
                         color: gold, fontWeight: FontWeight.bold),
                   ),
@@ -399,9 +399,11 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                                   OutlinedButton.icon(
                                     onPressed: () =>
                                         appState.navigate(Screen.crypto),
-                                    icon: const Icon(Icons.currency_bitcoin,
-                                        size: 14, color: Colors.purpleAccent),
-                                    label: const Text('Crypto Vault',
+                                    icon: const Icon(
+                                        Icons.account_balance_wallet_outlined,
+                                        size: 14,
+                                        color: Colors.purpleAccent),
+                                    label: const Text('USD Vault',
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 11)),
                                     style: OutlinedButton.styleFrom(

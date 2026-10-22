@@ -15,22 +15,22 @@
 -pethar's liquid glass look sits on top of all of this.
 - Xmoney and Tron Thai Next are listed by name. Check their apps for specific cues before the design pass.
 
-Draft structure. There are two references: **MTB (Myanma Tourism Bank, mtb.com.mm)** for the structure and local trust feel, and **Binance (binance.com)** for a bold hero, a product row, and trust badges. MTB's homepage is a trust-first local bank layout: a promo banner at the top, a grid of product cards with short bullet benefits, a live exchange-rate box, a licence and "about us" statement, a mobile banking feature list with "How to apply", and a contact-heavy footer. It mixes English and Burmese copy.
+Draft structure. There are two references: **MTB (Myanma Tourism Bank, mtb.com.mm)** for the structure and local trust feel, and **Binance (binance.com)** for a bold hero, a product row, and trust badges. MTB's homepage is a trust-first local bank layout: a promo banner at the top, a grid of product cards with short bullet benefits, a live exchange-rate box, a licence and "about us" statement, a mobile banking feature list with "How to apply", and a contact-heavy footer. It mixes English and Arakanese copy.
 pethar keeps its liquid glass look on top of that: frosted, translucent cards over a soft, deep gradient, with rounded corners and light edge highlights. Compared with Binance, it's calmer and more like a bank than a crypto exchange.
 
-Audience: people and small businesses in Rakhine State, Myanmar. Copy is bilingual on the page, in English and Burmese, with Rakhine as an option.
+Audience: people and small businesses in Arakan. Copy is bilingual on the page, in English and Arakanese.
 
 ---
 
 ## 1. Hero (MTB promo banner + Binance-style focus)
 - **Headline (Binance-style, one bold line, oversized type):** Your money, finally in your hands.
-- **Burmese line:** a short headline in Burmese, shown under the English one.
-- **Subhead:** One trusted app for your wallet, your bank, and crypto, built for Rakhine.
+- **Arakanese line:** a short headline in Arakanese, shown under the English one.
+- **Subhead:** One trusted app for your wallet, your bank, and crypto, built for Arakanese.
 - **Call to action (Binance-style, a single prominent button, optionally with a phone-number field beside it):** Getpethar
 - **Cash App-style tagline under the button:** "Send money with just a phone number or a pethar handle."
 - **Quick-action chips (KBZPay / K PLUS / PayPay):** Scan to Pay, Send, Top-up, shown as small glass chips under the button.
 - **Visual:** a wide glass banner that can rotate promos (as MTB does with its deposit promotions), with the phone mockup on the right.
-- **Exchange-rate box (MTB-style):** a small glass widget showing today's USD/MMK and THB/MMK rates, with a "last updated" time. This uses live data only.
+- **Exchange-rate box (MTB-style):** a small glass widget showing today's AKD/USD exchange rates, with a "last updated" time. This uses live data only.
 
 ## 2. Security
 - **Headline:** Safe like a bank. Simple like an app.
@@ -79,11 +79,11 @@ Audience: people and small businesses in Rakhine State, Myanmar. Copy is bilingu
 - **Call to action (repeated):** Getpethar
 
 ## 7. Footer (contact-heavy, like MTB)
-- **Contact block:** support email, hotline number, and office address in Rakhine or Yangon. Use real details only.
+- **Contact block:** support email, hotline number, and office address in Arakanese or Yangon. Use real details only.
 - **Columns:** Products, Company (About, Careers), Support (Help Center, Fees, Exchange Rates).
 - **Legal links:** Terms of Service, Privacy Policy, Cookie Policy, Crypto Risk Disclosure, Complaints, Licensing information.
 - **Trust badges repeated:** a small badge row above the legal links.
-- **Also:** a language switcher (English / Burmese / Rakhine), social icons, and ©pethar.
+- **Also:** a language switcher (English / Arakanese), social icons, and ©pethar.
 
 ---
 

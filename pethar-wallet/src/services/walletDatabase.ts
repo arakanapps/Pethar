@@ -783,7 +783,7 @@ export async function fetchTopupPackagesFromDb(): Promise<any[]> {
     const { data, error } = await db
       .from('topup_packages')
       .select('*')
-      .order('mmk_price', { ascending: true })
+      .order('price_akd', { ascending: true })
 
     if (error) {
       console.warn('Supabase fetch topup packages warning:', error.message)
