@@ -1,13 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Store, Printer, CheckCircle, RefreshCw, ShoppingCart,
   QrCode, Plus, Trash2, Sparkles
 } from 'lucide-react'
+import QRCode from 'qrcode'
 import { quickPosItems } from '../data'
-import { FakeQR } from './FakeQR'
 import { ArakanEmblem } from './ArakanEmblem'
 import type { Language } from '../i18n'
 import { translations } from '../i18n'
+
+function InlineQR({ value, size = 170 }: { value: string; size?: number }) {
+  const [dataUrl, setDataUrl] = useState<string>('')
+  useEffect(() => {
+    QRCode.toDataURL(value, {
+      margin: 1,
+      width: size * 2,
+      color: { dark: '#0a0f1d', light: '#ffffff' },
+      errorCorrectionLevel: 'M',
+    })
+      .then((url) => setDataUrl(url))
+      .catch((err) => console.error(err))
+  }, [value, size])
+
+  return dataUrl ? (
+    <img src={dataUrl} alt="QR Code" style={{ width: size, height: size }} className="block mx-auto rounded-lg" />
+  ) : (
+    <div style={{ width: size, height: size }} className="bg-gray-100 flex items-center justify-center rounded-lg animate-pulse mx-auto">
+      <QrCode size={40} className="text-gray-400" />
+    </div>
+  )
+}
 
 interface POSTerminalProps {
   lang: Language
@@ -249,7 +271,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ lang, theme = 'light',
               </div>
 
               <div className="p-3 bg-white rounded-2xl inline-block shadow-2xl my-2">
-                <FakeQR size={170} value={`pethar://pay?to=POS-AK-092&amount=${totalAmount}&curr=AKD`} />
+                <InlineQR size={170} value={`pethar://pay?to=POS-AK-092&amount=${totalAmount}&curr=AKD`} />
               </div>
 
               <p className="text-xs text-gray-400">

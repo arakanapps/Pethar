@@ -16,7 +16,7 @@ import {
   Layers, Radio
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
-import { FakeQR } from './components/FakeQR'
+import QRCode from 'qrcode'
 import { ArakanEmblem, FlagArakan, FlagInternational } from './components/ArakanEmblem'
 import { TransactionSlip } from './components/TransactionSlip'
 import {
@@ -30,7 +30,37 @@ import {
 } from './notifications'
 import type { Language } from './i18n'
 import { translations } from './i18n'
-import { WalletMinimalIcon } from './components/WalletMinimalIcon'
+
+export function WalletMinimalIcon({ size = 20, className = '' }: { size?: number; className?: string; strokeWidth?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
+      <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
+    </svg>
+  )
+}
+
+function InlineQR({ value, size = 160 }: { value: string; size?: number }) {
+  const [dataUrl, setDataUrl] = useState<string>('')
+  useEffect(() => {
+    QRCode.toDataURL(value, {
+      margin: 1,
+      width: size * 2,
+      color: { dark: '#0a0f1d', light: '#ffffff' },
+      errorCorrectionLevel: 'M',
+    })
+      .then((url) => setDataUrl(url))
+      .catch((err) => console.error(err))
+  }, [value, size])
+
+  return dataUrl ? (
+    <img src={dataUrl} alt="QR Code" style={{ width: size, height: size }} className="block mx-auto rounded-lg" />
+  ) : (
+    <div style={{ width: size, height: size }} className="bg-gray-100 flex items-center justify-center rounded-lg animate-pulse mx-auto">
+      <QrCode size={36} className="text-gray-400" />
+    </div>
+  )
+}
 
 export type ThemeMode = 'dark' | 'light'
 
@@ -2676,7 +2706,7 @@ export function Receive({
 
         {/* 3. QR Box */}
         <div className="p-4 bg-white rounded-2xl border-2 border-zinc-200/90 shadow-[0_9px_26px_rgba(15,23,42,0.06)] flex items-center justify-center">
-          <FakeQR size={170} value={`pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`} />
+          <InlineQR size={170} value={`pethar://pay?uid=${uidNumber}&user=${usernameHandle}&curr=AKD`} />
         </div>
 
         {/* 4. Wallet Address */}
@@ -2998,7 +3028,7 @@ export function CashOut({ go, lang, theme = 'light' }: { go: (s: Screen) => void
             </div>
 
             <div className="p-3 bg-white rounded-2xl inline-block shadow-xl">
-              <FakeQR size={140} value={`pethar://cashout?agent=${selectedAgent?.code}&totp=${dynamicOtp}`} />
+              <InlineQR size={140} value={`pethar://cashout?agent=${selectedAgent?.code}&totp=${dynamicOtp}`} />
             </div>
 
             <p className="text-[11px] text-gray-300 max-w-xs mx-auto">
