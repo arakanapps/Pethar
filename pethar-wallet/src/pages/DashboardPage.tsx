@@ -1574,13 +1574,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               </div>
             </div>
 
-            {/* Mock Deposit Address */}
+            {/* Treasury Deposit Gateway */}
             <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono space-y-1.5">
               <div className="text-[10px] text-slate-400 uppercase font-sans font-bold">
-                Deposit Address (TRC-20 / Arbitrum):
+                Treasury Deposit Address (TRC-20 / Arbitrum):
               </div>
               <div className="text-slate-900 dark:text-slate-200 break-all text-[11px] font-bold">
-                TX9q...77F3ArakanTreasuryPeg91
+                TX9q77F3ArakanTreasuryPeg91
               </div>
               <button
                 type="button"
@@ -1600,7 +1600,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               onClick={handleExecuteTopUp}
               className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#FF6B00] to-[#FF8500] text-white font-bold text-xs shadow-md hover:scale-[1.01] active:scale-[0.99] transition cursor-pointer"
             >
-              {ak ? `₳ ${topUpAmount} စာရင်းသွင်းမည်` : `Simulate Deposit (+₳ ${topUpAmount})`}
+              {ak ? `₳ ${topUpAmount} စာရင်းသွင်းမည်` : `Confirm Deposit (+₳ ${topUpAmount})`}
             </button>
           </div>
         </div>

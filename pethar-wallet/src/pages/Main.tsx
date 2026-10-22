@@ -1253,7 +1253,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                       </div>
                     </div>
 
-                    {/* 2. CENTER PHONE: Instant Free Transfer (from @user & wallet address) */}
+                    {/* 2. CENTER PHONE: Direct Instant Transfer */}
                     <div
                       className={`w-[222px] sm:w-[244px] h-[450px] sm:h-[480px] rounded-[40px] p-[7px] border z-30 relative shrink-0 transition-transform duration-500 hover:scale-[1.02] ${
                         isDark
@@ -1272,7 +1272,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                         <div>
                           <PhoneStatusBar time="9:41" isDark={isDark} />
 
-                          {/* In-app notification banner: Received 50.00 Arakan Dollar from @user • now */}
+                          {/* Direct Transfer Banner */}
                           <div
                             className={`mt-1 p-2.5 rounded-2xl border flex items-center gap-2.5 ${
                               isDark
@@ -1285,12 +1285,12 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                             </div>
                             <div className="text-left leading-tight">
                               <div className="text-[10px] font-bold">
-                                {isAk ? 'ချက်ချင်း အခမဲ့ငွေလွှဲမှု' : 'Instant Transfer Free'}
+                                {isAk ? 'ချက်ချင်း အခမဲ့ငွေလွှဲမှု' : 'Direct Peer Transfer'}
                               </div>
                               <div className="text-[9px] opacity-80">
                                 {isAk
-                                  ? '₳ 50.00 အာရက္ခဒေါ်လာ လက်ခံရရှိသည် • ယခုလေးတင်'
-                                  : 'Received 50.00 Arakan Dollar • now'}
+                                  ? 'အာရက္ခဒေါ်လာ လွှဲပြောင်းမှု • ၀% ဝန်ဆောင်ခ'
+                                  : 'Instant Settlement • 0% Fee'}
                               </div>
                             </div>
                           </div>
@@ -1300,13 +1300,13 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                               {isAk ? 'ပိုက်ဆံအိတ်လိပ်စာသို့ ပေးပို့ရန်' : 'Send to Wallet Address'}
                             </div>
                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-current/15 text-xs font-mono font-bold">
-                              <span>@yourwallet</span>
+                              <span>{isAk ? 'ပိုက်ဆံအိတ် လိပ်စာ' : 'Recipient Wallet'}</span>
                               <CheckCircle2 className="w-3.5 h-3.5" />
                             </div>
                           </div>
 
                           <div className="mt-5 text-center space-y-1">
-                            <div className="text-4xl font-black tracking-tight">50.00</div>
+                            <div className="text-4xl font-black tracking-tight">0.00</div>
                             <div className="text-xs font-semibold opacity-70">
                               {isAk ? 'အာရက္ခဒေါ်လာ' : 'Arakan Dollar'}
                             </div>
@@ -1809,10 +1809,10 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                             </div>
                             <div className="flex items-center justify-between text-xs">
                               <div>
-                                <div className="font-semibold">{isAk ? 'ချက်ချင်း ငွေလွှဲလက်ခံ' : 'Direct Transfer'}</div>
-                                <div className="text-[10px] opacity-65">Instant Transfer • 0% Fee</div>
+                                <div className="font-semibold">{isAk ? 'ငွေလွှဲမှတ်တမ်း မရှိသေးပါ' : 'No Recent Activity'}</div>
+                                <div className="text-[10px] opacity-65">{isAk ? 'ငွေစာရင်းမှတ်တမ်းများ ဤနေရာတွင် ပြသမည်' : 'Transactions will appear here'}</div>
                               </div>
-                              <span className="font-bold">+50.00</span>
+                              <span className="font-bold">--</span>
                             </div>
                           </div>
                         </div>
@@ -1863,9 +1863,9 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                           />
                           <div className={`p-3.5 rounded-2xl border text-center ${subtleSurface}`}>
                             <div className="text-[10px] opacity-65 font-mono">
-                              {isAk ? `ပေးပို့မည့်လိပ်စာ: ${transferRecipient}` : `Wallet Address: ${transferRecipient}`}
+                              {isAk ? `ပေးပို့မည့်လိပ်စာ: ${transferRecipient || '-'}` : `Wallet Address: ${transferRecipient || '-'}`}
                             </div>
-                            <div className="text-2xl font-black mt-1">50.00</div>
+                            <div className="text-2xl font-black mt-1">0.00</div>
                             <div className="text-[10px] opacity-75">
                               {isAk ? 'အာရက္ခဒေါ်လာ • ဝန်ဆောင်ခ: $0.00' : 'Arakan Dollar • Fee: $0.00'}
                             </div>
@@ -1899,7 +1899,7 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                           <div className={`p-3.5 rounded-2xl border space-y-2 text-xs ${subtleSurface}`}>
                             <div className="flex justify-between">
                               <span className="opacity-70">{isAk ? 'ထုတ်ယူမည့်ပမာဏ' : 'Withdraw Amount'}</span>
-                              <span className="font-bold">100.00 Arakan Dollar</span>
+                              <span className="font-bold">0.00 Arakan Dollar</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="opacity-70">{isAk ? 'နှုန်းထား' : 'Rate'}</span>
@@ -1907,11 +1907,11 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
                             </div>
                             <div className="flex justify-between">
                               <span className="opacity-70">{isAk ? 'ဝန်ဆောင်ခ (1.0%)' : 'Fee (1.0%)'}</span>
-                              <span className="font-bold">$1.00 USD</span>
+                              <span className="font-bold">$0.00 USD</span>
                             </div>
                             <div className="flex justify-between pt-1.5 border-t border-current/10 font-extrabold">
                               <span>{isAk ? 'အသားတင်ရရှိမည့်ငွေ' : 'Net Payout'}</span>
-                              <span>$99.00 USD</span>
+                              <span>$0.00 USD</span>
                             </div>
                           </div>
                         </div>

@@ -50,10 +50,10 @@ Generates a signed invoice payload for offline or online POS terminal processing
 #### Request Body
 ```json
 {
-  "merchantId": "MERCHANT-SITTWE-01",
+  "merchantId": "MERCHANT-ARAK-01",
   "amount": 25.50,
   "currency": "AKD",
-  "memo": "Local agriculture supplies"
+  "memo": "Local commerce supplies"
 }
 ```
 
@@ -61,7 +61,7 @@ Generates a signed invoice payload for offline or online POS terminal processing
 ```json
 {
   "invoiceId": "INV-89104",
-  "qrPayload": "pethar://pay?to=MERCHANT-SITTWE-01&amount=25.50&invoice=INV-89104",
+  "qrPayload": "pethar://pay?to=MERCHANT-ARAK-01&amount=25.50&invoice=INV-89104",
   "expiresAt": "2026-10-14T18:05:10Z"
 }
 ```

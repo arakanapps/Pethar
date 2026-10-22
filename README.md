@@ -93,10 +93,8 @@ PeThar/
 ├── pethar-wallet/               # 🌐 Enterprise Web Application (React 19 + TypeScript + Vite)
 │   ├── src/pages/Main.tsx       # Unified enterprise landing page
 │   ├── src/pages/DashboardPage.tsx # Unified app.pethar.co.uk wallet & platform dashboard
-│   ├── src/pages/subdomains/    # Subdomain pages (Auth, Admin, Privacy, Download, Docs)
 │   ├── src/components/          # TransactionSlip (QR Receipt), ReceiveQRCard, ArakanEmblem
-│   ├── public/                  # Static assets & Adaptive App Icons (Light, Dark, Tinted)
-│   └── src/utils/subdomain.ts   # Subdomain routing and multi-tenancy helper
+│   └── public/                  # Static assets & Adaptive App Icons (Light, Dark, Tinted)
 │
 ├── pethar-wallet/               # 📱 Native Mobile Engine (Flutter 3.x / Dart 3.x)
 │   ├── android/                 # Native Android Gradle configuration (Direct APK build)

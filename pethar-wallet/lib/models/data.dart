@@ -183,7 +183,7 @@ class NotificationItem {
 }
 
 // Live notifications: System announcements and promotions fetched dynamically
-List<NotificationItem> sampleNotifications = [];
+List<NotificationItem> systemNotifications = [];
 
 class FavoriteContact {
   String name;
