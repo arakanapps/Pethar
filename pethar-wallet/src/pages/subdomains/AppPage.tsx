@@ -156,7 +156,7 @@ export const AppPage = ({ lang }: AppPageProps) => {
     { code: 'AKD', symbol: '₳', name: 'Arakan Dollar', amount: balance, equivalent: balance, flag: '🇲🇲' },
     { code: 'USD', symbol: '$', name: 'United States Dollar (Escrow)', amount: balance, equivalent: balance, flag: '🇺🇸' },
     { code: 'USDT', symbol: '₮', name: 'Tether TRC-20 / ERC-20', amount: balance, equivalent: balance, flag: '🌐' },
-    { code: 'THB', symbol: '฿', name: 'Thai Baht (PromptPay)', amount: balance * 35.8, equivalent: balance, flag: '🇹🇭' },
+    { code: 'USDC', symbol: '₵', name: 'USD Coin (Native)', amount: balance, equivalent: balance, flag: '🌐' },
   ];
 
   const quickRecipients = [

@@ -203,7 +203,6 @@ class FirebaseService {
           'uid': user.uid,
           'balanceAKD': 0.00,
           'balanceUSD': 0.00,
-          'balanceMMK': 0.00,
           'walletAddress': '0xAKD${user.uid.substring(0, user.uid.length >= 10 ? 10 : user.uid.length).toUpperCase()}',
           'tier': 'standard',
           'status': 'active',

@@ -518,7 +518,7 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
 void showKycVerificationModal(BuildContext context, AppState appState) {
   final isAk = appState.language == 'ak';
   final nameCtrl = TextEditingController(text: appState.profile.name);
-  final nrcCtrl = TextEditingController(text: appState.profile.nationalIdNo);
+  final nricCtrl = TextEditingController(text: appState.profile.nationalIdNo);
   final dobCtrl = TextEditingController(text: appState.profile.dob.isNotEmpty ? appState.profile.dob : '2000-01-01');
   final addrCtrl = TextEditingController(text: appState.profile.address);
   bool isSubmitting = false;
@@ -745,7 +745,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                   Text(isAk ? 'နိုင်ငံသားကတ် / မှတ်ပုံတင် အမှတ်' : 'National ID Number', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF71717A))),
                   const SizedBox(height: 6),
                   TextField(
-                    controller: nrcCtrl,
+                    controller: nricCtrl,
                     style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
                     decoration: InputDecoration(
                       hintText: 'e.g. ARAK-NAT-091823',
@@ -794,10 +794,10 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                           ? null
                           : () async {
                               final name = nameCtrl.text.trim();
-                              final nrc = nrcCtrl.text.trim();
+                              final nric = nricCtrl.text.trim();
                               final dob = dobCtrl.text.trim();
                               final addr = addrCtrl.text.trim();
-                              if (name.isEmpty || nrc.isEmpty) {
+                              if (name.isEmpty || nric.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(isAk ? 'အမည်နှင့် မှတ်ပုံတင်နံပါတ် ဖြည့်သွင်းပါ' : 'Please fill in Name and National ID'),
@@ -808,7 +808,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                               }
                               setModalState(() => isSubmitting = true);
                               await appState.submitKycLevel2(
-                                nationalIdNo: nrc,
+                                nationalIdNo: nric,
                                 dob: dob,
                                 fullName: name,
                                 address: addr,

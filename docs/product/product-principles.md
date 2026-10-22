@@ -4,14 +4,14 @@
 
 **အာရက္ခပြည်သူများအတွက် ငွေပေးချေမှု၊ ငွေလွှဲမှုနှင့် နိုင်ငံတကာဘဏ္ဍာရေး ဆက်သွယ်မှုများကို လုံခြုံ၊ ရိုးရှင်းပြီး ခေတ်မီ ဒစ်ဂျစ်တယ်စနစ်ဖြင့် ဖြေရှင်းရန်။**
 
-Empower the people of Arakan with resilient digital financial infrastructure. Péthar eliminates reliance on scarce, worn, or deprecated Myanmar Kyat (MMK) by instituting the **Arakan Dollar (AKD)**, backed 100% by liquid reserves and gold.
+Empower the people of Arakan with resilient digital financial infrastructure. Péthar eliminates reliance on scarce, worn, or deprecated legacy fiat currencies by instituting the **Arakan Dollar (AKD)**, backed 100% by liquid reserves and gold.
 
 ## Core Architectural Pillars
 
 ### 1. Currency Policy: The Arakan Dollar (AKD)
 - **Unit of Account**: Arakan Dollar (**AKD** / **₳** / **အာရက္ခဒေါ်လာ**), divisible into 100 Cents (ပြား).
 - **Reserve Safeguarding**: 1:1 parity anchor backed by segregated liquid reserves (US Treasury bills, audited physical gold bullion, and regulated stablecoins) with zero fractional-reserve lending.
-- **Complete MMK Deprecation**: Myanmar Kyat is non-circulating and excluded from the Arakan ledger.
+- **Complete Legacy Currency Deprecation**: Legacy non-circulating currencies are excluded from the Arakan ledger.
 
 ### 2. Domestic Mobile Money (bKash / TrueMoney / KPay Benchmark)
 - **Peer-to-Peer (P2P)**: Free instant transfers using Phone numbers, Péthar IDs (`ARAK-XXXX`), or Arakan QR (AK QR) codes.
@@ -39,5 +39,5 @@ Empower the people of Arakan with resilient digital financial infrastructure. P�
 - **Coercion / Duress Protection**: Secret Duress PIN (e.g. 999999) displays a decoy balance and silently alerts community safety channels.
 
 ### 7. Bilingual Experience & Identity
-- First-class support for **ရခိုင် (Arakanese)** and **English**, accessible with one tap.
+- First-class support for **အာရက္ခ (Arakanese)** and **English**, accessible with one tap.
 - Prominent integration of the sacred **Arakan Royal Red Emblem** (Srivatsa, sun, crescent moon, and crown) and flag.

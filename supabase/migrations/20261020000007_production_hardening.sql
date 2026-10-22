@@ -1,6 +1,6 @@
 -- ============================================================================
 -- Péthar production hardening
--- - Removes the retired MMK currency (and legacy THB pricing).
+-- - Enforces supported currency set (AKD, USD, USDC, USDT).
 -- - Adds the authenticated wallet bootstrap, PIN verification, transfer and
 --   conversion RPCs used by the Android app.
 -- - Keeps profile balances in sync with the immutable ledger.
@@ -24,7 +24,8 @@ BEGIN
                'public.offline_signed_vouchers', 'public.ledger_entries',
                'public.user_profiles'
            )
-           AND pg_get_constraintdef(c.oid) LIKE '%MMK%'
+           AND c.conname LIKE '%currency%'
+           AND pg_get_constraintdef(c.oid) NOT LIKE '%AKD%'
     LOOP
         EXECUTE format('ALTER TABLE %s DROP CONSTRAINT %I', r.tbl, r.conname);
     END LOOP;
@@ -63,16 +64,9 @@ ALTER TABLE public.offline_signed_vouchers
     ADD CONSTRAINT offline_signed_vouchers_currency_check
     CHECK (currency IN ('AKD', 'USD', 'USDC', 'USDT'));
 
--- Top-up catalogue is priced in AKD. MMK/THB columns are retired.
+-- Top-up catalogue is priced in AKD.
 DO $$
 BEGIN
-    IF EXISTS (
-        SELECT 1 FROM information_schema.columns
-         WHERE table_schema = 'public' AND table_name = 'topup_packages' AND column_name = 'mmk_price'
-    ) THEN
-        ALTER TABLE public.topup_packages RENAME COLUMN mmk_price TO price_akd;
-    END IF;
-    ALTER TABLE public.topup_packages DROP COLUMN IF EXISTS thb_price;
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns
          WHERE table_schema = 'public' AND table_name = 'topup_packages' AND column_name = 'price_akd'

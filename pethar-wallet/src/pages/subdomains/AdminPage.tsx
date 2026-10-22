@@ -103,7 +103,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
   const [kycSearch, setKycSearch] = useState('');
   const [selectedApplicant, setSelectedApplicant] = useState<KycApplicant | null>(null);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
-  const [selectedRejectReason, setSelectedRejectReason] = useState('Blurry photo / Unreadable NRC ID document');
+  const [selectedRejectReason, setSelectedRejectReason] = useState('Blurry photo / Unreadable NRIC ID document');
   const [customRejectNote, setCustomRejectNote] = useState('');
 
   // User Management State
@@ -257,7 +257,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
       ...u,
       kycTier: 2,
       dailyLimit: Math.max(u.dailyLimit, 250000),
-      complianceNotes: `Tier-2 National ID verified by ROOT-OPERATOR-01 on ${new Date().toLocaleDateString()}. NRC: ${applicant.idCard}`
+      complianceNotes: `Tier-2 National ID verified by ROOT-OPERATOR-01 on ${new Date().toLocaleDateString()}. NRIC: ${applicant.idCard}`
     } : u));
 
     // 3. Persist to DB
@@ -1140,7 +1140,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                     type="text"
                     value={kycSearch}
                     onChange={(e) => setKycSearch(e.target.value)}
-                    placeholder={isAk ? 'နာမည်၊ မှတ်ပုံတင်၊ မြို့နယ် သို့မဟုတ် UID ရှာရန်...' : 'Search applicant name, NRC ID, township...'}
+                    placeholder={isAk ? 'နာမည်၊ မှတ်ပုံတင်၊ မြို့နယ် သို့မဟုတ် UID ရှာရန်...' : 'Search applicant name, NRIC ID, township...'}
                     className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-red-500"
                   />
                   {kycSearch && (
@@ -1181,7 +1181,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-bold text-white text-sm">{k.name}</span>
-                            {k.nameMm && <span className="text-xs text-slate-400 font-myanmar">({k.nameMm})</span>}
+                            {k.nameMm && <span className="text-xs text-slate-400 font-arakan">({k.nameMm})</span>}
                             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">
                               {k.id}
                             </span>
@@ -1886,7 +1886,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-black">{selectedApplicant.name}</h3>
-                    {selectedApplicant.nameMm && <span className="text-sm text-slate-400 font-myanmar">({selectedApplicant.nameMm})</span>}
+                    {selectedApplicant.nameMm && <span className="text-sm text-slate-400 font-arakan">({selectedApplicant.nameMm})</span>}
                   </div>
                   <div className="text-xs text-slate-400 font-mono mt-0.5">
                     Application ID: <span className="text-white font-bold">{selectedApplicant.id}</span> • Submitted: {selectedApplicant.submitted}
@@ -1939,7 +1939,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
                   <span className="font-bold text-white">{selectedApplicant.fatherName}</span>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-slate-500 text-[10px] block">National ID (NRC) Card No</span>
+                  <span className="text-slate-500 text-[10px] block">National ID (NRIC) Card No</span>
                   <span className="font-black text-amber-400">{selectedApplicant.idCard}</span>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80">
@@ -2080,7 +2080,7 @@ export const AdminPage = ({ lang }: AdminPageProps) => {
             {/* Structured Reasons */}
             <div className="space-y-2 text-xs font-mono">
               {[
-                'Blurry photo / Unreadable NRC ID document',
+                'Blurry photo / Unreadable NRIC ID document',
                 'Biometric selfie does not match ID document photo',
                 'Expired or invalid national registration document',
                 'Name spelling does not match civil registry record',

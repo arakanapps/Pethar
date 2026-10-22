@@ -317,7 +317,7 @@ SELECT SUM(balance) as total_akd_circulating FROM user_profiles;
 -- Should match 1:1 with your USDT/USDC holdings
 -- Check wallet balances on:
 -- - Tron Network (USDT): tronscan.org
--- - Ethereum Network (USDC): etherscan.io
+-- - Polygon Network (USDC): polygonscan.com
 ```
 
 ### Monthly Proof of Reserves:
@@ -327,7 +327,7 @@ SELECT SUM(balance) as total_akd_circulating FROM user_profiles;
 
 ## Assets:
 - USDT (Tron): 5,234.56
-- USDC (Ethereum): 2,100.00
+- USDC (Polygon): 2,100.00
 - Cash (Bank): $1,500.00
 **Total Assets: $8,834.56**
 

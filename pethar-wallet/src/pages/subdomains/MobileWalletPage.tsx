@@ -597,7 +597,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     phone: string
     operator: string
     title: string
-    thb?: number
     akd: number
   } | null>(null)
 
@@ -620,8 +619,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   const [lastBillSuccess, setLastBillSuccess] = useState<{
     billerName: string
     accountNo: string
-    amountMmk: number
-    amountThb: number
     amountAkd: number
     refId: string
   } | null>(null)
@@ -754,8 +751,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             ? 'ပြေစာကို ဖုန်း Gallery ထဲသို့ အလိုအလျောက် သိမ်းဆည်းရန် ဖွင့်ထားပါသည်'
             : 'ပြေစာ အလိုအလျောက် သိမ်းဆည်းခြင်းကို ပိတ်ထားပါသည်'
           : next
-          ? 'Auto-save receipt enabled (saved to phone gallery)'
-          : 'Auto-save receipt disabled'
+            ? 'Auto-save receipt enabled (saved to phone gallery)'
+            : 'Auto-save receipt disabled'
       )
       return next
     })
@@ -1187,8 +1184,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               {isBiometricAuthenticating
                 ? (isAk ? 'စစ်ဆေးနေပါသည်...' : 'Authenticating...')
                 : isAk
-                ? `${deviceInfo.biometryLabelMm} ဖြင့် အမြန်ဝင်မည်`
-                : `Quick Login with ${deviceInfo.biometryLabel}`}
+                  ? `${deviceInfo.biometryLabelMm} ဖြင့် အမြန်ဝင်မည်`
+                  : `Quick Login with ${deviceInfo.biometryLabel}`}
             </span>
           </button>
         )}
@@ -2152,17 +2149,15 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                             key={addr}
                             type="button"
                             onClick={() => setWithdrawRecipientAddress(addr)}
-                            className={`w-full p-3.5 rounded-2xl border transition flex items-center justify-between cursor-pointer ${
-                              isSelected
+                            className={`w-full p-3.5 rounded-2xl border transition flex items-center justify-between cursor-pointer ${isSelected
                                 ? 'bg-rose-50/50 border-[#D91624]'
                                 : 'bg-white border-zinc-200 hover:border-zinc-300'
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               <div
-                                className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                  isSelected ? 'bg-[#D91624] text-white' : 'bg-zinc-100 text-zinc-600'
-                                }`}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center ${isSelected ? 'bg-[#D91624] text-white' : 'bg-zinc-100 text-zinc-600'
+                                  }`}
                               >
                                 <Wallet size={15} />
                               </div>
@@ -2221,11 +2216,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       <button
                         type="button"
                         onClick={() => setSelectedSendToken('USDT')}
-                        className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition cursor-pointer ${
-                          selectedSendToken === 'USDT'
+                        className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition cursor-pointer ${selectedSendToken === 'USDT'
                             ? 'bg-emerald-50/50 border-emerald-500 ring-2 ring-emerald-500/20'
                             : 'bg-white border-zinc-200'
-                        }`}
+                          }`}
                       >
                         <div className="w-7 h-7 rounded-full bg-[#26A17B] text-white flex items-center justify-center font-bold text-xs">
                           ₮
@@ -2238,11 +2232,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       <button
                         type="button"
                         onClick={() => setSelectedSendToken('USDC')}
-                        className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition cursor-pointer ${
-                          selectedSendToken === 'USDC'
+                        className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition cursor-pointer ${selectedSendToken === 'USDC'
                             ? 'bg-blue-50/50 border-blue-500 ring-2 ring-blue-500/20'
                             : 'bg-white border-zinc-200'
-                        }`}
+                          }`}
                       >
                         <div className="w-7 h-7 rounded-full bg-[#2775CA] text-white flex items-center justify-center font-bold text-xs">
                           $
@@ -2430,22 +2423,21 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
             {isAuthenticated ? (
               <div className="flex items-center gap-2.5 min-w-0">
                 <div
-                  className={`font-black font-mono text-zinc-950 tracking-tight truncate ${
-                    walletBalanceHidden
+                  className={`font-black font-mono text-zinc-950 tracking-tight truncate ${walletBalanceHidden
                       ? 'text-3xl'
                       : usdAccountBalance >= 1_000_000_000
-                      ? 'text-xl sm:text-2xl'
-                      : usdAccountBalance >= 1_000_000
-                      ? 'text-2xl'
-                      : 'text-3xl'
-                  }`}
+                        ? 'text-xl sm:text-2xl'
+                        : usdAccountBalance >= 1_000_000
+                          ? 'text-2xl'
+                          : 'text-3xl'
+                    }`}
                   title={
                     walletBalanceHidden
                       ? undefined
                       : `$${usdAccountBalance.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}`
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`
                   }
                 >
                   {walletBalanceHidden
@@ -2687,9 +2679,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         >
                           <div className="flex items-center gap-3">
                             <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-[#D91624]'
-                              }`}
+                              className={`w-8 h-8 rounded-full flex items-center justify-center ${isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-[#D91624]'
+                                }`}
                             >
                               {isPos ? <ArrowDown size={14} /> : <ArrowUp size={14} />}
                             </div>
@@ -2703,9 +2694,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                             </div>
                           </div>
                           <div
-                            className={`text-xs font-extrabold font-mono ${
-                              isPos ? 'text-emerald-600' : 'text-zinc-900'
-                            }`}
+                            className={`text-xs font-extrabold font-mono ${isPos ? 'text-emerald-600' : 'text-zinc-900'
+                              }`}
                           >
                             {isPos
                               ? `+$${tx.amount.toFixed(2)} ${cur}`
@@ -3930,8 +3920,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         id: 'pkg_1',
         name: 'Shal Suboo 195 MB (7Days)',
         category: 'Data',
-        mmkPrice: 799,
-        akdPrice: 799 / 4500.0,
+        akdPrice: 0.18,
         validity: '7 Days',
         quota: '195 MB',
         isHot: false,
@@ -3940,8 +3929,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         id: 'pkg_2',
         name: 'Shal Suboo 263 MB (10Days)',
         category: 'Data',
-        mmkPrice: 999,
-        akdPrice: 999 / 4500.0,
+        akdPrice: 0.22,
         validity: '10 Days',
         quota: '263 MB',
         isHot: false,
@@ -3950,8 +3938,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         id: 'pkg_3',
         name: 'Shal Suboo 421 MB (30Days)',
         category: 'Data',
-        mmkPrice: 1599,
-        akdPrice: 1599 / 4500.0,
+        akdPrice: 0.36,
         validity: '30 Days',
         quota: '421 MB',
         isHot: false,
@@ -3960,8 +3947,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         id: 'pkg_4',
         name: 'Shal Suboo 526 MB (30Days)',
         category: 'Data',
-        mmkPrice: 1999,
-        akdPrice: 1999 / 4500.0,
+        akdPrice: 0.44,
         validity: '30 Days',
         quota: '526 MB',
         isHot: false,
@@ -3970,8 +3956,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         id: 'pkg_5',
         name: 'Asia 9 Countries 1200MB (3 Days)',
         category: 'Data Roaming',
-        mmkPrice: 14599,
-        akdPrice: 14599 / 4500.0,
+        akdPrice: 3.24,
         validity: '3 Days',
         quota: '1200 MB',
         isHot: true,
@@ -3980,8 +3965,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         id: 'pkg_6',
         name: 'Asia 5 Data Saver (2.5 GB) (5 Days)',
         category: 'Data Roaming',
-        mmkPrice: 19997,
-        akdPrice: 19997 / 4500.0,
+        akdPrice: 4.44,
         validity: '5 Days',
         quota: '2.5 GB',
         isHot: true,
@@ -3990,8 +3974,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         id: 'pkg_7',
         name: 'Super Pack 1.5GB (30 Days)',
         category: 'Super Pack',
-        mmkPrice: 3500,
-        akdPrice: 3500 / 4500.0,
+        akdPrice: 0.78,
         validity: '30 Days',
         quota: '1.5 GB',
         isHot: false,
@@ -4000,8 +3983,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
         id: 'pkg_8',
         name: 'Super Pack 3.0GB (30 Days)',
         category: 'Super Pack',
-        mmkPrice: 6500,
-        akdPrice: 6500 / 4500.0,
+        akdPrice: 1.44,
         validity: '30 Days',
         quota: '3.0 GB',
         isHot: false,
@@ -4043,7 +4025,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
     const calculatedAkd =
       topupActiveTab === 'phoneTopup'
         ? (topupSelectedAmount || 0) / akdRate
-        : selectedPkg.mmkPrice / akdRate
+        : selectedPkg.akdPrice
 
     const productTitle =
       topupActiveTab === 'phoneTopup'
@@ -4322,10 +4304,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
                       <div className="text-right space-y-1 shrink-0 pl-2">
                         <div className="text-xs font-bold text-slate-900">
-                          {pkg.mmkPrice.toFixed(2)} AKD
+                          {pkg.akdPrice.toFixed(2)} AKD
                         </div>
                         <div className="inline-block px-2.5 py-0.5 rounded-full border border-[#FF7A00] text-[11px] font-bold text-[#EA580C] bg-white">
-                          {(pkg.mmkPrice / akdRate).toFixed(3)} AKD
+                          ≈ ${pkg.akdPrice.toFixed(2)} USD
                         </div>
                       </div>
                     </div>
@@ -4338,9 +4320,9 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                 <div className="text-center text-xs font-medium text-slate-700">
                   Selected package:{' '}
                   <span className="font-extrabold text-[#EA580C]">
-                    {(selectedPkg.mmkPrice / akdRate).toFixed(3)} AKD
+                    {selectedPkg.akdPrice.toFixed(2)} AKD
                   </span>{' '}
-                  ({selectedPkg.mmkPrice.toFixed(2)} AKD)
+                  (≈ ${selectedPkg.akdPrice.toFixed(2)} USD)
                 </div>
               )}
             </div>
@@ -4537,18 +4519,17 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════
-     BILL PAYMENT SCREEN (SCREENSHOTS 1, 2, 3: MYANMAR & THAILAND UTILITY BILLS)
+     BILL PAYMENT SCREEN (UTILITY BILLS)
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderBillPaymentScreen = () => {
     const isAk = lang === 'ak'
-    const thbRate = 1.0
     const akdRate = 1.0
 
     // Combined 18 Billers (Sorted A to Z)
     const allBillers = [
       {
-        id: 'mm_aia',
-        name: 'AIA Myanmar Life Insurance',
+        id: 'ak_aia',
+        name: 'AIA Life Insurance',
         category: 'Insurance',
         defaultAccount: 'POL-982140021',
         accountLabel: 'Policy Number',
@@ -4754,10 +4735,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     const handleConfirmBillPayment = () => {
       if (!selectedBiller) return
-      const isMm = selectedBiller.defaultAmountAkd > 0
-      const mmkAmount = isMm ? selectedBiller.defaultAmountAkd : selectedBiller.defaultAmountUsd * thbRate
-      const thbAmount = isMm ? selectedBiller.defaultAmountAkd / thbRate : selectedBiller.defaultAmountUsd
-      const akdAmount = mmkAmount / akdRate
+      const akdAmount = selectedBiller.defaultAmountAkd > 0
+        ? selectedBiller.defaultAmountAkd
+        : selectedBiller.defaultAmountUsd
+      const usdAmount = selectedBiller.defaultAmountUsd > 0
+        ? selectedBiller.defaultAmountUsd
+        : selectedBiller.defaultAmountAkd
 
       // Deduct balance (UI state only — source of truth is the database via updateUserBalanceInDb below)
       setAkdBalance((prev) => Math.max(0, prev - akdAmount))
@@ -4786,8 +4769,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       setLastBillSuccess({
         billerName: selectedBiller.name,
         accountNo: billerAccountInput || selectedBiller.defaultAccount,
-        amountMmk: mmkAmount,
-        amountThb: thbAmount,
         amountAkd: akdAmount,
         refId: newTx.id,
       })
@@ -4796,10 +4777,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
 
     // ── IF BILLER DETAIL VIEW IS OPEN ─────────────────────────────────────────
     if (selectedBiller) {
-      const isMm = selectedBiller.defaultAmountAkd > 0
-      const mmkAmount = isMm ? selectedBiller.defaultAmountAkd : selectedBiller.defaultAmountUsd * thbRate
-      const thbAmount = isMm ? selectedBiller.defaultAmountAkd / thbRate : selectedBiller.defaultAmountUsd
-      const akdAmount = mmkAmount / akdRate
+      const akdAmount = selectedBiller.defaultAmountAkd > 0
+        ? selectedBiller.defaultAmountAkd
+        : selectedBiller.defaultAmountUsd
+      const usdAmount = selectedBiller.defaultAmountUsd > 0
+        ? selectedBiller.defaultAmountUsd
+        : selectedBiller.defaultAmountAkd
 
       return (
         <div className="min-h-full bg-[#F4F5F8] flex flex-col">
@@ -4919,7 +4902,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     </span>
                   </div>
                   <div className="flex justify-between text-[11px] font-semibold text-sky-600 mt-0.5">
-                    <span>≈ {thbAmount.toFixed(2)} USD</span>
+                    <span>≈ {usdAmount.toFixed(2)} USD</span>
                     <span>1 AKD = $1.00 USD</span>
                   </div>
                 </div>
@@ -5248,11 +5231,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
           <button
             type="button"
             onClick={() => setFavIsEditMode(!favIsEditMode)}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${
-              favIsEditMode
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${favIsEditMode
                 ? 'bg-[#D91624] text-white shadow-2xs'
                 : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
-            }`}
+              }`}
           >
             {favIsEditMode ? <Check size={14} /> : <Pencil size={14} />}
             <span>{favIsEditMode ? (isAk ? 'ပြီးပြီ' : 'Done') : (isAk ? 'ပြင်ဆင်ရန်' : 'Edit')}</span>
@@ -5393,9 +5375,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       })
                     }
                   }}
-                  className={`bg-white rounded-2xl p-3.5 border shadow-2xs transition flex items-center justify-between gap-3 cursor-pointer ${
-                    favIsEditMode ? 'border-zinc-300' : 'border-zinc-200/90 hover:border-zinc-300 active:scale-[0.99]'
-                  }`}
+                  className={`bg-white rounded-2xl p-3.5 border shadow-2xs transition flex items-center justify-between gap-3 cursor-pointer ${favIsEditMode ? 'border-zinc-300' : 'border-zinc-200/90 hover:border-zinc-300 active:scale-[0.99]'
+                    }`}
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     {/* Circle Avatar */}
@@ -6163,7 +6144,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <p>
                 {isAk
                   ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် နိုင်ငံကူးလက်မှတ်နံပါတ်နှင့် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို PIN အဖြစ် အသုံးမပြုပါနှင့်။'
-                  : '- Please do not use your personal information such as Date of Birth, NRC or Passport Number and Phone Number as PIN.'}
+                  : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.'}
               </p>
             </div>
           </div>
@@ -6328,7 +6309,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
               <p>
                 {isAk
                   ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် နိုင်ငံကူးလက်မှတ်နံပါတ်နှင့် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို PIN အဖြစ် အသုံးမပြုပါနှင့်။'
-                  : '- Please do not use your personal information such as Date of Birth, NRC or Passport Number and Phone Number as PIN.'}
+                  : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.'}
               </p>
             </div>
           </div>
@@ -6378,11 +6359,11 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       <span>
                         {biometricLoginEnabled
                           ? (isAk
-                              ? `${deviceInfo.biometryLabelMm} စက်ပစ္စည်းတွင် အသုံးပြုနေသည်`
-                              : `${deviceInfo.biometryLabel} Active & Enrolled`)
+                            ? `${deviceInfo.biometryLabelMm} စက်ပစ္စည်းတွင် အသုံးပြုနေသည်`
+                            : `${deviceInfo.biometryLabel} Active & Enrolled`)
                           : (isAk
-                              ? 'Biometric ပိတ်ထားသည်'
-                              : 'Biometric Disabled')}
+                            ? 'Biometric ပိတ်ထားသည်'
+                            : 'Biometric Disabled')}
                       </span>
                     </div>
                   </div>
@@ -7075,7 +7056,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   </div>
                 </button>
 
-                {/* Direct Dual Switcher: AK Flag with Arakan in Rakhine & GB Flag with English */}
+                {/* Direct Dual Switcher: AK Flag with Arakan in Arakanese & GB Flag with English */}
                 <div className="flex items-center p-1 bg-zinc-100 rounded-xl border border-zinc-200/80 gap-1 shrink-0 shadow-2xs">
                   <button
                     type="button"
@@ -7083,11 +7064,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       if (setLang) setLang('ak')
                       triggerSettingsToast(isAk ? 'ရွေးချယ်ထားသော ဘာသာစကား - အာရက္ခ' : 'Language set to Arakanese (အာရက္ခ)')
                     }}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
-                      isAk
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${isAk
                         ? 'bg-white text-zinc-950 shadow-xs border border-zinc-200/70'
                         : 'text-zinc-500 hover:text-zinc-800'
-                    }`}
+                      }`}
                     title="အာရက္ခ (Arakan)"
                     aria-label="အာရက္ခ"
                   >
@@ -7101,11 +7081,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       if (setLang) setLang('en')
                       triggerSettingsToast(isAk ? 'ဘာသာစကားကို အင်္ဂလိပ်သို့ ပြောင်းလဲပြီးပါပြီ' : 'Language set to English')
                     }}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
-                      !isAk
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${!isAk
                         ? 'bg-white text-zinc-950 shadow-xs border border-zinc-200/70'
                         : 'text-zinc-500 hover:text-zinc-800'
-                    }`}
+                      }`}
                     title="English (United Kingdom)"
                     aria-label="English"
                   >
@@ -7241,25 +7220,24 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   <button
                     type="button"
                     onClick={() => setKycFlowModalOpen(true)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer ${
-                      profile.kycTier === 2 && profile.kycStatus === 'verified'
+                    className={`px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer ${profile.kycTier === 2 && profile.kycStatus === 'verified'
                         ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                         : profile.kycStatus === 'pending_review'
-                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                        : profile.kycTier === 1
-                        ? 'bg-sky-50 text-sky-700 border border-sky-200'
-                        : 'bg-rose-50 text-[#D91624] border border-rose-200'
-                    }`}
+                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                          : profile.kycTier === 1
+                            ? 'bg-sky-50 text-sky-700 border border-sky-200'
+                            : 'bg-rose-50 text-[#D91624] border border-rose-200'
+                      }`}
                   >
                     <CheckCircle2 size={14} />
                     <span>
                       {profile.kycTier === 2 && profile.kycStatus === 'verified'
                         ? 'KYC Level 2 Verified'
                         : profile.kycStatus === 'pending_review'
-                        ? (isAk ? 'စိစစ်နေဆဲ' : 'Under Review')
-                        : profile.kycTier === 1
-                        ? 'KYC Level 1'
-                        : (isAk ? 'အတည်မပြုရသေး' : 'Unverified')}
+                          ? (isAk ? 'စိစစ်နေဆဲ' : 'Under Review')
+                          : profile.kycTier === 1
+                            ? 'KYC Level 1'
+                            : (isAk ? 'အတည်မပြုရသေး' : 'Unverified')}
                     </span>
                   </button>
                 </div>
@@ -7308,7 +7286,7 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   </div>
                 </button>
 
-                {/* Direct Dual Switcher: AK Flag with Arakan in Rakhine & GB Flag with English */}
+                {/* Direct Dual Switcher: AK Flag with Arakan in Arakanese & GB Flag with English */}
                 <div className="flex items-center p-1 bg-zinc-100 rounded-xl border border-zinc-200/80 gap-1 shrink-0 shadow-2xs">
                   <button
                     type="button"
@@ -7316,11 +7294,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       if (setLang) setLang('ak')
                       triggerSettingsToast(isAk ? 'ရွေးချယ်ထားသော ဘာသာစကား - အာရက္ခ' : 'Language set to Arakanese (အာရက္ခ)')
                     }}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
-                      isAk
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${isAk
                         ? 'bg-white text-zinc-950 shadow-xs border border-zinc-200/70'
                         : 'text-zinc-500 hover:text-zinc-800'
-                    }`}
+                      }`}
                     title="အာရက္ခ (Arakan)"
                     aria-label="အာရက္ခ"
                   >
@@ -7334,11 +7311,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                       if (setLang) setLang('en')
                       triggerSettingsToast(isAk ? 'ဘာသာစကားကို အင်္ဂလိပ်သို့ ပြောင်းလဲပြီးပါပြီ' : 'Language set to English')
                     }}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
-                      !isAk
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${!isAk
                         ? 'bg-white text-zinc-950 shadow-xs border border-zinc-200/70'
                         : 'text-zinc-500 hover:text-zinc-800'
-                    }`}
+                      }`}
                     title="English (United Kingdom)"
                     aria-label="English"
                   >
@@ -7387,13 +7363,13 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     <span className="text-sm font-bold text-zinc-900 block">
                       {isAk
                         ? (deviceInfo.biometryType === 'faceID'
-                            ? 'မျက်နှာမှတ်သား (Face ID)'
-                            : isAndroidDevice
+                          ? 'မျက်နှာမှတ်သား (Face ID)'
+                          : isAndroidDevice
                             ? 'လက်ဗွေမှတ်သား (Fingerprint)'
                             : 'လက်ဗွေနှင့် မျက်နှာမှတ်သား')
                         : (deviceInfo.biometryType === 'faceID'
-                            ? 'Face ID'
-                            : isAndroidDevice
+                          ? 'Face ID'
+                          : isAndroidDevice
                             ? 'Fingerprint Unlock'
                             : 'Fingerprint & Face ID')}
                     </span>
@@ -7413,14 +7389,12 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   }
                   onClick={handleToggleBiometrics}
                   disabled={isBiometricAuthenticating}
-                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer disabled:opacity-60 ${
-                    biometricLoginEnabled ? 'bg-[#2563EB]' : 'bg-zinc-300'
-                  }`}
+                  className={`w-12 h-7 rounded-full p-0.5 transition cursor-pointer disabled:opacity-60 ${biometricLoginEnabled ? 'bg-[#2563EB]' : 'bg-zinc-300'
+                    }`}
                 >
                   <span
-                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
-                      biometricLoginEnabled ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${biometricLoginEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
                   />
                 </button>
               </div>
@@ -8427,11 +8401,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     triggerSettingsToast(isAk ? 'ရွေးချယ်ထားသော ဘာသာစကား - အာရက္ခ' : 'Language set to Arakanese (အာရက္ခ)')
                     setLanguageModalOpen(false)
                   }}
-                  className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
-                    isAk
+                  className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${isAk
                       ? 'bg-teal-50/60 border-[#0D9488] text-zinc-950 shadow-xs ring-1 ring-[#0D9488]/30'
                       : 'bg-zinc-50/80 border-zinc-200/80 text-zinc-700 hover:bg-zinc-100/80'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <FlagArakan size={28} className="rounded-md shadow-xs shrink-0" />
@@ -8441,16 +8414,15 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                         <span className="text-[11px] font-normal text-zinc-500">(Arakan)</span>
                       </div>
                       <div className="text-xs text-zinc-500 mt-0.5">
-                        ရခိုင်ဘာသာစကား (Arakanese)
+                        အာရက္ခဘာသာစကား (Arakanese)
                       </div>
                     </div>
                   </div>
                   <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
-                      isAk
+                    className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${isAk
                         ? 'bg-[#0D9488] border-[#0D9488] text-white'
                         : 'border-zinc-300 bg-white'
-                    }`}
+                      }`}
                   >
                     {isAk && <Check size={12} strokeWidth={3} />}
                   </div>
@@ -8464,11 +8436,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     triggerSettingsToast(isAk ? 'ဘာသာစကားကို အင်္ဂလိပ်သို့ ပြောင်းလဲပြီးပါပြီ' : 'Language set to English')
                     setLanguageModalOpen(false)
                   }}
-                  className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
-                    !isAk
+                  className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${!isAk
                       ? 'bg-blue-50/60 border-blue-600 text-zinc-950 shadow-xs ring-1 ring-blue-600/30'
                       : 'bg-zinc-50/80 border-zinc-200/80 text-zinc-700 hover:bg-zinc-100/80'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <FlagInternational size={28} className="rounded-md shadow-xs shrink-0" />
@@ -8483,11 +8454,10 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                     </div>
                   </div>
                   <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
-                      !isAk
+                    className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${!isAk
                         ? 'bg-blue-600 border-blue-600 text-white'
                         : 'border-zinc-300 bg-white'
-                    }`}
+                      }`}
                   >
                     {!isAk && <Check size={12} strokeWidth={3} />}
                   </div>
@@ -8580,8 +8550,8 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
                   loggedUser.kyc_tier === 2 && loggedUser.kyc_status === 'verified'
                     ? 'KYC Level 2 Verified'
                     : loggedUser.kyc_status === 'pending_review'
-                    ? 'KYC Level 2 (Under Review)'
-                    : 'KYC Level 1 (Email Verified)',
+                      ? 'KYC Level 2 (Under Review)'
+                      : 'KYC Level 1 (Email Verified)',
               }))
               setAkdBalance(loggedUser.balance)
               setUsdAccountBalance(loggedUser.usdAccountBalance)

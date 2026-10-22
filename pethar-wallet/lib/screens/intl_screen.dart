@@ -12,7 +12,7 @@ class IntlScreen extends StatefulWidget {
 }
 
 class _IntlScreenState extends State<IntlScreen> {
-  String _selectedCorridor = 'THB';
+  String _selectedCorridor = 'USD';
   final TextEditingController _amountCtrl = TextEditingController(text: '0.00');
 
   @override
@@ -28,10 +28,10 @@ class _IntlScreenState extends State<IntlScreen> {
     final lang = appState.language;
 
     final corridors = [
-      {'code': 'THB', 'name': 'Thai Baht (ထိုင်းဘတ်)', 'rate': 35.8},
-      {'code': 'MYR', 'name': 'Malaysian Ringgit (မလေးရှားရင်းဂစ်)', 'rate': 4.72},
-      {'code': 'SGD', 'name': 'Singapore Dollar (စင်ကာပူဒေါ်လာ)', 'rate': 1.34},
       {'code': 'USD', 'name': 'US Dollar (အမေရိကန်ဒေါ်လာ)', 'rate': 1.0},
+      {'code': 'MYR', 'name': 'Malaysian Ringgit (မလေးရှားရင်းဂစ်)', 'rate': 4.72},
+      {'code': 'EUR', 'name': 'Euro (ယူရို)', 'rate': 0.92},
+      {'code': 'GBP', 'name': 'British Pound (ဗြိတိသျှပေါင်)', 'rate': 0.79},
     ];
 
     final currentRate = corridors.firstWhere((c) => c['code'] == _selectedCorridor)['rate'] as double;

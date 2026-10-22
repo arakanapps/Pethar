@@ -14,13 +14,13 @@ interface Web3PageProps {
 export const Web3Page = ({ lang }: Web3PageProps) => {
   const [bridgeSimulating, setBridgeSimulating] = useState(false);
   const [bridgeComplete, setBridgeComplete] = useState(false);
-  const [selectedChain, setSelectedChain] = useState<'ethereum' | 'bsc' | 'polygon' | 'arbitrum'>('ethereum');
+  const [selectedChain, setSelectedChain] = useState<'polygon' | 'bsc' | 'arbitrum'>('polygon');
 
   const t = lang === 'ak'
     ? {
         badge: 'Péthar Web3 တံတား · EVM & Multi-Chain Bridge Protocol',
         heroTitle: 'ဗဟိုမဲ့ ဘဏ္ဍာရေးနှင့် Multi-Chain ချိတ်ဆက်မှု စနစ်',
-        heroSubtitle: 'Ethereum, BNB Chain, Polygon တို့မှ USDT နှင့် ပိုင်ဆိုင်မှုများကို Péthar Ledger သို့ 1:1 တန်းတူ လဲလှယ်ကူးပြောင်းနိုင်ပါသည်',
+        heroSubtitle: 'BNB Chain, Polygon, Arbitrum တို့မှ USDT နှင့် ပိုင်ဆိုင်မှုများကို Péthar Ledger သို့ 1:1 တန်းတူ လဲလှယ်ကူးပြောင်းနိုင်ပါသည်',
         ctaBridge: 'Cross-Chain Bridge စမ်းသပ်မည်',
         ctaExplorer: 'Ledger Explorer ကြည့်မည်',
         bridgeTitle: 'Cross-Chain တံတား စမ်းသပ်မှု Simulator',
@@ -33,7 +33,7 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
     : {
         badge: 'Péthar Web3 Bridge Protocol · EVM & Multi-Chain Rails',
         heroTitle: 'Decentralized Liquidity & DeFi Rails',
-        heroSubtitle: 'Seamlessly bridge USDT and stable assets between Ethereum, BNB Chain, Polygon, Arbitrum and Péthar\'s high-speed zero-gas ledger',
+        heroSubtitle: 'Seamlessly bridge USDT and stable assets between BNB Chain, Polygon, Arbitrum and Péthar\'s high-speed zero-gas ledger',
         ctaBridge: 'Simulate Cross-Chain Bridge',
         ctaExplorer: 'Explore Ledger',
         bridgeTitle: 'Live Cross-Chain Peg-In Bridge Simulator',
@@ -106,7 +106,7 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
             
             {/* Chain Selector */}
             <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono">
-              {(['ethereum', 'bsc', 'polygon', 'arbitrum'] as const).map((chain) => (
+              {(['polygon', 'bsc', 'arbitrum'] as const).map((chain) => (
                 <button
                   key={chain}
                   onClick={() => setSelectedChain(chain)}
@@ -135,7 +135,7 @@ export const Web3Page = ({ lang }: Web3PageProps) => {
                 <span className="text-xl font-black text-white">500.00</span>
                 <span className="text-xs font-bold text-emerald-400">USDT</span>
               </div>
-              <p className="text-[10px] font-mono text-slate-500">Contract: 0xdAC17F958D2ee523a2206206994597C13D831ec7</p>
+              <p className="text-[10px] font-mono text-slate-500">Contract: 0xc2132D05D31c914a87C6611C10748AEb04B58e8F</p>
             </div>
 
             {/* Bridge Transit Arrow */}

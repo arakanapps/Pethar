@@ -44,7 +44,7 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     min-height: 100vh;
   }
-  :lang(ak), :lang(my), [lang="ak"], [lang="my"], .font-arakan, .font-myanmar {
+  :lang(ak), [lang="ak"], .font-arakan {
     font-family: 'Noto Sans Myanmar', Pyidaungsu, Padauk, 'Myanmar Text', sans-serif;
     line-height: 1.6;
     letter-spacing: 0.01em;

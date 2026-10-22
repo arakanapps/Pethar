@@ -43,4 +43,4 @@ docs/
 2. Record the owner and review date for operational or compliance documents.
 3. Never place secrets, real customer information, private keys, or identity documents in documentation.
 4. Link product claims to an implemented control or label them as a proposal.
-5. Burmese translations should be reviewed by a fluent speaker and checked for accessibility.
+5. Arakanese translations should be reviewed by a fluent speaker and checked for accessibility.

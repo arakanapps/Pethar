@@ -13,7 +13,7 @@ The native Android Gradle project is located at:
 ## Features
 - Full Flutter Material Design 3 experience with Android system navigation (`◀ ● ■`).
 - Dark/Light mode theme with royal Arakan colors (Crimson, Gold, Obsidian).
-- Bilingual: Arakanese (ရခိုင်) and English.
+- Bilingual: Arakanese (အာရက္ခ) and English.
 - Offline QR vouchers, Dynamic TOTP cash-out codes, biometric security, camera QR scanning.
 
 ## How to Run & Build

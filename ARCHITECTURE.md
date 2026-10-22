@@ -28,7 +28,7 @@ Vercel can serve static/frontend code and host server functions if suitable for 
 ## Database and migration procedure
 
 1. Confirm the intended Supabase project and take a verified backup. Do not run migrations against production until staging validation and a recovery plan exist.
-2. Establish one migration source of truth (`supabase/migrations`). Review the existing schema for ownership keys and legacy data; reconcile unsupported currencies before applying the supported set: **AKD, USD, USDC, USDT, MMK**.
+2. Establish one migration source of truth (`supabase/migrations`). Review the existing schema for ownership keys and legacy data; reconcile unsupported currencies before applying the supported set: **AKD, USD, USDC, USDT**.
 3. Test migrations against a disposable/staging Supabase database. Verify authenticated owner reads, participant transaction reads, anonymous denial, cross-user denial, and prohibited direct financial writes. Review every `SECURITY DEFINER` function and its `search_path`/grants.
 4. Apply reviewed migrations through the Supabase CLI / deployment process, then verify schema, policy behavior, backups, and application health. Never hand out database credentials or expose service-role credentials.
 5. Current owner-scoped policies need a schema audit: transactions are scoped through JSON metadata in the new policy, which is less robust than explicit sender/recipient user/account relationships; accounts use `user_id = auth.uid()`, so confirm type and identity mapping. Ensure no permissive pre-existing policy grants broader access. Policy migrations alone do not guarantee private data.

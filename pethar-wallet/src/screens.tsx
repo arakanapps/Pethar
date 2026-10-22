@@ -1488,7 +1488,7 @@ export function ServicesScreen({
                 type="text"
                 value={newAppName}
                 onChange={(e) => setNewAppName(e.target.value)}
-                placeholder="e.g. Rakhine Quick Delivery"
+                placeholder="e.g. Arakanese Quick Delivery"
                 className="w-full px-3 py-2 border border-zinc-200 rounded-xl text-xs"
               />
             </div>

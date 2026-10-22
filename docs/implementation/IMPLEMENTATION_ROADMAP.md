@@ -328,9 +328,9 @@ Total: ~$50/month
 ## 🌍 Geographic Distribution Plan
 
 **Primary Markets:**
-1. **Arakan/Rakhine State** - Base community
+1. **Arakan/Arakanese State** - Base community
 2. **Myanmar mainland** - Yangon, Mandalay
-3. **Bangladesh** - Rohingya refugee camps
+3. **Bangladesh** - 
 4. **Malaysia** - Arakanese diaspora
 5. **Thailand** - Migrant workers
 6. **Middle East** - UAE, Saudi Arabia workers

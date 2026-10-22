@@ -40,7 +40,7 @@ export const FlagArakan: React.FC<{ size?: number; className?: string }> = ({
 }) => (
   <span
     role="img"
-    aria-label="ရခိုင်"
+    aria-label="အာရက္ခ"
     onDragStart={(e) => e.preventDefault()}
     onContextMenu={(e) => e.preventDefault()}
     className={`inline-flex items-center justify-center rounded overflow-hidden border border-white/20 shrink-0 relative bg-[#ec201c] select-none pointer-events-none ${className}`}
@@ -96,7 +96,7 @@ export const FlagArakanCircle: React.FC<{ size?: number; className?: string }> =
 }) => (
   <span
     role="img"
-    aria-label="ရခိုင်"
+    aria-label="အာရက္ခ"
     onDragStart={(e) => e.preventDefault()}
     onContextMenu={(e) => e.preventDefault()}
     className={`inline-flex items-center justify-center rounded-full overflow-hidden shrink-0 relative bg-[#ec201c] select-none pointer-events-none ${className}`}
