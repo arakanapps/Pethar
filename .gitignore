@@ -42,3 +42,34 @@ pethar-wallet/public/*-debug.apk
 .agents/skills/
 .github/skills/
 skills-lock.json
+
+# ── Enterprise Cleanup (Oct 2026) ──────────────────────
+
+# Build outputs
+pethar-wallet/dist/
+**/build/
+
+# Flutter / Dart generated
+*.iml
+.metadata
+.dart_tool/
+.packages
+
+# IDE project files
+*.ipr
+*.iws
+
+# Release binaries — distribute via GitHub Releases
+*.apk
+*.ipa
+*.aab
+
+# Temporary state
+state/
+
+# macOS Xcode user data
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Scaffolding leftovers
+template-info.md
