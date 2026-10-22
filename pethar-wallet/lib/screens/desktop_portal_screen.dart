@@ -503,22 +503,6 @@ class _DesktopPortalScreenState extends State<DesktopPortalScreen> {
                                     final amt =
                                         double.tryParse(_quickAmtCtrl.text) ??
                                             0.0;
-                                    final currentContacts =
-                                        appState.contactsList.isNotEmpty
-                                            ? appState.contactsList
-                                            : contacts;
-                                    final contact = currentContacts.firstWhere(
-                                      (c) => c.id == _selectedContactId,
-                                      orElse: () => currentContacts.isNotEmpty
-                                          ? currentContacts.first
-                                          : Contact(
-                                              name: 'Arakan Network',
-                                              mm: 'အာရက္ခ',
-                                              id: 'ARAK-001',
-                                              location: '',
-                                              phone: '',
-                                              initials: 'AK'),
-                                    );
                                     if (amt > 0) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
