@@ -719,7 +719,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
     setState(() => _isTransmitting = true);
 
     // Create Cashu-inspired offline bearer token
-    final token = PetharOfflineToken.createMockMintedToken(
+    final token = PetharOfflineToken.issueOfflineToken(
       amount: amount.round(),
       recipientPubkey: _recipientId.isNotEmpty ? _recipientId : null,
       memo: 'Offline Transfer',

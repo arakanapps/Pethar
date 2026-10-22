@@ -250,8 +250,8 @@ export const legalDocs = {
       {
         hEn: '3. Emergency Duress PIN Instructions',
         hMm: '၃။ အရေးပေါ် အကျပ်အတည်းကြုံချိန် Panic PIN အသုံးပြုနည်း',
-        pEn: 'If forced under duress to unlock your wallet, enter your pre-configured Duress PIN (default: 999999). The wallet will display a decoy balance of $25 and automatically transmit an encrypted silent alert to the community emergency registry.',
-        pMm: 'မလိုလားအပ်သော အကျပ်ကိုင် ခြိမ်းခြောက်မှုကြုံရပါက မိမိ၏ အရေးပေါ် Panic PIN (ပုံမှန်အားဖြင့် ၉၉၉၉၉၉) ကို ရိုက်ထည့်နိုင်ပါသည်။ အက်ပ်သည် အတုအယောင်လက်ကျန်ငွေ ၂၅ ဒေါ်လာသာ ပြသပေးမည်ဖြစ်ပြီး အသံတိတ် အရေးပေါ်အချက်ပြစနစ်ကို အလိုအလျောက် ပေးပို့မည်ဖြစ်ပါသည်။',
+        pEn: 'If forced under duress to unlock your wallet, enter your configured Duress PIN. The wallet will isolate account access and automatically transmit an encrypted silent emergency alert.',
+        pMm: 'မလိုလားအပ်သော အကျပ်ကိုင် ခြိမ်းခြောက်မှုကြုံရပါက မိမိ၏ အရေးပေါ် Panic PIN ကို ရိုက်ထည့်နိုင်ပါသည်။ အက်ပ်သည် အကောင့်အချက်အလက်များကို ထိန်းသိမ်းကာကွယ်ပေးမည်ဖြစ်ပြီး အသံတိတ် အရေးပေါ်အချက်ပြစနစ်ကို အလိုအလျောက် ပေးပို့မည်ဖြစ်ပါသည်။',
       },
     ],
   },

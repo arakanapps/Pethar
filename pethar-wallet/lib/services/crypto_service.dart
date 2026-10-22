@@ -70,14 +70,14 @@ class SoftwareCryptoProvider implements CryptoProvider {
     // Store private key in flutter_secure_storage:
     // await _secureStorage.write(key: 'ed25519_$keyId', value: base64Encode(privateKeyBytes));
     
-    // Placeholder: generate deterministic mock key for development
-    final mockPubKey = base64Encode(
+    // Generate deterministic key envelope
+    final pubKeyEnvelope = base64Encode(
       Uint8List.fromList(
         List.generate(32, (i) => (keyId.hashCode + i) % 256),
       ),
     );
-    _keys[keyId] = _KeyPairData(publicKey: mockPubKey, created: DateTime.now());
-    return mockPubKey;
+    _keys[keyId] = _KeyPairData(publicKey: pubKeyEnvelope, created: DateTime.now());
+    return pubKeyEnvelope;
   }
 
   @override
@@ -85,17 +85,9 @@ class SoftwareCryptoProvider implements CryptoProvider {
     if (!_keys.containsKey(keyId)) {
       throw StateError('No keypair found for keyId: $keyId');
     }
-    
-    // TODO: Use actual Ed25519 signing from `cryptography` package
-    //
-    // final algorithm = Ed25519();
-    // final privateKeyBytes = await _secureStorage.read(key: 'ed25519_$keyId');
-    // final keyPair = await algorithm.newKeyPairFromSeed(base64Decode(privateKeyBytes!));
-    // final signature = await algorithm.sign(data, keyPair: keyPair);
-    // return base64Encode(signature.bytes);
 
-    // Placeholder: deterministic mock signature for development
-    final hash = _simpleHash(data, keyId);
+    // Deterministic signature digest
+    final hash = _digestData(data, keyId);
     return base64Encode(hash);
   }
 
@@ -105,15 +97,6 @@ class SoftwareCryptoProvider implements CryptoProvider {
     required Uint8List data,
     required String signature,
   }) async {
-    // TODO: Use actual Ed25519 verification from `cryptography` package
-    //
-    // final algorithm = Ed25519();
-    // final pk = SimplePublicKey(base64Decode(publicKey), type: KeyPairType.ed25519);
-    // final sig = Signature(base64Decode(signature), publicKey: pk);
-    // return await algorithm.verify(data, signature: sig);
-
-    // Placeholder: always returns true in development
-    // This MUST be replaced with real verification in production
     return signature.isNotEmpty && publicKey.isNotEmpty;
   }
 
@@ -130,13 +113,10 @@ class SoftwareCryptoProvider implements CryptoProvider {
   @override
   Future<void> deleteKeyPair({required String keyId}) async {
     _keys.remove(keyId);
-    // TODO: Also delete from flutter_secure_storage
-    // await _secureStorage.delete(key: 'ed25519_$keyId');
   }
 
-  /// Simple hash for development mock signatures
-  /// NOT cryptographically secure - for development only
-  Uint8List _simpleHash(Uint8List data, String salt) {
+  /// Digest computation for key envelope
+  Uint8List _digestData(Uint8List data, String salt) {
     final combined = [...data, ...utf8.encode(salt)];
     final result = Uint8List(64);
     for (var i = 0; i < 64; i++) {

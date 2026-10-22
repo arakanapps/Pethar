@@ -2090,7 +2090,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: SwitchListTile(
               secondary: const Icon(Icons.password_rounded, color: Colors.black87),
               title: const Text('Hide information', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87)),
-              subtitle: const Text('Example: ***-***-1234', style: TextStyle(fontSize: 12, color: Colors.black45)),
+              subtitle: const Text('Mask account numbers on screen', style: TextStyle(fontSize: 12, color: Colors.black45)),
               value: _hideInfoToggle,
               activeTrackColor: const Color(0xFF3B82F6),
               onChanged: (v) => setState(() => _hideInfoToggle = v),
@@ -2499,15 +2499,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           if (mounted) setState(() => _subView = 'pin_management');
                         });
                       } else {
-                        // Allow local fallback success for demo
-                        appState.profile.pin = newP;
+                        final errMsg = res['message']?.toString() ??
+                            (isAk ? 'PIN ပြောင်းလဲခြင်း မအောင်မြင်ပါ' : 'PIN change failed. Please verify current PIN.');
                         setState(() {
-                          _pinChangeSuccess = isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!';
+                          _pinChangeError = errMsg;
                         });
-                        _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!');
-                        Future.delayed(const Duration(milliseconds: 1200), () {
-                          if (mounted) setState(() => _subView = 'pin_management');
-                        });
+                        _showToast(context, errMsg);
                       }
                     },
               style: ElevatedButton.styleFrom(
@@ -2789,15 +2786,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           if (mounted) setState(() => _subView = 'pin_management');
                         });
                       } else {
-                        // Allow local fallback success for demo
-                        appState.profile.pin = newP;
+                        final errMsg = res['message']?.toString() ??
+                            (isAk ? 'PIN ပြန်လည်သတ်မှတ်ခြင်း မအောင်မြင်ပါ' : 'PIN reset failed. Please check OTP code.');
                         setState(() {
-                          _forgotPinSuccess = isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြန်လည်သတ်မှတ်ပြီးပါပြီ' : 'PIN reset successfully!';
+                          _forgotPinError = errMsg;
                         });
-                        _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြန်လည်သတ်မှတ်ပြီးပါပြီ' : 'PIN reset successfully!');
-                        Future.delayed(const Duration(milliseconds: 1200), () {
-                          if (mounted) setState(() => _subView = 'pin_management');
-                        });
+                        _showToast(context, errMsg);
                       }
                     },
               style: ElevatedButton.styleFrom(
