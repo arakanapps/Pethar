@@ -61,7 +61,7 @@ class UserProfile {
     this.kycStatus = 'UNVERIFIED',
   })  : walletAddress = walletAddress ?? uid,
         petharId = (petharId != null && petharId.isNotEmpty) ? petharId : uid,
-        name = name ?? (firstName.isNotEmpty ? '$firstName ${lastName.trim()}'.trim() : (username.isNotEmpty ? username : 'User'));
+        name = name ?? (firstName.isNotEmpty ? '$firstName ${lastName.trim()}'.trim() : (username.isNotEmpty ? username : ''));
 
   /// Resolves full name from firstName + lastName, name, or username
   String get effectiveFullName {
@@ -69,7 +69,9 @@ class UserProfile {
     if (combined.isNotEmpty) return combined;
     if (name.trim().isNotEmpty) return name.trim();
     if (username.trim().isNotEmpty) return username.trim();
-    return 'User';
+    if (email.trim().isNotEmpty) return email.split('@').first;
+    if (uid.trim().isNotEmpty) return uid;
+    return '';
   }
 
   /// Nickname defaults to full name until user makes a custom change

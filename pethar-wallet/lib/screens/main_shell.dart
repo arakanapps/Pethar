@@ -526,10 +526,10 @@ class _MainShellState extends State<MainShell> {
         }
       }
       if (!mounted) return;
-      final derivedName = email.contains('@') ? email.split('@').first : 'User';
+      final derivedName = email.contains('@') ? email.split('@').first : '';
       final formattedName = derivedName.isNotEmpty
           ? '${derivedName[0].toUpperCase()}${derivedName.substring(1)}'
-          : 'User';
+          : '';
       setState(() => _loginLoading = false);
       appState.signIn(email: email, name: formattedName);
     }
@@ -545,20 +545,24 @@ class _MainShellState extends State<MainShell> {
         try {
           final cred = await FirebaseService().signInWithGoogle();
           if (cred?.user != null) {
+            final fbEmail = cred!.user!.email ?? '';
+            final fallbackName = fbEmail.contains('@') ? fbEmail.split('@').first : '';
             appState.signIn(
-              email: cred!.user!.email ?? '',
-              name: cred.user!.displayName ?? 'User',
+              email: fbEmail,
+              name: cred.user!.displayName ?? fallbackName,
             );
             if (mounted) setState(() => _loginLoading = false);
             return;
           }
         } catch (_) {
-          // Fallback for Android emulator without Google Play Services
+          // Play Services unavailable
         }
       }
       if (!mounted) return;
-      setState(() => _loginLoading = false);
-      appState.signIn(email: '', name: 'User');
+      setState(() {
+        _loginLoading = false;
+        _loginError = 'Google sign-in was cancelled or unavailable.';
+      });
     }
 
     return Scaffold(
