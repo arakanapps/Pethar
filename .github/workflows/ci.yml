@@ -77,5 +77,5 @@ jobs:
       - name: Check for Unencrypted Secrets
         run: |
           echo "Scanning codebase for hardcoded private keys..."
-          ! grep -rn "BEGIN PRIVATE KEY" --exclude-dir={.git,node_modules,.github} . || exit 1
+          ! grep -rn "BEGIN PRIVATE KEY" --exclude-dir={.git,node_modules} . || exit 1
           echo "No exposed private keys found."
