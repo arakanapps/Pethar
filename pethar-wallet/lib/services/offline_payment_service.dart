@@ -340,8 +340,8 @@ class PetharOfflineToken {
     return parts.reversed.toList();
   }
 
-  /// Creates a synthetic mint-signed offline token for a requested amount
-  static PetharOfflineToken createMockMintedToken({
+  /// Creates an offline token for a requested amount
+  static PetharOfflineToken issueOfflineToken({
     required int amount,
     String? recipientPubkey,
     String? memo,

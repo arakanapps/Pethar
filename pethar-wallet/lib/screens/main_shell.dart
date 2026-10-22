@@ -936,7 +936,7 @@ class _MainShellState extends State<MainShell> {
       {
         'symbol': 'USDT',
         'name': 'Tether USD',
-        'price': '\$0.9985',
+        'price': '\$1.00',
         'balance': 0.00,
         'usd': 0.00,
         'color': const Color(0xFF26A17B),

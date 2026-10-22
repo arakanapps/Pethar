@@ -151,7 +151,7 @@ export const translations: Record<Language, TranslationStrings> = {
 
     // Send Screen
     sendTitle: 'ငွေလွှဲပို့ရန်',
-    sendRecipientPlaceholder: 'ဖုန်းနံပါတ် သို့မဟုတ် ဖေ့သာ ID (ဥပမာ ARAK-0842)',
+    sendRecipientPlaceholder: 'ဖုန်းနံပါတ် သို့မဟုတ် ဖေ့သာ ID ရိုက်ထည့်ပါ',
     sendRecentContacts: 'မကြာခဏလွှဲလေ့ရှိသူများ',
     sendAmountLabel: 'လွှဲမည့်ငွေပမာဏ',
     sendNotePlaceholder: 'ငွေလွှဲရသည့်အကြောင်းအရင်း မှတ်စု (ချန်လှပ်နိုင်ပါသည်)',
@@ -273,7 +273,7 @@ export const translations: Record<Language, TranslationStrings> = {
 
     // Send Screen
     sendTitle: 'Send Money',
-    sendRecipientPlaceholder: 'Enter Phone or Péthar ID (e.g. ARAK-0842)',
+    sendRecipientPlaceholder: 'Enter Phone or Péthar ID',
     sendRecentContacts: 'Frequent Recipients',
     sendAmountLabel: 'Transfer Amount',
     sendNotePlaceholder: 'Transaction memo / reference (optional)',
