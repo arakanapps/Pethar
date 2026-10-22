@@ -1002,33 +1002,8 @@ export function ServicesScreen({
     }, 2500)
   }
 
-  // Partner Apps State
-  const [partnerApps, setPartnerApps] = useState([
-    {
-      name: 'Sittwe Fresh Mart',
-      category: 'E-Commerce & Food',
-      desc: 'Local fresh groceries & produce delivered to your door',
-      color: 'from-emerald-500 to-teal-600',
-    },
-    {
-      name: 'Arakan Express Bus',
-      category: 'Travel & Ticketing',
-      desc: 'Inter-town express bus tickets (Sittwe, Mrauk-U, Kyaukpyu)',
-      color: 'from-blue-500 to-indigo-600',
-    },
-    {
-      name: 'Rakhine Health & Med',
-      category: 'Healthcare & Pharmacy',
-      desc: 'Digital prescriptions, clinic appointments & telehealth',
-      color: 'from-red-500 to-rose-600',
-    },
-    {
-      name: 'Arakan Cinema Club',
-      category: 'Entertainment & Events',
-      desc: 'Movie tickets booking & local cultural showtimes',
-      color: 'from-purple-500 to-violet-600',
-    },
-  ])
+  // Partner Apps State — fetched dynamically from Supabase 'partner_apps' table
+  const [partnerApps, setPartnerApps] = useState<{ name: string; category: string; desc: string; color: string }[]>([])
   const [createAppModalOpen, setCreateAppModalOpen] = useState(false)
   const [newAppName, setNewAppName] = useState('')
   const [newAppCompany, setNewAppCompany] = useState('')

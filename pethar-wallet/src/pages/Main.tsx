@@ -41,7 +41,7 @@ import {
   Zap,
 } from 'lucide-react'
 import type { Language } from '../i18n'
-import { redirectToSubdomain } from '../utils/subdomain'
+
 
 interface MainProps {
   lang?: Language
@@ -454,12 +454,9 @@ export default function Main({ lang = 'en', setLang }: MainProps) {
     navigate(`/${selectedLangCode}${cleanSuffix}`)
   }
 
-  // Navigate to download.domain/ak/ios or download.domain/en/ios or /android
+  // Navigate to download app
   const goToDownloadPlatform = (platform: 'ios' | 'android') => {
-    redirectToSubdomain('download', {
-      path: `/${selectedLangCode}/${platform}`,
-      search: '',
-    })
+    navigate(`/${selectedLangCode}/download#${platform}`)
   }
 
   const toggleTheme = () => {
