@@ -343,10 +343,7 @@ Total: ~$50/month
 
 **Localization:**
 - ✅ English (primary)
-- ✅ Arakanese/Rakhine script (ဖေ့သာ)
-- ⏳ Rohingya (Hanifi script) - if needed
-- ⏳ Bengali - for Bangladesh camps
-
+- ✅ Arakanese 
 ---
 
 ## 📊 Success Metrics (First 3 Months)
