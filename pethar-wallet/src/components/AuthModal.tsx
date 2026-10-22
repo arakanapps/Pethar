@@ -723,7 +723,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       type="text"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      placeholder={isAk ? 'ဦးအေးမင်း' : 'e.g. John Doe'}
+                      placeholder={isAk ? 'အမည် အပြည့်အစုံ ရိုက်ထည့်ပါ' : 'Enter full name'}
                       className="w-full px-3.5 py-3 pl-10 rounded-xl bg-zinc-50 border border-zinc-200 text-sm font-semibold text-zinc-900 focus:outline-none focus:border-[#D91624]"
                       required
                     />

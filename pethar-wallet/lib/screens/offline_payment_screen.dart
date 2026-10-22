@@ -801,21 +801,25 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
               ],
             ),
             const SizedBox(height: 14),
-            _buildBlePeerTile('Arakan Node 01 (202610190002)', 'RSSI: -45 dBm • 1.2m', () {
-              Navigator.pop(ctx);
-              appState.sendOfflineCash(amount: amount, recipient: '202610190002');
-              _showSuccessSnackBar(lang == 'ak' ? '202610190002 သို့ BLE မက်ရှ်ဖြင့် ငွေလွှဲပြီးပါပြီ' : 'Delivered to 202610190002 over BLE Mesh');
-            }),
-            _buildBlePeerTile('Merchant POS Terminal', 'RSSI: -62 dBm • 4.5m', () {
-              Navigator.pop(ctx);
-              appState.sendOfflineCash(amount: amount, recipient: 'Merchant POS');
-              _showSuccessSnackBar(lang == 'ak' ? 'ဆိုင်ရှင်ထံသို့ BLE ဖြင့် ပို့ပြီးပါပြီ' : 'Delivered to Merchant POS over BLE');
-            }),
-            _buildBlePeerTile('Mesh Relay Courier (Hop 2)', 'RSSI: -78 dBm • Multi-hop', () {
-              Navigator.pop(ctx);
-              appState.sendOfflineCash(amount: amount, recipient: 'Multi-hop Relay');
-              _showSuccessSnackBar(lang == 'ak' ? 'Mesh Relay သို့ လျှို့ဝှက်ကုဒ်ဖြင့် ပေးပို့ပြီး' : 'Queued into BitChat Multi-hop Mesh');
-            }),
+            if (_recipientId.isNotEmpty)
+              _buildBlePeerTile(_recipientId, 'Direct Peer Address', () {
+                Navigator.pop(ctx);
+                appState.sendOfflineCash(amount: amount, recipient: _recipientId);
+                _showSuccessSnackBar(lang == 'ak' ? '$_recipientId သို့ BLE မက်ရှ်ဖြင့် ငွေလွှဲပြီးပါပြီ' : 'Delivered to $_recipientId over BLE');
+              })
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Text(
+                    lang == 'ak'
+                        ? 'အနီးအနားတွင် အသင့်ရှိသော BLE စက် မတွေ့ရှိပါ\n(လက်ခံမည့်သူ့ဖုန်းတွင် Offline Receive ဖွင့်ထားပါ)'
+                        : 'No active nearby BLE peers detected\n(Ensure recipient device has Offline Receive open)',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white60, fontSize: 12, height: 1.5),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -1041,11 +1045,9 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen>
   void _simulateBleMeshListen(AppState appState, String lang) async {
     await Future.delayed(const Duration(seconds: 4));
     if (mounted && _isScanning) {
-      final sample = PetharOfflineToken.createMockMintedToken(amount: 15, memo: 'BitChat Relay');
-      appState.receiveOfflineCash(amount: 15.0, sender: 'Relay Node ARAK-102', tokenStr: sample.serialize());
       setState(() => _isScanning = false);
       _showSuccessSnackBar(
-        lang == 'ak' ? 'ဘလူးတုသ် မက်ရှ်မှ ₳ 15.00 လက်ခံရရှိပါသည်!' : 'Received ₳15.00 eCash via BitChat BLE Mesh!',
+        lang == 'ak' ? 'အနီးအနားတွင် အော့ဖ်လိုင်း BLE အချက်ပြ မတွေ့ရှိပါ' : 'No nearby BLE mesh broadcasts detected',
       );
     }
   }

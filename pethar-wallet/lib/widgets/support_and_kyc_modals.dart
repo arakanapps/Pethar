@@ -778,7 +778,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                     controller: addrCtrl,
                     style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
                     decoration: InputDecoration(
-                      hintText: 'e.g. Strand Rd, Sittwe',
+                      hintText: isAk ? 'နေရပ်လိပ်စာ အပြည့်အစုံ ရိုက်ထည့်ပါ' : 'Enter residential address',
                       filled: true,
                       fillColor: const Color(0xFFF4F4F5),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
