@@ -4523,7 +4523,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
   ═══════════════════════════════════════════════════════════════════════════ */
   const renderBillPaymentScreen = () => {
     const isAk = lang === 'ak'
-    const akdRate = 1.0
 
     // Combined 18 Billers (Sorted A to Z)
     const allBillers = [
@@ -4738,9 +4737,6 @@ export const MobileWalletPage: React.FC<MobileWalletPageProps> = ({ lang, setLan
       const akdAmount = selectedBiller.defaultAmountAkd > 0
         ? selectedBiller.defaultAmountAkd
         : selectedBiller.defaultAmountUsd
-      const usdAmount = selectedBiller.defaultAmountUsd > 0
-        ? selectedBiller.defaultAmountUsd
-        : selectedBiller.defaultAmountAkd
 
       // Deduct balance (UI state only — source of truth is the database via updateUserBalanceInDb below)
       setAkdBalance((prev) => Math.max(0, prev - akdAmount))

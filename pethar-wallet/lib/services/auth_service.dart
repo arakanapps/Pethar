@@ -136,7 +136,7 @@ class AuthService {
   }
 
   /// Dispatches OTP verification email via Gmail SMTP relay
-  Future<void> _dispatchOtpEmail({
+  Future<void> dispatchOtpEmail({
     required String email,
     required String code,
     required String purpose,
@@ -165,7 +165,7 @@ class AuthService {
   }
 
   /// Dispatches profile sync to MongoDB API relay
-  Future<void> _dispatchProfileToMongo({
+  Future<void> dispatchProfileToMongo({
     required String email,
     required String uid,
     required String name,
