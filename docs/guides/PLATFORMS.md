@@ -1,6 +1,6 @@
 # Péthar (ဖေ့သာ) — Mobile Platform Architecture Guide
 
-This document provides a clean overview of how all files in the Péthar codebase are structured for the **Android** and **iOS** native mobile releases, and details the archived platforms in `archive-platforms/`.
+This document provides a clean overview of how all files in the Péthar codebase are structured for the **Android** and **iOS** native mobile releases, and details the unified archive in `archive/`.
 
 ---
 
@@ -28,10 +28,13 @@ Péthar/
 │   ├── test/                    # Mobile test suite
 │   └── pubspec.yaml             # Mobile-only dependencies
 │
-└── archive-platforms/           # 📦 Preserved Web, POS, and Desktop Platforms
-    ├── web-wallet/              # React 19 / TypeScript / Vite / Vercel web portal
-    ├── pos-terminal/            # Merchant POS register & thermal printer modules
-    └── desktop-client/          # macOS Runner & Electron wrapper
+└── archive/                     # 📦 Master Consolidated Archive Directory
+    ├── archive-offline-features/# Legacy Cashu, BLE, NFC, Merchant, and Agent systems
+    ├── archive-platforms/       # Preserved Web, POS, and Desktop Platforms
+    │   ├── web-wallet/          # React 19 / TypeScript / Vite / Vercel web portal
+    │   ├── pos-terminal/        # Merchant POS register & thermal printer modules
+    │   └── desktop-client/      # macOS Runner & Electron wrapper
+    └── exchange-and-fx/         # Old dynamic fiat FX rate engines & cron sync jobs
 ```
 
 ---
@@ -51,9 +54,11 @@ From the root directory:
 
 ---
 
-## 📦 Archived Platforms
+## 📦 Master Unified Archive
 
-For documentation and reactivation instructions for legacy platforms:
-- **Web Portal:** See `archive-platforms/web-wallet/README.md`
-- **Merchant POS Terminal:** See `archive-platforms/pos-terminal/README.md`
-- **Desktop Client:** See `archive-platforms/desktop-client/README.md`
+For documentation and reactivation instructions for legacy components:
+- **Offline & Merchant Features:** See `archive/archive-offline-features/`
+- **Web Portal:** See `archive/archive-platforms/web-wallet/README.md`
+- **Merchant POS Terminal:** See `archive/archive-platforms/pos-terminal/README.md`
+- **Desktop Client:** See `archive/archive-platforms/desktop-client/README.md`
+- **Dynamic FX & Exchange Engines:** See `archive/exchange-and-fx/README.md`

@@ -4,7 +4,7 @@
 
 For the current release phase, the Péthar platform is locked strictly to **native Android and iOS** mobile clients powered by the Flutter mobile engine (`pethar-wallet`).
 
-All non-mobile client surfaces (**Web Application, Merchant POS Terminal, and Desktop Client**) have been formally moved out of the active workspace into [`archive-platforms/`](archive-platforms/). This narrows the attack surface, eliminates web-specific vulnerability vectors, and focuses release engineering entirely on native mobile performance, hardware key vaults, and offline resilience on physical mobile devices.
+All non-mobile client surfaces (**Web Application, Merchant POS Terminal, and Desktop Client**), offline hardware cashout modules, and dynamic fiat exchange/FX tracking engines have been formally moved out of the active workspace into [`archive/`](archive/). This narrows the attack surface, eliminates web-specific vulnerability vectors, and focuses release engineering entirely on native mobile performance, hardware key vaults, and online 1:1 dual-wallet transfers and crypto gateway swaps.
 
 ---
 
@@ -23,20 +23,21 @@ All non-mobile client surfaces (**Web Application, Merchant POS Terminal, and De
                                       ▼
        ┌─────────────────────────────────────────────────────────────┐
        │           Supabase PostgreSQL (System of Record)            │
-       │  ├── auth.users & public.profiles (Identity & KYC level)    │
-       │  ├── accounts & double-entry journal (Immutable balances)   │
-       │  ├── transactions & transfer state machine (Idempotency)    │
-       │  ├── security_events & audit logs (Tamper-evident log)      │
-       │  └── Row-Level Security (RLS: Tenant-isolated boundaries)   │
+       │  ├── auth.users & public.users (Identity & KYC level)       │
+       │  ├── akd_wallets (Main internal digital ledger, $0 gas fee) │
+       │  ├── crypto_wallets (USDT/USDC Web3 stablecoin gateway)     │
+       │  ├── 1:1 In-App Swaps (swap_crypto_to_akd, swap_akd_to_...)  │
+       │  ├── transactions & P2P state machine (Idempotency)         │
+       │  └── Row-Level Security (RLS: Strict user-boundary lock)    │
        └─────────────────────────────────────────────────────────────┘
                                       ▲
-                                      │ (Cold Storage / Archived)
-                       ┌──────────────┴──────────────┐
-                       │    archive-platforms/       │
-                       │    ├── web-wallet/          │
-                       │    ├── pos-terminal/        │
-                       │    └── desktop-client/      │
-                       └─────────────────────────────┘
+                                      │ (Master Archive / Cold Storage)
+                       ┌──────────────┴──────────────────────────────┐
+                       │                   archive/                  │
+                       │   ├── archive-offline-features/             │
+                       │   ├── archive-platforms/                    │
+                       │   └── exchange-and-fx/                      │
+                       └─────────────────────────────────────────────┘
 ```
 
 ---
@@ -58,10 +59,10 @@ All non-mobile client surfaces (**Web Application, Merchant POS Terminal, and De
    - `apps/android/`: Direct APK compilation script (`build-apk.sh`) and device runner (`run.sh`).
    - `apps/ios/`: Native Xcode workspace opener (`open-xcode.sh`) and simulator runner (`run.sh`).
 
-4. **Archived Platform Modules (`archive-platforms/`):**
-   - `archive-platforms/web-wallet/`: Full React 19 / TypeScript / Vite / Vercel web wallet codebase.
-   - `archive-platforms/pos-terminal/`: Merchant Point-of-Sale UI and hardware receipt modules.
-   - `archive-platforms/desktop-client/`: macOS Runner, Electron wrapper, and desktop portal screen.
+4. **Unified Master Archive (`archive/`):**
+   - `archive/archive-offline-features/`: Legacy Cashu, BLE, NFC, Merchant operations, and physical Agent network systems.
+   - `archive/archive-platforms/`: Archived Web Wallet (React 19/Vite), POS terminal screen, and Desktop client (macOS/Electron).
+   - `archive/exchange-and-fx/`: Legacy dynamic fiat foreign exchange rate tracking engines, oracle listeners, and live rate boards.
 
 ---
 

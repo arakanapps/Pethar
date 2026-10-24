@@ -98,7 +98,6 @@ class TranslationStrings {
       'legalTerms': 'အသုံးပြုမှု စည်းမျဉ်းနှင့် သဘောတူညီချက်များ',
       'legalPrivacy': 'ကိုယ်ရေးအချက်အလက် ကာကွယ်ရေး မူဝါဒ',
       'legalGuidelines': 'အက်ပ်အသုံးပြုနည်းနှင့် လုံခြုံရေး လမ်းညွှန်ချက်',
-      'legalFxRates': 'အာရက္ခဒေါ်လာ အထူးနိုင်ငံခြားငွေလဲလှယ်နှုန်းများ',
       'legalRegulatory': 'အာရက္ခဒစ်ဂျစ်တယ်ဘဏ္ဍာရေး စည်းမျဉ်းကြီးကြပ်ရေးအဖွဲ့ လိုင်စင်ရ',
       'supportContact': 'အကူအညီနှင့် တရားဝင်ဆက်သွယ်ရန်',
     },
@@ -200,7 +199,6 @@ class TranslationStrings {
       'legalTerms': 'Terms & Conditions of Financial Services',
       'legalPrivacy': 'Personal Data Protection & Privacy Charter',
       'legalGuidelines': 'Safe Banking Guidelines & Fraud Prevention',
-      'legalFxRates': 'Official Arakan Foreign Exchange Special Board',
       'legalRegulatory': 'Licensed by Arakan Digital Financial Regulatory Authority',
       'supportContact': 'Official Support & Inquiries',
     }
