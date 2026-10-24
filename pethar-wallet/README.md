@@ -2,7 +2,7 @@
 
 Native Android and iOS mobile client for the Péthar (ဖေ့သာ) financial platform, built with Flutter 3.x and Dart 3.x.
 
-> **Note:** The Web, POS, and Desktop platforms have been archived to `/archive-platforms/` for the current mobile-focused release phase. The active workspace is dedicated exclusively to native **Android and iOS**.
+> **Note:** The Web, POS, and Desktop platforms, legacy offline cashout engines, and dynamic fiat FX rate engines have been archived into `/archive/` for the current mobile-focused release phase. The active workspace is dedicated exclusively to native **Android and iOS** mobile clients.
 
 ---
 

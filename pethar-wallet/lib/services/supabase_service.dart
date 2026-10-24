@@ -715,20 +715,6 @@ class SupabaseService {
     }
   }
 
-  /// Conversion is intentionally unavailable in the first release.
-  @Deprecated('AKD/USD conversion is not enabled for the first release.')
-  Future<Map<String, dynamic>> requestAkdToUsd(double amount) async => {
-        'success': false,
-        'message': 'AKD/USD conversion is not currently available.',
-      };
-
-  /// Crypto conversion is intentionally unavailable in the first release.
-  @Deprecated('USD/crypto conversion is not enabled for the first release.')
-  Future<Map<String, dynamic>> convertUsdToAkd(double amount) async => {
-        'success': false,
-        'message': 'USD/crypto conversion is not currently available.',
-      };
-
   /// Dashboard announcements published by Péthar.
   Future<List<Map<String, dynamic>>> fetchAnnouncements() async {
     try {
@@ -779,39 +765,6 @@ class SupabaseService {
       }).toList();
     } catch (e) {
       debugPrint('Error fetching agents from Supabase: $e');
-      return [];
-    }
-  }
-
-  /// Fetch live foreign exchange rates from Supabase 'fx_rate_board' table
-  Future<List<Map<String, dynamic>>> fetchFxRates() async {
-    try {
-      final response = await client
-          .from('fx_rate_board')
-          .select()
-          .order('pair', ascending: true);
-
-      final List<dynamic> data = response as List<dynamic>;
-      return data.map((item) {
-        final map = item as Map<String, dynamic>;
-        final rateVal = (map['rate'] is num)
-            ? (map['rate'] as num).toDouble()
-            : double.tryParse(map['rate']?.toString() ?? '1.0') ?? 1.0;
-        final rawPair = map['pair']?.toString() ?? '';
-        final displayPair =
-            rawPair.contains(' / ') ? rawPair : rawPair.replaceAll('/', ' / ');
-        return {
-          'pair': displayPair,
-          'rate': rateVal >= 100
-              ? rateVal.toStringAsFixed(0)
-              : rateVal.toStringAsFixed(2),
-          'rawRate': rateVal,
-          'spreadBps': map['spread_bps'] ?? 0,
-          'provider': map['provider'] ?? 'PETHAR',
-        };
-      }).toList();
-    } catch (e) {
-      debugPrint('Error fetching fx rates from Supabase: $e');
       return [];
     }
   }

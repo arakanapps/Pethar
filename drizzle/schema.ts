@@ -2,10 +2,12 @@ import { pgTable, text, varchar, timestamp, numeric, uuid, pgEnum, check } from 
 import { relations, sql } from "drizzle-orm";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ENUMS (Phase 2 Refactor: Strictly Consumer Online Dual-Wallet & Swaps)
-// NOTE: Deleted and commented out all legacy enum options:
+// ENUMS (Strictly Consumer Online Dual-Wallet & 1:1 Swaps)
+// NOTE: Deleted and purged all dynamic fx_rates, conversion_spreads, source_currency,
+// and legacy offline enum options:
 // - 'agent_cashout' (PURGED: offline agent counter withdrawals retired)
 // - 'counter_withdrawal' (PURGED: physical agent cashier endpoints retired)
+// - dynamic fx / spread / oracle tables & enums (PURGED: replaced with 1:1 hard peg)
 // ─────────────────────────────────────────────────────────────────────────────
 export const userStatusEnum = pgEnum('user_status', ['pending_otp', 'active']);
 

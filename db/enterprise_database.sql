@@ -1778,50 +1778,11 @@ CREATE TABLE IF NOT EXISTS public.pos_terminals (
     created_at          TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS public.fx_rates (
-    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    base_currency  VARCHAR(16) NOT NULL,
-    quote_currency VARCHAR(16) NOT NULL,
-    rate           NUMERIC(28, 12) NOT NULL CHECK (rate > 0),
-    source         VARCHAR(30) NOT NULL,
-    spread_bps     INT NOT NULL DEFAULT 0,
-    created_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (base_currency, quote_currency),
-    CHECK (base_currency IN ('AKD', 'USD', 'USDC', 'USDT')),
-    CHECK (quote_currency IN ('AKD', 'USD', 'USDC', 'USDT'))
-);
-
-ALTER TABLE public.fx_rates DROP CONSTRAINT IF EXISTS fx_rates_base_currency_check;
-ALTER TABLE public.fx_rates ADD CONSTRAINT fx_rates_base_currency_check
-    CHECK (base_currency IN ('AKD', 'USD', 'USDC', 'USDT'));
-ALTER TABLE public.fx_rates DROP CONSTRAINT IF EXISTS fx_rates_quote_currency_check;
-ALTER TABLE public.fx_rates ADD CONSTRAINT fx_rates_quote_currency_check
-    CHECK (quote_currency IN ('AKD', 'USD', 'USDC', 'USDT'));
-
-CREATE TABLE IF NOT EXISTS public.fx_rate_board (
-    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pair                VARCHAR(20) UNIQUE NOT NULL CHECK (pair ~ '^(AKD|USD|USDC|USDT)/(AKD|USD|USDC|USDT)$'),
-    rate                NUMERIC(18, 6) NOT NULL,
-    spread_bps          INT NOT NULL DEFAULT 0,
-    provider            VARCHAR(50) NOT NULL DEFAULT 'PETHAR',
-    updated_at          TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-ALTER TABLE public.fx_rate_board DROP CONSTRAINT IF EXISTS fx_rate_board_pair_check;
-ALTER TABLE public.fx_rate_board ADD CONSTRAINT fx_rate_board_pair_check
-    CHECK (pair ~ '^(AKD|USD|USDC|USDT)/(AKD|USD|USDC|USDT)$');
-
-DO $$
-DECLARE
-    invalid_pair RECORD;
-BEGIN
-    FOR invalid_pair IN
-        SELECT pair FROM public.fx_rate_board
-        WHERE pair !~ '^(AKD|USD|USDC|USDT)/(AKD|USD|USDC|USDT)$'
-    LOOP
-        DELETE FROM public.fx_rate_board WHERE pair = invalid_pair.pair;
-    END LOOP;
-END $$;
+-- Purged public.fx_rates and public.fx_rate_board
+-- Dynamic fiat FX rate engines and spread tracking are retired and moved to archive/exchange-and-fx/.
+-- All AKD <-> USDT/USDC swaps operate at a static 1:1 hard correlation ($0.00 gas fee).
+DROP TABLE IF EXISTS public.fx_rate_board CASCADE;
+DROP TABLE IF EXISTS public.fx_rates CASCADE;
 
 CREATE TABLE IF NOT EXISTS public.offline_signed_vouchers (
     id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -1939,8 +1900,6 @@ ALTER TABLE public.ledger_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.otp_challenges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.offline_vouchers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.pos_terminals ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.fx_rates ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.fx_rate_board ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.offline_signed_vouchers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.cyber_defense_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.favorite_contacts ENABLE ROW LEVEL SECURITY;
@@ -2078,24 +2037,6 @@ BEGIN
     CREATE POLICY "service_full_approvals" ON public.pending_approvals
         FOR ALL TO service_role USING (true) WITH CHECK (true);
 
-    DROP POLICY IF EXISTS "allow_read_fx_rate_board" ON public.fx_rate_board;
-    DROP POLICY IF EXISTS "allow_all_fx_rate_board" ON public.fx_rate_board;
-    DROP POLICY IF EXISTS "fx_rate_board_read" ON public.fx_rate_board;
-    CREATE POLICY "fx_rate_board_read" ON public.fx_rate_board
-        FOR SELECT TO authenticated USING (auth.uid() IS NOT NULL);
-    DROP POLICY IF EXISTS "fx_rate_board_service_full" ON public.fx_rate_board;
-    CREATE POLICY "fx_rate_board_service_full" ON public.fx_rate_board
-        FOR ALL TO service_role USING (true) WITH CHECK (true);
-
-    DROP POLICY IF EXISTS "allow_read_fx_rates" ON public.fx_rates;
-    DROP POLICY IF EXISTS "allow_all_fx_rates" ON public.fx_rates;
-    DROP POLICY IF EXISTS "fx_rates_read" ON public.fx_rates;
-    CREATE POLICY "fx_rates_read" ON public.fx_rates
-        FOR SELECT TO authenticated USING (auth.uid() IS NOT NULL);
-    DROP POLICY IF EXISTS "fx_rates_service_full" ON public.fx_rates;
-    CREATE POLICY "fx_rates_service_full" ON public.fx_rates
-        FOR ALL TO service_role USING (true) WITH CHECK (true);
-
     DROP POLICY IF EXISTS "allow_read_pos_terminals" ON public.pos_terminals;
     DROP POLICY IF EXISTS "allow_all_pos_terminals" ON public.pos_terminals;
     DROP POLICY IF EXISTS "pos_terminals_read" ON public.pos_terminals;
@@ -2153,7 +2094,6 @@ BEGIN
             public.user_profiles, 
             public.transactions, 
             public.favorite_contacts,
-            public.fx_rate_board,
             public.agents,
             public.name_change_reviews;
     END IF;

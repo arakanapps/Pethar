@@ -5,8 +5,9 @@
 WITH expected_tables(name) AS (
     VALUES
         ('users'), ('user_profiles'), ('accounts'), ('transactions'), ('ledger_entries'),
+        ('akd_wallets'), ('crypto_wallets'),
         ('agents'), ('otp_challenges'), ('favorite_contacts'), ('bill_providers'),
-        ('topup_packages'), ('fx_rates'), ('fx_rate_board'), ('pos_terminals'),
+        ('topup_packages'), ('pos_terminals'),
         ('announcements'), ('pending_approvals')
 ),
 missing_tables AS (
@@ -24,7 +25,7 @@ SELECT 'unsupported_currency_constraints',
        CASE WHEN count(*) = 0 THEN 'OK' ELSE 'Retired currency still referenced in ' || count(*) || ' constraint(s)' END
 FROM pg_constraint
 WHERE contype = 'c'
-  AND conrelid::regclass::text IN ('public.accounts', 'public.fx_rates', 'public.fx_rate_board', 'public.ledger_entries', 'public.user_profiles')
+  AND conrelid::regclass::text IN ('public.accounts', 'public.akd_wallets', 'public.crypto_wallets', 'public.ledger_entries', 'public.user_profiles')
   AND conname LIKE '%currency%'
   AND pg_get_constraintdef(oid) NOT LIKE '%AKD%'
 

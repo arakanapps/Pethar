@@ -10,7 +10,7 @@
 [![Backend](https://img.shields.io/badge/Backend-Supabase%20%7C%20PostgreSQL-3ECF8E.svg)](supabase/)
 [![License](https://img.shields.io/badge/License-Proprietary%20Enterprise-blue.svg)](LICENSE)
 
-[Mobile Apps](apps/) • [Architecture](ARCHITECTURE.md) • [Database](supabase/) • [Documentation](docs/) • [Archived Platforms](archive-platforms/) • [Compliance](COMPLIANCE.md)
+[Mobile Apps](apps/) • [Architecture](ARCHITECTURE.md) • [Database](supabase/) • [Documentation](docs/) • [Archive](archive/) • [Compliance](COMPLIANCE.md)
 
 </div>
 
@@ -20,7 +20,7 @@
 
 For the current release phase, the Péthar engineering focus is dedicated strictly to native **Android and iOS** mobile clients (`pethar-wallet` Flutter engine) backed by a hardened **PostgreSQL / Supabase** ledger. 
 
-All non-mobile client surfaces (**Web App, Merchant POS Terminal, and Desktop Client**) have been decoupled and archived into [`archive-platforms/`](archive-platforms/) to eliminate release surface area, optimize CI execution, and guarantee native mobile security on physical smartphones.
+All legacy footprints, non-mobile client surfaces (**Web App, Merchant POS Terminal, Desktop Client**), offline hardware layers, and dynamic fiat exchange/FX tracking engines have been consolidated into [`archive/`](archive/) to eliminate attack surface, optimize CI execution, and guarantee native mobile security on physical smartphones.
 
 ```text
        ┌─────────────────────────────────────────────────────────────┐
@@ -33,17 +33,17 @@ All non-mobile client surfaces (**Web App, Merchant POS Terminal, and Desktop Cl
 │  Mobile Engine (Flutter 3.x) │                       │  Backend Ledger (PostgreSQL) │
 │  • Android (APK / AAB)       │ ◄─── REST / RPC ────► │  • Supabase Enterprise DB    │
 │  • iOS (Runner / IPA)        │     Authenticated     │  • Row-Level Security (RLS)  │
-│  • Local Hardware Encryption │     Row-Level Sec     │  • Double-Entry Journal      │
-│  • Offline Dynamic AK QR     │                       │  • Idempotent Transfer RPC   │
+│  • Local Hardware Encryption │     Row-Level Sec     │  • 1:1 Pegged Dual-Wallets   │
+│  • P2P Transfers & Swaps     │                       │  • Idempotent Transfer RPC   │
 └──────────────────────────────┘                       └──────────────────────────────┘
                                       ▲
-                                      │ (Preserved in Cold Storage)
-                       ┌──────────────┴──────────────┐
-                       │    archive-platforms/       │
-                       │    ├── web-wallet/          │
-                       │    ├── pos-terminal/        │
-                       │    └── desktop-client/      │
-                       └─────────────────────────────┘
+                                      │ (Master Archive / Cold Storage)
+                       ┌──────────────┴──────────────────────────────┐
+                       │                   archive/                  │
+                       │   ├── archive-offline-features/             │
+                       │   ├── archive-platforms/                    │
+                       │   └── exchange-and-fx/                      │
+                       └─────────────────────────────────────────────┘
 ```
 
 ---
@@ -103,10 +103,10 @@ PeThar/
 ├── drizzle/                     # ⚡ Drizzle ORM Schema & Migration tooling
 ├── scripts/                     # 🔧 Signing key generation & deployment utilities
 │
-└── archive-platforms/           # 📦 Preserved Web, POS, and Desktop Codebases
-    ├── web-wallet/              # React 19 / TypeScript / Vite / Vercel web app
-    ├── pos-terminal/            # Point-of-Sale UI and terminal hardware modules
-    └── desktop-client/          # macOS Runner, Electron wrapper, and desktop portal
+└── archive/                     # 📦 Unified Master Backup Directory
+    ├── archive-offline-features/# Legacy Cashu, BLE, NFC, Merchant, and Agent systems
+    ├── archive-platforms/       # Web, POS terminals, and Desktop clients codebases
+    └── exchange-and-fx/         # Old dynamic fiat FX rate tracking engines & cron jobs
 ```
 
 ---
@@ -168,12 +168,14 @@ npm run ios:xcode
 
 ---
 
-## Archived Platforms Reference
+## Master Unified Archive Reference
 
-To inspect or reactivate the legacy multi-platform components:
-- **Web App:** Refer to [`archive-platforms/web-wallet/README.md`](archive-platforms/web-wallet/README.md)
-- **Merchant POS Terminal:** Refer to [`archive-platforms/pos-terminal/README.md`](archive-platforms/pos-terminal/README.md)
-- **Desktop Client:** Refer to [`archive-platforms/desktop-client/README.md`](archive-platforms/desktop-client/README.md)
+To inspect or reactivate the legacy components:
+- **Offline & Merchant Systems:** Refer to [`archive/archive-offline-features/`](archive/archive-offline-features/)
+- **Web App:** Refer to [`archive/archive-platforms/web-wallet/README.md`](archive/archive-platforms/web-wallet/README.md)
+- **Merchant POS Terminal:** Refer to [`archive/archive-platforms/pos-terminal/README.md`](archive/archive-platforms/pos-terminal/README.md)
+- **Desktop Client:** Refer to [`archive/archive-platforms/desktop-client/README.md`](archive/archive-platforms/desktop-client/README.md)
+- **Dynamic FX & Exchange Engines:** Refer to [`archive/exchange-and-fx/README.md`](archive/exchange-and-fx/README.md)
 
 ---
 

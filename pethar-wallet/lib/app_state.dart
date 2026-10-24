@@ -47,7 +47,6 @@ class AppState extends ChangeNotifier {
   List<FavoriteContact> favoriteContactsList = [];
   List<Contact> contactsList = [];
   List<Agent> agentsList = [];
-  List<Map<String, dynamic>> fxRatesList = [];
   List<Map<String, dynamic>> announcementsList = [];
   Map<String, dynamic>? pendingPayContact;
   bool dontShowQuickScanDialog = false;
@@ -405,12 +404,6 @@ class AppState extends ChangeNotifier {
       if (remoteAgents.isNotEmpty) {
         agentsList = remoteAgents;
         agents = agentsList;
-      }
-
-      // 5. Fetch FX Rates from Supabase
-      final remoteFx = await supa.fetchFxRates();
-      if (remoteFx.isNotEmpty) {
-        fxRatesList = remoteFx;
       }
     } catch (e) {
       debugPrint('Supabase data fetch notice: $e');
