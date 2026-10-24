@@ -31,7 +31,7 @@ export interface Txn {
   refId: string
   title: string
   titleMm: string
-  category: 'transfer' | 'cashout' | 'crypto' | 'remittance' | 'pos' | 'card' | 'Bills' | string
+  category: 'transfer' | 'crypto' | 'remittance' | 'swap' | 'card' | string
   amount: number
   currency: string
   time: string
@@ -114,23 +114,6 @@ export function generateUserUid(userCount: number = 1, date: Date = new Date()):
   const count = userCount.toString().padStart(4, '0')
   return `${y}${m}${d}${count}`
 }
-
-export interface Agent {
-  code: string
-  name: string
-  mm: string
-  township: string
-  townshipMm: string
-  distance: string
-  floatStatus: 'High' | 'Medium' | 'Low'
-  floatStatusMm: string
-  phone: string
-  cashReserveAkd: number
-  open: boolean
-}
-
-// Live data: Agents are fetched dynamically from Supabase 'agents'
-export const agents: Agent[] = []
 
 export interface WalletBalance {
   currency: string

@@ -1,5 +1,5 @@
 import {
-  wallets, contacts, agents,
+  wallets, contacts,
   initialUserProfile, type UserProfile
 } from './data'
 import {
@@ -82,15 +82,11 @@ export type Screen =
   | 'send'
   | 'receive'
   | 'scan'
-  | 'cashout'
   | 'intl'
   | 'crypto'
-  | 'pos'
   | 'notifications'
   | 'pay'
   | 'history'
-  | 'topup'
-  | 'bills'
   | 'favourites'
   | 'financial'
   | 'offlinePayment'
@@ -241,7 +237,7 @@ export function Home({
     { id: 'scan' as Screen, label: isAk ? 'ငွေပေးချေ' : 'Pay', icon: WalletMinimalIcon },
     { id: 'receive' as Screen, label: isAk ? 'ငွေလက်ခံ' : 'Receive', icon: QrCode },
     { id: 'crypto' as Screen, label: isAk ? 'ငွေသွင်း' : 'Deposit', icon: ArrowDownLeft },
-    { id: 'cashout' as Screen, label: isAk ? 'ငွေထုတ်' : 'Withdraw', icon: ArrowUpRight },
+    { id: 'send' as Screen, label: isAk ? 'ငွေလွှဲ' : 'Transfer', icon: ArrowUpRight },
   ]
 
   const secondaryServices = [
@@ -278,12 +274,12 @@ export function Home({
       accentBg: 'bg-red-500/20 text-red-400',
     },
     {
-      titleEn: 'Arakan Merchant 5% Cashback',
-      titleAk: 'ကုန်သည်ဆိုင်များတွင် ၅% ပြန်အမ်းငွေ',
-      descEn: 'Earn 5% cashback at verified partner merchants',
-      descAk: 'အတည်ပြုစတိုးဆိုင်များတွင် QR ဖြင့် ပေးချေပါ',
+      titleEn: 'Arakan P2P Transfer Rewards',
+      titleAk: 'P2P ငွေလွှဲခြင်းအတွက် ပြန်အမ်းငွေ',
+      descEn: 'Enjoy zero fees and instant cashback on P2P payments',
+      descAk: 'လူပုဂ္ဂိုလ်အချင်းချင်း အခမဲ့နှင့် လက်ငင်းလွှဲပို့ပါ',
       gradient: 'from-slate-900 via-slate-800 to-emerald-900',
-      icon: Store,
+      icon: ArrowLeftRight,
       accentBg: 'bg-emerald-500/20 text-emerald-400',
     },
     {
@@ -2928,126 +2924,6 @@ export function Scan({
               }`}
           />
         </button>
-      </div>
-    </div>
-  )
-}
-
-// ── AGENT CASH OUT SCREEN ───────────────────────────────────────────────
-export function CashOut({ go, lang, theme = 'light' }: { go: (s: Screen) => void; lang: Language; theme?: ThemeMode }) {
-  const t = translations[lang]
-  const [selectedAgent, setSelectedAgent] = useState<(typeof agents)[0] | null>(null)
-  const [showTotp, setShowTotp] = useState(false)
-  const [secondsLeft, setSecondsLeft] = useState(30)
-  const [dynamicOtp, setDynamicOtp] = useState('719 402')
-
-  useEffect(() => {
-    let timer: ReturnType<typeof setInterval>
-    if (showTotp) {
-      timer = setInterval(() => {
-        setSecondsLeft((prev) => {
-          if (prev <= 1) {
-            setDynamicOtp(
-              Math.floor(100 + Math.random() * 900) + ' ' + Math.floor(100 + Math.random() * 900)
-            )
-            return 30
-          }
-          return prev - 1
-        })
-      }, 1000)
-    }
-    return () => clearInterval(timer)
-  }, [showTotp])
-
-  return (
-    <div className={`flex h-full flex-col ${th.root(theme)}`}>
-      <ScreenHeader
-        title={t.cashOutTitle}
-        subtitle={lang === 'ak' ? 'တရားဝင် အာရက္ခအေးဂျင့်များ' : 'Verified Agent Branch Network'}
-        theme={theme}
-      />
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {!showTotp ? (
-          <>
-            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200">
-              <span className="font-bold">{t.cashOutSubtitle}</span>
-            </div>
-
-            <div>
-              <div className="text-xs font-bold text-gray-300 mb-2">{t.cashOutNearbyAgents}</div>
-              <div className="space-y-2">
-                {agents.map((agt) => (
-                  <button
-                    key={agt.code}
-                    onClick={() => {
-                      setSelectedAgent(agt)
-                      setShowTotp(true)
-                    }}
-                    className="w-full p-3.5 rounded-2xl bg-[#131B26] hover:bg-[#1A2536] border border-white/5 hover:border-amber-500/40 text-left transition flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-600/30 to-amber-600/30 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                        <Store size={18} />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-white">
-                          {lang === 'ak' ? agt.mm : agt.name}
-                        </div>
-                        <div className="text-[10px] text-gray-400">
-                          {agt.code} • {lang === 'ak' ? agt.townshipMm : agt.township}
-                        </div>
-                        <div className="text-[9px] text-amber-300 font-mono mt-0.5">
-                          {agt.distance} • {lang === 'ak' ? agt.floatStatusMm : `${agt.floatStatus} Cash Float`}
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight size={16} className="text-gray-500" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="p-5 rounded-3xl bg-gradient-to-b from-[#1C2530] to-[#101724] border border-amber-500/40 text-center space-y-4">
-            <div className="text-xs font-bold text-white">
-              {lang === 'ak' ? selectedAgent?.mm : selectedAgent?.name}
-            </div>
-
-            <div>
-              <div className="text-[10px] text-gray-400">{t.cashOutTokenLabel}</div>
-              <div className="text-4xl font-extrabold font-mono tracking-widest text-amber-400 mt-2">
-                {dynamicOtp}
-              </div>
-              <div className="text-[10px] text-gray-400 mt-1.5 flex items-center justify-center gap-1">
-                <Clock size={12} className="text-amber-400" />
-                <span>
-                  {t.cashOutTokenValidFor}: <strong className="text-white">{secondsLeft}s</strong>
-                </span>
-              </div>
-            </div>
-
-            <div className="p-3 bg-white rounded-2xl inline-block shadow-xl">
-              <InlineQR size={140} value={`pethar://cashout?agent=${selectedAgent?.code}&totp=${dynamicOtp}`} />
-            </div>
-
-            <p className="text-[11px] text-gray-300 max-w-xs mx-auto">
-              {lang === 'ak'
-                ? 'အေးဂျင့်ထံ ဤကုဒ်ပြသ၍ ငွေသားထုတ်ယူပါ။ တစ်ခါသုံးကုဒ်ဖြစ်သဖြင့် လုံခြုံစိတ်ချရပါသည်'
-                : 'Show dynamic code to agent counter to withdraw physical Arakan banknotes'}
-            </p>
-
-            <button
-              onClick={() => {
-                alert(lang === 'ak' ? 'ငွေသားထုတ်ယူမှု အောင်မြင်ပါသည်!' : 'Cash-out withdrawal settled!')
-                go('home')
-              }}
-              className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition"
-            >
-              {lang === 'ak' ? 'ငွေသားလက်ခံရရှိပါပြီ' : 'Confirm Cash Received'}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   )

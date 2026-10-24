@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'supabase_service.dart';
 
@@ -75,7 +74,7 @@ class OtpChallenge {
 
   OtpChallenge({
     required this.email,
-    required this.code,
+    this.code = '',
     required this.expiresAt,
     required this.purpose,
   });
@@ -99,6 +98,7 @@ class AuthService {
   final Map<String, StoredUser> _users = {};
   OtpChallenge? _activePinResetOtp;
   OtpChallenge? _activeSignUpOtp;
+  OtpChallenge? _activeLoginOtp;
   Map<String, dynamic>? _pendingSignUpData;
   bool _initialized = false;
 
@@ -132,74 +132,6 @@ class AuthService {
       await prefs.setString(_usersPrefKey, jsonEncode(raw));
     } catch (e) {
       debugPrint('AuthService save error: $e');
-    }
-  }
-
-  /// Dispatches OTP verification email via Gmail SMTP relay
-  Future<void> _dispatchOtpEmail({
-    required String email,
-    required String code,
-    required String purpose,
-  }) async {
-    final hosts = ['10.0.2.2', '127.0.0.1', 'localhost'];
-    for (final host in hosts) {
-      try {
-        final uri = Uri.parse('http://$host:3001/api/send-otp');
-        final response = await http
-            .post(
-              uri,
-              headers: {'Content-Type': 'application/json'},
-              body: jsonEncode({
-                'email': email,
-                'code': code,
-                'purpose': purpose,
-              }),
-            )
-            .timeout(const Duration(seconds: 4));
-        if (response.statusCode == 200) {
-          debugPrint('✅ [AuthService] OTP email dispatched via $uri to $email');
-          return;
-        }
-      } catch (_) {}
-    }
-  }
-
-  /// Dispatches profile sync to MongoDB API relay
-  Future<void> _dispatchProfileToMongo({
-    required String email,
-    required String uid,
-    required String name,
-    required String username,
-  }) async {
-    final hosts = ['10.0.2.2', '127.0.0.1', 'localhost'];
-    for (final host in hosts) {
-      try {
-        final uri = Uri.parse('http://$host:3001/api/profile');
-        final response = await http
-            .post(
-              uri,
-              headers: {'Content-Type': 'application/json'},
-              body: jsonEncode({
-                'email': email,
-                'action': 'save',
-                'profile': {
-                  'id': 'user_$uid',
-                  'email': email,
-                  'name': name,
-                  'username': username,
-                  'uid': uid,
-                  'kyc_tier': 1,
-                  'balance': 0.00,
-                  'currency': 'AKD',
-                },
-              }),
-            )
-            .timeout(const Duration(seconds: 4));
-        if (response.statusCode == 200) {
-          debugPrint('✅ [AuthService] Profile synced to MongoDB via $uri');
-          return;
-        }
-      } catch (_) {}
     }
   }
 
@@ -318,6 +250,208 @@ class AuthService {
       _users[cleanEmail] = user;
       await _saveUsers();
     }
+
+    await setActiveUserEmail(cleanEmail);
+    return {
+      'success': true,
+      'user': user,
+    };
+  }
+
+  /// Request Login OTP (10 minute expiry)
+  Future<Map<String, dynamic>> requestLoginOtp({
+    required String email,
+    required String pin,
+  }) async {
+    await initialize();
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanPin = pin.trim();
+
+    if (cleanEmail.isEmpty || !cleanEmail.contains('@')) {
+      return {
+        'success': false,
+        'error': 'Please enter a valid email address',
+        'isPinOrEmailWrong': false,
+      };
+    }
+    if (cleanPin.length != 6 || !RegExp(r'^\d{6}$').hasMatch(cleanPin)) {
+      return {
+        'success': false,
+        'error': 'PIN code must be exactly 6 digits',
+        'isPinOrEmailWrong': false,
+      };
+    }
+
+    final StoredUser? user = _users[cleanEmail];
+    if (user != null && user.pin.isNotEmpty && user.pin != cleanPin) {
+      return {
+        'success': false,
+        'error': 'Wrong email or PIN code',
+        'isPinOrEmailWrong': true,
+      };
+    }
+
+    final expiresAt = DateTime.now().add(const Duration(minutes: 10));
+    _activeLoginOtp = OtpChallenge(
+      email: cleanEmail,
+      expiresAt: expiresAt,
+      purpose: 'LOGIN',
+    );
+
+    try {
+      await SupabaseService().sendEmailOtp(cleanEmail);
+    } catch (e) {
+      debugPrint('Supabase login OTP dispatch notice: $e');
+    }
+
+    return {
+      'success': true,
+      'expiresAt': expiresAt,
+      'message': '6-digit verification code sent to $cleanEmail (expires in 10 minutes)',
+    };
+  }
+
+  /// Verify Login OTP and complete authentication
+  Future<Map<String, dynamic>> verifyLoginOtp({
+    required String email,
+    required String pin,
+    required String otp,
+  }) async {
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanPin = pin.trim();
+    final cleanOtp = otp.trim();
+
+    if (_activeLoginOtp != null && _activeLoginOtp!.email == cleanEmail && _activeLoginOtp!.isExpired) {
+      return {
+        'success': false,
+        'expired': true,
+        'error': 'Verification code has expired. Please tap Resend to get a new code.',
+      };
+    }
+
+    if (cleanOtp.length != 6) {
+      return {
+        'success': false,
+        'error': 'Enter the 6-digit verification code.',
+      };
+    }
+
+    try {
+      final verified = await SupabaseService().verifyEmailOtp(cleanEmail, cleanOtp);
+      if (!verified && _activeLoginOtp != null) {
+        return {
+          'success': false,
+          'error': 'Incorrect or expired verification code.',
+        };
+      }
+    } catch (e) {
+      debugPrint('Supabase login OTP verification notice: $e');
+    }
+
+    StoredUser? user = _users[cleanEmail];
+    if (user == null) {
+      user = StoredUser(
+        email: cleanEmail,
+        pin: cleanPin,
+        name: cleanEmail.split('@')[0],
+        username: '@${cleanEmail.split('@')[0]}',
+        uid: 'ARAK-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        kycTier: 1,
+        kycStatus: 'ACTIVE',
+      );
+      _users[cleanEmail] = user;
+      await _saveUsers();
+    }
+
+    await setActiveUserEmail(cleanEmail);
+    return {
+      'success': true,
+      'user': user,
+    };
+  }
+
+  /// Google Login with Access PIN entry
+  Future<Map<String, dynamic>> loginWithGoogleAndPin({
+    required String email,
+    required String pin,
+    String? name,
+  }) async {
+    await initialize();
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanPin = pin.trim();
+
+    if (cleanPin.length != 6 || !RegExp(r'^\d{6}$').hasMatch(cleanPin)) {
+      return {
+        'success': false,
+        'error': 'Access PIN must be exactly 6 digits',
+      };
+    }
+
+    StoredUser? user = _users[cleanEmail];
+    if (user != null && user.pin.isNotEmpty && user.pin != cleanPin) {
+      return {
+        'success': false,
+        'error': 'Incorrect Access PIN entered.',
+      };
+    }
+
+    if (user == null) {
+      user = StoredUser(
+        email: cleanEmail,
+        pin: cleanPin,
+        name: name ?? cleanEmail.split('@')[0],
+        username: '@${cleanEmail.split('@')[0]}',
+        uid: 'ARAK-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        kycTier: 1,
+        kycStatus: 'ACTIVE',
+      );
+      _users[cleanEmail] = user;
+      await _saveUsers();
+    }
+
+    await setActiveUserEmail(cleanEmail);
+    return {
+      'success': true,
+      'user': user,
+    };
+  }
+
+  /// Google Signup with Access PIN creation
+  Future<Map<String, dynamic>> registerWithGoogleAndPin({
+    required String email,
+    required String pin,
+    required String confirmPin,
+    String? name,
+  }) async {
+    await initialize();
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanPin = pin.trim();
+    final cleanConfirm = confirmPin.trim();
+
+    if (cleanPin.length != 6 || !RegExp(r'^\d{6}$').hasMatch(cleanPin)) {
+      return {
+        'success': false,
+        'error': 'Access PIN must be exactly 6 digits',
+      };
+    }
+    if (cleanPin != cleanConfirm) {
+      return {
+        'success': false,
+        'error': 'Access PIN and confirmation do not match',
+      };
+    }
+
+    final user = StoredUser(
+      email: cleanEmail,
+      pin: cleanPin,
+      name: name ?? cleanEmail.split('@')[0],
+      username: '@${cleanEmail.split('@')[0]}',
+      uid: 'ARAK-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+      kycTier: 1,
+      kycStatus: 'ACTIVE',
+    );
+    _users[cleanEmail] = user;
+    await _saveUsers();
 
     await setActiveUserEmail(cleanEmail);
     return {

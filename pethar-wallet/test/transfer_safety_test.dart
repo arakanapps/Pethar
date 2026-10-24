@@ -16,11 +16,6 @@ void main() {
           amount: 10, recipientName: 'Recipient', recipientId: 'recipient');
       state.recordUsdTransfer(
           amount: 10, recipientAddress: '0x123', token: 'USDT');
-      expect(state.loadOfflinePocket(10), isFalse);
-      expect(state.depositOfflinePocket(10), isFalse);
-      expect(
-          state.sendOfflineCash(amount: 10, recipient: 'recipient'), isFalse);
-      state.receiveOfflineCash(amount: 10, sender: 'sender', tokenStr: 'token');
 
       expect(state.wallet.balance, balance);
       expect(state.usdAccountBalance, usdBalance);

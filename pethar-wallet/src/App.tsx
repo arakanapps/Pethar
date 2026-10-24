@@ -2,11 +2,11 @@ import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import type { Language } from './i18n'
 import Main from './pages/Main'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 // Lazy-load secondary consolidated pages
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const AppPage = lazy(() => import('./pages/AppPage'))
-const SupportPage = lazy(() => import('./pages/SupportPage'))
 const DownloadPage = lazy(() => import('./pages/DownloadPage'))
 const ExchangePage = lazy(() => import('./pages/ExchangePage'))
 
@@ -44,14 +44,6 @@ export default function App() {
     const searchParams = new URLSearchParams(location.search)
 
     if (
-      pathname.includes('/support') ||
-      pathname.includes('/chat') ||
-      pathname.includes('/help')
-    ) {
-      return 'support'
-    }
-
-    if (
       pathname === '/app' ||
       pathname.endsWith('/app') ||
       pathname.startsWith('/app/') ||
@@ -72,12 +64,17 @@ export default function App() {
       searchParams.get('banking') === 'true' ||
       searchParams.get('portal') === 'true' ||
       searchParams.get('dashboard') === 'true' ||
-      searchParams.get('admin') === 'true'
+      searchParams.get('admin') === 'true' ||
+      searchParams.get('chat') === 'true' ||
+      searchParams.get('support') === 'true'
 
     if (
       pathname.includes('/banking') ||
       pathname.includes('/dashboard') ||
       pathname.includes('/admin') ||
+      pathname.includes('/support') ||
+      pathname.includes('/chat') ||
+      pathname.includes('/help') ||
       paramBanking
     ) {
       return 'dashboard'
@@ -126,10 +123,6 @@ export default function App() {
       navigate(`/${newLang}/app${location.search}${location.hash}`)
       return
     }
-    if (routeTarget === 'support') {
-      navigate(`/${newLang}/support${location.search}${location.hash}`)
-      return
-    }
 
     const pathname = location.pathname
     if (pathname === '/privacy' || pathname === '/terms') {
@@ -168,16 +161,6 @@ export default function App() {
             style={{ width: '100%', height: '100%', border: 'none' }}
           />
         </div>
-      )
-    }
-
-    if (routeTarget === 'support') {
-      return (
-        <SupportPage
-          lang={currentLang}
-          setLang={handleSetLang}
-          onBack={() => navigate(`/${currentLang}`)}
-        />
       )
     }
 
@@ -220,5 +203,9 @@ export default function App() {
     return <Main lang={currentLang} setLang={handleSetLang} />
   }
 
-  return <Suspense fallback={<PageFallback />}>{renderPage()}</Suspense>
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<PageFallback />}>{renderPage()}</Suspense>
+    </ErrorBoundary>
+  )
 }

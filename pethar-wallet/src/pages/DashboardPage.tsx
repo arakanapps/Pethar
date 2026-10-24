@@ -3,7 +3,7 @@ import { ArakanEmblem } from '../components/ArakanEmblem'
 import { TransactionSlip } from '../components/TransactionSlip'
 import { ReceiveQRCard } from '../components/ReceiveQRCard'
 import {
-  LayoutGrid, Wallet, CreditCard, History, TrendingUp, Radio, Settings,
+  LayoutGrid, Wallet, CreditCard, History, TrendingUp, Settings,
   ShieldCheck, Send, QrCode, Search, Sparkles,
   Eye, EyeOff, Check, Copy, AlertTriangle, ShieldAlert, Users,
   Plus, ExternalLink, X,
@@ -30,7 +30,6 @@ export type NavTabType =
   | 'cards'
   | 'transactions'
   | 'financial'
-  | 'offline'
   | 'settings'
   // Dev Admin Role Tabs
   | 'admin-kyc'
@@ -114,7 +113,7 @@ export interface PromoAdItem {
   active: boolean
   impressions: number
   clicks: number
-  category: 'remittance' | 'cashback' | 'offline' | 'reserves'
+  category: 'remittance' | 'cashback' | 'swap' | 'reserves'
 }
 
 export interface ApiEndpointItem {
@@ -151,16 +150,25 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   // Dev Admin Role Switcher
   const [isDevAdminMode, setIsDevAdminMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search)
+      const tabParam = searchParams.get('tab')
+      if (tabParam === 'chat' || tabParam === 'support' || tabParam === 'admin-chat') return true
+      if (window.location.pathname.includes('/support') || window.location.pathname.includes('/chat')) return true
       const stored = localStorage.getItem('pethar_dev_admin_mode')
       if (stored === 'true') return true
     }
-    return initialTab?.startsWith('admin') || false
+    return initialTab?.startsWith('admin') || initialTab === 'chat' || initialTab === 'support' || false
   })
 
   // Navigation Tab State
   const [navTab, setNavTab] = useState<NavTabType>(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search)
+      const tabParam = searchParams.get('tab')
+      if (tabParam === 'chat' || tabParam === 'support' || tabParam === 'admin-chat' || window.location.pathname.includes('/support') || window.location.pathname.includes('/chat')) return 'admin-chat'
+    }
     if (initialTab === 'admin-kyc' || initialTab === 'kyc') return 'admin-kyc'
-    if (initialTab === 'admin-chat' || initialTab === 'chat') return 'admin-chat'
+    if (initialTab === 'admin-chat' || initialTab === 'chat' || initialTab === 'support') return 'admin-chat'
     if (initialTab === 'admin-ads' || initialTab === 'ads') return 'admin-ads'
     if (initialTab === 'admin-api' || initialTab === 'api') return 'admin-api'
     if (initialTab === 'admin-fraud' || initialTab === 'fraud') return 'admin-fraud'
@@ -169,7 +177,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     if (initialTab === 'history' || initialTab === 'transactions') return 'transactions'
     if (initialTab === 'wallet') return 'wallet'
     if (initialTab === 'cards') return 'cards'
-    if (initialTab === 'offline') return 'offline'
     if (initialTab === 'settings') return 'settings'
     return 'home'
   })
@@ -196,10 +203,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [walletBalance, setWalletBalance] = useState(12500.0)
   const [balanceVisible, setBalanceVisible] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [txCategoryFilter, setTxCategoryFilter] = useState<'all' | 'transfer' | 'inflow' | 'merchant' | 'offline'>('all')
-  const [monthlyInflow] = useState(3420.0)
-  const [monthlyOutflow] = useState(1150.0)
-  const [offlineBalance] = useState(250.0)
+  const [txCategoryFilter, setTxCategoryFilter] = useState<'all' | 'transfer' | 'inflow' | 'swap'>('all')
 
   // Virtual Card Controls
   const [cardLocked, setCardLocked] = useState(false)
@@ -216,7 +220,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [receiveModalOpen, setReceiveModalOpen] = useState(false)
   const [sendModalOpen, setSendModalOpen] = useState(false)
   const [topUpModalOpen, setTopUpModalOpen] = useState(false)
-  const [offlineBeamModalOpen, setOfflineBeamModalOpen] = useState(false)
 
   // Send Money form state
   const [recipientInput, setRecipientInput] = useState('')
@@ -242,7 +245,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       idCard: 'ARAK-ID-992140',
       dob: '1994-06-12',
       gender: 'Male',
-      occupation: 'Merchant Trader',
+      occupation: 'Software Engineer',
       phone: '+959798221001',
       email: 'kyawmyothu@gmail.com',
       uid: '202610190001',
@@ -329,7 +332,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         id: 'msg-seed-3',
         sender: 'user',
         channel: 'android',
-        text: 'Greetings, I downloaded the new Android signed APK and offline BLE mesh is working great in Sittwe.',
+        text: 'Greetings, I downloaded the new Android signed APK and P2P transfers are working great in Sittwe.',
         time: '14:22',
       },
     ]
@@ -365,10 +368,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     },
     {
       id: 'ad-2',
-      titleEn: 'Arakan Merchant 5% Cashback',
-      titleAk: 'ကုန်သည်ဆိုင်များတွင် ၅% ပြန်အမ်းငွေ',
-      descEn: 'Earn 5% cashback at verified partner merchants',
-      descAk: 'အတည်ပြုစတိုးဆိုင်များတွင် QR ဖြင့် ပေးချေပါ',
+      titleEn: 'Arakan P2P Transfer Rewards',
+      titleAk: 'အာရက္ခ P2P ငွေလွှဲ အထူးအစီအစဉ်',
+      descEn: 'Enjoy zero fees and instant cashback on P2P consumer transfers',
+      descAk: 'လူပုဂ္ဂိုလ်အချင်းချင်း ငွေလွှဲမှုတိုင်းအတွက် လက်ငင်းဆုလာဘ် ရယူပါ',
       gradient: 'from-slate-900 via-slate-800 to-emerald-900',
       accentBg: 'bg-emerald-500/20 text-emerald-400',
       active: true,
@@ -378,16 +381,16 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     },
     {
       id: 'ad-3',
-      titleEn: 'Péthar Offline Bearer eCash',
-      titleAk: 'အင်တာနက်မလိုဘဲ ငွေသားကဲ့သို့ ပေးချေခြင်း',
-      descEn: 'NFC & soundwave offline tap-to-pay anywhere',
-      descAk: 'အသံလှိုင်းနှင့် NFC ဖြင့် အင်တာနက်မဲ့ သုံးစွဲနိုင်သည်',
+      titleEn: '1:1 Web3 Stablecoin Swap',
+      titleAk: '၁:၁ ခရစ်ပတို လဲလှယ်မှု စနစ်',
+      descEn: 'Instant atomic swaps between USDT, USDC, and AKD',
+      descAk: 'USDT, USDC နှင့် AKD အကြား ချက်ချင်းလဲလှယ်ပါ',
       gradient: 'from-indigo-950 via-slate-900 to-slate-800',
       accentBg: 'bg-indigo-500/20 text-indigo-400',
       active: true,
       impressions: 21050,
       clicks: 1420,
-      category: 'offline',
+      category: 'swap',
     },
     {
       id: 'ad-4',
@@ -433,24 +436,24 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       latency: '12ms',
     },
     {
-      id: 'escrow',
+      id: 'swap',
       method: 'POST',
-      path: '/v1/escrow/create',
-      category: 'Escrow',
-      description: 'Lock fiat collateral into an immutable 2-of-3 multisig smart escrow contract.',
-      requestBody: JSON.stringify({ buyer_id: 'akd_buyer', seller_id: 'akd_seller', collateral_amount: 50.0, timelock_hours: 72 }, null, 2),
-      responseBody: JSON.stringify({ escrow_id: 'esc_88201a4f', state: 'funded_locked', timelock_expires_in: 72 }, null, 2),
-      latency: '36ms',
+      path: '/v1/swap/crypto-to-akd',
+      category: 'Crypto Gateway',
+      description: 'Execute instant 1:1 in-app atomic swap between USDT/USDC and sovereign AKD ledger.',
+      requestBody: JSON.stringify({ user_id: 'usr_202610190001', amount: 500.0, token: 'USDT' }, null, 2),
+      responseBody: JSON.stringify({ tx_id: 'swap_99182a', status: 'completed', swapped_amount: '500.00', from: 'USDT', to: 'AKD', fee: '0.00' }, null, 2),
+      latency: '18ms',
     },
     {
-      id: 'mesh',
+      id: 'deposit-gateway',
       method: 'POST',
-      path: '/v1/mesh/relay',
-      category: 'Offline Mesh',
-      description: 'Ingest store-and-forward BLE/NFC transaction packets signed during telecom blackouts.',
-      requestBody: JSON.stringify({ raw_packet: 'base64_packet_pulse...', mesh_hop_count: 3 }, null, 2),
-      responseBody: JSON.stringify({ status: 'reconciled', reconciled_transactions: 14, conflict: false }, null, 2),
-      latency: '45ms',
+      path: '/v1/crypto/deposit-webhook',
+      category: 'Crypto Gateway',
+      description: 'Listen for verified EVM smart contract USDT/USDC deposits and credit user crypto wallet.',
+      requestBody: JSON.stringify({ tx_hash: '0x99201a4f...', deposit_address: '0x202610190001...', amount: 1000.0, token: 'USDC' }, null, 2),
+      responseBody: JSON.stringify({ status: 'confirmed', confirmations: 12, credited: true }, null, 2),
+      latency: '32ms',
     },
   ]
 
@@ -537,8 +540,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       if (!matchesSearch) return false
       if (txCategoryFilter === 'transfer') return tx.category === 'transfer'
       if (txCategoryFilter === 'inflow') return tx.amount > 0
-      if (txCategoryFilter === 'merchant') return tx.category === 'pos'
-      if (txCategoryFilter === 'offline') return tx.counterparty.toLowerCase().includes('offline')
+      if (txCategoryFilter === 'swap') return tx.category === 'crypto' || tx.category === 'swap'
       return true
     })
   }, [txList, searchQuery, txCategoryFilter])
@@ -844,7 +846,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               { id: 'cards', label: ak ? 'ကတ်များ စီမံခန့်ခွဲမှု' : 'Cards Center', icon: CreditCard },
               { id: 'transactions', label: ak ? 'ငွေလွှဲ မှတ်တမ်းများ' : 'Transactions & Invoices', icon: History },
               { id: 'financial', label: ak ? 'ဘဏ္ဍာရေး စာရင်းများ' : 'Treasury & Analytics', icon: TrendingUp },
-              { id: 'offline', label: ak ? 'အော့ဖ်လိုင်း ကွန်ရက်' : 'Offline Bearer Mesh', icon: Radio, badge: 'BLE' },
               { id: 'settings', label: ak ? 'လုံခြုံရေး & ဆက်တင်' : 'Security & Settings', icon: Settings },
             ].map((item) => {
               const Icon = item.icon
@@ -865,11 +866,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <Icon size={17} />
                     <span>{item.label}</span>
                   </div>
-                  {item.badge && (
-                    <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-500">
-                      {item.badge}
-                    </span>
-                  )}
                 </button>
               )
             })
@@ -1184,75 +1180,150 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
              ═════════════════════════════════════════════════════════════════ */}
           {!navTab.startsWith('admin-') && navTab !== 'cards' && (
             <div className="space-y-6">
-              {/* 4 Metric KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Liquid Net Worth */}
-                <div className={`p-5 rounded-3xl border shadow-xs space-y-2.5 ${isDarkMode ? 'bg-[#1F2937] border-slate-800' : 'bg-white border-slate-200/80'}`}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-500">{ak ? 'စုစုပေါင်း လက်ကျန်ငွေ' : 'Total Net Worth'}</span>
-                    <button onClick={() => setBalanceVisible(!balanceVisible)} className="text-slate-400 hover:text-slate-600">
-                      {balanceVisible ? <Eye size={15} /> : <EyeOff size={15} />}
+              {/* Dual-Wallet Architecture: Exactly Two Clean View Models */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 1. Main AKD Database Wallet (Local Internal Digital Ledger) */}
+                <div className={`p-6 rounded-3xl border shadow-sm relative overflow-hidden transition-all ${
+                  isDarkMode 
+                    ? 'bg-gradient-to-br from-[#1C2533] via-[#151D28] to-[#0F1722] border-amber-500/30' 
+                    : 'bg-gradient-to-br from-white via-amber-50/20 to-white border-amber-500/20 shadow-md'
+                }`}>
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-2xl bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center font-bold">
+                        <Wallet size={20} />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                          {ak ? 'ပင်မ အာရက္ခ ပိုက်ဆံအိတ်' : 'Main AKD Database Wallet'}
+                        </div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                          {ak ? 'တိုက်ရိုက် ဒစ်ဂျစ်တယ် စာရင်းအင်း' : 'Local Internal Digital Ledger · $0.00 Gas Fee'}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-[#FF6B00]/10 text-[#FF6B00] border border-[#FF6B00]/20">
+                      1 ₳ = $1.00 USD
+                    </span>
+                  </div>
+
+                  <div className="py-5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-500">
+                        {ak ? 'ရရှိနိုင်သော လက်ကျန်ငွေ' : 'Available Ledger Balance'}
+                      </span>
+                      <button 
+                        onClick={() => setBalanceVisible(!balanceVisible)} 
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition cursor-pointer"
+                      >
+                        {balanceVisible ? <Eye size={15} /> : <EyeOff size={15} />}
+                      </button>
+                    </div>
+                    <div className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-slate-900 dark:text-white flex items-baseline gap-1.5">
+                      <span className="text-2xl text-[#FF6B00]">₳</span>
+                      <span>{balanceVisible ? walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '••••••'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 pt-1 text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                      <span>✓ 100% USDT Pegged (≈ ${walletBalance.toFixed(2)} USD)</span>
+                    </div>
+                  </div>
+
+                  {/* Actions for Main AKD Database Wallet */}
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <button
+                      onClick={() => setSendModalOpen(true)}
+                      className="w-full py-2.5 px-3 rounded-2xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+                    >
+                      <Send size={14} />
+                      <span>{ak ? 'ငွေလွှဲမည်' : 'Send P2P'}</span>
+                    </button>
+                    <button
+                      onClick={() => setReceiveModalOpen(true)}
+                      className="w-full py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold transition flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-700 active:scale-95 cursor-pointer"
+                    >
+                      <QrCode size={14} />
+                      <span>{ak ? 'ငွေလက်ခံ QR' : 'Receive QR'}</span>
                     </button>
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight text-slate-900 dark:text-white flex items-baseline gap-1">
-                    <span className="text-xl text-[#FF6B00]">₳</span>
-                    <span>{balanceVisible ? walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '••••••'}</span>
-                  </div>
-                  <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                    100% USDT Pegged (≈ ${walletBalance.toFixed(2)} USD)
-                  </div>
                 </div>
 
-                {/* Monthly Inflow */}
-                <div className={`p-5 rounded-3xl border shadow-xs space-y-2.5 ${isDarkMode ? 'bg-[#1F2937] border-slate-800' : 'bg-white border-slate-200/80'}`}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-500">{ak ? 'လစဉ် ဝင်ငွေ' : 'Monthly Inflow'}</span>
-                    <ArrowDownLeft size={16} className="text-emerald-500" />
+                {/* 2. USD Crypto Gateway Wallet (On-Chain Stablecoin Balances) */}
+                <div className={`p-6 rounded-3xl border shadow-sm relative overflow-hidden transition-all ${
+                  isDarkMode 
+                    ? 'bg-gradient-to-br from-[#1C2533] via-[#151D28] to-[#0F1722] border-cyan-500/30' 
+                    : 'bg-gradient-to-br from-white via-cyan-50/20 to-white border-cyan-500/20 shadow-md'
+                }`}>
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-500 flex items-center justify-center font-bold">
+                        <Sparkles size={20} />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                          {ak ? 'USD ခရစ်ပတို ပိုက်ဆံအိတ်' : 'USD Crypto Gateway Wallet'}
+                        </div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                          {ak ? 'ဘလော့ခ်ချိန်း ပိုင်ဆိုင်မှုများ' : 'On-Chain Stablecoin Balances · Web3 Gateway'}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
+                      USDT · USDC
+                    </span>
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600 dark:text-emerald-400">
-                    +₳ {monthlyInflow.toFixed(2)}
-                  </div>
-                  <div className="text-[11px] text-slate-400">14 transfers settled</div>
-                </div>
 
-                {/* Monthly Outflow */}
-                <div className={`p-5 rounded-3xl border shadow-xs space-y-2.5 ${isDarkMode ? 'bg-[#1F2937] border-slate-800' : 'bg-white border-slate-200/80'}`}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-500">{ak ? 'လစဉ် သုံးစွဲမှု' : 'Monthly Outflow'}</span>
-                    <ArrowUpRight size={16} className="text-rose-500" />
+                  <div className="py-5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-500">
+                        {ak ? 'စုစုပေါင်း ခရစ်ပတို လက်ကျန်' : 'Total On-Chain Stablecoins'}
+                      </span>
+                      <span className="text-[11px] font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                        1:1 Swap Ready
+                      </span>
+                    </div>
+                    <div className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-slate-900 dark:text-white flex items-baseline gap-1.5">
+                      <span className="text-2xl text-cyan-500">$</span>
+                      <span>{balanceVisible ? walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '••••••'}</span>
+                      <span className="text-xs text-slate-400 font-sans font-bold">USD</span>
+                    </div>
+                    <div className="flex items-center gap-3 pt-1 text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                      <span>USDT: ${(walletBalance / 2).toFixed(2)}</span>
+                      <span>·</span>
+                      <span>USDC: ${(walletBalance / 2).toFixed(2)}</span>
+                    </div>
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white">
-                    -₳ {monthlyOutflow.toFixed(2)}
-                  </div>
-                  <div className="text-[11px] text-slate-400">Zero hidden fees</div>
-                </div>
 
-                {/* Offline Bearer Reserves */}
-                <div className={`p-5 rounded-3xl border shadow-xs space-y-2.5 ${isDarkMode ? 'bg-[#1F2937] border-slate-800' : 'bg-white border-slate-200/80'}`}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{ak ? 'အော့ဖ်လိုင်း တိုကင်များ' : 'Offline Bearer Tokens'}</span>
-                    <Radio size={16} className="text-amber-500 animate-pulse" />
+                  {/* Actions for USD Crypto Gateway Wallet */}
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <button
+                      onClick={() => setTopUpModalOpen(true)}
+                      className="w-full py-2.5 px-3 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+                    >
+                      <ArrowDownLeft size={14} />
+                      <span>{ak ? 'ငွေသွင်းမည်' : 'Deposit USD'}</span>
+                    </button>
+                    <button
+                      onClick={() => setTopUpModalOpen(true)}
+                      className="w-full py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold transition flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-700 active:scale-95 cursor-pointer"
+                    >
+                      <Sparkles size={14} />
+                      <span>{ak ? '1:1 လဲလှယ်မည်' : '1:1 Swap'}</span>
+                    </button>
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black font-mono text-amber-600 dark:text-amber-400">
-                    ₳ {offlineBalance.toFixed(2)}
-                  </div>
-                  <div className="text-[11px] text-emerald-500 font-mono font-bold">BLE Mesh Tap Ready</div>
                 </div>
               </div>
 
-              {/* Quick Services Tiles */}
+              {/* Quick Services Tiles (Strictly Consumer Online P2P & Crypto Swaps) */}
               <div className={`p-6 rounded-3xl border shadow-xs space-y-4 ${isDarkMode ? 'bg-[#1F2937] border-slate-800' : 'bg-white border-slate-200/80'}`}>
                 <h3 className="font-black text-base text-slate-900 dark:text-white">
                   {ak ? 'ဝန်ဆောင်မှုများ & ငွေပေးချေမှု' : 'Payments & Financial Services'}
                 </h3>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                   {[
-                    { label: ak ? 'ငွေလွှဲ' : 'Transfer', icon: Send, color: 'bg-purple-500/10 text-purple-600', action: () => setSendModalOpen(true) },
-                    { label: ak ? 'ငွေလက်ခံ' : 'Receive QR', icon: QrCode, color: 'bg-emerald-500/10 text-emerald-600', action: () => setReceiveModalOpen(true) },
-                    { label: ak ? 'ငွေသွင်း' : 'Top Up', icon: Sparkles, color: 'bg-amber-500/10 text-amber-600', action: () => setTopUpModalOpen(true) },
-                    { label: ak ? 'အော့ဖ်လိုင်း' : 'BLE Tap', icon: Radio, color: 'bg-cyan-500/10 text-cyan-600', action: () => setOfflineBeamModalOpen(true) },
-                    { label: ak ? 'ကတ်များ' : 'Card Center', icon: CreditCard, color: 'bg-indigo-500/10 text-indigo-600', action: () => setNavTab('cards') },
-                    { label: ak ? 'အကူအညီ' : 'Support Desk', icon: MessageSquare, color: 'bg-rose-500/10 text-rose-600', action: () => window.location.href = '/support' },
+                    { label: ak ? 'P2P ငွေလွှဲ' : 'P2P Transfer', icon: Send, color: 'bg-purple-500/10 text-purple-600', action: () => setSendModalOpen(true) },
+                    { label: ak ? 'ငွေလက်ခံ QR' : 'Receive QR', icon: QrCode, color: 'bg-emerald-500/10 text-emerald-600', action: () => setReceiveModalOpen(true) },
+                    { label: ak ? '1:1 ငွေသွင်းလဲလှယ်' : 'Crypto Swap', icon: Sparkles, color: 'bg-amber-500/10 text-amber-600', action: () => setTopUpModalOpen(true) },
+                    { label: ak ? 'ဒစ်ဂျစ်တယ်ကတ်' : 'Card Center', icon: CreditCard, color: 'bg-indigo-500/10 text-indigo-600', action: () => setNavTab('cards') },
                   ].map((s, idx) => (
                     <button
                       key={idx}
@@ -1277,7 +1348,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     {ak ? 'လတ်တလော ငွေလွှဲ မှတ်တမ်းများ' : 'Recent Settled Transactions'}
                   </h3>
                   <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-mono">
-                    {(['all', 'transfer', 'inflow', 'merchant', 'offline'] as const).map((cat) => (
+                    {(['all', 'transfer', 'inflow', 'swap'] as const).map((cat) => (
                       <button
                         key={cat}
                         onClick={() => setTxCategoryFilter(cat)}
@@ -1341,7 +1412,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 <div>
                   <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
                     <UserCheckIcon className="w-5 h-5 text-[#FF6B00]" />
-                    <span>{ak ? 'နိုင်ငံသား Tier-2 KYC စိစစ်အတည်ပြုရေးဌာန' : 'Citizen Tier-2 KYC Verification Hub'}</span>
+                    <span>{ak ? 'နိုင်ငံသား Tier-2 KYC စိစစ်အတည်ပြုရေးဌာန' : 'Citizen Tier-2 KYC Verification Center'}</span>
                   </h2>
                   <p className="text-xs text-slate-500">Review National ID card documents, face match scores, and elevate citizens.</p>
                 </div>
@@ -1422,7 +1493,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <MessageSquare className="w-5 h-5 text-[#FF6B00]" />
                     <span>{ak ? 'ဖောက်သည် စကားပြောခန်း အော်ပရေတာ စားပွဲ' : 'Customer Chat Support Operator Console'}</span>
                   </h2>
-                  <p className="text-xs text-slate-500">Live dual-rail operator desk connected to Mobile Wallet Chat Support and Android App Chat Support.</p>
+                  <p className="text-xs text-slate-500">Live dual-rail operator desk directly connected to Mobile Wallet and Android App chat support to assist customers.</p>
                 </div>
 
                 {/* Channel Filter */}
@@ -1431,13 +1502,90 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <button
                       key={ch}
                       onClick={() => setOperatorChannelFilter(ch)}
-                      className={`px-3 py-1 rounded-lg capitalize transition ${
+                      className={`px-3 py-1 rounded-lg capitalize transition cursor-pointer ${
                         operatorChannelFilter === ch ? 'bg-[#FF6B00] text-white font-bold' : 'text-slate-500 hover:text-slate-900'
                       }`}
                     >
                       {ch === 'all' ? 'All Rails' : ch === 'mobilewallet' ? 'Mobile Wallet' : 'Android App'}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Dual-Rail Active Connection Gateways */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-emerald-500/30 flex items-center justify-between gap-3 shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+                      <Terminal size={20} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-xs text-slate-900 dark:text-white">Android App Chat Rail</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-mono">
+                          CONNECTED
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                        Native APK Support Sheet & BLE mesh rail
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newCustMsg: ChatMessage = {
+                        id: `msg-and-${Date.now()}`,
+                        sender: 'user',
+                        channel: 'android',
+                        text: 'Customer from Sittwe on Android APK: Help needed with P2P transfer confirmation and QR code display.',
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      }
+                      const updated = [...customerMessages, newCustMsg]
+                      setCustomerMessages(updated)
+                      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated))
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold font-mono transition shrink-0 cursor-pointer shadow-xs"
+                  >
+                    + Sim Android Msg
+                  </button>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-blue-500/30 flex items-center justify-between gap-3 shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold">
+                      <Wallet size={20} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-xs text-slate-900 dark:text-white">Mobile Wallet Chat Rail</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 font-mono">
+                          CONNECTED
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                        Péthar Web PWA live customer channel
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newCustMsg: ChatMessage = {
+                        id: `msg-mw-${Date.now()}`,
+                        sender: 'user',
+                        channel: 'mobilewallet',
+                        text: 'Daw Nilar Win from Mobile Wallet: Can you confirm my ₳250 QR deposit on ledger?',
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      }
+                      const updated = [...customerMessages, newCustMsg]
+                      setCustomerMessages(updated)
+                      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated))
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold font-mono transition shrink-0 cursor-pointer shadow-xs"
+                  >
+                    + Sim Wallet Msg
+                  </button>
                 </div>
               </div>
 
@@ -1462,6 +1610,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     .filter((m) => operatorChannelFilter === 'all' || m.channel === operatorChannelFilter)
                     .map((msg) => {
                       const isOp = msg.sender === 'operator'
+                      const isAndroid = msg.channel === 'android'
                       return (
                         <div key={msg.id} className={`flex ${isOp ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-md p-4 rounded-2xl text-xs space-y-1 shadow-xs ${
@@ -1469,8 +1618,16 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                               ? 'bg-[#FF6B00] text-white rounded-br-xs font-medium'
                               : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-bl-xs'
                           }`}>
-                            <div className="flex items-center justify-between text-[10px] opacity-75 font-mono">
-                              <span>{isOp ? 'Operator (You)' : `Customer [${msg.channel}]`}</span>
+                            <div className="flex items-center justify-between text-[10px] opacity-85 font-mono gap-3">
+                              <span className="font-bold flex items-center gap-1.5">
+                                {isOp ? (
+                                  '🛡️ Admin Operator (You)'
+                                ) : isAndroid ? (
+                                  <span className="text-emerald-500 font-bold">📱 Customer [Android App]</span>
+                                ) : (
+                                  <span className="text-blue-500 font-bold">💼 Customer [Mobile Wallet]</span>
+                                )}
+                              </span>
                               <span>{msg.time}</span>
                             </div>
                             <p className="whitespace-pre-wrap">{msg.text}</p>
@@ -2082,35 +2239,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          MODAL 5: OFFLINE BLE MESH BEAM MODAL
-         ══════════════════════════════════════════════════════════════════════ */}
-      {offlineBeamModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm rounded-3xl p-6 bg-slate-950 border border-cyan-500/40 text-white shadow-2xl space-y-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-400 mx-auto flex items-center justify-center border border-cyan-500/30">
-              <Radio size={24} className="animate-pulse" />
-            </div>
-            <div>
-              <h3 className="font-black text-base">BLE Mesh Tap & Pay</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Holding offline reserves of ₳ {offlineBalance.toFixed(2)}. Bring device close to another Péthar terminal to transfer bearer tokens.
-              </p>
-            </div>
-            <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs font-mono text-cyan-400">
-              Broadcasting encrypted offline mesh signal...
-            </div>
-            <button
-              onClick={() => setOfflineBeamModalOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white transition cursor-pointer"
-            >
-              Done
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          MODAL 6: REJECT KYC VERIFICATION MODAL
+          MODAL 5: REJECT KYC VERIFICATION MODAL
          ══════════════════════════════════════════════════════════════════════ */}
       {rejectModalOpen && selectedApplicant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">

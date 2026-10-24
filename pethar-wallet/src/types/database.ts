@@ -18,7 +18,6 @@ export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'FROZEN' | 'CLOSED';
 
 export type AccountType =
   | 'USER_WALLET'
-  | 'AGENT_FLOAT'
   | 'RESERVE_VAULT'
   | 'FEE_INCOME'
   | 'COMMISSION_PAYABLE'
@@ -26,30 +25,24 @@ export type AccountType =
 
 export type TransactionType =
   | 'TRANSFER'
-  | 'CASH_IN'
-  | 'CASH_OUT'
-  | 'POS_CHECKOUT'
+  | 'P2P_TRANSFER'
+  | 'DEPOSIT'
+  | 'WITHDRAWAL'
   | 'CRYPTO_SWAP'
   | 'BINANCE_PAY_DEPOSIT'
   | 'MEXC_BRIDGE_DEPOSIT'
   | 'WISE_REMITTANCE'
   | 'CARD_TOPUP'
-  | 'COMMISSION_PAYOUT'
-  | 'OFFLINE_VOUCHER_ISSUE'
-  | 'OFFLINE_VOUCHER_REDEEM'
   | 'REVERSAL'
   | 'ADJUSTMENT'
   | 'FX_CONVERSION';
 
 export type TransactionStatus = 'PENDING' | 'SETTLED' | 'FAILED';
 
-export type AgentStatus = 'ACTIVE' | 'SUSPENDED' | 'TERMINATED';
-
 export type OtpPurpose =
-  | 'CASH_IN'
-  | 'CASH_OUT'
-  | 'TRANSFER_CONFIRM'
+  | 'SIGN_UP'
   | 'LOGIN'
+  | 'TRANSFER_CONFIRM'
   | 'DEVICE_BINDING'
   | 'EMAIL_CHANGE'
   | 'PHONE_CHANGE'
@@ -136,54 +129,81 @@ export interface Database {
         };
         Relationships: [];
       };
-      agents: {
+      akd_wallets: {
         Row: {
           id: string;
           user_id: string;
-          agent_code: string;
-          display_name: string;
-          commission_bps: number;
-          parent_agent_id: string | null;
-          status: AgentStatus;
+          currency: string;
+          balance: number;
+          gas_fee_rate: number;
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
-          agent_code: string;
-          display_name: string;
-          commission_bps?: number;
-          parent_agent_id?: string | null;
-          status?: AgentStatus;
+          currency?: string;
+          balance?: number;
+          gas_fee_rate?: number;
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
-          agent_code?: string;
-          display_name?: string;
-          commission_bps?: number;
-          parent_agent_id?: string | null;
-          status?: AgentStatus;
+          currency?: string;
+          balance?: number;
+          gas_fee_rate?: number;
           created_at?: string;
+          updated_at?: string;
         };
         Relationships: [
           {
-            foreignKeyName: 'agents_user_id_fkey';
+            foreignKeyName: 'akd_wallets_user_id_fkey';
             columns: ['user_id'];
-            isOneToOne: true;
             referencedRelation: 'users';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'agents_parent_agent_id_fkey';
-            columns: ['parent_agent_id'];
-            isOneToOne: false;
-            referencedRelation: 'agents';
             referencedColumns: ['id'];
           }
         ];
       };
+      crypto_wallets: {
+        Row: {
+          id: string;
+          user_id: string;
+          deposit_address: string;
+          usdt_balance: number;
+          usdc_balance: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          deposit_address: string;
+          usdt_balance?: number;
+          usdc_balance?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          deposit_address?: string;
+          usdt_balance?: number;
+          usdc_balance?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'crypto_wallets_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      // Note: Legacy physical 'agents' network table isolated to archive-offline-features/agent-network/
       accounts: {
         Row: {
           id: string;
@@ -750,50 +770,7 @@ export interface Database {
         };
         Relationships: [];
       };
-      pos_terminals: {
-        Row: {
-          id: string;
-          terminal_code: string;
-          merchant_user_id: string;
-          store_name: string;
-          store_name_mm: string | null;
-          township: string;
-          daily_sales_limit: number;
-          status: PosTerminalStatus;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          terminal_code: string;
-          merchant_user_id: string;
-          store_name: string;
-          store_name_mm?: string | null;
-          township: string;
-          daily_sales_limit?: number;
-          status?: PosTerminalStatus;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          terminal_code?: string;
-          merchant_user_id?: string;
-          store_name?: string;
-          store_name_mm?: string | null;
-          township?: string;
-          daily_sales_limit?: number;
-          status?: PosTerminalStatus;
-          created_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'pos_terminals_merchant_user_id_fkey';
-            columns: ['merchant_user_id'];
-            isOneToOne: false;
-            referencedRelation: 'users';
-            referencedColumns: ['id'];
-          }
-        ];
-      };
+      // Note: Legacy 'pos_terminals' table isolated to archive-offline-features/merchant-ops/
       fx_rate_board: {
         Row: {
           id: string;
@@ -930,10 +907,8 @@ export type User = Database['public']['Tables']['users']['Row'];
 export type Account = Database['public']['Tables']['accounts']['Row'];
 export type Transaction = Database['public']['Tables']['transactions']['Row'];
 export type LedgerEntry = Database['public']['Tables']['ledger_entries']['Row'];
-export type Agent = Database['public']['Tables']['agents']['Row'];
 export type OtpChallenge = Database['public']['Tables']['otp_challenges']['Row'];
 export type OfflineVoucher = Database['public']['Tables']['offline_vouchers']['Row'];
 export type FxRate = Database['public']['Tables']['fx_rates']['Row'];
-export type PosTerminal = Database['public']['Tables']['pos_terminals']['Row'];
 export type FxRateBoard = Database['public']['Tables']['fx_rate_board']['Row'];
 export type AccountBalance = Database['public']['Views']['account_balances']['Row'];

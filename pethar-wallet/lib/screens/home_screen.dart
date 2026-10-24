@@ -359,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final currencyFmt = NumberFormat('#,##0.00', 'en_US');
 
     // The dashboard exposes exactly two money actions: Receive and Pay.
-    // Pay is the single transfer action (person, merchant or UID).
+    // Pay is the single transfer action (person or P2P UID).
     final homeActions = [
       {
         'label': isAk ? 'ငွေလက်ခံ' : 'Receive',

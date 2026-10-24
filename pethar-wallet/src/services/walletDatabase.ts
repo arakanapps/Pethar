@@ -692,39 +692,6 @@ export function subscribeToTransactions(onNewTx: (tx: Txn) => void) {
 }
 
 /**
- * Fetch physical agents directory directly from Supabase
- */
-export async function fetchAgentsFromDb(): Promise<any[]> {
-  try {
-    const { data, error } = await db
-      .from('agents')
-      .select('*')
-      .order('agent_code', { ascending: true })
-
-    if (error) {
-      console.warn('Supabase fetch agents warning:', error.message)
-      return []
-    }
-    return (data || []).map((row: any) => ({
-      code: row.agent_code,
-      name: row.display_name,
-      mm: row.display_name_mm || row.display_name,
-      township: row.township || '',
-      townshipMm: row.township_mm || '',
-      distance: row.distance || '',
-      floatStatus: row.float_status || 'High',
-      floatStatusMm: row.float_status_mm || '',
-      phone: row.phone || '',
-      cashReserveAkd: parseFloat(row.cash_reserve_akd || 0),
-      open: row.is_open ?? true,
-    }))
-  } catch (err) {
-    console.error('Error fetching agents from Supabase:', err)
-    return []
-  }
-}
-
-/**
  * Fetch real-time foreign exchange rate board from Supabase
  */
 export async function fetchFxRatesFromDb(): Promise<any[]> {
@@ -792,35 +759,6 @@ export async function fetchTopupPackagesFromDb(): Promise<any[]> {
     return data || []
   } catch (err) {
     console.error('Error fetching topup packages from Supabase:', err)
-    return []
-  }
-}
-
-/**
- * Fetch POS merchant terminals directly from Supabase
- */
-export async function fetchPosTerminalsFromDb(): Promise<any[]> {
-  try {
-    const { data, error } = await db
-      .from('pos_terminals')
-      .select('*')
-      .order('terminal_code', { ascending: true })
-
-    if (error) {
-      console.warn('Supabase fetch POS terminals warning:', error.message)
-      return []
-    }
-    return (data || []).map((row: any) => ({
-      id: row.id,
-      terminalCode: row.terminal_code,
-      name: row.store_name,
-      nameMm: row.store_name_mm || row.store_name,
-      township: row.township,
-      limit: parseFloat(row.daily_sales_limit || 50000),
-      status: row.status,
-    }))
-  } catch (err) {
-    console.error('Error fetching POS terminals from Supabase:', err)
     return []
   }
 }

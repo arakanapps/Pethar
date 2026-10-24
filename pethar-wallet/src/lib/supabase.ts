@@ -1,11 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../types/database';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const DEFAULT_SUPABASE_URL = 'https://uklqksioruxvatwpvopm.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_rUiqzJYfjRLzNK0d6xyg-g_5Z6WmTya';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Configure public Supabase client values before starting the app.');
+const supabaseUrl =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) ||
+  (typeof process !== 'undefined' ? process.env?.NEXT_PUBLIC_SUPABASE_URL : undefined) ||
+  DEFAULT_SUPABASE_URL;
+
+const supabaseAnonKey =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY) ||
+  (typeof process !== 'undefined' ? process.env?.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY : undefined) ||
+  DEFAULT_SUPABASE_ANON_KEY;
+
+if (!import.meta.env?.VITE_SUPABASE_URL || !import.meta.env?.VITE_SUPABASE_ANON_KEY) {
+  console.warn('[Supabase] VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is not defined in environment. Using fallback configuration.');
 }
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
