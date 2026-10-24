@@ -1,4 +1,4 @@
-name: Péthar Enterprise CI
+name: Péthar Enterprise Mobile CI
 
 on:
   push:
@@ -11,43 +11,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  web-audit-and-build:
-    name: Web App — Lint, Typecheck & Build
+  mobile-test-and-analyze:
+    name: Mobile Engine — Analysis & Unit Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: pethar-wallet/package-lock.json
-
-      - name: Install Web Dependencies
-        working-directory: pethar-wallet
-        run: npm ci
-
-      - name: Run TypeScript Check & Production Build
-        working-directory: pethar-wallet
-        run: npm run build
-
-      - name: Verify Build Artifacts
-        working-directory: pethar-wallet
-        run: |
-          test -f dist/index.html || exit 1
-          test -f dist/404.html || exit 1
-          echo "Web build passed verification."
-
-  mobile-verify:
-    name: Mobile Engine — Flutter Analysis
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Java
+      - name: Setup Java Environment
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -63,12 +34,95 @@ jobs:
         working-directory: pethar-wallet
         run: flutter pub get
 
-      - name: Run Flutter Static Analysis
+      - name: Run Static Analysis
         working-directory: pethar-wallet
-        run: flutter analyze --no-fatal-infos
+        run: dart analyze --fatal-warnings
+
+      - name: Run Mobile Test Suite
+        working-directory: pethar-wallet
+        run: flutter test
+
+  android-build:
+    name: Android — Native APK & AAB Builds
+    needs: mobile-test-and-analyze
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java Environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Flutter Dependencies
+        working-directory: pethar-wallet
+        run: flutter pub get
+
+      - name: Build Android Release APK
+        working-directory: pethar-wallet
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Build Android Release AppBundle (AAB)
+        working-directory: pethar-wallet
+        run: flutter build appbundle --release --no-tree-shake-icons
+
+      - name: Verify Android Build Artifacts
+        run: |
+          test -f pethar-wallet/build/app/outputs/flutter-apk/app-release.apk || exit 1
+          test -f pethar-wallet/build/app/outputs/bundle/release/app-release.aab || exit 1
+          echo "✅ Android APK and AAB verified successfully."
+
+      - name: Upload Android Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: pethar-android-release-apk
+          path: pethar-wallet/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
+      - name: Upload Android Release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: pethar-android-release-aab
+          path: pethar-wallet/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+  ios-build:
+    name: iOS — Native Runner & Build Verification
+    needs: mobile-test-and-analyze
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Flutter Dependencies
+        working-directory: pethar-wallet
+        run: flutter pub get
+
+      - name: Build iOS App (No Codesign)
+        working-directory: pethar-wallet
+        run: flutter build ios --release --no-codesign
+
+      - name: Verify iOS Build Artifacts
+        run: |
+          test -d pethar-wallet/build/ios/iphoneos/Runner.app || exit 1
+          echo "✅ iOS Runner app verified successfully."
 
   security-compliance:
-    name: Security & Rebranding Verification
+    name: Security & Secret Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

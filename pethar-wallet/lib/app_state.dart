@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'models/data.dart';
 import 'services/auth_service.dart';
 import 'services/firebase_service.dart';
@@ -12,17 +15,11 @@ enum Screen {
   send,
   receive,
   scan,
-  cashout,
   intl,
   crypto,
-  pos,
   notifications,
-  desktop,
-  offlinePayment,
   pay,
   history,
-  topup,
-  billPayment,
   favourites
 }
 
@@ -51,14 +48,205 @@ class AppState extends ChangeNotifier {
   List<Contact> contactsList = [];
   List<Agent> agentsList = [];
   List<Map<String, dynamic>> fxRatesList = [];
-  List<Map<String, dynamic>> billProvidersList = [];
-  List<Map<String, dynamic>> topupPackagesList = [];
   List<Map<String, dynamic>> announcementsList = [];
-  double offlinePocketBalance = 0.00; // Offline bearer cash
-  List<String> offlineTokens = []; // Stored bearer tokens
   Map<String, dynamic>? pendingPayContact;
   bool dontShowQuickScanDialog = false;
   bool isLoadingDb = false;
+
+  // ── Hardware Secure Storage Configuration ──
+  // Forces hardware-level encryption:
+  // - Android: EncryptedSharedPreferences backed by Android Keystore (AES-256 GCM)
+  // - iOS: Hardware Keychain Services with kSecAttrAccessibleAfterFirstUnlock
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+    ),
+  );
+
+  static const String _keyAccessToken = 'pethar_secure_access_token_v1';
+  static const String _keyRefreshToken = 'pethar_secure_refresh_token_v1';
+
+  String? _accessToken;
+  String? _refreshToken;
+
+  /// Verified in-memory access token (Credential Obfuscated: never printed or logged)
+  String? get accessToken => _accessToken;
+
+  /// Verified in-memory refresh token (Credential Obfuscated: never printed or logged)
+  String? get refreshToken => _refreshToken;
+
+  /// Checks if a valid hardware-stored session token is active
+  bool get hasSecureSession =>
+      _accessToken != null && _accessToken!.trim().isNotEmpty;
+
+  /// Standard Bearer authorization header for TLS 1.3 protected backend requests
+  Map<String, String> get authenticatedHeaders => {
+        'Content-Type': 'application/json',
+        if (_accessToken != null && _accessToken!.isNotEmpty)
+          'Authorization': 'Bearer $_accessToken',
+      };
+
+  /// Decodes JWT expiration claim locally without logging or exposing payload data
+  bool _isJwtExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true;
+      final normalized = base64Url.normalize(parts[1]);
+      final payloadJson = utf8.decode(base64Url.decode(normalized));
+      final payload = jsonDecode(payloadJson);
+      if (payload is Map<String, dynamic> && payload['exp'] is int) {
+        final expSeconds = payload['exp'] as int;
+        final expiry = DateTime.fromMillisecondsSinceEpoch(
+          expSeconds * 1000,
+          isUtc: true,
+        );
+        // Include 30-second leeway to prevent mid-flight token expiration
+        return DateTime.now().toUtc().isAfter(
+              expiry.subtract(const Duration(seconds: 30)),
+            );
+      }
+      return false;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  /// Encrypts and writes tokens immediately to the hardware vault.
+  /// Enforces zero logging or plain-text exposure of credentials.
+  Future<void> saveUserSession(
+      String accessToken, String refreshToken) async {
+    final cleanAccess = accessToken.trim();
+    final cleanRefresh = refreshToken.trim();
+
+    if (cleanAccess.isEmpty || cleanRefresh.isEmpty) {
+      throw ArgumentError(
+        'Tokens must not be empty when saving session to secure storage.',
+      );
+    }
+
+    _accessToken = cleanAccess;
+    _refreshToken = cleanRefresh;
+
+    try {
+      await _secureStorage.write(
+        key: _keyAccessToken,
+        value: cleanAccess,
+      );
+      await _secureStorage.write(
+        key: _keyRefreshToken,
+        value: cleanRefresh,
+      );
+    } catch (e) {
+      // Credential Obfuscation: Log exception type only, never values
+      debugPrint('[Security] Secure storage write error: ${e.runtimeType}');
+      rethrow;
+    }
+    notifyListeners();
+  }
+
+  /// Checks whether the Supabase instance is initialized and accessible
+  bool get _isSupabaseReady {
+    try {
+      Supabase.instance;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Decrypts tokens securely during the mobile initialization phase to check session validity.
+  /// Handles session renewal and purges stale keys if invalid.
+  Future<bool> loadUserSession() async {
+    try {
+      final storedAccess = await _secureStorage.read(key: _keyAccessToken);
+      final storedRefresh = await _secureStorage.read(key: _keyRefreshToken);
+
+      if (storedAccess == null ||
+          storedAccess.trim().isEmpty ||
+          storedRefresh == null ||
+          storedRefresh.trim().isEmpty) {
+        _accessToken = null;
+        _refreshToken = null;
+        return false;
+      }
+
+      final access = storedAccess.trim();
+      final refresh = storedRefresh.trim();
+
+      if (_isSupabaseReady) {
+        try {
+          final auth = SupabaseService.client.auth;
+          final existingSession = auth.currentSession;
+
+          // If current session in client memory is valid and not expired
+          if (existingSession != null && !existingSession.isExpired) {
+            _accessToken = existingSession.accessToken;
+            _refreshToken = existingSession.refreshToken ?? refresh;
+            return true;
+          }
+
+          // If token has not expired based on local claims check
+          if (!_isJwtExpired(access)) {
+            _accessToken = access;
+            _refreshToken = refresh;
+            return true;
+          }
+
+          // Otherwise, refresh session server-side via Supabase GoTrue Auth
+          final refreshResponse = await auth.setSession(refresh);
+          if (refreshResponse.session != null &&
+              !refreshResponse.session!.isExpired) {
+            final newAccess = refreshResponse.session!.accessToken;
+            final newRefresh =
+                refreshResponse.session!.refreshToken ?? refresh;
+            await saveUserSession(newAccess, newRefresh);
+            return true;
+          }
+        } catch (authError) {
+          // Credential Obfuscation: Strictly log error class, never tokens or secrets
+          debugPrint(
+            '[Security] Session refresh failed (${authError.runtimeType}). Purging invalid credentials.',
+          );
+          await clearUserSession();
+          return false;
+        }
+      } else {
+        // Fallback offline validation check
+        if (!_isJwtExpired(access)) {
+          _accessToken = access;
+          _refreshToken = refresh;
+          return true;
+        }
+      }
+
+      // Expired and non-refreshable -> active cryptographic purge
+      await clearUserSession();
+      return false;
+    } catch (e) {
+      // Credential Obfuscation: Avoid logging sensitive stack traces with data
+      debugPrint('[Security] Hardware vault read failure: ${e.runtimeType}');
+      _accessToken = null;
+      _refreshToken = null;
+      return false;
+    }
+  }
+
+  /// Performs an active cryptographic purge of keys upon logout or session invalidation events.
+  Future<void> clearUserSession() async {
+    try {
+      await _secureStorage.delete(key: _keyAccessToken);
+      await _secureStorage.delete(key: _keyRefreshToken);
+    } catch (e) {
+      debugPrint('[Security] Hardware vault purge error: ${e.runtimeType}');
+    } finally {
+      _accessToken = null;
+      _refreshToken = null;
+      notifyListeners();
+    }
+  }
 
   AppState() {
     _initializeAuthAndData();
@@ -66,6 +254,20 @@ class AppState extends ChangeNotifier {
 
   Future<void> _initializeAuthAndData() async {
     await AuthService().initialize();
+
+    // 1. Decrypt hardware-level tokens and check session validity
+    final hasValidSession = await loadUserSession();
+    if (hasValidSession && _isSupabaseReady) {
+      final supaUser = SupabaseService().currentUser;
+      if (supaUser?.email != null && supaUser!.email!.isNotEmpty) {
+        final user = AuthService().getUser(supaUser.email!);
+        if (user != null) {
+          _applyAuthenticatedUser(user);
+          return;
+        }
+      }
+    }
+
     final activeEmail = await AuthService().getSavedActiveUserEmail();
     if (activeEmail != null && activeEmail.isNotEmpty) {
       final user = AuthService().getUser(activeEmail);
@@ -79,6 +281,7 @@ class AppState extends ChangeNotifier {
 
   /// Fetch live data from Supabase tables scoped to current user
   Future<void> loadSupabaseData() async {
+    if (!_isSupabaseReady) return;
     isLoadingDb = true;
     notifyListeners();
     try {
@@ -209,18 +412,6 @@ class AppState extends ChangeNotifier {
       if (remoteFx.isNotEmpty) {
         fxRatesList = remoteFx;
       }
-
-      // 6. Fetch Bill Providers from Supabase
-      final remoteBills = await supa.fetchBillProviders();
-      if (remoteBills.isNotEmpty) {
-        billProvidersList = remoteBills;
-      }
-
-      // 7. Fetch Topup Packages from Supabase
-      final remoteTopups = await supa.fetchTopupPackages();
-      if (remoteTopups.isNotEmpty) {
-        topupPackagesList = remoteTopups;
-      }
     } catch (e) {
       debugPrint('Supabase data fetch notice: $e');
     } finally {
@@ -229,7 +420,7 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  void _addTransaction(Transaction tx) {
+  void addTransaction(Transaction tx) {
     txList.insert(0, tx);
     transactions = txList;
     final uid = profile.uid.isNotEmpty ? profile.uid : profile.email;
@@ -420,9 +611,14 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    // 1. Actively purge tokens from hardware vault (Keychain / EncryptedSharedPreferences)
+    await clearUserSession();
+
     try {
       await AuthService().setActiveUserEmail(null);
-      await SupabaseService().signOut();
+      if (_isSupabaseReady) {
+        await SupabaseService().signOut();
+      }
     } catch (_) {}
     try {
       await FirebaseService().signOut();
@@ -481,6 +677,68 @@ class AppState extends ChangeNotifier {
   }) async {
     final res =
         await AuthService().loginWithEmailAndPin(email: email, pin: pin);
+    if (res['success'] == true && res['user'] is StoredUser) {
+      final session = SupabaseService().currentSession;
+      if (session != null &&
+          session.accessToken.isNotEmpty &&
+          session.refreshToken != null) {
+        await saveUserSession(session.accessToken, session.refreshToken!);
+      }
+      _applyAuthenticatedUser(res['user'] as StoredUser);
+      return {'success': true};
+    }
+    return res;
+  }
+
+  /// 1b. Request Login OTP
+  Future<Map<String, dynamic>> requestLoginOtp({
+    required String email,
+    required String pin,
+  }) async {
+    return await AuthService().requestLoginOtp(email: email, pin: pin);
+  }
+
+  /// 1c. Verify Login OTP and complete authentication -> routes directly to Home
+  Future<Map<String, dynamic>> verifyLoginOtp({
+    required String email,
+    required String pin,
+    required String otp,
+  }) async {
+    final res = await AuthService().verifyLoginOtp(email: email, pin: pin, otp: otp);
+    if (res['success'] == true && res['user'] is StoredUser) {
+      _applyAuthenticatedUser(res['user'] as StoredUser);
+      return {'success': true};
+    }
+    return res;
+  }
+
+  /// 1d. Google Login with Access PIN entry -> routes directly to Home
+  Future<Map<String, dynamic>> loginWithGoogleAndPin({
+    required String email,
+    required String pin,
+    String? name,
+  }) async {
+    final res = await AuthService().loginWithGoogleAndPin(email: email, pin: pin, name: name);
+    if (res['success'] == true && res['user'] is StoredUser) {
+      _applyAuthenticatedUser(res['user'] as StoredUser);
+      return {'success': true};
+    }
+    return res;
+  }
+
+  /// 1e. Google Signup with Create Access PIN -> routes directly to Home
+  Future<Map<String, dynamic>> registerWithGoogleAndPin({
+    required String email,
+    required String pin,
+    required String confirmPin,
+    String? name,
+  }) async {
+    final res = await AuthService().registerWithGoogleAndPin(
+      email: email,
+      pin: pin,
+      confirmPin: confirmPin,
+      name: name,
+    );
     if (res['success'] == true && res['user'] is StoredUser) {
       _applyAuthenticatedUser(res['user'] as StoredUser);
       return {'success': true};
@@ -542,6 +800,12 @@ class AppState extends ChangeNotifier {
       username: username,
     );
     if (res['success'] == true && res['user'] is StoredUser) {
+      final session = SupabaseService().currentSession;
+      if (session != null &&
+          session.accessToken.isNotEmpty &&
+          session.refreshToken != null) {
+        await saveUserSession(session.accessToken, session.refreshToken!);
+      }
       _applyAuthenticatedUser(res['user'] as StoredUser);
       return {'success': true};
     }
@@ -673,40 +937,4 @@ class AppState extends ChangeNotifier {
     }).toList();
   }
 
-  @Deprecated(
-      'Offline wallet funding is disabled until server settlement exists.')
-  bool loadOfflinePocket(double amount) => false;
-
-  @Deprecated(
-      'Offline wallet reconciliation is disabled until server settlement exists.')
-  bool depositOfflinePocket(double amount) => false;
-
-  @Deprecated('Offline transfers are disabled until server settlement exists.')
-  bool sendOfflineCash({required double amount, required String recipient}) =>
-      false;
-
-  @Deprecated(
-      'Offline token redemption is disabled until server settlement exists.')
-  void receiveOfflineCash({
-    required double amount,
-    required String sender,
-    required String tokenStr,
-  }) {}
-
-  @Deprecated('Top-ups are disabled until server-side settlement is available.')
-  void processTopup({
-    required String operatorName,
-    required String phone,
-    required String productTitle,
-    required double akdTotal,
-  }) {}
-
-  @Deprecated(
-      'Bill payments are disabled until server-side settlement is available.')
-  void processBillPayment({
-    required String billerName,
-    required String billerCategory,
-    required String accountNo,
-    required double akdAmount,
-  }) {}
 }

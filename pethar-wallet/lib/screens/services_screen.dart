@@ -49,29 +49,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
                 children: [
-                  // 1. Agent Cash-Out (Coming Soon - Don't open page)
-                  _buildProductCard(
-                    context: context,
-                    isAk: isAk,
-                    icon: Icons.storefront_rounded,
-                    color: const Color(0xFF059669),
-                    title: isAk ? 'အေးဂျင့်မှ ငွေသားထုတ်ယူ' : 'Agent Cash-Out',
-                    desc: null,
-                  ),
-
-                  // 2. Offline Pay (Coming Soon - Don't open page)
-                  _buildProductCard(
-                    context: context,
-                    isAk: isAk,
-                    icon: Icons.contactless_rounded,
-                    color: const Color(0xFF0D9488),
-                    title: isAk ? 'အော့ဖ်လိုင်း ငွေပေးချေမှု' : 'Offline Pay',
-                    desc: isAk
-                        ? 'အင်တာနက်မရှိဘဲ တိုက်ရိုက်ထိ၍ ငွေပေးချေပါ'
-                        : 'Offline tap & mesh pay without internet',
-                  ),
-
-                  // 3. Gift Card (Coming Soon - Don't open page)
+                  // 1. Gift Card (Coming Soon - Don't open page)
                   _buildProductCard(
                     context: context,
                     isAk: isAk,

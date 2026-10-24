@@ -8,6 +8,13 @@
       "when": 1791760315260,
       "tag": "0000_chunky_mister_sinister",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792828000000,
+      "tag": "0001_dual_wallet_system",
+      "breakpoints": true
     }
   ]
 }

@@ -1,124 +1,112 @@
-# Péthar (ဖေ့သာ) — Digital Cash & Financial Infrastructure
+# Péthar (ဖေ့သာ) — Sovereign Mobile Financial Infrastructure
 
 <div align="center">
 
-**ခေတ်မီ ဒစ်ဂျစ်တယ်ငွေကြေးစနစ်နှင့် လုံခြုံစိတ်ချရသော အချုပ်အခြာ ပိုက်ဆံအိတ်**
+**ခေတ်မီ ဒစ်ဂျစ်တယ်ငွေကြေးစနစ်နှင့် လုံခြုံစိတ်ချရသော မိုဘိုင်းလ် အချုပ်အခြာ ပိုက်ဆံအိတ် (Android & iOS)**
 
-[![Péthar Enterprise CI](https://github.com/realjackhalder/pethar/actions/workflows/ci.yml/badge.svg)](https://github.com/realjackhalder/pethar/actions/workflows/ci.yml)
-[![Security Audit](https://github.com/realjackhalder/pethar/actions/workflows/security-audit.yml/badge.svg)](https://github.com/realjackhalder/pethar/actions/workflows/security-audit.yml)
-[![Peg Standard](https://img.shields.io/badge/Currency%20Peg-1%20%E2%82%B3%20%3D%20%241.00%20USD-FF6B00.svg)](https://pethar.co.uk)
-[![Connectivity](https://img.shields.io/badge/Mode-Online%20%2B%20Offline%20BLE%2FNFC-10B981.svg)](https://download.pethar.co.uk)
+[![Péthar Enterprise Mobile CI](https://github.com/arakanapps/Pethar/actions/workflows/ci.yml/badge.svg)](https://github.com/arakanapps/Pethar/actions/workflows/ci.yml)
+[![Security Audit](https://github.com/arakanapps/Pethar/actions/workflows/security-audit.yml/badge.svg)](https://github.com/arakanapps/Pethar/actions/workflows/security-audit.yml)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20Mobile--Only-blue.svg)](apps/)
+[![Backend](https://img.shields.io/badge/Backend-Supabase%20%7C%20PostgreSQL-3ECF8E.svg)](supabase/)
 [![License](https://img.shields.io/badge/License-Proprietary%20Enterprise-blue.svg)](LICENSE)
 
-[Platform](https://pethar.co.uk) • [Download](https://download.pethar.co.uk) • [Wallet App](https://app.pethar.co.uk) • [Documentation](docs/) • [Architecture](ARCHITECTURE.md) • [Compliance](COMPLIANCE.md) • [Changelog](CHANGELOG.md)
+[Mobile Apps](apps/) • [Architecture](ARCHITECTURE.md) • [Database](supabase/) • [Documentation](docs/) • [Archived Platforms](archive-platforms/) • [Compliance](COMPLIANCE.md)
 
 </div>
 
 ---
 
-## Executive Overview
+## Strategic Architecture Focus: Native Android & iOS Only
 
-**Péthar (ဖေ့သာ)** is the Arakanese word for *money* or *currency*. It represents an enterprise-grade digital cash platform and financial infrastructure designed to provide resilient, censorship-resistant community commerce and stable digital transactions both online and during complete telecommunication cutoffs.
+For the current release phase, the Péthar engineering focus is dedicated strictly to native **Android and iOS** mobile clients (`pethar-wallet` Flutter engine) backed by a hardened **PostgreSQL / Supabase** ledger. 
 
+All non-mobile client surfaces (**Web App, Merchant POS Terminal, and Desktop Client**) have been decoupled and archived into [`archive-platforms/`](archive-platforms/) to eliminate release surface area, optimize CI execution, and guarantee native mobile security on physical smartphones.
+
+```text
+       ┌─────────────────────────────────────────────────────────────┐
+       │                Active Production Monorepo                   │
+       └──────────────────────────────┬──────────────────────────────┘
+                                      │
+          ┌───────────────────────────┴───────────────────────────┐
+          ▼                                                       ▼
+┌──────────────────────────────┐                       ┌──────────────────────────────┐
+│  Mobile Engine (Flutter 3.x) │                       │  Backend Ledger (PostgreSQL) │
+│  • Android (APK / AAB)       │ ◄─── REST / RPC ────► │  • Supabase Enterprise DB    │
+│  • iOS (Runner / IPA)        │     Authenticated     │  • Row-Level Security (RLS)  │
+│  • Local Hardware Encryption │     Row-Level Sec     │  • Double-Entry Journal      │
+│  • Offline Dynamic AK QR     │                       │  • Idempotent Transfer RPC   │
+└──────────────────────────────┘                       └──────────────────────────────┘
+                                      ▲
+                                      │ (Preserved in Cold Storage)
+                       ┌──────────────┴──────────────┐
+                       │    archive-platforms/       │
+                       │    ├── web-wallet/          │
+                       │    ├── pos-terminal/        │
+                       │    └── desktop-client/      │
+                       └─────────────────────────────┘
 ```
-                           [ pethar.co.uk ]
-                 Public Enterprise Landing & Download Hub
-                                  │
-                 ┌────────────────┴────────────────┐
-                 ▼                                 ▼
-       [ auth.pethar.co.uk ]             [ Direct Mobile Hub ]
-     Firebase Identity Gateway           • Android: Direct APK
-      (Google / Email + Pass)            • iOS: Config Profile (.mobileconfig)
-                 │
-  ┌──────────────┴──────────────┐
-  ▼                             ▼
-[ app.pethar.co.uk ]    [ admin.pethar.co.uk ]
-Customer Wallet Hub     Internal Treasury Ops
-• 1 ₳ = 1 $ Cashflow    • USDT / USDC / USD1 Reserves
-• Online Cloud Sync     • Offline Batch Settlement
-• Verified QR Receipts  • Node Telemetry
-```
 
 ---
 
-## Core Pillars & Technological Innovations
+## Core Mobile Capabilities
 
-### 1. Stable Currency Peg: 1 ₳ = $1.00 USD
-* **User-Facing Simplicity:** Balances are held and denominated in **₳** (Arakan Dollar). $1\ \text{₳} = \$1.00\ \text{USD}$. Users enjoy stable digital cash without exposure to market volatility or complex gas calculations.
-* **Internal Stablecoin Backing:** In the backend treasury, all circulating ₳ is collateralized 1:1 by audited USD reserves and major crypto stablecoins (**USDT, USDC, USD1**). Gas fees and blockchain routing are abstracted completely.
+### 1. Dual-Wallet Architecture (Online Cloud + Offline Vault)
+- **Primary Online Account (Supabase PostgreSQL):** Instant ledger settlement, audited double-entry accounting, real-time balance synchronization, and verified peer-to-peer transfers over secure TLS.
+- **Local Vault Storage (Hardware Keystore):** Cryptographic keys and session tokens protected by SQLCipher-backed SQLite (`sqflite_sqlcipher`) and secure device storage (`flutter_secure_storage`).
 
-### 2. Dual Connectivity: Online + Offline Mode
-* **Online Mode (Web & Mobile):** Instant cloud-ledger settlement, live balance updates, real-time transaction history, and multi-user transfers powered by Google Cloud and Firebase.
-* **Offline Mode (Exclusively on Android & iOS):** Built into the native Flutter mobile client (`pethar-wallet`). Powered by a Cashu-inspired Chaumian e-cash bearer token model:
-  * **Device-to-Device Data Handshake:** Transact phone-to-phone without cellular networks, internet connections, or SIM cards.
-  * **Native Transport Channels:** Supports Bluetooth Low Energy (BLE), NFC tap-to-pay, and offline dynamic animated QR codes.
-  * **Contextual Permission Handling:** The app prompts for device permissions (Nearby Devices / Bluetooth / Camera) only when initiating an offline transfer.
-  * **Automatic Reconciliation:** When either device reconnects to internet or Starlink, the signed transaction envelope syncs and finalizes against the central ledger.
+### 2. Arakan QR (AK QR) Dynamic Payments & Receipts
+- **Customer Scan-to-Pay:** High-speed camera QR code recognition and dynamic merchant bill parsing.
+- **Verifiable Digital e-Receipts:** Scannable payment slips encoding cryptographically verifiable transaction hashes (`reference_id`).
 
-### 3. Cryptographically Verifiable e-Receipts with Scannable QR Codes
-* Replicates official commercial e-Slips with perforated dashed cut-lines, scalloped circular edge punch notches, and sender-to-recipient flow.
-* Generates mathematically valid, high-resolution QR codes encoding `https://app.pethar.co.uk/verify/${refId}` that any phone camera can read.
-* On-ledger verification modal displaying Merkle tree inclusion proof, block height, and collateral status.
-
-### 4. Direct Mobile Distribution (Zero App Store Friction)
-* **Android:** Direct APK download (`pethar-latest.apk`) with published SHA-256 integrity checksums.
-* **iOS:** Direct Configuration Profile (`pethar.mobileconfig` / OTA Profile) for instantaneous home screen installation without App Store delays.
-* **Universal Web:** Full-featured responsive wallet accessible across all desktop and mobile browsers at `app.pethar.co.uk`.
+### 3. Native Device Optimization & Distribution
+- **Android Target:** Optimized for budget and high-end ARM devices (`arm64-v8a`, `armeabi-v7a`) with split ABI packaging, ProGuard minimization, and direct APK download support.
+- **iOS Target:** Native Xcode workspace with Swift Runner, biometric authentication (Face ID / Touch ID), and iOS keychain entitlement bindings.
 
 ---
 
-## Subdomain Topology
-
-| Domain | Role & Audience | Key Capabilities |
-| :--- | :--- | :--- |
-| **`pethar.co.uk`** | Global Public | Public homepage, `1 ₳ = 1 $` presentation, Online + Offline Mode showcase, direct download buttons. |
-| **`download.pethar.co.uk`** | Mobile Visitors | Direct APK installer for Android, Configuration Profile installer for iOS, and verification hashes. |
-| **`auth.pethar.co.uk`** | All Users | Unified authentication gateway: Google Sign-In & Email/Password. No web biometrics required. |
-| **`app.pethar.co.uk`** | Registered Customers | Online wallet hub: balance management, payments, cashflow statements, and verified QR receipts. |
-| **`admin.pethar.co.uk`** | Internal Finance & Ops | Multi-sig treasury reserve management (USDT/USDC/USD1), offline batch settlement queue, and node telemetry. |
-| **`docs.pethar.co.uk`** | Developers & Partners | API specifications, cryptographic proofs, and SDK integration guides. |
-| **`privacy.pethar.co.uk`** | Public & Compliance | Google Cloud Console OAuth 2.0 compliant privacy policy, data protection, and self-service deletion rights. |
-
----
-
-## Monorepo Architecture
+## Monorepo Layout
 
 ```text
 PeThar/
-├── .github/                     # 🛡️ Enterprise CI/CD, Security Scanning, and PR Workflows
-│   ├── workflows/ci.yml         # Automated Lint, TypeScript Check & Build
-│   ├── workflows/security.yml   # Dependency and Secret Scanning
-│   └── pull_request_template.md # PR Review Checklist
+├── .github/                     # 🛡️ Enterprise CI/CD & Automated Testing
+│   └── workflows/ci.yml         # Native Android (APK/AAB) & iOS Runner CI Pipeline
 │
-├── pethar-wallet/               # 🌐 Enterprise Web Application (React 19 + TypeScript + Vite)
-│   ├── src/pages/Main.tsx       # Unified enterprise landing page
-│   ├── src/pages/DashboardPage.tsx # Unified app.pethar.co.uk wallet & platform dashboard
-│   ├── src/components/          # TransactionSlip (QR Receipt), ReceiveQRCard, ArakanEmblem
-│   └── public/                  # Static assets & Adaptive App Icons (Light, Dark, Tinted)
+├── apps/                        # 📱 Mobile Platform Launchers
+│   ├── android/                 # Android run & release build scripts
+│   │   ├── run.sh               # Run on Android phone or emulator
+│   │   ├── build-apk.sh         # Compile release APK
+│   │   └── README.md
+│   └── ios/                     # iOS run & Xcode setup scripts
+│       ├── run.sh               # Run on iOS Simulator or iPhone
+│       ├── open-xcode.sh        # Open Runner.xcworkspace
+│       └── README.md
 │
 ├── pethar-wallet/               # 📱 Native Mobile Engine (Flutter 3.x / Dart 3.x)
-│   ├── android/                 # Native Android Gradle configuration (Direct APK build)
-│   ├── ios/                     # Native iOS Runner (Configuration Profile & OTA ready)
-│   ├── lib/screens/             # Mobile screens including offline_payment_screen.dart
-│   ├── lib/services/            # Offline payment service (Cashu bearer tokens, BLE, NFC)
-│   └── lib/app_state.dart       # State management and local secure storage
+│   ├── android/                 # Native Android Gradle configuration
+│   ├── ios/                     # Native iOS Runner Xcode project & Podfile
+│   ├── lib/                     # Application logic, state, and UI screens
+│   │   ├── app_state.dart       # State management & session lifecycle
+│   │   ├── i18n.dart            # Arakanese & English bilingual localization
+│   │   ├── main.dart            # Flutter app entrypoint
+│   │   ├── screens/             # Mobile screens (Home, Send, Pay, Auth, Settings)
+│   │   ├── services/            # Supabase service, local storage, auth service
+│   │   └── widgets/             # Mobile UI widgets, keypad, Arakan emblem
+│   ├── assets/                  # Currency flag assets & graphics
+│   ├── test/                    # Mobile unit and widget test suite
+│   └── pubspec.yaml             # Mobile-only Flutter dependencies
 │
-├── docs/                        # 📚 Enterprise Documentation & ADRs
-│   ├── architecture/            # System Architecture and Topology
-│   ├── security/                # Threat Model and Cryptographic Specs
-│   ├── compliance/              # Privacy, Google OAuth, and Regulatory Policies
-│   ├── api/                     # Versioned API Contracts
-│   ├── auth/                    # Authentication, KYC, and Identity Flows
-│   ├── guides/                  # Setup, Maintenance, and Platform Guides
-│   ├── implementation/          # Roadmaps and Implementation Details
-│   └── product/                 # Product Vision and Principles
+├── supabase/                    # 🔒 Supabase Backend & Database Migrations
+│   ├── migrations/              # PostgreSQL schema, RLS policies & double-entry ledger
+│   └── functions/               # Edge functions (OTP verification & transactions)
 │
-├── db/                          # 🗄️ Database Client & SQL Migrations (PostgreSQL)
-├── drizzle/                     # ⚡ Drizzle ORM Schema & Migrations
-├── supabase/                    # 🔒 Supabase Migrations & Edge Functions
-├── scripts/                     # 🔧 Build, Signing, and Utility Scripts
-├── apps/                        # 📲 Platform Launcher Scripts (Android, iOS, Desktop, POS, Web)
-└── vercel.json                  # 🚀 Enterprise Edge Deployment Configuration
+├── db/                          # 🗄️ Database Client & Verification SQL
+├── drizzle/                     # ⚡ Drizzle ORM Schema & Migration tooling
+├── scripts/                     # 🔧 Signing key generation & deployment utilities
+│
+└── archive-platforms/           # 📦 Preserved Web, POS, and Desktop Codebases
+    ├── web-wallet/              # React 19 / TypeScript / Vite / Vercel web app
+    ├── pos-terminal/            # Point-of-Sale UI and terminal hardware modules
+    └── desktop-client/          # macOS Runner, Electron wrapper, and desktop portal
 ```
 
 ---
@@ -126,27 +114,69 @@ PeThar/
 ## Getting Started
 
 ### Prerequisites
-* **Node.js:** v20.x or later
-* **npm:** v10.x or later
-* **Flutter SDK:** v3.29.x (for mobile development)
+- **Flutter SDK:** v3.29.x or later
+- **Dart SDK:** v3.x
+- **Java:** JDK 17 (Zulu / Temurin recommended for Android Gradle)
+- **Xcode:** 15.x or later (for iOS development on macOS)
+- **Node.js:** v20.x (for database migrations and backend tooling)
 
-### Quick Start
+### 1. Mobile Development Setup
 ```bash
 # Clone the repository
-git clone https://github.com/realjackhalder/pethar.git
-cd pethar
+git clone https://github.com/arakanapps/Pethar.git
+cd Pethar
 
-# Install and start the web wallet
+# Fetch Flutter dependencies
 cd pethar-wallet
-npm install
-npm run dev
-
-# Run full typecheck and production build
-npm run build
+flutter pub get
 ```
+
+### 2. Static Analysis & Tests
+```bash
+# Run Dart static analyzer (fatal warnings enabled)
+npm run analyze
+# or: cd pethar-wallet && dart analyze --fatal-warnings
+
+# Run full mobile unit and widget test suite
+npm run test
+# or: cd pethar-wallet && flutter test
+```
+
+### 3. Running on Devices
+
+#### Android Phone / Emulator
+```bash
+# Run debug build
+npm run android
+# or: ./apps/android/run.sh
+
+# Build release APK
+npm run android:apk
+# or: ./apps/android/build-apk.sh
+```
+
+#### iOS Simulator / iPhone
+```bash
+# Run on iOS simulator
+npm run ios
+# or: ./apps/ios/run.sh
+
+# Open Xcode workspace for signing and device configuration
+npm run ios:xcode
+# or: ./apps/ios/open-xcode.sh
+```
+
+---
+
+## Archived Platforms Reference
+
+To inspect or reactivate the legacy multi-platform components:
+- **Web App:** Refer to [`archive-platforms/web-wallet/README.md`](archive-platforms/web-wallet/README.md)
+- **Merchant POS Terminal:** Refer to [`archive-platforms/pos-terminal/README.md`](archive-platforms/pos-terminal/README.md)
+- **Desktop Client:** Refer to [`archive-platforms/desktop-client/README.md`](archive-platforms/desktop-client/README.md)
 
 ---
 
 ## Security & Compliance
 
-Péthar is engineered for defense-in-depth and compliance with Google API Services Limited Use requirements. For security disclosures or bug bounty inquiries, refer to [SECURITY.md](SECURITY.md) or contact `pethar-app@protonmail.com`.
+Péthar is engineered for defense-in-depth with zero hardcoded credentials and strict row-level security. For security disclosures or bug bounty inquiries, refer to [SECURITY.md](SECURITY.md) or contact `pethar-app@protonmail.com`.

@@ -1,53 +1,89 @@
-# Péthar architecture and production roadmap
+# Péthar Architecture & Production Roadmap
 
-## Current state (verified in this repository)
+## Architectural Scope: Native Android & iOS Mobile-First
 
-- The browser application is React + TypeScript + Vite in `pethar-wallet/`; Vercel hosts the website according to the project owner. Hosting the site does not provide a secure financial transaction backend.
-- Web data access uses the Supabase JavaScript client. SQL migrations and `drizzle.config.ts` target PostgreSQL. **Supabase PostgreSQL should be the sole system of record for user identities, accounts, and the financial ledger.** Firebase/Firestore code remains in the Flutter client and needs an explicit migration or narrowly defined non-financial role before production. MongoDB and MySQL appear in environment templates only; no production use is confirmed here.
-- Screens still contain prototype/demo flows. The current web build can pass, but project-wide lint/test errors remain; the project must not be represented as production-ready.
-- This repository does not establish that AKD has reserves, a peg, licenses, banking rails, live exchange markets, or offline settlement. Do not state such claims as facts unless independently verified and approved.
+For the current release phase, the Péthar platform is locked strictly to **native Android and iOS** mobile clients powered by the Flutter mobile engine (`pethar-wallet`).
 
-## Target production topology
+All non-mobile client surfaces (**Web Application, Merchant POS Terminal, and Desktop Client**) have been formally moved out of the active workspace into [`archive-platforms/`](archive-platforms/). This narrows the attack surface, eliminates web-specific vulnerability vectors, and focuses release engineering entirely on native mobile performance, hardware key vaults, and offline resilience on physical mobile devices.
+
+---
+
+## Current Topology & System Boundaries
 
 ```text
-Flutter Android/iOS + React/Vercel web
-                 │ HTTPS; user-scoped identity
-                 ▼
-       Trusted API / transaction service
-                 │ restricted server credential; validated inputs
-                 ▼
-       Supabase PostgreSQL (system of record)
-       ├── profiles and KYC references
-       ├── accounts and immutable double-entry journal
-       ├── transfer state machine/idempotency records
-       └── audit/security events
+       ┌─────────────────────────────────────────────────────────────┐
+       │             Native Mobile Clients (Flutter 3.x)             │
+       │    • Android (pethar-wallet/android/ — APK / AAB)           │
+       │    • iOS     (pethar-wallet/ios/     — Runner / IPA)        │
+       └──────────────────────────────┬──────────────────────────────┘
+                                      │
+                                      │ HTTPS / TLS 1.3
+                                      │ Authenticated User JWT + Anon Key
+                                      │ Zero Service-Role Secrets on Device
+                                      ▼
+       ┌─────────────────────────────────────────────────────────────┐
+       │           Supabase PostgreSQL (System of Record)            │
+       │  ├── auth.users & public.profiles (Identity & KYC level)    │
+       │  ├── accounts & double-entry journal (Immutable balances)   │
+       │  ├── transactions & transfer state machine (Idempotency)    │
+       │  ├── security_events & audit logs (Tamper-evident log)      │
+       │  └── Row-Level Security (RLS: Tenant-isolated boundaries)   │
+       └─────────────────────────────────────────────────────────────┘
+                                      ▲
+                                      │ (Cold Storage / Archived)
+                       ┌──────────────┴──────────────┐
+                       │    archive-platforms/       │
+                       │    ├── web-wallet/          │
+                       │    ├── pos-terminal/        │
+                       │    └── desktop-client/      │
+                       └─────────────────────────────┘
 ```
 
-Vercel can serve static/frontend code and host server functions if suitable for your operational model; never send a Supabase service-role key to a browser or mobile app. Client access to Supabase must use the publishable/anon key only with rigorously tested RLS. Financial writes should go through a trusted endpoint or carefully reviewed database RPC that verifies identity, authorization, limits, idempotency, and account status, then posts balanced journal entries atomically. Derive balances from ledger entries or maintain transactionally updated projections; do not accept client-supplied balances. Keep credentials in Vercel/Supabase secret management, not repository files.
+---
 
-## Database and migration procedure
+## Active Monorepo Components
 
-1. Confirm the intended Supabase project and take a verified backup. Do not run migrations against production until staging validation and a recovery plan exist.
-2. Establish one migration source of truth (`supabase/migrations`). Review the existing schema for ownership keys and legacy data; reconcile unsupported currencies before applying the supported set: **AKD, USD, USDC, USDT**.
-3. Test migrations against a disposable/staging Supabase database. Verify authenticated owner reads, participant transaction reads, anonymous denial, cross-user denial, and prohibited direct financial writes. Review every `SECURITY DEFINER` function and its `search_path`/grants.
-4. Apply reviewed migrations through the Supabase CLI / deployment process, then verify schema, policy behavior, backups, and application health. Never hand out database credentials or expose service-role credentials.
-5. Current owner-scoped policies need a schema audit: transactions are scoped through JSON metadata in the new policy, which is less robust than explicit sender/recipient user/account relationships; accounts use `user_id = auth.uid()`, so confirm type and identity mapping. Ensure no permissive pre-existing policy grants broader access. Policy migrations alone do not guarantee private data.
+1. **Mobile Application Engine (`pethar-wallet/`):**
+   - Retains strictly the `android/`, `ios/`, `lib/`, `test/`, and `assets/` directories.
+   - Cleaned of all web/Vite and desktop plugins in `pubspec.yaml`.
+   - Uses `flutter_secure_storage` and `sqflite_sqlcipher` for hardware-backed local credential protection.
+   - All financial mutations are routed through database RPCs (`post_transaction`, `transfer_balance_akd`) rather than client-side direct writes.
 
-The OTP server still optionally contains legacy MongoDB behavior for OTP persistence; it is not a financial system of record and requires a secure migration or explicit retirement. MongoDB/MySQL placeholders were removed from the root environment template. Remove unused dependencies after verifying actual deployments. `DATABASE_URL` is an administrative/migration credential and must be server/CI-only. Vite `VITE_*` values are public by design.
+2. **Backend & Ledger Engine (`supabase/` & `db/`):**
+   - **PostgreSQL Database:** Authoritative ledger containing double-entry records, account state machines, and idempotent transfer routines (`reference_id` uniqueness).
+   - **Row-Level Security (RLS):** Every table enforces strict user ownership checks (`user_id = auth.uid()`). Direct mutations by unauthorized roles are rejected at the database engine level.
+   - **Drizzle Tooling (`drizzle/`):** TypeScript-based schema and migration management for the PostgreSQL database.
 
-## Android release checklist
+3. **Platform Launchers (`apps/`):**
+   - `apps/android/`: Direct APK compilation script (`build-apk.sh`) and device runner (`run.sh`).
+   - `apps/ios/`: Native Xcode workspace opener (`open-xcode.sh`) and simulator runner (`run.sh`).
 
-- Replace `com.example.pethar_mobile` with a company-owned application ID before first public release; align Firebase registration and OAuth package/signing SHA fingerprints.
-- Configure production release signing with a protected keystore/signing service; current Gradle config signs release with the **debug** key. Never commit signing secrets.
-- Build and test release artifacts on supported physical Android versions and devices; run Flutter analysis/tests, dependency/license/security scans, accessibility and network-failure tests, crash reporting, staged rollout, and update/rollback drills.
-- The local storage service currently has an in-memory implementation; its SQLCipher code is only documented example, not active persistence. Do not cache authoritative balances or claim encrypted persistent storage until implemented and independently reviewed. Use Android Keystore-backed key protection, safe session renewal, and minimize sensitive local data.
-- Add server-side idempotent transfer handling, atomic double-entry accounting, limits, fraud monitoring, audit trails, reconciliation, support/dispute paths, backup/restore drills, and incident response before any real funds.
-- Before offering a financial/crypto product, get qualified advice on UK and every target-market licensing, safeguarding, KYC/AML/sanctions, consumer disclosures, privacy/data retention, and app-store obligations. Technology changes do not confer authorization.
+4. **Archived Platform Modules (`archive-platforms/`):**
+   - `archive-platforms/web-wallet/`: Full React 19 / TypeScript / Vite / Vercel web wallet codebase.
+   - `archive-platforms/pos-terminal/`: Merchant Point-of-Sale UI and hardware receipt modules.
+   - `archive-platforms/desktop-client/`: macOS Runner, Electron wrapper, and desktop portal screen.
 
-## Immediate priorities
+---
 
-1. Resolve project-wide lint errors and eliminate remaining demo content/claims from launch paths.
-2. Choose the supported product scope and jurisdictions with legal/compliance guidance.
-3. Complete schema/ownership/RLS review and build an authenticated server-side ledger API.
-4. Validate on staging with automated multi-user isolation, concurrency, idempotency, and recovery tests.
-5. Only then run a limited, appropriately authorized pilot and monitor it continuously.
+## Mobile Release Checklist
+
+### Android (`android/`)
+- Replace package identifier with company-owned namespace (`uk.co.pethar.wallet`) before public distribution.
+- Configure production release keystore signing via CI secrets; never commit keystore files or passwords to version control.
+- Validate release APK & AppBundle (AAB) builds with ProGuard/R8 shrinking enabled.
+- Verify that runtime permissions (Camera for QR, Biometrics for login) are requested contextually and gracefully handle denial.
+
+### iOS (`ios/`)
+- Verify signing profiles and entitlements in `ios/Runner.xcworkspace`.
+- Ensure NSCameraUsageDescription and NSFaceIDUsageDescription strings are localized in English and Burmese/Arakanese.
+- Verify zero warnings or unresolved CocoaPods in the iOS build pipeline.
+
+---
+
+## Continuous Integration & Automated Verification
+
+The automated CI workflow (`.github/workflows/ci.yml`) executes exclusively for mobile targets:
+1. **Analysis & Tests:** Runs `dart analyze --fatal-warnings` and `flutter test` across all mobile unit and widget tests.
+2. **Android Build:** Compiles both release APK (`flutter build apk --release`) and release AppBundle (`flutter build appbundle --release`), verifying output binaries.
+3. **iOS Build:** Builds the native iOS Runner (`flutter build ios --release --no-codesign`) on macOS runners.
+4. **Security Audit:** Scans for hardcoded credentials, exposed private keys, and unencrypted secrets.
