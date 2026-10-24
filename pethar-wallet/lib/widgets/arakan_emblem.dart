@@ -54,10 +54,10 @@ const String _petharLogoRedWhiteSvg = '''
     <path d="M27.5 101.5C37.5 100.5 45.5 92 46 79V69" stroke="#FECACA" stroke-opacity="0.65" stroke-width="1.4" stroke-linecap="round" />
     <path d="M28 65C30 51 38 43 49.5 39.5C50.5 48.5 46 55.5 36.5 59.5C32.5 61.2 30 63 28 65Z" fill="url(#leafCrimsonBody)" />
     <path d="M29 62C31.5 50.5 38.5 43.2 49.5 39.5C46.5 44 41.5 47.5 35.5 52C32.5 54.3 30.5 58 29 62Z" fill="url(#leafWhiteCrest)" />
-    <path d="M28.5 64C31 51.5 38.5 43.5 49.5 39.5" stroke="#CBD5E1" stroke-opacity="0.9" stroke-width="1.2" stroke-linecap="round" />
-    <path d="M24 17H66C85 17 97 27.5 97 44.5C97 53 93 60.5 86 65.5C89.5 59.5 90.5 52 88.5 45C85.5 35.5 76.5 32 65 32H43C31.5 32 25.5 26 24 17Z" fill="url(#topWhiteGlass)" stroke="#CBD5E1" stroke-width="0.9" />
+    <path d="M28.5 64C31 51.5 38.5 43.5 49.5 39.5" stroke="#FFFFFF" stroke-opacity="0.9" stroke-width="1.4" stroke-linecap="round" />
+    <path d="M24 17H66C85 17 97 27.5 97 44.5C97 53 93 60.5 86 65.5C89.5 59.5 90.5 52 88.5 45C85.5 35.5 76.5 32 65 32H43C31.5 32 25.5 26 24 17Z" fill="url(#topWhiteGlass)" />
     <path d="M28 19.5H65C80.5 19.5 91 28 92 42.5C92.5 49.5 89.5 56 84 61C85.5 55.5 85.5 49.5 83 44C79.5 36.5 72 34.5 63 34.5H43C34.5 34.5 29.5 28.5 28 19.5Z" fill="url(#topInnerSilver)" />
-    <path d="M24.5 17.5H66C84.5 17.5 96 27.8 96.5 44" stroke="#FFFFFF" stroke-opacity="0.95" stroke-width="1.6" stroke-linecap="round" />
+    <path d="M24.5 17.5H66C84.5 17.5 96 27.8 96.5 44" stroke="#FFFFFF" stroke-opacity="0.95" stroke-width="1.8" stroke-linecap="round" />
     <path d="M28.5 20.5C31 27.5 36.5 31.5 45 31.5H65C76 31.5 83 36.5 84.5 45" stroke="#FFFFFF" stroke-opacity="0.8" stroke-width="1.3" stroke-linecap="round" />
     <path d="M87 26C95 32.5 98.5 42 96.5 52.5C93.5 66.5 81.5 73 64.5 73H49C38.5 73 33.5 78.5 31.5 88.5L26 103V78C26 62.5 35.5 54.5 51 54.5H65.5C76.5 54.5 83.5 49.5 85.5 41C87 35 85.5 29.5 82 25L87 26Z" fill="url(#redMainSweep)" />
     <path d="M95.5 49C93.5 63.5 81.5 71.5 64.5 71.5H48.5C37.5 71.5 31.5 78 29.5 89.5L26 103V84C27.5 69.5 36.5 61.5 51.5 61.5H66.5C79.5 61.5 89.5 56.5 95.5 49Z" fill="url(#redDeepFold)" />
