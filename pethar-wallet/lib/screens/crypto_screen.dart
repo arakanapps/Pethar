@@ -87,7 +87,7 @@ class CryptoScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    isAk ? '၁ ₳ = ၁.၀၀ ဒေါ်လာ (ပုံသေငွေလဲနှုန်း)' : '1 ₳ = \$1.00 USD (fixed peg)',
+                    isAk ? '၁.၀၀ ₳ = ၁.၀၀ ဒေါ်လာ (ပုံသေငွေလဲနှုန်း)' : '1.00 AKD = 1.00 USD (1.00 ₳ = \$1.00)',
                     style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: crimson),
                   ),
                 ),

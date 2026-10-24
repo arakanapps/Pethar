@@ -2139,6 +2139,58 @@ LEFT JOIN public.users u ON up.user_id = u.id OR up.uid = u.uid;
 
 GRANT SELECT ON public.v_database_users_export TO authenticated, service_role, postgres;
 
+-- ----------------------------------------------------------------------------
+-- 14. DUAL-WALLET ARCHITECTURE & 1:1 HARD PEG (1.00 AKD = 1.00 USD)
+-- ----------------------------------------------------------------------------
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_status') THEN
+        CREATE TYPE public.user_status AS ENUM ('pending_otp', 'active');
+    END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.akd_wallets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL UNIQUE REFERENCES public.users(id) ON DELETE CASCADE,
+    currency VARCHAR(8) NOT NULL DEFAULT 'AKD',
+    balance NUMERIC(18,2) NOT NULL DEFAULT 0.00,
+    gas_fee_rate NUMERIC(18,2) NOT NULL DEFAULT 0.00,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT akd_balance_check CHECK (balance >= 0.00)
+);
+
+CREATE TABLE IF NOT EXISTS public.crypto_wallets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL UNIQUE REFERENCES public.users(id) ON DELETE CASCADE,
+    deposit_address VARCHAR(128) NOT NULL UNIQUE,
+    usdt_balance NUMERIC(18,2) NOT NULL DEFAULT 0.00,
+    usdc_balance NUMERIC(18,2) NOT NULL DEFAULT 0.00,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT usdt_balance_check CHECK (usdt_balance >= 0.00),
+    CONSTRAINT usdc_balance_check CHECK (usdc_balance >= 0.00)
+);
+
+CREATE INDEX IF NOT EXISTS idx_akd_wallets_user ON public.akd_wallets(user_id);
+CREATE INDEX IF NOT EXISTS idx_crypto_wallets_user ON public.crypto_wallets(user_id);
+
+ALTER TABLE public.akd_wallets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.crypto_wallets ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read own AKD wallet" ON public.akd_wallets;
+CREATE POLICY "Users can read own AKD wallet" ON public.akd_wallets
+    FOR SELECT TO authenticated
+    USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can read own Crypto wallet" ON public.crypto_wallets;
+CREATE POLICY "Users can read own Crypto wallet" ON public.crypto_wallets
+    FOR SELECT TO authenticated
+    USING (auth.uid() = user_id);
+
+GRANT ALL ON public.akd_wallets TO authenticated, service_role;
+GRANT ALL ON public.crypto_wallets TO authenticated, service_role;
+
 -- ============================================================================
 -- END OF CONSOLIDATED ENTERPRISE DATABASE SCHEMA
 -- ============================================================================

@@ -11,10 +11,9 @@
 
 ## Péthar Enterprise Checklist
 - [ ] **Branding:** All user-facing text uses the official brand **Péthar** (ဖေ့သာ).
-- [ ] **Currency Peg:** 1 ₳ = $1.00 USD currency parity preserved.
-- [ ] **Offline Resilience:** Changes do not break offline Cashu/BLE/NFC bearer token transport.
-- [ ] **Receipt Scannability:** Verification QR codes produce valid URL endpoints (`https://app.pethar.co.uk/verify/${refId}`).
-- [ ] **Typecheck & Build:** Ran `npm run build` in `pethar-wallet` with zero TypeScript errors.
-- [ ] **Mobile Analysis:** Ran `flutter analyze` in `pethar_mobile` with zero fatal warnings.
-- [ ] **Security:** No hardcoded API secrets or private keys introduced.
-- [ ] **Cross-Platform:** Tested across responsive desktop and mobile viewports.
+- [ ] **Currency Peg:** `1.00 AKD = 1.00 USD` (`1.00 ₳ = $1.00`) currency parity preserved with `NUMERIC(18, 2)` precision.
+- [ ] **Mobile Scope:** Changes apply strictly to native Android & iOS mobile client (`pethar-wallet/`) or dual-wallet backend.
+- [ ] **Archive Hygiene:** No imports or dependencies reintroduced from root `/archive/`.
+- [ ] **Mobile Analysis & Tests:** Ran `flutter analyze` and `flutter test` in `pethar-wallet` with zero failures.
+- [ ] **Security:** Tokens and PIN hashes stored via hardware secure storage (`flutter_secure_storage`); server auth validated with `supabase.auth.getUser()`.
+- [ ] **Contact Info:** Official email `pethar-app@protonmail.com` and test account `realjackhalder@gmail.com` preserved.

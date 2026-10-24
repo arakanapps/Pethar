@@ -1,4 +1,4 @@
-# Archive Platforms (`archive-platforms/`)
+# Archive Platforms (`archive/platforms/`)
 
 This directory contains preserved, fully-functional implementations of the **Web**, **Point-of-Sale (POS)**, and **Desktop** platforms that have been archived to focus the active workspace strictly on native **Android and iOS** mobile clients (`pethar-wallet`).
 
@@ -6,11 +6,11 @@ This directory contains preserved, fully-functional implementations of the **Web
 
 ## Archived Platforms Index
 
-### 1. `archive-platforms/web-wallet/`
+### 1. `archive/platforms/web-wallet/`
 - **Stack:** React 19, TypeScript, Vite, Tailwind CSS, Radix UI, Vercel
-- **Previous Location:** `pethar-wallet/src/`, `pethar-wallet/public/`, `pethar-wallet/web/`, root and wallet `vercel.json`
+- **Previous Location:** `src/`, `public/`, `vite.config.ts`, `vercel.json`
 - **Contents:**
-  - `src/` — React 19 customer wallet portal, FX board, and landing page
+  - `src/` — React 19 customer wallet portal, landing page
   - `public/` — Web manifests, service workers, icons, and Apple mobile configurations
   - `flutter-web/` — Compiled Flutter web platform integration
   - `vite.config.ts`, `vercel.json`, `root-vercel.json` — Edge hosting configurations
@@ -18,9 +18,9 @@ This directory contains preserved, fully-functional implementations of the **Web
   - `run.sh` — Web portal launcher script
 - **Reactivation:** Copy `src/`, `public/`, and web configs back to a dedicated web project or deploy directly using `vercel`.
 
-### 2. `archive-platforms/pos-terminal/`
+### 2. `archive/platforms/pos-terminal/`
 - **Stack:** Flutter (Dart) & React (TypeScript)
-- **Previous Location:** `apps/pos/`, `archive-offline-features/pos-system/`
+- **Previous Location:** `apps/pos/`
 - **Contents:**
   - `pos_terminal_screen.dart` — Flutter POS register UI for touchscreens
   - `pos_screen.dart` — Flutter cashier and transaction summary screen
@@ -28,7 +28,7 @@ This directory contains preserved, fully-functional implementations of the **Web
   - `run.sh` — POS register launcher script
   - `README.md` — Merchant POS specifications and hardware details
 
-### 3. `archive-platforms/desktop-client/`
+### 3. `archive/platforms/desktop-client/`
 - **Stack:** Flutter macOS Runner, Electron cross-platform launcher
 - **Previous Location:** `apps/desktop/`, `pethar-wallet/macos/`
 - **Contents:**

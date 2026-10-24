@@ -8,6 +8,7 @@
 [![Security Audit](https://github.com/arakanapps/Pethar/actions/workflows/security-audit.yml/badge.svg)](https://github.com/arakanapps/Pethar/actions/workflows/security-audit.yml)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20Mobile--Only-blue.svg)](apps/)
 [![Backend](https://img.shields.io/badge/Backend-Supabase%20%7C%20PostgreSQL-3ECF8E.svg)](supabase/)
+[![Currency Peg](https://img.shields.io/badge/Peg-1.00%20AKD%20%3D%201.00%20USD%20(1.00%20%E2%82%B3%20%3D%20%241.00)-emerald.svg)](db/schema.ts)
 [![License](https://img.shields.io/badge/License-Proprietary%20Enterprise-blue.svg)](LICENSE)
 
 [Mobile Apps](apps/) • [Architecture](ARCHITECTURE.md) • [Database](supabase/) • [Documentation](docs/) • [Archive](archive/) • [Compliance](COMPLIANCE.md)
@@ -16,11 +17,11 @@
 
 ---
 
-## Strategic Architecture Focus: Native Android & iOS Only
+## Strategic Architecture Focus: Native Android & iOS Mobile-First
 
-For the current release phase, the Péthar engineering focus is dedicated strictly to native **Android and iOS** mobile clients (`pethar-wallet` Flutter engine) backed by a hardened **PostgreSQL / Supabase** ledger. 
+For the current production release, Péthar is dedicated exclusively to native **Android and iOS** mobile clients (`pethar-wallet/lib/`) backed by a hardened **PostgreSQL / Supabase / Drizzle** ledger.
 
-All legacy footprints, non-mobile client surfaces (**Web App, Merchant POS Terminal, Desktop Client**), offline hardware layers, and dynamic fiat exchange/FX tracking engines have been consolidated into [`archive/`](archive/) to eliminate attack surface, optimize CI execution, and guarantee native mobile security on physical smartphones.
+All legacy non-mobile platforms (**React/Vite Web App, Merchant POS Terminal, Desktop Runners**) and offline legacy features (**Offline Cashu e-cash, BLE/NFC mesh, Telecom Topup, Physical Agent Cash-Out, and Dynamic FX tracking**) have been consolidated into root [`archive/`](archive/) to eliminate attack surfaces, streamline CI execution, and guarantee bank-grade security on physical smartphones.
 
 ```text
        ┌─────────────────────────────────────────────────────────────┐
@@ -33,34 +34,80 @@ All legacy footprints, non-mobile client surfaces (**Web App, Merchant POS Termi
 │  Mobile Engine (Flutter 3.x) │                       │  Backend Ledger (PostgreSQL) │
 │  • Android (APK / AAB)       │ ◄─── REST / RPC ────► │  • Supabase Enterprise DB    │
 │  • iOS (Runner / IPA)        │     Authenticated     │  • Row-Level Security (RLS)  │
-│  • Local Hardware Encryption │     Row-Level Sec     │  • 1:1 Pegged Dual-Wallets   │
+│  • Hardware Keystore Vault   │     Row-Level Sec     │  • 1.00 AKD = 1.00 USD Peg   │
 │  • P2P Transfers & Swaps     │                       │  • Idempotent Transfer RPC   │
 └──────────────────────────────┘                       └──────────────────────────────┘
                                       ▲
                                       │ (Master Archive / Cold Storage)
                        ┌──────────────┴──────────────────────────────┐
                        │                   archive/                  │
-                       │   ├── archive-offline-features/             │
-                       │   ├── archive-platforms/                    │
-                       │   └── exchange-and-fx/                      │
+                       │   ├── offline-core/                         │
+                       │   ├── telecom-billing/                      │
+                       │   ├── merchant-ops/                         │
+                       │   ├── agent-network/                        │
+                       │   ├── exchange-and-fx/                      │
+                       │   └── platforms/                            │
                        └─────────────────────────────────────────────┘
 ```
 
 ---
 
-## Core Mobile Capabilities
+## Dual-Wallet Database Architecture (`1.00 AKD = 1.00 USD` Hard Peg)
 
-### 1. Dual-Wallet Architecture (Online Cloud + Offline Vault)
-- **Primary Online Account (Supabase PostgreSQL):** Instant ledger settlement, audited double-entry accounting, real-time balance synchronization, and verified peer-to-peer transfers over secure TLS.
-- **Local Vault Storage (Hardware Keystore):** Cryptographic keys and session tokens protected by SQLCipher-backed SQLite (`sqflite_sqlcipher`) and secure device storage (`flutter_secure_storage`).
+The relational ledger enforces an exact 1:1 hard peg between internal Arakan Dollars (AKD / ₳) and USD-backed stablecoins (`NUMERIC(18, 2)`):
 
-### 2. Arakan QR (AK QR) Dynamic Payments & Receipts
-- **Customer Scan-to-Pay:** High-speed camera QR code recognition and dynamic merchant bill parsing.
-- **Verifiable Digital e-Receipts:** Scannable payment slips encoding cryptographically verifiable transaction hashes (`reference_id`).
+### 1. `users` Table (Supabase Auth Identity)
+- `id` (UUID, Primary Key): 1:1 relation to Supabase Auth (`auth.users.id`).
+- `email` (VARCHAR(255), Unique, Not Null)
+- `username` (VARCHAR(50), Unique)
+- `status` ('pending_otp' | 'active', Not Null, default 'pending_otp')
+- `created_at` (TIMESTAMPTZ)
 
-### 3. Native Device Optimization & Distribution
-- **Android Target:** Optimized for budget and high-end ARM devices (`arm64-v8a`, `armeabi-v7a`) with split ABI packaging, ProGuard minimization, and direct APK download support.
-- **iOS Target:** Native Xcode workspace with Swift Runner, biometric authentication (Face ID / Touch ID), and iOS keychain entitlement bindings.
+### 2. `akd_wallets` Table (Main Wallet: Internal Digital Ledger)
+- `id` (UUID, Primary Key)
+- `user_id` (UUID, FK -> `users.id`, Unique, Cascade Delete)
+- `currency` (VARCHAR(8), default 'AKD')
+- `balance` (`NUMERIC(18, 2)`, default `0.00`, Constraint `balance >= 0.00`)
+- **Zero Gas Fees:** Instant P2P transfers execute with **$0.00 gas fees** via atomic SQL transactions (`p2p_transfer_akd`).
+
+### 3. `crypto_wallets` Table (USD Crypto Gateway)
+- `id` (UUID, Primary Key)
+- `user_id` (UUID, FK -> `users.id`, Unique, Cascade Delete)
+- `deposit_address` (VARCHAR(128), Unique): Generated public EVM blockchain address for inbound USDT and USDC.
+- `usdt_balance` (`NUMERIC(18, 2)`, default `0.00`, Constraint `>= 0.00`)
+- `usdc_balance` (`NUMERIC(18, 2)`, default `0.00`, Constraint `>= 0.00`)
+- **1:1 In-App Swaps:** Pure atomic 1:1 swaps (`1.00 AKD = 1.00 USD`, `1.00 ₳ = $1.00`) using `FOR UPDATE` row-level locking to eliminate race conditions and double-spending.
+
+---
+
+## 4-Route Mobile Authentication & OTP Verification
+
+The mobile application enforces strict conditional authentication across 4 dedicated flows:
+
+1. **Email Login:** Input `Email` + `PIN` ➔ Verify `Email OTP` ➔ Route to `Home`
+2. **Google Login:** Tap `Google Sign-In` ➔ Enter `Access PIN` ➔ Route to `Home`
+3. **Email Signup:** Input `Email` + `Create PIN` ➔ Verify `Email OTP` ➔ Route to `Home`
+4. **Google Signup:** Tap `Google Sign-In` ➔ `Create PIN` ➔ Route to `Home`
+
+### Designated System Test OTP Account
+For testing and automated verification, use the system test credentials:
+- **Test Email:** `realjackhalder@gmail.com`
+- **Test OTP Code:** `123456` (10-minute expiry window)
+
+---
+
+## Production Security Harness
+
+### Mobile Hardware Keychain Storage (`app_state.dart`)
+- **Android:** Hardware-backed `EncryptedSharedPreferences` via Android Keystore (AES-256 GCM).
+- **iOS:** Hardware Keychain with `KeychainAccessibility.first_unlock`.
+- **Zero Plain-Text Credentials:** Access Tokens, Refresh Tokens, and encrypted PIN hashes are strictly stored in hardware-level secure storage. Never written to plain SharedPreferences.
+
+### Server-Side Endpoint Auth (`supabase/functions/`)
+- Every API request is verified on the server using `supabase.auth.getUser(token)`.
+- Enforces short-lived JWTs with automatic Refresh Token rotation.
+- Authoritative email confirmation check (`email_confirmed_at`).
+- Strict HTTPS/TLS domain validation to prevent Man-in-the-Middle (MITM) attacks.
 
 ---
 
@@ -72,41 +119,42 @@ PeThar/
 │   └── workflows/ci.yml         # Native Android (APK/AAB) & iOS Runner CI Pipeline
 │
 ├── apps/                        # 📱 Mobile Platform Launchers
-│   ├── android/                 # Android run & release build scripts
-│   │   ├── run.sh               # Run on Android phone or emulator
-│   │   ├── build-apk.sh         # Compile release APK
-│   │   └── README.md
-│   └── ios/                     # iOS run & Xcode setup scripts
-│       ├── run.sh               # Run on iOS Simulator or iPhone
-│       ├── open-xcode.sh        # Open Runner.xcworkspace
-│       └── README.md
+│   ├── android/                 # Android run & release build scripts (run.sh, build-apk.sh)
+│   └── ios/                     # iOS run & Xcode setup scripts (run.sh, open-xcode.sh)
 │
 ├── pethar-wallet/               # 📱 Native Mobile Engine (Flutter 3.x / Dart 3.x)
 │   ├── android/                 # Native Android Gradle configuration
 │   ├── ios/                     # Native iOS Runner Xcode project & Podfile
 │   ├── lib/                     # Application logic, state, and UI screens
-│   │   ├── app_state.dart       # State management & session lifecycle
+│   │   ├── app_state.dart       # Hardware keychain token & PIN storage
 │   │   ├── i18n.dart            # Arakanese & English bilingual localization
 │   │   ├── main.dart            # Flutter app entrypoint
 │   │   ├── screens/             # Mobile screens (Home, Send, Pay, Auth, Settings)
-│   │   ├── services/            # Supabase service, local storage, auth service
-│   │   └── widgets/             # Mobile UI widgets, keypad, Arakan emblem
+│   │   ├── services/            # Supabase service, auth service, local storage
+│   │   └── widgets/             # UI widgets, Arakan emblem, biometric modals
 │   ├── assets/                  # Currency flag assets & graphics
 │   ├── test/                    # Mobile unit and widget test suite
 │   └── pubspec.yaml             # Mobile-only Flutter dependencies
 │
 ├── supabase/                    # 🔒 Supabase Backend & Database Migrations
-│   ├── migrations/              # PostgreSQL schema, RLS policies & double-entry ledger
-│   └── functions/               # Edge functions (OTP verification & transactions)
+│   ├── migrations/              # PostgreSQL schema, RLS policies & dual-wallet ledger
+│   └── functions/               # Edge functions (auth-middleware, verify-otp, post-transaction)
 │
-├── db/                          # 🗄️ Database Client & Verification SQL
-├── drizzle/                     # ⚡ Drizzle ORM Schema & Migration tooling
-├── scripts/                     # 🔧 Signing key generation & deployment utilities
+├── db/                          # 🗄️ Database Schema & Drizzle ORM
+│   ├── schema.ts                # Dual-Wallet Drizzle ORM schema (1.00 AKD = 1.00 USD)
+│   ├── client.ts                # PostgreSQL connection pooling & atomic swap methods
+│   └── enterprise_database.sql  # Consolidated PostgreSQL enterprise schema
+│
+├── drizzle/                     # ⚡ Drizzle Schema Re-export & Tooling
+├── scripts/                     # 🔧 Database verification & utility scripts
 │
 └── archive/                     # 📦 Unified Master Backup Directory
-    ├── archive-offline-features/# Legacy Cashu, BLE, NFC, Merchant, and Agent systems
-    ├── archive-platforms/       # Web, POS terminals, and Desktop clients codebases
-    └── exchange-and-fx/         # Old dynamic fiat FX rate tracking engines & cron jobs
+    ├── offline-core/            # Legacy Cashu tokens, BLE, and NFC modules
+    ├── telecom-billing/         # MPT, ATOM, Mytel, and U9 airtime topup modules
+    ├── merchant-ops/            # Merchant dashboards, store profiles, and vendor logic
+    ├── agent-network/           # Physical Cash-Out logic, escrow locks, and agent hubs
+    ├── exchange-and-fx/         # Dynamic FX rate trackers, spreads, and exchange cron jobs
+    └── platforms/               # Preserved Web Wallet, POS Terminal, and Desktop Client
 ```
 
 ---
@@ -118,7 +166,7 @@ PeThar/
 - **Dart SDK:** v3.x
 - **Java:** JDK 17 (Zulu / Temurin recommended for Android Gradle)
 - **Xcode:** 15.x or later (for iOS development on macOS)
-- **Node.js:** v20.x (for database migrations and backend tooling)
+- **Node.js:** v20.x / Deno v1.x (for database migrations and edge functions)
 
 ### 1. Mobile Development Setup
 ```bash
@@ -133,52 +181,45 @@ flutter pub get
 
 ### 2. Static Analysis & Tests
 ```bash
-# Run Dart static analyzer (fatal warnings enabled)
-npm run analyze
-# or: cd pethar-wallet && dart analyze --fatal-warnings
+# Run Dart static analyzer
+cd pethar-wallet && flutter analyze
 
 # Run full mobile unit and widget test suite
-npm run test
-# or: cd pethar-wallet && flutter test
+cd pethar-wallet && flutter test
 ```
 
 ### 3. Running on Devices
 
 #### Android Phone / Emulator
 ```bash
-# Run debug build
-npm run android
-# or: ./apps/android/run.sh
-
-# Build release APK
-npm run android:apk
-# or: ./apps/android/build-apk.sh
+./apps/android/run.sh
+# Build release APK:
+./apps/android/build-apk.sh
 ```
 
 #### iOS Simulator / iPhone
 ```bash
-# Run on iOS simulator
-npm run ios
-# or: ./apps/ios/run.sh
-
-# Open Xcode workspace for signing and device configuration
-npm run ios:xcode
-# or: ./apps/ios/open-xcode.sh
+./apps/ios/run.sh
+# Open in Xcode:
+./apps/ios/open-xcode.sh
 ```
 
 ---
 
 ## Master Unified Archive Reference
 
-To inspect or reactivate the legacy components:
-- **Offline & Merchant Systems:** Refer to [`archive/archive-offline-features/`](archive/archive-offline-features/)
-- **Web App:** Refer to [`archive/archive-platforms/web-wallet/README.md`](archive/archive-platforms/web-wallet/README.md)
-- **Merchant POS Terminal:** Refer to [`archive/archive-platforms/pos-terminal/README.md`](archive/archive-platforms/pos-terminal/README.md)
-- **Desktop Client:** Refer to [`archive/archive-platforms/desktop-client/README.md`](archive/archive-platforms/desktop-client/README.md)
-- **Dynamic FX & Exchange Engines:** Refer to [`archive/exchange-and-fx/README.md`](archive/exchange-and-fx/README.md)
+To inspect or reactivate archived legacy platforms and non-mobile features:
+- **Offline Core (Cashu e-cash, BLE, NFC):** [`archive/offline-core/`](archive/offline-core/)
+- **Telecom & Bill Payment:** [`archive/telecom-billing/`](archive/telecom-billing/)
+- **Merchant Operations:** [`archive/merchant-ops/`](archive/merchant-ops/)
+- **Agent Cash-Out Network:** [`archive/agent-network/`](archive/agent-network/)
+- **Dynamic FX & Rates:** [`archive/exchange-and-fx/`](archive/exchange-and-fx/)
+- **Archived Platforms (Web, POS, Desktop):** [`archive/platforms/`](archive/platforms/)
 
 ---
 
-## Security & Compliance
+## Security & Contact
 
-Péthar is engineered for defense-in-depth with zero hardcoded credentials and strict row-level security. For security disclosures or bug bounty inquiries, refer to [SECURITY.md](SECURITY.md) or contact `pethar-app@protonmail.com`.
+Péthar is engineered for defense-in-depth with zero hardcoded credentials and strict row-level security. For security disclosures, vulnerability reporting, or support inquiries, contact the security team:
+- **Official Security & Project Email:** `pethar-app@protonmail.com`
+- **Security Policy:** [SECURITY.md](SECURITY.md)

@@ -1,8 +1,11 @@
 # Péthar Enterprise Code Ownership
 * @Péthar
 
-# Security & Rules
-/firestore.rules @Péthar
+# Security & Core Ledger
+/db/ @Péthar
+/supabase/functions/ @Péthar
+/pethar-wallet/lib/ @Péthar
 /.github/workflows/ @Péthar
-/pethar_mobile/lib/services/offline_payment_service.dart @Péthar
-/pethar-wallet/src/components/TransactionSlip.tsx @Péthar
+
+# Archived Modules
+/archive/ @Péthar

@@ -373,9 +373,9 @@ Total: ~$50/month
 ## 🆘 Emergency Contacts & Support
 
 **For Users:**
-- Email: support@pethar.co.uk
+- Email: pethar-app@protonmail.com
 - Telegram: @PetharSupport
-- In-app chat (chat.pethar.co.uk)
+- Designated Test Account: realjackhalder@gmail.com (OTP: `123456`)
 
 **For Admins:**
 - Emergency hotline: (Your phone number)

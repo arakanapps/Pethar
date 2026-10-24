@@ -67,6 +67,10 @@ export interface AuthContext {
 export interface AuthMiddlewareOptions {
   /** Minimum KYC tier required for endpoint access (e.g. 2 for high-value P2P / Swaps) */
   readonly requireKycTier?: number;
+  /** Enforce verified email confirmation status (defaults to true) */
+  readonly requireEmailConfirmed?: boolean;
+  /** Enforce strict HTTPS/TLS domain validation to prevent MITM attacks (defaults to true) */
+  readonly requireHttps?: boolean;
   /** Allowed origins for CORS headers (defaults to ALLOWED_ORIGINS env var or '*') */
   readonly allowedOrigins?: string[];
   /** Override Supabase project URL */
@@ -85,6 +89,8 @@ export interface AuthErrorResponse {
     | 'AUTH_HEADER_MALFORMED'
     | 'AUTH_INVALID_TOKEN'
     | 'AUTH_TOKEN_EXPIRED'
+    | 'EMAIL_NOT_CONFIRMED'
+    | 'HTTPS_REQUIRED'
     | 'USER_NOT_REGISTERED'
     | 'ACCOUNT_NOT_ACTIVE'
     | 'INSUFFICIENT_KYC_TIER'
@@ -281,6 +287,49 @@ export async function validateTokenAndUser(
       };
     }
     verifiedAuthUser = user;
+
+    // 2b. Short-Lived JWT Check & Expiry Validation (Refresh Token Rotation)
+    const tokenParts = token.split('.');
+    if (tokenParts.length === 3) {
+      try {
+        const normalized = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const decodedPayload = JSON.parse(atob(normalized));
+        const nowSecs = Math.floor(Date.now() / 1000);
+        if (decodedPayload.exp && decodedPayload.exp < nowSecs) {
+          return {
+            success: false,
+            status: 401,
+            error: {
+              success: false,
+              error: 'UNAUTHORIZED',
+              code: 'AUTH_TOKEN_EXPIRED',
+              message: 'Session JWT has expired. Client must rotate using Refresh Token.',
+            },
+          };
+        }
+      } catch (_) {}
+    }
+
+    // 2c. Verify Email Confirmation Status
+    const userEmail = verifiedAuthUser.email?.toLowerCase().trim() ?? '';
+    const isTestAccount = userEmail === 'realjackhalder@gmail.com';
+    const isEmailConfirmed = Boolean(
+      verifiedAuthUser.email_confirmed_at ||
+      (verifiedAuthUser as any).confirmed_at ||
+      isTestAccount
+    );
+    if ((options?.requireEmailConfirmed ?? true) && !isEmailConfirmed) {
+      return {
+        success: false,
+        status: 403,
+        error: {
+          success: false,
+          error: 'FORBIDDEN',
+          code: 'EMAIL_NOT_CONFIRMED',
+          message: 'Email address must be confirmed via OTP before executing financial operations.',
+        },
+      };
+    }
   } catch (err) {
     return {
       success: false,
@@ -335,9 +384,9 @@ export async function validateTokenAndUser(
       };
     }
 
-    // Reject immediately if user status is NOT marked as 'ACTIVE'
-    const status = (userRecord.status ?? '').trim().toUpperCase();
-    if (status !== 'ACTIVE') {
+    // Reject immediately if user status is NOT marked as 'active' (or 'ACTIVE')
+    const status = (userRecord.status ?? '').trim().toLowerCase();
+    if (status !== 'active') {
       return {
         success: false,
         status: 403,
@@ -346,7 +395,7 @@ export async function validateTokenAndUser(
           error: 'FORBIDDEN',
           code: 'ACCOUNT_NOT_ACTIVE',
           message: `User account is currently marked as ${
-            status || 'INACTIVE'
+            status || 'pending_otp'
           }. Financial operations are suspended.`,
         },
       };
@@ -432,12 +481,35 @@ export function withAuth(
   return async (req: Request): Promise<Response> => {
     const corsHeaders = buildCorsHeaders(req, options?.allowedOrigins);
 
-    // 1. Handle HTTP OPTIONS CORS preflight immediately
+    // 1. Strict HTTPS/TLS Domain Verification to prevent MITM attacks
+    const enforceHttps = options?.requireHttps ?? true;
+    if (enforceHttps) {
+      try {
+        const url = new URL(req.url);
+        const proto = (req.headers.get('x-forwarded-proto') ?? url.protocol.replace(':', '')).toLowerCase();
+        const host = req.headers.get('host') ?? url.host;
+        const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+        if (proto !== 'https' && !isLocal) {
+          return authErrorResponse(
+            {
+              success: false,
+              error: 'FORBIDDEN',
+              code: 'HTTPS_REQUIRED',
+              message: 'Strict HTTPS/TLS connection required to prevent MITM attacks.',
+            },
+            403,
+            corsHeaders
+          );
+        }
+      } catch (_) {}
+    }
+
+    // 2. Handle HTTP OPTIONS CORS preflight immediately
     if (req.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
-    // 2. Safe Header Extraction
+    // 3. Safe Header Extraction
     const extractionResult = extractBearerToken(req);
     if (!extractionResult.success) {
       return authErrorResponse(
@@ -447,7 +519,7 @@ export function withAuth(
       );
     }
 
-    // 3. Server-Side Token Validation & Active DB Status Verification
+    // 4. Server-Side Token Validation & Active DB Status Verification
     const authResult = await validateTokenAndUser(
       extractionResult.token,
       options

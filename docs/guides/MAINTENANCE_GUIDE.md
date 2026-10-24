@@ -394,16 +394,15 @@ Published: https://pethar.co.uk/reserves/2026-10
 **Knowledge Transfer:**
 ```bash
 # 1. Clone repo
-git clone https://github.com/realjackhalder/pethar.git
+git clone https://github.com/arakanapps/Pethar.git
 
 # 2. Install dependencies
 cd pethar-wallet
 flutter pub get
-npm install
 
 # 3. Set up environment
 cp .env.example .env
-# Fill in actual values
+# Fill in actual values (system test OTP account: realjackhalder@gmail.com / 123456)
 
 # 4. Run locally
 flutter run
@@ -421,8 +420,9 @@ flutter run
 
 ### Support Channels:
 
-- **User support:** support@pethar.co.uk
+- **Official Security & Project Email:** pethar-app@protonmail.com
 - **Telegram:** @PetharSupport
+- **Designated OTP Test Account:** realjackhalder@gmail.com (Default Sandbox OTP: `123456`)
 - **Admin emergency:** (Your personal phone)
 
 ### Escalation Path:

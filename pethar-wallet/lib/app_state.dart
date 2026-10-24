@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -67,6 +68,7 @@ class AppState extends ChangeNotifier {
 
   static const String _keyAccessToken = 'pethar_secure_access_token_v1';
   static const String _keyRefreshToken = 'pethar_secure_refresh_token_v1';
+  static const String _keyPinHash = 'pethar_secure_pin_hash_v1';
 
   String? _accessToken;
   String? _refreshToken;
@@ -233,11 +235,50 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  /// Securely encrypts and persists PIN hash in Hardware Keychain / Keystore vault
+  Future<void> saveSecurePinHash(String pin) async {
+    final cleanPin = pin.trim();
+    if (cleanPin.isEmpty) return;
+    try {
+      final bytes = utf8.encode(cleanPin);
+      final hash = sha256.convert(bytes).toString();
+      await _secureStorage.write(key: _keyPinHash, value: hash);
+    } catch (e) {
+      debugPrint('[Security] Hardware vault PIN write failure: ${e.runtimeType}');
+    }
+  }
+
+  /// Cryptographically verifies candidate PIN against Hardware Keychain / Keystore vault hash
+  Future<bool> verifySecurePin(String pin) async {
+    final cleanPin = pin.trim();
+    if (cleanPin.isEmpty) return false;
+    try {
+      final storedHash = await _secureStorage.read(key: _keyPinHash);
+      if (storedHash == null || storedHash.isEmpty) return false;
+      final bytes = utf8.encode(cleanPin);
+      final candidateHash = sha256.convert(bytes).toString();
+      return storedHash == candidateHash;
+    } catch (e) {
+      debugPrint('[Security] Hardware vault PIN read failure: ${e.runtimeType}');
+      return false;
+    }
+  }
+
+  /// Cryptographically purges PIN hash from Hardware Keychain / Keystore vault
+  Future<void> clearSecurePinHash() async {
+    try {
+      await _secureStorage.delete(key: _keyPinHash);
+    } catch (e) {
+      debugPrint('[Security] Hardware vault PIN purge failure: ${e.runtimeType}');
+    }
+  }
+
   /// Performs an active cryptographic purge of keys upon logout or session invalidation events.
   Future<void> clearUserSession() async {
     try {
       await _secureStorage.delete(key: _keyAccessToken);
       await _secureStorage.delete(key: _keyRefreshToken);
+      await _secureStorage.delete(key: _keyPinHash);
     } catch (e) {
       debugPrint('[Security] Hardware vault purge error: ${e.runtimeType}');
     } finally {
@@ -323,38 +364,49 @@ class AppState extends ChangeNotifier {
                 profileMap['usd_account_wallet_address'].toString();
           }
           if (profileMap['first_name'] != null &&
-              profileMap['first_name'].toString().isNotEmpty)
+              profileMap['first_name'].toString().isNotEmpty) {
             profile.firstName = profileMap['first_name'].toString();
+          }
           if (profileMap['last_name'] != null &&
-              profileMap['last_name'].toString().isNotEmpty)
+              profileMap['last_name'].toString().isNotEmpty) {
             profile.lastName = profileMap['last_name'].toString();
+          }
           if (profileMap['name'] != null &&
-              profileMap['name'].toString().isNotEmpty)
+              profileMap['name'].toString().isNotEmpty) {
             profile.name = profileMap['name'].toString();
+          }
           if (profileMap['nickname'] != null &&
-              profileMap['nickname'].toString().isNotEmpty)
+              profileMap['nickname'].toString().isNotEmpty) {
             profile.nickname = profileMap['nickname'].toString();
+          }
           if (profileMap['email'] != null &&
-              profileMap['email'].toString().isNotEmpty)
+              profileMap['email'].toString().isNotEmpty) {
             profile.email = profileMap['email'].toString();
+          }
           if (profileMap['phone'] != null &&
-              profileMap['phone'].toString().isNotEmpty)
+              profileMap['phone'].toString().isNotEmpty) {
             profile.phone = profileMap['phone'].toString();
+          }
           if (profileMap['national_id_no'] != null &&
-              profileMap['national_id_no'].toString().isNotEmpty)
+              profileMap['national_id_no'].toString().isNotEmpty) {
             profile.nationalIdNo = profileMap['national_id_no'].toString();
+          }
           if (profileMap['dob'] != null &&
-              profileMap['dob'].toString().isNotEmpty)
+              profileMap['dob'].toString().isNotEmpty) {
             profile.dob = profileMap['dob'].toString();
+          }
           if (profileMap['address'] != null &&
-              profileMap['address'].toString().isNotEmpty)
+              profileMap['address'].toString().isNotEmpty) {
             profile.address = profileMap['address'].toString();
+          }
           if (profileMap['gender'] != null &&
-              profileMap['gender'].toString().isNotEmpty)
+              profileMap['gender'].toString().isNotEmpty) {
             profile.gender = profileMap['gender'].toString();
+          }
           if (profileMap['id_type'] != null &&
-              profileMap['id_type'].toString().isNotEmpty)
+              profileMap['id_type'].toString().isNotEmpty) {
             profile.idType = profileMap['id_type'].toString();
+          }
           if (profileMap['avatar_url'] != null &&
               profileMap['avatar_url'].toString().isNotEmpty) {
             profile.avatarUrl = profileMap['avatar_url'].toString();
@@ -671,6 +723,7 @@ class AppState extends ChangeNotifier {
     final res =
         await AuthService().loginWithEmailAndPin(email: email, pin: pin);
     if (res['success'] == true && res['user'] is StoredUser) {
+      await saveSecurePinHash(pin);
       final session = SupabaseService().currentSession;
       if (session != null &&
           session.accessToken.isNotEmpty &&
@@ -699,6 +752,13 @@ class AppState extends ChangeNotifier {
   }) async {
     final res = await AuthService().verifyLoginOtp(email: email, pin: pin, otp: otp);
     if (res['success'] == true && res['user'] is StoredUser) {
+      await saveSecurePinHash(pin);
+      final session = SupabaseService().currentSession;
+      if (session != null &&
+          session.accessToken.isNotEmpty &&
+          session.refreshToken != null) {
+        await saveUserSession(session.accessToken, session.refreshToken!);
+      }
       _applyAuthenticatedUser(res['user'] as StoredUser);
       return {'success': true};
     }
@@ -713,6 +773,13 @@ class AppState extends ChangeNotifier {
   }) async {
     final res = await AuthService().loginWithGoogleAndPin(email: email, pin: pin, name: name);
     if (res['success'] == true && res['user'] is StoredUser) {
+      await saveSecurePinHash(pin);
+      final session = SupabaseService().currentSession;
+      if (session != null &&
+          session.accessToken.isNotEmpty &&
+          session.refreshToken != null) {
+        await saveUserSession(session.accessToken, session.refreshToken!);
+      }
       _applyAuthenticatedUser(res['user'] as StoredUser);
       return {'success': true};
     }
@@ -733,6 +800,13 @@ class AppState extends ChangeNotifier {
       name: name,
     );
     if (res['success'] == true && res['user'] is StoredUser) {
+      await saveSecurePinHash(pin);
+      final session = SupabaseService().currentSession;
+      if (session != null &&
+          session.accessToken.isNotEmpty &&
+          session.refreshToken != null) {
+        await saveUserSession(session.accessToken, session.refreshToken!);
+      }
       _applyAuthenticatedUser(res['user'] as StoredUser);
       return {'success': true};
     }
@@ -756,11 +830,15 @@ class AppState extends ChangeNotifier {
     required String newPin,
     required String confirmPin,
   }) async {
-    return await AuthService().confirmPinReset(
+    final res = await AuthService().confirmPinReset(
       email: email,
       newPin: newPin,
       confirmPin: confirmPin,
     );
+    if (res['success'] == true) {
+      await saveSecurePinHash(newPin);
+    }
+    return res;
   }
 
   /// 5. Sign up Step 1: Credentials and send 10-minute Email OTP
@@ -793,6 +871,10 @@ class AppState extends ChangeNotifier {
       username: username,
     );
     if (res['success'] == true && res['user'] is StoredUser) {
+      final user = res['user'] as StoredUser;
+      if (user.pin.isNotEmpty) {
+        await saveSecurePinHash(user.pin);
+      }
       final session = SupabaseService().currentSession;
       if (session != null &&
           session.accessToken.isNotEmpty &&

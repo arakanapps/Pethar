@@ -13,7 +13,7 @@ A clear and concise description of what the bug is.
 - Device: [e.g. MacBook Pro M3, Pixel 8, iPhone 15 Pro]
 - OS: [e.g. macOS 15, Android 14, iOS 18]
 - Browser: [e.g. Chrome, Safari, Native App]
-- Subdomain / Screen: [e.g. app.pethar.co.uk / DashboardPage / Offline Mode]
+- Subdomain / Screen: [e.g. Android Pixel 8 / iOS 18 / HomeScreen / SendScreen]
 
 **Steps to Reproduce**
 1. Go to '...'

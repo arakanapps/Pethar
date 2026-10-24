@@ -1819,7 +1819,7 @@ class _AuthScreenState extends State<AuthScreen> {
               width: 22,
               height: 22,
               decoration: const BoxDecoration(shape: BoxShape.circle),
-              child: Center(
+              child: const Center(
                 child: Text(
                   'G',
                   style: TextStyle(

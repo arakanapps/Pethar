@@ -13,11 +13,10 @@ A clear and concise description of what the problem is.
 A clear and concise description of what you want to happen.
 
 **Domain / Target Surface**
-- [ ] Core Wallet (app.pethar.co.uk)
-- [ ] Offline Mesh / Bluetooth Bearer Tokens
+- [ ] Mobile Client (Android / iOS Flutter)
+- [ ] Dual-Wallet Ledger (AKD / Crypto)
 - [ ] Treasury & Stablecoin Reserves (USDT / USDC)
-- [ ] Mobile Client (Android APK / iOS OTA Profile)
-- [ ] Developer APIs & Webhooks
+- [ ] Edge Auth & API Functions
 
 **Additional Context**
 Add any other context, wireframes, or references about the feature request here.

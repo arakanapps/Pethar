@@ -11,7 +11,7 @@ void main() {
     final exp = (DateTime.now().millisecondsSinceEpoch ~/ 1000) + expirySecondsFromNow;
     final payload = base64Url.encode(utf8.encode(jsonEncode({
       'sub': '87c6ab94-6efa-4625-8ef9-460cd1798965',
-      'email': 'security-lead@pethar.co.uk',
+      'email': 'pethar-app@protonmail.com',
       'exp': exp,
       'role': 'authenticated',
     }))).replaceAll('=', '');
@@ -104,6 +104,31 @@ void main() {
       const secureStorage = FlutterSecureStorage();
       expect(await secureStorage.read(key: 'pethar_secure_access_token_v1'), isNull);
       expect(await secureStorage.read(key: 'pethar_secure_refresh_token_v1'), isNull);
+      expect(await secureStorage.read(key: 'pethar_secure_pin_hash_v1'), isNull);
+    });
+
+    test('Hardware Keychain Storage stores and verifies encrypted PIN hash', () async {
+      final appState = AppState();
+      const testPin = '889900';
+
+      await appState.saveSecurePinHash(testPin);
+
+      // Verify that hardware vault contains hashed PIN
+      const secureStorage = FlutterSecureStorage();
+      final storedHash = await secureStorage.read(key: 'pethar_secure_pin_hash_v1');
+      expect(storedHash, isNotNull);
+      expect(storedHash, isNot(equals(testPin))); // Never plain text!
+
+      // Correct PIN verifies
+      expect(await appState.verifySecurePin(testPin), isTrue);
+
+      // Incorrect PIN fails
+      expect(await appState.verifySecurePin('000000'), isFalse);
+
+      // Purge removes PIN hash
+      await appState.clearSecurePinHash();
+      expect(await secureStorage.read(key: 'pethar_secure_pin_hash_v1'), isNull);
+      expect(await appState.verifySecurePin(testPin), isFalse);
     });
 
     test('signOut triggers active cryptographic purge of keys', () async {
@@ -122,6 +147,31 @@ void main() {
       const secureStorage = FlutterSecureStorage();
       expect(await secureStorage.read(key: 'pethar_secure_access_token_v1'), isNull);
       expect(await secureStorage.read(key: 'pethar_secure_refresh_token_v1'), isNull);
+      expect(await secureStorage.read(key: 'pethar_secure_pin_hash_v1'), isNull);
+    });
+
+    test('Hardware Keychain Storage stores and verifies encrypted PIN hash', () async {
+      final appState = AppState();
+      const testPin = '889900';
+
+      await appState.saveSecurePinHash(testPin);
+
+      // Verify that hardware vault contains hashed PIN
+      const secureStorage = FlutterSecureStorage();
+      final storedHash = await secureStorage.read(key: 'pethar_secure_pin_hash_v1');
+      expect(storedHash, isNotNull);
+      expect(storedHash, isNot(equals(testPin))); // Never plain text!
+
+      // Correct PIN verifies
+      expect(await appState.verifySecurePin(testPin), isTrue);
+
+      // Incorrect PIN fails
+      expect(await appState.verifySecurePin('000000'), isFalse);
+
+      // Purge removes PIN hash
+      await appState.clearSecurePinHash();
+      expect(await secureStorage.read(key: 'pethar_secure_pin_hash_v1'), isNull);
+      expect(await appState.verifySecurePin(testPin), isFalse);
     });
   });
 }

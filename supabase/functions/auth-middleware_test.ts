@@ -74,3 +74,16 @@ Deno.test('withAuth - intercepts missing token and returns 401', async () => {
   const body = await res.json();
   assertEquals(body.code, 'AUTH_HEADER_MISSING');
 });
+
+Deno.test('withAuth - rejects non-HTTPS requests to prevent MITM attacks', async () => {
+  const handler = withAuth(async () => {
+    return new Response(JSON.stringify({ ok: true }));
+  });
+  const req = new Request('http://api.pethar.co.uk/transfer', {
+    method: 'POST',
+  });
+  const res = await handler(req);
+  assertEquals(res.status, 403);
+  const body = await res.json();
+  assertEquals(body.code, 'HTTPS_REQUIRED');
+});

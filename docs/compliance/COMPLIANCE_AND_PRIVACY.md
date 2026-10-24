@@ -6,9 +6,10 @@
 ---
 
 ## 2. Reserve Collateralization & Peg Integrity
-* **Unit of Account:** 1 ₳ (Arakan Dollar) = $1.00 USD.
-* **Collateral Mandate:** For every 1 ₳ issued in circulation, the treasury maintains $1.00 USD in segregated stablecoins (**USDT, USDC, USD1**).
-* **Audit Trail:** Reserve verification balances are publicly auditable through our internal treasury explorer (`admin.pethar.co.uk`) and transparency proofs.
+* **Unit of Account:** 1.00 AKD = 1.00 USD (`1.00 ₳ = $1.00`).
+* **Collateral Mandate:** For every 1.00 AKD issued in circulation, the treasury maintains $1.00 USD in segregated stablecoins (**USDT, USDC**).
+* **Dual-Wallet Ledger:** Main AKD wallet balances and on-chain USDT/USDC balances are stored with fixed `NUMERIC(18, 2)` decimal precision.
+* **1:1 In-App Swaps:** Instant 1:1 conversions between USDT/USDC and AKD execute with $0 slippage using PostgreSQL `FOR UPDATE` ACID transactions.
 
 ---
 
@@ -18,4 +19,4 @@
   * No selling or licensing of personal data.
   * No advertising trackers or data broker partnerships.
   * No scraping of contacts, photos, or emails.
-* **Right to Erasure:** Contact `privacy@pethar.co.uk` to purge account data permanently.
+* **Right to Erasure:** Contact `pethar-app@protonmail.com` to purge account data permanently.
