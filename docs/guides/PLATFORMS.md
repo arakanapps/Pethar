@@ -1,6 +1,6 @@
 # Péthar (ဖေ့သာ) — Mobile Platform Architecture Guide
 
-This document provides a clean overview of how all files in the Péthar codebase are structured for the **Android** and **iOS** native mobile releases, and details the unified archive in `archive/`.
+This document provides a clean overview of how all files in the Péthar codebase are structured for the **Android** and **iOS** native mobile releases, and details the unified archive in root `archive/`.
 
 ---
 
@@ -29,12 +29,15 @@ Péthar/
 │   └── pubspec.yaml             # Mobile-only dependencies
 │
 └── archive/                     # 📦 Master Consolidated Archive Directory
-    ├── archive-offline-features/# Legacy Cashu, BLE, NFC, Merchant, and Agent systems
-    ├── archive-platforms/       # Preserved Web, POS, and Desktop Platforms
-    │   ├── web-wallet/          # React 19 / TypeScript / Vite / Vercel web portal
-    │   ├── pos-terminal/        # Merchant POS register & thermal printer modules
-    │   └── desktop-client/      # macOS Runner & Electron wrapper
-    └── exchange-and-fx/         # Old dynamic fiat FX rate engines & cron sync jobs
+    ├── offline-core/            # Legacy Cashu, BLE, and NFC offline services
+    ├── telecom-billing/         # Mobile top-up & utility bill payment modules
+    ├── merchant-ops/            # Merchant management dashboards & vendor logic
+    ├── agent-network/           # Cash-out router & physical agent modules
+    ├── exchange-and-fx/         # Old dynamic fiat FX rate engines & cron sync jobs
+    └── platforms/               # Preserved Web, POS, and Desktop Platforms
+        ├── web-wallet/          # React 19 / TypeScript / Vite / Vercel web portal
+        ├── pos-terminal/        # Merchant POS register & thermal printer modules
+        └── desktop-client/      # macOS Runner & Electron wrapper
 ```
 
 ---
@@ -57,8 +60,11 @@ From the root directory:
 ## 📦 Master Unified Archive
 
 For documentation and reactivation instructions for legacy components:
-- **Offline & Merchant Features:** See `archive/archive-offline-features/`
-- **Web Portal:** See `archive/archive-platforms/web-wallet/README.md`
-- **Merchant POS Terminal:** See `archive/archive-platforms/pos-terminal/README.md`
-- **Desktop Client:** See `archive/archive-platforms/desktop-client/README.md`
+- **Offline Core (Cashu, BLE, NFC):** See `archive/offline-core/`
+- **Telecom & Utility Billing:** See `archive/telecom-billing/`
+- **Merchant Operations:** See `archive/merchant-ops/`
+- **Agent Network & Cash-Out:** See `archive/agent-network/`
+- **Web Portal:** See `archive/platforms/web-wallet/README.md`
+- **Merchant POS Terminal:** See `archive/platforms/pos-terminal/README.md`
+- **Desktop Client:** See `archive/platforms/desktop-client/README.md`
 - **Dynamic FX & Exchange Engines:** See `archive/exchange-and-fx/README.md`

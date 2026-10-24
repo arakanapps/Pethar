@@ -830,7 +830,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               border: Border.all(color: const Color(0xFFFECDD3)),
                             ),
                             child: const Text(
-                              '1 ₳ = \$1.00',
+                              '1.00 ₳ = \$1.00',
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w800,

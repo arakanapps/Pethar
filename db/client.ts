@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { sql, eq } from 'drizzle-orm';
-import * as schema from '../drizzle/schema';
-import { users, akdWallets, cryptoWallets, transactions } from '../drizzle/schema';
+import * as schema from './schema';
+import { users, akdWallets, cryptoWallets, transactions } from './schema';
 
 const connectionString =
   process.env.DATABASE_URL ||
@@ -18,7 +18,7 @@ const client = postgres(connectionString, {
 
 export const db = drizzle(client, { schema });
 export { client, schema };
-export * from '../drizzle/schema';
+export * from './schema';
 
 /**
  * Generate a deterministic or randomized public EVM-compatible blockchain deposit address

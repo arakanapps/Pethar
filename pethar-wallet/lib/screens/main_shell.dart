@@ -926,8 +926,9 @@ class _MainShellState extends State<MainShell> {
                         );
                       }).toList(),
                       onChanged: (val) {
-                        if (val != null)
+                        if (val != null) {
                           setState(() => _selectedDepositToken = val);
+                        }
                       },
                     ),
                   ),
@@ -2388,19 +2389,24 @@ class _MainShellState extends State<MainShell> {
     // Sub-screens routing with explicit SystemUiOverlayStyle
     Widget? subScreen;
     if (appState.currentScreen == Screen.send) subScreen = const SendScreen();
-    if (appState.currentScreen == Screen.receive)
+    if (appState.currentScreen == Screen.receive) {
       subScreen = const ReceiveScreen();
+    }
     if (appState.currentScreen == Screen.intl) subScreen = const IntlScreen();
-    if (appState.currentScreen == Screen.crypto)
+    if (appState.currentScreen == Screen.crypto) {
       subScreen = const CryptoScreen();
+    }
     if (appState.currentScreen == Screen.scan) subScreen = const ScanScreen();
     if (appState.currentScreen == Screen.pay) subScreen = const PayScreen();
-    if (appState.currentScreen == Screen.history)
+    if (appState.currentScreen == Screen.history) {
       subScreen = const HistoryScreen();
-    if (appState.currentScreen == Screen.favourites)
+    }
+    if (appState.currentScreen == Screen.favourites) {
       subScreen = const FavouritesScreen();
-    if (appState.currentScreen == Screen.account)
+    }
+    if (appState.currentScreen == Screen.account) {
       subScreen = const AccountScreen();
+    }
 
     if (subScreen != null) {
       return AnnotatedRegion<SystemUiOverlayStyle>(

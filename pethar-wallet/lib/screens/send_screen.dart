@@ -503,8 +503,9 @@ class _SendScreenState extends State<SendScreen> {
             if (amount.length < 9) setState(() => amount += v);
           },
           onDelete: () {
-            if (amount.isNotEmpty)
+            if (amount.isNotEmpty) {
               setState(() => amount = amount.substring(0, amount.length - 1));
+            }
           },
         ),
 
