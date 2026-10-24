@@ -12,11 +12,7 @@ export const ArakanEmblem: React.FC<EmblemProps> = ({
   variant = 'emblem-only',
 }) => (
   <img
-    src={
-      variant === 'previous'
-        ? '/apple-touch-icon-removebg-preview.png'
-        : '/pethar-logo-red-white.svg'
-    }
+    src="/pethar-logo-red-white.svg"
     alt="Péthar logo"
     draggable={false}
     onDragStart={(e) => e.preventDefault()}

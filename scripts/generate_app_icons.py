@@ -1,19 +1,66 @@
 import os
+import subprocess
+import tempfile
 from PIL import Image, ImageDraw, ImageFilter
 
 def create_icons():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    public_dir = os.path.join(base_dir, "pethar-wallet", "public")
+    
+    # Target directory paths across the project
+    web_public_dir = os.path.join(base_dir, "archive", "platforms", "web-wallet", "public")
+    web_flutter_dir = os.path.join(base_dir, "archive", "platforms", "web-wallet", "flutter-web")
+    web_public_flutter_dir = os.path.join(web_public_dir, "flutter")
+    
     mobile_ios_dir = os.path.join(base_dir, "pethar-wallet", "ios", "Runner", "Assets.xcassets", "AppIcon.appiconset")
     mobile_android_res = os.path.join(base_dir, "pethar-wallet", "android", "app", "src", "main", "res")
+    desktop_macos_dir = os.path.join(base_dir, "archive", "platforms", "desktop-client", "macos", "Runner", "Assets.xcassets", "AppIcon.appiconset")
     
-    src_logo_path = os.path.join(public_dir, "pethar-logo-red-white.png")
-    if not os.path.exists(src_logo_path):
-        src_logo_path = os.path.join(public_dir, "logo.png")
+    # 0. Source of truth SVG
+    src_svg_path = os.path.join(web_public_dir, "pethar-logo-red-white.svg")
+    if not os.path.exists(src_svg_path):
+        raise FileNotFoundError(f"Source SVG logo not found at: {src_svg_path}")
+
+    print(f"Loading source vector SVG emblem from: {src_svg_path}")
+    
+    # Render SVG at 2048x2048 for master scaling using sips
+    with tempfile.NamedTemporaryFile(suffix=".svg", delete=False) as tmp_svg:
+        tmp_svg_path = tmp_svg.name
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_png:
+        tmp_png_path = tmp_png.name
+
+    try:
+        with open(src_svg_path, "r", encoding="utf-8") as f:
+            svg_content = f.read()
+            
+        # Ensure 2048x2048 rendering dimensions
+        svg_2048 = svg_content.replace('width="512" height="512"', 'width="2048" height="2048"')
+        with open(tmp_svg_path, "w", encoding="utf-8") as f:
+            f.write(svg_2048)
+            
+        subprocess.run(["sips", "-s", "format", "png", tmp_svg_path, "--out", tmp_png_path], check=True, capture_output=True)
+        raw_logo = Image.open(tmp_png_path).convert("RGBA")
+    finally:
+        if os.path.exists(tmp_svg_path):
+            os.remove(tmp_svg_path)
+        if os.path.exists(tmp_png_path):
+            os.remove(tmp_png_path)
+            
+    # Also render 512x512 transparent PNG master for direct public use
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_512_png:
+        tmp_512_png_path = tmp_512_png.name
+    try:
+        subprocess.run(["sips", "-s", "format", "png", src_svg_path, "--out", tmp_512_png_path], check=True, capture_output=True)
+        master_512 = Image.open(tmp_512_png_path).convert("RGBA")
         
-    print(f"Loading emblem from: {src_logo_path}")
-    raw_logo = Image.open(src_logo_path).convert("RGBA")
-    
+        # Save transparent 512x512 versions
+        master_512.save(os.path.join(web_public_dir, "pethar-logo-red-white.png"), "PNG")
+        master_512.save(os.path.join(web_public_dir, "logo.png"), "PNG")
+        master_512.save(os.path.join(web_public_dir, "apple-touch-icon-removebg-preview.png"), "PNG")
+        print("Updated transparent master logos (pethar-logo-red-white.png, logo.png, apple-touch-icon-removebg-preview.png)")
+    finally:
+        if os.path.exists(tmp_512_png_path):
+            os.remove(tmp_512_png_path)
+
     # Precise crop to bounding box
     bbox = raw_logo.getbbox()
     cropped_logo = raw_logo.crop(bbox)
@@ -58,7 +105,7 @@ def create_icons():
     # -------------------------------------------------------------
     # 3. TINTED / MONOCHROME ICON (Square 1024x1024)
     # Deep slate graphite background with metallic silver-grey luminance gradient
-    # matching iOS 18 Tinted Gmail reference (media_1791973206223_c3274f14.jpg)
+    # matching iOS 18 Tinted reference
     # -------------------------------------------------------------
     tinted_sq = Image.new("RGBA", (SIZE, SIZE), (34, 35, 45, 255))
     draw_tinted = ImageDraw.Draw(tinted_sq)
@@ -162,31 +209,57 @@ def create_icons():
     squircle_tint_emerald = generate_accent_tint((16, 185, 129), dim=512)  # Emerald
     squircle_tint_purple = generate_accent_tint((168, 85, 247), dim=512)   # Purple
 
-    # Save to public
-    print("Writing assets to pethar-wallet/public...")
-    light_sq.save(os.path.join(public_dir, "icon-light-1024.png"), "PNG")
-    dark_sq.save(os.path.join(public_dir, "icon-dark-1024.png"), "PNG")
-    tinted_sq.save(os.path.join(public_dir, "icon-tinted-1024.png"), "PNG")
-    monochrome_glyph_1024.save(os.path.join(public_dir, "icon-monochrome-1024.png"), "PNG")
+    # -------------------------------------------------------------
+    # 7. SAVE TO WEB WALLET PUBLIC
+    # -------------------------------------------------------------
+    print(f"Writing assets to {web_public_dir}...")
+    light_sq.save(os.path.join(web_public_dir, "icon-light-1024.png"), "PNG")
+    dark_sq.save(os.path.join(web_public_dir, "icon-dark-1024.png"), "PNG")
+    tinted_sq.save(os.path.join(web_public_dir, "icon-tinted-1024.png"), "PNG")
+    monochrome_glyph_1024.save(os.path.join(web_public_dir, "icon-monochrome-1024.png"), "PNG")
     
-    squircle_light.save(os.path.join(public_dir, "icon-light.png"), "PNG")
-    squircle_dark.save(os.path.join(public_dir, "icon-dark.png"), "PNG")
-    squircle_tinted.save(os.path.join(public_dir, "icon-tinted.png"), "PNG")
-    squircle_tint_amber.save(os.path.join(public_dir, "icon-tinted-amber.png"), "PNG")
-    squircle_tint_blue.save(os.path.join(public_dir, "icon-tinted-blue.png"), "PNG")
-    squircle_tint_emerald.save(os.path.join(public_dir, "icon-tinted-emerald.png"), "PNG")
-    squircle_tint_purple.save(os.path.join(public_dir, "icon-tinted-purple.png"), "PNG")
+    squircle_light.save(os.path.join(web_public_dir, "icon-light.png"), "PNG")
+    squircle_dark.save(os.path.join(web_public_dir, "icon-dark.png"), "PNG")
+    squircle_tinted.save(os.path.join(web_public_dir, "icon-tinted.png"), "PNG")
+    squircle_tint_amber.save(os.path.join(web_public_dir, "icon-tinted-amber.png"), "PNG")
+    squircle_tint_blue.save(os.path.join(web_public_dir, "icon-tinted-blue.png"), "PNG")
+    squircle_tint_emerald.save(os.path.join(web_public_dir, "icon-tinted-emerald.png"), "PNG")
+    squircle_tint_purple.save(os.path.join(web_public_dir, "icon-tinted-purple.png"), "PNG")
     
-    # Touch icons
-    apply_squircle(dark_sq, dim=180, add_border=False).save(os.path.join(public_dir, "apple-touch-icon.png"), "PNG")
-    apply_squircle(light_sq, dim=180, add_border=False).save(os.path.join(public_dir, "apple-touch-icon-light.png"), "PNG")
-    apply_squircle(dark_sq, dim=180, add_border=False).save(os.path.join(public_dir, "apple-touch-icon-dark.png"), "PNG")
-    apply_squircle(dark_sq, dim=192, add_border=False).save(os.path.join(public_dir, "android-chrome-192x192.png"), "PNG")
-    apply_squircle(dark_sq, dim=512, add_border=False).save(os.path.join(public_dir, "android-chrome-512x512.png"), "PNG")
+    # Touch icons & Android Chrome PWA
+    apply_squircle(dark_sq, dim=180, add_border=False).save(os.path.join(web_public_dir, "apple-touch-icon.png"), "PNG")
+    apply_squircle(light_sq, dim=180, add_border=False).save(os.path.join(web_public_dir, "apple-touch-icon-light.png"), "PNG")
+    apply_squircle(dark_sq, dim=180, add_border=False).save(os.path.join(web_public_dir, "apple-touch-icon-dark.png"), "PNG")
+    apply_squircle(dark_sq, dim=192, add_border=False).save(os.path.join(web_public_dir, "android-chrome-192x192.png"), "PNG")
+    apply_squircle(dark_sq, dim=512, add_border=False).save(os.path.join(web_public_dir, "android-chrome-512x512.png"), "PNG")
+
+    # Favicons (transparent crisp emblem)
+    def make_fav(dim):
+        fav = Image.new("RGBA", (dim, dim), (0, 0, 0, 0))
+        pad = max(1, dim // 16)
+        content_size = dim - 2 * pad
+        scaled_w = content_size
+        scale = scaled_w / w_crop
+        scaled_h = int(h_crop * scale)
+        if scaled_h > content_size:
+            scaled_h = content_size
+            scale = scaled_h / h_crop
+            scaled_w = int(w_crop * scale)
+        resized = cropped_logo.resize((scaled_w, scaled_h), Image.Resampling.LANCZOS)
+        fx = (dim - scaled_w) // 2
+        fy = (dim - scaled_h) // 2
+        fav.paste(resized, (fx, fy), resized)
+        return fav
+
+    fav16 = make_fav(16)
+    fav32 = make_fav(32)
+    fav48 = make_fav(48)
+    fav16.save(os.path.join(web_public_dir, "favicon-16x16.png"), "PNG")
+    fav32.save(os.path.join(web_public_dir, "favicon-32x32.png"), "PNG")
+    fav48.save(os.path.join(web_public_dir, "favicon.ico"), format="ICO", sizes=[(16, 16), (32, 32), (48, 48)])
 
     # -------------------------------------------------------------
-    # 7. GENERATE SIDE-BY-SIDE DEVICE THEMES SHOWCASE BANNER
-    # (Matches user's 3 Gmail reference screenshots)
+    # 8. GENERATE SIDE-BY-SIDE DEVICE THEMES SHOWCASE BANNER
     # -------------------------------------------------------------
     banner_w, banner_h = 1200, 520
     banner = Image.new("RGBA", (banner_w, banner_h), (11, 15, 25, 255))
@@ -224,59 +297,84 @@ def create_icons():
         comp = add_drop_shadow(img)
         banner.paste(comp, (cx - (icon_display_size + 40) // 2, 80), comp)
         
-    banner.save(os.path.join(public_dir, "adaptive-icons-showcase.png"), "PNG")
+    banner.save(os.path.join(web_public_dir, "adaptive-icons-showcase.png"), "PNG")
     print("Saved adaptive-icons-showcase.png")
 
     # -------------------------------------------------------------
-    # 8. UPDATE iOS Assets (Contents.json & icons)
+    # 9. FLUTTER WEB ICONS & FAVICONS
     # -------------------------------------------------------------
-    print("Writing iOS Xcode 16 / iOS 18 Asset Catalog...")
-    light_sq.save(os.path.join(mobile_ios_dir, "Icon-App-1024x1024@1x.png"), "PNG")
-    dark_sq.save(os.path.join(mobile_ios_dir, "Icon-App-Dark-1024x1024@1x.png"), "PNG")
-    tinted_sq.save(os.path.join(mobile_ios_dir, "Icon-App-Tinted-1024x1024@1x.png"), "PNG")
-    
-    ios_sizes = [
-        ("Icon-App-20x20@1x.png", 20),
-        ("Icon-App-20x20@2x.png", 40),
-        ("Icon-App-20x20@3x.png", 60),
-        ("Icon-App-29x29@1x.png", 29),
-        ("Icon-App-29x29@2x.png", 58),
-        ("Icon-App-29x29@3x.png", 87),
-        ("Icon-App-40x40@1x.png", 40),
-        ("Icon-App-40x40@2x.png", 80),
-        ("Icon-App-40x40@3x.png", 120),
-        ("Icon-App-60x60@2x.png", 120),
-        ("Icon-App-60x60@3x.png", 180),
-        ("Icon-App-76x76@1x.png", 76),
-        ("Icon-App-76x76@2x.png", 152),
-        ("Icon-App-83.5x83.5@2x.png", 167),
-    ]
-    for filename, sz in ios_sizes:
-        light_sq.resize((sz, sz), Image.Resampling.LANCZOS).save(os.path.join(mobile_ios_dir, filename), "PNG")
+    for f_dir in [web_flutter_dir, web_public_flutter_dir]:
+        if os.path.exists(f_dir):
+            icons_sub = os.path.join(f_dir, "icons")
+            os.makedirs(icons_sub, exist_ok=True)
+            fav32.save(os.path.join(f_dir, "favicon.png"), "PNG")
+            apply_squircle(dark_sq, dim=192, add_border=False).save(os.path.join(icons_sub, "Icon-192.png"), "PNG")
+            apply_squircle(dark_sq, dim=512, add_border=False).save(os.path.join(icons_sub, "Icon-512.png"), "PNG")
+            dark_sq.resize((192, 192), Image.Resampling.LANCZOS).save(os.path.join(icons_sub, "Icon-maskable-192.png"), "PNG")
+            dark_sq.resize((512, 512), Image.Resampling.LANCZOS).save(os.path.join(icons_sub, "Icon-maskable-512.png"), "PNG")
+            print(f"Updated Flutter web icons in {f_dir}")
 
     # -------------------------------------------------------------
-    # 9. UPDATE ANDROID MIPMAPS
+    # 10. UPDATE iOS ASSETS (Contents.json & icons)
     # -------------------------------------------------------------
-    print("Updating Android launcher mipmaps...")
-    android_sizes = {
-        "mipmap-mdpi": 48,
-        "mipmap-hdpi": 72,
-        "mipmap-xhdpi": 96,
-        "mipmap-xxhdpi": 144,
-        "mipmap-xxxhdpi": 192,
-    }
-    for folder, sz in android_sizes.items():
-        fpath = os.path.join(mobile_android_res, folder)
-        if os.path.exists(fpath):
-            apply_squircle(dark_sq, dim=sz, add_border=False).save(os.path.join(fpath, "ic_launcher.png"), "PNG")
-            r_mask = Image.new("L", (sz * 4, sz * 4), 0)
-            ImageDraw.Draw(r_mask).ellipse([0, 0, sz * 4 - 1, sz * 4 - 1], fill=255)
-            r_mask_small = r_mask.resize((sz, sz), Image.Resampling.LANCZOS)
-            round_icon = Image.new("RGBA", (sz, sz), (0, 0, 0, 0))
-            round_icon.paste(dark_sq.resize((sz, sz), Image.Resampling.LANCZOS), (0, 0), r_mask_small)
-            round_icon.save(os.path.join(fpath, "ic_launcher_round.png"), "PNG")
+    if os.path.exists(mobile_ios_dir):
+        print("Writing iOS Xcode 16 / iOS 18 Asset Catalog...")
+        light_sq.save(os.path.join(mobile_ios_dir, "Icon-App-1024x1024@1x.png"), "PNG")
+        dark_sq.save(os.path.join(mobile_ios_dir, "Icon-App-Dark-1024x1024@1x.png"), "PNG")
+        tinted_sq.save(os.path.join(mobile_ios_dir, "Icon-App-Tinted-1024x1024@1x.png"), "PNG")
+        
+        ios_sizes = [
+            ("Icon-App-20x20@1x.png", 20),
+            ("Icon-App-20x20@2x.png", 40),
+            ("Icon-App-20x20@3x.png", 60),
+            ("Icon-App-29x29@1x.png", 29),
+            ("Icon-App-29x29@2x.png", 58),
+            ("Icon-App-29x29@3x.png", 87),
+            ("Icon-App-40x40@1x.png", 40),
+            ("Icon-App-40x40@2x.png", 80),
+            ("Icon-App-40x40@3x.png", 120),
+            ("Icon-App-60x60@2x.png", 120),
+            ("Icon-App-60x60@3x.png", 180),
+            ("Icon-App-76x76@1x.png", 76),
+            ("Icon-App-76x76@2x.png", 152),
+            ("Icon-App-83.5x83.5@2x.png", 167),
+        ]
+        for filename, sz in ios_sizes:
+            light_sq.resize((sz, sz), Image.Resampling.LANCZOS).save(os.path.join(mobile_ios_dir, filename), "PNG")
 
-    print("Success: Generated all Light, Dark, Tinted, and Showcase icon sets!")
+    # -------------------------------------------------------------
+    # 11. UPDATE ANDROID MIPMAPS
+    # -------------------------------------------------------------
+    if os.path.exists(mobile_android_res):
+        print("Updating Android launcher mipmaps...")
+        android_sizes = {
+            "mipmap-mdpi": 48,
+            "mipmap-hdpi": 72,
+            "mipmap-xhdpi": 96,
+            "mipmap-xxhdpi": 144,
+            "mipmap-xxxhdpi": 192,
+        }
+        for folder, sz in android_sizes.items():
+            fpath = os.path.join(mobile_android_res, folder)
+            if os.path.exists(fpath):
+                apply_squircle(dark_sq, dim=sz, add_border=False).save(os.path.join(fpath, "ic_launcher.png"), "PNG")
+                r_mask = Image.new("L", (sz * 4, sz * 4), 0)
+                ImageDraw.Draw(r_mask).ellipse([0, 0, sz * 4 - 1, sz * 4 - 1], fill=255)
+                r_mask_small = r_mask.resize((sz, sz), Image.Resampling.LANCZOS)
+                round_icon = Image.new("RGBA", (sz, sz), (0, 0, 0, 0))
+                round_icon.paste(dark_sq.resize((sz, sz), Image.Resampling.LANCZOS), (0, 0), r_mask_small)
+                round_icon.save(os.path.join(fpath, "ic_launcher_round.png"), "PNG")
+
+    # -------------------------------------------------------------
+    # 12. UPDATE DESKTOP MACOS APPICONS
+    # -------------------------------------------------------------
+    if os.path.exists(desktop_macos_dir):
+        print("Updating Desktop macOS AppIcon.appiconset...")
+        desktop_sizes = [16, 32, 64, 128, 256, 512, 1024]
+        for sz in desktop_sizes:
+            apply_squircle(dark_sq, dim=sz, add_border=False).save(os.path.join(desktop_macos_dir, f"app_icon_{sz}.png"), "PNG")
+
+    print("\nSUCCESS: All logos and icons have been regenerated from pethar-logo-red-white.svg across Web, Mobile (iOS/Android), and Desktop!")
 
 if __name__ == "__main__":
     create_icons()
