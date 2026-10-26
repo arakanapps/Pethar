@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "drizzle-orm": "^0.45.4",
     "firebase": "^13.0.0",
     "postgres": "^3.4.9"
