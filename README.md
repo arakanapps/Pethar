@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**ခေတ်မီ ဒစ်ဂျစ်တယ်ငွေကြေးစနစ်နှင့် လုံခြုံစိတ်ချရသော မိုဘိုင်းလ် အချုပ်အခြာ ပိုက်ဆံအိတ် (Android & iOS)**
+**ခေတ်မီ ဒစ်ဂျစ်တယ်ငွေကြေးစနစ်နှင့် လုံခြုံစိတ်ချရသော မိုဘိုင်းလ် ပိုက်ဆံအိတ် (Android & iOS)**
 
 [![Péthar Enterprise Mobile CI](https://github.com/arakanapps/Pethar/actions/workflows/ci.yml/badge.svg)](https://github.com/arakanapps/Pethar/actions/workflows/ci.yml)
 [![Security Audit](https://github.com/arakanapps/Pethar/actions/workflows/security-audit.yml/badge.svg)](https://github.com/arakanapps/Pethar/actions/workflows/security-audit.yml)

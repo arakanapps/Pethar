@@ -91,8 +91,19 @@ npm run ios:xcode
 Supply client configuration via Flutter `--dart-define` parameters or `.env`:
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
-- `FIREBASE_API_KEY`
-- `FIREBASE_PROJECT_ID`
-- `FIREBASE_APP_ID`
 
 > **Security Notice:** Do not check in production credentials or release keystores. Release builds must use protected CI/CD secrets.
+
+## Required runtime configuration
+
+The mobile app uses Supabase as its only authentication and financial backend.
+Provide credentials at build time; do not add them to Dart source or commit them:
+
+```bash
+flutter run \
+  --dart-define=SUPABASE_URL=https://your-project.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=your-publishable-key
+```
+
+Offline mode only queues an online-authorized request. It must not be used to
+settle value without a server response.

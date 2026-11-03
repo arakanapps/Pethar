@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app_state.dart';
-import '../services/firebase_service.dart';
+import '../services/supabase_service.dart';
 import '../theme.dart';
 import 'arakan_emblem.dart';
 
@@ -278,11 +278,14 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
           });
           try {
             if (isSignUp) {
-              await FirebaseService().signUpWithEmail(email: email, password: pass);
+              await SupabaseService.client.auth.signUp(email: email, password: pass);
             } else {
-              await FirebaseService().signInWithEmail(email: email, password: pass);
+              await SupabaseService.client.auth.signInWithPassword(email: email, password: pass);
             }
-          } catch (_) {}
+          } catch (error) {
+            setModalState(() => errorMsg = 'Authentication failed. Please try again.');
+            return;
+          }
           final derived = email.contains('@') ? email.split('@').first : '';
           final name = derived.isNotEmpty
               ? '${derived[0].toUpperCase()}${derived.substring(1)}'
@@ -297,14 +300,12 @@ void showSignInSignUpModal(BuildContext context, AppState appState) {
             errorMsg = null;
           });
           try {
-            final cred = await FirebaseService().signInWithGoogle();
-            if (cred?.user != null) {
-              final fbEmail = cred!.user!.email ?? '';
-              final fallbackName = fbEmail.contains('@') ? fbEmail.split('@').first : '';
-              appState.signIn(
-                email: fbEmail,
-                name: cred.user!.displayName ?? fallbackName,
-              );
+            await SupabaseService().signInWithGoogle();
+            final user = SupabaseService().currentUser;
+            if (user?.email != null) {
+              final email = user!.email!;
+              final fallbackName = email.contains('@') ? email.split('@').first : '';
+              appState.signIn(email: email, name: user.userMetadata?['full_name']?.toString() ?? fallbackName);
               if (ctx.mounted) Navigator.pop(ctx);
               return;
             }

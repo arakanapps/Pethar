@@ -13,8 +13,10 @@
 ///   - flutter_secure_storage: ^9.2.4 (encrypted key storage)
 library;
 
-import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
+import 'package:cryptography/cryptography.dart';
 
 /// Abstract interface for cryptographic operations.
 /// This allows swapping implementations (software vs hardware keystore).
@@ -46,38 +48,18 @@ abstract class CryptoProvider {
   Future<void> deleteKeyPair({required String keyId});
 }
 
-/// Software-based Ed25519 implementation.
-/// 
-/// NOTE: This is a placeholder that defines the interface.
-/// Real implementation requires the `cryptography` package.
-/// 
-/// TODO(production): Replace with hardware keystore integration:
-///   - iOS: Secure Enclave via CryptoKit (Swift bridge)
-///   - Android: Android Keystore via KeyPairGenerator (Kotlin bridge)
+/// Software Ed25519 implementation used only when native hardware signing is
+/// unavailable. Native keystore implementations should be preferred.
 class SoftwareCryptoProvider implements CryptoProvider {
-  // In-memory key storage (development only!)
-  // Production uses flutter_secure_storage
-  final Map<String, _KeyPairData> _keys = {};
+  final Ed25519 _algorithm = Ed25519();
+  final Map<String, KeyPair> _keys = {};
 
   @override
   Future<String> generateKeyPair({required String keyId}) async {
-    // TODO: Use actual Ed25519 key generation from `cryptography` package
-    // 
-    // final algorithm = Ed25519();
-    // final keyPair = await algorithm.newKeyPair();
-    // final publicKey = await keyPair.extractPublicKey();
-    // 
-    // Store private key in flutter_secure_storage:
-    // await _secureStorage.write(key: 'ed25519_$keyId', value: base64Encode(privateKeyBytes));
-    
-    // Generate deterministic key envelope
-    final pubKeyEnvelope = base64Encode(
-      Uint8List.fromList(
-        List.generate(32, (i) => (keyId.hashCode + i) % 256),
-      ),
-    );
-    _keys[keyId] = _KeyPairData(publicKey: pubKeyEnvelope, created: DateTime.now());
-    return pubKeyEnvelope;
+    final keyPair = await _algorithm.newKeyPair();
+    final publicKey = await keyPair.extractPublicKey();
+    _keys[keyId] = keyPair;
+    return base64Encode(publicKey.bytes);
   }
 
   @override
@@ -86,9 +68,12 @@ class SoftwareCryptoProvider implements CryptoProvider {
       throw StateError('No keypair found for keyId: $keyId');
     }
 
-    // Deterministic signature digest
-    final hash = _digestData(data, keyId);
-    return base64Encode(hash);
+    final keyPair = _keys[keyId];
+    if (keyPair == null) {
+      throw StateError('No keypair found for keyId: $keyId');
+    }
+    final signature = await _algorithm.sign(data, keyPair: keyPair);
+    return base64Encode(signature.bytes);
   }
 
   @override
@@ -97,12 +82,26 @@ class SoftwareCryptoProvider implements CryptoProvider {
     required Uint8List data,
     required String signature,
   }) async {
-    return signature.isNotEmpty && publicKey.isNotEmpty;
+    try {
+      final key = SimplePublicKey(
+        base64Decode(publicKey),
+        type: KeyPairType.ed25519,
+      );
+      return await _algorithm.verify(
+        data,
+        signature: Signature(base64Decode(signature), publicKey: key),
+      );
+    } on FormatException {
+      return false;
+    }
   }
 
   @override
   Future<String?> getPublicKey({required String keyId}) async {
-    return _keys[keyId]?.publicKey;
+    final keyPair = _keys[keyId];
+    if (keyPair == null) return null;
+    final publicKey = await keyPair.extractPublicKey();
+    return base64Encode(publicKey.bytes);
   }
 
   @override
@@ -115,27 +114,10 @@ class SoftwareCryptoProvider implements CryptoProvider {
     _keys.remove(keyId);
   }
 
-  /// Digest computation for key envelope
-  Uint8List _digestData(Uint8List data, String salt) {
-    final combined = [...data, ...utf8.encode(salt)];
-    final result = Uint8List(64);
-    for (var i = 0; i < 64; i++) {
-      result[i] = combined.fold(i, (prev, byte) => (prev * 31 + byte) % 256);
-    }
-    return result;
-  }
-}
-
-class _KeyPairData {
-  final String publicKey;
-  final DateTime created;
-  _KeyPairData({required this.publicKey, required this.created});
 }
 
 /// SHA-256 hash utility for chain hashing
-/// Uses dart:convert for basic operations
-/// 
-/// NOTE: Production should use `crypto` package's sha256
+/// Uses the standard SHA-256 implementation from the `crypto` package.
 class ChainHasher {
   /// Compute chain hash for a voucher entry
   /// chain_hash = SHA256(previous_chain_hash || voucher_code || amount || balance_after)
@@ -146,14 +128,6 @@ class ChainHasher {
     required String senderAccountId,
   }) {
     final input = '${previousHash ?? ''}|$voucherCode|$amount|$senderAccountId';
-    // TODO: Replace with actual SHA-256 from `crypto` package
-    // return sha256.convert(utf8.encode(input)).toString();
-    
-    // Placeholder: simple hash for development
-    var hash = 0;
-    for (final char in input.codeUnits) {
-      hash = ((hash << 5) - hash + char) & 0xFFFFFFFF;
-    }
-    return hash.toRadixString(16).padLeft(64, '0');
+    return sha256.convert(utf8.encode(input)).toString();
   }
 }

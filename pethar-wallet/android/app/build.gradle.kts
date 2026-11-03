@@ -17,12 +17,16 @@ android {
     // Signing configuration for direct distribution
     signingConfigs {
         create("release") {
-            // For direct APK distribution, you can use a self-signed key
-            // Generate with: keytool -genkey -v -keystore pethar-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias pethar
-            storeFile = file("pethar-release.jks")
-            storePassword = System.getenv("PETHAR_KEYSTORE_PASSWORD") ?: "pethar2026"
-            keyAlias = "pethar"
-            keyPassword = System.getenv("PETHAR_KEY_PASSWORD") ?: "pethar2026"
+            // Release credentials must be supplied by the CI secret store or environment.
+            val keystorePassword = System.getenv("PETHAR_KEYSTORE_PASSWORD")
+            val keyPassword = System.getenv("PETHAR_KEY_PASSWORD")
+            val keystorePath = System.getenv("PETHAR_KEYSTORE_PATH")
+            if (!keystorePath.isNullOrBlank() && !keystorePassword.isNullOrBlank() && !keyPassword.isNullOrBlank()) {
+                storeFile = file(keystorePath)
+                storePassword = keystorePassword
+                keyAlias = "pethar"
+                this.keyPassword = keyPassword
+            }
         }
     }
 
@@ -34,13 +38,14 @@ android {
         versionName = flutter.versionName
         
         // App metadata for direct distribution
-        resValue("string", "app_name", "Péthar Wallet")
+        resValue("string", "app_name", "PÃ©thar Wallet")
         resValue("string", "download_url", "https://pethar.co.uk/download")
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            val releaseConfig = signingConfigs.getByName("release")
+            signingConfig = if (releaseConfig.storeFile != null) releaseConfig else signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
