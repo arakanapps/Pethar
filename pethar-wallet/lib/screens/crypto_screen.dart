@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 import '../app_state.dart';
 import '../theme.dart';
@@ -148,57 +146,50 @@ class _AddressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFFFBEB),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
       ),
       child: Column(
         children: [
-          Text(
-            isAk ? 'USDT / USDC လက်ခံရန် လိပ်စာ' : 'USDT / USDC deposit address',
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
-          ),
-          const SizedBox(height: 16),
-          QrImageView(data: address, version: QrVersions.auto, size: 170),
-          const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFEF3C7),
+              shape: BoxShape.circle,
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    address,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F172A),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy_rounded, size: 18, color: Color(0xFF2563EB)),
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: address));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(isAk ? 'လိပ်စာ ကူးယူပြီးပါပြီ' : 'Address copied'),
-                        backgroundColor: emeraldSuccess,
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                ),
-              ],
+            child: const Icon(
+              Icons.warning_amber_rounded,
+              color: Color(0xFFD97706),
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            isAk
+                ? 'Sandbox စမ်းသပ်မုဒ် — ပြင်ပ Blockchain ငွေသွင်းခြင်း ပိတ်ထားပါသည်'
+                : 'Testnet / Sandbox Mode — External On-Chain Deposits Disabled',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF92400E),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            isAk
+                ? 'လုံခြုံရေးအရ စစ်မှန်သော အဖွဲ့အစည်းဆိုင်ရာ Custody မိတ်ဖက် ချိတ်ဆက်မှု မပြီးမချင်း ပြင်ပ USDT/USDC ငွေသွင်းလိပ်စာ မထုတ်ပေးပါ။ သင့်ငွေကြေးများ ဆုံးရှုံးနိုင်သော မည်သည့်လိပ်စာသို့မျှ မပို့ပါနှင့်။'
+                : 'Direct blockchain deposits are disabled to protect user funds until institutional custody integration is active. Please do not send real crypto funds.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFFB45309),
+              height: 1.45,
             ),
           ),
         ],

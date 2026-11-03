@@ -4,9 +4,11 @@ import { sql, eq } from 'drizzle-orm';
 import * as schema from './schema';
 import { users, akdWallets, cryptoWallets, transactions } from './schema';
 
-const connectionString =
-  process.env.DATABASE_URL ||
-  'postgres://postgres.uklqksioruxvatwpvopm:PetharEnterprise2026@aws-0-ap-south-1.pooler.supabase.com:6543/postgres';
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('FATAL: DATABASE_URL environment variable is required to initialize the database client.');
+}
 
 // Initialize postgres client with Transaction pooler configuration
 const client = postgres(connectionString, {
@@ -20,14 +22,7 @@ export const db = drizzle(client, { schema });
 export { client, schema };
 export * from './schema';
 
-/**
- * Generate a deterministic or randomized public EVM-compatible blockchain deposit address
- */
-export function generateBlockchainDepositAddress(userId: string): string {
-  // Generates 0x-prefixed 40-char hex string derived from user UUID
-  const cleanHex = userId.replace(/-/g, '').toLowerCase().padEnd(40, '0').slice(0, 40);
-  return `0x${cleanHex}`;
-}
+// External deposit address generator removed: on-chain deposits disabled until real custody exists.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PROVISIONING LOGIC: Dual-Wallet Setup (1:1 Relation with users.id)
@@ -74,7 +69,8 @@ export async function provisionUserDualWallets(params: {
       .returning();
 
     // 3. Provision Crypto USD Gateway Wallet (1:1 relation, USDT & USDC, generated public address)
-    const depositAddress = generateBlockchainDepositAddress(user.id);
+    // External on-chain deposits disabled until real custody service is integrated
+    const depositAddress = null;
     const [cryptoWallet] = await tx
       .insert(cryptoWallets)
       .values({

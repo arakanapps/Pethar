@@ -191,6 +191,33 @@ class _IntlScreenState extends State<IntlScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFBEB),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFFDE68A)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline_rounded, color: Color(0xFFD97706), size: 22),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      lang == 'ak'
+                          ? 'Sandbox စမ်းသပ်မုဒ် — ပြင်ပနိုင်ငံတကာငွေလွှဲစနစ်ကို ပိတ်ထားပါသည်'
+                          : 'Testnet / Sandbox Mode — External Remittance Gateway Disabled',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF92400E),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -200,22 +227,21 @@ class _IntlScreenState extends State<IntlScreen> {
                     SnackBar(
                       content: Text(
                         lang == 'ak'
-                            ? 'နိုင်ငံတကာငွေလွှဲစနစ် စတင်လုပ်ဆောင်နေပါသည်...'
-                            : 'Initiated Global Remittance...',
+                            ? 'Sandbox မုဒ်: ပြင်ပနိုင်ငံတကာငွေလွှဲခြင်းကို လက်ရှိတွင် ပိတ်ထားပါသည်'
+                            : 'Sandbox Mode: External international remittance is currently disabled.',
                       ),
-                      backgroundColor: emeraldSuccess,
+                      backgroundColor: const Color(0xFFD97706),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
-                  appState.goBack();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: gold,
+                  backgroundColor: const Color(0xFFE4E4E7),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 child: Text(
-                  lang == 'ak' ? 'ငွေလွှဲအတည်ပြုမည်' : 'Confirm Global Remittance',
-                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
+                  lang == 'ak' ? 'ငွေလွှဲစနစ် ပိတ်ထားပါသည်' : 'Remittance Rail Disabled',
+                  style: const TextStyle(color: Color(0xFF71717A), fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),
             ),

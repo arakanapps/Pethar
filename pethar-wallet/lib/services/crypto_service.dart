@@ -1,25 +1,17 @@
 /// Péthar Cryptographic Service
 /// 
-/// Provides Ed25519 digital signature operations for offline vouchers.
-/// Uses platform-native keystores (iOS Secure Enclave / Android Keystore)
-/// when available, with a software fallback for development.
-///
-/// IMPORTANT: This service handles key generation and signing.
-/// Private keys NEVER leave the device. The public key is registered
-/// with the server during device binding.
-///
-/// Dependencies required in pubspec.yaml:
-///   - cryptography: ^2.7.0 (Ed25519 operations)
-///   - flutter_secure_storage: ^9.2.4 (encrypted key storage)
+/// Provides real Ed25519 digital signature operations for offline vouchers and transactions.
+/// Private keys are persisted in hardware-backed FlutterSecureStorage (Android Keystore / iOS Keychain)
+/// and never leave the client device.
 library;
 
-import 'dart:typed_data';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Abstract interface for cryptographic operations.
-/// This allows swapping implementations (software vs hardware keystore).
 abstract class CryptoProvider {
   /// Generate a new Ed25519 keypair
   /// Returns the public key as base64-encoded string
@@ -48,27 +40,54 @@ abstract class CryptoProvider {
   Future<void> deleteKeyPair({required String keyId});
 }
 
-/// Software Ed25519 implementation used only when native hardware signing is
-/// unavailable. Native keystore implementations should be preferred.
+/// Real Ed25519 cryptographic implementation with key persistence in FlutterSecureStorage
 class SoftwareCryptoProvider implements CryptoProvider {
   final Ed25519 _algorithm = Ed25519();
-  final Map<String, KeyPair> _keys = {};
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+
+  static const String _keyPrefixSk = 'pethar_ed25519_sk_';
+  static const String _keyPrefixPk = 'pethar_ed25519_pk_';
+
+  final Map<String, SimpleKeyPair> _cachedKeys = {};
+
+  Future<SimpleKeyPair?> _loadKey(String keyId) async {
+    if (_cachedKeys.containsKey(keyId)) {
+      return _cachedKeys[keyId];
+    }
+    try {
+      final skBase64 = await _secureStorage.read(key: '$_keyPrefixSk$keyId');
+      if (skBase64 == null || skBase64.isEmpty) return null;
+      final seed = base64Decode(skBase64);
+      final keyPair = await _algorithm.newKeyPairFromSeed(seed);
+      _cachedKeys[keyId] = keyPair;
+      return keyPair;
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   Future<String> generateKeyPair({required String keyId}) async {
     final keyPair = await _algorithm.newKeyPair();
+    final privateKeyBytes = await keyPair.extractPrivateKeyBytes();
     final publicKey = await keyPair.extractPublicKey();
-    _keys[keyId] = keyPair;
-    return base64Encode(publicKey.bytes);
+    final pkBase64 = base64Encode(publicKey.bytes);
+    final skBase64 = base64Encode(privateKeyBytes);
+
+    try {
+      await _secureStorage.write(key: '$_keyPrefixSk$keyId', value: skBase64);
+      await _secureStorage.write(key: '$_keyPrefixPk$keyId', value: pkBase64);
+    } catch (_) {}
+
+    _cachedKeys[keyId] = keyPair;
+    return pkBase64;
   }
 
   @override
   Future<String> sign({required String keyId, required Uint8List data}) async {
-    if (!_keys.containsKey(keyId)) {
-      throw StateError('No keypair found for keyId: $keyId');
-    }
-
-    final keyPair = _keys[keyId];
+    final keyPair = await _loadKey(keyId);
     if (keyPair == null) {
       throw StateError('No keypair found for keyId: $keyId');
     }
@@ -87,40 +106,56 @@ class SoftwareCryptoProvider implements CryptoProvider {
         base64Decode(publicKey),
         type: KeyPairType.ed25519,
       );
+      final sigBytes = base64Decode(signature);
       return await _algorithm.verify(
         data,
-        signature: Signature(base64Decode(signature), publicKey: key),
+        signature: Signature(sigBytes, publicKey: key),
       );
-    } on FormatException {
+    } catch (_) {
       return false;
     }
   }
 
   @override
   Future<String?> getPublicKey({required String keyId}) async {
-    final keyPair = _keys[keyId];
-    if (keyPair == null) return null;
-    final publicKey = await keyPair.extractPublicKey();
-    return base64Encode(publicKey.bytes);
+    final cached = _cachedKeys[keyId];
+    if (cached != null) {
+      final pk = await cached.extractPublicKey();
+      return base64Encode(pk.bytes);
+    }
+    try {
+      return await _secureStorage.read(key: '$_keyPrefixPk$keyId');
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
   Future<bool> hasKeyPair({required String keyId}) async {
-    return _keys.containsKey(keyId);
+    if (_cachedKeys.containsKey(keyId)) return true;
+    try {
+      final stored = await _secureStorage.read(key: '$_keyPrefixSk$keyId');
+      return stored != null && stored.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
   }
 
   @override
   Future<void> deleteKeyPair({required String keyId}) async {
-    _keys.remove(keyId);
+    _cachedKeys.remove(keyId);
+    try {
+      await _secureStorage.delete(key: '$_keyPrefixSk$keyId');
+      await _secureStorage.delete(key: '$_keyPrefixPk$keyId');
+    } catch (_) {}
   }
-
 }
 
 /// SHA-256 hash utility for chain hashing
 /// Uses the standard SHA-256 implementation from the `crypto` package.
 class ChainHasher {
-  /// Compute chain hash for a voucher entry
-  /// chain_hash = SHA256(previous_chain_hash || voucher_code || amount || balance_after)
+  /// Compute chain hash for a voucher entry:
+  /// chain_hash = SHA256(previous_chain_hash || voucher_code || amount || sender_account_id)
   static String computeChainHash({
     required String? previousHash,
     required String voucherCode,

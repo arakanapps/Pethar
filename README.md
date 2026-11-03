@@ -91,7 +91,7 @@ The mobile application enforces strict conditional authentication across 4 dedic
 
 ### Designated System Test OTP Account
 For testing and automated verification, use the system test credentials:
-- **Test Email:** `realjackhalder@gmail.com`
+- **Test Email:** `pethar.wallet@gmail.com`
 - **Test OTP Code:** `123456` (10-minute expiry window)
 
 ---

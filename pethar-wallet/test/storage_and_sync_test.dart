@@ -1,8 +1,14 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pethar_mobile/services/crypto_service.dart';
 import 'package:pethar_mobile/services/local_storage_service.dart';
 import 'package:pethar_mobile/services/sync_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('Encrypted Local Storage Operations', () {
     late LocalStorageService storage;
 
@@ -106,6 +112,62 @@ void main() {
 
       await engine.stop();
       await subscription.cancel();
+    });
+  });
+
+  group('Ed25519 Cryptography & ChainHasher', () {
+    setUp(() {
+      FlutterSecureStorage.setMockInitialValues({});
+    });
+
+    test('ChainHasher outputs valid 64-character SHA-256 hex digest', () {
+      final hash = ChainHasher.computeChainHash(
+        previousHash: 'GENESIS',
+        voucherCode: 'VCH-202611030001',
+        amount: '50.00',
+        senderAccountId: 'acc-uuid-1234',
+      );
+
+      expect(hash.length, 64);
+      expect(RegExp(r'^[0-9a-f]{64}$').hasMatch(hash), isTrue);
+
+      // Determinism test
+      final hash2 = ChainHasher.computeChainHash(
+        previousHash: 'GENESIS',
+        voucherCode: 'VCH-202611030001',
+        amount: '50.00',
+        senderAccountId: 'acc-uuid-1234',
+      );
+      expect(hash, equals(hash2));
+    });
+
+    test('SoftwareCryptoProvider signs and verifies valid payload and rejects tampered payload', () async {
+      final provider = SoftwareCryptoProvider();
+      const keyId = 'device_binding_key_01';
+
+      final publicKey = await provider.generateKeyPair(keyId: keyId);
+      expect(publicKey, isNotEmpty);
+
+      final payload = Uint8List.fromList(utf8.encode('{"voucher": "VCH-01", "amount": 25.00}'));
+      final signature = await provider.sign(keyId: keyId, data: payload);
+      expect(signature, isNotEmpty);
+
+      // Verify authentic payload
+      final isValid = await provider.verify(
+        publicKey: publicKey,
+        data: payload,
+        signature: signature,
+      );
+      expect(isValid, isTrue);
+
+      // Verify tampered payload fails
+      final tampered = Uint8List.fromList(utf8.encode('{"voucher": "VCH-01", "amount": 99999.00}'));
+      final isTamperedValid = await provider.verify(
+        publicKey: publicKey,
+        data: tampered,
+        signature: signature,
+      );
+      expect(isTamperedValid, isFalse);
     });
   });
 }

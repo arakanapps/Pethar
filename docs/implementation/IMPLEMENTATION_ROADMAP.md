@@ -375,7 +375,7 @@ Total: ~$50/month
 **For Users:**
 - Email: pethar-app@protonmail.com
 - Telegram: @PetharSupport
-- Designated Test Account: realjackhalder@gmail.com (OTP: `123456`)
+- Designated Test Account: pethar.wallet@gmail.com (OTP: `123456`)
 
 **For Admins:**
 - Emergency hotline: (Your phone number)

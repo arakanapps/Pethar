@@ -98,7 +98,7 @@ Mobile authentication follows 4 explicit routes:
    - Step 3: Issue account and route directly to `Home`
 
 ### Designated OTP Test Account
-- **Test Email:** `realjackhalder@gmail.com`
+- **Test Email:** `pethar.wallet@gmail.com`
 - **Test OTP Code:** `123456`
 - Supported across local testing, unit tests, and QA environments.
 

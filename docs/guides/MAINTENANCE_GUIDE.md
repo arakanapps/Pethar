@@ -402,7 +402,7 @@ flutter pub get
 
 # 3. Set up environment
 cp .env.example .env
-# Fill in actual values (system test OTP account: realjackhalder@gmail.com / 123456)
+# Fill in actual values (system test OTP account: pethar.wallet@gmail.com / 123456)
 
 # 4. Run locally
 flutter run
@@ -422,7 +422,7 @@ flutter run
 
 - **Official Security & Project Email:** pethar-app@protonmail.com
 - **Telegram:** @PetharSupport
-- **Designated OTP Test Account:** realjackhalder@gmail.com (Default Sandbox OTP: `123456`)
+- **Designated OTP Test Account:** pethar.wallet@gmail.com (Default Sandbox OTP: `123456`)
 - **Admin emergency:** (Your personal phone)
 
 ### Escalation Path:

@@ -1,9 +1,88 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../theme.dart';
 import 'receive_screen.dart';
+
+/// Parsed recipient target from scanned QR code or gallery image
+class ParsedPaymentTarget {
+  final String uid;
+  final String username;
+  final String name;
+
+  ParsedPaymentTarget({
+    required this.uid,
+    required this.username,
+    required this.name,
+  });
+
+  static ParsedPaymentTarget? parse(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) return null;
+
+    // 1. Check pethar://pay?uid=<uid>&user=<username>&curr=AKD
+    if (trimmed.startsWith('pethar://pay') || trimmed.startsWith('pethar://')) {
+      try {
+        final uri = Uri.parse(trimmed);
+        final uid = uri.queryParameters['uid'] ?? '';
+        var user = uri.queryParameters['user'] ?? '';
+        if (user.startsWith('@')) {
+          user = user.substring(1);
+        }
+        final name = user.isNotEmpty
+            ? '${user[0].toUpperCase()}${user.substring(1)}'
+            : (uid.isNotEmpty ? 'UID $uid' : 'Recipient');
+        final formattedUsername = user.isNotEmpty ? '@$user' : (uid.isNotEmpty ? '@$uid' : '');
+        return ParsedPaymentTarget(
+          uid: uid,
+          username: formattedUsername,
+          name: name,
+        );
+      } catch (_) {}
+    }
+
+    // 2. Check 12-digit numeric UID (e.g. 202611030001)
+    if (RegExp(r'^\d{12}$').hasMatch(trimmed)) {
+      return ParsedPaymentTarget(
+        uid: trimmed,
+        username: '@$trimmed',
+        name: 'UID $trimmed',
+      );
+    }
+
+    // 3. Check @username or plain username handle
+    if (trimmed.startsWith('@')) {
+      final handle = trimmed.substring(1);
+      return ParsedPaymentTarget(
+        uid: '',
+        username: trimmed,
+        name: handle.isNotEmpty ? '${handle[0].toUpperCase()}${handle.substring(1)}' : trimmed,
+      );
+    }
+
+    // 4. Check if string contains "UID: <digits>"
+    final uidMatch = RegExp(r'UID:\s*(\d{12})', caseSensitive: false).firstMatch(trimmed);
+    if (uidMatch != null) {
+      final foundUid = uidMatch.group(1)!;
+      return ParsedPaymentTarget(
+        uid: foundUid,
+        username: '@$foundUid',
+        name: 'UID $foundUid',
+      );
+    }
+
+    // Default fallback: treat as identifier / username
+    return ParsedPaymentTarget(
+      uid: trimmed,
+      username: trimmed.startsWith('@') ? trimmed : '@$trimmed',
+      name: trimmed,
+    );
+  }
+}
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({Key? key}) : super(key: key);
@@ -16,13 +95,94 @@ class _ScanScreenState extends State<ScanScreen> {
   int _bottomTab = 0; // 0: Scan, 1: MyQR (Receive function)
   bool _flashlightOn = false;
   bool _sharedQr = false;
-  String? _galleryResult;
+  bool _isHandlingScan = false;
+
+  late final MobileScannerController _scannerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scannerController = MobileScannerController(
+      detectionSpeed: DetectionSpeed.noDuplicates,
+      facing: CameraFacing.back,
+      torchEnabled: false,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scannerController.dispose();
+    super.dispose();
+  }
+
+  void _onQrDetected(String rawPayload, AppState appState) {
+    if (_isHandlingScan) return;
+    final target = ParsedPaymentTarget.parse(rawPayload);
+    if (target == null) return;
+
+    _isHandlingScan = true;
+    HapticFeedback.mediumImpact();
+
+    final initials = target.name.isNotEmpty
+        ? (target.name.length >= 2 ? target.name.substring(0, 2).toUpperCase() : target.name.toUpperCase())
+        : 'AK';
+
+    appState.startPayForContact(
+      name: target.name,
+      id: target.uid.isNotEmpty ? target.uid : 'REC-QR',
+      initials: initials,
+      colorValue: 0xFF10B981,
+      username: target.username,
+      uid: target.uid,
+    );
+  }
+
+  Future<void> _toggleTorch() async {
+    try {
+      await _scannerController.toggleTorch();
+      setState(() => _flashlightOn = !_flashlightOn);
+    } catch (e) {
+      debugPrint('Error toggling torch: $e');
+    }
+  }
+
+  Future<void> _pickAndAnalyzeFromGallery(AppState appState, bool isAk) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile == null) return;
+
+      final capture = await _scannerController.analyzeImage(pickedFile.path);
+      if (capture != null && capture.barcodes.isNotEmpty) {
+        final raw = capture.barcodes.first.rawValue;
+        if (raw != null && raw.isNotEmpty) {
+          _onQrDetected(raw, appState);
+          return;
+        }
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isAk
+                  ? 'ရွေးချယ်ထားသော ပုံတွင် တရားဝင် QR ကုဒ် မတွေ့ပါ'
+                  : 'No valid QR code detected in the selected image',
+            ),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Gallery QR scan error: $e');
+    }
+  }
 
   void _shareMyQr(BuildContext context, AppState appState, bool isAk) {
     final username =
         '@${appState.profile.name.toLowerCase().replaceAll(RegExp(r'\s+'), '')}';
     final myUid =
-        appState.profile.uid.isNotEmpty ? appState.profile.uid : '202610190001';
+        appState.profile.uid.isNotEmpty ? appState.profile.uid : '202611030001';
     Clipboard.setData(
       ClipboardData(
         text: '${appState.profile.name} ($username) · UID: $myUid',
@@ -44,22 +204,6 @@ class _ScanScreenState extends State<ScanScreen> {
     });
   }
 
-  void _fetchQrAndGoToPay(AppState appState, {String? name, String? uid, String? username}) {
-    HapticFeedback.mediumImpact();
-    final targetName = name ?? 'Zaw Myo Htet';
-    final targetUid = uid ?? '202610190002';
-    final targetUsername = username ?? '@zawmyo';
-
-    appState.startPayForContact(
-      name: targetName,
-      id: 'REC-1',
-      initials: 'ZM',
-      colorValue: 0xFF10B981,
-      username: targetUsername,
-      uid: targetUid,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
@@ -67,7 +211,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
     return Scaffold(
       backgroundColor:
-          _bottomTab == 0 ? const Color(0xFF52525B) : const Color(0xFFF8FAFC),
+          _bottomTab == 0 ? Colors.black : const Color(0xFFF8FAFC),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -76,7 +220,7 @@ class _ScanScreenState extends State<ScanScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: _bottomTab == 0 ? Colors.transparent : Colors.white,
+                color: _bottomTab == 0 ? Colors.black : Colors.white,
                 border: _bottomTab == 0
                     ? null
                     : const Border(bottom: BorderSide(color: Color(0xFFE4E4E7))),
@@ -102,13 +246,13 @@ class _ScanScreenState extends State<ScanScreen> {
                   ),
                   if (_bottomTab == 0)
                     GestureDetector(
-                      onTap: () => setState(() => _flashlightOn = !_flashlightOn),
+                      onTap: _toggleTorch,
                       child: Container(
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: _flashlightOn ? crimson : Colors.black26,
+                          color: _flashlightOn ? crimson : Colors.black38,
                           border: Border.all(color: Colors.white, width: 1.4),
                           boxShadow: _flashlightOn
                               ? [
@@ -170,15 +314,34 @@ class _ScanScreenState extends State<ScanScreen> {
                   ? Stack(
                       alignment: Alignment.center,
                       children: [
-                        if (_flashlightOn)
-                          Container(
-                            color: Colors.white.withValues(alpha: 0.16),
-                          ),
+                        // Real Camera QR Scanner Viewfinder
+                        MobileScanner(
+                          controller: _scannerController,
+                          onDetect: (capture) {
+                            for (final barcode in capture.barcodes) {
+                              final raw = barcode.rawValue;
+                              if (raw != null && raw.isNotEmpty) {
+                                _onQrDetected(raw, appState);
+                                break;
+                              }
+                            }
+                          },
+                        ),
 
-                        // Horizontal glowing laser scan line
+                        // Viewfinder Targeting Frame Overlay
+                        Container(
+                          width: 250,
+                          height: 250,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: crimson.withValues(alpha: 0.8), width: 2.5),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                        ),
+
+                        // Laser scan line
                         IgnorePointer(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            padding: const EdgeInsets.symmetric(horizontal: 48),
                             child: Container(
                               height: 2.5,
                               decoration: BoxDecoration(
@@ -195,28 +358,8 @@ class _ScanScreenState extends State<ScanScreen> {
                             ),
                           ),
                         ),
-                        if (_galleryResult != null)
-                          Positioned(
-                            top: 40,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black87,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                _galleryResult!,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ),
-                        // Bottom instruction, Quick Scan button & "Select from Gallery" pill button
+
+                        // Bottom instruction & "Select from Gallery" button
                         Positioned(
                           bottom: 24,
                           left: 20,
@@ -233,22 +376,23 @@ class _ScanScreenState extends State<ScanScreen> {
                                   color: Colors.white,
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w600,
+                                  shadows: [
+                                    Shadow(color: Colors.black, blurRadius: 4),
+                                  ],
                                 ),
                               ),
                               const SizedBox(height: 14),
                               GestureDetector(
-                                onTap: () {
-                                  _fetchQrAndGoToPay(appState);
-                                },
+                                onTap: () => _pickAndAnalyzeFromGallery(appState, isAk),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 20,
                                     vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.55),
+                                    color: Colors.black.withValues(alpha: 0.65),
                                     borderRadius: BorderRadius.circular(999),
-                                    border: Border.all(color: Colors.white24),
+                                    border: Border.all(color: Colors.white38),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,

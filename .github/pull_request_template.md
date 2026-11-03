@@ -16,4 +16,4 @@
 - [ ] **Archive Hygiene:** No imports or dependencies reintroduced from root `/archive/`.
 - [ ] **Mobile Analysis & Tests:** Ran `flutter analyze` and `flutter test` in `pethar-wallet` with zero failures.
 - [ ] **Security:** Tokens and PIN hashes stored via hardware secure storage (`flutter_secure_storage`); server auth validated with `supabase.auth.getUser()`.
-- [ ] **Contact Info:** Official email `pethar-app@protonmail.com` and test account `realjackhalder@gmail.com` preserved.
+- [ ] **Contact Info:** Official email `pethar-app@protonmail.com` and test account `pethar.wallet@gmail.com` preserved.

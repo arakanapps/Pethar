@@ -59,6 +59,6 @@ npx drizzle-kit check
 2. **Hard Currency Peg:** `1.00 AKD = 1.00 USD` (`1.00 ₳ = $1.00`) must remain exact across all screens, balance badges, and ledger entries with fixed `NUMERIC(18, 2)` decimal precision.
 3. **Hardware Keystore Vault:** Sensitive tokens and PIN hashes must NEVER be stored in plain `SharedPreferences`. Use `flutter_secure_storage` (Android `EncryptedSharedPreferences` / iOS `KeychainAccessibility.first_unlock`).
 4. **Server-Side Endpoint Auth:** Edge functions must validate every request with `supabase.auth.getUser()`, require confirmed emails, and enforce HTTPS/TLS domain validation.
-5. **System Test OTP Account:** Designated test email is `realjackhalder@gmail.com` (OTP: `123456`).
+5. **System Test OTP Account:** Designated test email is `pethar.wallet@gmail.com` (OTP: `123456`).
 6. **Official Contact & Security:** Inquiries and vulnerability disclosures must be directed to `pethar-app@protonmail.com`.
 7. **Archived Platforms Quarantined:** Non-mobile platforms (Web, POS, Desktop) and legacy offline mesh features remain isolated in root `/archive/` and must not be imported into active mobile runtime code.

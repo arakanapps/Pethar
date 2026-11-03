@@ -3,8 +3,8 @@ import smtplib
 import sys
 from email.mime.text import MIMEText
 
-sender_email = os.getenv("GMAIL_SENDER", "realjackhalder@gmail.com")
-app_password = os.getenv("GMAIL_APP_PASSWORD", "ympy wnzo dbsh tzoe").replace(" ", "")
+sender_email = os.getenv("GMAIL_SENDER", "pethar.wallet@gmail.com")
+app_password = os.getenv("GMAIL_APP_PASSWORD", "").replace(" ", "")
 recipient_email = sys.argv[1] if len(sys.argv) > 1 else sender_email
 
 msg = MIMEText("This is the body of your email sent from Péthar via Gmail SMTP.")

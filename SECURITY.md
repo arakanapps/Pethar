@@ -41,7 +41,7 @@ All backend API requests across `supabase/functions/` must satisfy strict securi
   * Short-lived JWTs are required; expired tokens return `401 Unauthorized` (`TOKEN_EXPIRED`) requiring refresh token rotation.
 * **Email Confirmation Check:**
   * Users must possess a verified `email_confirmed_at` timestamp. Unconfirmed accounts return `403 Forbidden` (`EMAIL_NOT_CONFIRMED`).
-  * Designated testing account `realjackhalder@gmail.com` is configured for sandbox testing with OTP verification.
+  * Designated testing account `pethar.wallet@gmail.com` is configured for sandbox testing with OTP verification.
 * **Strict Transport Security (HTTPS/TLS):**
   * Edge functions enforce strict HTTPS/TLS domain validation. Non-HTTPS requests are rejected immediately with `403 Forbidden` (`HTTPS_REQUIRED`).
   * Mandatory TLS 1.3 with strict HSTS, `X-Content-Type-Options: nosniff`, and restrictive CORS headers.
