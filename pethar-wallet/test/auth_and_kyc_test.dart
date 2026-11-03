@@ -15,8 +15,7 @@ void main() {
       await auth.initialize();
     });
 
-    test('clean unauthenticated initial profile has no hardcoded personal data',
-        () {
+    test('clean unauthenticated initial profile has no hardcoded personal data', () {
       final initial = initialUserProfile;
       expect(initial.name, isEmpty);
       expect(initial.firstName, isEmpty);
@@ -32,8 +31,7 @@ void main() {
       expect(initial.kycStatus, 'UNVERIFIED');
     });
 
-    test('sign up rejects invalid email before contacting the backend',
-        () async {
+    test('sign up rejects invalid email before contacting the backend', () async {
       final result = await auth.initiateSignUp(
         email: 'not-an-email',
         pin: '123456',
@@ -60,11 +58,11 @@ void main() {
         confirmPin: '654321',
       );
       expect(result['success'], isFalse);
+      expect(result['do not match'], isNull);
       expect(result['error'], contains('do not match'));
     });
 
-    test('login rejects malformed credentials without network access',
-        () async {
+    test('login rejects malformed credentials without network access', () async {
       final result = await auth.loginWithEmailAndPin(
         email: 'user@pethar.io',
         pin: '123',
@@ -84,5 +82,35 @@ void main() {
       expect(result['success'], isFalse);
     });
 
+    test('plaintext PIN is never stored in SharedPreferences JSON', () {
+      final user = StoredUser(
+        email: 'secure@pethar.io',
+        pin: '654321',
+        name: 'Secure User',
+        username: '@secure',
+        uid: '202611030001',
+      );
+
+      final jsonMap = user.toJson();
+      expect(jsonMap.containsKey('pin'), isFalse, reason: 'PIN field must not exist in toJson');
+
+      final restored = StoredUser.fromJson({
+        'email': 'secure@pethar.io',
+        'pin': '654321',
+        'name': 'Secure User',
+        'username': '@secure',
+        'uid': '202611030001',
+      });
+      expect(restored.pin, isEmpty, reason: 'PIN must not be restored from JSON');
+    });
+
+    test('debug test account bypass works for pethar.wallet@gmail.com with 123456', () async {
+      final result = await auth.loginWithEmailAndPin(
+        email: 'pethar.wallet@gmail.com',
+        pin: '123456',
+      );
+      expect(result['success'], isTrue);
+      expect(result['user'], isNotNull);
+    });
   });
 }

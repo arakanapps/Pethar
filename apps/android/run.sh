@@ -6,12 +6,12 @@ ROOT="$DIR/../.."
 echo "🤖 Launching PeThar Wallet on Android..."
 
 # Check if an Android device or emulator is connected
-ADB_BIN="$(which adb || echo "/Users/jack/Library/Android/sdk/platform-tools/adb")"
+ADB_BIN="$(which adb || echo "$ANDROID_HOME/platform-tools/adb")"
 CONNECTED_DEVICES=$("$ADB_BIN" devices | grep -E '\b(device)\b' || true)
 
 if [ -z "$CONNECTED_DEVICES" ]; then
   echo "📱 No active Android device detected. Launching Pixel_PeThar emulator..."
-  EMULATOR_BIN="/Users/jack/Library/Android/sdk/emulator/emulator"
+  EMULATOR_BIN="$ANDROID_HOME/emulator/emulator"
   if [ -x "$EMULATOR_BIN" ]; then
     "$EMULATOR_BIN" -avd Pixel_PeThar -no-snapshot-load -no-boot-anim -gpu host > /dev/null 2>&1 &
   else

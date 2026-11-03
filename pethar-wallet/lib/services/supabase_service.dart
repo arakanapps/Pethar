@@ -34,20 +34,53 @@ class SupabaseService {
     );
   }
 
+  /// Whether Supabase instance has been initialized
+  static bool get isInitialized {
+    try {
+      return Supabase.instance.isInitialized;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Get Supabase client instance
   static SupabaseClient get client => Supabase.instance.client;
 
   /// Current authenticated user
-  User? get currentUser => client.auth.currentUser;
+  User? get currentUser {
+    try {
+      return isInitialized ? client.auth.currentUser : null;
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Current auth session
-  Session? get currentSession => client.auth.currentSession;
+  Session? get currentSession {
+    try {
+      return isInitialized ? client.auth.currentSession : null;
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Is user authenticated
-  bool get isAuthenticated => client.auth.currentUser != null;
+  bool get isAuthenticated {
+    try {
+      return isInitialized && client.auth.currentUser != null;
+    } catch (_) {
+      return false;
+    }
+  }
 
   /// Supabase auth user id (the database ownership key)
-  String? get authUserId => client.auth.currentUser?.id;
+  String? get authUserId {
+    try {
+      return isInitialized ? client.auth.currentUser?.id : null;
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Auth state changes stream
   Stream<AuthState> get authStateChanges => client.auth.onAuthStateChange;

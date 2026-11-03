@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -14,17 +17,29 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    val keystorePropertiesFile = rootProject.file("key.properties")
+    val keystoreProperties = Properties()
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    }
+
     // Signing configuration for direct distribution
     signingConfigs {
         create("release") {
-            // Release credentials must be supplied by the CI secret store or environment.
+            // Read strictly from environment variables or key.properties (no hardcoded passwords)
             val keystorePassword = System.getenv("PETHAR_KEYSTORE_PASSWORD")
+                ?: keystoreProperties.getProperty("storePassword")
             val keyPassword = System.getenv("PETHAR_KEY_PASSWORD")
+                ?: keystoreProperties.getProperty("keyPassword")
             val keystorePath = System.getenv("PETHAR_KEYSTORE_PATH")
+                ?: keystoreProperties.getProperty("storeFile")
+            val keyAliasName = System.getenv("PETHAR_KEY_ALIAS")
+                ?: keystoreProperties.getProperty("keyAlias") ?: "pethar"
+
             if (!keystorePath.isNullOrBlank() && !keystorePassword.isNullOrBlank() && !keyPassword.isNullOrBlank()) {
                 storeFile = file(keystorePath)
                 storePassword = keystorePassword
-                keyAlias = "pethar"
+                keyAlias = keyAliasName
                 this.keyPassword = keyPassword
             }
         }
@@ -38,7 +53,7 @@ android {
         versionName = flutter.versionName
         
         // App metadata for direct distribution
-        resValue("string", "app_name", "PÃ©thar Wallet")
+        resValue("string", "app_name", "Péthar Wallet")
         resValue("string", "download_url", "https://pethar.co.uk/download")
     }
 

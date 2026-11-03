@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pethar_mobile/app_state.dart';
+import 'package:pethar_mobile/screens/scan_screen.dart';
 import 'package:pethar_mobile/services/supabase_service.dart';
 
 void main() {
@@ -33,6 +34,24 @@ void main() {
       expect(uuidV4.hasMatch(first), isTrue);
       expect(uuidV4.hasMatch(second), isTrue);
       expect(first, isNot(second));
+    });
+
+    test('pethar://pay QR URI parsing extracts uid and username accurately', () {
+      final parsed = ParsedPaymentTarget.parse('pethar://pay?uid=202611030001&user=@testuser&curr=AKD');
+      expect(parsed, isNotNull);
+      expect(parsed!.uid, '202611030001');
+      expect(parsed.username, '@testuser');
+      expect(parsed.name, 'Testuser');
+
+      // Raw 12-digit UID
+      final rawUid = ParsedPaymentTarget.parse('202611030002');
+      expect(rawUid, isNotNull);
+      expect(rawUid!.uid, '202611030002');
+
+      // @username format
+      final atUser = ParsedPaymentTarget.parse('@charlie');
+      expect(atUser, isNotNull);
+      expect(atUser!.username, '@charlie');
     });
   });
 }
