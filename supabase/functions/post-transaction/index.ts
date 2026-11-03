@@ -4,9 +4,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+  .split(",").map((origin) => origin.trim()).filter(Boolean);
+const baseHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Vary": "Origin",
 };
 
 interface PostTransactionRequest {
@@ -20,23 +23,63 @@ interface PostTransactionRequest {
 }
 
 serve(async (req: Request) => {
-  // Handle CORS preflight
+  const origin = req.headers.get("Origin");
+  const originAllowed = !origin || allowedOrigins.includes(origin);
+  const corsHeaders = origin && originAllowed
+    ? { ...baseHeaders, "Access-Control-Allow-Origin": origin }
+    : baseHeaders;
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response(null, { status: originAllowed ? 204 : 403, headers: corsHeaders });
+  }
+  if (!originAllowed) {
+    return new Response(JSON.stringify({ error: "Origin not allowed" }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   try {
+    const authorization = req.headers.get("Authorization");
+    if (!authorization) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const url = Deno.env.get("SUPABASE_URL");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!url || !anonKey) {
+      console.error("Supabase endpoint configuration is missing");
+      return new Response(JSON.stringify({ error: "Transaction service unavailable" }), {
+        status: 503,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      url,
+      anonKey,
       {
         global: {
-          headers: { Authorization: req.headers.get("Authorization")! },
+          headers: { Authorization: authorization },
         },
+        auth: { persistSession: false, autoRefreshToken: false },
       }
     );
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    const body: PostTransactionRequest = await req.json();
+    const body: PostTransactionRequest = await req.json() as PostTransactionRequest;
     const { reference_id, transaction_type, metadata = {}, entries } = body;
 
     if (!reference_id || !transaction_type || !entries || !Array.isArray(entries)) {
@@ -60,6 +103,16 @@ serve(async (req: Request) => {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
+        if (entries.length > 10 || entries.some((entry) =>
+          typeof entry.account_id !== "string" ||
+          !entry.account_id ||
+          !Number.isFinite(Number(entry.amount))
+        )) {
+          return new Response(JSON.stringify({ error: "Invalid transaction entries." }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
       );
     }
 
@@ -72,9 +125,9 @@ serve(async (req: Request) => {
     });
 
     if (error) {
-      console.error("RPC post_transaction failed:", error);
+      console.error("RPC post_transaction failed:", error.code);
       return new Response(
-        JSON.stringify({ error: error.message, details: error.details }),
+        JSON.stringify({ error: "Transaction could not be completed." }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },

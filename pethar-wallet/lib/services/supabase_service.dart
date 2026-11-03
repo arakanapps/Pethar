@@ -4,10 +4,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/data.dart';
 
 class SupabaseService {
-  static const String defaultUrl = 'https://uklqksioruxvatwpvopm.supabase.co';
-  static const String defaultAnonKey =
-      'sb_publishable_rUiqzJYfjRLzNK0d6xyg-g_5Z6WmTya';
-
   /// Singleton instance
   static final SupabaseService _instance = SupabaseService._internal();
   factory SupabaseService() => _instance;
@@ -18,11 +14,15 @@ class SupabaseService {
     String? url,
     String? anonKey,
   }) async {
-    final supabaseUrl = url ??
-        const String.fromEnvironment('SUPABASE_URL', defaultValue: defaultUrl);
-    final supabaseAnonKey = anonKey ??
-        const String.fromEnvironment('SUPABASE_ANON_KEY',
-            defaultValue: defaultAnonKey);
+    final supabaseUrl =
+        url ?? const String.fromEnvironment('SUPABASE_URL');
+    final supabaseAnonKey =
+        anonKey ?? const String.fromEnvironment('SUPABASE_ANON_KEY');
+    if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+      throw StateError(
+        'SUPABASE_URL and SUPABASE_ANON_KEY must be supplied with --dart-define.',
+      );
+    }
 
     await Supabase.initialize(
       url: supabaseUrl,

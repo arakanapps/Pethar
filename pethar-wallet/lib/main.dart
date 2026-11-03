@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'services/firebase_service.dart';
+import 'services/supabase_service.dart';
 import 'app_state.dart';
 import 'theme.dart';
 import 'screens/main_shell.dart';
@@ -28,18 +27,7 @@ Future<void> main() async {
     systemNavigationBarContrastEnforced: false,
   ));
 
-  // Initialize Firebase (Project: pe-thar)
-  await FirebaseService.initialize();
-
-  // Initialize Supabase fallback
-  try {
-    await Supabase.initialize(
-      url: 'https://uklqksioruxvatwpvopm.supabase.co',
-      publishableKey: 'sb_publishable_rUiqzJYfjRLzNK0d6xyg-g_5Z6WmTya',
-    );
-  } catch (e) {
-    debugPrint('Supabase initialization notice: $e');
-  }
+  await SupabaseService.initialize();
 
   runApp(
     ChangeNotifierProvider(

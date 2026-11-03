@@ -19,11 +19,12 @@ jobs:
           node-version: 20
 
       - name: Audit Web Dependencies
-        working-directory: pethar-wallet
-        run: npm audit --audit-level=high || true
+        run: npm ci
+
+      - name: Audit Web Dependencies
+        run: npm audit --audit-level=high
 
       - name: Gitleaks Secret Scanner
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true

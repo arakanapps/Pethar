@@ -5,7 +5,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'models/data.dart';
 import 'services/auth_service.dart';
-import 'services/firebase_service.dart';
 import 'services/supabase_service.dart';
 
 enum Screen {
@@ -665,11 +664,6 @@ class AppState extends ChangeNotifier {
         await SupabaseService().signOut();
       }
     } catch (_) {}
-    try {
-      await FirebaseService().signOut();
-    } catch (e) {
-      debugPrint('Sign out notice: $e');
-    }
     profile = initialUserProfile;
     isAuthenticated = false;
     isVerified = false;

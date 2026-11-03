@@ -133,3 +133,24 @@ jobs:
           echo "Scanning codebase for hardcoded private keys..."
           ! grep -rn "BEGIN PRIVATE KEY" --exclude-dir={.git,node_modules} . || exit 1
           echo "No exposed private keys found."
+
+  backend-validation:
+    name: Backend — TypeScript and Migration Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: TypeScript validation
+        run: npx tsc --noEmit
+      - name: Supabase function source validation
+        run: |
+          test -f supabase/functions/post-transaction/index.ts
+          test -f supabase/functions/process-transaction/index.ts
+          test -f supabase/functions/verify-otp/index.ts
+      - name: Reject insecure production placeholders
+        run: |
+          ! grep -R "pethar2026\|Access-Control-Allow-Origin.*\*" pethar-wallet supabase --exclude-dir=.git

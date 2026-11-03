@@ -4,9 +4,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+  .split(",").map((origin) => origin.trim()).filter(Boolean);
+const baseHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Vary": "Origin",
 };
 
 interface VerifyOtpRequest {
@@ -16,9 +19,25 @@ interface VerifyOtpRequest {
 }
 
 serve(async (req: Request) => {
-  // Handle CORS preflight
+  const origin = req.headers.get("Origin");
+  const originAllowed = !origin || allowedOrigins.includes(origin);
+  const corsHeaders = origin && originAllowed
+    ? { ...baseHeaders, "Access-Control-Allow-Origin": origin }
+    : baseHeaders;
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response(null, { status: originAllowed ? 204 : 403, headers: corsHeaders });
+  }
+  if (!originAllowed) {
+    return new Response(JSON.stringify({ error: "Origin not allowed" }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   try {
@@ -27,10 +46,10 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const body: VerifyOtpRequest = await req.json();
+    const body: VerifyOtpRequest = await req.json() as VerifyOtpRequest;
     const { phone, token, type = "sms" } = body;
 
-    if (!phone || !token) {
+    if (!/^\+[1-9]\d{7,14}$/.test(phone) || !/^\d{6}$/.test(token)) {
       return new Response(
         JSON.stringify({ error: "Missing required fields: phone and token" }),
         {
@@ -47,9 +66,9 @@ serve(async (req: Request) => {
     });
 
     if (error) {
-      console.error("verifyOtp error:", error);
+      console.error("verifyOtp error:", error.code);
       return new Response(
-        JSON.stringify({ error: error.message }),
+        JSON.stringify({ error: "Invalid or expired verification code" }),
         {
           status: 401,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -69,10 +88,9 @@ serve(async (req: Request) => {
       }
     );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Internal Server Error";
     console.error("verify-otp error:", err);
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../services/supabase_service.dart';
-import '../services/firebase_service.dart';
 import '../widgets/arakan_emblem.dart';
 
 /// Explicit conditional routes for mandatory Authentication & Signup Flow
@@ -164,18 +163,6 @@ class _AuthScreenState extends State<AuthScreen> {
       _isLoading = true;
       _errorMessage = null;
     });
-
-    try {
-      final cred = await FirebaseService().signInWithGoogle();
-      if (cred != null && cred.user?.email != null) {
-        return {
-          'email': cred.user!.email!,
-          'name': cred.user!.displayName ?? cred.user!.email!.split('@')[0],
-        };
-      }
-    } catch (e) {
-      debugPrint('Firebase Google Sign-In note: $e');
-    }
 
     try {
       await SupabaseService().signInWithGoogle();
