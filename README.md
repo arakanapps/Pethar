@@ -1,4 +1,4 @@
-# Péthar (ဖေ့သာ) — Sovereign Mobile Financial Infrastructure
+# Péthar (ဖေ့သာ) — Mobile Financial Infrastructure
 
 <div align="center">
 

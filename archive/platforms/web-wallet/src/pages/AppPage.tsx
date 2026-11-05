@@ -116,7 +116,7 @@ export const AppPage: React.FC<AppPageProps> = ({
       try {
         const stored = localStorage.getItem(CHAT_STORAGE_KEY)
         if (stored) return JSON.parse(stored)
-      } catch {}
+      } catch { }
     }
     return [
       {
@@ -163,7 +163,7 @@ export const AppPage: React.FC<AppPageProps> = ({
       if (e.key === CHAT_STORAGE_KEY && e.newValue) {
         try {
           setChatMessages(JSON.parse(e.newValue))
-        } catch {}
+        } catch { }
       }
     }
     window.addEventListener('storage', handleStorage)
@@ -182,7 +182,7 @@ export const AppPage: React.FC<AppPageProps> = ({
       errorCorrectionLevel: 'H',
     })
       .then(setQrDataUrl)
-      .catch(() => {})
+      .catch(() => { })
   }, [profile.petharId, profile.name, qrRequestAmount])
 
   // Multi-currency balances
@@ -341,11 +341,11 @@ export const AppPage: React.FC<AppPageProps> = ({
         channel: 'mobilewallet',
         text: isAk
           ? 'သင်၏ မက်ဆေ့ခ်ျကို လက်ခံရရှိပါသည်။ တာဝန်ကျ အော်ပရေတာက စစ်ဆေးနေပါသည် (Ref ID: ' +
-            Math.floor(100000 + Math.random() * 900000) +
-            ')'
+          Math.floor(100000 + Math.random() * 900000) +
+          ')'
           : 'Thank you for reaching out. A compliance officer has received your inquiry and is reviewing your ledger record (Ref ID: ' +
-            Math.floor(100000 + Math.random() * 900000) +
-            ').',
+          Math.floor(100000 + Math.random() * 900000) +
+          ').',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       }
       const withReply = [...updated, autoReply]
@@ -356,25 +356,22 @@ export const AppPage: React.FC<AppPageProps> = ({
 
   return (
     <div
-      className={`min-h-screen ${
-        isDark ? 'bg-[#0B0F19] text-white' : 'bg-[#F8FAFC] text-slate-900'
-      } font-sans flex flex-col transition-colors duration-200`}
+      className={`min-h-screen ${isDark ? 'bg-[#0B0F19] text-white' : 'bg-[#F8FAFC] text-slate-900'
+        } font-sans flex flex-col transition-colors duration-200`}
     >
       {/* ── TOP CITIZEN / CUSTOMER HEADER ── */}
       <header
-        className={`sticky top-0 z-40 px-4 sm:px-8 py-3.5 border-b backdrop-blur-md flex items-center justify-between transition-colors ${
-          isDark
+        className={`sticky top-0 z-40 px-4 sm:px-8 py-3.5 border-b backdrop-blur-md flex items-center justify-between transition-colors ${isDark
             ? 'bg-[#111827]/90 border-slate-800'
             : 'bg-white/95 border-slate-200/90 shadow-2xs'
-        }`}
+          }`}
       >
         <div className="flex items-center gap-3">
           {onBack && (
             <button
               onClick={onBack}
-              className={`p-2 rounded-xl transition ${
-                isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
-              }`}
+              className={`p-2 rounded-xl transition ${isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                }`}
               aria-label="Back"
             >
               <ArrowLeft size={18} />
@@ -393,7 +390,7 @@ export const AppPage: React.FC<AppPageProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                {isAk ? 'အာရက္ခဒေါ်လာ & 1:1 ဒစ်ဂျစ်တယ်ငွေကြေးစနစ်' : 'Arakan Dollar • 1:1 Sovereign Digital Currency'}
+                {isAk ? 'အာရက္ခဒေါ်လာ & 1:1 ဒစ်ဂျစ်တယ်ငွေကြေးစနစ်' : 'Arakan Dollar • 1:1 Digital Currency'}
               </p>
             </div>
           </div>
@@ -410,11 +407,10 @@ export const AppPage: React.FC<AppPageProps> = ({
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className={`p-2 rounded-xl border transition ${
-              isDark
+            className={`p-2 rounded-xl border transition ${isDark
                 ? 'bg-slate-800 border-slate-700 text-amber-400 hover:bg-slate-700'
                 : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
-            }`}
+              }`}
             title={isDark ? 'Switch to Light' : 'Switch to Dark'}
           >
             {isDark ? <Sun size={16} /> : <Moon size={16} />}
@@ -424,11 +420,10 @@ export const AppPage: React.FC<AppPageProps> = ({
           {setLang && (
             <button
               onClick={() => setLang(isAk ? 'en' : 'ak')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
-                isDark
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${isDark
                   ? 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700'
                   : 'bg-slate-100 border-slate-200 text-slate-800 hover:bg-slate-200'
-              }`}
+                }`}
             >
               {isAk ? 'AK · အာရက္ခ' : 'EN · English'}
             </button>
@@ -436,9 +431,8 @@ export const AppPage: React.FC<AppPageProps> = ({
 
           {/* Customer Profile Pill */}
           <div
-            className={`flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-2xl border ${
-              isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-            }`}
+            className={`flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-2xl border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+              }`}
           >
             <div className="text-right hidden sm:block">
               <div className="text-xs font-bold leading-tight">{profile.name}</div>
@@ -472,9 +466,8 @@ export const AppPage: React.FC<AppPageProps> = ({
 
       {/* ── CUSTOMER NAVIGATION PILLS ── */}
       <nav
-        className={`px-4 sm:px-8 py-2.5 border-b sticky top-[65px] z-30 overflow-x-auto no-scrollbar flex items-center gap-2 transition-colors ${
-          isDark ? 'bg-[#0E1526]/90 border-slate-800/80' : 'bg-white/80 border-slate-200/80 backdrop-blur-md'
-        }`}
+        className={`px-4 sm:px-8 py-2.5 border-b sticky top-[65px] z-30 overflow-x-auto no-scrollbar flex items-center gap-2 transition-colors ${isDark ? 'bg-[#0E1526]/90 border-slate-800/80' : 'bg-white/80 border-slate-200/80 backdrop-blur-md'
+          }`}
       >
         {[
           { id: 'overview', label: isAk ? 'အကျဉ်းချုပ်' : 'Overview', icon: Layers },
@@ -491,13 +484,12 @@ export const AppPage: React.FC<AppPageProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as CustomerPortalTab)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-                isActive
+              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${isActive
                   ? 'bg-[#FF6B00] text-white shadow-sm shadow-[#FF6B00]/25'
                   : isDark
-                  ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
-              }`}
+                    ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
+                }`}
             >
               <Icon size={14} />
               <span>{tab.label}</span>
@@ -593,9 +585,8 @@ export const AppPage: React.FC<AppPageProps> = ({
 
               {/* Citizen ID Card Preview */}
               <div
-                className={`rounded-3xl p-6 border flex flex-col justify-between ${
-                  isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90 shadow-xs'
-                }`}
+                className={`rounded-3xl p-6 border flex flex-col justify-between ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90 shadow-xs'
+                  }`}
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -632,11 +623,10 @@ export const AppPage: React.FC<AppPageProps> = ({
 
                 <button
                   onClick={handleCopyAddress}
-                  className={`w-full mt-4 py-2.5 rounded-xl border text-xs font-mono font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
-                    isDark
+                  className={`w-full mt-4 py-2.5 rounded-xl border text-xs font-mono font-bold flex items-center justify-center gap-2 transition cursor-pointer ${isDark
                       ? 'border-slate-800 hover:bg-slate-800 text-slate-300'
                       : 'border-slate-200 hover:bg-slate-100 text-slate-700'
-                  }`}
+                    }`}
                 >
                   <Copy size={13} />
                   <span>{copiedAddress ? 'Address Copied!' : 'Copy Wallet Address'}</span>
@@ -653,9 +643,8 @@ export const AppPage: React.FC<AppPageProps> = ({
                 {currencyAccounts.map((acc) => (
                   <div
                     key={acc.code}
-                    className={`p-5 rounded-2xl border transition hover:shadow-md ${
-                      isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90 shadow-2xs'
-                    }`}
+                    className={`p-5 rounded-2xl border transition hover:shadow-md ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90 shadow-2xs'
+                      }`}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
@@ -677,9 +666,8 @@ export const AppPage: React.FC<AppPageProps> = ({
 
             {/* Quick Contacts Pay */}
             <div
-              className={`p-6 rounded-3xl border ${
-                isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90 shadow-xs'
-              }`}
+              className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90 shadow-xs'
+                }`}
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -705,11 +693,10 @@ export const AppPage: React.FC<AppPageProps> = ({
                       setSendRecipient(c.id)
                       setActiveTab('send')
                     }}
-                    className={`p-4 rounded-2xl border text-left transition flex items-center gap-3 cursor-pointer ${
-                      isDark
+                    className={`p-4 rounded-2xl border text-left transition flex items-center gap-3 cursor-pointer ${isDark
                         ? 'border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/50'
                         : 'border-slate-200/90 hover:border-amber-500/50 hover:bg-amber-500/5'
-                    }`}
+                      }`}
                   >
                     <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 font-black flex items-center justify-center shrink-0">
                       {c.avatar}
@@ -725,16 +712,15 @@ export const AppPage: React.FC<AppPageProps> = ({
 
             {/* Recent Transaction Activity */}
             <div
-              className={`rounded-3xl border overflow-hidden ${
-                isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90 shadow-xs'
-              }`}
+              className={`rounded-3xl border overflow-hidden ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90 shadow-xs'
+                }`}
             >
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-base font-black text-slate-900 dark:text-white">
                     {isAk ? 'ငွေလွှဲမှတ်တမ်းများ' : 'Verified Ledger Activity'}
                   </h3>
-                  <p className="text-xs text-slate-400">Cryptographically signed on the Péthar sovereign ledger</p>
+                  <p className="text-xs text-slate-400">Cryptographically signed on the Péthar ledger</p>
                 </div>
 
                 {/* Filter and Search */}
@@ -746,18 +732,16 @@ export const AppPage: React.FC<AppPageProps> = ({
                       placeholder="Search transactions..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className={`pl-8 pr-3 py-1.5 rounded-xl text-xs font-medium border outline-none ${
-                        isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                      }`}
+                      className={`pl-8 pr-3 py-1.5 rounded-xl text-xs font-medium border outline-none ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                        }`}
                     />
                   </div>
 
                   <select
                     value={filterCategory}
                     onChange={(e) => setFilterCategory(e.target.value)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border outline-none cursor-pointer ${
-                      isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                    }`}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border outline-none cursor-pointer ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                      }`}
                   >
                     <option value="all">All Categories</option>
                     <option value="transfer">Transfers</option>
@@ -778,17 +762,15 @@ export const AppPage: React.FC<AppPageProps> = ({
                       <div
                         key={tx.id}
                         onClick={() => setSelectedTxn(tx)}
-                        className={`p-4 sm:px-6 flex items-center justify-between cursor-pointer transition ${
-                          isDark ? 'hover:bg-slate-800/50' : 'hover:bg-slate-50'
-                        }`}
+                        className={`p-4 sm:px-6 flex items-center justify-between cursor-pointer transition ${isDark ? 'hover:bg-slate-800/50' : 'hover:bg-slate-50'
+                          }`}
                       >
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold shrink-0 ${
-                              isOutflow
+                            className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold shrink-0 ${isOutflow
                                 ? 'bg-rose-500/10 text-rose-500'
                                 : 'bg-emerald-500/10 text-emerald-500'
-                            }`}
+                              }`}
                           >
                             {isOutflow ? <ArrowUpRight size={18} /> : <ArrowDownLeft size={18} />}
                           </div>
@@ -806,9 +788,8 @@ export const AppPage: React.FC<AppPageProps> = ({
 
                         <div className="text-right">
                           <div
-                            className={`font-mono text-xs sm:text-sm font-black ${
-                              isOutflow ? 'text-slate-900 dark:text-white' : 'text-emerald-500'
-                            }`}
+                            className={`font-mono text-xs sm:text-sm font-black ${isOutflow ? 'text-slate-900 dark:text-white' : 'text-emerald-500'
+                              }`}
                           >
                             {isOutflow ? '-' : '+'}₳ {Math.abs(tx.amount).toFixed(2)}
                           </div>
@@ -829,16 +810,15 @@ export const AppPage: React.FC<AppPageProps> = ({
         {activeTab === 'send' && (
           <div className="max-w-xl mx-auto space-y-6">
             <div
-              className={`p-6 sm:p-8 rounded-3xl border shadow-xl ${
-                isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
-              }`}
+              className={`p-6 sm:p-8 rounded-3xl border shadow-xl ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
+                }`}
             >
               <div className="text-center space-y-1 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-[#FF6B00] mx-auto flex items-center justify-center font-bold mb-2">
                   <Send size={22} />
                 </div>
                 <h2 className="text-xl font-black">{isAk ? 'ချက်ချင်း ငွေလွှဲမည်' : 'Send Instant Payment'}</h2>
-                <p className="text-xs text-slate-400">Zero fee • Instant settlement on Arakan sovereign ledger</p>
+                <p className="text-xs text-slate-400">Zero fee • Instant settlement on Arakan ledger</p>
               </div>
 
               {sendError && (
@@ -859,9 +839,8 @@ export const AppPage: React.FC<AppPageProps> = ({
                     placeholder="e.g. 202610190002 or +959798221001"
                     value={sendRecipient}
                     onChange={(e) => setSendRecipient(e.target.value)}
-                    className={`w-full px-4 py-3 rounded-2xl text-sm font-mono font-medium border outline-none focus:border-[#FF6B00] transition ${
-                      isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                    }`}
+                    className={`w-full px-4 py-3 rounded-2xl text-sm font-mono font-medium border outline-none focus:border-[#FF6B00] transition ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                      }`}
                   />
                 </div>
 
@@ -884,9 +863,8 @@ export const AppPage: React.FC<AppPageProps> = ({
                       placeholder="0.00"
                       value={sendAmount}
                       onChange={(e) => setSendAmount(e.target.value)}
-                      className={`w-full pl-10 pr-4 py-3 rounded-2xl text-xl font-mono font-black border outline-none focus:border-[#FF6B00] transition ${
-                        isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                      }`}
+                      className={`w-full pl-10 pr-4 py-3 rounded-2xl text-xl font-mono font-black border outline-none focus:border-[#FF6B00] transition ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                        }`}
                     />
                   </div>
 
@@ -897,11 +875,10 @@ export const AppPage: React.FC<AppPageProps> = ({
                         key={pct}
                         type="button"
                         onClick={() => setSendAmount((balance * pct).toFixed(2))}
-                        className={`flex-1 py-1 rounded-lg text-xs font-bold font-mono transition border cursor-pointer ${
-                          isDark
+                        className={`flex-1 py-1 rounded-lg text-xs font-bold font-mono transition border cursor-pointer ${isDark
                             ? 'border-slate-700 hover:bg-slate-800 text-slate-300'
                             : 'border-slate-200 hover:bg-slate-100 text-slate-600'
-                        }`}
+                          }`}
                       >
                         {pct === 1.0 ? 'MAX' : `${pct * 100}%`}
                       </button>
@@ -918,9 +895,8 @@ export const AppPage: React.FC<AppPageProps> = ({
                     placeholder="e.g. Rice supply payment"
                     value={sendNote}
                     onChange={(e) => setSendNote(e.target.value)}
-                    className={`w-full px-4 py-2.5 rounded-2xl text-xs font-medium border outline-none focus:border-[#FF6B00] transition ${
-                      isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                    }`}
+                    className={`w-full px-4 py-2.5 rounded-2xl text-xs font-medium border outline-none focus:border-[#FF6B00] transition ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                      }`}
                   />
                 </div>
 
@@ -963,9 +939,8 @@ export const AppPage: React.FC<AppPageProps> = ({
         {activeTab === 'receive' && (
           <div className="max-w-md mx-auto space-y-6">
             <div
-              className={`p-6 sm:p-8 rounded-3xl border text-center shadow-xl space-y-5 ${
-                isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
-              }`}
+              className={`p-6 sm:p-8 rounded-3xl border text-center shadow-xl space-y-5 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
+                }`}
             >
               <div>
                 <h2 className="text-lg font-black">{isAk ? 'ငွေလက်ခံရန် Arakan QR' : 'My Arakan QR Payment'}</h2>
@@ -980,9 +955,8 @@ export const AppPage: React.FC<AppPageProps> = ({
                   type="text"
                   value={qrRequestAmount}
                   onChange={(e) => setQrRequestAmount(e.target.value)}
-                  className={`w-32 text-center py-1.5 border rounded-xl text-base font-black font-mono outline-none focus:border-[#FF6B00] mx-auto ${
-                    isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                  }`}
+                  className={`w-32 text-center py-1.5 border rounded-xl text-base font-black font-mono outline-none focus:border-[#FF6B00] mx-auto ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                    }`}
                 />
               </div>
 
@@ -1005,9 +979,8 @@ export const AppPage: React.FC<AppPageProps> = ({
               <div className="flex gap-2">
                 <button
                   onClick={handleCopyId}
-                  className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                    isDark ? 'border-slate-800 hover:bg-slate-800' : 'border-slate-200 hover:bg-slate-100'
-                  }`}
+                  className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${isDark ? 'border-slate-800 hover:bg-slate-800' : 'border-slate-200 hover:bg-slate-100'
+                    }`}
                 >
                   <Copy size={13} />
                   <span>{copiedId ? 'Copied UID' : 'Copy UID'}</span>
@@ -1015,9 +988,8 @@ export const AppPage: React.FC<AppPageProps> = ({
 
                 <button
                   onClick={handleCopyAddress}
-                  className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                    isDark ? 'border-slate-800 hover:bg-slate-800' : 'border-slate-200 hover:bg-slate-100'
-                  }`}
+                  className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${isDark ? 'border-slate-800 hover:bg-slate-800' : 'border-slate-200 hover:bg-slate-100'
+                    }`}
                 >
                   <Copy size={13} />
                   <span>{copiedAddress ? 'Copied Address' : 'Copy Address'}</span>
@@ -1072,9 +1044,8 @@ export const AppPage: React.FC<AppPageProps> = ({
 
             {/* Card Controls */}
             <div
-              className={`p-6 rounded-3xl border space-y-4 ${
-                isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
-              }`}
+              className={`p-6 rounded-3xl border space-y-4 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
+                }`}
             >
               <h3 className="text-sm font-black uppercase tracking-wider font-mono text-slate-400">
                 Card Security Controls
@@ -1106,9 +1077,8 @@ export const AppPage: React.FC<AppPageProps> = ({
                 </div>
                 <button
                   onClick={() => setIsCardFrozen(!isCardFrozen)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                    isCardFrozen ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
-                  }`}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${isCardFrozen ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+                    }`}
                 >
                   {isCardFrozen ? 'Unfreeze' : 'Freeze Card'}
                 </button>
@@ -1124,9 +1094,8 @@ export const AppPage: React.FC<AppPageProps> = ({
                 </div>
                 <button
                   onClick={() => setOnlineEnabled(!onlineEnabled)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold cursor-pointer ${
-                    onlineEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-600 text-white'
-                  }`}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold cursor-pointer ${onlineEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-600 text-white'
+                    }`}
                 >
                   {onlineEnabled ? 'Enabled' : 'Disabled'}
                 </button>
@@ -1155,9 +1124,8 @@ export const AppPage: React.FC<AppPageProps> = ({
         {activeTab === 'web3' && (
           <div className="max-w-xl mx-auto space-y-6">
             <div
-              className={`p-6 sm:p-8 rounded-3xl border shadow-xl ${
-                isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
-              }`}
+              className={`p-6 sm:p-8 rounded-3xl border shadow-xl ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
+                }`}
             >
               <div className="text-center space-y-1 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 mx-auto flex items-center justify-center font-bold mb-2">
@@ -1184,13 +1152,12 @@ export const AppPage: React.FC<AppPageProps> = ({
                         key={chain.id}
                         type="button"
                         onClick={() => setSelectedChain(chain.id as any)}
-                        className={`p-3 rounded-2xl border text-center transition cursor-pointer ${
-                          selectedChain === chain.id
+                        className={`p-3 rounded-2xl border text-center transition cursor-pointer ${selectedChain === chain.id
                             ? 'border-[#FF6B00] bg-[#FF6B00]/10 text-[#FF6B00] font-bold'
                             : isDark
-                            ? 'border-slate-800 hover:bg-slate-800 text-slate-300'
-                            : 'border-slate-200 hover:bg-slate-100 text-slate-700'
-                        }`}
+                              ? 'border-slate-800 hover:bg-slate-800 text-slate-300'
+                              : 'border-slate-200 hover:bg-slate-100 text-slate-700'
+                          }`}
                       >
                         <div className="text-xs font-black">{chain.name}</div>
                         <div className="text-[10px] text-slate-400 font-mono mt-0.5">Fee: {chain.fee}</div>
@@ -1207,9 +1174,8 @@ export const AppPage: React.FC<AppPageProps> = ({
                     type="number"
                     value={bridgeAmount}
                     onChange={(e) => setBridgeAmount(e.target.value)}
-                    className={`w-full px-4 py-3 rounded-2xl font-mono text-lg font-black border outline-none focus:border-[#FF6B00] ${
-                      isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                    }`}
+                    className={`w-full px-4 py-3 rounded-2xl font-mono text-lg font-black border outline-none focus:border-[#FF6B00] ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                      }`}
                   />
                 </div>
 
@@ -1253,9 +1219,8 @@ export const AppPage: React.FC<AppPageProps> = ({
         {activeTab === 'offline' && (
           <div className="max-w-xl mx-auto space-y-6">
             <div
-              className={`p-6 sm:p-8 rounded-3xl border text-center shadow-xl space-y-5 ${
-                isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
-              }`}
+              className={`p-6 sm:p-8 rounded-3xl border text-center shadow-xl space-y-5 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
+                }`}
             >
               <div className="w-14 h-14 rounded-3xl bg-cyan-500/10 text-cyan-500 mx-auto flex items-center justify-center font-bold">
                 <Radio size={28} className={offlineSyncing ? 'animate-pulse' : ''} />
@@ -1304,9 +1269,8 @@ export const AppPage: React.FC<AppPageProps> = ({
         {activeTab === 'support' && (
           <div className="max-w-2xl mx-auto space-y-6">
             <div
-              className={`rounded-3xl border overflow-hidden shadow-xl flex flex-col h-[560px] ${
-                isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
-              }`}
+              className={`rounded-3xl border overflow-hidden shadow-xl flex flex-col h-[560px] ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
+                }`}
             >
               {/* Support Header */}
               <div className="p-4 bg-slate-950 text-white flex items-center justify-between border-b border-slate-800">
@@ -1334,13 +1298,12 @@ export const AppPage: React.FC<AppPageProps> = ({
                   return (
                     <div key={msg.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                       <div
-                        className={`max-w-sm p-3.5 rounded-2xl text-xs space-y-1 shadow-2xs ${
-                          isUser
+                        className={`max-w-sm p-3.5 rounded-2xl text-xs space-y-1 shadow-2xs ${isUser
                             ? 'bg-[#FF6B00] text-white rounded-br-xs font-medium'
                             : isDark
-                            ? 'bg-slate-800 text-white border border-slate-700 rounded-bl-xs'
-                            : 'bg-white text-slate-900 border border-slate-200 rounded-bl-xs'
-                        }`}
+                              ? 'bg-slate-800 text-white border border-slate-700 rounded-bl-xs'
+                              : 'bg-white text-slate-900 border border-slate-200 rounded-bl-xs'
+                          }`}
                       >
                         <div className="flex items-center justify-between text-[10px] opacity-75 font-mono gap-2">
                           <span>{isUser ? 'You (Customer)' : 'Company Officer'}</span>
@@ -1360,9 +1323,8 @@ export const AppPage: React.FC<AppPageProps> = ({
                   placeholder="Ask a question about your balance, verification, or transfers..."
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  className={`flex-1 px-4 py-2.5 rounded-xl text-xs font-medium border outline-none focus:border-[#FF6B00] ${
-                    isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                  }`}
+                  className={`flex-1 px-4 py-2.5 rounded-xl text-xs font-medium border outline-none focus:border-[#FF6B00] ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                    }`}
                 />
                 <button
                   type="submit"

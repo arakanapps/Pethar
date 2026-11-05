@@ -311,7 +311,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       try {
         const stored = localStorage.getItem(CHAT_STORAGE_KEY)
         if (stored) return JSON.parse(stored)
-      } catch {}
+      } catch { }
     }
     return [
       {
@@ -344,7 +344,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       if (e.key === CHAT_STORAGE_KEY && e.newValue) {
         try {
           setCustomerMessages(JSON.parse(e.newValue))
-        } catch {}
+        } catch { }
       }
     }
     window.addEventListener('storage', handleStorage)
@@ -440,7 +440,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       method: 'POST',
       path: '/v1/swap/crypto-to-akd',
       category: 'Crypto Gateway',
-      description: 'Execute instant 1:1 in-app atomic swap between USDT/USDC and sovereign AKD ledger.',
+      description: 'Execute instant 1:1 in-app atomic swap between USDT/USDC and AKD ledger.',
       requestBody: JSON.stringify({ user_id: 'usr_202610190001', amount: 500.0, token: 'USDT' }, null, 2),
       responseBody: JSON.stringify({ tx_id: 'swap_99182a', status: 'completed', swapped_amount: '500.00', from: 'USDT', to: 'AKD', fee: '0.00' }, null, 2),
       latency: '18ms',
@@ -558,8 +558,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         flagReason: isSuspect
           ? 'Velocity & anomalous timing trigger'
           : isHighAmount
-          ? 'Large transfer threshold review'
-          : 'Normal peer settlement',
+            ? 'Large transfer threshold review'
+            : 'Normal peer settlement',
       }
     })
   }, [txList])
@@ -699,7 +699,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     setCustomerMessages(updated)
     try {
       localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated))
-    } catch {}
+    } catch { }
     if (!custom) setOperatorReplyText('')
   }
 
@@ -763,7 +763,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     setIsDevAdminMode(next)
     try {
       localStorage.setItem('pethar_dev_admin_mode', String(next))
-    } catch {}
+    } catch { }
     if (next) {
       setNavTab('admin-kyc')
     } else {
@@ -779,9 +779,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       {/* ══════════════════════════════════════════════════════════════════════
           1. LEFT SIDEBAR (CITIZEN WALLET & DEV ADMIN ROLE CONSOLE)
          ══════════════════════════════════════════════════════════════════════ */}
-      <aside className={`hidden lg:flex flex-col w-64 xl:w-72 border-r shrink-0 p-5 space-y-5 ${
-        isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200/90 shadow-xs'
-      }`}>
+      <aside className={`hidden lg:flex flex-col w-64 xl:w-72 border-r shrink-0 p-5 space-y-5 ${isDarkMode ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200/90 shadow-xs'
+        }`}>
         {/* Brand Header */}
         <div className="flex items-center gap-3 px-2 pt-1">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#FF6B00] to-[#FF8500] p-1.5 shadow-md flex items-center justify-center shrink-0">
@@ -804,21 +803,19 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         <div className="p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center text-xs font-bold">
           <button
             onClick={() => { setIsDevAdminMode(false); setNavTab('home'); }}
-            className={`flex-1 py-1.5 rounded-xl transition text-center ${
-              !isDevAdminMode
+            className={`flex-1 py-1.5 rounded-xl transition text-center ${!isDevAdminMode
                 ? 'bg-white dark:bg-slate-700 text-slate-950 dark:text-white shadow-xs font-black'
                 : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
-            }`}
+              }`}
           >
             {ak ? 'သုံးစွဲသူ' : 'Citizen'}
           </button>
           <button
             onClick={() => { setIsDevAdminMode(true); setNavTab('admin-kyc'); }}
-            className={`flex-1 py-1.5 rounded-xl transition text-center flex items-center justify-center gap-1 ${
-              isDevAdminMode
+            className={`flex-1 py-1.5 rounded-xl transition text-center flex items-center justify-center gap-1 ${isDevAdminMode
                 ? 'bg-[#FF6B00] text-white shadow-xs font-black'
                 : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
-            }`}
+              }`}
           >
             <ShieldAlert size={12} />
             <span>{ak ? 'အုပ်ချုပ်သူ' : 'Dev Admin'}</span>
@@ -854,13 +851,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 <button
                   key={item.id}
                   onClick={() => setNavTab(item.id as NavTabType)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all ${
-                    isActive
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all ${isActive
                       ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8500] text-white font-bold shadow-md shadow-orange-500/20'
                       : isDarkMode
-                      ? 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-                  }`}
+                        ? 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon size={17} />
@@ -889,22 +885,20 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   <button
                     key={item.id}
                     onClick={() => setNavTab(item.id as NavTabType)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all ${
-                      isActive
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all ${isActive
                         ? 'bg-[#FF6B00] text-white font-bold shadow-md shadow-orange-500/20'
                         : isDarkMode
-                        ? 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-                    }`}
+                          ? 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <Icon size={17} />
                       <span>{item.label}</span>
                     </div>
                     {item.badge && (
-                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                        isActive ? 'bg-white/20 text-white' : 'bg-red-500/10 text-red-500'
-                      }`}>
+                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${isActive ? 'bg-white/20 text-white' : 'bg-red-500/10 text-red-500'
+                        }`}>
                         {item.badge}
                       </span>
                     )}
@@ -919,11 +913,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         {isDevAdminMode && (
           <button
             onClick={() => setCircuitBreakerOpen(true)}
-            className={`w-full py-2.5 px-3 rounded-2xl border text-xs font-mono font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
-              circuitBreakerActive
+            className={`w-full py-2.5 px-3 rounded-2xl border text-xs font-mono font-bold flex items-center justify-center gap-2 transition cursor-pointer ${circuitBreakerActive
                 ? 'bg-red-600 text-white border-red-500 animate-pulse'
                 : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30 hover:bg-red-500/20'
-            }`}
+              }`}
           >
             <AlertTriangle size={14} />
             <span>{circuitBreakerActive ? 'SETTLEMENT FROZEN' : 'Emergency Kill-Switch'}</span>
@@ -931,9 +924,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         )}
 
         {/* User Mini Footer */}
-        <div className={`pt-3 border-t flex items-center justify-between ${
-          isDarkMode ? 'border-slate-800' : 'border-slate-100'
-        }`}>
+        <div className={`pt-3 border-t flex items-center justify-between ${isDarkMode ? 'border-slate-800' : 'border-slate-100'
+          }`}>
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs flex items-center justify-center shrink-0">
               {profile.name.charAt(0)}
@@ -960,9 +952,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
          ══════════════════════════════════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Desktop Header */}
-        <header className={`hidden lg:flex items-center justify-between px-8 py-3.5 border-b sticky top-0 z-30 backdrop-blur-md ${
-          isDarkMode ? 'bg-[#111827]/90 border-slate-800' : 'bg-white/90 border-slate-200/80 shadow-2xs'
-        }`}>
+        <header className={`hidden lg:flex items-center justify-between px-8 py-3.5 border-b sticky top-0 z-30 backdrop-blur-md ${isDarkMode ? 'bg-[#111827]/90 border-slate-800' : 'bg-white/90 border-slate-200/80 shadow-2xs'
+          }`}>
           {/* Status or Search Bar */}
           <div className="flex items-center gap-4">
             <div className="relative w-80">
@@ -1019,11 +1010,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
             <button
               onClick={handleToggleAdminMode}
-              className={`px-3 py-1.5 rounded-2xl text-xs font-bold border transition ${
-                isDevAdminMode
+              className={`px-3 py-1.5 rounded-2xl text-xs font-bold border transition ${isDevAdminMode
                   ? 'bg-red-500/10 text-red-600 border-red-500/30'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
-              }`}
+                }`}
             >
               {isDevAdminMode ? 'Exit Admin' : 'Admin Panel'}
             </button>
@@ -1089,11 +1079,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 </div>
                 <button
                   onClick={() => setCardLocked(!cardLocked)}
-                  className={`px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 ${
-                    cardLocked
+                  className={`px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 ${cardLocked
                       ? 'bg-red-600 text-white'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                  }`}
+                    }`}
                 >
                   <ShieldAlert size={14} />
                   <span>{cardLocked ? 'Card Locked' : 'Lock Card'}</span>
@@ -1142,7 +1131,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               {/* Card Security Settings */}
               <div className={`p-6 rounded-3xl border shadow-xs space-y-4 max-w-xl ${isDarkMode ? 'bg-[#1F2937] border-slate-800' : 'bg-white border-slate-200/80'}`}>
                 <h3 className="font-black text-sm text-slate-900 dark:text-white">Security & Limit Controls</h3>
-                
+
                 <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800">
                   <div>
                     <div className="text-xs font-bold text-slate-900 dark:text-white">Online Transactions</div>
@@ -1183,11 +1172,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               {/* Dual-Wallet Architecture: Exactly Two Clean View Models */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* 1. Main AKD Database Wallet (Local Internal Digital Ledger) */}
-                <div className={`p-6 rounded-3xl border shadow-sm relative overflow-hidden transition-all ${
-                  isDarkMode 
-                    ? 'bg-gradient-to-br from-[#1C2533] via-[#151D28] to-[#0F1722] border-amber-500/30' 
+                <div className={`p-6 rounded-3xl border shadow-sm relative overflow-hidden transition-all ${isDarkMode
+                    ? 'bg-gradient-to-br from-[#1C2533] via-[#151D28] to-[#0F1722] border-amber-500/30'
                     : 'bg-gradient-to-br from-white via-amber-50/20 to-white border-amber-500/20 shadow-md'
-                }`}>
+                  }`}>
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-2.5">
                       <div className="w-10 h-10 rounded-2xl bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center font-bold">
@@ -1212,8 +1200,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                       <span className="text-xs font-medium text-slate-500">
                         {ak ? 'ရရှိနိုင်သော လက်ကျန်ငွေ' : 'Available Ledger Balance'}
                       </span>
-                      <button 
-                        onClick={() => setBalanceVisible(!balanceVisible)} 
+                      <button
+                        onClick={() => setBalanceVisible(!balanceVisible)}
                         className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition cursor-pointer"
                       >
                         {balanceVisible ? <Eye size={15} /> : <EyeOff size={15} />}
@@ -1248,11 +1236,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 </div>
 
                 {/* 2. USD Crypto Gateway Wallet (On-Chain Stablecoin Balances) */}
-                <div className={`p-6 rounded-3xl border shadow-sm relative overflow-hidden transition-all ${
-                  isDarkMode 
-                    ? 'bg-gradient-to-br from-[#1C2533] via-[#151D28] to-[#0F1722] border-cyan-500/30' 
+                <div className={`p-6 rounded-3xl border shadow-sm relative overflow-hidden transition-all ${isDarkMode
+                    ? 'bg-gradient-to-br from-[#1C2533] via-[#151D28] to-[#0F1722] border-cyan-500/30'
                     : 'bg-gradient-to-br from-white via-cyan-50/20 to-white border-cyan-500/20 shadow-md'
-                }`}>
+                  }`}>
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-2.5">
                       <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-500 flex items-center justify-center font-bold">
@@ -1328,9 +1315,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <button
                       key={idx}
                       onClick={s.action}
-                      className={`p-3.5 rounded-2xl flex flex-col items-center gap-2 border transition hover:scale-105 active:scale-95 ${
-                        isDarkMode ? 'border-slate-800 hover:bg-slate-800' : 'border-slate-100 hover:bg-slate-50 shadow-2xs'
-                      }`}
+                      className={`p-3.5 rounded-2xl flex flex-col items-center gap-2 border transition hover:scale-105 active:scale-95 ${isDarkMode ? 'border-slate-800 hover:bg-slate-800' : 'border-slate-100 hover:bg-slate-50 shadow-2xs'
+                        }`}
                     >
                       <div className={`w-11 h-11 rounded-2xl ${s.color} flex items-center justify-center font-bold`}>
                         <s.icon size={20} />
@@ -1352,11 +1338,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                       <button
                         key={cat}
                         onClick={() => setTxCategoryFilter(cat)}
-                        className={`px-3 py-1 rounded-xl text-xs font-medium capitalize transition cursor-pointer ${
-                          txCategoryFilter === cat
+                        className={`px-3 py-1 rounded-xl text-xs font-medium capitalize transition cursor-pointer ${txCategoryFilter === cat
                             ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold'
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
-                        }`}
+                          }`}
                       >
                         {cat}
                       </button>
@@ -1372,9 +1357,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                       className="py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/60 px-3 rounded-2xl transition cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                          tx.amount > 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'
-                        }`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.amount > 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'
+                          }`}>
                           {tx.amount > 0 ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
                         </div>
                         <div>
@@ -1387,9 +1371,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className={`text-sm font-black font-mono ${
-                          tx.amount > 0 ? 'text-emerald-500' : 'text-slate-900 dark:text-white'
-                        }`}>
+                        <div className={`text-sm font-black font-mono ${tx.amount > 0 ? 'text-emerald-500' : 'text-slate-900 dark:text-white'
+                          }`}>
                           {tx.amount > 0 ? '+' : ''}{tx.amount.toFixed(2)} ₳
                         </div>
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">
@@ -1439,11 +1422,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                           <div className="flex items-center gap-2">
                             <span className="font-extrabold text-sm text-slate-900 dark:text-white">{applicant.name}</span>
                             <span className="text-xs text-slate-400 font-mono">({applicant.nameMm})</span>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                              applicant.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-600' :
-                              applicant.status === 'Rejected' ? 'bg-rose-500/10 text-rose-600' :
-                              'bg-amber-500/10 text-amber-600'
-                            }`}>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${applicant.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-600' :
+                                applicant.status === 'Rejected' ? 'bg-rose-500/10 text-rose-600' :
+                                  'bg-amber-500/10 text-amber-600'
+                              }`}>
                               {applicant.status}
                             </span>
                           </div>
@@ -1502,9 +1484,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <button
                       key={ch}
                       onClick={() => setOperatorChannelFilter(ch)}
-                      className={`px-3 py-1 rounded-lg capitalize transition cursor-pointer ${
-                        operatorChannelFilter === ch ? 'bg-[#FF6B00] text-white font-bold' : 'text-slate-500 hover:text-slate-900'
-                      }`}
+                      className={`px-3 py-1 rounded-lg capitalize transition cursor-pointer ${operatorChannelFilter === ch ? 'bg-[#FF6B00] text-white font-bold' : 'text-slate-500 hover:text-slate-900'
+                        }`}
                     >
                       {ch === 'all' ? 'All Rails' : ch === 'mobilewallet' ? 'Mobile Wallet' : 'Android App'}
                     </button>
@@ -1613,11 +1594,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                       const isAndroid = msg.channel === 'android'
                       return (
                         <div key={msg.id} className={`flex ${isOp ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-md p-4 rounded-2xl text-xs space-y-1 shadow-xs ${
-                            isOp
+                          <div className={`max-w-md p-4 rounded-2xl text-xs space-y-1 shadow-xs ${isOp
                               ? 'bg-[#FF6B00] text-white rounded-br-xs font-medium'
                               : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-bl-xs'
-                          }`}>
+                            }`}>
                             <div className="flex items-center justify-between text-[10px] opacity-85 font-mono gap-3">
                               <span className="font-bold flex items-center gap-1.5">
                                 {isOp ? (
@@ -1731,9 +1711,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                       <div className="flex items-center gap-2">
                         <span className="font-extrabold text-sm text-slate-900 dark:text-white">{ad.titleEn}</span>
                         <span className="text-xs text-slate-400 font-mono">({ad.titleAk})</span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          ad.active ? 'bg-emerald-500/10 text-emerald-600' : 'bg-slate-200 text-slate-600'
-                        }`}>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ad.active ? 'bg-emerald-500/10 text-emerald-600' : 'bg-slate-200 text-slate-600'
+                          }`}>
                           {ad.active ? 'ACTIVE' : 'PAUSED'}
                         </span>
                       </div>
@@ -1746,9 +1725,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => handleToggleAd(ad.id)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
-                          ad.active ? 'bg-amber-500/15 text-amber-600 hover:bg-amber-500/25' : 'bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25'
-                        }`}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${ad.active ? 'bg-amber-500/15 text-amber-600 hover:bg-amber-500/25' : 'bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25'
+                          }`}
                       >
                         {ad.active ? 'Pause Campaign' : 'Activate Ad'}
                       </button>
@@ -1787,16 +1765,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <button
                       key={ep.id}
                       onClick={() => setActiveApiEndpoint(ep)}
-                      className={`w-full text-left p-3.5 rounded-2xl border transition ${
-                        activeApiEndpoint.id === ep.id
+                      className={`w-full text-left p-3.5 rounded-2xl border transition ${activeApiEndpoint.id === ep.id
                           ? 'bg-white dark:bg-slate-800 border-[#FF6B00] shadow-xs'
                           : 'bg-white/80 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-black ${
-                          ep.method === 'POST' ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900'
-                        }`}>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-black ${ep.method === 'POST' ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900'
+                          }`}>
                           {ep.method}
                         </span>
                         <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">{ep.path}</span>
@@ -1875,9 +1851,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                       <button
                         key={f}
                         onClick={() => setFraudFilter(f)}
-                        className={`px-3 py-1 rounded-lg capitalize transition ${
-                          fraudFilter === f ? 'bg-red-600 text-white font-bold' : 'text-slate-500 hover:text-slate-900'
-                        }`}
+                        className={`px-3 py-1 rounded-lg capitalize transition ${fraudFilter === f ? 'bg-red-600 text-white font-bold' : 'text-slate-500 hover:text-slate-900'
+                          }`}
                       >
                         {f === 'all' ? 'All Transactions' : f === 'flagged' ? 'Suspicious Flagged' : 'Normal / Low Risk'}
                       </button>
@@ -1891,21 +1866,19 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 {filteredFraudTxs.map((tx) => (
                   <div key={tx.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                     <div className="flex items-center gap-3.5">
-                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-xs ${
-                        tx.risk === 'High' ? 'bg-red-500/15 text-red-600' :
-                        tx.risk === 'Medium' ? 'bg-amber-500/15 text-amber-600' :
-                        'bg-emerald-500/15 text-emerald-600'
-                      }`}>
+                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-xs ${tx.risk === 'High' ? 'bg-red-500/15 text-red-600' :
+                          tx.risk === 'Medium' ? 'bg-amber-500/15 text-amber-600' :
+                            'bg-emerald-500/15 text-emerald-600'
+                        }`}>
                         {tx.risk === 'High' ? <AlertTriangle size={18} /> : <ShieldCheck size={18} />}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-extrabold text-sm text-slate-900 dark:text-white">{tx.title}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                            tx.risk === 'High' ? 'bg-red-500/20 text-red-600 animate-pulse font-mono' :
-                            tx.risk === 'Medium' ? 'bg-amber-500/20 text-amber-600 font-mono' :
-                            'bg-emerald-500/10 text-emerald-600 font-mono'
-                          }`}>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${tx.risk === 'High' ? 'bg-red-500/20 text-red-600 animate-pulse font-mono' :
+                              tx.risk === 'Medium' ? 'bg-amber-500/20 text-amber-600 font-mono' :
+                                'bg-emerald-500/10 text-emerald-600 font-mono'
+                            }`}>
                             Risk: {tx.risk}
                           </span>
                         </div>
@@ -1957,9 +1930,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                         <span className="font-bold text-slate-700 dark:text-slate-300">[{log.timestamp}] {log.action}:</span>{' '}
                         <span className="text-slate-500">{log.details}</span>
                       </div>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        log.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'
-                      }`}>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${log.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'
+                        }`}>
                         {log.status}
                       </span>
                     </div>
@@ -2019,9 +1991,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     <button
                       key={st}
                       onClick={() => setUserFilter(st)}
-                      className={`px-3 py-1 rounded-lg capitalize transition cursor-pointer ${
-                        userFilter === st ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold' : 'text-slate-500 hover:text-slate-900'
-                      }`}
+                      className={`px-3 py-1 rounded-lg capitalize transition cursor-pointer ${userFilter === st ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold' : 'text-slate-500 hover:text-slate-900'
+                        }`}
                     >
                       {st.toLowerCase()}
                     </button>
@@ -2043,41 +2014,40 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   })
                   .slice(0, 15)
                   .map((user) => (
-                  <div key={user.uid} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs">
-                        {user.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-sm text-slate-900 dark:text-white">{user.name}</span>
-                          <span className="text-xs text-slate-400 font-mono">{user.username}</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-                            Tier {user.kycTier}
-                          </span>
+                    <div key={user.uid} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs">
+                          {user.name.charAt(0)}
                         </div>
-                        <div className="text-xs text-slate-500 font-mono mt-0.5">
-                          UID: {user.uid} · Phone: {user.phone || 'N/A'} · Balance: ₳ {user.akdBalance.toFixed(2)}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-extrabold text-sm text-slate-900 dark:text-white">{user.name}</span>
+                            <span className="text-xs text-slate-400 font-mono">{user.username}</span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                              Tier {user.kycTier}
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-500 font-mono mt-0.5">
+                            UID: {user.uid} · Phone: {user.phone || 'N/A'} · Balance: ₳ {user.akdBalance.toFixed(2)}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={async () => {
-                          const next = user.status === 'FROZEN' ? 'ACTIVE' : 'FROZEN'
-                          await updateUserStatusInDb(user.uid, next, 'Operator toggle')
-                          setUsersList((prev) => prev.map((u) => (u.uid === user.uid ? { ...u, status: next } : u)))
-                        }}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                          user.status === 'FROZEN' ? 'bg-emerald-500/15 text-emerald-600' : 'bg-red-500/15 text-red-600'
-                        }`}
-                      >
-                        {user.status === 'FROZEN' ? 'Unfreeze' : 'Freeze'}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={async () => {
+                            const next = user.status === 'FROZEN' ? 'ACTIVE' : 'FROZEN'
+                            await updateUserStatusInDb(user.uid, next, 'Operator toggle')
+                            setUsersList((prev) => prev.map((u) => (u.uid === user.uid ? { ...u, status: next } : u)))
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${user.status === 'FROZEN' ? 'bg-emerald-500/15 text-emerald-600' : 'bg-red-500/15 text-red-600'
+                            }`}
+                        >
+                          {user.status === 'FROZEN' ? 'Unfreeze' : 'Freeze'}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           )}
@@ -2163,9 +2133,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                       key={a}
                       type="button"
                       onClick={() => setTopUpAsset(a)}
-                      className={`py-2 rounded-xl text-xs font-bold border transition ${
-                        topUpAsset === a ? 'bg-[#FF6B00] text-white border-[#FF6B00]' : 'bg-slate-50 text-slate-700 border-slate-200'
-                      }`}
+                      className={`py-2 rounded-xl text-xs font-bold border transition ${topUpAsset === a ? 'bg-[#FF6B00] text-white border-[#FF6B00]' : 'bg-slate-50 text-slate-700 border-slate-200'
+                        }`}
                     >
                       {a}
                     </button>

@@ -360,7 +360,7 @@ export async function drawReceiptToCanvasBlob(
   ctx.fillStyle = '#0f172a'
   ctx.font = '900 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   ctx.fillText(
-    isAk ? '🛡️ တရားဝင် ပြေစာ စစ်ဆေးချက်' : '🛡️ Sovereign Proof & QR',
+    isAk ? '🛡️ တရားဝင် ပြေစာ စစ်ဆေးချက်' : '🛡️ Verified Proof & QR',
     80,
     qrSectionY + 68
   )
@@ -372,7 +372,7 @@ export async function drawReceiptToCanvasBlob(
     : 'Scan this QR code with any camera'
   const line2 = isAk
     ? 'အချိန်မရွေး တိုက်ဆိုင်စစ်ဆေးနိုင်ပါသည်။'
-    : 'to verify on Arakan Sovereign Ledger.'
+    : 'to verify on Arakan Ledger.'
   ctx.fillText(line1, 80, qrSectionY + 114)
   ctx.fillText(line2, 80, qrSectionY + 146)
 
@@ -393,7 +393,7 @@ export async function drawReceiptToCanvasBlob(
   ctx.fillStyle = '#94a3b8'
   ctx.font = 'bold 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   ctx.fillText(
-    'BANK OF ARAKAN · CENTRAL SOVEREIGN FINANCIAL NETWORK',
+    'BANK OF ARAKAN · CENTRAL FINANCIAL NETWORK',
     width / 2,
     height - 110
   )
