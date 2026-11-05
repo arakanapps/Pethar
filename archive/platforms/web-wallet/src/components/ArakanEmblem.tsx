@@ -9,7 +9,7 @@ interface EmblemProps {
 export const ArakanEmblem: React.FC<EmblemProps> = ({
   className = '',
   size = 40,
-  variant = 'emblem-only',
+  variant: _variant = 'emblem-only',
 }) => (
   <img
     src="/pethar-logo-red-white.svg"

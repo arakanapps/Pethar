@@ -46,6 +46,8 @@ skills-lock.json
 # ── Enterprise Cleanup (Oct 2026) ──────────────────────
 
 # Build outputs
+dist/
+**/dist/
 pethar-wallet/dist/
 **/build/
 

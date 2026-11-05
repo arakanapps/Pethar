@@ -4,11 +4,11 @@ import { TransactionSlip } from '../components/TransactionSlip'
 import { ReceiveQRCard } from '../components/ReceiveQRCard'
 import {
   LayoutGrid, Wallet, CreditCard, History, TrendingUp, Settings,
-  ShieldCheck, Send, QrCode, Search, Sparkles,
-  Eye, EyeOff, Check, Copy, AlertTriangle, ShieldAlert, Users,
-  Plus, ExternalLink, X,
+  Send, QrCode, Search, Sparkles,
+  Eye, EyeOff, AlertTriangle, ShieldAlert, Users,
+  ExternalLink,
   ArrowUpRight, ArrowDownLeft,
-  Sun, Moon, MessageSquare, Terminal, Play, Download
+  Sun, Moon, MessageSquare, Terminal
 } from 'lucide-react'
 import { initialUserProfile, type UserProfile, type Txn } from '../data'
 import {
@@ -23,6 +23,14 @@ import {
 } from '../services/walletDatabase'
 import type { Language } from '../i18n'
 import { auth } from '../lib/firebase'
+import { AdminNavBar } from '../components/admin/AdminNavBar'
+import { AdminKycDesk } from '../components/admin/AdminKycDesk'
+import { AdminOpenDesk } from '../components/admin/AdminOpenDesk'
+import { AdminCitizenDirectory } from '../components/admin/AdminCitizenDirectory'
+import { AdminTreasuryDesk } from '../components/admin/AdminTreasuryDesk'
+import { AdminSecurityAml } from '../components/admin/AdminSecurityAml'
+import { AdminApiDesk } from '../components/admin/AdminApiDesk'
+import { AdminCampaignsDesk } from '../components/admin/AdminCampaignsDesk'
 
 export type NavTabType =
   | 'home'
@@ -38,6 +46,7 @@ export type NavTabType =
   | 'admin-api'
   | 'admin-fraud'
   | 'admin-users'
+  | 'admin-treasury'
 
 export interface DashboardPageProps {
   lang?: Language
@@ -173,6 +182,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     if (initialTab === 'admin-api' || initialTab === 'api') return 'admin-api'
     if (initialTab === 'admin-fraud' || initialTab === 'fraud') return 'admin-fraud'
     if (initialTab === 'admin-users' || initialTab === 'users') return 'admin-users'
+    if (initialTab === 'admin-treasury' || initialTab === 'treasury-admin') return 'admin-treasury'
     if (initialTab === 'treasury' || initialTab === 'financial') return 'financial'
     if (initialTab === 'history' || initialTab === 'transactions') return 'transactions'
     if (initialTab === 'wallet') return 'wallet'
@@ -286,8 +296,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   // Users Directory State
   const [usersList, setUsersList] = useState<AdminUserRecord[]>([])
-  const [userFilter, setUserFilter] = useState<'all' | 'ACTIVE' | 'SUSPENDED' | 'FROZEN'>('all')
-  const [userSearch, setUserSearch] = useState('')
 
   // Audit Logs
   const [auditLogs, setAuditLogs] = useState<SystemAuditLog[]>([
@@ -774,6 +782,504 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   void theme
   void setTheme
 
+  // Additional Handlers for modern Admin components
+  const handleSimulateAndroidMsg = () => {
+    const newCustMsg: ChatMessage = {
+      id: `msg-and-${Date.now()}`,
+      sender: 'user',
+      channel: 'android',
+      text: 'Customer from Sittwe on Android APK: Help needed with P2P transfer confirmation and QR code display.',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    }
+    const updated = [...customerMessages, newCustMsg]
+    setCustomerMessages(updated)
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated))
+    } catch {}
+  }
+
+  const handleSimulateWalletMsg = () => {
+    const newCustMsg: ChatMessage = {
+      id: `msg-mw-${Date.now()}`,
+      sender: 'user',
+      channel: 'mobilewallet',
+      text: 'Daw Nilar Win from Mobile Wallet: Can you confirm my ₳250 QR deposit on ledger?',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    }
+    const updated = [...customerMessages, newCustMsg]
+    setCustomerMessages(updated)
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated))
+    } catch {}
+  }
+
+  const handleFreezeAccountFromAml = async (counterparty: string) => {
+    await updateUserStatusInDb(counterparty, 'FROZEN', 'Automated fraud risk flag hold')
+    setUsersList((prev) =>
+      prev.map((u) => (u.uid === counterparty || u.username === counterparty ? { ...u, status: 'FROZEN' } : u))
+    )
+    const newLog: SystemAuditLog = {
+      id: `AUD-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      operator: 'ROOT-01',
+      category: 'SECURITY',
+      action: 'ACCOUNT_FROZEN',
+      details: `Account ${counterparty} placed on security hold`,
+      targetId: counterparty,
+      status: 'WARNING',
+    }
+    setAuditLogs((prev) => [newLog, ...prev])
+  }
+
+  const handleToggleUserStatus = async (uid: string, currentStatus: string) => {
+    const next = currentStatus === 'FROZEN' ? 'ACTIVE' : 'FROZEN'
+    await updateUserStatusInDb(uid, next, 'Operator toggle')
+    setUsersList((prev) => prev.map((u) => (u.uid === uid ? { ...u, status: next } : u)))
+    const newLog: SystemAuditLog = {
+      id: `AUD-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      operator: 'ROOT-01',
+      category: 'USER_CONTROL',
+      action: next === 'FROZEN' ? 'ACCOUNT_FROZEN' : 'ACCOUNT_UNFROZEN',
+      details: `Citizen ${uid} status changed to ${next}`,
+      targetId: uid,
+      status: 'SUCCESS',
+    }
+    setAuditLogs((prev) => [newLog, ...prev])
+  }
+
+  const handleTestApiEndpoint = () => {
+    setApiSimulating(true)
+    setTimeout(() => setApiSimulating(false), 400)
+  }
+
+  const handleCopyApiJson = () => {
+    try {
+      navigator.clipboard.writeText(activeApiEndpoint.responseBody)
+      setCopiedApiJson(true)
+      setTimeout(() => setCopiedApiJson(false), 2000)
+    } catch {}
+  }
+
+  // Modal Renderers to share between views
+  const renderCircuitBreakerModal = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+      <div className="w-full max-w-sm rounded-3xl p-6 bg-slate-950 border border-red-500/50 text-white shadow-2xl space-y-4 text-center">
+        <div className="w-12 h-12 rounded-full bg-red-600/20 text-red-400 mx-auto flex items-center justify-center border border-red-500/30">
+          <AlertTriangle size={24} />
+        </div>
+        <div>
+          <h3 className="font-black text-base">
+            {circuitBreakerActive ? 'Disengage Circuit Breaker' : 'Engage Emergency Kill-Switch'}
+          </h3>
+          <p className="text-xs text-slate-400 mt-1">
+            Enter your 6-digit administrative override PIN to {circuitBreakerActive ? 'restore' : 'freeze'} ledger settlements.
+          </p>
+        </div>
+        <input
+          type="password"
+          maxLength={6}
+          value={circuitBreakerPin}
+          onChange={(e) => setCircuitBreakerPin(e.target.value)}
+          placeholder="••••••"
+          className="w-full py-2.5 text-center text-xl tracking-widest font-mono bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:border-red-500"
+        />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setCircuitBreakerOpen(false)}
+            className="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleToggleCircuitBreaker}
+            className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-xs font-bold text-white shadow-lg cursor-pointer"
+          >
+            Authorize
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderRejectModal = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+      <div className="w-full max-w-sm rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 className="font-black text-base text-slate-900 dark:text-white">Reject KYC Application</h3>
+          <button onClick={() => setRejectModalOpen(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Rejection Reason</label>
+            <select
+              value={selectedRejectReason}
+              onChange={(e) => setSelectedRejectReason(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+            >
+              <option value="Blurry photo / Unreadable NRIC ID document">Blurry photo / Unreadable NRIC ID document</option>
+              <option value="ID expired or mismatched name with registry">ID expired or mismatched name with registry</option>
+              <option value="Duplicate citizen profile detected">Duplicate citizen profile detected</option>
+              <option value="Suspected fraudulent document">Suspected fraudulent document</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Additional Note (Optional)</label>
+            <input
+              type="text"
+              value={customRejectNote}
+              onChange={(e) => setCustomRejectNote(e.target.value)}
+              placeholder="Notes for applicant..."
+              className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+            />
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setRejectModalOpen(false)}
+              className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmRejectKyc}
+              className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white shadow-md cursor-pointer"
+            >
+              Confirm Reject
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderNewAdModal = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+      <div className="w-full max-w-md rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 className="font-black text-base text-slate-900 dark:text-white">Create New Promotional Campaign</h3>
+          <button onClick={() => setNewAdModalOpen(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
+        </div>
+        <form onSubmit={handleCreateAd} className="space-y-3.5">
+          <div>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Campaign Title (English)</label>
+            <input
+              type="text"
+              required
+              value={newAdTitleEn}
+              onChange={(e) => setNewAdTitleEn(e.target.value)}
+              placeholder="e.g. Sittwe Festival Cashback"
+              className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Campaign Title (Arakanese/Burmese)</label>
+            <input
+              type="text"
+              value={newAdTitleAk}
+              onChange={(e) => setNewAdTitleAk(e.target.value)}
+              placeholder="e.g. စစ်တွေပွဲတော် ငွေပြန်အမ်း အစီအစဉ်"
+              className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Description (English)</label>
+            <input
+              type="text"
+              value={newAdDescEn}
+              onChange={(e) => setNewAdDescEn(e.target.value)}
+              placeholder="e.g. Enjoy 2% instant cashback on all QR payments"
+              className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Description (Arakanese/Burmese)</label>
+            <input
+              type="text"
+              value={newAdDescAk}
+              onChange={(e) => setNewAdDescAk(e.target.value)}
+              placeholder="e.g. QR ငွေပေးချေမှုတိုင်းအတွက် ၂% ချက်ချင်းငွေပြန်အမ်း"
+              className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+            />
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setNewAdModalOpen(false)}
+              className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-2.5 rounded-xl bg-[#FF6B00] hover:bg-[#E05E00] text-xs font-bold text-white shadow-md cursor-pointer"
+            >
+              Publish Campaign
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+
+  const renderReceiptModal = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+      <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl">
+        <TransactionSlip
+          refId={selectedTx!.refId}
+          amount={Math.abs(selectedTx!.amount)}
+          recipientName={selectedTx!.counterparty}
+          recipientId={selectedTx!.counterpartyMm}
+          senderName={profile.name || 'Citizen'}
+          senderId={profile.petharId}
+          fee={selectedTx!.fee || 0}
+          timestamp={selectedTx!.time}
+          lang={lang}
+          onClose={() => { setReceiptModalOpen(false); setSelectedTx(null); }}
+        />
+      </div>
+    </div>
+  )
+
+  const renderSendModal = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+      <div className="w-full max-w-sm rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 className="font-black text-base text-slate-900 dark:text-white">{ak ? 'ငွေလွှဲပို့မည်' : 'Send Money'}</h3>
+          <button onClick={() => setSendModalOpen(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
+        </div>
+        <form onSubmit={handleExecuteSend} className="space-y-3.5">
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">{ak ? 'လက်ခံမည့်သူ UID / အမည်' : 'Recipient UID / Name'}</label>
+            <input
+              type="text"
+              required
+              value={recipientInput}
+              onChange={(e) => setRecipientInput(e.target.value)}
+              placeholder="202610190002"
+              className="w-full px-3.5 py-2.5 rounded-xl text-xs font-bold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">{ak ? 'ငွေပမာဏ (AKD)' : 'Amount (AKD)'}</label>
+            <input
+              type="number"
+              step="0.01"
+              required
+              value={sendAmountInput}
+              onChange={(e) => setSendAmountInput(e.target.value)}
+              placeholder="0.00"
+              className="w-full px-3.5 py-2.5 rounded-xl text-xs font-bold font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isSending}
+            className="w-full py-3 rounded-2xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition shadow-xs cursor-pointer"
+          >
+            {isSending ? 'Sending...' : ak ? 'ချက်ချင်း လွှဲမည်' : 'Send Instant ₳'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+
+  const renderReceiveModal = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+      <ReceiveQRCard
+        lang={lang}
+        name={profile.name}
+        petharId={profile.petharId}
+        onClose={() => setReceiveModalOpen(false)}
+      />
+    </div>
+  )
+
+  const renderTopUpModal = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+      <div className="w-full max-w-sm rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 className="font-black text-base text-slate-900 dark:text-white">{ak ? 'ငွေသွင်းမည် (USDT/USDC)' : 'Top Up (USDT / USDC)'}</h3>
+          <button onClick={() => setTopUpModalOpen(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Asset</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(['USDT', 'USDC'] as const).map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => setTopUpAsset(a)}
+                  className={`py-2 rounded-xl text-xs font-bold border transition ${topUpAsset === a ? 'bg-[#FF6B00] text-white border-[#FF6B00]' : 'bg-slate-50 text-slate-700 border-slate-200'
+                    }`}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Amount</label>
+            <input
+              type="number"
+              value={topUpAmount}
+              onChange={(e) => setTopUpAmount(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl text-xs font-bold font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleExecuteTopUp}
+            className="w-full py-3 rounded-2xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition shadow-xs cursor-pointer"
+          >
+            Confirm 1:1 Top Up
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // DEV ADMIN MODE CONSOLE VIEW (Modern Liquid-Glass & High Density)
+  // ══════════════════════════════════════════════════════════════════════════
+  if (isDevAdminMode) {
+    return (
+      <div className={`min-h-screen ${isDarkMode ? 'bg-[#090D16] text-white' : 'bg-[#F4F6F9] text-slate-900'} font-sans flex flex-col transition-colors duration-200`}>
+        {/* Liquid Glass Navigation Bar (Glisse & 23rd inspired) */}
+        <AdminNavBar
+          currentTab={navTab}
+          onSelectTab={(tabId) => setNavTab(tabId as NavTabType)}
+          isDevAdminMode={isDevAdminMode}
+          onToggleAdminMode={handleToggleAdminMode}
+          isDarkMode={isDarkMode}
+          onToggleDarkMode={() => setIsDarkMode((v) => !v)}
+          lang={lang}
+          onToggleLang={setLang ? () => setLang(ak ? 'en' : 'ak') : undefined}
+          onExit={onExit}
+          onOpenKillSwitch={() => setCircuitBreakerOpen(true)}
+          circuitBreakerActive={circuitBreakerActive}
+          kycPendingCount={kycQueue.filter((k) => k.status === 'Pending').length}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
+
+        {/* Emergency Circuit Breaker Active Alert Banner */}
+        {circuitBreakerActive && (
+          <div className="mx-3 sm:mx-6 mt-2 p-3 sm:p-4 rounded-2xl bg-red-950 border-2 border-red-500 text-white flex items-center justify-between gap-4 animate-pulse">
+            <div className="flex items-center gap-3">
+              <ShieldAlert className="w-6 h-6 text-red-400 shrink-0" />
+              <div>
+                <div className="text-xs font-bold uppercase tracking-wider text-red-300">
+                  CRITICAL: Emergency Circuit Breaker Engaged
+                </div>
+                <div className="text-xs text-red-200">
+                  All ledger settlements across consensus nodes are paused for security review.
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setCircuitBreakerOpen(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold font-mono transition cursor-pointer"
+            >
+              Disengage
+            </button>
+          </div>
+        )}
+
+        {/* Main Admin Workspace (High Density & Less Text) */}
+        <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 space-y-4">
+          {navTab === 'admin-kyc' && (
+            <AdminKycDesk
+              kycQueue={kycQueue}
+              onApprove={handleApproveKyc}
+              onOpenRejectModal={(applicant) => {
+                setSelectedApplicant(applicant)
+                setRejectModalOpen(true)
+              }}
+              isDarkMode={isDarkMode}
+              lang={lang}
+            />
+          )}
+
+          {navTab === 'admin-chat' && (
+            <AdminOpenDesk
+              messages={customerMessages}
+              onSendMessage={handleSendOperatorReply}
+              replyText={operatorReplyText}
+              setReplyText={setOperatorReplyText}
+              channelFilter={operatorChannelFilter}
+              setChannelFilter={setOperatorChannelFilter}
+              onSimulateAndroidMsg={handleSimulateAndroidMsg}
+              onSimulateWalletMsg={handleSimulateWalletMsg}
+              isDarkMode={isDarkMode}
+            />
+          )}
+
+          {navTab === 'admin-users' && (
+            <AdminCitizenDirectory
+              usersList={usersList}
+              onToggleUserStatus={handleToggleUserStatus}
+              isDarkMode={isDarkMode}
+            />
+          )}
+
+          {navTab === 'admin-fraud' && (
+            <AdminSecurityAml
+              filteredFraudTxs={filteredFraudTxs}
+              fraudFilter={fraudFilter}
+              setFraudFilter={setFraudFilter}
+              onFreezeAccount={handleFreezeAccountFromAml}
+              onInspectSlip={(tx) => {
+                setSelectedTx(tx)
+                setReceiptModalOpen(true)
+              }}
+              auditLogs={auditLogs}
+              circuitBreakerActive={circuitBreakerActive}
+              onOpenKillSwitch={() => setCircuitBreakerOpen(true)}
+              isDarkMode={isDarkMode}
+            />
+          )}
+
+          {navTab === 'admin-treasury' && (
+            <AdminTreasuryDesk isDarkMode={isDarkMode} />
+          )}
+
+          {navTab === 'admin-api' && (
+            <AdminApiDesk
+              apiEndpoints={apiEndpoints}
+              activeApiEndpoint={activeApiEndpoint}
+              setActiveApiEndpoint={setActiveApiEndpoint}
+              apiSimulating={apiSimulating}
+              onTestEndpoint={handleTestApiEndpoint}
+              copiedApiJson={copiedApiJson}
+              onCopyJson={handleCopyApiJson}
+              isDarkMode={isDarkMode}
+            />
+          )}
+
+          {navTab === 'admin-ads' && (
+            <AdminCampaignsDesk
+              promoAds={promoAds}
+              onToggleAd={handleToggleAd}
+              onOpenCreateModal={() => setNewAdModalOpen(true)}
+              isDarkMode={isDarkMode}
+            />
+          )}
+        </main>
+
+        {/* Shared Modals for Admin */}
+        {circuitBreakerOpen && renderCircuitBreakerModal()}
+        {rejectModalOpen && selectedApplicant && renderRejectModal()}
+        {newAdModalOpen && renderNewAdModal()}
+        {receiptModalOpen && selectedTx && renderReceiptModal()}
+      </div>
+    )
+  }
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#0B0F19] text-white' : 'bg-[#F4F6F9] text-slate-900'} font-sans flex transition-colors duration-200`}>
       {/* ══════════════════════════════════════════════════════════════════════
@@ -872,7 +1378,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 Admin Controls
               </div>
               {[
-                { id: 'admin-kyc', label: ak ? 'KYC စိစစ်အတည်ပြုရေး' : 'Citizen KYC Control', icon: UserCheckIcon, badge: `${kycQueue.filter((k) => k.status === 'Pending').length}` },
+                { id: 'admin-kyc', label: ak ? 'KYC စိစစ်အတည်ပြုရေး' : 'Citizen KYC Control', icon: Users, badge: `${kycQueue.filter((k) => k.status === 'Pending').length}` },
                 { id: 'admin-chat', label: ak ? 'ဖောက်သည် Chat စားပွဲ' : 'Customer Chat Desk', icon: MessageSquare, badge: 'Live' },
                 { id: 'admin-ads', label: ak ? 'ကြော်ငြာများ စီမံခန့်ခွဲမှု' : 'Ads & Campaigns', icon: Sparkles },
                 { id: 'admin-api', label: ak ? 'API ထိန်းချုပ်ရေးစနစ်' : 'Developer API Control', icon: Terminal },
@@ -1386,981 +1892,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </div>
           )}
 
-          {/* ═════════════════════════════════════════════════════════════════
-              VIEW B1: DEV ADMIN ROLE - KYC CONTROL
-             ═════════════════════════════════════════════════════════════════ */}
-          {navTab === 'admin-kyc' && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <UserCheckIcon className="w-5 h-5 text-[#FF6B00]" />
-                    <span>{ak ? 'နိုင်ငံသား Tier-2 KYC စိစစ်အတည်ပြုရေးဌာန' : 'Citizen Tier-2 KYC Verification Center'}</span>
-                  </h2>
-                  <p className="text-xs text-slate-500">Review National ID card documents, face match scores, and elevate citizens.</p>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-mono">
-                  <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 font-bold border border-amber-500/20">
-                    Pending: {kycQueue.filter((k) => k.status === 'Pending').length}
-                  </span>
-                  <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-bold border border-emerald-500/20">
-                    Approved: {kycQueue.filter((k) => k.status === 'Approved').length}
-                  </span>
-                </div>
-              </div>
-
-              {/* Applicants Table */}
-              <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
-                <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {kycQueue.map((applicant) => (
-                    <div key={applicant.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-                      <div className="flex items-center gap-3.5">
-                        <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-slate-700 dark:text-slate-300">
-                          {applicant.name.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-sm text-slate-900 dark:text-white">{applicant.name}</span>
-                            <span className="text-xs text-slate-400 font-mono">({applicant.nameMm})</span>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${applicant.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-600' :
-                                applicant.status === 'Rejected' ? 'bg-rose-500/10 text-rose-600' :
-                                  'bg-amber-500/10 text-amber-600'
-                              }`}>
-                              {applicant.status}
-                            </span>
-                          </div>
-                          <div className="text-xs text-slate-500 font-mono mt-0.5">
-                            NRIC: {applicant.idCard} · Township: {applicant.township} · Face Match: {applicant.faceMatchScore}%
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {applicant.status === 'Pending' ? (
-                          <>
-                            <button
-                              onClick={() => handleApproveKyc(applicant)}
-                              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
-                            >
-                              <Check size={14} />
-                              <span>{ak ? 'အတည်ပြုမည်' : 'Approve'}</span>
-                            </button>
-                            <button
-                              onClick={() => { setSelectedApplicant(applicant); setRejectModalOpen(true); }}
-                              className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
-                            >
-                              <X size={14} />
-                              <span>{ak ? 'ပယ်ချမည်' : 'Reject'}</span>
-                            </button>
-                          </>
-                        ) : (
-                          <span className="text-xs font-mono text-slate-400">Processed</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ═════════════════════════════════════════════════════════════════
-              VIEW B2: DEV ADMIN ROLE - CUSTOMER CHAT DESK (OPERATOR DESK)
-             ═════════════════════════════════════════════════════════════════ */}
-          {navTab === 'admin-chat' && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5 text-[#FF6B00]" />
-                    <span>{ak ? 'ဖောက်သည် စကားပြောခန်း အော်ပရေတာ စားပွဲ' : 'Customer Chat Support Operator Console'}</span>
-                  </h2>
-                  <p className="text-xs text-slate-500">Live dual-rail operator desk directly connected to Mobile Wallet and Android App chat support to assist customers.</p>
-                </div>
-
-                {/* Channel Filter */}
-                <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-mono">
-                  {(['all', 'mobilewallet', 'android'] as const).map((ch) => (
-                    <button
-                      key={ch}
-                      onClick={() => setOperatorChannelFilter(ch)}
-                      className={`px-3 py-1 rounded-lg capitalize transition cursor-pointer ${operatorChannelFilter === ch ? 'bg-[#FF6B00] text-white font-bold' : 'text-slate-500 hover:text-slate-900'
-                        }`}
-                    >
-                      {ch === 'all' ? 'All Rails' : ch === 'mobilewallet' ? 'Mobile Wallet' : 'Android App'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Dual-Rail Active Connection Gateways */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-emerald-500/30 flex items-center justify-between gap-3 shadow-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
-                      <Terminal size={20} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-xs text-slate-900 dark:text-white">Android App Chat Rail</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-mono">
-                          CONNECTED
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                        Native APK Support Sheet & BLE mesh rail
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newCustMsg: ChatMessage = {
-                        id: `msg-and-${Date.now()}`,
-                        sender: 'user',
-                        channel: 'android',
-                        text: 'Customer from Sittwe on Android APK: Help needed with P2P transfer confirmation and QR code display.',
-                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                      }
-                      const updated = [...customerMessages, newCustMsg]
-                      setCustomerMessages(updated)
-                      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated))
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold font-mono transition shrink-0 cursor-pointer shadow-xs"
-                  >
-                    + Sim Android Msg
-                  </button>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-blue-500/30 flex items-center justify-between gap-3 shadow-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold">
-                      <Wallet size={20} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-xs text-slate-900 dark:text-white">Mobile Wallet Chat Rail</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 font-mono">
-                          CONNECTED
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                        Péthar Web PWA live customer channel
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newCustMsg: ChatMessage = {
-                        id: `msg-mw-${Date.now()}`,
-                        sender: 'user',
-                        channel: 'mobilewallet',
-                        text: 'Daw Nilar Win from Mobile Wallet: Can you confirm my ₳250 QR deposit on ledger?',
-                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                      }
-                      const updated = [...customerMessages, newCustMsg]
-                      setCustomerMessages(updated)
-                      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated))
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold font-mono transition shrink-0 cursor-pointer shadow-xs"
-                  >
-                    + Sim Wallet Msg
-                  </button>
-                </div>
-              </div>
-
-              {/* Chat Thread Interface */}
-              <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xl">
-                <div className="p-4 bg-slate-950 text-white flex items-center justify-between border-b border-slate-800">
-                  <div className="flex items-center gap-3">
-                    <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
-                    <div>
-                      <h4 className="text-xs font-black">Operator Dispatch Desk (Duty Officer: ROOT-01)</h4>
-                      <p className="text-[10px] text-slate-400 font-mono">Listening on {operatorChannelFilter} channel rail</p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono font-bold">
-                    CONNECTED
-                  </span>
-                </div>
-
-                {/* Chat Log */}
-                <div className="p-5 space-y-3.5 min-h-[320px] max-h-[440px] overflow-y-auto bg-slate-50/60 dark:bg-slate-950/40">
-                  {customerMessages
-                    .filter((m) => operatorChannelFilter === 'all' || m.channel === operatorChannelFilter)
-                    .map((msg) => {
-                      const isOp = msg.sender === 'operator'
-                      const isAndroid = msg.channel === 'android'
-                      return (
-                        <div key={msg.id} className={`flex ${isOp ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-md p-4 rounded-2xl text-xs space-y-1 shadow-xs ${isOp
-                              ? 'bg-[#FF6B00] text-white rounded-br-xs font-medium'
-                              : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-bl-xs'
-                            }`}>
-                            <div className="flex items-center justify-between text-[10px] opacity-85 font-mono gap-3">
-                              <span className="font-bold flex items-center gap-1.5">
-                                {isOp ? (
-                                  '🛡️ Admin Operator (You)'
-                                ) : isAndroid ? (
-                                  <span className="text-emerald-500 font-bold">📱 Customer [Android App]</span>
-                                ) : (
-                                  <span className="text-blue-500 font-bold">💼 Customer [Mobile Wallet]</span>
-                                )}
-                              </span>
-                              <span>{msg.time}</span>
-                            </div>
-                            <p className="whitespace-pre-wrap">{msg.text}</p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                </div>
-
-                {/* Operator Canned Quick Replies */}
-                <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-wrap gap-2 text-[11px]">
-                  <button
-                    onClick={() => handleSendOperatorReply('Your transaction hash is verified on the Arakan ledger.')}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-mono"
-                  >
-                    + Confirm Ledger Hash
-                  </button>
-                  <button
-                    onClick={() => handleSendOperatorReply('Please submit your Tier-2 National ID for review.')}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-mono"
-                  >
-                    + Request KYC Document
-                  </button>
-                  <button
-                    onClick={() => handleSendOperatorReply('Your issue has been resolved successfully by our operator.')}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-mono"
-                  >
-                    + Issue Resolved
-                  </button>
-                </div>
-
-                {/* Reply Input Bar */}
-                <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={operatorReplyText}
-                    onChange={(e) => setOperatorReplyText(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSendOperatorReply()}
-                    placeholder="Type official operator response to customer..."
-                    className="flex-1 px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#FF6B00]"
-                  />
-                  <button
-                    onClick={() => handleSendOperatorReply()}
-                    className="px-5 py-3 rounded-2xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition active:scale-95 flex items-center gap-2 cursor-pointer"
-                  >
-                    <Send size={15} />
-                    <span>Send Reply</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ═════════════════════════════════════════════════════════════════
-              VIEW B3: DEV ADMIN ROLE - ADS & CAMPAIGNS CONTROL
-             ═════════════════════════════════════════════════════════════════ */}
-          {navTab === 'admin-ads' && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-amber-500" />
-                    <span>{ak ? 'ကြော်ငြာများ & အရောင်းမြှင့်တင်ရေး စီမံခန့်ခွဲမှု' : 'Ads & Promotions Control'}</span>
-                  </h2>
-                  <p className="text-xs text-slate-500">Configure promotional spotlight banners and partner campaigns shown to customers.</p>
-                </div>
-                <button
-                  onClick={() => setNewAdModalOpen(true)}
-                  className="px-4 py-2 rounded-2xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Plus size={15} />
-                  <span>Create Campaign</span>
-                </button>
-              </div>
-
-              {/* Ads Metric Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
-                  <span className="text-xs font-bold text-slate-500">Total Active Campaigns</span>
-                  <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">
-                    {promoAds.filter((a) => a.active).length} / {promoAds.length}
-                  </div>
-                </div>
-                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
-                  <span className="text-xs font-bold text-slate-500">Total Customer Impressions</span>
-                  <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">
-                    {promoAds.reduce((acc, a) => acc + a.impressions, 0).toLocaleString()}
-                  </div>
-                </div>
-                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
-                  <span className="text-xs font-bold text-slate-500">Average Click-Through (CTR)</span>
-                  <div className="text-2xl font-black text-emerald-500 font-mono">6.8%</div>
-                </div>
-              </div>
-
-              {/* Campaigns Table */}
-              <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs divide-y divide-slate-100 dark:divide-slate-800">
-                {promoAds.map((ad) => (
-                  <div key={ad.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-sm text-slate-900 dark:text-white">{ad.titleEn}</span>
-                        <span className="text-xs text-slate-400 font-mono">({ad.titleAk})</span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ad.active ? 'bg-emerald-500/10 text-emerald-600' : 'bg-slate-200 text-slate-600'
-                          }`}>
-                          {ad.active ? 'ACTIVE' : 'PAUSED'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500">{ad.descEn}</p>
-                      <div className="text-[11px] text-slate-400 font-mono">
-                        Impressions: {ad.impressions.toLocaleString()} · Clicks: {ad.clicks.toLocaleString()}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => handleToggleAd(ad.id)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${ad.active ? 'bg-amber-500/15 text-amber-600 hover:bg-amber-500/25' : 'bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25'
-                          }`}
-                      >
-                        {ad.active ? 'Pause Campaign' : 'Activate Ad'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ═════════════════════════════════════════════════════════════════
-              VIEW B4: DEV ADMIN ROLE - API CONTROL CENTER
-             ═════════════════════════════════════════════════════════════════ */}
-          {navTab === 'admin-api' && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <Terminal className="w-5 h-5 text-[#FF6B00]" />
-                    <span>{ak ? 'အဆင့်မြင့် REST API ထိန်းချုပ်ရေးစနစ်' : 'Developer API & Gateway Control'}</span>
-                  </h2>
-                  <p className="text-xs text-slate-500">Live API inspection, request body simulation, and rate limit quotas.</p>
-                </div>
-                <div className="text-xs font-mono px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 font-bold border border-emerald-500/20">
-                  99.995% Uptime SLA · 1,000 req/s Quota
-                </div>
-              </div>
-
-              {/* API Endpoints & Interactive Playground */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div className="lg:col-span-4 space-y-2">
-                  <div className="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Core Endpoints
-                  </div>
-                  {apiEndpoints.map((ep) => (
-                    <button
-                      key={ep.id}
-                      onClick={() => setActiveApiEndpoint(ep)}
-                      className={`w-full text-left p-3.5 rounded-2xl border transition ${activeApiEndpoint.id === ep.id
-                          ? 'bg-white dark:bg-slate-800 border-[#FF6B00] shadow-xs'
-                          : 'bg-white/80 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
-                        }`}
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-black ${ep.method === 'POST' ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900'
-                          }`}>
-                          {ep.method}
-                        </span>
-                        <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">{ep.path}</span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 line-clamp-1">{ep.description}</p>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="lg:col-span-8 rounded-3xl bg-slate-950 text-slate-200 border border-slate-800 shadow-2xl overflow-hidden">
-                  <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-white">
-                      https://api.pethar.co.uk{activeApiEndpoint.path}
-                    </span>
-                    <button
-                      onClick={() => {
-                        setApiSimulating(true)
-                        setTimeout(() => setApiSimulating(false), 400)
-                      }}
-                      className="px-4 py-2 rounded-xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold font-mono transition active:scale-95 cursor-pointer flex items-center gap-1.5"
-                    >
-                      <Play size={13} />
-                      <span>{apiSimulating ? 'Executing...' : 'Test Endpoint'}</span>
-                    </button>
-                  </div>
-
-                  {activeApiEndpoint.requestBody && (
-                    <div className="p-4 border-b border-slate-800 font-mono text-xs">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase mb-2">Request JSON Payload</div>
-                      <pre className="text-slate-300 p-3 rounded-xl bg-slate-900/60 overflow-x-auto text-[11px]">
-                        {activeApiEndpoint.requestBody}
-                      </pre>
-                    </div>
-                  )}
-
-                  <div className="p-4 font-mono text-xs space-y-2">
-                    <div className="flex items-center justify-between text-emerald-400">
-                      <span className="text-[10px] font-bold uppercase">Response Payload (200 OK • {activeApiEndpoint.latency})</span>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(activeApiEndpoint.responseBody)
-                          setCopiedApiJson(true)
-                          setTimeout(() => setCopiedApiJson(false), 2000)
-                        }}
-                        className="text-slate-400 hover:text-white"
-                      >
-                        {copiedApiJson ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                      </button>
-                    </div>
-                    <pre className="text-emerald-400 p-3 rounded-xl bg-slate-900/80 overflow-x-auto text-[11px]">
-                      {activeApiEndpoint.responseBody}
-                    </pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ═════════════════════════════════════════════════════════════════
-              VIEW B5: DEV ADMIN ROLE - FRAUD DETECTION & AML MONITORING
-             ═════════════════════════════════════════════════════════════════ */}
-          {navTab === 'admin-fraud' && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <ShieldAlert className="w-5 h-5 text-red-500" />
-                    <span>{ak ? 'ငွေလွှဲ လိမ်လည်မှု စစ်ဆေးရေးနှင့် AML စနစ်' : 'Real-Time Fraud Detection & AML Monitor'}</span>
-                  </h2>
-                  <p className="text-xs text-slate-500">Automated heuristic fraud risk scoring, velocity checks, and wallet restriction controls.</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-mono">
-                    {(['all', 'flagged', 'clean'] as const).map((f) => (
-                      <button
-                        key={f}
-                        onClick={() => setFraudFilter(f)}
-                        className={`px-3 py-1 rounded-lg capitalize transition ${fraudFilter === f ? 'bg-red-600 text-white font-bold' : 'text-slate-500 hover:text-slate-900'
-                          }`}
-                      >
-                        {f === 'all' ? 'All Transactions' : f === 'flagged' ? 'Suspicious Flagged' : 'Normal / Low Risk'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Transactions Fraud Table */}
-              <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredFraudTxs.map((tx) => (
-                  <div key={tx.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-                    <div className="flex items-center gap-3.5">
-                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-xs ${tx.risk === 'High' ? 'bg-red-500/15 text-red-600' :
-                          tx.risk === 'Medium' ? 'bg-amber-500/15 text-amber-600' :
-                            'bg-emerald-500/15 text-emerald-600'
-                        }`}>
-                        {tx.risk === 'High' ? <AlertTriangle size={18} /> : <ShieldCheck size={18} />}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-sm text-slate-900 dark:text-white">{tx.title}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${tx.risk === 'High' ? 'bg-red-500/20 text-red-600 animate-pulse font-mono' :
-                              tx.risk === 'Medium' ? 'bg-amber-500/20 text-amber-600 font-mono' :
-                                'bg-emerald-500/10 text-emerald-600 font-mono'
-                            }`}>
-                            Risk: {tx.risk}
-                          </span>
-                        </div>
-                        <div className="text-xs text-slate-500 font-mono mt-0.5">
-                          Ref: {tx.refId} · Counterparty: {tx.counterparty} · Amount: {tx.amount} ₳
-                        </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">
-                          Trigger Reason: <span className="font-mono text-slate-600 dark:text-slate-300">{tx.flagReason}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {tx.risk === 'High' && (
-                        <button
-                          onClick={async () => {
-                            await updateUserStatusInDb(tx.counterparty, 'FROZEN', 'Automated fraud risk flag hold')
-                            alert(`Security Hold placed on ${tx.counterparty}. Account frozen.`)
-                          }}
-                          className="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
-                        >
-                          Freeze Account
-                        </button>
-                      )}
-                      <button
-                        onClick={() => { setSelectedTx(tx); setReceiptModalOpen(true); }}
-                        className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition hover:bg-slate-200"
-                      >
-                        Inspect Slip
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* System Audit Trail */}
-              <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                    <History size={16} className="text-slate-400" />
-                    <span>Real-Time Operator Audit Trail</span>
-                  </h3>
-                  <span className="text-xs text-slate-400 font-mono">{auditLogs.length} events logged</span>
-                </div>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {auditLogs.map((log) => (
-                    <div key={log.id} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between text-xs font-mono">
-                      <div>
-                        <span className="font-bold text-slate-700 dark:text-slate-300">[{log.timestamp}] {log.action}:</span>{' '}
-                        <span className="text-slate-500">{log.details}</span>
-                      </div>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${log.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'
-                        }`}>
-                        {log.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ═════════════════════════════════════════════════════════════════
-              VIEW B6: DEV ADMIN ROLE - CITIZEN USERS DIRECTORY & CSV EXPORTS
-             ═════════════════════════════════════════════════════════════════ */}
-          {navTab === 'admin-users' && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <Users className="w-5 h-5 text-[#FF6B00]" />
-                    <span>{ak ? 'နိုင်ငံသား သုံးစွဲသူများ စာရင်းနှင့် ထိန်းချုပ်မှု' : 'Citizen Directory & Controls'}</span>
-                  </h2>
-                  <p className="text-xs text-slate-500">Manage registered citizen accounts, adjust transfer limits, and export CSV files.</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      const csv = 'UID,Name,Phone,AKD_Balance,USD_Balance,Status\n' + usersList.map((u) => `${u.uid},${u.name},${u.phone},${u.akdBalance},${u.usdBalance},${u.status}`).join('\n')
-                      const blob = new Blob([csv], { type: 'text/csv' })
-                      const url = URL.createObjectURL(blob)
-                      const a = document.createElement('a')
-                      a.href = url
-                      a.download = `pethar-citizens-${new Date().toISOString().slice(0, 10)}.csv`
-                      a.click()
-                    }}
-                    className="px-4 py-2 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold font-mono transition flex items-center gap-2 shadow-xs cursor-pointer"
-                  >
-                    <Download size={14} />
-                    <span>Export CSV</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Search & Filter Controls */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                <div className="relative flex-1">
-                  <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                    placeholder="Search citizen by name, phone or UID..."
-                    className="w-full pl-9 pr-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
-                  />
-                </div>
-                <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-mono">
-                  {(['all', 'ACTIVE', 'SUSPENDED', 'FROZEN'] as const).map((st) => (
-                    <button
-                      key={st}
-                      onClick={() => setUserFilter(st)}
-                      className={`px-3 py-1 rounded-lg capitalize transition cursor-pointer ${userFilter === st ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold' : 'text-slate-500 hover:text-slate-900'
-                        }`}
-                    >
-                      {st.toLowerCase()}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Users Directory Table */}
-              <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs divide-y divide-slate-100 dark:divide-slate-800">
-                {usersList
-                  .filter((u) => {
-                    const matchFilter = userFilter === 'all' || u.status === userFilter
-                    const q = userSearch.toLowerCase()
-                    const matchSearch =
-                      u.name.toLowerCase().includes(q) ||
-                      (u.phone && u.phone.includes(q)) ||
-                      u.uid.toLowerCase().includes(q)
-                    return matchFilter && matchSearch
-                  })
-                  .slice(0, 15)
-                  .map((user) => (
-                    <div key={user.uid} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-3.5">
-                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs">
-                          {user.name.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-sm text-slate-900 dark:text-white">{user.name}</span>
-                            <span className="text-xs text-slate-400 font-mono">{user.username}</span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-                              Tier {user.kycTier}
-                            </span>
-                          </div>
-                          <div className="text-xs text-slate-500 font-mono mt-0.5">
-                            UID: {user.uid} · Phone: {user.phone || 'N/A'} · Balance: ₳ {user.akdBalance.toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={async () => {
-                            const next = user.status === 'FROZEN' ? 'ACTIVE' : 'FROZEN'
-                            await updateUserStatusInDb(user.uid, next, 'Operator toggle')
-                            setUsersList((prev) => prev.map((u) => (u.uid === user.uid ? { ...u, status: next } : u)))
-                          }}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${user.status === 'FROZEN' ? 'bg-emerald-500/15 text-emerald-600' : 'bg-red-500/15 text-red-600'
-                            }`}
-                        >
-                          {user.status === 'FROZEN' ? 'Unfreeze' : 'Freeze'}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
         </main>
       </div>
 
-      {/* ══════════════════════════════════════════════════════════════════════
-          MODAL 1: SEND MONEY MODAL
-         ══════════════════════════════════════════════════════════════════════ */}
-      {sendModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="font-black text-base text-slate-900 dark:text-white">{ak ? 'ငွေလွှဲပို့မည်' : 'Send Money'}</h3>
-              <button onClick={() => setSendModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
-            </div>
-            <form onSubmit={handleExecuteSend} className="space-y-3.5">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">{ak ? 'လက်ခံမည့်သူ UID / အမည်' : 'Recipient UID / Name'}</label>
-                <input
-                  type="text"
-                  required
-                  value={recipientInput}
-                  onChange={(e) => setRecipientInput(e.target.value)}
-                  placeholder="202610190002"
-                  className="w-full px-3.5 py-2.5 rounded-xl text-xs font-bold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">{ak ? 'ငွေပမာဏ (AKD)' : 'Amount (AKD)'}</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  required
-                  value={sendAmountInput}
-                  onChange={(e) => setSendAmountInput(e.target.value)}
-                  placeholder="0.00"
-                  className="w-full px-3.5 py-2.5 rounded-xl text-xs font-bold font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isSending}
-                className="w-full py-3 rounded-2xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition shadow-xs cursor-pointer"
-              >
-                {isSending ? 'Sending...' : ak ? 'ချက်ချင်း လွှဲမည်' : 'Send Instant ₳'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          MODAL 2: RECEIVE QR MODAL
-         ══════════════════════════════════════════════════════════════════════ */}
-      {receiveModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <ReceiveQRCard
-            lang={lang}
-            name={profile.name}
-            petharId={profile.petharId}
-            onClose={() => setReceiveModalOpen(false)}
-          />
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          MODAL 3: TOP UP MODAL
-         ══════════════════════════════════════════════════════════════════════ */}
-      {topUpModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="font-black text-base text-slate-900 dark:text-white">{ak ? 'ငွေသွင်းမည် (USDT/USDC)' : 'Top Up (USDT / USDC)'}</h3>
-              <button onClick={() => setTopUpModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Asset</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(['USDT', 'USDC'] as const).map((a) => (
-                    <button
-                      key={a}
-                      type="button"
-                      onClick={() => setTopUpAsset(a)}
-                      className={`py-2 rounded-xl text-xs font-bold border transition ${topUpAsset === a ? 'bg-[#FF6B00] text-white border-[#FF6B00]' : 'bg-slate-50 text-slate-700 border-slate-200'
-                        }`}
-                    >
-                      {a}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Amount</label>
-                <input
-                  type="number"
-                  value={topUpAmount}
-                  onChange={(e) => setTopUpAmount(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl text-xs font-bold font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={handleExecuteTopUp}
-                className="w-full py-3 rounded-2xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition shadow-xs cursor-pointer"
-              >
-                Confirm 1:1 Top Up
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          MODAL 4: EMERGENCY CIRCUIT BREAKER PIN OVERRIDE
-         ══════════════════════════════════════════════════════════════════════ */}
-      {circuitBreakerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-          <div className="w-full max-w-sm rounded-3xl p-6 bg-slate-950 border border-red-500/50 text-white shadow-2xl space-y-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-red-600/20 text-red-400 mx-auto flex items-center justify-center border border-red-500/30">
-              <AlertTriangle size={24} />
-            </div>
-            <div>
-              <h3 className="font-black text-base">
-                {circuitBreakerActive ? 'Disengage Circuit Breaker' : 'Engage Emergency Kill-Switch'}
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Enter your 6-digit administrative override PIN to {circuitBreakerActive ? 'restore' : 'freeze'} ledger settlements.
-              </p>
-            </div>
-            <input
-              type="password"
-              maxLength={6}
-              value={circuitBreakerPin}
-              onChange={(e) => setCircuitBreakerPin(e.target.value)}
-              placeholder="••••••"
-              className="w-full py-2.5 text-center text-xl tracking-widest font-mono bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:border-red-500"
-            />
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setCircuitBreakerOpen(false)}
-                className="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleToggleCircuitBreaker}
-                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-xs font-bold text-white shadow-lg"
-              >
-                Authorize
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          MODAL 5: REJECT KYC VERIFICATION MODAL
-         ══════════════════════════════════════════════════════════════════════ */}
-      {rejectModalOpen && selectedApplicant && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="font-black text-base text-slate-900 dark:text-white">Reject KYC Application</h3>
-              <button onClick={() => setRejectModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Rejection Reason</label>
-                <select
-                  value={selectedRejectReason}
-                  onChange={(e) => setSelectedRejectReason(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-                >
-                  <option value="Blurry photo / Unreadable NRIC ID document">Blurry photo / Unreadable NRIC ID document</option>
-                  <option value="ID expired or mismatched name with registry">ID expired or mismatched name with registry</option>
-                  <option value="Duplicate citizen profile detected">Duplicate citizen profile detected</option>
-                  <option value="Suspected fraudulent document">Suspected fraudulent document</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Additional Note (Optional)</label>
-                <input
-                  type="text"
-                  value={customRejectNote}
-                  onChange={(e) => setCustomRejectNote(e.target.value)}
-                  placeholder="Notes for applicant..."
-                  className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-                />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setRejectModalOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmRejectKyc}
-                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white shadow-md cursor-pointer"
-                >
-                  Confirm Reject
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          MODAL 7: CREATE PROMOTIONAL CAMPAIGN MODAL
-         ══════════════════════════════════════════════════════════════════════ */}
-      {newAdModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-md rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="font-black text-base text-slate-900 dark:text-white">Create New Promotional Campaign</h3>
-              <button onClick={() => setNewAdModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
-            </div>
-            <form onSubmit={handleCreateAd} className="space-y-3.5">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Campaign Title (English)</label>
-                <input
-                  type="text"
-                  required
-                  value={newAdTitleEn}
-                  onChange={(e) => setNewAdTitleEn(e.target.value)}
-                  placeholder="e.g. Sittwe Festival Cashback"
-                  className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Campaign Title (Arakanese/Burmese)</label>
-                <input
-                  type="text"
-                  value={newAdTitleAk}
-                  onChange={(e) => setNewAdTitleAk(e.target.value)}
-                  placeholder="e.g. စစ်တွေပွဲတော် ငွေပြန်အမ်း အစီအစဉ်"
-                  className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Description (English)</label>
-                <input
-                  type="text"
-                  value={newAdDescEn}
-                  onChange={(e) => setNewAdDescEn(e.target.value)}
-                  placeholder="e.g. Enjoy 2% instant cashback on all QR payments"
-                  className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Description (Arakanese/Burmese)</label>
-                <input
-                  type="text"
-                  value={newAdDescAk}
-                  onChange={(e) => setNewAdDescAk(e.target.value)}
-                  placeholder="e.g. QR ငွေပေးချေမှုတိုင်းအတွက် ၂% ချက်ချင်းငွေပြန်အမ်း"
-                  className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-                />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setNewAdModalOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-[#FF6B00] hover:bg-[#E05E00] text-xs font-bold text-white shadow-md cursor-pointer"
-                >
-                  Publish Campaign
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          MODAL 8: VERIFIED TRANSACTION RECEIPT SLIP
-         ══════════════════════════════════════════════════════════════════════ */}
-      {receiptModalOpen && selectedTx && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl">
-            <TransactionSlip
-              refId={selectedTx.refId}
-              amount={Math.abs(selectedTx.amount)}
-              recipientName={selectedTx.counterparty}
-              recipientId={selectedTx.counterpartyMm}
-              senderName={profile.name || 'Citizen'}
-              senderId={profile.petharId}
-              fee={selectedTx.fee || 0}
-              timestamp={selectedTx.time}
-              lang={lang}
-              onClose={() => { setReceiptModalOpen(false); setSelectedTx(null); }}
-            />
-          </div>
-        </div>
-      )}
+      {/* Citizen View Shared Modals */}
+      {sendModalOpen && renderSendModal()}
+      {receiveModalOpen && renderReceiveModal()}
+      {topUpModalOpen && renderTopUpModal()}
+      {circuitBreakerOpen && renderCircuitBreakerModal()}
+      {receiptModalOpen && selectedTx && renderReceiptModal()}
     </div>
   )
-}
-
-function UserCheckIcon(props: any) {
-  return <Users {...props} />
 }
 
 export default DashboardPage
