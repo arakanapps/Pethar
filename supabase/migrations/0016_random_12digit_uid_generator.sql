@@ -1,5 +1,5 @@
 -- ============================================================================
--- Migration: 20261106000001_random_12digit_uid_and_clean_demo.sql
+-- Migration: 0016_random_12digit_uid_generator.sql
 -- Description:
 --   1. Replaces sequential YYYYMMDD0001 UID generation with a cryptographically
 --      random 12-digit numeric UID generator (`public.generate_random_12digit_uid()`).
@@ -121,6 +121,13 @@ BEGIN
 
     UPDATE public.users SET uid = v_uid_code, updated_at = NOW() WHERE id = v_uid;
 
+    -- Ensure double-entry ledger user wallet accounts exist for AKD and USD
+    INSERT INTO public.accounts (user_id, currency, account_type)
+    VALUES
+        (v_uid, 'AKD', 'USER_WALLET'),
+        (v_uid, 'USD', 'USER_WALLET')
+    ON CONFLICT (user_id, currency, account_type) DO NOTHING;
+
     RETURN to_jsonb(v_profile);
 END;
 $$;
@@ -131,7 +138,7 @@ GRANT EXECUTE ON FUNCTION public.ensure_user_profile(TEXT, TEXT, TEXT, TEXT, TEX
 -- 3. Drop legacy sequential user_uid_seq
 DROP SEQUENCE IF EXISTS public.user_uid_seq;
 
--- 4. Reassign any legacy ARAK-% or demo '202611030001' UIDs to random 12-digit UIDs
+-- 4. Reassign any legacy ARAK-% or sequential date-prefixed UIDs to random 12-digit UIDs
 DO $$
 DECLARE
     r RECORD;
@@ -142,7 +149,7 @@ BEGIN
           FROM public.user_profiles
          WHERE uid IS NULL
             OR uid !~ '^\d{12}$'
-            OR uid = '202611030001'
+            OR uid ~ '^20\d{6}0\d{3}$'
     LOOP
         v_new_uid := public.generate_random_12digit_uid();
         UPDATE public.user_profiles SET uid = v_new_uid WHERE id = r.id;

@@ -1,5 +1,5 @@
 -- ============================================================================
--- Migration: 20261105000001_multichain_stablecoin_wallet.sql
+-- Migration: 0015_multichain_stablecoin_wallet.sql
 -- Description: Self-hosted custodial USDT / USDC wallet across 5 networks
 --              (Ethereum, Tron, BNB Smart Chain, Polygon, Solana).
 --

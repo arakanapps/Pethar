@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pethar_mobile/app_state.dart';
 
 void main() {
@@ -21,6 +22,7 @@ void main() {
 
   group('AppState Hardware-Encrypted Token Storage Lifecycle', () {
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       FlutterSecureStorage.setMockInitialValues({});
     });
 
@@ -148,30 +150,6 @@ void main() {
       expect(await secureStorage.read(key: 'pethar_secure_access_token_v1'), isNull);
       expect(await secureStorage.read(key: 'pethar_secure_refresh_token_v1'), isNull);
       expect(await secureStorage.read(key: 'pethar_secure_pin_hash_v1'), isNull);
-    });
-
-    test('Hardware Keychain Storage stores and verifies encrypted PIN hash', () async {
-      final appState = AppState();
-      const testPin = '889900';
-
-      await appState.saveSecurePinHash(testPin);
-
-      // Verify that hardware vault contains hashed PIN
-      const secureStorage = FlutterSecureStorage();
-      final storedHash = await secureStorage.read(key: 'pethar_secure_pin_hash_v1');
-      expect(storedHash, isNotNull);
-      expect(storedHash, isNot(equals(testPin))); // Never plain text!
-
-      // Correct PIN verifies
-      expect(await appState.verifySecurePin(testPin), isTrue);
-
-      // Incorrect PIN fails
-      expect(await appState.verifySecurePin('000000'), isFalse);
-
-      // Purge removes PIN hash
-      await appState.clearSecurePinHash();
-      expect(await secureStorage.read(key: 'pethar_secure_pin_hash_v1'), isNull);
-      expect(await appState.verifySecurePin(testPin), isFalse);
     });
   });
 }

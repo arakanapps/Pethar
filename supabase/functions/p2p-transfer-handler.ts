@@ -98,15 +98,13 @@ async function handleP2PTransfer(req: Request, context: AuthContext): Promise<Re
   //   -- 4. Record double-entry immutable audit entry
   //   INSERT INTO ledger_entries (...) VALUES (...);
   // COMMIT;
-  const { data: rpcResult, error: rpcError } = await context.supabaseAdmin.rpc(
+  const { data: rpcResult, error: rpcError } = await context.userClient.rpc(
     'transfer_akd_idempotent',
     {
-      p_sender_id: verifiedSenderId, // Injected securely from auth context
       p_recipient: recipient_account_or_email.trim(),
       p_amount: amount,
-      p_currency: currency ?? 'AKD',
       p_idempotency_key: idempotency_key,
-      p_note: (note ?? '').slice(0, 280),
+      p_note: (note ?? '').slice(0, 280) || null,
     }
   );
 

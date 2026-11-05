@@ -7,11 +7,20 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pethar_mobile/app_state.dart';
 import 'package:pethar_mobile/main.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+  });
+
   testWidgets('PetharApp initial smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(

@@ -44,7 +44,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 3:
-        raise SystemExit("Usage: send_verification_email.py <recipient-email> <verification-code>")
+        raise SystemExit("Usage: send-verification-email.py <recipient-email> <verification-code>")
     to_addr = sys.argv[1]
     code = sys.argv[2]
     send_verification_code(to_addr, code)

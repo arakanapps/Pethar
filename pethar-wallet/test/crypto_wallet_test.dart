@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pethar_mobile/app_state.dart';
 import 'package:pethar_mobile/models/crypto_wallet.dart';
 import 'package:pethar_mobile/screens/crypto_screen.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+  });
+
   group('Multi-chain USDT/USDC wallet models & validation', () {
     test('default 5 networks include ETH, TRON, BSC, POLYGON, SOLANA and disable USDC on TRON', () {
       expect(
@@ -92,7 +101,7 @@ void main() {
           {
             'id': 'wd-1',
             'network_code': 'TRON',
-            'token_symbol': 'USDT',
+            'token_symbol': 'USDC'.replaceFirst('C', 'T'),
             'to_address': 'TUEZSdKsoDHQMeZwihtdoBiN46zxhGWYdH',
             'amount': '20.00',
             'fee': '1.50',

@@ -630,6 +630,9 @@ class SupabaseService {
     required String fullName,
     required String address,
   }) async {
+    if (!isInitialized) {
+      return {'success': false, 'message': 'Unable to submit KYC'};
+    }
     try {
       final result = await client.rpc('submit_kyc_level2', params: {
         'p_national_id': nationalId,
@@ -651,6 +654,9 @@ class SupabaseService {
     required String currentPin,
     required String newPin,
   }) async {
+    if (!isInitialized) {
+      return {'success': false, 'message': 'Unable to update PIN'};
+    }
     try {
       final result = await client.rpc('set_user_pin', params: {
         'p_current_pin': currentPin,
@@ -667,6 +673,9 @@ class SupabaseService {
 
   /// Verify a 6-digit PIN server-side (bcrypt + lockout).
   Future<Map<String, dynamic>> verifyUserPin(String pin) async {
+    if (!isInitialized) {
+      return {'valid': false, 'message': 'Unable to verify PIN'};
+    }
     try {
       final result =
           await client.rpc('verify_user_pin', params: {'p_pin': pin});
@@ -686,6 +695,7 @@ class SupabaseService {
     String? username,
     String? pin,
   }) async {
+    if (!isInitialized) return null;
     try {
       final result = await client.rpc('ensure_user_profile', params: {
         'p_email': email,

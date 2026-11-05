@@ -1,5 +1,5 @@
 -- ============================================================================
--- Migration: 20261103000001_unify_ledger_and_faucet.sql
+-- Migration: 0014_unify_double_entry_ledger.sql
 -- Description: Unify double-entry ledger & akd_wallets, atomic sequential UID
 --              generation, disable fake crypto addresses, and provide admin test
 --              faucet and KYC approval RPCs for Stage 1 solo testing.
@@ -119,6 +119,13 @@ BEGIN
 
     -- Update users.uid with the newly assigned code
     UPDATE public.users SET uid = v_uid_code, updated_at = NOW() WHERE id = v_uid;
+
+    -- Ensure double-entry ledger user wallet accounts exist for AKD and USD
+    INSERT INTO public.accounts (user_id, currency, account_type)
+    VALUES
+        (v_uid, 'AKD', 'USER_WALLET'),
+        (v_uid, 'USD', 'USER_WALLET')
+    ON CONFLICT (user_id, currency, account_type) DO NOTHING;
 
     RETURN to_jsonb(v_profile);
 END;

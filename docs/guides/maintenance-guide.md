@@ -377,10 +377,10 @@ Published: https://pethar.co.uk/reserves/2026-10
 
 **Share these files:**
 ```
-1. QUICKSTART.md - Getting started
-2. docs/IMPLEMENTATION_ROADMAP.md - Overall plan
-3. docs/admin-dashboard-setup.md - Admin features
-4. docs/MAINTENANCE_GUIDE.md - This file
+1. docs/guides/quickstart.md - Getting started
+2. docs/implementation/implementation-roadmap.md - Overall plan
+3. docs/guides/admin-dashboard-setup.md - Admin features
+4. docs/guides/maintenance-guide.md - This file
 5. .env.example - Environment variables (they create their own .env)
 ```
 

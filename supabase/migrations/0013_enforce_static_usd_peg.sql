@@ -1,5 +1,5 @@
 -- ============================================================================
--- Migration: 20261024000002_purge_fx_rates_and_dynamic_exchange.sql
+-- Migration: 0013_enforce_static_usd_peg.sql
 -- Purge Dynamic FX Rate Boards, Spreads, and Legacy Fiat Exchange Engines
 -- 
 -- System consolidated strictly into a static 1:1 hard correlation between

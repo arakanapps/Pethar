@@ -140,7 +140,7 @@ supabase/functions/
   └── import_map.json                  ✅ Shared imports
 
 supabase/migrations/
-  └── 20261020000002_pending_approvals.sql  ✅ Approval workflow table
+  └── 0002_pending_approvals_table.sql  ✅ Approval workflow table
 ```
 
 ### **Client Code:**
@@ -153,17 +153,14 @@ pethar-wallet/src/services/
 ### **Documentation:**
 ```
 docs/
-  ├── AUTH_SECURITY_FLOW.md           ✅ PIN + biometric implementation
-  ├── USER_FLOW_IMPLEMENTATION.md     ✅ Sign in/up screens
-  ├── KYC_LEVEL2_IMPLEMENTATION.md    ✅ KYC upgrade process
-  ├── admin-dashboard-setup.md        ✅ Admin features (later)
-  ├── IMPLEMENTATION_ROADMAP.md       ✅ 8-week plan
-  └── MAINTENANCE_GUIDE.md            ✅ Operations guide
-
-Root:
-  ├── FREE_TIER_QUICKSTART.md         ✅ 30-minute setup guide
-  ├── SIMPLIFIED_SUMMARY.md           ✅ Overview
-  └── FINAL_IMPLEMENTATION_SUMMARY.md ✅ This file
+  ├── auth/auth-security-flow.md           ✅ PIN + biometric implementation
+  ├── implementation/user-flow-specification.md     ✅ Sign in/up screens
+  ├── auth/kyc-verification.md             ✅ KYC upgrade process
+  ├── guides/admin-dashboard-setup.md      ✅ Admin features (later)
+  ├── implementation/implementation-roadmap.md      ✅ 8-week plan
+  ├── guides/maintenance-guide.md          ✅ Operations guide
+  ├── guides/quickstart.md                 ✅ 30-minute setup guide
+  └── implementation/system-implementation.md ✅ This file
 ```
 
 ---
@@ -449,36 +446,36 @@ CREATE TABLE pending_approvals (
 
 ### **For Building (Priority Order):**
 
-1. ⭐ **FREE_TIER_QUICKSTART.md**
+1. ⭐ **docs/guides/quickstart.md**
    - 30-minute setup guide
    - All commands you need
    - Start here!
 
-2. **docs/USER_FLOW_IMPLEMENTATION.md**
+2. **docs/implementation/user-flow-specification.md**
    - Sign in/up screen code
    - Email verification
    - Dashboard layout
 
-3. **docs/AUTH_SECURITY_FLOW.md**
+3. **docs/auth/auth-security-flow.md**
    - PIN service code
    - Biometric service code
    - Security implementation
 
-4. **docs/KYC_LEVEL2_IMPLEMENTATION.md**
+4. **docs/auth/kyc-verification.md**
    - KYC upgrade screens
    - Document upload
    - Approval workflow
 
-5. **FINAL_IMPLEMENTATION_SUMMARY.md** (this file)
+5. **docs/implementation/system-implementation.md** (this file)
    - Complete overview
    - Quick reference
 
 ### **For Reference (Later):**
 
-- **SIMPLIFIED_SUMMARY.md** - Architecture diagrams
-- **docs/IMPLEMENTATION_ROADMAP.md** - 8-week plan
-- **docs/admin-dashboard-setup.md** - Admin features
-- **docs/MAINTENANCE_GUIDE.md** - Daily operations
+- **docs/architecture/system-architecture.md** - Architecture diagrams
+- **docs/implementation/implementation-roadmap.md** - 8-week plan
+- **docs/guides/admin-dashboard-setup.md** - Admin features
+- **docs/guides/maintenance-guide.md** - Daily operations
 
 ---
 

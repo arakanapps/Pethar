@@ -1,5 +1,5 @@
 -- ============================================================================
--- Migration: 20261020000010_remove_empty_defaults_and_dummy_values.sql
+-- Migration: 0011_strict_profile_constraints.sql
 -- Description:
 --   1. Removes all empty string ('') and placeholder defaults across all tables.
 --   2. Ensures personal/location/account columns (username, first_name, last_name,

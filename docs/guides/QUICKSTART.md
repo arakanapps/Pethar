@@ -484,9 +484,9 @@ fetch('https://uklqksioruxvatwpvopm.supabase.co/functions/v1/process-transaction
 ### Questions?
 
 **Ask in this chat** or:
-- Review: `docs/IMPLEMENTATION_ROADMAP.md`
-- Admin setup: `docs/admin-dashboard-setup.md`
-- Database schema: `supabase/migrations/20261020000001_enterprise_database.sql`
+- Review: `docs/implementation/implementation-roadmap.md`
+- Admin setup: `docs/guides/admin-dashboard-setup.md`
+- Database schema: `supabase/migrations/0001_initial_enterprise_ledger.sql`
 
 ---
 

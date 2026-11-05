@@ -9,32 +9,32 @@ This directory is the working product and engineering record for Péthar (ဖေ
 ```
 docs/
 ├── architecture/          # System design, topology, and service boundaries
-│   └── ENTERPRISE_ARCHITECTURE.md
+│   └── system-architecture.md
 ├── security/              # Threat model, cryptographic specs
-│   └── THREAT_MODEL_AND_SECURITY.md
+│   └── threat-model.md
 ├── compliance/            # Privacy, Google OAuth, and regulatory policies
-│   └── COMPLIANCE_AND_PRIVACY.md
+│   └── compliance-and-privacy.md
 ├── api/                   # Versioned API contracts
-│   └── API_SPECIFICATION.md
+│   └── api-specification.md
 ├── auth/                  # Authentication, KYC, and identity flows
-│   ├── AUTH_SECURITY_FLOW.md
-│   ├── NO_PASSWORD_AUTH_FLOW.md
-│   └── KYC_LEVEL2_IMPLEMENTATION.md
+│   ├── auth-security-flow.md
+│   ├── passwordless-auth-flow.md
+│   └── kyc-verification.md
 ├── guides/                # Setup, maintenance, and platform guides
-│   ├── QUICKSTART.md
-│   ├── PLATFORMS.md
-│   ├── MAINTENANCE_GUIDE.md
+│   ├── quickstart.md
+│   ├── mobile-platforms.md
+│   ├── maintenance-guide.md
 │   └── admin-dashboard-setup.md
 ├── implementation/        # Implementation details and roadmaps
-│   ├── IMPLEMENTATION_ROADMAP.md
-│   ├── FINAL_IMPLEMENTATION_SUMMARY.md
-│   ├── USER_FLOW_IMPLEMENTATION.md
-│   ├── UPDATED_DASHBOARD_IMPLEMENTATION.md
-│   └── SIMPLIFIED_DASHBOARD_FINAL.md
+│   ├── implementation-roadmap.md
+│   ├── system-implementation.md
+│   ├── user-flow-specification.md
+│   ├── dual-wallet-dashboard.md
+│   └── wallet-dashboard-spec.md
 └── product/               # Product vision, principles, and roadmap
-    ├── FOUNDER_ROADMAP.md
+    ├── product-roadmap.md
     ├── product-principles.md
-    └── pethar-landing-outline.md
+    └── landing-page-spec.md
 ```
 
 ## Documentation Rules

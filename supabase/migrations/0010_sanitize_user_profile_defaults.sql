@@ -1,4 +1,4 @@
--- Migration: 20261020000009_clean_user_defaults.sql
+-- Migration: 0010_sanitize_user_profile_defaults.sql
 -- Description: Removes hardcoded dummy defaults ('Péthar User', fake 'userXXXX' usernames)
 -- Ensures real financial data integrity: actual user profile fields come from user input or database records.
 
