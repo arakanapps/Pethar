@@ -124,11 +124,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
         appState.profile.avatarUrl = base64Image;
         appState.notify();
-        Navigator.pop(dialogCtx);
-        _showToast(
-          context,
-          isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'Profile photo updated successfully!',
-        );
+        if (dialogCtx.mounted) Navigator.pop(dialogCtx);
+        if (context.mounted) {
+          _showToast(
+            context,
+            isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'Profile photo updated successfully!',
+          );
+        }
         try {
           await SupabaseService().updateAvatarUrl(
             profileId: appState.profile.uid,
@@ -138,7 +140,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       debugPrint('Error picking avatar image: $e');
-      _showToast(context, 'Unable to pick photo: $e');
+      if (context.mounted) _showToast(context, 'Unable to pick photo: $e');
     }
   }
 
@@ -370,10 +372,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               if (res['success'] == true) {
                                 appState.profile.email = emailCtrl.text.trim();
                                 appState.notify();
-                                Navigator.pop(ctx);
-                                _showToast(context, 'Email updated successfully to ${emailCtrl.text.trim()}');
+                                if (ctx.mounted) Navigator.pop(ctx);
+                                if (context.mounted) {
+                                  _showToast(context, 'Email updated successfully to ${emailCtrl.text.trim()}');
+                                }
                               } else {
-                                _showToast(context, res['message']?.toString() ?? 'OTP verification failed');
+                                if (context.mounted) {
+                                  _showToast(context, res['message']?.toString() ?? 'OTP verification failed');
+                                }
                               }
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
@@ -523,10 +529,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               if (res['success'] == true) {
                                 appState.profile.phone = phoneCtrl.text.trim();
                                 appState.notify();
-                                Navigator.pop(ctx);
-                                _showToast(context, 'Phone number updated successfully to ${phoneCtrl.text.trim()}');
+                                if (ctx.mounted) Navigator.pop(ctx);
+                                if (context.mounted) {
+                                  _showToast(context, 'Phone number updated successfully to ${phoneCtrl.text.trim()}');
+                                }
                               } else {
-                                _showToast(context, res['message']?.toString() ?? 'OTP verification failed');
+                                if (context.mounted) {
+                                  _showToast(context, res['message']?.toString() ?? 'OTP verification failed');
+                                }
                               }
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
@@ -625,10 +635,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               setModalState(() => isLoading = false);
                               if (res['success'] == true) {
                                 appState.profile.pin = np;
-                                Navigator.pop(ctx);
-                                _showToast(context, 'Security PIN updated successfully');
+                                if (ctx.mounted) Navigator.pop(ctx);
+                                if (context.mounted) {
+                                  _showToast(context, 'Security PIN updated successfully');
+                                }
                               } else {
-                                _showToast(context, res['message']?.toString() ?? 'Incorrect current PIN');
+                                if (context.mounted) {
+                                  _showToast(context, res['message']?.toString() ?? 'Incorrect current PIN');
+                                }
                               }
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F172A), foregroundColor: Colors.white),
@@ -668,10 +682,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               setModalState(() => isLoading = false);
                               if (res['success'] == true) {
                                 appState.profile.pin = np;
-                                Navigator.pop(ctx);
-                                _showToast(context, 'Security PIN reset successfully');
+                                if (ctx.mounted) Navigator.pop(ctx);
+                                if (context.mounted) {
+                                  _showToast(context, 'Security PIN reset successfully');
+                                }
                               } else {
-                                _showToast(context, res['message']?.toString() ?? 'PIN reset failed');
+                                if (context.mounted) {
+                                  _showToast(context, res['message']?.toString() ?? 'PIN reset failed');
+                                }
                               }
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
@@ -795,8 +813,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               );
                               appState.notify();
                               setModalState(() => isLoading = false);
-                              Navigator.pop(ctx);
-                              _showToast(context, 'Name change submitted for administrative review (Status: PENDING_REVIEW)');
+                              if (ctx.mounted) Navigator.pop(ctx);
+                              if (context.mounted) {
+                                _showToast(context, 'Name change submitted for administrative review (Status: PENDING_REVIEW)');
+                              }
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
                       child: const Text('Submit Request for Review', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -861,8 +881,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         appState.profile.nickname = nick;
                         await SupabaseService().updateNickname(profileId: appState.profile.uid, nickname: nick);
                         appState.notify();
-                        Navigator.pop(ctx);
-                        _showToast(context, isAk ? 'အမည်ပြောင် ပြင်ဆင်ပြီးပါပြီ' : 'Nickname updated to ${appState.profile.effectiveNickname}');
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        if (context.mounted) {
+                          _showToast(context, isAk ? 'အမည်ပြောင် ပြင်ဆင်ပြီးပါပြီ' : 'Nickname updated to ${appState.profile.effectiveNickname}');
+                        }
                       },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
                       child: Text(isAk ? 'သိမ်းမည်' : 'Save'),
@@ -935,8 +957,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         appState.profile.address = newAddr;
                         await SupabaseService().updateAddress(profileId: appState.profile.uid, address: newAddr);
                         appState.notify();
-                        Navigator.pop(ctx);
-                        _showToast(context, 'Address updated successfully');
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        if (context.mounted) {
+                          _showToast(context, 'Address updated successfully');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0D9488),
@@ -1266,7 +1290,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final formatted = '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
       appState.profile.dob = formatted;
       appState.notify();
-      _showToast(context, isAk ? 'မွေးသက္ကရာဇ် ပြင်ဆင်ပြီးပါပြီ' : 'Date of Birth updated successfully');
+      if (context.mounted) {
+        _showToast(context, isAk ? 'မွေးသက္ကရာဇ် ပြင်ဆင်ပြီးပါပြီ' : 'Date of Birth updated successfully');
+      }
       try {
         await SupabaseService.client
             .from('user_profiles')
@@ -2343,7 +2369,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() {
                           _pinChangeSuccess = isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!';
                         });
-                        _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!');
+                        if (context.mounted) {
+                          _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!');
+                        }
                         Future.delayed(const Duration(milliseconds: 1200), () {
                           if (mounted) setState(() => _subView = 'pin_management');
                         });
@@ -2353,7 +2381,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() {
                           _pinChangeError = errMsg;
                         });
-                        _showToast(context, errMsg);
+                        if (context.mounted) {
+                          _showToast(context, errMsg);
+                        }
                       }
                     },
               style: ElevatedButton.styleFrom(
@@ -2630,7 +2660,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() {
                           _forgotPinSuccess = isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြန်လည်သတ်မှတ်ပြီးပါပြီ' : 'PIN reset successfully!';
                         });
-                        _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြန်လည်သတ်မှတ်ပြီးပါပြီ' : 'PIN reset successfully!');
+                        if (context.mounted) {
+                          _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြန်လည်သတ်မှတ်ပြီးပါပြီ' : 'PIN reset successfully!');
+                        }
                         Future.delayed(const Duration(milliseconds: 1200), () {
                           if (mounted) setState(() => _subView = 'pin_management');
                         });
@@ -2640,7 +2672,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() {
                           _forgotPinError = errMsg;
                         });
-                        _showToast(context, errMsg);
+                        if (context.mounted) {
+                          _showToast(context, errMsg);
+                        }
                       }
                     },
               style: ElevatedButton.styleFrom(
@@ -3021,11 +3055,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               _faceIdEnabled = true;
                             }
                           });
-                          _showToast(context, isAndroid
-                              ? (isAk ? 'လက်ဗွေ ဖွင့်ထားသည်' : 'Biometric login enabled')
-                              : (isAk ? 'Face ID ဖွင့်ထားသည်' : 'Face ID enabled'));
+                          if (context.mounted) {
+                            _showToast(context, isAndroid
+                                ? (isAk ? 'လက်ဗွေ ဖွင့်ထားသည်' : 'Biometric login enabled')
+                                : (isAk ? 'Face ID ဖွင့်ထားသည်' : 'Face ID enabled'));
+                          }
                         } else {
-                          _showToast(context, isAk ? 'စက်ပစ္စည်း အတည်ပြုချက် မအောင်မြင်ပါ' : 'Device biometric verification failed');
+                          if (context.mounted) {
+                            _showToast(context, isAk ? 'စက်ပစ္စည်း အတည်ပြုချက် မအောင်မြင်ပါ' : 'Device biometric verification failed');
+                          }
                         }
                       } else {
                         setState(() {

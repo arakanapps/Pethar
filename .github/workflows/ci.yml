@@ -145,9 +145,14 @@ jobs:
           cache: npm
       - run: npm ci
       - name: TypeScript validation
-        run: npx tsc --noEmit
+        run: npm run typecheck
+      - name: Crypto address pool self-test
+        run: npm run crypto:pool:test
       - name: Supabase function source validation
         run: |
+          test -f supabase/functions/crypto-wallet/index.ts
+          test -f supabase/functions/crypto-withdraw/index.ts
+          test -f supabase/functions/crypto-deposit-watcher/index.ts
           test -f supabase/functions/post-transaction/index.ts
           test -f supabase/functions/process-transaction/index.ts
           test -f supabase/functions/verify-otp/index.ts

@@ -1,0 +1,46 @@
+# ==============================================================================
+# Péthar Enterprise Git Attributes
+# Enforces consistent LF line endings across macOS, Linux, and Windows
+# ==============================================================================
+
+* text=auto eol=lf
+
+# Shell scripts must always use LF (even on Windows checkouts)
+*.sh text eol=lf
+
+# Windows batch / PowerShell scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Source code & configuration
+*.dart text eol=lf
+*.ts text eol=lf
+*.sql text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+*.gradle text eol=lf
+*.kts text eol=lf
+*.plist text eol=lf
+*.pbxproj text eol=lf
+
+# Binary assets & mobile archives
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.apk binary
+*.aab binary
+*.ipa binary
+*.jks binary
+*.keystore binary
+

@@ -7,6 +7,8 @@
   "scripts": {
     "test": "cd pethar-wallet && flutter test",
     "analyze": "cd pethar-wallet && dart analyze --fatal-warnings",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run crypto:pool:test && npm run analyze && npm test",
     "android": "./apps/android/run.sh",
     "android:apk": "./apps/android/build-apk.sh",
     "ios": "./apps/ios/run.sh",
@@ -21,8 +23,6 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/speed-insights": "^2.0.0",
     "drizzle-orm": "^0.45.4",
     "postgres": "^3.4.9"
   },

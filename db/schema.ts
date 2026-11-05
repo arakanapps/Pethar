@@ -8,6 +8,9 @@ import {
   bigint,
   jsonb,
   integer,
+  smallint,
+  boolean,
+  primaryKey,
   check,
 } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
@@ -171,6 +174,133 @@ export const cryptoWallets = pgTable(
     check('usdc_balance_check', sql`${table.usdcBalance} >= 0.00`),
   ]
 );
+
+// ── 9. Multichain Stablecoin Custodial Tables (EVM / Tron / Solana) ──
+export const cryptoNetworks = pgTable('crypto_networks', {
+  code: varchar('code', { length: 16 }).primaryKey(),
+  displayName: text('display_name').notNull(),
+  family: varchar('family', { length: 8 }).notNull(),
+  chainId: bigint('chain_id', { mode: 'number' }),
+  tokenStandard: varchar('token_standard', { length: 16 }).notNull(),
+  confirmations: integer('confirmations').notNull(),
+  explorerTxUrl: text('explorer_tx_url').notNull(),
+  sortOrder: integer('sort_order').default(0).notNull(),
+  enabled: boolean('enabled').default(true).notNull(),
+});
+
+export const cryptoTokens = pgTable(
+  'crypto_tokens',
+  {
+    networkCode: varchar('network_code', { length: 16 })
+      .notNull()
+      .references(() => cryptoNetworks.code, { onDelete: 'restrict' }),
+    symbol: varchar('symbol', { length: 8 }).notNull(),
+    contractAddress: text('contract_address').notNull(),
+    decimals: smallint('decimals').notNull(),
+    minDeposit: numeric('min_deposit', { precision: 28, scale: 8 }).notNull(),
+    minWithdrawal: numeric('min_withdrawal', { precision: 28, scale: 8 }).notNull(),
+    withdrawalFee: numeric('withdrawal_fee', { precision: 28, scale: 8 }).notNull(),
+    depositEnabled: boolean('deposit_enabled').default(true).notNull(),
+    withdrawalEnabled: boolean('withdrawal_enabled').default(true).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.networkCode, table.symbol] }),
+  ]
+);
+
+export const cryptoAddressPool = pgTable('crypto_address_pool', {
+  id: bigint('id', { mode: 'number' }).primaryKey(),
+  family: varchar('family', { length: 8 }).notNull(),
+  hdIndex: integer('hd_index').notNull(),
+  address: text('address').notNull(),
+  assignedUserId: uuid('assigned_user_id').references(() => users.id, { onDelete: 'restrict' }),
+  assignedAt: timestamp('assigned_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const cryptoDepositAddresses = pgTable('crypto_deposit_addresses', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'restrict' }),
+  networkCode: varchar('network_code', { length: 16 })
+    .notNull()
+    .references(() => cryptoNetworks.code, { onDelete: 'restrict' }),
+  address: text('address').notNull(),
+  poolId: bigint('pool_id', { mode: 'number' })
+    .notNull()
+    .references(() => cryptoAddressPool.id, { onDelete: 'restrict' }),
+  scanCursors: jsonb('scan_cursors').default({}).notNull(),
+  lastScannedAt: timestamp('last_scanned_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const cryptoScanCursors = pgTable(
+  'crypto_scan_cursors',
+  {
+    networkCode: varchar('network_code', { length: 16 })
+      .notNull()
+      .references(() => cryptoNetworks.code, { onDelete: 'restrict' }),
+    tokenSymbol: varchar('token_symbol', { length: 8 }).notNull(),
+    lastBlock: bigint('last_block', { mode: 'number' }).notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.networkCode, table.tokenSymbol] }),
+  ]
+);
+
+export const cryptoDeposits = pgTable('crypto_deposits', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'restrict' }),
+  networkCode: varchar('network_code', { length: 16 }).notNull(),
+  tokenSymbol: varchar('token_symbol', { length: 8 }).notNull(),
+  txHash: text('tx_hash').notNull(),
+  logIndex: integer('log_index').default(0).notNull(),
+  fromAddress: text('from_address'),
+  toAddress: text('to_address').notNull(),
+  rawAmount: numeric('raw_amount', { precision: 78, scale: 0 }).notNull(),
+  amount: numeric('amount', { precision: 28, scale: 8 }).notNull(),
+  blockNumber: bigint('block_number', { mode: 'number' }),
+  blockTime: timestamp('block_time', { withTimezone: true }),
+  status: varchar('status', { length: 16 }).notNull(),
+  transactionId: varchar('transaction_id', { length: 64 }).references(() => transactions.id, {
+    onDelete: 'restrict',
+  }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const cryptoWithdrawals = pgTable('crypto_withdrawals', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'restrict' }),
+  networkCode: varchar('network_code', { length: 16 }).notNull(),
+  tokenSymbol: varchar('token_symbol', { length: 8 }).notNull(),
+  toAddress: text('to_address').notNull(),
+  amount: numeric('amount', { precision: 28, scale: 8 }).notNull(),
+  fee: numeric('fee', { precision: 28, scale: 8 }).notNull(),
+  totalDebit: numeric('total_debit', { precision: 28, scale: 8 }).notNull(),
+  status: varchar('status', { length: 16 }).default('PENDING_REVIEW').notNull(),
+  idempotencyKey: uuid('idempotency_key').notNull(),
+  requestHash: text('request_hash').notNull(),
+  holdTransactionId: varchar('hold_transaction_id', { length: 64 }).references(
+    () => transactions.id,
+    { onDelete: 'restrict' }
+  ),
+  settleTransactionId: varchar('settle_transaction_id', { length: 64 }).references(
+    () => transactions.id,
+    { onDelete: 'restrict' }
+  ),
+  txHash: text('tx_hash'),
+  reviewedBy: text('reviewed_by'),
+  reviewNote: text('review_note'),
+  failureReason: text('failure_reason'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
 
 // ── Relations ──
 export const usersRelations = relations(users, ({ one, many }) => ({

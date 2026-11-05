@@ -103,15 +103,23 @@ serve(async (req: Request) => {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
-        if (entries.length > 10 || entries.some((entry) =>
+      );
+    }
+
+    if (
+      entries.length > 10 ||
+      entries.some(
+        (entry) =>
           typeof entry.account_id !== "string" ||
           !entry.account_id ||
           !Number.isFinite(Number(entry.amount))
-        )) {
-          return new Response(JSON.stringify({ error: "Invalid transaction entries." }), {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+      )
+    ) {
+      return new Response(
+        JSON.stringify({ error: "Invalid transaction entries." }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
