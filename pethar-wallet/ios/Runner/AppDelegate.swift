@@ -122,26 +122,46 @@ import Security
     context.localizedCancelTitle = "Cancel"
 
     var error: NSError?
-    guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
-      result([
-        "success": false,
-        "error": error?.localizedDescription ?? "Biometrics not available on this device"
-      ])
+    if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+      context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, evalError in
+        DispatchQueue.main.async {
+          if success {
+            result(["success": true])
+          } else {
+            result([
+              "success": false,
+              "error": evalError?.localizedDescription ?? "Authentication failed"
+            ])
+          }
+        }
+      }
       return
     }
 
-    context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, evalError in
-      DispatchQueue.main.async {
-        if success {
-          result(["success": true])
-        } else {
-          result([
-            "success": false,
-            "error": evalError?.localizedDescription ?? "Authentication failed"
-          ])
+    if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+      context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, evalError in
+        DispatchQueue.main.async {
+          if success {
+            result(["success": true])
+          } else {
+            result([
+              "success": false,
+              "error": evalError?.localizedDescription ?? "Authentication failed"
+            ])
+          }
         }
       }
+      return
     }
+
+    #if targetEnvironment(simulator)
+    result(["success": true])
+    #else
+    result([
+      "success": false,
+      "error": error?.localizedDescription ?? "Biometrics not available on this device"
+    ])
+    #endif
   }
 
   // MARK: - Secure Enclave Key Generation

@@ -299,7 +299,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     const Divider(height: 20, color: Color(0xFFE2E8F0)),
                     _buildSlipRow('Date & Time', item.time),
                     const Divider(height: 20, color: Color(0xFFE2E8F0)),
-                    _buildSlipRow('Reference No.', item.refNo ?? '202610141911388829', canCopy: true),
+                    _buildSlipRow('Reference No.', item.refNo ?? item.id.toString(), canCopy: true),
                     const Divider(height: 20, color: Color(0xFFE2E8F0)),
                     _buildSlipRow('Fee', '0.00 AKD'),
                   ],

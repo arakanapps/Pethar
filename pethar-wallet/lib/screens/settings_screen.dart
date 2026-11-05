@@ -427,7 +427,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     keyboardType: TextInputType.phone,
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
-                      hintText: 'e.g. 09795220918',
+                      hintText: 'Enter phone number',
                       filled: true,
                       fillColor: const Color(0xFFF4F4F5),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -1182,7 +1182,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 controller: ctrl,
                 decoration: InputDecoration(
                   labelText: isAk ? 'ကတ်နံပါတ်' : 'ID Number',
-                  hintText: 'e.g. 12/KAMAYA(N)123456',
+                  hintText: 'Enter National ID or Passport number',
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
@@ -1401,23 +1401,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isAndroid ? 'Android | Pixel / Galaxy (User’s Phone)' : 'iOS | iPhone 14 Pro Max (User’s iPhone)',
+                            isAndroid ? 'Android Device' : 'iOS Device',
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
                           ),
                           const SizedBox(height: 6),
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.access_time_rounded, size: 13, color: Color(0xFF71717A)),
-                              SizedBox(width: 6),
-                              Text('Last signed in: 17 Oct 2026, 07:56', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
+                              const Icon(Icons.access_time_rounded, size: 13, color: Color(0xFF71717A)),
+                              const SizedBox(width: 6),
+                              Text(
+                                isAk ? 'လက်ရှိ အသုံးပြုနေသော အကောင့်' : 'Current Active Session',
+                                style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.location_on_outlined, size: 13, color: Color(0xFF71717A)),
-                              SizedBox(width: 6),
-                              Text('Bangkok, Thailand', style: TextStyle(fontSize: 12, color: Color(0xFF71717A))),
+                              const Icon(Icons.verified_user_outlined, size: 13, color: Color(0xFF71717A)),
+                              const SizedBox(width: 6),
+                              Text(
+                                appState.profile.email.isNotEmpty ? appState.profile.email : '—',
+                                style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -1667,9 +1673,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // 5. Mobile No (tappable to edit, has >)
                 _buildProfileDetailRow(
                   label: 'Mobile No',
-                  value: _showAllProfileInfo
-                      ? (p.phone.isNotEmpty ? p.phone : '+95 9 789 012 345')
-                      : _maskPhone(p.phone.isNotEmpty ? p.phone : '+95 9 789 012 345'),
+                  value: p.phone.isNotEmpty
+                      ? (_showAllProfileInfo ? p.phone : _maskPhone(p.phone))
+                      : (isAk ? 'ထည့်သွင်းထားခြင်း မရှိပါ' : 'Not Set'),
                   onTap: () => _showChangePhoneModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),

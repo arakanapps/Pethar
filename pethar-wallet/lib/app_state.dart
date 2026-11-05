@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'models/crypto_wallet.dart';
 import 'models/data.dart';
 import 'services/auth_service.dart';
 import 'services/supabase_service.dart';
@@ -35,6 +35,8 @@ class AppState extends ChangeNotifier {
   UserProfile profile = initialUserProfile;
   WalletBalance wallet = akdWallet;
   double usdAccountBalance = 0.00;
+  CryptoWalletState cryptoWallet = CryptoWalletState.fallback();
+  bool isLoadingCryptoWallet = false;
   bool isVerified = false; // Verified when Level 2 National ID approved
   bool balanceHidden = false;
   bool walletBalanceHidden = false;
@@ -457,6 +459,14 @@ class AppState extends ChangeNotifier {
         agentsList = remoteAgents;
         agents = agentsList;
       }
+
+      // 5. Fetch Multi-Chain USDT/USDC Crypto Wallet State
+      if (isAuthenticated) {
+        final remoteCrypto = await supa.fetchCryptoWallet();
+        if (remoteCrypto != null) {
+          _applyCryptoWalletState(remoteCrypto);
+        }
+      }
     } catch (e) {
       debugPrint('Supabase data fetch notice: $e');
     } finally {
@@ -674,6 +684,8 @@ class AppState extends ChangeNotifier {
     contacts = [];
     txList = [];
     transactions = [];
+    cryptoWallet = CryptoWalletState.fallback();
+    usdAccountBalance = 0.00;
     currentScreen = Screen.home;
     navigationStack = [Screen.home];
     financialSubView = 'wallet_main';
@@ -682,12 +694,16 @@ class AppState extends ChangeNotifier {
 
   /// Apply authenticated user identity to state
   void _applyAuthenticatedUser(StoredUser user) {
+    final validUid = RegExp(r'^\d{12}$').hasMatch(user.uid)
+        ? user.uid
+        : generateUserUid();
+    user.uid = validUid;
     profile.email = user.email;
     profile.name = user.name;
     profile.username = user.username;
-    profile.uid = user.uid;
-    profile.walletAddress = user.uid;
-    profile.petharId = user.uid;
+    profile.uid = validUid;
+    profile.walletAddress = validUid;
+    profile.petharId = validUid;
     profile.pin = user.pin;
     profile.kycTier = user.kycTier;
     profile.kycStatus = user.kycStatus;
@@ -717,30 +733,42 @@ class AppState extends ChangeNotifier {
   }) async {
     final cleanEmail = email.trim().toLowerCase();
     final cleanPin = pin.trim();
-    final isTestBypass = kDebugMode && cleanEmail == 'pethar.wallet@gmail.com' && cleanPin == '123456';
+
+    if (cleanEmail.isEmpty || !cleanEmail.contains('@')) {
+      return {
+        'success': false,
+        'error': 'Please enter a valid email address',
+        'isPinOrEmailWrong': false,
+      };
+    }
+    if (cleanPin.length != 6 || !RegExp(r'^\d{6}$').hasMatch(cleanPin)) {
+      return {
+        'success': false,
+        'error': 'PIN code must be exactly 6 digits',
+        'isPinOrEmailWrong': false,
+      };
+    }
 
     // Route PIN verification: online -> Supabase verify_user_pin RPC, offline -> hardware secure storage
-    if (!isTestBypass) {
-      if (SupabaseService().authUserId != null) {
-        final rpcRes = await SupabaseService().verifyUserPin(cleanPin);
-        if (rpcRes['valid'] != true) {
+    if (SupabaseService().authUserId != null) {
+      final rpcRes = await SupabaseService().verifyUserPin(cleanPin);
+      if (rpcRes['valid'] != true) {
+        return {
+          'success': false,
+          'error': rpcRes['message']?.toString() ?? 'Wrong PIN code',
+          'isPinOrEmailWrong': true,
+        };
+      }
+    } else {
+      final storedHash = await _secureStorage.read(key: _keyPinHash);
+      if (storedHash != null && storedHash.isNotEmpty) {
+        final isMatch = await verifySecurePin(cleanPin);
+        if (!isMatch) {
           return {
             'success': false,
-            'error': rpcRes['message']?.toString() ?? 'Wrong PIN code',
+            'error': 'Wrong PIN code',
             'isPinOrEmailWrong': true,
           };
-        }
-      } else {
-        final storedHash = await _secureStorage.read(key: _keyPinHash);
-        if (storedHash != null && storedHash.isNotEmpty) {
-          final isMatch = await verifySecurePin(cleanPin);
-          if (!isMatch) {
-            return {
-              'success': false,
-              'error': 'Wrong PIN code',
-              'isPinOrEmailWrong': true,
-            };
-          }
         }
       }
     }
@@ -749,6 +777,101 @@ class AppState extends ChangeNotifier {
         await AuthService().loginWithEmailAndPin(email: cleanEmail, pin: cleanPin);
     if (res['success'] == true && res['user'] is StoredUser) {
       await saveSecurePinHash(pin);
+      final session = SupabaseService().currentSession;
+      if (session != null &&
+          session.accessToken.isNotEmpty &&
+          session.refreshToken != null) {
+        await saveUserSession(session.accessToken, session.refreshToken!);
+      }
+      _applyAuthenticatedUser(res['user'] as StoredUser);
+      return {'success': true};
+    }
+    return res;
+  }
+
+  /// Step 1 (Unified Login & Sign Up): Send 6-Digit Email OTP
+  Future<Map<String, dynamic>> requestAuthEmailOtp({
+    required String email,
+    required bool isSignUp,
+  }) async {
+    return await AuthService().requestAuthEmailOtp(
+      email: email,
+      isSignUp: isSignUp,
+    );
+  }
+
+  /// Step 2 (Unified Login & Sign Up): Verify 6-Digit Email OTP
+  Future<Map<String, dynamic>> verifyAuthEmailOtp({
+    required String email,
+    required String otp,
+    required bool isSignUp,
+  }) async {
+    return await AuthService().verifyAuthEmailOtp(
+      email: email,
+      otp: otp,
+      isSignUp: isSignUp,
+    );
+  }
+
+  /// Step 3A (After OTP Verified): Enter 6-Digit PIN -> Homepage
+  Future<Map<String, dynamic>> completeAuthWithPin({
+    required String email,
+    required String pin,
+    String? confirmPin,
+    required bool isSignUp,
+    String? displayName,
+  }) async {
+    final cleanPin = pin.trim();
+    if (!isSignUp) {
+      final storedHash = await _secureStorage.read(key: _keyPinHash);
+      if (storedHash != null && storedHash.isNotEmpty) {
+        final storedEmail = await AuthService().getSavedActiveUserEmail();
+        if (storedEmail == email.trim().toLowerCase()) {
+          final isMatch = await verifySecurePin(cleanPin);
+          if (!isMatch) {
+            return {
+              'success': false,
+              'error': 'Incorrect 6-digit PIN code.',
+              'isPinOrEmailWrong': true,
+            };
+          }
+        }
+      }
+    }
+
+    final res = await AuthService().completeAuthWithPin(
+      email: email,
+      pin: cleanPin,
+      confirmPin: confirmPin,
+      isSignUp: isSignUp,
+      displayName: displayName,
+    );
+    if (res['success'] == true && res['user'] is StoredUser) {
+      await saveSecurePinHash(cleanPin);
+      final session = SupabaseService().currentSession;
+      if (session != null &&
+          session.accessToken.isNotEmpty &&
+          session.refreshToken != null) {
+        await saveUserSession(session.accessToken, session.refreshToken!);
+      }
+      _applyAuthenticatedUser(res['user'] as StoredUser);
+      return {'success': true};
+    }
+    return res;
+  }
+
+  /// Step 3B (After OTP Verified): Authenticate with Device Fingerprint or Face ID -> Homepage
+  Future<Map<String, dynamic>> completeAuthWithBiometrics({
+    required String email,
+    required bool isSignUp,
+    String? displayName,
+  }) async {
+    final res = await AuthService().completeAuthWithBiometrics(
+      email: email,
+      isSignUp: isSignUp,
+      displayName: displayName,
+    );
+    if (res['success'] == true && res['user'] is StoredUser) {
       final session = SupabaseService().currentSession;
       if (session != null &&
           session.accessToken.isNotEmpty &&
@@ -1021,12 +1144,93 @@ class AppState extends ChangeNotifier {
       required String recipientAddress,
       String token = 'USDT'}) {}
 
+  void _applyCryptoWalletState(CryptoWalletState next) {
+    cryptoWallet = next;
+    final total = next.totalUsdBalance;
+    usdAccountBalance = total;
+    profile.usdAccountBalance = total;
+    if (next.kycTier >= 2) {
+      isVerified = true;
+      profile.kycTier = next.kycTier;
+    }
+    final evmAddr = next.primaryEvmAddress;
+    if (evmAddr != null && evmAddr.isNotEmpty) {
+      profile.usdAccountWalletAddress = evmAddr;
+    }
+    final recent = <String>{...recentUsdAddresses};
+    for (final w in next.withdrawals) {
+      if (w.toAddress.trim().isNotEmpty) {
+        recent.add(w.toAddress.trim());
+      }
+    }
+    recentUsdAddresses = recent.take(10).toList();
+  }
+
+  Future<void> refreshCryptoWallet() async {
+    if (!_isSupabaseReady || !isAuthenticated) return;
+    isLoadingCryptoWallet = true;
+    notifyListeners();
+    try {
+      final remote = await SupabaseService().fetchCryptoWallet();
+      if (remote != null) {
+        _applyCryptoWalletState(remote);
+      }
+    } finally {
+      isLoadingCryptoWallet = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>> provisionCryptoAddresses() async {
+    if (!_isSupabaseReady || !isAuthenticated) {
+      return {'success': false, 'message': 'Sign in required.'};
+    }
+    isLoadingCryptoWallet = true;
+    notifyListeners();
+    try {
+      final res = await SupabaseService().provisionCryptoAddresses();
+      if (res['success'] == true && res['wallet'] is CryptoWalletState) {
+        _applyCryptoWalletState(res['wallet'] as CryptoWalletState);
+      }
+      return res;
+    } finally {
+      isLoadingCryptoWallet = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>> requestCryptoWithdrawal({
+    required String network,
+    required String token,
+    required String toAddress,
+    required double amount,
+    required String pin,
+  }) async {
+    final supa = SupabaseService();
+    final key = supa.createTransferIdempotencyKey();
+    final res = await supa.requestCryptoWithdrawal(
+      network: network,
+      token: token,
+      toAddress: toAddress,
+      amount: amount,
+      pin: pin,
+      idempotencyKey: key,
+    );
+    if (res['success'] == true) {
+      await refreshCryptoWallet();
+      await loadSupabaseData();
+    }
+    return res;
+  }
+
   List<Transaction> get usdAccountTxList {
     return txList.where((tx) {
       final cur = tx.currency.toUpperCase();
       final cat = tx.category.toLowerCase();
       return cat == 'usd_account' ||
           cat == 'usd' ||
+          cat == 'crypto_deposit' ||
+          cat == 'crypto_withdrawal' ||
           cur == 'USDT' ||
           cur == 'USDC' ||
           cur == 'USD' ||
@@ -1036,5 +1240,4 @@ class AppState extends ChangeNotifier {
           tx.titleMm.contains('USD');
     }).toList();
   }
-
 }

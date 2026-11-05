@@ -313,7 +313,7 @@ export async function validateTokenAndUser(
     // 2c. Verify Email Confirmation Status
     const userEmail = verifiedAuthUser.email?.toLowerCase().trim() ?? '';
     const enableTestAccount = Deno.env.get('ENABLE_TEST_OTP_ACCOUNT') === 'true';
-    const testOtpEmail = (Deno.env.get('TEST_OTP_EMAIL') || 'pethar.wallet@gmail.com').toLowerCase().trim();
+    const testOtpEmail = (Deno.env.get('TEST_OTP_EMAIL') || '').toLowerCase().trim();
     const isTestAccount = enableTestAccount && userEmail === testOtpEmail;
     const isEmailConfirmed = Boolean(
       verifiedAuthUser.email_confirmed_at ||

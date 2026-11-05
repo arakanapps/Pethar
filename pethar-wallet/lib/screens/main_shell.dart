@@ -521,8 +521,8 @@ class _MainShellState extends State<MainShell> {
         'symbol': 'USDT',
         'name': 'Tether USD',
         'price': '\$1.00',
-        'balance': 0.00,
-        'usd': 0.00,
+        'balance': appState.cryptoWallet.usdtBalance,
+        'usd': appState.cryptoWallet.usdtBalance,
         'color': const Color(0xFF26A17B),
         'badge': '₮'
       },
@@ -530,8 +530,8 @@ class _MainShellState extends State<MainShell> {
         'symbol': 'USDC',
         'name': 'USD Coin',
         'price': '\$1.00',
-        'balance': 0.00,
-        'usd': 0.00,
+        'balance': appState.cryptoWallet.usdcBalance,
+        'usd': appState.cryptoWallet.usdcBalance,
         'color': const Color(0xFF2775CA),
         'badge': '\$'
       },
@@ -603,8 +603,8 @@ class _MainShellState extends State<MainShell> {
                           Consumer<AppState>(builder: (ctx, st, _) {
                             final a = st.profile.usdAccountWalletAddress;
                             final s = a.length >= 8
-                                ? '\${a.substring(0,4)}...\${a.substring(a.length-4)}'
-                                : a;
+                                ? '${a.substring(0, 4)}...${a.substring(a.length - 4)}'
+                                : (a.isNotEmpty ? a : '—');
                             return Text(s,
                                 style: const TextStyle(
                                     fontSize: 12,
@@ -932,12 +932,20 @@ class _MainShellState extends State<MainShell> {
                       },
                     ),
                   ),
-                  const Text(
-                    'USD Account  0x36...5f19',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF3F3F46)),
+                  Consumer<AppState>(
+                    builder: (ctx, st, _) {
+                      final a = st.profile.usdAccountWalletAddress;
+                      final short = a.length >= 8
+                          ? '  ${a.substring(0, 4)}...${a.substring(a.length - 4)}'
+                          : '';
+                      return Text(
+                        'USD Account$short',
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF3F3F46)),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -1211,8 +1219,8 @@ class _MainShellState extends State<MainShell> {
                     Consumer<AppState>(builder: (ctx, st, _) {
                       final a = st.profile.usdAccountWalletAddress;
                       final s = a.length >= 8
-                          ? '\${a.substring(0,4)}...\${a.substring(a.length-4)}'
-                          : a;
+                          ? '${a.substring(0, 4)}...${a.substring(a.length - 4)}'
+                          : (a.isNotEmpty ? a : '—');
                       return Text(s,
                           style: const TextStyle(
                               fontSize: 13,
@@ -1797,7 +1805,7 @@ class _MainShellState extends State<MainShell> {
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: () => setState(() {}),
+                        onTap: () => appState.refreshCryptoWallet(),
                         child: Container(
                           width: 36,
                           height: 36,
@@ -1865,8 +1873,8 @@ class _MainShellState extends State<MainShell> {
                           Consumer<AppState>(builder: (ctx, st, _) {
                             final a = st.profile.usdAccountWalletAddress;
                             final s = a.length >= 8
-                                ? '\${a.substring(0,4)}...\${a.substring(a.length-4)}'
-                                : a;
+                                ? '${a.substring(0, 4)}...${a.substring(a.length - 4)}'
+                                : (a.isNotEmpty ? a : '—');
                             return Text(s,
                                 style: const TextStyle(
                                     fontFamily: 'monospace',
@@ -1954,14 +1962,20 @@ class _MainShellState extends State<MainShell> {
                         _buildWalletAction(
                           label: isAk ? 'လက်ခံရန်' : 'Receive',
                           icon: Icons.arrow_downward_rounded,
-                          onTap: () => guardVerified('Receive',
-                              () => appState.setFinancialSubView('deposit')),
+                          onTap: () => guardVerified('Receive', () {
+                            appState.setFinancialSubView('deposit');
+                            appState.navigate(Screen.crypto,
+                                financialView: 'deposit');
+                          }),
                         ),
                         _buildWalletAction(
                           label: isAk ? 'ပေးပို့ရန်' : 'Send',
                           icon: Icons.arrow_upward_rounded,
-                          onTap: () => guardVerified('Send',
-                              () => appState.setFinancialSubView('withdraw')),
+                          onTap: () => guardVerified('Send', () {
+                            appState.setFinancialSubView('withdraw');
+                            appState.navigate(Screen.crypto,
+                                financialView: 'withdraw');
+                          }),
                         ),
                         _buildWalletAction(
                           label: isAk ? 'လဲလှယ်ရန်' : 'Convert',
@@ -2020,7 +2034,8 @@ class _MainShellState extends State<MainShell> {
                         return GestureDetector(
                           onTap: () => guardVerified(sym, () {
                             setState(() => _selectedDepositToken = sym);
-                            appState.setFinancialSubView('deposit');
+                            appState.navigate(Screen.crypto,
+                                financialView: 'deposit');
                           }),
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 10),
@@ -2394,7 +2409,12 @@ class _MainShellState extends State<MainShell> {
     }
     if (appState.currentScreen == Screen.intl) subScreen = const IntlScreen();
     if (appState.currentScreen == Screen.crypto) {
-      subScreen = const CryptoScreen();
+      subScreen = CryptoScreen(
+        initialTab: appState.financialSubView == 'withdraw' ? 1 : 0,
+        initialToken: appState.financialSubView == 'withdraw'
+            ? _selectedSendToken
+            : _selectedDepositToken,
+      );
     }
     if (appState.currentScreen == Screen.scan) subScreen = const ScanScreen();
     if (appState.currentScreen == Screen.pay) subScreen = const PayScreen();

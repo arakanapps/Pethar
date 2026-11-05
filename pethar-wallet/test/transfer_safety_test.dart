@@ -37,16 +37,16 @@ void main() {
     });
 
     test('pethar://pay QR URI parsing extracts uid and username accurately', () {
-      final parsed = ParsedPaymentTarget.parse('pethar://pay?uid=202611030001&user=@testuser&curr=AKD');
+      final parsed = ParsedPaymentTarget.parse('pethar://pay?uid=584920173645&user=@testuser&curr=AKD');
       expect(parsed, isNotNull);
-      expect(parsed!.uid, '202611030001');
+      expect(parsed!.uid, '584920173645');
       expect(parsed.username, '@testuser');
       expect(parsed.name, 'Testuser');
 
       // Raw 12-digit UID
-      final rawUid = ParsedPaymentTarget.parse('202611030002');
+      final rawUid = ParsedPaymentTarget.parse('739184620519');
       expect(rawUid, isNotNull);
-      expect(rawUid!.uid, '202611030002');
+      expect(rawUid!.uid, '739184620519');
 
       // @username format
       final atUser = ParsedPaymentTarget.parse('@charlie');

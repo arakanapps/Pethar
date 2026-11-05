@@ -5,4 +5,8 @@ ROOT="$DIR/../.."
 
 echo "🍎 Launching PeThar Wallet on iOS (iPhone / Simulator)..."
 cd "$ROOT/pethar-wallet"
-flutter run -d ios
+DART_DEFINES=()
+if [ -f ".env" ]; then
+  DART_DEFINES+=(--dart-define-from-file=.env)
+fi
+flutter run -d ios "${DART_DEFINES[@]}" "$@"

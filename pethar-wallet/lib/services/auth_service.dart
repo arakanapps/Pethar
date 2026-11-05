@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/data.dart';
 import 'supabase_service.dart';
 
 /// Stored user identity record for email + 6-digit PIN auth and KYC
@@ -182,29 +183,6 @@ class AuthService {
     // Check stored registered users
     StoredUser? user = _users[cleanEmail];
 
-    final isTestBypass = kDebugMode && cleanEmail == 'pethar.wallet@gmail.com' && cleanPin == '123456';
-
-    if (isTestBypass) {
-      if (user == null) {
-        user = StoredUser(
-          email: cleanEmail,
-          pin: cleanPin,
-          name: 'Pethar Test User',
-          username: '@pethar',
-          uid: '202611030001',
-          kycTier: 2,
-          kycStatus: 'VERIFIED_LVL2',
-        );
-        _users[cleanEmail] = user;
-        await _saveUsers();
-      }
-      await setActiveUserEmail(cleanEmail);
-      return {
-        'success': true,
-        'user': user,
-      };
-    }
-
     if (user != null && user.pin.isNotEmpty && user.pin != cleanPin) {
       return {
         'success': false,
@@ -216,7 +194,7 @@ class AuthService {
     // The PIN unlocks the app locally, but database access requires a live
     // Supabase session (auth.uid()). If the refresh token has expired we send
     // a one-time code instead of failing silently.
-    if (SupabaseService().authUserId == null && !isTestBypass) {
+    if (SupabaseService().authUserId == null) {
       try {
         await SupabaseService().sendEmailOtp(cleanEmail);
       } catch (e) {
@@ -359,23 +337,20 @@ class AuthService {
       };
     }
 
-    final isTestBypass = kDebugMode && cleanEmail == 'pethar.wallet@gmail.com' && cleanOtp == '123456';
-    if (!isTestBypass) {
-      try {
-        final verified = await SupabaseService().verifyEmailOtp(cleanEmail, cleanOtp);
-        if (!verified) {
-          return {
-            'success': false,
-            'error': 'Incorrect or expired verification code.',
-          };
-        }
-      } catch (e) {
-        debugPrint('Supabase login OTP verification failed: $e');
+    try {
+      final verified = await SupabaseService().verifyEmailOtp(cleanEmail, cleanOtp);
+      if (!verified) {
         return {
           'success': false,
           'error': 'Incorrect or expired verification code.',
         };
       }
+    } catch (e) {
+      debugPrint('Supabase login OTP verification failed: $e');
+      return {
+        'success': false,
+        'error': 'Incorrect or expired verification code.',
+      };
     }
 
     StoredUser? user = _users[cleanEmail];
@@ -385,15 +360,324 @@ class AuthService {
         pin: cleanPin,
         name: cleanEmail.split('@')[0],
         username: '@${cleanEmail.split('@')[0]}',
-        uid: 'ARAK-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        uid: generateUserUid(),
         kycTier: 1,
         kycStatus: 'ACTIVE',
       );
       _users[cleanEmail] = user;
       await _saveUsers();
+    } else if (!RegExp(r'^\d{12}$').hasMatch(user.uid)) {
+      user.uid = generateUserUid();
+      await _saveUsers();
     }
 
     await setActiveUserEmail(cleanEmail);
+    return {
+      'success': true,
+      'user': user,
+    };
+  }
+
+  /// Step 1 (Unified Login & Sign Up): Request Email OTP for Email or Google Auth
+  Future<Map<String, dynamic>> requestAuthEmailOtp({
+    required String email,
+    required bool isSignUp,
+  }) async {
+    await initialize();
+    final cleanEmail = email.trim().toLowerCase();
+
+    if (cleanEmail.isEmpty ||
+        !cleanEmail.contains('@') ||
+        !cleanEmail.contains('.')) {
+      return {
+        'success': false,
+        'error': 'Please enter a valid email address.',
+      };
+    }
+
+    final expiresAt = DateTime.now().add(const Duration(minutes: 10));
+    final challenge = OtpChallenge(
+      email: cleanEmail,
+      code: '',
+      expiresAt: expiresAt,
+      purpose: isSignUp ? 'SIGN_UP' : 'LOGIN',
+    );
+    if (isSignUp) {
+      _activeSignUpOtp = challenge;
+    } else {
+      _activeLoginOtp = challenge;
+    }
+
+    try {
+      await SupabaseService().sendEmailOtp(cleanEmail);
+    } catch (e) {
+      final errStr = e.toString().toLowerCase();
+      debugPrint('Supabase OTP dispatch notice for $cleanEmail: $e');
+      // If Supabase reports rate limit because an OTP was just sent moments ago,
+      // allow user to proceed to enter the OTP from their inbox.
+      final isRecentCooldown = errStr.contains('after') ||
+          errStr.contains('rate') ||
+          errStr.contains('security purposes');
+      if (!isRecentCooldown) {
+        return {
+          'success': false,
+          'error':
+              'Could not send verification email to $cleanEmail. Please check your internet connection and try again.',
+        };
+      }
+    }
+
+    return {
+      'success': true,
+      'email': cleanEmail,
+      'expiresAt': expiresAt,
+      'message':
+          '6-digit verification code sent to $cleanEmail (expires in 10 minutes)',
+    };
+  }
+
+  /// Step 2 (Unified Login & Sign Up): Verify 6-Digit Email OTP
+  Future<Map<String, dynamic>> verifyAuthEmailOtp({
+    required String email,
+    required String otp,
+    required bool isSignUp,
+  }) async {
+    await initialize();
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanOtp = otp.trim();
+
+    final challenge = isSignUp ? _activeSignUpOtp : _activeLoginOtp;
+    if (challenge != null &&
+        challenge.email == cleanEmail &&
+        challenge.isExpired) {
+      return {
+        'success': false,
+        'expired': true,
+        'error':
+            'Verification code has expired. Please tap Resend to get a new code.',
+      };
+    }
+
+    if (cleanOtp.length != 6 || !RegExp(r'^\d{6}$').hasMatch(cleanOtp)) {
+      return {
+        'success': false,
+        'expired': false,
+        'error': 'Please enter the 6-digit verification code.',
+      };
+    }
+
+    try {
+      final verified =
+          await SupabaseService().verifyEmailOtp(cleanEmail, cleanOtp);
+      if (!verified) {
+        return {
+          'success': false,
+          'expired': false,
+          'error': 'Incorrect or expired verification code.',
+        };
+      }
+    } catch (e) {
+      debugPrint('Supabase OTP verification failed: $e');
+      return {
+        'success': false,
+        'expired': false,
+        'error': 'Incorrect or expired verification code.',
+      };
+    }
+
+    return {
+      'success': true,
+      'email': cleanEmail,
+    };
+  }
+
+  /// Step 3A (After OTP Verified): Complete Login or Sign Up with 6-Digit PIN
+  Future<Map<String, dynamic>> completeAuthWithPin({
+    required String email,
+    required String pin,
+    String? confirmPin,
+    required bool isSignUp,
+    String? displayName,
+  }) async {
+    await initialize();
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanPin = pin.trim();
+
+    if (cleanPin.length != 6 || !RegExp(r'^\d{6}$').hasMatch(cleanPin)) {
+      return {
+        'success': false,
+        'error': 'PIN code must be exactly 6 numeric digits.',
+      };
+    }
+
+    if (isSignUp && confirmPin != null && cleanPin != confirmPin.trim()) {
+      return {
+        'success': false,
+        'error': 'PIN and confirmation PIN do not match.',
+      };
+    }
+
+    StoredUser? user = _users[cleanEmail];
+    if (!isSignUp &&
+        user != null &&
+        user.pin.isNotEmpty &&
+        user.pin != cleanPin) {
+      return {
+        'success': false,
+        'error': 'Incorrect 6-digit PIN code.',
+        'isPinOrEmailWrong': true,
+      };
+    }
+
+    Map<String, dynamic>? profileMap;
+    try {
+      profileMap = await SupabaseService().fetchMyProfile();
+      if (profileMap == null) {
+        final fallbackName = (displayName != null && displayName.trim().isNotEmpty)
+            ? displayName.trim()
+            : cleanEmail.split('@').first;
+        final parts = fallbackName.split(RegExp(r'\s+'));
+        profileMap = await SupabaseService().ensureUserProfile(
+          email: cleanEmail,
+          firstName: parts.first,
+          lastName: parts.length > 1 ? parts.sublist(1).join(' ') : '',
+          username: cleanEmail.split('@').first,
+          pin: cleanPin,
+        );
+      } else if (isSignUp) {
+        await SupabaseService().setUserPin(currentPin: '', newPin: cleanPin);
+      }
+    } catch (e) {
+      debugPrint('Profile sync after PIN auth notice: $e');
+    }
+
+    final remoteUid = profileMap?['uid']?.toString() ?? '';
+    final resolvedUid = RegExp(r'^\d{12}$').hasMatch(remoteUid)
+        ? remoteUid
+        : (user != null && RegExp(r'^\d{12}$').hasMatch(user.uid)
+            ? user.uid
+            : generateUserUid());
+
+    final resolvedName = profileMap?['name']?.toString().trim().isNotEmpty == true
+        ? profileMap!['name'].toString().trim()
+        : ((displayName != null && displayName.trim().isNotEmpty)
+            ? displayName.trim()
+            : (user?.name.isNotEmpty == true
+                ? user!.name
+                : cleanEmail.split('@').first));
+
+    final rawUsername = profileMap?['username']?.toString().trim() ??
+        user?.username ??
+        cleanEmail.split('@').first;
+    final resolvedUsername =
+        rawUsername.startsWith('@') ? rawUsername : '@$rawUsername';
+
+    final kycTier = (profileMap?['kyc_tier'] is num)
+        ? (profileMap!['kyc_tier'] as num).toInt()
+        : (user?.kycTier ?? 1);
+
+    user = StoredUser(
+      email: cleanEmail,
+      pin: cleanPin,
+      name: resolvedName,
+      username: resolvedUsername,
+      uid: resolvedUid,
+      kycTier: kycTier,
+      kycStatus: kycTier >= 2 ? 'VERIFIED_LVL2' : 'VERIFIED_LVL1',
+      nationalIdNo: profileMap?['national_id_no']?.toString() ?? user?.nationalIdNo ?? '',
+      dob: profileMap?['dob']?.toString() ?? user?.dob ?? '',
+      address: profileMap?['address']?.toString() ?? user?.address ?? '',
+    );
+
+    _users[cleanEmail] = user;
+    await _saveUsers();
+    await setActiveUserEmail(cleanEmail);
+
+    _activeLoginOtp = null;
+    _activeSignUpOtp = null;
+    _pendingSignUpData = null;
+
+    return {
+      'success': true,
+      'user': user,
+    };
+  }
+
+  /// Step 3B (After OTP Verified): Complete Login or Sign Up with Device Fingerprint / Face ID
+  Future<Map<String, dynamic>> completeAuthWithBiometrics({
+    required String email,
+    required bool isSignUp,
+    String? displayName,
+  }) async {
+    await initialize();
+    final cleanEmail = email.trim().toLowerCase();
+    StoredUser? user = _users[cleanEmail];
+
+    Map<String, dynamic>? profileMap;
+    try {
+      profileMap = await SupabaseService().fetchMyProfile();
+      if (profileMap == null) {
+        final fallbackName = (displayName != null && displayName.trim().isNotEmpty)
+            ? displayName.trim()
+            : cleanEmail.split('@').first;
+        final parts = fallbackName.split(RegExp(r'\s+'));
+        profileMap = await SupabaseService().ensureUserProfile(
+          email: cleanEmail,
+          firstName: parts.first,
+          lastName: parts.length > 1 ? parts.sublist(1).join(' ') : '',
+          username: cleanEmail.split('@').first,
+        );
+      }
+    } catch (e) {
+      debugPrint('Profile sync after Biometric auth notice: $e');
+    }
+
+    final remoteUid = profileMap?['uid']?.toString() ?? '';
+    final resolvedUid = RegExp(r'^\d{12}$').hasMatch(remoteUid)
+        ? remoteUid
+        : (user != null && RegExp(r'^\d{12}$').hasMatch(user.uid)
+            ? user.uid
+            : generateUserUid());
+
+    final resolvedName = profileMap?['name']?.toString().trim().isNotEmpty == true
+        ? profileMap!['name'].toString().trim()
+        : ((displayName != null && displayName.trim().isNotEmpty)
+            ? displayName.trim()
+            : (user?.name.isNotEmpty == true
+                ? user!.name
+                : cleanEmail.split('@').first));
+
+    final rawUsername = profileMap?['username']?.toString().trim() ??
+        user?.username ??
+        cleanEmail.split('@').first;
+    final resolvedUsername =
+        rawUsername.startsWith('@') ? rawUsername : '@$rawUsername';
+
+    final kycTier = (profileMap?['kyc_tier'] is num)
+        ? (profileMap!['kyc_tier'] as num).toInt()
+        : (user?.kycTier ?? 1);
+
+    user = StoredUser(
+      email: cleanEmail,
+      pin: user?.pin ?? '',
+      name: resolvedName,
+      username: resolvedUsername,
+      uid: resolvedUid,
+      kycTier: kycTier,
+      kycStatus: kycTier >= 2 ? 'VERIFIED_LVL2' : 'VERIFIED_LVL1',
+      nationalIdNo: profileMap?['national_id_no']?.toString() ?? user?.nationalIdNo ?? '',
+      dob: profileMap?['dob']?.toString() ?? user?.dob ?? '',
+      address: profileMap?['address']?.toString() ?? user?.address ?? '',
+    );
+
+    _users[cleanEmail] = user;
+    await _saveUsers();
+    await setActiveUserEmail(cleanEmail);
+
+    _activeLoginOtp = null;
+    _activeSignUpOtp = null;
+    _pendingSignUpData = null;
+
     return {
       'success': true,
       'user': user,
@@ -431,11 +715,14 @@ class AuthService {
         pin: cleanPin,
         name: name ?? cleanEmail.split('@')[0],
         username: '@${cleanEmail.split('@')[0]}',
-        uid: 'ARAK-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        uid: generateUserUid(),
         kycTier: 1,
         kycStatus: 'ACTIVE',
       );
       _users[cleanEmail] = user;
+      await _saveUsers();
+    } else if (!RegExp(r'^\d{12}$').hasMatch(user.uid)) {
+      user.uid = generateUserUid();
       await _saveUsers();
     }
 
@@ -476,7 +763,7 @@ class AuthService {
       pin: cleanPin,
       name: name ?? cleanEmail.split('@')[0],
       username: '@${cleanEmail.split('@')[0]}',
-      uid: 'ARAK-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+      uid: generateUserUid(),
       kycTier: 1,
       kycStatus: 'ACTIVE',
     );
@@ -553,25 +840,22 @@ class AuthService {
       };
     }
 
-    final isTestBypass = kDebugMode && cleanEmail == 'pethar.wallet@gmail.com' && cleanOtp == '123456';
-    if (!isTestBypass) {
-      try {
-        final verified = await SupabaseService().verifyEmailOtp(cleanEmail, cleanOtp);
-        if (!verified) {
-          return {
-            'success': false,
-            'expired': false,
-            'error': 'Incorrect or expired verification code.',
-          };
-        }
-      } catch (e) {
-        debugPrint('Supabase PIN reset verification failed: $e');
+    try {
+      final verified = await SupabaseService().verifyEmailOtp(cleanEmail, cleanOtp);
+      if (!verified) {
         return {
           'success': false,
           'expired': false,
           'error': 'Incorrect or expired verification code.',
         };
       }
+    } catch (e) {
+      debugPrint('Supabase PIN reset verification failed: $e');
+      return {
+        'success': false,
+        'expired': false,
+        'error': 'Incorrect or expired verification code.',
+      };
     }
 
     return {'success': true};
@@ -737,25 +1021,22 @@ class AuthService {
       };
     }
 
-    final isTestBypass = kDebugMode && cleanEmail == 'pethar.wallet@gmail.com' && cleanOtp == '123456';
-    if (!isTestBypass) {
-      try {
-        final verified = await SupabaseService().verifyEmailOtp(cleanEmail, cleanOtp);
-        if (!verified) {
-          return {
-            'success': false,
-            'expired': false,
-            'error': 'Incorrect or expired verification code.',
-          };
-        }
-      } catch (e) {
-        debugPrint('Supabase OTP verification failed: $e');
+    try {
+      final verified = await SupabaseService().verifyEmailOtp(cleanEmail, cleanOtp);
+      if (!verified) {
         return {
           'success': false,
           'expired': false,
           'error': 'Incorrect or expired verification code.',
         };
       }
+    } catch (e) {
+      debugPrint('Supabase OTP verification failed: $e');
+      return {
+        'success': false,
+        'expired': false,
+        'error': 'Incorrect or expired verification code.',
+      };
     }
 
     return {'success': true};
@@ -804,8 +1085,10 @@ class AuthService {
       debugPrint('ensureUserProfile notice (offline/test fallback): $e');
     }
 
-    final uid = profileMap?['uid']?.toString() ??
-        'ARAK-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+    final remoteUid = profileMap?['uid']?.toString() ?? '';
+    final uid = RegExp(r'^\d{12}$').hasMatch(remoteUid)
+        ? remoteUid
+        : generateUserUid();
 
     final newUser = StoredUser(
       email: cleanEmail,

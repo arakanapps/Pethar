@@ -133,8 +133,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
     final isAk = lang == 'ak';
     final usernameHandle =
         '@${appState.profile.name.toLowerCase().replaceAll(RegExp(r'\s+'), '')}';
-    final uidNumber =
-        appState.profile.uid.isNotEmpty ? appState.profile.uid : '202611030001';
+    final uidNumber = appState.profile.uid;
 
     final content = Align(
       alignment: Alignment.topCenter,

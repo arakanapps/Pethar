@@ -2,17 +2,21 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../services/native_security_service.dart';
 import '../services/supabase_service.dart';
 import '../widgets/arakan_emblem.dart';
 
-/// Explicit conditional routes for mandatory Authentication & Signup Flow
+/// Explicit conditional routes for Authentication & Signup Flow:
+/// Step 1: Enter Email OR Login/Sign up with Google (dispatches 6-digit OTP email)
+/// Step 2: Verify 6-digit Email OTP
+/// Step 3: Enter 6-digit PIN OR Authenticate with Device Fingerprint / Face ID -> Homepage
 enum AuthFlowState {
-  emailLogin, // Step 1: Input Email + PIN
-  emailLoginOtp, // Step 2: Trigger OTP verification -> Route directly to Home
-  googleLoginPin, // Step 2: Prompt for Access PIN entry -> Route directly to Home
-  emailSignup, // Step 1: Input Email + Create PIN
-  emailSignupOtp, // Step 2: Trigger OTP validation -> Route directly to Home
-  googleSignupPin, // Step 2: Prompt to Create Access PIN -> Route directly to Home
+  emailLogin, // Step 1 (Login): Enter Email or Login with Google
+  loginOtp, // Step 2 (Login): Verify 6-digit Email OTP
+  loginPinOrBiometric, // Step 3 (Login): Enter 6-digit PIN or Fingerprint / Face ID -> Home
+  emailSignup, // Step 1 (Sign Up): Enter Email or Sign up with Google
+  signupOtp, // Step 2 (Sign Up): Verify 6-digit Email OTP
+  signupPinOrBiometric, // Step 3 (Sign Up): Set 6-digit PIN or Fingerprint / Face ID -> Home
   forgotPasswordEmail,
   forgotPasswordOtp,
   forgotPasswordNewPin,
@@ -49,31 +53,25 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   AuthFlowState _flowState = AuthFlowState.emailLogin;
 
+  // Active email & optional Google display name for current flow
+  String _activeEmail = '';
+  String _googleName = '';
+
   // Controllers - Login
   final TextEditingController _loginEmailCtrl = TextEditingController();
-  final TextEditingController _loginPinCtrl = TextEditingController();
   final TextEditingController _loginOtpCtrl = TextEditingController();
+  final TextEditingController _loginPinCtrl = TextEditingController();
   bool _showLoginPin = false;
-
-  // Controllers - Google Auth Intermediates
-  String _googleEmail = '';
-  String _googleName = '';
-  final TextEditingController _googleAccessPinCtrl = TextEditingController();
-  final TextEditingController _googleCreatePinCtrl = TextEditingController();
-  final TextEditingController _googleConfirmPinCtrl = TextEditingController();
-  bool _showGoogleAccessPin = false;
-  bool _showGoogleCreatePin = false;
-  bool _showGoogleConfirmPin = false;
 
   // Controllers - Sign Up
   final TextEditingController _signUpEmailCtrl = TextEditingController();
+  final TextEditingController _signUpOtpCtrl = TextEditingController();
   final TextEditingController _signUpPinCtrl = TextEditingController();
   final TextEditingController _signUpConfirmPinCtrl = TextEditingController();
-  final TextEditingController _signUpOtpCtrl = TextEditingController();
   bool _showSignUpPin = false;
   bool _showSignUpConfirmPin = false;
 
-  // Controllers - Forgot Password / PIN
+  // Controllers - Forgot PIN
   final TextEditingController _forgotEmailCtrl = TextEditingController();
   final TextEditingController _forgotOtpCtrl = TextEditingController();
   final TextEditingController _forgotNewPinCtrl = TextEditingController();
@@ -94,15 +92,12 @@ class _AuthScreenState extends State<AuthScreen> {
   void initState() {
     super.initState();
     _loginEmailCtrl.addListener(_onFieldChanged);
-    _loginPinCtrl.addListener(_onFieldChanged);
     _loginOtpCtrl.addListener(_onFieldChanged);
+    _loginPinCtrl.addListener(_onFieldChanged);
     _signUpEmailCtrl.addListener(_onFieldChanged);
+    _signUpOtpCtrl.addListener(_onFieldChanged);
     _signUpPinCtrl.addListener(_onFieldChanged);
     _signUpConfirmPinCtrl.addListener(_onFieldChanged);
-    _signUpOtpCtrl.addListener(_onFieldChanged);
-    _googleAccessPinCtrl.addListener(_onFieldChanged);
-    _googleCreatePinCtrl.addListener(_onFieldChanged);
-    _googleConfirmPinCtrl.addListener(_onFieldChanged);
     _forgotEmailCtrl.addListener(_onFieldChanged);
     _forgotOtpCtrl.addListener(_onFieldChanged);
     _forgotNewPinCtrl.addListener(_onFieldChanged);
@@ -117,15 +112,12 @@ class _AuthScreenState extends State<AuthScreen> {
   void dispose() {
     _countdownTimer?.cancel();
     _loginEmailCtrl.dispose();
-    _loginPinCtrl.dispose();
     _loginOtpCtrl.dispose();
-    _googleAccessPinCtrl.dispose();
-    _googleCreatePinCtrl.dispose();
-    _googleConfirmPinCtrl.dispose();
+    _loginPinCtrl.dispose();
     _signUpEmailCtrl.dispose();
+    _signUpOtpCtrl.dispose();
     _signUpPinCtrl.dispose();
     _signUpConfirmPinCtrl.dispose();
-    _signUpOtpCtrl.dispose();
     _forgotEmailCtrl.dispose();
     _forgotOtpCtrl.dispose();
     _forgotNewPinCtrl.dispose();
@@ -135,7 +127,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _startTimer() {
     _countdownTimer?.cancel();
-    setState(() => _secondsRemaining = 600); // 10 minutes
+    setState(() => _secondsRemaining = 600);
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
         timer.cancel();
@@ -156,195 +148,333 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // GOOGLE AUTHENTICATION DISPATCH
+  // STEP 1A: EMAIL SUBMIT (LOGIN & SIGN UP) -> SEND OTP EMAIL -> GO TO OTP PAGE
   // ─────────────────────────────────────────────────────────────────────────
-  Future<Map<String, String>?> _performGoogleAuth() async {
+  Future<void> _handleEmailSubmit(AppState appState, {required bool isSignUp}) async {
+    final rawEmail = isSignUp
+        ? _signUpEmailCtrl.text.trim()
+        : _loginEmailCtrl.text.trim();
+    final email = rawEmail.toLowerCase();
+    final isAk = appState.language == 'ak';
+
+    if (email.isEmpty || !email.contains('@') || !email.contains('.')) {
+      setState(() {
+        _errorMessage = isAk
+            ? 'မှန်ကန်သော အီးမေးလ် ရိုက်ထည့်ပါ'
+            : 'Please enter a valid email address';
+        _successMessage = null;
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _successMessage = null;
     });
 
+    final res = await appState.requestAuthEmailOtp(
+      email: email,
+      isSignUp: isSignUp,
+    );
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (res['success'] == true) {
+      _activeEmail = email;
+      _googleName = '';
+      _startTimer();
+      if (isSignUp) {
+        _signUpOtpCtrl.clear();
+        setState(() {
+          _flowState = AuthFlowState.signupOtp;
+          _successMessage = isAk
+              ? '$email သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပြီးပါပြီ'
+              : '6-digit OTP code sent to $email';
+        });
+      } else {
+        _loginOtpCtrl.clear();
+        setState(() {
+          _flowState = AuthFlowState.loginOtp;
+          _successMessage = isAk
+              ? '$email သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပြီးပါပြီ'
+              : '6-digit OTP code sent to $email';
+        });
+      }
+    } else {
+      setState(() {
+        _errorMessage = res['error']?.toString() ??
+            (isAk
+                ? 'အတည်ပြုကုဒ် ပို့ခြင်း မအောင်မြင်ပါ'
+                : 'Failed to send verification email');
+      });
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // STEP 1B: GOOGLE LOGIN / SIGN UP -> SEND OTP EMAIL -> GO TO OTP PAGE
+  // ─────────────────────────────────────────────────────────────────────────
+  Future<void> _handleGoogleAuthTap(
+    BuildContext context,
+    AppState appState, {
+    required bool isSignUp,
+  }) async {
+    final isAk = appState.language == 'ak';
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _successMessage = null;
+    });
+
+    String? googleEmail;
+    String? googleName;
+
     try {
-      await SupabaseService().signInWithGoogle();
-      final user = SupabaseService().currentUser;
-      if (user?.email != null) {
-        return {
-          'email': user!.email!,
-          'name': user.userMetadata?['full_name']?.toString() ??
-              user.email!.split('@')[0],
-        };
+      if (SupabaseService.isInitialized) {
+        await SupabaseService().signInWithGoogle();
+        final user = SupabaseService().currentUser;
+        if (user?.email != null && user!.email!.trim().isNotEmpty) {
+          googleEmail = user.email!.trim().toLowerCase();
+          googleName = user.userMetadata?['full_name']?.toString() ??
+              user.userMetadata?['name']?.toString() ??
+              '';
+        }
       }
     } catch (e) {
       debugPrint('Supabase Google Sign-In note: $e');
     }
 
-    // Seamless fallback for local simulator / emulator environments
-    return {
-      'email': 'user@pethar.io',
-      'name': 'Péthar User',
-    };
-  }
+    if (!mounted) return;
+    setState(() => _isLoading = false);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // FLOW 1: EMAIL LOGIN HANDLERS
-  // Input Email + PIN -> Trigger OTP verification -> Route directly to Home
-  // ─────────────────────────────────────────────────────────────────────────
-  Future<void> _handleEmailLoginSubmit(AppState appState) async {
-    final email = _loginEmailCtrl.text.trim();
-    final pin = _loginPinCtrl.text.trim();
-    final isAk = appState.language == 'ak';
-
-    if (email.isEmpty || !email.contains('@')) {
-      setState(() {
-        _errorMessage =
-            isAk ? 'မှန်ကန်သော အီးမေးလ် ရိုက်ထည့်ပါ' : 'Please enter a valid email';
-      });
-      return;
-    }
-    if (pin.length != 6) {
-      setState(() {
-        _errorMessage =
-            isAk ? '၆ လုံးပါ ပင်နံပါတ် ရိုက်ထည့်ပါ' : 'PIN must be 6 digits';
-      });
-      return;
+    // If the user already typed their email in the input field, use it if OAuth browser redirect hasn't returned yet
+    if (googleEmail == null || googleEmail.isEmpty) {
+      final typed = (isSignUp ? _signUpEmailCtrl.text : _loginEmailCtrl.text)
+          .trim()
+          .toLowerCase();
+      if (typed.isNotEmpty && typed.contains('@') && typed.contains('.')) {
+        googleEmail = typed;
+      }
     }
 
+    // If still empty, prompt the user to enter their Google email address (never use any fake/demo email)
+    if (googleEmail == null || googleEmail.isEmpty) {
+      if (!context.mounted) return;
+      googleEmail = await _promptGoogleEmailDialog(context, isAk);
+      if (googleEmail == null || googleEmail.isEmpty) {
+        return;
+      }
+    }
+
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    final res = await appState.requestLoginOtp(email: email, pin: pin);
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (res['success'] == true) {
-      _startTimer();
-      _loginOtpCtrl.clear();
-      setState(() {
-        _flowState = AuthFlowState.emailLoginOtp;
-      });
-    } else {
-      setState(() {
-        _errorMessage = res['error']?.toString() ??
-            (isAk ? 'အီးမေးလ် သို့မဟုတ် ပင်နံပါတ် မှားယွင်းနေပါသည်' : 'Invalid credentials');
-      });
-    }
-  }
-
-  Future<void> _handleEmailLoginOtpVerify(AppState appState) async {
-    final email = _loginEmailCtrl.text.trim();
-    final pin = _loginPinCtrl.text.trim();
-    final otp = _loginOtpCtrl.text.trim();
-    final isAk = appState.language == 'ak';
-
-    if (otp.length != 6) {
-      setState(() {
-        _errorMessage =
-            isAk ? '၆ လုံးပါ အတည်ပြုကုဒ် ရိုက်ထည့်ပါ' : 'Please enter the 6-digit OTP';
-      });
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    final res = await appState.verifyLoginOtp(email: email, pin: pin, otp: otp);
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (res['success'] != true) {
-      setState(() {
-        _errorMessage = res['error']?.toString() ??
-            (isAk ? 'အတည်ပြုကုဒ် မှားယွင်းနေပါသည်' : 'Incorrect or expired OTP code');
-      });
-    }
-    // If success: appState.isAuthenticated becomes true, routing directly to Home!
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // FLOW 2: GOOGLE LOGIN HANDLERS
-  // Tap Google Sign-In -> Authenticate -> Prompt for Access PIN -> Route to Home
-  // ─────────────────────────────────────────────────────────────────────────
-  Future<void> _handleGoogleLoginTap(AppState appState) async {
-    final creds = await _performGoogleAuth();
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (creds != null) {
-      _googleEmail = creds['email']!;
-      _googleName = creds['name']!;
-      _googleAccessPinCtrl.clear();
-      setState(() {
-        _flowState = AuthFlowState.googleLoginPin;
-      });
-    }
-  }
-
-  Future<void> _handleGoogleAccessPinSubmit(AppState appState) async {
-    final pin = _googleAccessPinCtrl.text.trim();
-    final isAk = appState.language == 'ak';
-
-    if (pin.length != 6) {
-      setState(() {
-        _errorMessage =
-            isAk ? '၆ လုံးပါ Access PIN ရိုက်ထည့်ပါ' : 'Access PIN must be 6 digits';
-      });
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    final res = await appState.loginWithGoogleAndPin(
-      email: _googleEmail,
-      pin: pin,
-      name: _googleName,
+    final res = await appState.requestAuthEmailOtp(
+      email: googleEmail,
+      isSignUp: isSignUp,
     );
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    if (res['success'] != true) {
+    if (res['success'] == true) {
+      _activeEmail = googleEmail;
+      _googleName = googleName ?? '';
+      if (isSignUp) {
+        _signUpEmailCtrl.text = googleEmail;
+        _signUpOtpCtrl.clear();
+      } else {
+        _loginEmailCtrl.text = googleEmail;
+        _loginOtpCtrl.clear();
+      }
+      _startTimer();
+      setState(() {
+        _flowState =
+            isSignUp ? AuthFlowState.signupOtp : AuthFlowState.loginOtp;
+        _successMessage = isAk
+            ? '$googleEmail သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပြီးပါပြီ'
+            : '6-digit OTP code sent to $googleEmail';
+      });
+    } else {
       setState(() {
         _errorMessage = res['error']?.toString() ??
-            (isAk ? 'Access PIN မှားယွင်းနေပါသည်' : 'Incorrect Access PIN');
+            (isAk
+                ? 'အတည်ပြုကုဒ် ပို့ခြင်း မအောင်မြင်ပါ'
+                : 'Failed to send verification email');
       });
     }
-    // If success: appState.isAuthenticated becomes true, routing directly to Home!
+  }
+
+  Future<String?> _promptGoogleEmailDialog(
+      BuildContext context, bool isAk) async {
+    final emailCtrl = TextEditingController();
+    String? dialogError;
+
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'G',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 18,
+                            color: Color(0xFF4285F4),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        isAk
+                            ? 'Google အီးမေးလ် ထည့်သွင်းပါ'
+                            : 'Continue with Google',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF111827),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  isAk
+                      ? 'သင်၏ Google အီးမေးလ်သို့ ၆ လုံးပါ အတည်ပြုကုဒ် (OTP) ပေးပို့ပါမည်။'
+                      : 'Enter your Google email address to receive your 6-digit verification OTP.',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF4B5563),
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText:
+                        isAk ? 'သင့် Google အီးမေးလ်' : 'yourname@gmail.com',
+                    filled: true,
+                    fillColor: const Color(0xFFF9FAFB),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                    ),
+                  ),
+                ),
+                if (dialogError != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    dialogError!,
+                    style: const TextStyle(
+                      color: Color(0xFFDC2626),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
+                        child: Text(isAk ? 'ပယ်ဖျက်မည်' : 'Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final val = emailCtrl.text.trim().toLowerCase();
+                          if (val.isEmpty ||
+                              !val.contains('@') ||
+                              !val.contains('.')) {
+                            setModalState(() {
+                              dialogError = isAk
+                                  ? 'မှန်ကန်သော အီးမေးလ် ထည့်ပါ'
+                                  : 'Please enter a valid email address';
+                            });
+                            return;
+                          }
+                          Navigator.pop(ctx, val);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF97316),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
+                        child: Text(
+                          isAk ? 'OTP ပို့မည်' : 'Send OTP',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // FLOW 3: EMAIL SIGNUP HANDLERS
-  // Input Email + Create PIN -> Trigger OTP validation -> Route directly to Home
+  // STEP 2: VERIFY 6-DIGIT EMAIL OTP -> NEXT PAGE (PIN OR BIOMETRICS)
   // ─────────────────────────────────────────────────────────────────────────
-  Future<void> _handleEmailSignupSubmit(AppState appState) async {
-    final email = _signUpEmailCtrl.text.trim();
-    final pin = _signUpPinCtrl.text.trim();
-    final confirm = _signUpConfirmPinCtrl.text.trim();
+  Future<void> _handleOtpVerify(AppState appState, {required bool isSignUp}) async {
+    final otp = isSignUp
+        ? _signUpOtpCtrl.text.trim()
+        : _loginOtpCtrl.text.trim();
+    final email = _activeEmail.isNotEmpty
+        ? _activeEmail
+        : (isSignUp
+            ? _signUpEmailCtrl.text.trim().toLowerCase()
+            : _loginEmailCtrl.text.trim().toLowerCase());
     final isAk = appState.language == 'ak';
 
-    if (email.isEmpty || !email.contains('@')) {
+    if (otp.length != 6) {
       setState(() {
-        _errorMessage =
-            isAk ? 'မှန်ကန်သော အီးမေးလ် ရိုက်ထည့်ပါ' : 'Please enter a valid email';
-      });
-      return;
-    }
-    if (pin.length != 6) {
-      setState(() {
-        _errorMessage =
-            isAk ? '၆ လုံးပါ ပင်နံပါတ် သတ်မှတ်ပါ' : 'PIN must be 6 digits';
-      });
-      return;
-    }
-    if (pin != confirm) {
-      setState(() {
-        _errorMessage =
-            isAk ? 'ပင်နံပါတ် နှစ်ခု တူညီမှု မရှိပါ' : 'PIN codes do not match';
+        _errorMessage = isAk
+            ? '၆ လုံးပါ အတည်ပြုကုဒ် ရိုက်ထည့်ပါ'
+            : 'Please enter the 6-digit OTP code';
+        _successMessage = null;
       });
       return;
     }
@@ -352,112 +482,78 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _successMessage = null;
     });
 
-    final res = await appState.initiateSignUp(
+    final res = await appState.verifyAuthEmailOtp(
       email: email,
-      pin: pin,
-      confirmPin: confirm,
+      otp: otp,
+      isSignUp: isSignUp,
     );
     if (!mounted) return;
     setState(() => _isLoading = false);
 
     if (res['success'] == true) {
-      _startTimer();
-      _signUpOtpCtrl.clear();
-      setState(() {
-        _flowState = AuthFlowState.emailSignupOtp;
-      });
-    } else {
-      setState(() {
-        _errorMessage = res['error']?.toString() ??
-            (isAk ? 'အကောင့်ဖွင့်ခြင်း မအောင်မြင်ပါ' : 'Registration failed');
-      });
-    }
-  }
-
-  Future<void> _handleEmailSignupOtpVerify(AppState appState) async {
-    final email = _signUpEmailCtrl.text.trim();
-    final otp = _signUpOtpCtrl.text.trim();
-    final isAk = appState.language == 'ak';
-
-    if (otp.length != 6) {
-      setState(() {
-        _errorMessage =
-            isAk ? '၆ လုံးပါ အတည်ပြုကုဒ် ရိုက်ထည့်ပါ' : 'Please enter the 6-digit OTP';
-      });
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    final verifyRes = await appState.verifySignUpOtp(email, otp);
-    if (!mounted) return;
-
-    if (verifyRes['success'] == true) {
-      final completeRes = await appState.completeSignUp(
-        email: email,
-        name: email.split('@')[0],
-        username: email.split('@')[0],
-      );
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-
-      if (completeRes['success'] != true) {
+      _activeEmail = email;
+      if (isSignUp) {
+        _signUpPinCtrl.clear();
+        _signUpConfirmPinCtrl.clear();
         setState(() {
-          _errorMessage = completeRes['error']?.toString() ??
-              (isAk ? 'အကောင့် အတည်ပြုခြင်း မအောင်မြင်ပါ' : 'Account activation failed');
+          _flowState = AuthFlowState.signupPinOrBiometric;
+          _successMessage = isAk
+              ? 'အီးမေးလ် အတည်ပြုပြီးပါပြီ။ ၆ လုံး PIN သို့မဟုတ် လက်ဗွေ / Face ID ဖြင့် ဆက်သွားပါ။'
+              : 'Email verified! Enter a 6-digit PIN or use Fingerprint / Face ID.';
+        });
+      } else {
+        _loginPinCtrl.clear();
+        setState(() {
+          _flowState = AuthFlowState.loginPinOrBiometric;
+          _successMessage = isAk
+              ? 'အီးမေးလ် အတည်ပြုပြီးပါပြီ။ ၆ လုံး PIN သို့မဟုတ် လက်ဗွေ / Face ID ဖြင့် ဝင်ရောက်ပါ။'
+              : 'Email verified! Enter your 6-digit PIN or use Fingerprint / Face ID.';
         });
       }
-      // If success: appState.isAuthenticated becomes true, routing directly to Home!
     } else {
       setState(() {
-        _isLoading = false;
-        _errorMessage = verifyRes['error']?.toString() ??
-            (isAk ? 'အတည်ပြုကုဒ် မှားယွင်းနေပါသည်' : 'Incorrect or expired OTP');
+        _errorMessage = res['error']?.toString() ??
+            (isAk
+                ? 'အတည်ပြုကုဒ် မှားယွင်းနေပါသည်'
+                : 'Incorrect or expired OTP code');
       });
     }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // FLOW 4: GOOGLE SIGNUP HANDLERS
-  // Tap Google Sign-In -> Authenticate -> Prompt to Create Access PIN -> Route to Home
+  // STEP 3A: SUBMIT 6-DIGIT PIN -> SUCCESS TO HOMEPAGE
   // ─────────────────────────────────────────────────────────────────────────
-  Future<void> _handleGoogleSignupTap(AppState appState) async {
-    final creds = await _performGoogleAuth();
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (creds != null) {
-      _googleEmail = creds['email']!;
-      _googleName = creds['name']!;
-      _googleCreatePinCtrl.clear();
-      _googleConfirmPinCtrl.clear();
-      setState(() {
-        _flowState = AuthFlowState.googleSignupPin;
-      });
-    }
-  }
-
-  Future<void> _handleGoogleCreatePinSubmit(AppState appState) async {
-    final pin = _googleCreatePinCtrl.text.trim();
-    final confirm = _googleConfirmPinCtrl.text.trim();
+  Future<void> _handlePinSubmit(AppState appState, {required bool isSignUp}) async {
     final isAk = appState.language == 'ak';
+    final email = _activeEmail.isNotEmpty
+        ? _activeEmail
+        : (isSignUp
+            ? _signUpEmailCtrl.text.trim().toLowerCase()
+            : _loginEmailCtrl.text.trim().toLowerCase());
+    final pin = isSignUp
+        ? _signUpPinCtrl.text.trim()
+        : _loginPinCtrl.text.trim();
+    final confirmPin = isSignUp ? _signUpConfirmPinCtrl.text.trim() : null;
 
-    if (pin.length != 6) {
+    if (pin.length != 6 || !RegExp(r'^\d{6}$').hasMatch(pin)) {
       setState(() {
-        _errorMessage =
-            isAk ? '၆ လုံးပါ Access PIN သတ်မှတ်ပါ' : 'Access PIN must be 6 digits';
+        _errorMessage = isAk
+            ? '၆ လုံးပါ ပင်နံပါတ် ရိုက်ထည့်ပါ'
+            : 'PIN must be exactly 6 digits';
+        _successMessage = null;
       });
       return;
     }
-    if (pin != confirm) {
+
+    if (isSignUp && pin != confirmPin) {
       setState(() {
-        _errorMessage =
-            isAk ? 'Access PIN နှစ်ခု တူညီမှု မရှိပါ' : 'PIN codes do not match';
+        _errorMessage = isAk
+            ? 'ပင်နံပါတ် နှစ်ခု တူညီမှု မရှိပါ'
+            : 'PIN and Confirm PIN do not match';
+        _successMessage = null;
       });
       return;
     }
@@ -465,13 +561,15 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _successMessage = null;
     });
 
-    final res = await appState.registerWithGoogleAndPin(
-      email: _googleEmail,
+    final res = await appState.completeAuthWithPin(
+      email: email,
       pin: pin,
-      confirmPin: confirm,
-      name: _googleName,
+      confirmPin: confirmPin,
+      isSignUp: isSignUp,
+      displayName: _googleName.isNotEmpty ? _googleName : null,
     );
     if (!mounted) return;
     setState(() => _isLoading = false);
@@ -479,10 +577,69 @@ class _AuthScreenState extends State<AuthScreen> {
     if (res['success'] != true) {
       setState(() {
         _errorMessage = res['error']?.toString() ??
-            (isAk ? 'Access PIN သတ်မှတ်ခြင်း မအောင်မြင်ပါ' : 'Failed to create Access PIN');
+            (isAk
+                ? 'ပင်နံပါတ် အတည်ပြုခြင်း မအောင်မြင်ပါ'
+                : 'Failed to verify 6-digit PIN');
       });
     }
-    // If success: appState.isAuthenticated becomes true, routing directly to Home!
+    // On success: appState.isAuthenticated becomes true and routes directly to Homepage!
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // STEP 3B: AUTHENTICATE WITH DEVICE FINGERPRINT OR FACE ID -> HOMEPAGE
+  // ─────────────────────────────────────────────────────────────────────────
+  Future<void> _handleBiometricAuth(
+    AppState appState, {
+    required bool isSignUp,
+  }) async {
+    final isAk = appState.language == 'ak';
+    final email = _activeEmail.isNotEmpty
+        ? _activeEmail
+        : (isSignUp
+            ? _signUpEmailCtrl.text.trim().toLowerCase()
+            : _loginEmailCtrl.text.trim().toLowerCase());
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _successMessage = null;
+    });
+
+    final verified = await NativeSecurityService().authenticateBiometrics(
+      reason: isAk
+          ? 'Péthar အကောင့်သို့ လက်ဗွေ သို့မဟုတ် Face ID ဖြင့် ဝင်ရောက်ရန် အတည်ပြုပါ'
+          : 'Authenticate with Fingerprint or Face ID to access your Péthar Wallet',
+    );
+
+    if (!mounted) return;
+
+    if (!verified) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = isAk
+            ? 'လက်ဗွေ / Face ID အတည်ပြုချက် မအောင်မြင်ပါ။ ၆ လုံး PIN ဖြင့် ဝင်ရောက်နိုင်ပါသည်။'
+            : 'Fingerprint / Face ID verification cancelled or unavailable. You may enter your 6-digit PIN.';
+      });
+      return;
+    }
+
+    final res = await appState.completeAuthWithBiometrics(
+      email: email,
+      isSignUp: isSignUp,
+      displayName: _googleName.isNotEmpty ? _googleName : null,
+    );
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (res['success'] != true) {
+      setState(() {
+        _errorMessage = res['error']?.toString() ??
+            (isAk
+                ? 'အကောင့်ဝင်ရောက်ခြင်း မအောင်မြင်ပါ'
+                : 'Biometric authentication failed');
+      });
+    }
+    // On success: appState.isAuthenticated becomes true and routes directly to Homepage!
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -596,8 +753,9 @@ class _AuthScreenState extends State<AuthScreen> {
     if (res['success'] == true) {
       setState(() {
         _flowState = AuthFlowState.emailLogin;
-        _successMessage =
-            isAk ? 'ပင်နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN reset successfully! Please log in.';
+        _successMessage = isAk
+            ? 'ပင်နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ'
+            : 'PIN reset successfully! Please log in.';
       });
     } else {
       setState(() {
@@ -641,16 +799,16 @@ class _AuthScreenState extends State<AuthScreen> {
     switch (_flowState) {
       case AuthFlowState.emailLogin:
         return _buildEmailLoginForm(context, appState, isAk);
-      case AuthFlowState.emailLoginOtp:
-        return _buildEmailLoginOtpForm(context, appState, isAk);
-      case AuthFlowState.googleLoginPin:
-        return _buildGoogleLoginPinForm(context, appState, isAk);
+      case AuthFlowState.loginOtp:
+        return _buildOtpForm(context, appState, isAk, isSignUp: false);
+      case AuthFlowState.loginPinOrBiometric:
+        return _buildPinOrBiometricForm(context, appState, isAk, isSignUp: false);
       case AuthFlowState.emailSignup:
         return _buildEmailSignupForm(context, appState, isAk);
-      case AuthFlowState.emailSignupOtp:
-        return _buildEmailSignupOtpForm(context, appState, isAk);
-      case AuthFlowState.googleSignupPin:
-        return _buildGoogleSignupPinForm(context, appState, isAk);
+      case AuthFlowState.signupOtp:
+        return _buildOtpForm(context, appState, isAk, isSignUp: true);
+      case AuthFlowState.signupPinOrBiometric:
+        return _buildPinOrBiometricForm(context, appState, isAk, isSignUp: true);
       case AuthFlowState.forgotPasswordEmail:
         return _buildForgotPasswordEmailForm(context, appState, isAk);
       case AuthFlowState.forgotPasswordOtp:
@@ -702,16 +860,23 @@ class _AuthScreenState extends State<AuthScreen> {
                         onTap: () {
                           setState(() {
                             _errorMessage = null;
-                            if (_flowState == AuthFlowState.emailLoginOtp ||
-                                _flowState == AuthFlowState.googleLoginPin ||
+                            _successMessage = null;
+                            if (_flowState == AuthFlowState.loginOtp ||
                                 _flowState == AuthFlowState.forgotPasswordEmail) {
                               _flowState = AuthFlowState.emailLogin;
-                            } else if (_flowState == AuthFlowState.emailSignupOtp ||
-                                _flowState == AuthFlowState.googleSignupPin) {
+                            } else if (_flowState ==
+                                AuthFlowState.loginPinOrBiometric) {
+                              _flowState = AuthFlowState.loginOtp;
+                            } else if (_flowState == AuthFlowState.signupOtp) {
                               _flowState = AuthFlowState.emailSignup;
-                            } else if (_flowState == AuthFlowState.forgotPasswordOtp) {
+                            } else if (_flowState ==
+                                AuthFlowState.signupPinOrBiometric) {
+                              _flowState = AuthFlowState.signupOtp;
+                            } else if (_flowState ==
+                                AuthFlowState.forgotPasswordOtp) {
                               _flowState = AuthFlowState.forgotPasswordEmail;
-                            } else if (_flowState == AuthFlowState.forgotPasswordNewPin) {
+                            } else if (_flowState ==
+                                AuthFlowState.forgotPasswordNewPin) {
                               _flowState = AuthFlowState.forgotPasswordOtp;
                             }
                           });
@@ -812,12 +977,11 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // FORM 1: EMAIL LOGIN (Email + PIN)
+  // STEP 1 (LOGIN): ENTER EMAIL OR LOGIN WITH GOOGLE
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildEmailLoginForm(
       BuildContext context, AppState appState, bool isAk) {
-    final canSubmit = _loginEmailCtrl.text.trim().isNotEmpty &&
-        _loginPinCtrl.text.trim().length == 6;
+    final canSubmit = _loginEmailCtrl.text.trim().isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -833,7 +997,9 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          isAk ? 'ဖေ့သာ ဝေါလက်မှ ကြိုဆိုပါသည်' : 'Online Dual-Wallet System',
+          isAk
+              ? 'အီးမေးလ် ရိုက်ထည့်ပါ သို့မဟုတ် Google ဖြင့် ဝင်ရောက်ပါ'
+              : 'Enter your email or log in with Google',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 14,
@@ -843,66 +1009,22 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
         const SizedBox(height: 24),
 
-        _buildTextFieldLabel(isAk ? 'အီးမေးလ်' : 'Email'),
+        _buildTextFieldLabel(isAk ? 'အီးမေးလ်' : 'Email Address'),
         const SizedBox(height: 8),
         _buildInputField(
           controller: _loginEmailCtrl,
           hintText: isAk ? 'အီးမေးလ် ရိုက်ထည့်ပါ' : 'Enter your email',
           keyboardType: TextInputType.emailAddress,
         ),
-        const SizedBox(height: 16),
-
-        _buildTextFieldLabel(isAk ? '၆ လုံးပါ ပင်နံပါတ်' : 'PIN'),
-        const SizedBox(height: 8),
-        _buildInputField(
-          controller: _loginPinCtrl,
-          hintText: isAk ? 'ပင်နံပါတ် ၆ လုံး ရိုက်ထည့်ပါ' : 'Enter your 6-digit PIN',
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          obscureText: !_showLoginPin,
-          suffixIcon: IconButton(
-            icon: Icon(
-              _showLoginPin ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-              size: 20,
-              color: const Color(0xFF374151),
-            ),
-            onPressed: () => setState(() => _showLoginPin = !_showLoginPin),
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        Align(
-          alignment: Alignment.centerRight,
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                _errorMessage = null;
-                _forgotEmailCtrl.text = _loginEmailCtrl.text.trim();
-                _flowState = AuthFlowState.forgotPasswordEmail;
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Text(
-                isAk ? 'စကားဝှက်မေ့နေပါသလား?' : 'Forget Password?',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFFF97316),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
 
         _buildStatusBanner(),
 
         _buildPrimaryButton(
-          title: isAk ? 'အကောင့်ဝင်မည်' : 'Log In',
+          title: isAk ? 'ရှေ့သို့ ဆက်သွားမည် (Send OTP)' : 'Continue',
           isLoading: _isLoading,
           enabled: canSubmit,
-          onPressed: () => _handleEmailLoginSubmit(appState),
+          onPressed: () => _handleEmailSubmit(appState, isSignUp: false),
         ),
         const SizedBox(height: 16),
 
@@ -910,8 +1032,8 @@ class _AuthScreenState extends State<AuthScreen> {
         const SizedBox(height: 16),
 
         _buildGoogleButton(
-          label: isAk ? 'Google ဖြင့် ဝင်ရောက်မည်' : 'Continue with Google',
-          onTap: () => _handleGoogleLoginTap(appState),
+          label: isAk ? 'Google ဖြင့် ဝင်ရောက်မည်' : 'Log in with Google',
+          onTap: () => _handleGoogleAuthTap(context, appState, isSignUp: false),
         ),
         const SizedBox(height: 24),
 
@@ -926,11 +1048,12 @@ class _AuthScreenState extends State<AuthScreen> {
               onTap: () {
                 setState(() {
                   _errorMessage = null;
+                  _successMessage = null;
                   _flowState = AuthFlowState.emailSignup;
                 });
               },
               child: Text(
-                isAk ? 'အကောင့်ဖွင့်မည်' : 'Register',
+                isAk ? 'အကောင့်ဖွင့်မည်' : 'Sign Up',
                 style: const TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
@@ -945,195 +1068,17 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // FORM 2: EMAIL LOGIN OTP (Trigger OTP verification -> Route directly to Home)
-  // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildEmailLoginOtpForm(
-      BuildContext context, AppState appState, bool isAk) {
-    final email = _loginEmailCtrl.text.trim();
-    final canVerify = _loginOtpCtrl.text.trim().length == 6;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          isAk ? 'အီးမေးလ် အတည်ပြုကုဒ်' : 'Verify Email OTP',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF111827),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          isAk
-              ? '$email သို့ ပို့ထားသော ၆ လုံး ကုဒ်ကို ရိုက်ထည့်ပါ'
-              : 'Enter the 6-digit OTP code sent to\n$email',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 13.5,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF4B5563),
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        _buildInputField(
-          controller: _loginOtpCtrl,
-          hintText: '••••••',
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          textAlign: TextAlign.center,
-          letterSpacing: 10,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 10,
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '${isAk ? 'သက်တမ်းကျန်ချိန်' : 'Expires in'}: ${_formatTimer(_secondsRemaining)}',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFFF97316),
-              ),
-            ),
-            TextButton(
-              onPressed: _isLoading ? null : () => _handleEmailLoginSubmit(appState),
-              child: Text(
-                isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Code',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF2563EB),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-
-        _buildStatusBanner(),
-
-        _buildPrimaryButton(
-          title: isAk ? 'အတည်ပြုပြီး အိမ်မျက်နှာပြင်သို့' : 'Verify & Enter Home',
-          isLoading: _isLoading,
-          enabled: canVerify,
-          onPressed: () => _handleEmailLoginOtpVerify(appState),
-        ),
-      ],
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // FORM 3: GOOGLE LOGIN ACCESS PIN (Prompt for Access PIN -> Route to Home)
-  // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildGoogleLoginPinForm(
-      BuildContext context, AppState appState, bool isAk) {
-    final canSubmit = _googleAccessPinCtrl.text.trim().length == 6;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          width: 54,
-          height: 54,
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: const BoxDecoration(
-            color: Color(0xFFEFF6FF),
-            shape: BoxShape.circle,
-          ),
-          child: const Center(
-            child: Icon(Icons.lock_person_rounded,
-                size: 28, color: Color(0xFF2563EB)),
-          ),
-        ),
-        Text(
-          isAk ? 'Access PIN ထည့်သွင်းပါ' : 'Enter Access PIN',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF111827),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          isAk
-              ? 'Google အကောင့် ($_googleEmail) ဖြင့် အတည်ပြုပြီးပါပြီ။ လုံခြုံရေးအတွက် သင်၏ ၆ လုံး PIN ထည့်သွင်းပါ။'
-              : 'Authenticated with Google as $_googleEmail.\nEnter your 6-digit Access PIN to enter.',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 13.5,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF4B5563),
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        _buildTextFieldLabel(isAk ? '၆ လုံးပါ Access PIN' : 'Access PIN'),
-        const SizedBox(height: 8),
-        _buildInputField(
-          controller: _googleAccessPinCtrl,
-          hintText: '••••••',
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          obscureText: !_showGoogleAccessPin,
-          textAlign: TextAlign.center,
-          letterSpacing: 8,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 8,
-          ),
-          suffixIcon: IconButton(
-            icon: Icon(
-              _showGoogleAccessPin
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined,
-              size: 20,
-              color: const Color(0xFF374151),
-            ),
-            onPressed: () =>
-                setState(() => _showGoogleAccessPin = !_showGoogleAccessPin),
-          ),
-        ),
-        const SizedBox(height: 18),
-
-        _buildStatusBanner(),
-
-        _buildPrimaryButton(
-          title: isAk ? 'PIN အတည်ပြုပြီး အိမ်မျက်နှာပြင်သို့' : 'Confirm PIN & Enter Home',
-          isLoading: _isLoading,
-          enabled: canSubmit,
-          onPressed: () => _handleGoogleAccessPinSubmit(appState),
-        ),
-      ],
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // FORM 4: EMAIL SIGNUP (Input Email + Create PIN)
+  // STEP 1 (SIGN UP): ENTER EMAIL OR SIGN UP WITH GOOGLE
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildEmailSignupForm(
       BuildContext context, AppState appState, bool isAk) {
-    final canSubmit = _signUpEmailCtrl.text.trim().isNotEmpty &&
-        _signUpPinCtrl.text.trim().length == 6 &&
-        _signUpConfirmPinCtrl.text.trim().length == 6;
+    final canSubmit = _signUpEmailCtrl.text.trim().isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          isAk ? 'အကောင့်အသစ်ဖွင့်ရန်' : 'Create Account',
+          isAk ? 'အကောင့်အသစ်ဖွင့်ရန်' : 'Sign Up',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 24,
@@ -1144,8 +1089,8 @@ class _AuthScreenState extends State<AuthScreen> {
         const SizedBox(height: 6),
         Text(
           isAk
-              ? 'အွန်လိုင်း Dual-Wallet စနစ်သို့ အကောင့်ဖွင့်ပါ'
-              : 'Register for your online digital dual-wallet',
+              ? 'အီးမေးလ် ရိုက်ထည့်ပါ သို့မဟုတ် Google ဖြင့် အကောင့်ဖွင့်ပါ'
+              : 'Enter your email or sign up with Google',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 14,
@@ -1155,64 +1100,22 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
         const SizedBox(height: 24),
 
-        _buildTextFieldLabel(isAk ? 'အီးမေးလ်' : 'Email'),
+        _buildTextFieldLabel(isAk ? 'အီးမေးလ်' : 'Email Address'),
         const SizedBox(height: 8),
         _buildInputField(
           controller: _signUpEmailCtrl,
           hintText: isAk ? 'အီးမေးလ် ရိုက်ထည့်ပါ' : 'Enter your email',
           keyboardType: TextInputType.emailAddress,
         ),
-        const SizedBox(height: 16),
-
-        _buildTextFieldLabel(isAk ? '၆ လုံးပါ PIN သစ် သတ်မှတ်ပါ' : 'Create PIN'),
-        const SizedBox(height: 8),
-        _buildInputField(
-          controller: _signUpPinCtrl,
-          hintText: isAk ? 'ပင်နံပါတ် ၆ လုံး သတ်မှတ်ပါ' : 'Create 6-digit PIN',
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          obscureText: !_showSignUpPin,
-          suffixIcon: IconButton(
-            icon: Icon(
-              _showSignUpPin ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-              size: 20,
-              color: const Color(0xFF374151),
-            ),
-            onPressed: () => setState(() => _showSignUpPin = !_showSignUpPin),
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        _buildTextFieldLabel(
-            isAk ? 'ပင်နံပါတ် ပြန်လည်အတည်ပြုပါ' : 'Confirm PIN'),
-        const SizedBox(height: 8),
-        _buildInputField(
-          controller: _signUpConfirmPinCtrl,
-          hintText: isAk ? 'ပင်နံပါတ် ပြန်လည်ရိုက်ထည့်ပါ' : 'Re-enter 6-digit PIN',
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          obscureText: !_showSignUpConfirmPin,
-          suffixIcon: IconButton(
-            icon: Icon(
-              _showSignUpConfirmPin
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined,
-              size: 20,
-              color: const Color(0xFF374151),
-            ),
-            onPressed: () =>
-                setState(() => _showSignUpConfirmPin = !_showSignUpConfirmPin),
-          ),
-        ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
 
         _buildStatusBanner(),
 
         _buildPrimaryButton(
-          title: isAk ? 'အကောင့်ဖွင့်မည်' : 'Sign Up',
+          title: isAk ? 'ရှေ့သို့ ဆက်သွားမည် (Send OTP)' : 'Continue',
           isLoading: _isLoading,
           enabled: canSubmit,
-          onPressed: () => _handleEmailSignupSubmit(appState),
+          onPressed: () => _handleEmailSubmit(appState, isSignUp: true),
         ),
         const SizedBox(height: 16),
 
@@ -1221,7 +1124,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
         _buildGoogleButton(
           label: isAk ? 'Google ဖြင့် အကောင့်ဖွင့်မည်' : 'Sign up with Google',
-          onTap: () => _handleGoogleSignupTap(appState),
+          onTap: () => _handleGoogleAuthTap(context, appState, isSignUp: true),
         ),
         const SizedBox(height: 24),
 
@@ -1236,6 +1139,7 @@ class _AuthScreenState extends State<AuthScreen> {
               onTap: () {
                 setState(() {
                   _errorMessage = null;
+                  _successMessage = null;
                   _flowState = AuthFlowState.emailLogin;
                 });
               },
@@ -1255,18 +1159,27 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // FORM 5: EMAIL SIGNUP OTP (Trigger OTP validation -> Route directly to Home)
+  // STEP 2: VERIFY 6-DIGIT EMAIL OTP PAGE
   // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildEmailSignupOtpForm(
-      BuildContext context, AppState appState, bool isAk) {
-    final email = _signUpEmailCtrl.text.trim();
-    final canVerify = _signUpOtpCtrl.text.trim().length == 6;
+  Widget _buildOtpForm(
+    BuildContext context,
+    AppState appState,
+    bool isAk, {
+    required bool isSignUp,
+  }) {
+    final ctrl = isSignUp ? _signUpOtpCtrl : _loginOtpCtrl;
+    final email = _activeEmail.isNotEmpty
+        ? _activeEmail
+        : (isSignUp
+            ? _signUpEmailCtrl.text.trim()
+            : _loginEmailCtrl.text.trim());
+    final canVerify = ctrl.text.trim().length == 6;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          isAk ? 'အကောင့်ဖွင့်မှု အတည်ပြုကုဒ်' : 'Validate Signup OTP',
+          isAk ? 'အီးမေးလ် အတည်ပြုကုဒ် (OTP)' : 'Verify Email OTP',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 22,
@@ -1277,8 +1190,8 @@ class _AuthScreenState extends State<AuthScreen> {
         const SizedBox(height: 6),
         Text(
           isAk
-              ? '$email သို့ ပို့ထားသော ၆ လုံး OTP ကုဒ်ကို ထည့်သွင်းပါ'
-              : 'Enter the 6-digit OTP code sent to\n$email',
+              ? '$email သို့ ပို့ထားသော ၆ လုံး OTP ကုဒ်ကို ရိုက်ထည့်ပါ'
+              : 'Enter the 6-digit verification code sent to\n$email',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 13.5,
@@ -1290,7 +1203,7 @@ class _AuthScreenState extends State<AuthScreen> {
         const SizedBox(height: 24),
 
         _buildInputField(
-          controller: _signUpOtpCtrl,
+          controller: ctrl,
           hintText: '••••••',
           keyboardType: TextInputType.number,
           maxLength: 6,
@@ -1316,13 +1229,15 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
             TextButton(
-              onPressed: _isLoading ? null : () => _handleEmailSignupSubmit(appState),
+              onPressed: _isLoading
+                  ? null
+                  : () => _handleEmailSubmit(appState, isSignUp: isSignUp),
               child: Text(
-                isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Code',
+                isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Email OTP',
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF2563EB),
+                  color: Color(0xFFC72138),
                 ),
               ),
             ),
@@ -1333,41 +1248,41 @@ class _AuthScreenState extends State<AuthScreen> {
         _buildStatusBanner(),
 
         _buildPrimaryButton(
-          title: isAk ? 'အတည်ပြုပြီး အိမ်မျက်နှာပြင်သို့' : 'Validate & Enter Home',
+          title: isAk ? 'OTP အတည်ပြုပြီး ဆက်သွားမည်' : 'Verify OTP & Continue',
           isLoading: _isLoading,
           enabled: canVerify,
-          onPressed: () => _handleEmailSignupOtpVerify(appState),
+          onPressed: () => _handleOtpVerify(appState, isSignUp: isSignUp),
         ),
       ],
     );
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // FORM 6: GOOGLE SIGNUP ACCESS PIN (Prompt to Create Access PIN -> Route to Home)
+  // STEP 3: 6-DIGIT PIN OR DEVICE FINGERPRINT / FACE ID -> HOMEPAGE
   // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildGoogleSignupPinForm(
-      BuildContext context, AppState appState, bool isAk) {
-    final canSubmit = _googleCreatePinCtrl.text.trim().length == 6 &&
-        _googleConfirmPinCtrl.text.trim().length == 6;
+  Widget _buildPinOrBiometricForm(
+    BuildContext context,
+    AppState appState,
+    bool isAk, {
+    required bool isSignUp,
+  }) {
+    final isAndroid = Theme.of(context).platform == TargetPlatform.android;
+    final canSubmitPin = isSignUp
+        ? (_signUpPinCtrl.text.trim().length == 6 &&
+            _signUpConfirmPinCtrl.text.trim().length == 6)
+        : (_loginPinCtrl.text.trim().length == 6);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          width: 54,
-          height: 54,
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: const BoxDecoration(
-            color: Color(0xFFEFF6FF),
-            shape: BoxShape.circle,
-          ),
-          child: const Center(
-            child: Icon(Icons.shield_outlined,
-                size: 28, color: Color(0xFF2563EB)),
-          ),
-        ),
         Text(
-          isAk ? 'Access PIN သစ် သတ်မှတ်ပါ' : 'Create Access PIN',
+          isSignUp
+              ? (isAk
+                  ? '၆ လုံး PIN သို့မဟုတ် လက်ဗွေ / Face ID'
+                  : 'Set 6-Digit PIN or Biometrics')
+              : (isAk
+                  ? '၆ လုံး PIN သို့မဟုတ် လက်ဗွေ / Face ID'
+                  : 'Enter 6-Digit PIN or Biometrics'),
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 22,
@@ -1377,9 +1292,13 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          isAk
-              ? 'Google အကောင့် ($_googleEmail) ချိတ်ဆက်ပြီးပါပြီ။ သင်၏ ပိုက်ဆံအိတ်အတွက် ၆ လုံး Access PIN သတ်မှတ်ပါ။'
-              : 'Authenticated with Google as $_googleEmail.\nCreate a 6-digit Access PIN to secure your wallet.',
+          isSignUp
+              ? (isAk
+                  ? 'သင်၏ ပိုက်ဆံအိတ်အတွက် ဂဏန်း ၆ လုံး PIN သတ်မှတ်ပါ သို့မဟုတ် စက်ပစ္စည်း လက်ဗွေ / Face ID အသုံးပြုပါ'
+                  : 'Create a 6-digit PIN or authenticate with your device Fingerprint or Face ID to enter Homepage')
+              : (isAk
+                  ? 'ဂဏန်း ၆ လုံး PIN ရိုက်ထည့်ပါ သို့မဟုတ် စက်ပစ္စည်း လက်ဗွေ / Face ID ဖြင့် ဝင်ရောက်ပါ'
+                  : 'Enter your 6-digit PIN or unlock with device Fingerprint or Face ID to enter Homepage'),
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 13.5,
@@ -1388,77 +1307,173 @@ class _AuthScreenState extends State<AuthScreen> {
             height: 1.4,
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 22),
 
-        _buildTextFieldLabel(
-            isAk ? '၆ လုံးပါ Access PIN သစ်' : 'Create Access PIN'),
-        const SizedBox(height: 8),
-        _buildInputField(
-          controller: _googleCreatePinCtrl,
-          hintText: '••••••',
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          obscureText: !_showGoogleCreatePin,
-          textAlign: TextAlign.center,
-          letterSpacing: 8,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
+        if (!isSignUp) ...[
+          _buildTextFieldLabel(isAk ? '၆ လုံးပါ ပင်နံပါတ်' : '6-Digit PIN'),
+          const SizedBox(height: 8),
+          _buildInputField(
+            controller: _loginPinCtrl,
+            hintText: '••••••',
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            obscureText: !_showLoginPin,
+            textAlign: TextAlign.center,
             letterSpacing: 8,
-          ),
-          suffixIcon: IconButton(
-            icon: Icon(
-              _showGoogleCreatePin
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined,
-              size: 20,
-              color: const Color(0xFF374151),
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 8,
             ),
-            onPressed: () =>
-                setState(() => _showGoogleCreatePin = !_showGoogleCreatePin),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _showLoginPin
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                size: 20,
+                color: const Color(0xFF374151),
+              ),
+              onPressed: () => setState(() => _showLoginPin = !_showLoginPin),
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _errorMessage = null;
+                  _successMessage = null;
+                  _forgotEmailCtrl.text = _activeEmail;
+                  _flowState = AuthFlowState.forgotPasswordEmail;
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  isAk ? 'PIN မေ့နေပါသလား?' : 'Forgot PIN?',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFF97316),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ] else ...[
+          _buildTextFieldLabel(
+              isAk ? '၆ လုံးပါ PIN အသစ် သတ်မှတ်ပါ' : 'Create 6-Digit PIN'),
+          const SizedBox(height: 8),
+          _buildInputField(
+            controller: _signUpPinCtrl,
+            hintText: '••••••',
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            obscureText: !_showSignUpPin,
+            textAlign: TextAlign.center,
+            letterSpacing: 8,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 8,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _showSignUpPin
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                size: 20,
+                color: const Color(0xFF374151),
+              ),
+              onPressed: () =>
+                  setState(() => _showSignUpPin = !_showSignUpPin),
+            ),
+          ),
+          const SizedBox(height: 14),
+          _buildTextFieldLabel(
+              isAk ? 'ပင်နံပါတ် ပြန်လည်အတည်ပြုပါ' : 'Confirm 6-Digit PIN'),
+          const SizedBox(height: 8),
+          _buildInputField(
+            controller: _signUpConfirmPinCtrl,
+            hintText: '••••••',
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            obscureText: !_showSignUpConfirmPin,
+            textAlign: TextAlign.center,
+            letterSpacing: 8,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 8,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _showSignUpConfirmPin
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                size: 20,
+                color: const Color(0xFF374151),
+              ),
+              onPressed: () => setState(
+                  () => _showSignUpConfirmPin = !_showSignUpConfirmPin),
+            ),
+          ),
+        ],
 
-        _buildTextFieldLabel(
-            isAk ? 'Access PIN ပြန်လည်အတည်ပြုပါ' : 'Confirm Access PIN'),
-        const SizedBox(height: 8),
-        _buildInputField(
-          controller: _googleConfirmPinCtrl,
-          hintText: '••••••',
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          obscureText: !_showGoogleConfirmPin,
-          textAlign: TextAlign.center,
-          letterSpacing: 8,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 8,
-          ),
-          suffixIcon: IconButton(
-            icon: Icon(
-              _showGoogleConfirmPin
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined,
-              size: 20,
-              color: const Color(0xFF374151),
-            ),
-            onPressed: () =>
-                setState(() => _showGoogleConfirmPin = !_showGoogleConfirmPin),
-          ),
-        ),
         const SizedBox(height: 18),
-
         _buildStatusBanner(),
 
         _buildPrimaryButton(
           title: isAk
-              ? 'ပိုက်ဆံအိတ် ဖွင့်လှစ်ပြီး အိမ်မျက်နှာပြင်သို့'
-              : 'Create Wallet & Enter Home',
+              ? 'PIN ဖြင့် အိမ်မျက်နှာပြင်သို့ ဝင်မည်'
+              : 'Continue with 6-Digit PIN',
           isLoading: _isLoading,
-          enabled: canSubmit,
-          onPressed: () => _handleGoogleCreatePinSubmit(appState),
+          enabled: canSubmitPin,
+          onPressed: () => _handlePinSubmit(appState, isSignUp: isSignUp),
+        ),
+        const SizedBox(height: 16),
+
+        _buildDividerWithText(isAk ? 'သို့မဟုတ်' : 'OR'),
+        const SizedBox(height: 16),
+
+        // Device Fingerprint or Face ID Button
+        SizedBox(
+          height: 54,
+          child: OutlinedButton(
+            onPressed: _isLoading
+                ? null
+                : () => _handleBiometricAuth(appState, isSignUp: isSignUp),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Color(0xFFC72138), width: 1.4),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28)),
+              backgroundColor: const Color(0xFFFFF1F2),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  isAndroid
+                      ? Icons.fingerprint_rounded
+                      : Icons.face_unlock_outlined,
+                  color: const Color(0xFFC72138),
+                  size: 24,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  isAk
+                      ? 'လက်ဗွေ သို့မဟုတ် Face ID ဖြင့် ဝင်မည်'
+                      : 'Use Device Fingerprint or Face ID',
+                  style: const TextStyle(
+                    color: Color(0xFFC72138),
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -1473,7 +1488,7 @@ class _AuthScreenState extends State<AuthScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          isAk ? 'စကားဝှက် ပြန်လည်ရယူရန်' : 'Forgot Password / PIN',
+          isAk ? 'ပင်နံပါတ် ပြန်လည်ရယူရန်' : 'Forgot 6-Digit PIN',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 22,
@@ -1574,13 +1589,15 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
             TextButton(
-              onPressed: _isLoading ? null : () => _handleForgotEmailSubmit(appState),
+              onPressed: _isLoading
+                  ? null
+                  : () => _handleForgotEmailSubmit(appState),
               child: Text(
                 isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Code',
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF2563EB),
+                  color: Color(0xFFC72138),
                 ),
               ),
             ),
@@ -1779,7 +1796,8 @@ class _AuthScreenState extends State<AuthScreen> {
               )
             : Text(
                 title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
       ),
     );
