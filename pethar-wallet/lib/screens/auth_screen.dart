@@ -942,13 +942,20 @@ class _AuthScreenState extends State<AuthScreen> {
                 color: isAk ? Colors.white : Colors.transparent,
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: Text(
-                '🇲🇲 MM',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: isAk ? const Color(0xFFC72138) : Colors.white70,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const FlagArakan(width: 18),
+                  const SizedBox(width: 5),
+                  Text(
+                    'AK',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: isAk ? const Color(0xFFC72138) : Colors.white70,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -961,13 +968,20 @@ class _AuthScreenState extends State<AuthScreen> {
                 color: !isAk ? Colors.white : Colors.transparent,
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: Text(
-                '🇬🇧 EN',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: !isAk ? const Color(0xFFC72138) : Colors.white70,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const FlagGB(width: 18),
+                  const SizedBox(width: 5),
+                  Text(
+                    'EN',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: !isAk ? const Color(0xFFC72138) : Colors.white70,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -1021,7 +1035,7 @@ class _AuthScreenState extends State<AuthScreen> {
         _buildStatusBanner(),
 
         _buildPrimaryButton(
-          title: isAk ? 'ရှေ့သို့ ဆက်သွားမည် (Send OTP)' : 'Continue',
+          title: isAk ? 'ရှေ့သို့ ဆက်သွားမည်' : 'Continue',
           isLoading: _isLoading,
           enabled: canSubmit,
           onPressed: () => _handleEmailSubmit(appState, isSignUp: false),
@@ -1112,7 +1126,7 @@ class _AuthScreenState extends State<AuthScreen> {
         _buildStatusBanner(),
 
         _buildPrimaryButton(
-          title: isAk ? 'ရှေ့သို့ ဆက်သွားမည် (Send OTP)' : 'Continue',
+          title: isAk ? 'ရှေ့သို့ ဆက်သွားမည်' : 'Continue',
           isLoading: _isLoading,
           enabled: canSubmit,
           onPressed: () => _handleEmailSubmit(appState, isSignUp: true),
