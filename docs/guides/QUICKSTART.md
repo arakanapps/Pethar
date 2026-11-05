@@ -124,7 +124,7 @@ app-armeabi-v7a-release.apk (19.8 MB) - Older phones
    adb install pethar-wallet/build/app/outputs/flutter-apk/app-release.apk
    ```
 4. Open "Péthar Wallet" on your phone
-5. Sign in with Google or test email
+5. Sign in with Google or email (OTP sent from pethar.wallet@gmail.com)
 
 ---
 

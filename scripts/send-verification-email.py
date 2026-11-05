@@ -3,8 +3,8 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-# Gmail SMTP Configuration
-GMAIL_SENDER = os.getenv("GMAIL_SENDER")
+# Gmail SMTP Configuration (Official System Sender: pethar.wallet@gmail.com)
+GMAIL_SENDER = os.getenv("GMAIL_SENDER", "pethar.wallet@gmail.com")
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "").replace(" ", "")
 
 

@@ -23,7 +23,7 @@ except ImportError:
     pymongo = None
 
 PORT = int(os.getenv("OTP_SERVER_PORT", "3001"))
-GMAIL_SENDER = os.getenv("GMAIL_SENDER", "")
+GMAIL_SENDER = os.getenv("GMAIL_SENDER", "pethar.wallet@gmail.com")
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "").replace(" ", "")
 
 MONGODB_URL = os.getenv("MONGODB_URL", "")

@@ -89,10 +89,9 @@ The mobile application enforces strict conditional authentication across 4 dedic
 3. **Email Signup:** Input `Email` + `Create PIN` ➔ Verify `Email OTP` ➔ Route to `Home`
 4. **Google Signup:** Tap `Google Sign-In` ➔ `Create PIN` ➔ Route to `Home`
 
-### Designated System Test OTP Account
-For testing and automated verification, use the system test credentials:
-- **Test Email:** `pethar.wallet@gmail.com`
-- **Test OTP Code:** `123456` (10-minute expiry window)
+### Official System Email
+- **System Sender:** `pethar.wallet@gmail.com` — all verification OTPs (10-minute expiry) are sent from this official address.
+- There are no test accounts or fixed OTP codes; every account must verify a real emailed code.
 
 ---
 

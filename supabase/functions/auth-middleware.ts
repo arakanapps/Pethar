@@ -311,14 +311,9 @@ export async function validateTokenAndUser(
     }
 
     // 2c. Verify Email Confirmation Status
-    const userEmail = verifiedAuthUser.email?.toLowerCase().trim() ?? '';
-    const enableTestAccount = getEnv('ENABLE_TEST_OTP_ACCOUNT') === 'true';
-    const testOtpEmail = (getEnv('TEST_OTP_EMAIL') || '').toLowerCase().trim();
-    const isTestAccount = enableTestAccount && userEmail === testOtpEmail;
     const isEmailConfirmed = Boolean(
       verifiedAuthUser.email_confirmed_at ||
-      (verifiedAuthUser as any).confirmed_at ||
-      isTestAccount
+      (verifiedAuthUser as any).confirmed_at
     );
     if ((options?.requireEmailConfirmed ?? true) && !isEmailConfirmed) {
       return {

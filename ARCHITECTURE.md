@@ -97,10 +97,9 @@ Mobile authentication follows 4 explicit routes:
    - Step 2: Create `Access PIN` (+ confirm PIN)
    - Step 3: Issue account and route directly to `Home`
 
-### Designated OTP Test Account
-- **Test Email:** `pethar.wallet@gmail.com`
-- **Test OTP Code:** `123456`
-- Supported across local testing, unit tests, and QA environments.
+### Official System Email
+- **System Sender:** `pethar.wallet@gmail.com` — official address for all transactional OTP emails.
+- No test accounts, bypasses, or fixed OTP codes exist in any environment.
 
 ---
 
