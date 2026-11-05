@@ -45,7 +45,7 @@ class ParsedPaymentTarget {
       } catch (_) {}
     }
 
-    // 2. Check 12-digit numeric UID (e.g. 202611030001)
+    // 2. Check 12-digit numeric UID
     if (RegExp(r'^\d{12}$').hasMatch(trimmed)) {
       return ParsedPaymentTarget(
         uid: trimmed,
@@ -181,8 +181,7 @@ class _ScanScreenState extends State<ScanScreen> {
   void _shareMyQr(BuildContext context, AppState appState, bool isAk) {
     final username =
         '@${appState.profile.name.toLowerCase().replaceAll(RegExp(r'\s+'), '')}';
-    final myUid =
-        appState.profile.uid.isNotEmpty ? appState.profile.uid : '202611030001';
+    final myUid = appState.profile.uid;
     Clipboard.setData(
       ClipboardData(
         text: '${appState.profile.name} ($username) · UID: $myUid',

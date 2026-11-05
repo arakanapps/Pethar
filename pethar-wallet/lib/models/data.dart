@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 class UserProfile {
   // Immutable Fields (cant change)
   String username; // cant change
@@ -81,14 +83,21 @@ class UserProfile {
   }
 }
 
-/// Generates a standardized UID in format: yearmmddusercount (e.g. 202610190001)
+/// Generates a cryptographically random 12-digit numeric UID (e.g. 482910374821)
 String generateUserUid({int userCount = 1, DateTime? date}) {
-  final now = date ?? DateTime.now();
-  final y = now.year.toString().padLeft(4, '0');
-  final m = now.month.toString().padLeft(2, '0');
-  final d = now.day.toString().padLeft(2, '0');
-  final count = userCount.toString().padLeft(4, '0');
-  return '$y$m$d$count';
+  math.Random rng;
+  try {
+    rng = math.Random.secure();
+  } catch (_) {
+    rng = math.Random();
+  }
+  final buffer = StringBuffer();
+  // First digit 1-9 to guarantee a strict 12-digit number
+  buffer.write(rng.nextInt(9) + 1);
+  for (int i = 0; i < 11; i++) {
+    buffer.write(rng.nextInt(10));
+  }
+  return buffer.toString();
 }
 
 

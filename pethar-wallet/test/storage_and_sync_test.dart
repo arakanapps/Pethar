@@ -21,7 +21,7 @@ void main() {
       final voucherMap = {
         'voucher_code': 'VCH-TEST-999',
         'sender_account_id': 'sender-acc-01',
-        'recipient_identifier': 'ARAK-9999',
+        'recipient_identifier': '584920173645',
         'amount': 75.0,
         'currency': 'AKD',
         'nonce': 'unique-nonce-uuid-999',
@@ -123,7 +123,7 @@ void main() {
     test('ChainHasher outputs valid 64-character SHA-256 hex digest', () {
       final hash = ChainHasher.computeChainHash(
         previousHash: 'GENESIS',
-        voucherCode: 'VCH-202611030001',
+        voucherCode: 'VCH-584920173645',
         amount: '50.00',
         senderAccountId: 'acc-uuid-1234',
       );
@@ -134,7 +134,7 @@ void main() {
       // Determinism test
       final hash2 = ChainHasher.computeChainHash(
         previousHash: 'GENESIS',
-        voucherCode: 'VCH-202611030001',
+        voucherCode: 'VCH-584920173645',
         amount: '50.00',
         senderAccountId: 'acc-uuid-1234',
       );

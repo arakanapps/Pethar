@@ -403,7 +403,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '${isAk ? 'နိုင်ငံသားကတ်နံပါတ်:' : 'National ID:'} ${appState.profile.nationalIdNo.isNotEmpty ? appState.profile.nationalIdNo : "ARAK-NAT-VERIFIED"}',
+                          '${isAk ? 'နိုင်ငံသားကတ်နံပါတ်:' : 'National ID:'} ${appState.profile.nationalIdNo.isNotEmpty ? appState.profile.nationalIdNo : "—"}',
                           style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, fontFamily: 'monospace', color: Color(0xFF14532D)),
                         ),
                         const SizedBox(height: 4),
@@ -475,7 +475,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                     controller: nameCtrl,
                     style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
                     decoration: InputDecoration(
-                      hintText: 'e.g. U Kyaw Min',
+                      hintText: 'Enter your full legal name',
                       filled: true,
                       fillColor: const Color(0xFFF4F4F5),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
@@ -490,7 +490,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                     controller: nricCtrl,
                     style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
                     decoration: InputDecoration(
-                      hintText: 'e.g. ARAK-NAT-091823',
+                      hintText: 'Enter ID or Passport number',
                       filled: true,
                       fillColor: const Color(0xFFF4F4F5),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),

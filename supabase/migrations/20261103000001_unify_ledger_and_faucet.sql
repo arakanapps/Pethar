@@ -5,23 +5,32 @@
 --              faucet and KYC approval RPCs for Stage 1 solo testing.
 -- ============================================================================
 
--- 1. Atomic User UID Sequence
-CREATE SEQUENCE IF NOT EXISTS public.user_uid_seq START WITH 1 INCREMENT BY 1;
-
--- Initialize sequence past existing max if profiles already exist
-DO $$
+-- 1. Random 12-Digit User UID Generator
+CREATE OR REPLACE FUNCTION public.generate_random_12digit_uid()
+RETURNS VARCHAR(12)
+LANGUAGE plpgsql
+VOLATILE
+SET search_path = public
+AS $$
 DECLARE
-    v_max_seq BIGINT;
+    v_uid VARCHAR(12);
+    v_attempts INT := 0;
 BEGIN
-    SELECT COALESCE(MAX(SUBSTRING(uid FROM 9)::BIGINT), 0) INTO v_max_seq 
-    FROM public.user_profiles 
-    WHERE uid ~ '^\d{12}$';
-    IF v_max_seq > 0 THEN
-        PERFORM setval('public.user_uid_seq', v_max_seq);
-    END IF;
-EXCEPTION WHEN OTHERS THEN
-    NULL;
-END $$;
+    LOOP
+        v_attempts := v_attempts + 1;
+        v_uid := (floor(100000000000 + random() * 900000000000)::BIGINT)::TEXT;
+        EXIT WHEN NOT EXISTS (
+            SELECT 1 FROM public.user_profiles WHERE uid = v_uid
+        ) AND NOT EXISTS (
+            SELECT 1 FROM public.users WHERE uid = v_uid
+        );
+        IF v_attempts > 100 THEN
+            RAISE EXCEPTION 'Unable to generate unique 12-digit UID after 100 attempts';
+        END IF;
+    END LOOP;
+    RETURN v_uid;
+END;
+$$;
 
 -- 2. Update ensure_user_profile with sequence & no fake deposit addresses
 CREATE OR REPLACE FUNCTION public.ensure_user_profile(
@@ -76,8 +85,8 @@ BEGIN
         RETURN to_jsonb(v_profile);
     END IF;
 
-    -- Concurrency-safe sequential UID generation: YYYYMMDD + 4-digit sequence
-    v_uid_code := to_char(CURRENT_DATE, 'YYYYMMDD') || lpad(nextval('public.user_uid_seq')::TEXT, 4, '0');
+    -- Concurrency-safe random 12-digit UID generation
+    v_uid_code := public.generate_random_12digit_uid();
 
     IF p_pin IS NOT NULL AND length(p_pin) >= 6 THEN
         v_pin_hash := crypt(p_pin, gen_salt('bf'));

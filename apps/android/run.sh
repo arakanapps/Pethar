@@ -10,12 +10,14 @@ ADB_BIN="$(which adb || echo "$ANDROID_HOME/platform-tools/adb")"
 CONNECTED_DEVICES=$("$ADB_BIN" devices | grep -E '\b(device)\b' || true)
 
 if [ -z "$CONNECTED_DEVICES" ]; then
-  echo "📱 No active Android device detected. Launching Pixel_PeThar emulator..."
+  AVD_NAME=$(flutter emulators | awk '/• android$/ {print $1; exit}')
+  AVD_NAME="${AVD_NAME:-Pixel_PeThar}"
+  echo "📱 No active Android device detected. Launching $AVD_NAME emulator..."
   EMULATOR_BIN="$ANDROID_HOME/emulator/emulator"
   if [ -x "$EMULATOR_BIN" ]; then
-    "$EMULATOR_BIN" -avd Pixel_PeThar -no-snapshot-load -no-boot-anim -gpu host > /dev/null 2>&1 &
+    "$EMULATOR_BIN" -avd "$AVD_NAME" -no-snapshot-load -no-boot-anim -gpu host > /dev/null 2>&1 &
   else
-    flutter emulators --launch Pixel_PeThar > /dev/null 2>&1 &
+    flutter emulators --launch "$AVD_NAME" > /dev/null 2>&1 &
   fi
 
   echo "⏳ Waiting for Android emulator to finish booting..."
@@ -30,4 +32,8 @@ TARGET_DEVICE="${DEVICE_ID:-android}"
 
 echo "🚀 Deploying to device: $TARGET_DEVICE"
 cd "$ROOT/pethar-wallet"
-flutter run -d "$TARGET_DEVICE" "$@"
+DART_DEFINES=()
+if [ -f ".env" ]; then
+  DART_DEFINES+=(--dart-define-from-file=.env)
+fi
+flutter run -d "$TARGET_DEVICE" "${DART_DEFINES[@]}" "$@"

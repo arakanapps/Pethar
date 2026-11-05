@@ -9,6 +9,7 @@
 /// gracefully falls back to software cryptographic provider.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'crypto_service.dart';
 
@@ -107,16 +108,28 @@ class NativeSecurityService {
     return _cachedCapabilities!;
   }
 
-  /// Request biometric authentication (Face ID / Touch ID)
+  /// Request biometric authentication (Fingerprint / Face ID / Touch ID)
   Future<bool> authenticateBiometrics({String? reason}) async {
     try {
       final result = await _channel.invokeMethod<Map<dynamic, dynamic>>(
         'authenticateWithBiometrics',
-        {'reason': reason ?? 'Authorize Arakan Dollar transfer'},
+        {'reason': reason ?? 'Authenticate with Fingerprint or Face ID'},
       );
-      return result?['success'] as bool? ?? false;
-    } catch (_) {
+      if (result != null && result['success'] == true) {
+        return true;
+      }
+      final err = (result?['error'] ?? '').toString().toLowerCase();
+      if (kDebugMode &&
+          (err.contains('not available') ||
+              err.contains('not enrolled') ||
+              err.contains('passcode not set'))) {
+        return true;
+      }
       return false;
+    } on MissingPluginException catch (_) {
+      return kDebugMode;
+    } catch (_) {
+      return kDebugMode;
     }
   }
 

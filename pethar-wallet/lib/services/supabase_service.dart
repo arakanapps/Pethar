@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/crypto_wallet.dart';
 import '../models/data.dart';
 
 class SupabaseService {
@@ -9,20 +10,25 @@ class SupabaseService {
   factory SupabaseService() => _instance;
   SupabaseService._internal();
 
+  static const String _defaultSupabaseUrl =
+      'https://uklqksioruxvatwpvopm.supabase.co';
+  static const String _defaultSupabaseAnonKey =
+      'sb_publishable_rUiqzJYfjRLzNK0d6xyg-g_5Z6WmTya';
+
   /// Initialize Supabase
   static Future<void> initialize({
     String? url,
     String? anonKey,
   }) async {
-    final supabaseUrl =
-        url ?? const String.fromEnvironment('SUPABASE_URL');
-    final supabaseAnonKey =
-        anonKey ?? const String.fromEnvironment('SUPABASE_ANON_KEY');
-    if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
-      throw StateError(
-        'SUPABASE_URL and SUPABASE_ANON_KEY must be supplied with --dart-define.',
-      );
-    }
+    if (isInitialized) return;
+    const envUrl = String.fromEnvironment('SUPABASE_URL');
+    const envAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+    final supabaseUrl = (url != null && url.isNotEmpty)
+        ? url
+        : (envUrl.isNotEmpty ? envUrl : _defaultSupabaseUrl);
+    final supabaseAnonKey = (anonKey != null && anonKey.isNotEmpty)
+        ? anonKey
+        : (envAnonKey.isNotEmpty ? envAnonKey : _defaultSupabaseAnonKey);
 
     await Supabase.initialize(
       url: supabaseUrl,
@@ -600,8 +606,9 @@ class SupabaseService {
   /// Send a one-time sign-in code to the given email address.
   /// Creates the Supabase auth user on first use.
   Future<void> sendEmailOtp(String email) async {
+    final cleanEmail = email.trim().toLowerCase();
     await client.auth.signInWithOtp(
-      email: email.trim().toLowerCase(),
+      email: cleanEmail,
       shouldCreateUser: true,
     );
   }
@@ -613,7 +620,7 @@ class SupabaseService {
       email: email.trim().toLowerCase(),
       token: token.trim(),
     );
-    return response.session != null;
+    return response.session != null || response.user != null;
   }
 
   /// Submit KYC Level 2 for administrator review.
@@ -799,6 +806,99 @@ class SupabaseService {
     } catch (e) {
       debugPrint('Error fetching agents from Supabase: $e');
       return [];
+    }
+  }
+
+  /// Fetch multi-chain USDT / USDC balances, 5 networks (with assigned deposit
+  /// addresses), and recent deposits/withdrawals via `get_crypto_wallet()` RPC.
+  Future<CryptoWalletState?> fetchCryptoWallet() async {
+    if (!isAuthenticated) return null;
+    try {
+      final res = await client.rpc('get_crypto_wallet');
+      if (res is Map) {
+        return CryptoWalletState.fromJson(Map<String, dynamic>.from(res));
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error fetching crypto wallet: $e');
+      return null;
+    }
+  }
+
+  /// Provision deposit addresses across EVM (ETH, BSC, Polygon), Tron, and
+  /// Solana from the pre-generated public address pool (requires KYC Level 2).
+  Future<Map<String, dynamic>> provisionCryptoAddresses() async {
+    if (!isAuthenticated) {
+      return {'success': false, 'message': 'Sign in required.'};
+    }
+    try {
+      final res = await client.rpc('provision_crypto_addresses');
+      if (res is Map) {
+        final map = Map<String, dynamic>.from(res);
+        return {
+          'success': true,
+          'wallet': CryptoWalletState.fromJson(map),
+        };
+      }
+      return {'success': false, 'message': 'Unexpected server response.'};
+    } on PostgrestException catch (e) {
+      return {'success': false, 'message': e.message};
+    } catch (e) {
+      debugPrint('Error provisioning crypto addresses: $e');
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  /// Submit an on-chain USDT / USDC withdrawal request after PIN verification.
+  Future<Map<String, dynamic>> requestCryptoWithdrawal({
+    required String network,
+    required String token,
+    required String toAddress,
+    required double amount,
+    required String pin,
+    required String idempotencyKey,
+  }) async {
+    if (!isAuthenticated) {
+      return {
+        'success': false,
+        'message': 'Sign in again before withdrawing.',
+      };
+    }
+    try {
+      final response = await client.functions.invoke(
+        'crypto-withdraw',
+        headers: {'Idempotency-Key': idempotencyKey},
+        body: {
+          'network': network,
+          'token': token,
+          'to_address': toAddress.trim(),
+          'amount': amount,
+          'pin': pin,
+          'idempotency_key': idempotencyKey,
+        },
+      );
+      if (response.status != 200) {
+        final data = response.data;
+        final message =
+            data is Map ? (data['message'] ?? data['error']) : null;
+        return {
+          'success': false,
+          'message': message?.toString() ?? 'Withdrawal request failed',
+          'locked': data is Map ? (data['locked'] == true) : false,
+        };
+      }
+      return Map<String, dynamic>.from(response.data as Map);
+    } on FunctionException catch (e) {
+      final details = e.details;
+      final message =
+          details is Map ? (details['message'] ?? details['error']) : null;
+      return {
+        'success': false,
+        'message': message?.toString() ?? 'Withdrawal request failed',
+      };
+    } catch (e) {
+      debugPrint('Error submitting crypto withdrawal: $e');
+      return {'success': false, 'message': e.toString()};
     }
   }
 }
