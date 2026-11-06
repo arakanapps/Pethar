@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../theme.dart';
 
 class HistoryItem {
   final String id;
@@ -254,12 +255,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 width: 56,
                 height: 56,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFD1FAE5),
+                  color: Color(0xFFFFF1F2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.check_circle_rounded,
-                  color: Color(0xFF10B981),
+                  color: crimson,
                   size: 32,
                 ),
               ),

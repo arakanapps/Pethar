@@ -878,7 +878,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFECFDF5),
+                        color: const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
@@ -886,7 +886,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: emeraldSuccess,
+                          color: Color(0xFF1E293B),
                         ),
                       ),
                     ),

@@ -9,8 +9,10 @@
 /// gracefully falls back to software cryptographic provider.
 library;
 
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
 import 'crypto_service.dart';
 
 class NativeSecurityCapabilities {
@@ -108,8 +110,62 @@ class NativeSecurityService {
     return _cachedCapabilities!;
   }
 
-  /// Request biometric authentication (Fingerprint / Face ID / Touch ID)
+  final LocalAuthentication _localAuth = LocalAuthentication();
+
+  /// Query detected device biometric type (Face ID, Touch ID, Fingerprint, Face Unlock)
+  Future<String> getBiometryType() async {
+    if (kIsWeb) return 'none';
+    try {
+      final bool canCheck = await _localAuth.canCheckBiometrics;
+      final bool isDeviceSupported = await _localAuth.isDeviceSupported();
+      if (!canCheck && !isDeviceSupported) {
+        return 'none';
+      }
+      final List<BiometricType> available = await _localAuth.getAvailableBiometrics();
+      if (Platform.isIOS) {
+        if (available.contains(BiometricType.face)) return 'faceID';
+        if (available.contains(BiometricType.fingerprint)) return 'touchID';
+        return 'faceID';
+      } else if (Platform.isAndroid) {
+        final bool hasFace = available.contains(BiometricType.face);
+        final bool hasFingerprint = available.contains(BiometricType.fingerprint);
+        if (hasFace && hasFingerprint) return 'both';
+        if (hasFace) return 'faceUnlock';
+        if (hasFingerprint) return 'fingerprint';
+        return 'fingerprint';
+      }
+    } catch (_) {}
+    return 'none';
+  }
+
+  /// Human-friendly label for current device biometric capability
+  Future<String> getBiometricLabel({bool isAk = false}) async {
+    final type = await getBiometryType();
+    if (type == 'faceID') return isAk ? 'Apple Face ID' : 'Face ID';
+    if (type == 'touchID') return isAk ? 'Apple Touch ID' : 'Touch ID';
+    if (type == 'faceUnlock') return isAk ? 'Android မျက်နှာဖြင့် သော့ဖွင့်ခြင်း' : 'Face Unlock';
+    if (type == 'fingerprint') return isAk ? 'Android လက်ဗွေ စနစ်' : 'Fingerprint';
+    if (type == 'both') return isAk ? 'Android လက်ဗွေ နှင့် မျက်နှာ စနစ်' : 'Fingerprint & Face Unlock';
+    return isAk ? 'လက်ဗွေ / မျက်နှာ စနစ်' : 'Biometrics';
+  }
+
+  /// Request biometric authentication (Fingerprint / Face ID / Touch ID / Face Unlock)
   Future<bool> authenticateBiometrics({String? reason}) async {
+    if (!kIsWeb) {
+      try {
+        final bool canCheck = await _localAuth.canCheckBiometrics;
+        final bool isDeviceSupported = await _localAuth.isDeviceSupported();
+        if (canCheck || isDeviceSupported) {
+          final bool didAuth = await _localAuth.authenticate(
+            localizedReason: reason ?? 'Authenticate with Biometrics to access Péthar',
+            biometricOnly: true,
+            persistAcrossBackgrounding: true,
+          );
+          if (didAuth) return true;
+        }
+      } catch (_) {}
+    }
+
     try {
       final result = await _channel.invokeMethod<Map<dynamic, dynamic>>(
         'authenticateWithBiometrics',

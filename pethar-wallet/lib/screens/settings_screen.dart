@@ -65,7 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
-        backgroundColor: const Color(0xFF059669),
+        backgroundColor: const Color(0xFF1E293B),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         duration: const Duration(seconds: 2),
@@ -382,7 +382,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 }
                               }
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD91624), foregroundColor: Colors.white),
                       child: isLoading
                           ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                           : const Text('Verify & Update Email', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -539,7 +539,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 }
                               }
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD91624), foregroundColor: Colors.white),
                       child: isLoading
                           ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                           : const Text('Verify & Update Phone', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -692,7 +692,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 }
                               }
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD91624), foregroundColor: Colors.white),
                       child: const Text('Verify OTP & Reset PIN', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
@@ -818,7 +818,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 _showToast(context, 'Name change submitted for administrative review (Status: PENDING_REVIEW)');
                               }
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF059669), foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD91624), foregroundColor: Colors.white),
                       child: const Text('Submit Request for Review', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
@@ -1339,8 +1339,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFFF97316),
-                          side: const BorderSide(color: Color(0xFFF97316)),
+                          foregroundColor: const Color(0xFF64748B),
+                          side: const BorderSide(color: Color(0xFFCBD5E1)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                         ),
                         child: Text(
@@ -1360,7 +1360,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           await appState.signOut();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFF97316),
+                          backgroundColor: const Color(0xFFD91624),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                           elevation: 0,
@@ -1387,7 +1387,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
           onPressed: () => setState(() => _subView = 'main'),
@@ -1455,13 +1455,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Icon(Icons.fingerprint_rounded, size: 13, color: Color(0xFF059669)),
+                              const Icon(Icons.fingerprint_rounded, size: 13, color: Color(0xFFD91624)),
                               const SizedBox(width: 6),
                               Text(
                                 (isAndroid ? _biometricLoginEnabled : _faceIdEnabled)
                                     ? (isAk ? 'လက်ဗွေ စက်ပစ္စည်းတွင် အသုံးပြုနေသည်' : 'Biometrics Active & Enrolled')
                                     : (isAk ? 'လက်ဗွေ ပိတ်ထားပါသည်' : 'Biometrics Not Enrolled'),
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF059669)),
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFD91624)),
                               ),
                             ],
                           ),
@@ -1523,7 +1523,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
           onPressed: () => setState(() => _subView = 'main'),
@@ -1849,7 +1849,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
           onPressed: () => setState(() => _subView = 'main'),
@@ -1942,7 +1942,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
           onPressed: () => setState(() => _subView = 'main'),
@@ -2082,7 +2082,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
           onPressed: () => setState(() => _subView = 'main'),
@@ -2163,7 +2163,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
           onPressed: () => setState(() => _subView = 'pin_management'),
@@ -2314,16 +2314,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               margin: const EdgeInsets.only(bottom: 14),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFFECFDF5),
+                color: const Color(0xFFFFF1F2),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFA7F3D0)),
+                border: Border.all(color: const Color(0xFFFECDD3)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle_outline, color: Color(0xFF059669), size: 18),
+                  const Icon(Icons.check_circle_outline, color: Color(0xFFD91624), size: 18),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(_pinChangeSuccess!, style: const TextStyle(color: Color(0xFF059669), fontSize: 12, fontWeight: FontWeight.w600)),
+                    child: Text(_pinChangeSuccess!, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 12, fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -2390,7 +2390,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 backgroundColor: const Color(0xFFD91624),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 1,
+                elevation: 0,
               ),
               child: _isSubmittingPin
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
@@ -2434,7 +2434,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
           onPressed: () => setState(() => _subView = 'pin_management'),
@@ -2611,16 +2611,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               margin: const EdgeInsets.only(bottom: 14),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFFECFDF5),
+                color: const Color(0xFFFFF1F2),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFA7F3D0)),
+                border: Border.all(color: const Color(0xFFFECDD3)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle_outline, color: Color(0xFF059669), size: 18),
+                  const Icon(Icons.check_circle_outline, color: Color(0xFFD91624), size: 18),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(_forgotPinSuccess!, style: const TextStyle(color: Color(0xFF059669), fontSize: 12, fontWeight: FontWeight.w600)),
+                    child: Text(_forgotPinSuccess!, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 12, fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -2681,7 +2681,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 backgroundColor: const Color(0xFFD91624),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 1,
+                elevation: 0,
               ),
               child: _isSubmittingPin
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
@@ -2819,10 +2819,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               width: 28,
                               height: 28,
                               decoration: const BoxDecoration(
-                                color: Color(0xFFECFDF5),
+                                color: Color(0xFFF1F5F9),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.verified_user_outlined, color: Color(0xFF059669), size: 16),
+                              child: const Icon(Icons.verified_user_outlined, color: crimson, size: 16),
                             ),
                             const SizedBox(width: 10),
                             Text(
@@ -2836,10 +2836,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                             decoration: BoxDecoration(
-                              color: appState.isVerified ? const Color(0xFFECFDF5) : const Color(0xFFFFF1F2),
+                              color: appState.isVerified ? const Color(0xFFF1F5F9) : const Color(0xFFFFF1F2),
                               borderRadius: BorderRadius.circular(999),
                               border: Border.all(
-                                color: appState.isVerified ? const Color(0xFFA7F3D0) : const Color(0xFFFECDD3),
+                                color: appState.isVerified ? const Color(0xFFE2E8F0) : const Color(0xFFFECDD3),
                               ),
                             ),
                             child: Row(
@@ -2847,7 +2847,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 Icon(
                                   appState.isVerified ? Icons.check_circle_outline_rounded : Icons.error_outline_rounded,
                                   size: 14,
-                                  color: appState.isVerified ? const Color(0xFF047857) : crimson,
+                                  color: appState.isVerified ? const Color(0xFF1E293B) : crimson,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
@@ -2855,7 +2855,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
-                                    color: appState.isVerified ? const Color(0xFF047857) : crimson,
+                                    color: appState.isVerified ? const Color(0xFF1E293B) : crimson,
                                   ),
                                 ),
                               ],

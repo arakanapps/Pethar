@@ -131,7 +131,7 @@ class _ScanScreenState extends State<ScanScreen> {
       name: target.name,
       id: target.uid.isNotEmpty ? target.uid : 'REC-QR',
       initials: initials,
-      colorValue: 0xFF10B981,
+      colorValue: 0xFFD91624,
       username: target.username,
       uid: target.uid,
     );

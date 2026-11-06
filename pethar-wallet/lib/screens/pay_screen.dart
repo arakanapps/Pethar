@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../theme.dart';
 import '../services/supabase_service.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/pin_prompt.dart';
@@ -1112,21 +1113,21 @@ class _PayScreenState extends State<PayScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 9, vertical: 2.5),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                    color: const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.check_circle_rounded,
-                          size: 12, color: Color(0xFF059669)),
+                          size: 12, color: Color(0xFF334155)),
                       const SizedBox(width: 4),
                       Text(
                         isAk ? 'အတည်ပြုထားသော အကောင့်' : 'Verified Recipient',
                         style: const TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF059669),
+                          color: Color(0xFF334155),
                         ),
                       ),
                     ],
@@ -1251,14 +1252,14 @@ class _PayScreenState extends State<PayScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(Icons.info_outline_rounded,
-                              size: 12, color: Color(0xFFEA580C)),
+                              size: 12, color: crimson),
                           const SizedBox(width: 3),
                           Text(
                             isAk ? 'အနည်းဆုံး 0.01' : 'At least 0.01',
                             style: const TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFFEA580C),
+                              color: crimson,
                             ),
                           ),
                         ],
@@ -1432,14 +1433,14 @@ class _PayScreenState extends State<PayScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7ED),
+                      color: const Color(0xFFFFF1F2),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFFDBA74)),
+                      border: Border.all(color: const Color(0xFFFECDD3)),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.info_outline_rounded,
-                            color: Color(0xFFEA580C), size: 16),
+                            color: crimson, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -1447,7 +1448,7 @@ class _PayScreenState extends State<PayScreen> {
                                 ? 'အနည်းဆုံး 0.01 AKD လွှဲရပါမည် (At least 0.01)'
                                 : 'At least 0.01: Minimum transfer amount is 0.01 AKD',
                             style: const TextStyle(
-                              color: Color(0xFFEA580C),
+                              color: crimson,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -1619,12 +1620,13 @@ class _PayScreenState extends State<PayScreen> {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                    color: const Color(0xFFFFF1F2),
                     shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFFECDD3)),
                   ),
                   child: const Center(
                     child: Icon(Icons.check_rounded,
-                        color: Color(0xFF059669), size: 36),
+                        color: crimson, size: 36),
                   ),
                 ),
                 const SizedBox(height: 14),

@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
               content: Text(
                 isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'Profile photo updated successfully!',
               ),
-              backgroundColor: const Color(0xFF10B981),
+              backgroundColor: const Color(0xFF18181B),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -99,6 +99,114 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       debugPrint('Error picking avatar image: $e');
     }
+  }
+
+  void _showBillPaymentModal(BuildContext context, AppState appState, bool isAk) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        final billCategories = [
+          {'icon': Icons.bolt_rounded, 'title': isAk ? 'လျှပ်စစ်မီတာခ' : 'Electricity Bill', 'desc': isAk ? 'အိမ်သုံးနှင့် လုပ်ငန်းသုံး မီတာ' : 'Home & Commercial Meter'},
+          {'icon': Icons.water_drop_rounded, 'title': isAk ? 'ရေမီတာခ' : 'Water Utility', 'desc': isAk ? 'စည်ပင်သာယာ ရေဖိုး' : 'Municipal Water Supply'},
+          {'icon': Icons.wifi_rounded, 'title': isAk ? 'အင်တာနက်နှင့် ဖုန်းဘေလ်' : 'Internet & Telecom', 'desc': isAk ? 'ဖိုင်ဘာ အင်တာနက်နှင့် မိုဘိုင်း' : 'Fiber & Mobile Data'},
+          {'icon': Icons.tv_rounded, 'title': isAk ? 'ရုပ်သံလိုင်းများ' : 'TV & Media Subscription', 'desc': isAk ? 'ကေဘယ်လ်နှင့် ဂြိုဟ်တု ရုပ်သံ' : 'Cable & Satellite TV'},
+          {'icon': Icons.account_balance_rounded, 'title': isAk ? 'အခွန်နှင့် အစိုးရဝန်ဆောင်ခ' : 'Government & Taxes', 'desc': isAk ? 'စည်ပင်အခွန်နှင့် ဝန်ဆောင်ခများ' : 'Municipal Taxes & Fees'},
+        ];
+
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.65,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE4E4E7),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    isAk ? 'ဘေလ်ပေးဆောင်ရန်' : 'Bill Payment',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF18181B),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Color(0xFF71717A)),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                isAk ? 'ပေးဆောင်လိုသော ဝန်ဆောင်မှု အမျိုးအစားကို ရွေးချယ်ပါ' : 'Select a utility or bill payment service',
+                style: const TextStyle(fontSize: 12.5, color: Color(0xFF71717A)),
+              ),
+              const SizedBox(height: 14),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: billCategories.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFF4F4F5)),
+                  itemBuilder: (context, idx) {
+                    final item = billCategories[idx];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                      leading: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF1F2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFECDD3)),
+                        ),
+                        child: Icon(item['icon'] as IconData, color: crimson, size: 22),
+                      ),
+                      title: Text(
+                        item['title'] as String,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF18181B)),
+                      ),
+                      subtitle: Text(
+                        item['desc'] as String,
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFFA1A1AA)),
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              isAk ? '${item['title']} - မကြာမီ လာမည်ဖြစ်ပါသည်' : '${item['title']} is coming soon!',
+                            ),
+                            backgroundColor: const Color(0xFF18181B),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showChangeProfilePhotoModal(BuildContext context, AppState appState, bool isAk) {
@@ -358,9 +466,18 @@ class _HomeScreenState extends State<HomeScreen> {
     final isAk = lang == 'ak';
     final currencyFmt = NumberFormat('#,##0.00', 'en_US');
 
-    // The dashboard exposes exactly two money actions: Receive and Pay.
-    // Pay is the single transfer action (person or P2P UID).
+    // Primary 4-Action Row: Transfer | Receive | Deposit | Withdraw
     final homeActions = [
+      {
+        'label': isAk ? 'ငွေလွှဲ' : 'Transfer',
+        'iconWidget': const Icon(Icons.swap_horiz_rounded, color: crimson, size: 23),
+        'onTap': () => _runVerifiedAction(
+              context,
+              appState,
+              isAk ? 'ငွေလွှဲရန် (Transfer)' : 'Transfer',
+              () => appState.navigate(Screen.send),
+            ),
+      },
       {
         'label': isAk ? 'ငွေလက်ခံ' : 'Receive',
         'iconWidget': const Icon(Icons.qr_code_2_rounded, color: crimson, size: 22),
@@ -372,21 +489,52 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
       },
       {
-        'label': isAk ? 'ငွေပေးချေ' : 'Pay',
-        'iconWidget': const WalletMinimalFlutterIcon(size: 21, color: Colors.black),
+        'label': isAk ? 'ငွေသွင်း' : 'Deposit',
+        'iconWidget': const Icon(Icons.south_rounded, color: crimson, size: 21),
         'onTap': () => _runVerifiedAction(
               context,
               appState,
-              isAk ? 'ငွေပေးချေရန် (Pay)' : 'Pay',
-              () => appState.navigate(Screen.pay),
+              isAk ? 'ငွေသွင်းရန် (Deposit)' : 'Deposit',
+              () {
+                appState.setFinancialSubView('deposit');
+                appState.navigate(Screen.crypto, financialView: 'deposit');
+              },
+            ),
+      },
+      {
+        'label': isAk ? 'ငွေထုတ်' : 'Withdraw',
+        'iconWidget': const Icon(Icons.north_rounded, color: crimson, size: 21),
+        'onTap': () => _runVerifiedAction(
+              context,
+              appState,
+              isAk ? 'ငွေထုတ်ရန် (Withdraw)' : 'Withdraw',
+              () {
+                appState.setFinancialSubView('withdraw');
+                appState.navigate(Screen.crypto, financialView: 'withdraw');
+              },
             ),
       },
     ];
 
-    // Secondary navigation only. No additional money-moving actions.
+    // Secondary 4-Service Row: Top Up | Bill Payment | Accounts | History
     final secondaryActions = [
       {
-        'label': isAk ? 'ငွေစာရင်း' : 'Account',
+        'label': isAk ? 'ငွေဖြည့်' : 'Top Up',
+        'iconWidget': const Icon(Icons.add_rounded, color: crimson, size: 22),
+        'onTap': () => _runVerifiedAction(
+              context,
+              appState,
+              isAk ? 'ငွေဖြည့်ရန် (Top Up)' : 'Top Up',
+              () => appState.navigate(Screen.intl),
+            ),
+      },
+      {
+        'label': isAk ? 'ဘေလ်ဆောင်' : 'Bill Payment',
+        'iconWidget': const Icon(Icons.receipt_long_rounded, color: crimson, size: 20),
+        'onTap': () => _showBillPaymentModal(context, appState, isAk),
+      },
+      {
+        'label': isAk ? 'ငွေစာရင်း' : 'Accounts',
         'iconWidget': const Icon(Icons.credit_card_rounded, color: crimson, size: 20),
         'onTap': () => appState.navigate(Screen.account),
       },
@@ -724,7 +872,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
                 const SizedBox(height: 14),
 
-                // 3. PRIMARY ACTIONS: Receive | Pay
+                // 3. PRIMARY 4-ACTION BOX: Send | Receive | Pay | Top Up
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                   decoration: BoxDecoration(
@@ -795,41 +943,78 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            isAk
-                                ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)'
-                                : 'Wallet Balance (AKD)',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF52525B),
-                              fontWeight: FontWeight.w700,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                isAk
+                                    ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)'
+                                    : 'Wallet Balance (AKD)',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF52525B),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () => appState.toggleBalance(),
+                                child: Icon(
+                                  appState.balanceHidden
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  size: 16,
+                                  color: const Color(0xFF71717A),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () => appState.toggleBalance(),
-                            child: Icon(
-                              appState.balanceHidden
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              size: 16,
-                              color: const Color(0xFF71717A),
+                          // 1.00 ₳ = $1.00 Pill Chip
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF1F2),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(color: const Color(0xFFFECDD3)),
+                            ),
+                            child: const Text(
+                              '1.00 ₳ = \$1.00',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: crimson,
+                                letterSpacing: 0.2,
+                              ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
                       if (appState.balanceHidden)
-                        const Text(
-                          '••••••••',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF18181B),
-                            fontFamily: 'monospace',
-                            letterSpacing: 3,
-                          ),
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '••••••••',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF18181B),
+                                fontFamily: 'monospace',
+                                letterSpacing: 3,
+                              ),
+                            ),
+                            SizedBox(height: 3),
+                            Text(
+                              '= \$•••• USD',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
                         )
                       else
                         Builder(
@@ -840,35 +1025,49 @@ class _HomeScreenState extends State<HomeScreen> {
                                 : (bal >= 1000000
                                     ? 24.0
                                     : (bal >= 100000 ? 26.0 : 28.0));
-                            return FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
-                                children: [
-                                  Text(
-                                    '₳ ',
-                                    style: TextStyle(
-                                      fontSize: fontSize * 0.85,
-                                      fontWeight: FontWeight.w900,
-                                      color: crimson,
-                                      fontFamily: 'monospace',
-                                    ),
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                                    textBaseline: TextBaseline.alphabetic,
+                                    children: [
+                                      Text(
+                                        '₳ ',
+                                        style: TextStyle(
+                                          fontSize: fontSize * 0.85,
+                                          fontWeight: FontWeight.w900,
+                                          color: crimson,
+                                          fontFamily: 'monospace',
+                                        ),
+                                      ),
+                                      Text(
+                                        currencyFmt.format(bal),
+                                        style: TextStyle(
+                                          fontSize: fontSize,
+                                          fontWeight: FontWeight.w900,
+                                          color: const Color(0xFF09090B),
+                                          fontFamily: 'monospace',
+                                          letterSpacing: -0.5,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    currencyFmt.format(bal),
-                                    style: TextStyle(
-                                      fontSize: fontSize,
-                                      fontWeight: FontWeight.w900,
-                                      color: const Color(0xFF09090B),
-                                      fontFamily: 'monospace',
-                                      letterSpacing: -0.5,
-                                    ),
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  '= \$${currencyFmt.format(bal)} USD',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF64748B),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             );
                           },
                         ),
@@ -1037,31 +1236,38 @@ class _HomeScreenState extends State<HomeScreen> {
                             isAk ? 'ကျွန်ုပ်၏ စိတ်ကြိုက်များ' : 'My Favourites',
                             () => appState.navigate(Screen.favourites),
                           ),
-                          child: Container(
-                            height: 44,
-                            padding: const EdgeInsets.symmetric(horizontal: 14),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF8FAFC),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.person_add_alt_1_rounded, size: 16, color: crimson),
-                                const SizedBox(width: 8),
-                                Text(
-                                  isAk
-                                      ? 'စိတ်ကြိုက်လက်ခံသူ အသစ်ထည့်ပါ'
-                                      : 'Add your first favourite recipient',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF64748B),
-                                  ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 44,
+                                padding: const EdgeInsets.symmetric(horizontal: 14),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF8FAFC),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: const Color(0xFFE2E8F0)),
                                 ),
-                              ],
-                            ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.person_add_alt_1_rounded, size: 16, color: crimson),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      isAk
+                                          ? 'စိတ်ကြိုက်လက်ခံသူ အသစ်ထည့်ပါ'
+                                          : 'Add your first favourite recipient',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const SizedBox(height: 15),
+                            ],
                           ),
                         ),
                       ],
@@ -1070,7 +1276,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // 6. SECONDARY 4-SERVICE BOX: (+) Topup | (Bill) Bill payment | (Card) Account | (Clock) History
+                // 6. SECONDARY 4-SERVICE BOX: Account | History | Crypto | Favourites
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                   decoration: BoxDecoration(

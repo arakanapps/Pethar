@@ -114,7 +114,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(Icons.info_outline_rounded, color: Color(0xFFFBBF24), size: 18),
+                    const Icon(Icons.info_outline_rounded, color: Color(0xFFD91624), size: 18),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -164,14 +164,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFEF3C7),
+                                color: const Color(0xFFF1F5F9),
                                 borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: const Color(0xFFFDE68A)),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
                               child: Text(
                                 isAk ? 'မကြာမီ' : 'Coming Soon',
                                 style: const TextStyle(
-                                  color: Color(0xFFB45309),
+                                  color: Color(0xFF475569),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -197,14 +197,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFEF3C7),
+                                    color: const Color(0xFFF1F5F9),
                                     borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: const Color(0xFFFDE68A)),
+                                    border: Border.all(color: const Color(0xFFE2E8F0)),
                                   ),
                                   child: Text(
                                     isAk ? 'မကြာမီ' : 'Coming Soon',
                                     style: const TextStyle(
-                                      color: Color(0xFFB45309),
+                                      color: Color(0xFF475569),
                                       fontSize: 10,
                                       fontWeight: FontWeight.w700,
                                     ),

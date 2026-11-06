@@ -408,9 +408,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                 (akdTotal > 0 ? akdTotal : 1.0) * 0.15,
                               ],
                         colors: const [
-                          Color(0xFF10B981), // Green: Available
-                          Color(0xFFF59E0B), // Yellow: Pending
-                          Color(0xFF2563EB), // Blue: Total
+                          crimson, // Crimson: Available
+                          Color(0xFF94A3B8), // Slate: Pending
+                          Color(0xFF1E293B), // Charcoal: Total
                         ],
                         size: 64,
                         strokeWidth: 9,
@@ -419,7 +419,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF10B981),
+                            color: crimson,
                           ),
                         ),
                       ),
@@ -427,7 +427,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Legend for Green (Available), Yellow (Pending), Blue (Total)
+                  // Legend for Crimson (Available), Slate (Pending), Charcoal (Total)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
@@ -443,7 +443,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
+                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: crimson, shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
                               'Available: ₳ ${akdBalance.toStringAsFixed(2)}',
@@ -514,14 +514,14 @@ class _AccountScreenState extends State<AccountScreen> {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                              color: crimson.withValues(alpha: 0.12),
                               shape: BoxShape.circle,
                             ),
                             child: const Center(
                               child: Text(
                                 '\$',
                                 style: TextStyle(
-                                  color: Color(0xFF10B981),
+                                  color: crimson,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 16,
                                 ),
@@ -612,7 +612,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   const Text(
                                     '\$ ',
                                     style: TextStyle(
-                                      color: Color(0xFF10B981),
+                                      color: crimson,
                                       fontSize: 22,
                                       fontWeight: FontWeight.w900,
                                     ),
@@ -634,7 +634,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                       const SizedBox(width: 12),
 
-                      // Mini Pie Chart with Green (Available), Yellow (Pending), Blue (Total)
+                      // Mini Pie Chart with Crimson (Available), Slate (Pending), Charcoal (Total)
                       CustomMiniPieChart(
                         values: (usdBalance <= 0 && usdPending <= 0)
                             ? const [0.70, 0.15, 0.15]
@@ -644,9 +644,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                 (usdTotal > 0 ? usdTotal : 1.0) * 0.15,
                               ],
                         colors: const [
-                          Color(0xFF10B981), // Green: Available
-                          Color(0xFFF59E0B), // Yellow: Pending
-                          Color(0xFF2563EB), // Blue: Total
+                          crimson, // Crimson: Available
+                          Color(0xFF94A3B8), // Slate: Pending
+                          Color(0xFF1E293B), // Charcoal: Total
                         ],
                         size: 64,
                         strokeWidth: 9,
@@ -655,7 +655,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF10B981),
+                            color: crimson,
                           ),
                         ),
                       ),
@@ -663,7 +663,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Legend for Green (Available), Yellow (Pending), Blue (Total)
+                  // Legend for Crimson (Available), Slate (Pending), Charcoal (Total)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
@@ -679,7 +679,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
+                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: crimson, shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
                               'Available: \$ ${usdBalance.toStringAsFixed(2)}',

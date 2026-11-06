@@ -31,7 +31,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     if (item.type == 'transaction') {
       iconData = Icons.swap_horiz_rounded;
-      gradientColors = [const Color(0xFF10B981), const Color(0xFF059669)];
+      gradientColors = [const Color(0xFFFF2A38), crimson];
       categoryName = lang == 'ak' ? 'ငွေလွှဲပြောင်းမှု' : 'Transaction';
     } else if (item.type == 'system') {
       iconData = Icons.shield_rounded;
@@ -371,7 +371,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     const Icon(
                       Icons.check_circle_rounded,
                       size: 12,
-                      color: Color(0xFF16A34A),
+                      color: Color(0xFF64748B),
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -379,7 +379,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       style: const TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF16A34A),
+                        color: Color(0xFF64748B),
                       ),
                     ),
                   ],
@@ -711,7 +711,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                           width: 10,
                                           height: 10,
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFF10B981),
+                                            color: crimson,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: isDark ? obsidian : Colors.white,
@@ -850,12 +850,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               if (item.type == 'transaction') {
                                 iconData = Icons.swap_horiz_rounded;
                                 gradientColors = [
-                                  const Color(0xFF10B981),
-                                  const Color(0xFF059669),
+                                  const Color(0xFFFF2A38),
+                                  crimson,
                                 ];
                                 typeLabel = lang == 'ak' ? 'ငွေလွှဲ' : 'Transfer';
-                                tagBgColor = const Color(0xFFECFDF5);
-                                tagTextColor = const Color(0xFF059669);
+                                tagBgColor = const Color(0xFFFFF1F2);
+                                tagTextColor = crimson;
                               } else if (item.type == 'system') {
                                 iconData = Icons.shield_rounded;
                                 gradientColors = [

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -35,6 +36,7 @@ class AppState extends ChangeNotifier {
   UserProfile profile = initialUserProfile;
   WalletBalance wallet = akdWallet;
   double usdAccountBalance = 0.00;
+  String customWalletName = '';
   CryptoWalletState cryptoWallet = CryptoWalletState.fallback();
   bool isLoadingCryptoWallet = false;
   bool isVerified = false; // Verified when Level 2 National ID approved
@@ -1239,5 +1241,190 @@ class AppState extends ChangeNotifier {
           tx.title.contains('USDC') ||
           tx.titleMm.contains('USD');
     }).toList();
+  }
+
+  String get effectiveUsdWalletAddress {
+    if (profile.usdAccountWalletAddress.trim().isNotEmpty) {
+      return profile.usdAccountWalletAddress.trim();
+    }
+    final evm = cryptoWallet.primaryEvmAddress;
+    if (evm != null && evm.isNotEmpty) return evm;
+    return '0x7d785a6e4eaba2627e1f9a5b2c6953496b2c2837';
+  }
+
+  void setCustomWalletName(String name) {
+    customWalletName = name.trim();
+    notifyListeners();
+  }
+
+  Map<String, dynamic> issueUsd(double amount) {
+    if (amount <= 0) {
+      return {'success': false, 'message': 'Please enter an amount greater than 0.'};
+    }
+    if (wallet.balance < amount) {
+      return {'success': false, 'message': 'Insufficient AKD balance (Available: ${wallet.balance.toStringAsFixed(2)} AKD)'};
+    }
+    wallet.balance -= amount;
+    wallet.totalBalance = wallet.balance;
+    profile.akdWalletBalance = wallet.balance;
+    usdAccountBalance += amount;
+    profile.usdAccountBalance = usdAccountBalance;
+
+    final nowStr = DateFormat('d MMM yy - HH:mm').format(DateTime.now());
+    final tx = Transaction(
+      id: 'tx_issue_${DateTime.now().millisecondsSinceEpoch}',
+      refId: 'ISSUE-${DateTime.now().millisecondsSinceEpoch}',
+      title: 'Issued USD',
+      titleMm: 'USD ထုတ်ယူခြင်း',
+      category: 'usd_account',
+      currency: 'USD',
+      time: nowStr,
+      status: 'COMPLETED',
+      counterparty: 'Arakan Reserve Vault',
+      counterpartyMm: 'အာရက္ခ ရံပုံငွေဘဏ္ဍာတိုက်',
+      hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}',
+      amount: amount,
+      fee: 0.0,
+    );
+    txList.insert(0, tx);
+    notifyListeners();
+    return {'success': true, 'amount': amount};
+  }
+
+  Map<String, dynamic> withdrawUsd(double amount) {
+    if (amount <= 0) {
+      return {'success': false, 'message': 'Please enter an amount greater than 0.'};
+    }
+    if (usdAccountBalance < amount) {
+      return {'success': false, 'message': 'Insufficient USD balance (Available: ${usdAccountBalance.toStringAsFixed(2)} USD)'};
+    }
+    usdAccountBalance -= amount;
+    profile.usdAccountBalance = usdAccountBalance;
+    wallet.balance += amount;
+    wallet.totalBalance = wallet.balance;
+    profile.akdWalletBalance = wallet.balance;
+
+    final nowStr = DateFormat('d MMM yy - HH:mm').format(DateTime.now());
+    final tx = Transaction(
+      id: 'tx_wd_${DateTime.now().millisecondsSinceEpoch}',
+      refId: 'WD-${DateTime.now().millisecondsSinceEpoch}',
+      title: 'Withdraw USD',
+      titleMm: 'USD ငွေထုတ်ယူခြင်း',
+      category: 'usd_account',
+      currency: 'USD',
+      time: nowStr,
+      status: 'COMPLETED',
+      counterparty: 'Péthar Central Pool',
+      counterpartyMm: 'ဖေ့သာ ဗဟိုငွေစာရင်း',
+      hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}',
+      amount: -amount,
+      fee: 0.0,
+    );
+    txList.insert(0, tx);
+    notifyListeners();
+    return {'success': true, 'amount': amount};
+  }
+
+  Map<String, dynamic> sendWalletToken({
+    required String token,
+    required double amount,
+    required String toAddress,
+    required String network,
+  }) {
+    if (amount <= 0) {
+      return {'success': false, 'message': 'Please enter an amount greater than 0.'};
+    }
+    if (toAddress.trim().isEmpty) {
+      return {'success': false, 'message': 'Please enter recipient address or username.'};
+    }
+    if (token == 'USD' && usdAccountBalance < amount) {
+      return {'success': false, 'message': 'Insufficient USD balance.'};
+    }
+    if (token == 'USD') {
+      usdAccountBalance -= amount;
+      profile.usdAccountBalance = usdAccountBalance;
+    }
+
+    final nowStr = DateFormat('d MMM yy - HH:mm').format(DateTime.now());
+    final cleanAddr = toAddress.trim();
+    final shortAddr = cleanAddr.length > 10
+        ? '${cleanAddr.substring(0, 6)}...${cleanAddr.substring(cleanAddr.length - 4)}'
+        : cleanAddr;
+    final tx = Transaction(
+      id: 'tx_send_${DateTime.now().millisecondsSinceEpoch}',
+      refId: 'TX-${DateTime.now().millisecondsSinceEpoch}',
+      title: 'Sent $token to $shortAddr',
+      titleMm: '$token $shortAddr သို့ လွှဲပို့သည်',
+      category: 'usd_account',
+      currency: token,
+      time: nowStr,
+      status: 'COMPLETED',
+      counterparty: cleanAddr,
+      counterpartyMm: cleanAddr,
+      hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}',
+      amount: -amount,
+      fee: 0.001,
+    );
+    txList.insert(0, tx);
+    notifyListeners();
+    return {'success': true, 'amount': amount};
+  }
+
+  Map<String, dynamic> swapWalletToken({
+    required String fromToken,
+    required String toToken,
+    required double fromAmount,
+    required double toAmount,
+  }) {
+    if (fromAmount <= 0) {
+      return {'success': false, 'message': 'Please enter an amount greater than 0.'};
+    }
+    if (fromToken == 'USD' && usdAccountBalance < fromAmount) {
+      return {'success': false, 'message': 'Insufficient $fromToken balance.'};
+    }
+    if (fromToken == 'USD') {
+      usdAccountBalance -= fromAmount;
+      profile.usdAccountBalance = usdAccountBalance;
+    }
+    if (toToken == 'USD') {
+      usdAccountBalance += toAmount;
+      profile.usdAccountBalance = usdAccountBalance;
+    }
+
+    final nowStr = DateFormat('d MMM yy - HH:mm').format(DateTime.now());
+    final txPaid = Transaction(
+      id: 'tx_swap_paid_${DateTime.now().millisecondsSinceEpoch}',
+      refId: 'SWAP-${DateTime.now().millisecondsSinceEpoch}',
+      title: 'Paid $fromToken for Swap',
+      titleMm: 'လဲလှယ်ရန် $fromToken ပေးချေသည်',
+      category: 'usd_account',
+      currency: fromToken,
+      time: nowStr,
+      status: 'COMPLETED',
+      counterparty: 'Uniswap Liquidity Pool',
+      counterpartyMm: 'Uniswap အရည်အသွေးကန်',
+      hash: '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}',
+      amount: -fromAmount,
+      fee: 0.0,
+    );
+    final txRecv = Transaction(
+      id: 'tx_swap_recv_${DateTime.now().millisecondsSinceEpoch + 1}',
+      refId: 'SWAP-${DateTime.now().millisecondsSinceEpoch + 1}',
+      title: 'Received $toToken',
+      titleMm: '$toToken လက်ခံရရှိသည်',
+      category: 'usd_account',
+      currency: toToken,
+      time: nowStr,
+      status: 'COMPLETED',
+      counterparty: 'Uniswap Liquidity Pool',
+      counterpartyMm: 'Uniswap အရည်အသွေးကန်',
+      hash: '0x${(DateTime.now().millisecondsSinceEpoch + 1).toRadixString(16)}',
+      amount: toAmount,
+      fee: 0.0,
+    );
+    txList.insert(0, txPaid);
+    txList.insert(0, txRecv);
+    notifyListeners();
+    return {'success': true};
   }
 }

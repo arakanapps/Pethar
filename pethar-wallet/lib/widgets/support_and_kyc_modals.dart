@@ -318,16 +318,16 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFECFDF5),
+                    color: const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFA7F3D0)),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
                   ),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: const BoxDecoration(
-                          color: Color(0xFF10B981),
+                          color: crimson,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.check, size: 14, color: Colors.white),
@@ -393,23 +393,23 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.verified_rounded, color: Color(0xFF16A34A), size: 20),
+                            const Icon(Icons.verified_rounded, color: crimson, size: 20),
                             const SizedBox(width: 8),
                             Text(
                               isAk ? 'အဆင့် ၂ အတည်ပြုပြီးပါပြီ' : 'Level 2 Verified',
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF166534)),
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           '${isAk ? 'နိုင်ငံသားကတ်နံပါတ်:' : 'National ID:'} ${appState.profile.nationalIdNo.isNotEmpty ? appState.profile.nationalIdNo : "—"}',
-                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, fontFamily: 'monospace', color: Color(0xFF14532D)),
+                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, fontFamily: 'monospace', color: Color(0xFF334155)),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${isAk ? 'အမည်:' : 'Legal Name:'} ${appState.profile.name}',
-                          style: const TextStyle(fontSize: 12, color: Color(0xFF166534)),
+                          style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
@@ -452,10 +452,10 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                             await appState.approveKycLevel2();
                             setModalState(() => isSubmitting = false);
                           },
-                          icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF059669)),
+                          icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF334155)),
                           label: Text(
                             isAk ? 'အတည်ပြုမှု စမ်းသပ်ရန် (Approve Review)' : 'Approve Review (Dev/Admin)',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF065F46)),
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
                           ),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Color(0xFFA7F3D0)),
@@ -1049,7 +1049,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                     ),
                     const Text(
                       'AI Agent & Specialist Team · Online',
-                      style: TextStyle(color: Color(0xFF059669), fontSize: 11, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: Color(0xFF0284C7), fontSize: 11, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 10),
                     Expanded(

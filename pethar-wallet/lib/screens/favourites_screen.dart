@@ -30,9 +30,9 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
   final List<int> _avatarColors = const [
     0xFF0284C7, // Blue
     0xFF2563EB, // Royal Blue
-    0xFF059669, // Emerald
+    0xFF475569, // Slate
     0xFFDC2626, // Crimson
-    0xFFD97706, // Amber
+    0xFF0891B2, // Cyan
     0xFF7C3AED, // Purple
     0xFF0D9488, // Teal
   ];
@@ -101,7 +101,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: const BoxDecoration(
-                                color: Color(0xFF10B981),
+                                color: crimson,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -1330,11 +1330,11 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
         case 'personal':
           return const Color(0xFF6366F1);
         case 'family':
-          return const Color(0xFF10B981);
+          return const Color(0xFFE11D48);
         case 'business':
-          return const Color(0xFFF59E0B);
-        default:
           return const Color(0xFF0284C7);
+        default:
+          return const Color(0xFF475569);
       }
     }
 

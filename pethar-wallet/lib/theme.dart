@@ -23,7 +23,7 @@ const Color slateBorder = Color(0xFF1E293B);
 const Color cyanNeon = Color(0xFF00F0FF);
 const Color paper = Color(0xFFF0F6FD);
 const Color paperCard = Color(0xFFFFFFFF);
-const Color emeraldSuccess = Color(0xFF10B981);
+const Color emeraldSuccess = Color(0xFF1E293B);
 
 ThemeData darkTheme() {
   // App is strictly designed for light theme across Android and iOS
