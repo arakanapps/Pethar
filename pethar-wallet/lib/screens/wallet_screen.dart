@@ -2529,13 +2529,13 @@ class _WalletScreenState extends State<WalletScreen> {
                 onChanged: (v) =>
                     setState(() => _agreedToSwapTerms = v ?? false),
               ),
-              Expanded(
+              const Expanded(
                 child: Text.rich(
                   TextSpan(
                     text: 'I agree to Péthar DEX ',
                     style:
-                        const TextStyle(fontSize: 12, color: Color(0xFF475569)),
-                    children: const [
+                        TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                    children: [
                       TextSpan(
                         text: 'Terms and Conditions',
                         style: TextStyle(
@@ -2826,12 +2826,12 @@ class _WalletScreenState extends State<WalletScreen> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: const Color(0xFFBFDBFE)),
               ),
-              child: Row(
+              child: const Row(
                 children: [
-                  const Icon(Icons.badge_outlined,
+                  Icon(Icons.badge_outlined,
                       color: paynoBlue, size: 28),
-                  const SizedBox(width: 12),
-                  const Expanded(
+                  SizedBox(width: 12),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -2855,7 +2855,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios_rounded,
+                  Icon(Icons.arrow_forward_ios_rounded,
                       size: 14, color: paynoBlue),
                 ],
               ),
