@@ -795,47 +795,26 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                isAk
-                                    ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)'
-                                    : 'Wallet Balance (AKD)',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF52525B),
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              GestureDetector(
-                                onTap: () => appState.toggleBalance(),
-                                child: Icon(
-                                  appState.balanceHidden
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                  size: 16,
-                                  color: const Color(0xFF71717A),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFF1F2),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: const Color(0xFFFECDD3)),
+                          Text(
+                            isAk
+                                ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ (AKD)'
+                                : 'Wallet Balance (AKD)',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF52525B),
+                              fontWeight: FontWeight.w700,
                             ),
-                            child: const Text(
-                              '1.00 ₳ = \$1.00',
-                              style: TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w800,
-                                color: crimson,
-                              ),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => appState.toggleBalance(),
+                            child: Icon(
+                              appState.balanceHidden
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              size: 16,
+                              color: const Color(0xFF71717A),
                             ),
                           ),
                         ],
@@ -893,18 +872,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           },
                         ),
-                      if (!appState.balanceHidden)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            '= \$${currencyFmt.format(appState.isAuthenticated ? appState.wallet.balance : 0.0)} USD',
-                            style: const TextStyle(
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF71717A),
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),
@@ -951,6 +918,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ...favUsers.map((fav) {
                         return Padding(
@@ -1070,13 +1038,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             () => appState.navigate(Screen.favourites),
                           ),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                            height: 44,
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
                               color: const Color(0xFFF8FAFC),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(color: const Color(0xFFE2E8F0)),
                             ),
                             child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.person_add_alt_1_rounded, size: 16, color: crimson),
                                 const SizedBox(width: 8),
