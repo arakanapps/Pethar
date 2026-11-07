@@ -67,6 +67,12 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<!-- Péthar iOS Hardware Capabilities -->
+	<key>NSCameraUsageDescription</key>
+	<string>Péthar uses the camera to capture your NRIC front/back and a live selfie for KYC Level 2 identity verification.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Péthar allows you to choose NRIC images from your photo library when completing KYC verification.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Péthar saves captured KYC identity images to your photo library only when you request it.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Péthar uses Face ID to securely authenticate offline transaction signing and decrypt your local ledger vault.</string>
 	<key>NFCReaderUsageDescription</key>

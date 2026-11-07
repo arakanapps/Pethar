@@ -22,6 +22,23 @@ class UserProfile {
   String gender; // Male, Female, Other
   String idType; // National ID, Passport, Citizenship Card, etc.
 
+  // Structured KYC Level 2 address (house no → postal code)
+  String addressHouseNo;
+  String addressStreet;
+  String addressWard;
+  String addressSubDistrict;
+  String addressDistrict;
+  String addressProvince;
+  String addressCountry;
+  String addressPostalCode;
+
+  // KYC Level 2 identity-document paths (private storage objects)
+  String nricFrontUrl;
+  String nricBackUrl;
+  String selfieUrl;
+  String kycRejectionReason;
+  String kycSubmittedAt;
+
   // Balances (ledger governed)
   double akdWalletBalance; // AKD Wallet balance (cant change via profile edit)
   double usdAccountBalance; // USD account balance (cant change via profile edit)
@@ -53,6 +70,19 @@ class UserProfile {
     this.avatarUrl,
     this.gender = 'Male',
     this.idType = 'National ID',
+    this.addressHouseNo = '',
+    this.addressStreet = '',
+    this.addressWard = '',
+    this.addressSubDistrict = '',
+    this.addressDistrict = '',
+    this.addressProvince = '',
+    this.addressCountry = 'Myanmar',
+    this.addressPostalCode = '',
+    this.nricFrontUrl = '',
+    this.nricBackUrl = '',
+    this.selfieUrl = '',
+    this.kycRejectionReason = '',
+    this.kycSubmittedAt = '',
     this.akdWalletBalance = 0.00,
     this.usdAccountBalance = 0.00,
     String? petharId,

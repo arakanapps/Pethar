@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 import {
-  Landmark,
   Layers3,
   ArrowUpRight,
   Wallet,

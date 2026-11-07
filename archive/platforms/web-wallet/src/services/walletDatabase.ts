@@ -20,6 +20,21 @@ export interface DbUserProfile {
   nationalIdNo: string
   dob: string
   address: string
+  addressHouseNo: string
+  addressStreet: string
+  addressWard: string
+  addressSubDistrict: string
+  addressDistrict: string
+  addressProvince: string
+  addressCountry: string
+  addressPostalCode: string
+  nricFrontUrl: string
+  nricBackUrl: string
+  selfieUrl: string
+  kycStatus: string
+  kycRejectionReason: string
+  kycSubmittedAt: string
+  kycReviewedAt: string
   usdAccountWalletAddress: string
   balance: number
   akdWalletBalance: number
@@ -31,7 +46,6 @@ export interface DbUserProfile {
   kyc_status?: 'unverified' | 'email_verified' | 'pending_review' | 'verified' | 'rejected'
   status?: string
   createdAt?: string
-  kycRejectionReason?: string
   userId?: string
 }
 
@@ -238,6 +252,21 @@ function mapDbProfile(data: any): DbUserProfile {
     nationalIdNo: data.national_id_no || '',
     dob: data.dob || '',
     address: data.address || '',
+    addressHouseNo: data.address_house_no || '',
+    addressStreet: data.address_street || '',
+    addressWard: data.address_ward || '',
+    addressSubDistrict: data.address_sub_district || '',
+    addressDistrict: data.address_district || '',
+    addressProvince: data.address_province || '',
+    addressCountry: data.address_country || '',
+    addressPostalCode: data.address_postal_code || '',
+    nricFrontUrl: data.nric_front_url || '',
+    nricBackUrl: data.nric_back_url || '',
+    selfieUrl: data.selfie_url || '',
+    kycStatus: data.kyc_status || (data.kyc_tier === 2 ? 'VERIFIED' : 'UNVERIFIED'),
+    kycRejectionReason: data.kyc_rejection_reason || '',
+    kycSubmittedAt: data.kyc_submitted_at || '',
+    kycReviewedAt: data.kyc_reviewed_at || '',
     usdAccountWalletAddress: data.usd_account_wallet_address || '',
     balance: bal,
     akdWalletBalance: data.akd_wallet_balance ? parseFloat(data.akd_wallet_balance) : bal,
@@ -249,7 +278,6 @@ function mapDbProfile(data: any): DbUserProfile {
     kyc_status: (data.kyc_status || (data.kyc_tier === 2 ? 'verified' : 'email_verified')) as any,
     status: data.status || 'ACTIVE',
     createdAt: data.created_at || data.createdAt || '',
-    kycRejectionReason: data.kyc_rejection_reason || '',
     userId: data.user_id || data.userId || '',
   }
 }
@@ -556,8 +584,9 @@ export async function submitKycLevel2Verification(
         national_id_no: data.nationalIdNo.trim(),
         dob: data.dob.trim(),
         address: data.address.trim(),
-        kyc_tier: 2,
-        kyc_status: 'pending_review',
+        kyc_tier: 1,
+        kyc_status: 'PENDING_REVIEW',
+        kyc_submitted_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
       .eq('uid', uid)
@@ -844,8 +873,9 @@ export async function updateCitizenKycInDb(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const updatePayload: any = {
-      kyc_status: kycStatus,
+      kyc_status: kycStatus === 'verified' ? 'VERIFIED' : kycStatus === 'rejected' ? 'REJECTED' : 'PENDING_REVIEW',
       kyc_tier: kycTier,
+      kyc_reviewed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
     if (rejectionReason) {

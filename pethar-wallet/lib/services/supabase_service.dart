@@ -629,12 +629,66 @@ class SupabaseService {
     return response.session != null || response.user != null;
   }
 
+  /// Upload one KYC identity image to the private `kyc-documents` bucket.
+  /// Returns the storage object path (not a public URL) on success.
+  Future<String?> uploadKycDocument({
+    required String kind,
+    required Uint8List bytes,
+  }) async {
+    if (!isInitialized) return null;
+    final uid = authUserId;
+    if (uid == null || uid.isEmpty) return null;
+    final safeKind = kind.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+    final stamp = DateTime.now().millisecondsSinceEpoch;
+    final path = 'kyc/$uid/${safeKind}_$stamp.jpg';
+    try {
+      await client.storage.from('kyc-documents').uploadBinary(
+            path,
+            bytes,
+            fileOptions: const FileOptions(
+              contentType: 'image/jpeg',
+              upsert: true,
+            ),
+          );
+      return path;
+    } catch (e) {
+      debugPrint('Error uploading KYC document ($kind): $e');
+      return null;
+    }
+  }
+
+  /// Resolve a private KYC document path to a short-lived signed URL.
+  Future<String?> kycDocumentSignedUrl(String? path,
+      {int expiresInSeconds = 3600}) async {
+    if (!isInitialized || path == null || path.trim().isEmpty) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    try {
+      return await client.storage
+          .from('kyc-documents')
+          .createSignedUrl(path, expiresInSeconds);
+    } catch (e) {
+      debugPrint('Error creating KYC signed URL: $e');
+      return null;
+    }
+  }
+
   /// Submit KYC Level 2 for administrator review.
   Future<Map<String, dynamic>> submitKycLevel2({
     required String nationalId,
     required String dob,
     required String fullName,
     required String address,
+    String? nricFrontUrl,
+    String? nricBackUrl,
+    String? selfieUrl,
+    String? houseNo,
+    String? street,
+    String? ward,
+    String? subDistrict,
+    String? district,
+    String? province,
+    String? country,
+    String? postalCode,
   }) async {
     if (!isInitialized) {
       return {'success': false, 'message': 'Unable to submit KYC'};
@@ -645,13 +699,58 @@ class SupabaseService {
         'p_dob': dob,
         'p_full_name': fullName,
         'p_address': address,
+        'p_nric_front_url': nricFrontUrl,
+        'p_nric_back_url': nricBackUrl,
+        'p_selfie_url': selfieUrl,
+        'p_house_no': houseNo,
+        'p_street': street,
+        'p_ward': ward,
+        'p_sub_district': subDistrict,
+        'p_district': district,
+        'p_province': province,
+        'p_country': country,
+        'p_postal_code': postalCode,
       });
       return result is Map
           ? Map<String, dynamic>.from(result)
           : {'success': false, 'message': 'Unable to submit KYC'};
     } catch (e) {
       debugPrint('Error submitting KYC Level 2: $e');
-      return {'success': false, 'message': 'Unable to submit KYC'};
+      return {'success': false, 'message': 'Unable to submit KYC' };
+    }
+  }
+
+  /// Edit the structured address after a KYC submission.
+  Future<Map<String, dynamic>> updateKycAddress({
+    required String houseNo,
+    required String street,
+    required String ward,
+    required String subDistrict,
+    required String district,
+    required String province,
+    required String country,
+    required String postalCode,
+  }) async {
+    if (!isInitialized) {
+      return {'success': false, 'message': 'Unable to update address'};
+    }
+    try {
+      final result = await client.rpc('update_kyc_address', params: {
+        'p_house_no': houseNo,
+        'p_street': street,
+        'p_ward': ward,
+        'p_sub_district': subDistrict,
+        'p_district': district,
+        'p_province': province,
+        'p_country': country,
+        'p_postal_code': postalCode,
+      });
+      return result is Map
+          ? Map<String, dynamic>.from(result)
+          : {'success': false, 'message': 'Unable to update address'};
+    } catch (e) {
+      debugPrint('Error updating KYC address: $e');
+      return {'success': false, 'message': 'Unable to update address'};
     }
   }
 

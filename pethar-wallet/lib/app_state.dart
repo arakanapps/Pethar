@@ -465,6 +465,56 @@ class AppState extends ChangeNotifier {
               profileMap['address'].toString().isNotEmpty) {
             profile.address = profileMap['address'].toString();
           }
+          profile.addressHouseNo =
+              profileMap['address_house_no']?.toString() ?? profile.addressHouseNo;
+          profile.addressStreet =
+              profileMap['address_street']?.toString() ?? profile.addressStreet;
+          profile.addressWard =
+              profileMap['address_ward']?.toString() ?? profile.addressWard;
+          profile.addressSubDistrict =
+              profileMap['address_sub_district']?.toString() ??
+                  profile.addressSubDistrict;
+          profile.addressDistrict =
+              profileMap['address_district']?.toString() ??
+                  profile.addressDistrict;
+          profile.addressProvince =
+              profileMap['address_province']?.toString() ??
+                  profile.addressProvince;
+          profile.addressCountry =
+              profileMap['address_country']?.toString() ??
+                  profile.addressCountry;
+          profile.addressPostalCode =
+              profileMap['address_postal_code']?.toString() ??
+                  profile.addressPostalCode;
+          profile.nricFrontUrl =
+              profileMap['nric_front_url']?.toString() ?? profile.nricFrontUrl;
+          profile.nricBackUrl =
+              profileMap['nric_back_url']?.toString() ?? profile.nricBackUrl;
+          profile.selfieUrl =
+              profileMap['selfie_url']?.toString() ?? profile.selfieUrl;
+          profile.kycRejectionReason =
+              profileMap['kyc_rejection_reason']?.toString() ?? '';
+          profile.kycSubmittedAt =
+              profileMap['kyc_submitted_at']?.toString() ??
+                  profile.kycSubmittedAt;
+          if (profileMap['kyc_status'] != null &&
+              profileMap['kyc_status'].toString().isNotEmpty) {
+            profile.kycStatus = profileMap['kyc_status'].toString();
+          }
+          if (profileMap['kyc_tier'] != null) {
+            final tier = int.tryParse(profileMap['kyc_tier'].toString());
+            if (tier != null) {
+              profile.kycTier = tier;
+              isVerified = tier >= 2;
+            }
+          }
+          profile.accountTier = profile.kycTier >= 2
+              ? 'Level 2: National ID Verified'
+              : (profile.kycStatus == 'PENDING_REVIEW'
+                  ? 'Level 2: Pending Review'
+                  : (profile.kycStatus == 'REJECTED'
+                      ? 'Level 2: Rejected'
+                      : 'Level 1: Email Verified'));
           if (profileMap['gender'] != null &&
               profileMap['gender'].toString().isNotEmpty) {
             profile.gender = profileMap['gender'].toString();
@@ -1107,6 +1157,17 @@ class AppState extends ChangeNotifier {
     required String dob,
     required String fullName,
     required String address,
+    String? nricFrontUrl,
+    String? nricBackUrl,
+    String? selfieUrl,
+    String? houseNo,
+    String? street,
+    String? ward,
+    String? subDistrict,
+    String? district,
+    String? province,
+    String? country,
+    String? postalCode,
   }) async {
     final res = await AuthService().submitKycLevel2(
       email: profile.email,
@@ -1114,7 +1175,33 @@ class AppState extends ChangeNotifier {
       dob: dob,
       fullName: fullName,
       address: address,
+      nricFrontUrl: nricFrontUrl,
+      nricBackUrl: nricBackUrl,
+      selfieUrl: selfieUrl,
+      houseNo: houseNo,
+      street: street,
+      ward: ward,
+      subDistrict: subDistrict,
+      district: district,
+      province: province,
+      country: country,
+      postalCode: postalCode,
     );
+    if (res['success'] == true) {
+      profile.nricFrontUrl = nricFrontUrl ?? profile.nricFrontUrl;
+      profile.nricBackUrl = nricBackUrl ?? profile.nricBackUrl;
+      profile.selfieUrl = selfieUrl ?? profile.selfieUrl;
+      profile.addressHouseNo = houseNo ?? profile.addressHouseNo;
+      profile.addressStreet = street ?? profile.addressStreet;
+      profile.addressWard = ward ?? profile.addressWard;
+      profile.addressSubDistrict = subDistrict ?? profile.addressSubDistrict;
+      profile.addressDistrict = district ?? profile.addressDistrict;
+      profile.addressProvince = province ?? profile.addressProvince;
+      profile.addressCountry = country ?? profile.addressCountry;
+      profile.addressPostalCode = postalCode ?? profile.addressPostalCode;
+      profile.kycStatus = 'PENDING_REVIEW';
+      notifyListeners();
+    }
     if (res['success'] == true && res['user'] is StoredUser) {
       _applyAuthenticatedUser(res['user'] as StoredUser);
       return {'success': true, 'message': res['message']};

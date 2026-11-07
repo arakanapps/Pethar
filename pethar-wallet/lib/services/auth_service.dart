@@ -595,7 +595,12 @@ class AuthService {
       username: resolvedUsername,
       uid: resolvedUid,
       kycTier: kycTier,
-      kycStatus: kycTier >= 2 ? 'VERIFIED_LVL2' : 'VERIFIED_LVL1',
+      kycStatus: profileMap?['kyc_status']?.toString() ??
+          (kycTier >= 2
+              ? 'VERIFIED_LVL2'
+              : ((profileMap?['national_id_no']?.toString().isNotEmpty ?? false)
+                  ? 'PENDING_REVIEW'
+                  : 'VERIFIED_LVL1')),
       nationalIdNo: profileMap?['national_id_no']?.toString() ?? user?.nationalIdNo ?? '',
       dob: profileMap?['dob']?.toString() ?? user?.dob ?? '',
       address: profileMap?['address']?.toString() ?? user?.address ?? '',
@@ -676,7 +681,12 @@ class AuthService {
       username: resolvedUsername,
       uid: resolvedUid,
       kycTier: kycTier,
-      kycStatus: kycTier >= 2 ? 'VERIFIED_LVL2' : 'VERIFIED_LVL1',
+      kycStatus: profileMap?['kyc_status']?.toString() ??
+          (kycTier >= 2
+              ? 'VERIFIED_LVL2'
+              : ((profileMap?['national_id_no']?.toString().isNotEmpty ?? false)
+                  ? 'PENDING_REVIEW'
+                  : 'VERIFIED_LVL1')),
       nationalIdNo: profileMap?['national_id_no']?.toString() ?? user?.nationalIdNo ?? '',
       dob: profileMap?['dob']?.toString() ?? user?.dob ?? '',
       address: profileMap?['address']?.toString() ?? user?.address ?? '',
@@ -1156,6 +1166,17 @@ class AuthService {
     required String dob,
     required String fullName,
     required String address,
+    String? nricFrontUrl,
+    String? nricBackUrl,
+    String? selfieUrl,
+    String? houseNo,
+    String? street,
+    String? ward,
+    String? subDistrict,
+    String? district,
+    String? province,
+    String? country,
+    String? postalCode,
   }) async {
     await initialize();
     final cleanEmail = email.trim().toLowerCase();
@@ -1164,21 +1185,23 @@ class AuthService {
       return {'success': false, 'error': 'User record not found.'};
     }
 
-    user.nationalIdNo = nationalIdNo.trim();
-    user.dob = dob.trim();
-    user.name = fullName.trim();
-    user.address = address.trim();
-    user.kycStatus = 'PENDING_REVIEW';
-    // User remains at Level 1 until reviewed and approved
-
-    await _saveUsers();
-
-    // Persist the KYC submission and open an administrator review.
+    // Persist the KYC submission and open an administrator review first.
     final remote = await SupabaseService().submitKycLevel2(
       nationalId: nationalIdNo.trim(),
       dob: dob.trim(),
       fullName: fullName.trim(),
       address: address.trim(),
+      nricFrontUrl: nricFrontUrl,
+      nricBackUrl: nricBackUrl,
+      selfieUrl: selfieUrl,
+      houseNo: houseNo,
+      street: street,
+      ward: ward,
+      subDistrict: subDistrict,
+      district: district,
+      province: province,
+      country: country,
+      postalCode: postalCode,
     );
 
     if (remote['success'] != true) {
@@ -1187,6 +1210,15 @@ class AuthService {
         'error': remote['message']?.toString() ?? 'Could not submit KYC. Please try again.',
       };
     }
+
+    // Keep the local cache in sync only after the server accepted the request.
+    // The account remains at Level 1 until an administrator approves it.
+    user.nationalIdNo = nationalIdNo.trim();
+    user.dob = dob.trim();
+    user.name = fullName.trim();
+    user.address = address.trim();
+    user.kycStatus = 'PENDING_REVIEW';
+    await _saveUsers();
 
     return {
       'success': true,

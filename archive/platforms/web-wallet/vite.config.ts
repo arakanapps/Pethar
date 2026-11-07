@@ -1,7 +1,8 @@
 import path from "path"
 import fs from "fs"
 import react from "@vitejs/plugin-react"
-import { defineConfig, type Plugin } from "vite"
+import { defineConfig, loadEnv, type Plugin } from "vite"
+import { createClient } from "@supabase/supabase-js"
 import { inspectAttr } from 'kimi-plugin-inspect-react'
 
 function mobileInstallHeadersPlugin(): Plugin {
@@ -31,6 +32,146 @@ function mobileInstallHeadersPlugin(): Plugin {
   }
 }
 
+
+function adminApiPlugin(): Plugin {
+  return {
+    name: 'pethar-admin-api',
+    configureServer(server) {
+      const localEnv = loadEnv(server.config.mode, process.cwd(), '')
+      const rootEnv = loadEnv(server.config.mode, path.resolve(process.cwd(), '../..'), '')
+      const env = { ...rootEnv, ...localEnv }
+      const url = env.SUPABASE_URL || env.VITE_SUPABASE_URL
+      const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_SERVICE_ROLE_KEY
+      const supabase = url && serviceKey ? createClient(url, serviceKey, { auth: { persistSession: false } }) : null
+
+      if (!supabase) {
+        console.warn('[admin-api] SUPABASE_SERVICE_ROLE_KEY is not set. Admin database reads will be unavailable.')
+      }
+
+      const json = (res: any, status: number, body: unknown) => {
+        res.statusCode = status
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify(body))
+      }
+
+      const readBody = (req: any): Promise<any> =>
+        new Promise((resolve, reject) => {
+          let raw = ''
+          req.on('data', (chunk: any) => (raw += chunk))
+          req.on('end', () => {
+            try { resolve(raw ? JSON.parse(raw) : {}) } catch (error) { reject(error) }
+          })
+          req.on('error', reject)
+        })
+
+      server.middlewares.use('/api/admin', async (req: any, res: any, _next: any) => {
+        if (!supabase) {
+          return json(res, 503, { error: 'Admin API is not configured. Set SUPABASE_SERVICE_ROLE_KEY in .env.' })
+        }
+
+        const path = (req.url || '').split('?')[0].replace(/\/$/, '')
+
+        try {
+          if (req.method === 'GET' && path === '/signed-url') {
+            const url = new URL(req.url || '', 'http://localhost')
+            const objectPath = url.searchParams.get('path') || ''
+            if (!objectPath) return json(res, 400, { error: 'Missing storage path.' })
+            const { data, error } = await supabase.storage.from('kyc-documents').createSignedUrl(objectPath, 60 * 10)
+            if (error) return json(res, 500, { error: error.message })
+            return json(res, 200, { url: data?.signedUrl || '' })
+          }
+
+          if (req.method === 'GET' && (path === '' || path === '/snapshot')) {
+            const [users, transactions, approvals] = await Promise.all([
+              supabase.from('user_profiles').select('*').order('created_at', { ascending: false }),
+              supabase.from('transactions').select('*').order('created_at', { ascending: false }).limit(500),
+              supabase.from('pending_approvals').select('*').order('requested_at', { ascending: false }).limit(200),
+            ])
+            const error = users.error || transactions.error || approvals.error
+            if (error) return json(res, 500, { error: error.message })
+            return json(res, 200, {
+              users: users.data || [],
+              transactions: transactions.data || [],
+              approvals: approvals.data || [],
+            })
+          }
+
+          if (req.method === 'POST' && path === '/kyc') {
+            const body = await readBody(req)
+            const payload: Record<string, unknown> = {
+              kyc_status: body.status,
+              kyc_tier: body.tier,
+              updated_at: new Date().toISOString(),
+            }
+            if (body.reason) payload.kyc_rejection_reason = body.reason
+            const { error } = await supabase.from('user_profiles').update(payload).eq('uid', body.uid)
+            if (error) return json(res, 500, { error: error.message })
+            return json(res, 200, { success: true })
+          }
+
+          if (req.method === 'POST' && path === '/approval') {
+            const body = await readBody(req)
+            const { error } = await supabase
+              .from('pending_approvals')
+              .update({
+                status: body.status,
+                reviewed_at: new Date().toISOString(),
+                admin_notes: body.notes || null,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', body.id)
+            if (error) return json(res, 500, { error: error.message })
+            return json(res, 200, { success: true })
+          }
+
+          if (req.method === 'POST' && path === '/kyc-profile') {
+            const body = await readBody(req)
+            const allowed: Record<string, string> = {
+              name: 'name',
+              phone: 'phone',
+              nationalIdNo: 'national_id_no',
+              dob: 'dob',
+              addressHouseNo: 'address_house_no',
+              addressStreet: 'address_street',
+              addressWard: 'address_ward',
+              addressSubDistrict: 'address_sub_district',
+              addressDistrict: 'address_district',
+              addressProvince: 'address_province',
+              addressCountry: 'address_country',
+              addressPostalCode: 'address_postal_code',
+            }
+            const payload: Record<string, unknown> = { updated_at: new Date().toISOString() }
+            for (const [key, column] of Object.entries(allowed)) {
+              if (body.fields && body.fields[key] !== undefined) payload[column] = body.fields[key]
+            }
+            const { error } = await supabase.from('user_profiles').update(payload).eq('uid', body.uid)
+            if (error) return json(res, 500, { error: error.message })
+            return json(res, 200, { success: true })
+          }
+
+          if (req.method === 'POST' && path === '/freeze') {
+            const body = await readBody(req)
+            const { error } = await supabase
+              .from('user_profiles')
+              .update({
+                status: body.status || 'FROZEN',
+                compliance_notes: body.reason || null,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('uid', body.uid)
+            if (error) return json(res, 500, { error: error.message })
+            return json(res, 200, { success: true })
+          }
+
+          return json(res, 404, { error: 'Unknown admin API route.' })
+        } catch (error: any) {
+          return json(res, 500, { error: error?.message || 'Admin API failure.' })
+        }
+      })
+    },
+  }
+}
+
 function generate404FallbackPlugin(): Plugin {
   return {
     name: 'generate-404-fallback',
@@ -54,6 +195,7 @@ export default defineConfig({
   base: '/',
   plugins: [
     mobileInstallHeadersPlugin(),
+    adminApiPlugin(),
     inspectAttr(),
     react(),
     generate404FallbackPlugin()

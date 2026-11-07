@@ -245,7 +245,6 @@ export const AdminOverviewDesk: React.FC<AdminOverviewDeskProps> = ({
             isDarkMode={isDarkMode}
             title="Ledger totals"
             description="Current live aggregates."
-            isDarkMode={isDarkMode}
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between">

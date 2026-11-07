@@ -16,13 +16,13 @@ const toneStyles: Record<
   }
 > = {
   amber: {
-    text: 'text-yellow-600 dark:text-yellow-400',
-    softText: 'text-yellow-700 dark:text-yellow-300',
-    bg: 'bg-yellow-500/10 dark:bg-yellow-400/10',
-    border: 'border-yellow-500/25 dark:border-yellow-400/20',
-    dot: 'bg-yellow-500',
-    bar: 'bg-yellow-500',
-    ring: 'ring-yellow-500/20',
+    text: 'text-sky-600 dark:text-sky-400',
+    softText: 'text-sky-700 dark:text-sky-300',
+    bg: 'bg-sky-500/10 dark:bg-sky-400/10',
+    border: 'border-sky-500/25 dark:border-sky-400/20',
+    dot: 'bg-sky-500',
+    bar: 'bg-sky-500',
+    ring: 'ring-sky-500/20',
   },
   emerald: {
     text: 'text-emerald-600 dark:text-emerald-400',

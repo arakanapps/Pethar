@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1007,7 +1008,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0D9488),
+                        backgroundColor: crimson,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
@@ -2640,418 +2641,525 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F5F8),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-          children: [
-            // ── Top Profile Card (no header text per wireframe) ──
-            if (appState.isAuthenticated)
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: const Color(0xFFF4F4F5)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 20,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Center(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _subView = 'personal_info'),
-                        child: Container(
-                          width: 78,
-                          height: 78,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF29B6F6), Color(0xFF0288D1)],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                            border: Border.all(color: Colors.white, width: 2),
-                            image: _buildAvatarImageProvider(appState.profile.avatarUrl) != null
-                                ? DecorationImage(
-                                    image: _buildAvatarImageProvider(appState.profile.avatarUrl)!,
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                          ),
-                          child: _buildAvatarImageProvider(appState.profile.avatarUrl) == null
-                              ? const Icon(Icons.person, size: 42, color: Colors.white)
-                              : null,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      appState.profile.effectiveNickname,
-                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.black87),
-                    ),
-                    const SizedBox(height: 14),
-                    const Divider(height: 1),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      backgroundColor: const Color(0xFFF6F7FB),
+      body: Stack(
+        children: [
+          const _SettingsGlassBackground(),
+          SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              children: [
+                // Profile / welcome glass card
+                if (appState.isAuthenticated)
+                  _GlassCard(
+                    radius: 28,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 28,
-                              height: 28,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFF1F5F9),
+                        Center(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _subView = 'personal_info'),
+                            child: Container(
+                              width: 78,
+                              height: 78,
+                              decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.verified_user_outlined, color: crimson, size: 16),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              isAk ? 'မှတ်ပုံတင် အတည်ပြုချက်' : 'ID Verification',
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
-                            ),
-                          ],
-                        ),
-                        GestureDetector(
-                          onTap: () => showKycVerificationModal(context, appState),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: appState.isVerified ? const Color(0xFFF1F5F9) : const Color(0xFFFFF1F2),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(
-                                color: appState.isVerified ? const Color(0xFFE2E8F0) : const Color(0xFFFECDD3),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  appState.isVerified ? Icons.check_circle_outline_rounded : Icons.error_outline_rounded,
-                                  size: 14,
-                                  color: appState.isVerified ? const Color(0xFF1E293B) : crimson,
+                                gradient: const LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [Color(0xFF0B1220), Color(0xFF3A4152)],
                                 ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  appState.isVerified ? 'Verified' : 'Unverified',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: appState.isVerified ? const Color(0xFF1E293B) : crimson,
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.9), width: 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF0B1B33).withValues(alpha: 0.18),
+                                    blurRadius: 22,
+                                    offset: const Offset(0, 10),
                                   ),
+                                ],
+                                image: _buildAvatarImageProvider(appState.profile.avatarUrl) != null
+                                    ? DecorationImage(
+                                        image: _buildAvatarImageProvider(appState.profile.avatarUrl)!,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                              ),
+                              child: _buildAvatarImageProvider(appState.profile.avatarUrl) == null
+                                  ? const Icon(Icons.person_rounded, size: 40, color: Colors.white)
+                                  : null,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          appState.profile.effectiveNickname,
+                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                        ),
+                        const SizedBox(height: 16),
+                        Divider(height: 1, color: Colors.black.withValues(alpha: 0.06)),
+                        const SizedBox(height: 14),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                _tileIcon(Icons.verified_user_outlined),
+                                const SizedBox(width: 10),
+                                Text(
+                                  isAk ? 'မှတ်ပုံတင် အတည်ပြုချက်' : 'ID Verification',
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
                                 ),
                               ],
                             ),
-                          ),
+                            GestureDetector(
+                              onTap: () => showKycVerificationModal(context, appState),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: appState.isVerified
+                                      ? Colors.white.withValues(alpha: 0.7)
+                                      : const Color(0xFFFFF1F2).withValues(alpha: 0.92),
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(
+                                    color: appState.isVerified
+                                        ? Colors.black.withValues(alpha: 0.08)
+                                        : const Color(0xFFFECDD3),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      appState.isVerified ? Icons.check_circle_rounded : Icons.error_outline_rounded,
+                                      size: 14,
+                                      color: appState.isVerified ? const Color(0xFF0F172A) : crimson,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      appState.isVerified ? 'Verified' : 'Unverified',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: appState.isVerified ? const Color(0xFF0F172A) : crimson,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  )
+                else
+                  buildWelcomeSignInCard(context, appState),
+                const SizedBox(height: 22),
+
+                // Account Setting
+                _sectionLabel(isAk ? 'အကောင့် ဆက်တင်များ' : 'Account Setting'),
+                _GlassCard(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Column(
+                    children: [
+                      _buildSettingTile(
+                        icon: Icons.person_outline_rounded,
+                        title: isAk ? 'ကျွန်ုပ်၏ ပရိုဖိုင်' : 'My Profile',
+                        onTap: () => setState(() => _subView = 'personal_info'),
+                      ),
+                      _tileDivider(),
+                      _buildSettingTile(
+                        icon: Icons.notifications_none_rounded,
+                        title: isAk ? 'အသိပေးချက်များ' : 'Notifications',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const NotificationsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      _tileDivider(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          children: [
+                            _tileIcon(Icons.language_rounded),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Text(
+                                isAk ? 'ဘာသာစကား' : 'Language',
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      if (!isAk) {
+                                        appState.setLanguage('ak');
+                                        _showToast(context, 'ရွေးချယ်ထားသော ဘာသာစကား - အာရက္ခ');
+                                      }
+                                    },
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: isAk ? Colors.white : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(8),
+                                        boxShadow: isAk
+                                            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 1))]
+                                            : null,
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          FlagArakan(width: 20),
+                                          SizedBox(width: 5),
+                                          Text(
+                                            'အာရက္ခ',
+                                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 3),
+                                  InkWell(
+                                    onTap: () {
+                                      if (isAk) {
+                                        appState.setLanguage('en');
+                                        _showToast(context, 'Language set to English');
+                                      }
+                                    },
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: !isAk ? Colors.white : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(8),
+                                        boxShadow: !isAk
+                                            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 1))]
+                                            : null,
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          FlagGB(width: 20),
+                                          SizedBox(width: 5),
+                                          Text(
+                                            'English',
+                                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      _tileDivider(),
+                      SwitchListTile(
+                        secondary: _tileIcon(Icons.download_rounded),
+                        title: Text(
+                          isAk ? 'ပြေစာ အလိုအလျောက် သိမ်းဆည်းမည်' : 'Auto save receipt',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                        ),
+                        value: appState.autoSaveSlip,
+                        activeTrackColor: crimson,
+                        onChanged: (_) => appState.toggleAutoSaveSlip(),
+                      ),
+                    ],
+                  ),
                 ),
-              )
-            else
-              buildWelcomeSignInCard(context, appState),
-            const SizedBox(height: 20),
+                const SizedBox(height: 22),
 
-            // ── SECTION 1: Account Setting (matches wireframe) ──
-            Padding(
-              padding: const EdgeInsets.only(left: 4, bottom: 8),
-              child: Text(
-                isAk ? 'အကောင့် ဆက်တင်များ' : 'Account Setting',
-                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black54),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-              child: Column(
-                children: [
-                  _buildSettingTile(
-                    icon: Icons.person_outline_rounded,
-                    title: isAk ? 'ကျွန်ုပ်၏ ပရိုဖိုင်' : 'My Profile',
-                    onTap: () => setState(() => _subView = 'personal_info'),
-                  ),
-                  const Divider(height: 1),
-                  _buildSettingTile(
-                    icon: Icons.notifications_none_rounded,
-                    title: isAk ? 'အသိပေးချက်များ' : 'Notifications',
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const NotificationsScreen(),
+                // Security Settings
+                _sectionLabel(isAk ? 'လုံခြုံရေး ဆက်တင်များ' : 'Security Settings'),
+                _GlassCard(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        secondary: _tileIcon(Icons.fingerprint_rounded),
+                        title: Text(
+                          isAk ? 'မျက်နှာဖွင့် နှင့် လက်ဗွေ' : 'Face Unlock and Fingerprint',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
                         ),
-                      );
-                    },
-                  ),
-                  const Divider(height: 1),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Color(0xFFF0FDFA),
-                          child: Icon(Icons.language_rounded, color: Color(0xFF0D9488), size: 19),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Text(
-                            isAk ? 'ဘာသာစကား' : 'Language',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFE2E8F0)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  if (!isAk) {
-                                    appState.setLanguage('ak');
-                                    _showToast(context, 'ရွေးချယ်ထားသော ဘာသာစကား - အာရက္ခ');
-                                  }
-                                },
-                                borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: isAk ? Colors.white : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: isAk
-                                        ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 1))]
-                                        : null,
-                                  ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      FlagArakan(width: 20),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        'အာရက္ခ',
-                                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.black87),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 3),
-                              InkWell(
-                                onTap: () {
-                                  if (isAk) {
-                                    appState.setLanguage('en');
-                                    _showToast(context, 'Language set to English');
-                                  }
-                                },
-                                borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: !isAk ? Colors.white : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: !isAk
-                                        ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 1))]
-                                        : null,
-                                  ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      FlagGB(width: 20),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        'English',
-                                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.black87),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  SwitchListTile(
-                    secondary: const CircleAvatar(
-                      radius: 18,
-                      backgroundColor: Color(0xFFF0FDFA),
-                      child: Icon(Icons.download_rounded, color: Color(0xFF0D9488), size: 19),
-                    ),
-                    title: Text(
-                      isAk ? 'ပြေစာ အလိုအလျောက် သိမ်းဆည်းမည်' : 'Auto save receipt',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
-                    ),
-                    value: appState.autoSaveSlip,
-                    activeTrackColor: const Color(0xFF2563EB),
-                    onChanged: (_) => appState.toggleAutoSaveSlip(),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // ── SECTION 2: Security Settings (matches wireframe) ──
-            Padding(
-              padding: const EdgeInsets.only(left: 4, bottom: 8),
-              child: Text(
-                isAk ? 'လုံခြုံရေး ဆက်တင်များ' : 'Security Settings',
-                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black54),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    secondary: const CircleAvatar(
-                      radius: 18,
-                      backgroundColor: Color(0xFFF0FDFA),
-                      child: Icon(Icons.fingerprint_rounded, color: Color(0xFF0D9488), size: 19),
-                    ),
-                    title: Text(
-                      isAk ? 'မျက်နှာဖွင့် နှင့် လက်ဗွေ' : 'Face Unlock and Fingerprint',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
-                    ),
-                    value: isAndroid ? _biometricLoginEnabled : _faceIdEnabled,
-                    activeTrackColor: const Color(0xFF2563EB),
-                    onChanged: (val) async {
-                      if (val) {
-                        final authSuccess = await NativeSecurityService().authenticateBiometrics(
-                          reason: isAk ? 'လက်ဗွေ / မျက်နှာ အတည်ပြုပါ' : 'Verify device biometrics',
-                        );
-                        if (authSuccess) {
-                          setState(() {
-                            if (isAndroid) {
-                              _biometricLoginEnabled = true;
+                        value: isAndroid ? _biometricLoginEnabled : _faceIdEnabled,
+                        activeTrackColor: crimson,
+                        onChanged: (val) async {
+                          if (val) {
+                            final authSuccess = await NativeSecurityService().authenticateBiometrics(
+                              reason: isAk ? 'လက်ဗွေ / မျက်နှာ အတည်ပြုပါ' : 'Verify device biometrics',
+                            );
+                            if (authSuccess) {
+                              setState(() {
+                                if (isAndroid) {
+                                  _biometricLoginEnabled = true;
+                                } else {
+                                  _faceIdEnabled = true;
+                                }
+                              });
+                              if (context.mounted) {
+                                _showToast(context, isAndroid
+                                    ? (isAk ? 'လက်ဗွေ ဖွင့်ထားသည်' : 'Biometric login enabled')
+                                    : (isAk ? 'Face ID ဖွင့်ထားသည်' : 'Face ID enabled'));
+                              }
                             } else {
-                              _faceIdEnabled = true;
+                              if (context.mounted) {
+                                _showToast(context, isAk ? 'စက်ပစ္စည်း အတည်ပြုချက် မအောင်မြင်ပါ' : 'Device biometric verification failed');
+                              }
                             }
-                          });
-                          if (context.mounted) {
-                            _showToast(context, isAndroid
-                                ? (isAk ? 'လက်ဗွေ ဖွင့်ထားသည်' : 'Biometric login enabled')
-                                : (isAk ? 'Face ID ဖွင့်ထားသည်' : 'Face ID enabled'));
-                          }
-                        } else {
-                          if (context.mounted) {
-                            _showToast(context, isAk ? 'စက်ပစ္စည်း အတည်ပြုချက် မအောင်မြင်ပါ' : 'Device biometric verification failed');
-                          }
-                        }
-                      } else {
-                        setState(() {
-                          if (isAndroid) {
-                            _biometricLoginEnabled = false;
                           } else {
-                            _faceIdEnabled = false;
+                            setState(() {
+                              if (isAndroid) {
+                                _biometricLoginEnabled = false;
+                              } else {
+                                _faceIdEnabled = false;
+                              }
+                            });
+                            _showToast(context, isAndroid
+                                ? (isAk ? 'လက်ဗွေ ပိတ်ထားသည်' : 'Biometric login disabled')
+                                : (isAk ? 'Face ID ပိတ်ထားသည်' : 'Face ID disabled'));
                           }
-                        });
-                        _showToast(context, isAndroid
-                            ? (isAk ? 'လက်ဗွေ ပိတ်ထားသည်' : 'Biometric login disabled')
-                            : (isAk ? 'Face ID ပိတ်ထားသည်' : 'Face ID disabled'));
-                      }
-                    },
-                  ),
-                  const Divider(height: 1),
-                  _buildSettingTile(
-                    icon: Icons.lock_outline_rounded,
-                    title: isAk ? 'PIN စီမံခန့်ခွဲမှု' : 'PIN Management',
-                    onTap: () => setState(() => _subView = 'pin_management'),
-                  ),
-
-                  const Divider(height: 1),
-                  _buildSettingTile(
-                    icon: Icons.smartphone_rounded,
-                    title: isAk ? 'စက်ပစ္စည်း စီမံခန့်ခွဲမှု' : 'Device Management',
-                    onTap: () => setState(() => _subView = 'device_management'),
-                  ),
-                  const Divider(height: 1),
-                  _buildSettingTile(
-                    icon: Icons.headset_mic_outlined,
-                    iconBg: const Color(0xFFE0F2FE),
-                    iconColor: const Color(0xFF0284C7),
-                    title: isAk ? 'Péthar အကူအညီနှင့် ချက်တင်' : 'Chat with Support',
-                    onTap: () => showPetharSupportChatSheet(context, isAk),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // ── Bottom Log Out Button ──
-            if (appState.isAuthenticated) ...[
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: TextButton.icon(
-                  onPressed: () => _showSignOutDialog(context, appState, isAk),
-                  icon: const Icon(Icons.logout_rounded, size: 18, color: crimson),
-                  label: Text(
-                    isAk ? 'အကောင့်မှ ထွက်မည်' : 'Log Out',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: crimson),
-                  ),
-                  style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFFFDECEC),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        },
+                      ),
+                      _tileDivider(),
+                      _buildSettingTile(
+                        icon: Icons.lock_outline_rounded,
+                        title: isAk ? 'PIN စီမံခန့်ခွဲမှု' : 'PIN Management',
+                        onTap: () => setState(() => _subView = 'pin_management'),
+                      ),
+                      _tileDivider(),
+                      _buildSettingTile(
+                        icon: Icons.smartphone_rounded,
+                        title: isAk ? 'စက်ပစ္စည်း စီမံခန့်ခွဲမှု' : 'Device Management',
+                        onTap: () => setState(() => _subView = 'device_management'),
+                      ),
+                      _tileDivider(),
+                      _buildSettingTile(
+                        icon: Icons.headset_mic_outlined,
+                        title: isAk ? 'Péthar အကူအညီနှင့် ချက်တင်' : 'Chat with Support',
+                        onTap: () => showPetharSupportChatSheet(context, isAk),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-            ],
-            const Center(
-              child: Text.rich(
-                TextSpan(
-                  text: '©Péthar App - Version: ',
-                  style: TextStyle(fontSize: 12, color: Colors.black45, fontWeight: FontWeight.w500),
-                  children: [
-                    TextSpan(
-                      text: '1.0.0',
-                      style: TextStyle(color: Color(0xFF2A8B9D), fontWeight: FontWeight.bold),
+                const SizedBox(height: 22),
+
+                // Log Out
+                if (appState.isAuthenticated) ...[
+                  _GlassCard(
+                    radius: 18,
+                    padding: EdgeInsets.zero,
+                    tint: crimson,
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: TextButton.icon(
+                        onPressed: () => _showSignOutDialog(context, appState, isAk),
+                        icon: const Icon(Icons.logout_rounded, size: 18, color: crimson),
+                        label: Text(
+                          isAk ? 'အကောင့်မှ ထွက်မည်' : 'Log Out',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: crimson),
+                        ),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                        ),
+                      ),
                     ),
-                  ],
+                  ),
+                  const SizedBox(height: 18),
+                ],
+                const Center(
+                  child: Text.rich(
+                    TextSpan(
+                      text: '©Péthar App - Version: ',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                      children: [
+                        TextSpan(
+                          text: '1.0.0',
+                          style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
+  Widget _sectionLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 6, bottom: 10),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, letterSpacing: 0.3, color: Color(0xFF64748B)),
+      ),
+    );
+  }
+
+  Widget _tileIcon(IconData icon, {Color color = const Color(0xFF0F172A), double size = 36}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
+      ),
+      child: Icon(icon, color: color, size: size * 0.52),
+    );
+  }
+
+  Widget _tileDivider() {
+    return const Divider(height: 1, thickness: 1, indent: 66, endIndent: 16, color: Color(0x0F000000));
+  }
+
+
   Widget _buildSettingTile({
     required IconData icon,
-    Color iconBg = const Color(0xFFF0FDFA),
-    Color iconColor = const Color(0xFF0D9488),
     required String title,
     String? subtitle,
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: CircleAvatar(
-        radius: 18,
-        backgroundColor: iconBg,
-        child: Icon(icon, color: iconColor, size: 19),
-      ),
+      leading: _tileIcon(icon),
       title: Text(
         title,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
       ),
       subtitle: subtitle != null
-          ? Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black45))
+          ? Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)))
           : null,
-      trailing: const Icon(Icons.chevron_right, color: Colors.black45),
+      trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
       onTap: onTap,
+    );
+  }
+}
+
+// LIQUID GLASS PRIMITIVES
+
+class _SettingsGlassBackground extends StatelessWidget {
+  const _SettingsGlassBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFFFDF5F6),
+                    Color(0xFFF4F7FC),
+                    Color(0xFFEFF3FA),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(top: -120, left: -90, child: _blob(const Color(0xFFE11D2E), 300, 0.20)),
+          Positioned(top: 140, right: -120, child: _blob(const Color(0xFF2563EB), 320, 0.15)),
+          Positioned(bottom: 60, left: -120, child: _blob(const Color(0xFFD4AF37), 300, 0.14)),
+          Positioned(bottom: -100, right: -70, child: _blob(const Color(0xFF0F172A), 260, 0.10)),
+        ],
+      ),
+    );
+  }
+
+  Widget _blob(Color color, double size, double opacity) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            color.withValues(alpha: opacity),
+            color.withValues(alpha: 0),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GlassCard extends StatelessWidget {
+  const _GlassCard({
+    required this.child,
+    this.radius = 24,
+    this.padding = const EdgeInsets.all(16),
+    this.tint,
+  });
+
+  final Widget child;
+  final double radius;
+  final EdgeInsetsGeometry padding;
+  final Color? tint;
+
+  @override
+  Widget build(BuildContext context) {
+    final base = BorderRadius.circular(radius);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: base,
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0B1B33).withValues(alpha: 0.06),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: base,
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(
+              borderRadius: base,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: tint == null
+                    ? [
+                        Colors.white.withValues(alpha: 0.80),
+                        Colors.white.withValues(alpha: 0.46),
+                      ]
+                    : [
+                        Colors.white.withValues(alpha: 0.84),
+                        tint!.withValues(alpha: 0.12),
+                        Colors.white.withValues(alpha: 0.50),
+                      ],
+              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.92), width: 1.3),
+            ),
+            child: child,
+          ),
+        ),
+      ),
     );
   }
 }

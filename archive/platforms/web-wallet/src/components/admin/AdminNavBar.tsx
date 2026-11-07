@@ -34,6 +34,7 @@ interface AdminNavBarProps {
   onRefresh: () => void
   refreshing: boolean
   onExit?: () => void
+  dataError?: string
   children: React.ReactNode
 }
 
@@ -47,6 +48,7 @@ export const AdminNavBar: React.FC<AdminNavBarProps> = ({
   onRefresh,
   refreshing,
   onExit,
+  dataError,
   children,
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -290,7 +292,14 @@ export const AdminNavBar: React.FC<AdminNavBarProps> = ({
         </header>
 
         <main className="flex-1 px-3 py-4 sm:px-6 sm:py-6">
-          <div className="mx-auto w-full max-w-[1440px] space-y-5">{children}</div>
+          <div className="mx-auto w-full max-w-[1440px] space-y-5">
+            {dataError && (
+              <div className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-[11px] text-rose-300 backdrop-blur-xl">
+                {dataError}
+              </div>
+            )}
+            {children}
+          </div>
         </main>
 
         <footer className="border-t border-white/[0.06] px-4 py-3 sm:px-6">

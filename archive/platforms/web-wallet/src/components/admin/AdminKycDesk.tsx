@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
   Check,
   X,
@@ -14,6 +14,7 @@ import {
   Fingerprint,
 } from 'lucide-react'
 import type { KycApplicant } from '../../pages/DashboardPage'
+import { fetchKycDocumentUrl, type AdminKycProfileFields } from '../../services/adminDatabase'
 import {
   Avatar,
   DeskHeader,
@@ -35,6 +36,7 @@ interface AdminKycDeskProps {
   applicants: KycApplicant[]
   onApprove: (applicant: KycApplicant) => void
   onOpenRejectModal: (applicant: KycApplicant) => void
+  onSaveProfile: (applicant: KycApplicant, fields: AdminKycProfileFields) => Promise<void> | void
   isDarkMode: boolean
   loading?: boolean
 }
@@ -59,12 +61,74 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
   applicants,
   onApprove,
   onOpenRejectModal,
+  onSaveProfile,
   isDarkMode,
   loading,
 }) => {
   const [filter, setFilter] = useState<KycFilter>('Pending')
   const [search, setSearch] = useState('')
   const [inspectingApplicant, setInspectingApplicant] = useState<KycApplicant | null>(null)
+  const [documents, setDocuments] = useState<{ front: string; back: string; selfie: string }>({
+    front: '',
+    back: '',
+    selfie: '',
+  })
+  const [documentsLoading, setDocumentsLoading] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [draft, setDraft] = useState<Required<AdminKycProfileFields>>({
+    name: '',
+    phone: '',
+    nationalIdNo: '',
+    dob: '',
+    addressHouseNo: '',
+    addressStreet: '',
+    addressWard: '',
+    addressSubDistrict: '',
+    addressDistrict: '',
+    addressProvince: '',
+    addressCountry: '',
+    addressPostalCode: '',
+  })
+
+  useEffect(() => {
+    let active = true
+    if (!inspectingApplicant) {
+      setDocuments({ front: '', back: '', selfie: '' })
+      setEditing(false)
+      return
+    }
+    setEditing(false)
+    setDraft({
+      name: inspectingApplicant.name || '',
+      phone: inspectingApplicant.phone || '',
+      nationalIdNo: inspectingApplicant.nationalIdNo || '',
+      dob: inspectingApplicant.dob || '',
+      addressHouseNo: inspectingApplicant.addressHouseNo || '',
+      addressStreet: inspectingApplicant.addressStreet || '',
+      addressWard: inspectingApplicant.addressWard || '',
+      addressSubDistrict: inspectingApplicant.addressSubDistrict || '',
+      addressDistrict: inspectingApplicant.addressDistrict || '',
+      addressProvince: inspectingApplicant.addressProvince || '',
+      addressCountry: inspectingApplicant.addressCountry || '',
+      addressPostalCode: inspectingApplicant.addressPostalCode || '',
+    })
+    setDocumentsLoading(true)
+    Promise.all([
+      fetchKycDocumentUrl(inspectingApplicant.nricFrontUrl || ''),
+      fetchKycDocumentUrl(inspectingApplicant.nricBackUrl || ''),
+      fetchKycDocumentUrl(inspectingApplicant.selfieUrl || ''),
+    ])
+      .then(([front, back, selfie]) => {
+        if (active) setDocuments({ front: front || '', back: back || '', selfie: selfie || '' })
+      })
+      .finally(() => {
+        if (active) setDocumentsLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [inspectingApplicant])
 
   const counts = useMemo(
     () => ({
@@ -89,6 +153,17 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
       return matchesFilter && matchesSearch
     })
   }, [applicants, filter, search])
+
+  const handleSaveProfile = async () => {
+    if (!inspectingApplicant) return
+    setSaving(true)
+    await onSaveProfile(inspectingApplicant, draft)
+    setSaving(false)
+    setEditing(false)
+  }
+
+  const inputClass =
+    'w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-slate-100 outline-none transition focus:border-indigo-400/50'
 
   return (
     <div className="space-y-5">
@@ -249,7 +324,7 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
                       Tier {item.kycTier}
                     </span>
                     <span className={cn('font-mono text-[9px]', adminMuted(isDarkMode))}>
-                      {formatDate(item.createdAt)}
+                      {formatDate(item.kycSubmittedAt || item.createdAt)}
                     </span>
                   </div>
 
@@ -335,16 +410,123 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
               </div>
 
               <div className="space-y-2">
-                <div className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                  Identity details
+                <div className="flex items-center justify-between">
+                  <div className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                    Identity details
+                  </div>
+                  {editing ? (
+                    <div className="flex items-center gap-2">
+                      <button type="button" onClick={() => setEditing(false)} className="rounded-lg border border-white/[0.08] px-2 py-1 font-mono text-[9px] text-slate-400 transition hover:text-white">Cancel</button>
+                      <button type="button" onClick={() => void handleSaveProfile()} disabled={saving} className="rounded-lg bg-indigo-500 px-2.5 py-1 font-mono text-[9px] font-bold text-white transition hover:bg-indigo-400 disabled:opacity-50">{saving ? 'Saving…' : 'Save'}</button>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => setEditing(true)} className="rounded-lg border border-white/[0.08] px-2 py-1 font-mono text-[9px] text-slate-400 transition hover:text-white">Edit</button>
+                  )}
                 </div>
-                <div className={cn('divide-y divide-white/[0.06] rounded-2xl border px-4 py-2', adminInset(isDarkMode))}>
-                  <KeyValue isDarkMode label="National ID" value={inspectingApplicant.nationalIdNo || 'Not submitted'} />
-                  <KeyValue isDarkMode label="Date of birth" value={inspectingApplicant.dob || '—'} />
-                  <KeyValue isDarkMode label="Address" value={inspectingApplicant.address || '—'} />
-                  <KeyValue isDarkMode label="Created" value={formatDate(inspectingApplicant.createdAt)} />
-                  <KeyValue isDarkMode label="Balance" value={`₳ ${inspectingApplicant.balance.toLocaleString()}`} />
-                  <KeyValue isDarkMode label="USD balance" value={`$${inspectingApplicant.usdBalance.toLocaleString()}`} />
+                <div className={cn('space-y-3 rounded-2xl border px-4 py-3', adminInset(isDarkMode))}>
+                  {editing ? (
+                    <div className="grid gap-2.5 sm:grid-cols-2">
+                      <div><div className="mb-1 font-mono text-[9px] text-slate-500">Full name</div><input className={inputClass} value={draft.name} onChange={(e) => setDraft((v) => ({ ...v, name: e.target.value }))} /></div>
+                      <div><div className="mb-1 font-mono text-[9px] text-slate-500">Phone</div><input className={inputClass} value={draft.phone} onChange={(e) => setDraft((v) => ({ ...v, phone: e.target.value }))} /></div>
+                      <div><div className="mb-1 font-mono text-[9px] text-slate-500">National ID</div><input className={inputClass} value={draft.nationalIdNo} onChange={(e) => setDraft((v) => ({ ...v, nationalIdNo: e.target.value }))} /></div>
+                      <div><div className="mb-1 font-mono text-[9px] text-slate-500">Date of birth</div><input type="date" className={inputClass} value={draft.dob} onChange={(e) => setDraft((v) => ({ ...v, dob: e.target.value }))} /></div>
+                    </div>
+                  ) : (
+                    <>
+                      <KeyValue isDarkMode label="Full name" value={inspectingApplicant.name || '—'} />
+                      <KeyValue isDarkMode label="Phone" value={inspectingApplicant.phone || 'Not submitted'} />
+                      <KeyValue isDarkMode label="National ID" value={inspectingApplicant.nationalIdNo || 'Not submitted'} />
+                      <KeyValue isDarkMode label="Date of birth" value={inspectingApplicant.dob || '—'} />
+                      <KeyValue isDarkMode label="Created" value={formatDate(inspectingApplicant.kycSubmittedAt || inspectingApplicant.createdAt)} />
+                      <KeyValue isDarkMode label="Balance" value={`₳ ${inspectingApplicant.balance.toLocaleString()}`} />
+                      <KeyValue isDarkMode label="USD balance" value={`$${inspectingApplicant.usdBalance.toLocaleString()}`} />
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                  Submitted address
+                </div>
+                <div className={cn('space-y-3 rounded-2xl border px-4 py-3', adminInset(isDarkMode))}>
+                  {editing ? (
+                    <div className="grid gap-2.5 sm:grid-cols-2">
+                      {[
+                        { key: 'addressHouseNo', label: 'House / unit' },
+                        { key: 'addressStreet', label: 'Street' },
+                        { key: 'addressWard', label: 'Ward' },
+                        { key: 'addressSubDistrict', label: 'Sub-district' },
+                        { key: 'addressDistrict', label: 'District' },
+                        { key: 'addressProvince', label: 'Province / state' },
+                        { key: 'addressCountry', label: 'Country' },
+                        { key: 'addressPostalCode', label: 'Postal code' },
+                      ].map((field) => (
+                        <div key={field.key}>
+                          <div className="mb-1 font-mono text-[9px] text-slate-500">{field.label}</div>
+                          <input
+                            className={inputClass}
+                            value={draft[field.key as keyof AdminKycProfileFields] || ''}
+                            onChange={(e) => setDraft((v) => ({ ...v, [field.key]: e.target.value }))}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <>
+                      <KeyValue isDarkMode label="House / unit" value={inspectingApplicant.addressHouseNo || '—'} />
+                      <KeyValue isDarkMode label="Street" value={inspectingApplicant.addressStreet || '—'} />
+                      <KeyValue isDarkMode label="Ward" value={inspectingApplicant.addressWard || '—'} />
+                      <KeyValue isDarkMode label="Sub-district" value={inspectingApplicant.addressSubDistrict || '—'} />
+                      <KeyValue isDarkMode label="District" value={inspectingApplicant.addressDistrict || '—'} />
+                      <KeyValue isDarkMode label="Province / state" value={inspectingApplicant.addressProvince || '—'} />
+                      <KeyValue isDarkMode label="Country" value={inspectingApplicant.addressCountry || '—'} />
+                      <KeyValue isDarkMode label="Postal code" value={inspectingApplicant.addressPostalCode || '—'} />
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                    Identity documents
+                  </div>
+                  {documentsLoading && <span className="font-mono text-[9px] text-slate-500">Loading previews…</span>}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { key: 'front', label: 'NRIC front', url: documents.front },
+                    { key: 'back', label: 'NRIC back', url: documents.back },
+                  ].map((doc) => (
+                    <div
+                      key={doc.key}
+                      className="overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.025]"
+                    >
+                      <div className="flex h-24 items-center justify-center bg-black/20">
+                        {doc.url ? (
+                          <img src={doc.url} alt={doc.label} className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="px-2 text-center font-mono text-[9px] text-slate-500">No image</span>
+                        )}
+                      </div>
+                      <div className="border-t border-white/[0.06] px-2 py-1.5 font-mono text-[9px] text-slate-400">
+                        {doc.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.025]">
+                  <div className="flex h-32 items-center justify-center bg-black/20">
+                    {documents.selfie ? (
+                      <img src={documents.selfie} alt="Live selfie" className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="px-2 text-center font-mono text-[9px] text-slate-500">No live selfie</span>
+                    )}
+                  </div>
+                  <div className="border-t border-white/[0.06] px-2 py-1.5 font-mono text-[9px] text-slate-400">
+                    Live selfie
+                  </div>
                 </div>
               </div>
 
@@ -363,7 +545,7 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
                 </div>
                 <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5 font-mono text-[10px] text-slate-300 sm:col-span-2">
                   <CalendarDays size={13} className="text-slate-500" />
-                  <span>Registered {formatDate(inspectingApplicant.createdAt)}</span>
+                  <span>Registered {formatDate(inspectingApplicant.kycSubmittedAt || inspectingApplicant.createdAt)}</span>
                 </div>
               </div>
 

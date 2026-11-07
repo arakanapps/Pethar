@@ -5,10 +5,10 @@ import { ReceiveQRCard } from '../components/ReceiveQRCard'
 import {
   LayoutGrid, Wallet, CreditCard, History, TrendingUp, Settings,
   Send, QrCode, Search, Sparkles,
-  Eye, EyeOff, AlertTriangle, ShieldAlert, Users,
+  Eye, EyeOff, ShieldAlert,
   ExternalLink,
   ArrowUpRight, ArrowDownLeft,
-  Sun, Moon, MessageSquare, Terminal
+  Sun, Moon
 } from 'lucide-react'
 import { initialUserProfile, type UserProfile, type Txn } from '../data'
 import {
@@ -17,8 +17,6 @@ import {
   fetchUserProfileFromDb,
   updateUserBalanceInDb,
   subscribeToTransactions,
-  updateUserStatusInDb,
-  updateCitizenKycInDb,
 } from '../services/walletDatabase'
 import type { Language } from '../i18n'
 import { auth } from '../lib/firebase'
@@ -28,7 +26,7 @@ import { AdminKycDesk } from '../components/admin/AdminKycDesk'
 import { AdminApprovalsDesk } from '../components/admin/AdminApprovalsDesk'
 import { AdminTreasuryDesk } from '../components/admin/AdminTreasuryDesk'
 import { AdminSecurityAml } from '../components/admin/AdminSecurityAml'
-import { fetchAdminUsers, fetchAdminTransactions, fetchAdminApprovals, reviewAdminApproval, type AdminUserRow, type AdminTransactionRow, type AdminApprovalRow } from '../services/adminDatabase'
+import { fetchAdminSnapshot, reviewAdminApproval, adminUpdateKyc, adminUpdateKycProfile, adminFreezeUser, type AdminUserRow, type AdminTransactionRow, type AdminApprovalRow } from '../services/adminDatabase'
 
 export type NavTabType =
   | 'home'
@@ -69,6 +67,19 @@ export interface KycApplicant {
   balance: number
   usdBalance: number
   rejectionReason?: string
+  nricFrontUrl?: string
+  nricBackUrl?: string
+  selfieUrl?: string
+  addressHouseNo?: string
+  addressStreet?: string
+  addressWard?: string
+  addressSubDistrict?: string
+  addressDistrict?: string
+  addressProvince?: string
+  addressCountry?: string
+  addressPostalCode?: string
+  kycSubmittedAt?: string
+  kycReviewedAt?: string
 }
 
 export interface SystemAuditLog {
@@ -93,15 +104,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const ak = lang === 'ak'
 
   // Dev Admin Role Switcher
-  const [isDevAdminMode, setIsDevAdminMode] = useState<boolean>(() => {
+  const [isDevAdminMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search)
       const tabParam = searchParams.get('tab')
       if (tabParam?.startsWith('admin')) return true
       if (tabParam === 'chat' || tabParam === 'support' || tabParam === 'kyc' || tabParam === 'fraud' || tabParam === 'api' || tabParam === 'ads' || tabParam === 'treasury-admin') return true
       if (window.location.pathname.includes('/admin') || window.location.pathname.includes('/support') || window.location.pathname.includes('/chat')) return true
-      const stored = localStorage.getItem('pethar_dev_admin_mode')
-      if (stored === 'true') return true
     }
     return initialTab?.startsWith('admin') || initialTab === 'chat' || initialTab === 'support' || false
   })
@@ -197,24 +206,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [customRejectNote, setCustomRejectNote] = useState('')
 
   const [fraudFilter, setFraudFilter] = useState<'all' | 'flagged' | 'clean'>('all')
-  const [circuitBreakerOpen, setCircuitBreakerOpen] = useState(false)
-  const [circuitBreakerPin, setCircuitBreakerPin] = useState('')
-  const [circuitBreakerActive, setCircuitBreakerActive] = useState(false)
 
   const loadAdminData = async () => {
     setAdminLoading(true)
     setAdminError('')
     try {
-      const [users, transactions, approvals] = await Promise.all([
-        fetchAdminUsers(),
-        fetchAdminTransactions(),
-        fetchAdminApprovals(),
-      ])
-      setAdminUsers(users)
-      setAdminTransactions(transactions)
-      setAdminApprovals(approvals)
-      if (users.length === 0 && transactions.length === 0 && approvals.length === 0) {
-        setAdminError('No records were returned. Confirm the database session has permission to read these tables.')
+      const snapshot = await fetchAdminSnapshot()
+      setAdminUsers(snapshot.users)
+      setAdminTransactions(snapshot.transactions)
+      setAdminApprovals(snapshot.approvals)
+      if (snapshot.users.length === 0 && snapshot.transactions.length === 0 && snapshot.approvals.length === 0) {
+        setAdminError('No records were returned. Set SUPABASE_SERVICE_ROLE_KEY in .env to allow the admin console to read all database tables.')
       }
     } catch (error: any) {
       setAdminError(error?.message || 'Unable to load admin data.')
@@ -264,27 +266,24 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           balance: user.balance,
           usdBalance: user.usdBalance,
           rejectionReason: user.rejectionReason,
+          nricFrontUrl: user.nricFrontUrl,
+          nricBackUrl: user.nricBackUrl,
+          selfieUrl: user.selfieUrl,
+          addressHouseNo: user.addressHouseNo,
+          addressStreet: user.addressStreet,
+          addressWard: user.addressWard,
+          addressSubDistrict: user.addressSubDistrict,
+          addressDistrict: user.addressDistrict,
+          addressProvince: user.addressProvince,
+          addressCountry: user.addressCountry,
+          addressPostalCode: user.addressPostalCode,
+          kycSubmittedAt: user.kycSubmittedAt,
+          kycReviewedAt: user.kycReviewedAt,
         }
       })
   }, [adminUsers])
 
   const scoredAdminTransactions = useMemo(() => adminTransactions, [adminTransactions])
-
-  const filteredFraudTxs = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase()
-    return scoredAdminTransactions.filter((tx) => {
-      const matchesFilter =
-        fraudFilter === 'all' ||
-        (fraudFilter === 'flagged' && tx.risk !== 'Low') ||
-        (fraudFilter === 'clean' && tx.risk === 'Low')
-      const matchesSearch =
-        !query ||
-        tx.title.toLowerCase().includes(query) ||
-        tx.refId.toLowerCase().includes(query) ||
-        tx.counterparty.toLowerCase().includes(query)
-      return matchesFilter && matchesSearch
-    })
-  }, [fraudFilter, scoredAdminTransactions, searchQuery])
 
   // Sync live transactions and users on Mount
   useEffect(() => {
@@ -338,31 +337,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       return true
     })
   }, [txList, searchQuery, txCategoryFilter])
-
-  // Fraud Detection: Automated Risk Scoring for Transactions
-  const scoredTransactions = useMemo(() => {
-    return txList.map((tx) => {
-      const isHighAmount = Math.abs(tx.amount) >= 5000
-      const isOddHour = tx.time.includes('03:') || tx.time.includes('04:')
-      const isSuspect = isHighAmount && isOddHour
-      const risk: 'Low' | 'Medium' | 'High' = isSuspect ? 'High' : isHighAmount ? 'Medium' : 'Low'
-      return {
-        ...tx,
-        risk,
-        flagReason: isSuspect
-          ? 'Velocity & anomalous timing trigger'
-          : isHighAmount
-            ? 'Large transfer threshold review'
-            : 'Normal peer settlement',
-      }
-    })
-  }, [txList])
-
-  const filteredFraudTxs = useMemo(() => {
-    if (fraudFilter === 'flagged') return scoredTransactions.filter((t) => t.risk === 'High' || t.risk === 'Medium')
-    if (fraudFilter === 'clean') return scoredTransactions.filter((t) => t.risk === 'Low')
-    return scoredTransactions
-  }, [scoredTransactions, fraudFilter])
 
   // Send Money execution
   const handleExecuteSend = (e: React.FormEvent) => {
@@ -435,7 +409,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   // Admin: approve KYC in the database
   const handleApproveKyc = async (applicant: KycApplicant) => {
-    await updateCitizenKycInDb(applicant.uid, 'verified', 2)
+    await adminUpdateKyc(applicant.uid, 'verified', 2)
     setSelectedApplicant(null)
     setAdminRefreshKey((key) => key + 1)
   }
@@ -446,10 +420,16 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     const reason = customRejectNote
       ? `${selectedRejectReason} (${customRejectNote})`
       : selectedRejectReason
-    await updateCitizenKycInDb(selectedApplicant.uid, 'rejected', 1, reason)
+    await adminUpdateKyc(selectedApplicant.uid, 'rejected', 1, reason)
     setRejectModalOpen(false)
     setSelectedApplicant(null)
     setCustomRejectNote('')
+    setAdminRefreshKey((key) => key + 1)
+  }
+
+  // Admin: save edited identity and address fields
+  const handleSaveKycProfile = async (applicant: KycApplicant, fields: Parameters<typeof adminUpdateKycProfile>[1]) => {
+    await adminUpdateKycProfile(applicant.uid, fields)
     setAdminRefreshKey((key) => key + 1)
   }
 
@@ -462,7 +442,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     if (approval.type === 'KYC_UPGRADE') {
       const user = adminUsers.find((item) => item.id === approval.userId || item.userId === approval.userId)
       if (user) {
-        await updateCitizenKycInDb(
+        await adminUpdateKyc(
           user.uid,
           status === 'APPROVED' ? 'verified' : 'rejected',
           status === 'APPROVED' ? 2 : 1,
@@ -482,7 +462,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       setAdminError('Unable to resolve the account linked to this transaction.')
       return
     }
-    await updateUserStatusInDb(user.uid, 'FROZEN', 'Flagged from transaction monitoring')
+    await adminFreezeUser(user.uid, 'FROZEN', 'Flagged from transaction monitoring')
     setAdminRefreshKey((key) => key + 1)
   }
 
@@ -496,7 +476,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       amount: tx.amount,
       currency: tx.currency,
       time: tx.createdAt ? new Date(tx.createdAt).toLocaleString() : '—',
-      status: tx.status,
+      status: tx.status as Txn['status'],
       counterparty: tx.counterparty,
       counterpartyMm: '',
       fee: tx.fee,
@@ -505,132 +485,23 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     setReceiptModalOpen(true)
   }
 
-  // Toggle Dev Admin Mode
+  // Open the admin console
   const handleToggleAdminMode = () => {
-    const next = !isDevAdminMode
-    setIsDevAdminMode(next)
-    try {
-      localStorage.setItem('pethar_dev_admin_mode', String(next))
-    } catch { }
-    if (next) {
-      setNavTab('admin-kyc')
-    } else {
-      setNavTab('home')
-    }
+    window.location.href = '/admin'
   }
 
   void theme
   void setTheme
 
-  // Additional Handlers for modern Admin components
-  const handleSimulateAndroidMsg = () => {
-    const newCustMsg: ChatMessage = {
-      id: `msg-and-${Date.now()}`,
-      sender: 'user',
-      channel: 'android',
-      text: 'Customer from Sittwe on Android APK: Help needed with P2P transfer confirmation and QR code display.',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    }
-    const updated = [...customerMessages, newCustMsg]
-    setCustomerMessages(updated)
-    try {
-      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated))
-    } catch {}
-  }
-
-  const handleSimulateWalletMsg = () => {
-    const newCustMsg: ChatMessage = {
-      id: `msg-mw-${Date.now()}`,
-      sender: 'user',
-      channel: 'mobilewallet',
-      text: 'Daw Nilar Win from Mobile Wallet: Can you confirm my ₳250 QR deposit on ledger?',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    }
-    const updated = [...customerMessages, newCustMsg]
-    setCustomerMessages(updated)
-    try {
-      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated))
-    } catch {}
-  }
-
-  const handleFreezeAccountFromAml = async (counterparty: string) => {
-    await updateUserStatusInDb(counterparty, 'FROZEN', 'Automated fraud risk flag hold')
-    const newLog: SystemAuditLog = {
-      id: `AUD-${Date.now()}`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      operator: 'ROOT-01',
-      category: 'SECURITY',
-      action: 'ACCOUNT_FROZEN',
-      details: `Account ${counterparty} placed on security hold`,
-      targetId: counterparty,
-      status: 'WARNING',
-    }
-    setAuditLogs((prev) => [newLog, ...prev])
-  }
-
-
-
-  const handleTestApiEndpoint = () => {
-    setApiSimulating(true)
-    setTimeout(() => setApiSimulating(false), 400)
-  }
-
-  const handleCopyApiJson = () => {
-    try {
-      navigator.clipboard.writeText(activeApiEndpoint.responseBody)
-      setCopiedApiJson(true)
-      setTimeout(() => setCopiedApiJson(false), 2000)
-    } catch {}
-  }
-
   // Modal Renderers to share between views
-  const renderCircuitBreakerModal = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-      <div className="w-full max-w-sm rounded-3xl p-6 bg-slate-950 border border-red-500/50 text-white shadow-2xl space-y-4 text-center">
-        <div className="w-12 h-12 rounded-full bg-red-600/20 text-red-400 mx-auto flex items-center justify-center border border-red-500/30">
-          <AlertTriangle size={24} />
-        </div>
-        <div>
-          <h3 className="font-black text-base">
-            {circuitBreakerActive ? 'Disengage Circuit Breaker' : 'Engage Emergency Kill-Switch'}
-          </h3>
-          <p className="text-xs text-slate-400 mt-1">
-            Enter your 6-digit administrative override PIN to {circuitBreakerActive ? 'restore' : 'freeze'} ledger settlements.
-          </p>
-        </div>
-        <input
-          type="password"
-          maxLength={6}
-          value={circuitBreakerPin}
-          onChange={(e) => setCircuitBreakerPin(e.target.value)}
-          placeholder="••••••"
-          className="w-full py-2.5 text-center text-xl tracking-widest font-mono bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:border-red-500"
-        />
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setCircuitBreakerOpen(false)}
-            className="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleToggleCircuitBreaker}
-            className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-xs font-bold text-white shadow-lg cursor-pointer"
-          >
-            Authorize
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-
   const renderRejectModal = () => (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
       <div className="w-full max-w-sm rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-          <h3 className="font-black text-base text-slate-900 dark:text-white">Reject KYC Application</h3>
+          <div>
+            <h3 className="font-black text-base text-slate-900 dark:text-white">Reject KYC application</h3>
+            <p className="mt-0.5 text-[11px] text-slate-500">{selectedApplicant?.name} · {selectedApplicant?.uid}</p>
+          </div>
           <button onClick={() => setRejectModalOpen(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
         </div>
         <div className="space-y-3">
@@ -643,7 +514,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             >
               <option value="Blurry photo / Unreadable NRIC ID document">Blurry photo / Unreadable NRIC ID document</option>
               <option value="ID expired or mismatched name with registry">ID expired or mismatched name with registry</option>
-              <option value="Duplicate citizen profile detected">Duplicate citizen profile detected</option>
+              <option value="Duplicate identity profile detected">Duplicate identity profile detected</option>
               <option value="Suspected fraudulent document">Suspected fraudulent document</option>
             </select>
           </div>
@@ -674,75 +545,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </button>
           </div>
         </div>
-      </div>
-    </div>
-  )
-
-  const renderNewAdModal = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-      <div className="w-full max-w-md rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-          <h3 className="font-black text-base text-slate-900 dark:text-white">Create New Promotional Campaign</h3>
-          <button onClick={() => setNewAdModalOpen(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
-        </div>
-        <form onSubmit={handleCreateAd} className="space-y-3.5">
-          <div>
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Campaign Title (English)</label>
-            <input
-              type="text"
-              required
-              value={newAdTitleEn}
-              onChange={(e) => setNewAdTitleEn(e.target.value)}
-              placeholder="e.g. Sittwe Festival Cashback"
-              className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Campaign Title (Arakanese/Burmese)</label>
-            <input
-              type="text"
-              value={newAdTitleAk}
-              onChange={(e) => setNewAdTitleAk(e.target.value)}
-              placeholder="e.g. စစ်တွေပွဲတော် ငွေပြန်အမ်း အစီအစဉ်"
-              className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Description (English)</label>
-            <input
-              type="text"
-              value={newAdDescEn}
-              onChange={(e) => setNewAdDescEn(e.target.value)}
-              placeholder="e.g. Enjoy 2% instant cashback on all QR payments"
-              className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Description (Arakanese/Burmese)</label>
-            <input
-              type="text"
-              value={newAdDescAk}
-              onChange={(e) => setNewAdDescAk(e.target.value)}
-              placeholder="e.g. QR ငွေပေးချေမှုတိုင်းအတွက် ၂% ချက်ချင်းငွေပြန်အမ်း"
-              className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-            />
-          </div>
-          <div className="flex gap-2 pt-2">
-            <button
-              type="button"
-              onClick={() => setNewAdModalOpen(false)}
-              className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 py-2.5 rounded-xl bg-[#FF6B00] hover:bg-[#E05E00] text-xs font-bold text-white shadow-md cursor-pointer"
-            >
-              Publish Campaign
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   )
@@ -871,120 +673,77 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   if (isDevAdminMode) {
     return (
       <AdminNavBar
-          currentTab={navTab}
-          onSelectTab={(tabId) => setNavTab(tabId as NavTabType)}
-          isDarkMode={isDarkMode}
-          onToggleDarkMode={() => setIsDarkMode((v) => !v)}
-          lang={lang}
-          onToggleLang={setLang ? () => setLang(ak ? 'en' : 'ak') : undefined}
-          onExit={onExit}
-          onOpenKillSwitch={() => setCircuitBreakerOpen(true)}
-          circuitBreakerActive={circuitBreakerActive}
-          kycPendingCount={kycQueue.filter((k) => k.status === 'Pending').length}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        >
-
-        {/* Emergency Circuit Breaker Active Alert Banner */}
-        {circuitBreakerActive && (
-          <div className="mx-3 sm:mx-6 mt-2 p-3 sm:p-4 rounded-2xl bg-red-950 border-2 border-red-500 text-white flex items-center justify-between gap-4 animate-pulse">
-            <div className="flex items-center gap-3">
-              <ShieldAlert className="w-6 h-6 text-red-400 shrink-0" />
-              <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-red-300">
-                  CRITICAL: Emergency Circuit Breaker Engaged
-                </div>
-                <div className="text-xs text-red-200">
-                  All ledger settlements across consensus nodes are paused for security review.
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={() => setCircuitBreakerOpen(true)}
-              className="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold font-mono transition cursor-pointer"
-            >
-              Disengage
-            </button>
-          </div>
+        currentTab={navTab}
+        onSelectTab={(tabId) => setNavTab(tabId as NavTabType)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        pendingKycCount={kycApplicants.filter((item) => item.status === 'Pending').length}
+        pendingApprovalsCount={adminApprovals.filter((item) => item.status === 'PENDING').length}
+        onRefresh={() => setAdminRefreshKey((key) => key + 1)}
+        refreshing={adminLoading}
+        onExit={onExit}
+        dataError={adminError}
+      >
+        {navTab === 'admin-overview' && (
+          <AdminOverviewDesk
+            users={adminUsers}
+            transactions={adminTransactions}
+            approvals={adminApprovals}
+            isDarkMode
+            loading={adminLoading}
+            error={adminError}
+            onNavigate={(tab) => setNavTab(tab as NavTabType)}
+          />
         )}
 
-        {/* Main Admin Workspace */}
-        <div className="space-y-5">
-          {navTab === 'admin-kyc' && (
-            <AdminKycDesk
-              kycQueue={kycQueue}
-              onApprove={handleApproveKyc}
-              onOpenRejectModal={(applicant) => {
-                setSelectedApplicant(applicant)
-                setRejectModalOpen(true)
-              }}
-              isDarkMode={isDarkMode}
-              lang={lang}
-            />
-          )}
+        {navTab === 'admin-kyc' && (
+          <AdminKycDesk
+            applicants={kycApplicants}
+            onApprove={(applicant) => void handleApproveKyc(applicant)}
+            onOpenRejectModal={(applicant) => {
+              setSelectedApplicant(applicant)
+              setRejectModalOpen(true)
+            }}
+            onSaveProfile={(applicant, fields) => handleSaveKycProfile(applicant, fields)}
+            isDarkMode
+            loading={adminLoading}
+          />
+        )}
 
-          {navTab === 'admin-chat' && (
-            <AdminOpenDesk
-              messages={customerMessages}
-              onSendMessage={handleSendOperatorReply}
-              replyText={operatorReplyText}
-              setReplyText={setOperatorReplyText}
-              channelFilter={operatorChannelFilter}
-              setChannelFilter={setOperatorChannelFilter}
-              onSimulateAndroidMsg={handleSimulateAndroidMsg}
-              onSimulateWalletMsg={handleSimulateWalletMsg}
-              isDarkMode={isDarkMode}
-            />
-          )}
+        {navTab === 'admin-approvals' && (
+          <AdminApprovalsDesk
+            approvals={adminApprovals}
+            users={adminUsers}
+            isDarkMode
+            loading={adminLoading}
+            onReview={(approval, status) => void handleReviewApproval(approval, status)}
+          />
+        )}
 
-          {navTab === 'admin-fraud' && (
-            <AdminSecurityAml
-              filteredFraudTxs={filteredFraudTxs}
-              fraudFilter={fraudFilter}
-              setFraudFilter={setFraudFilter}
-              onFreezeAccount={handleFreezeAccountFromAml}
-              onInspectSlip={(tx) => {
-                setSelectedTx(tx)
-                setReceiptModalOpen(true)
-              }}
-              auditLogs={auditLogs}
-              circuitBreakerActive={circuitBreakerActive}
-              onOpenKillSwitch={() => setCircuitBreakerOpen(true)}
-              isDarkMode={isDarkMode}
-            />
-          )}
+        {navTab === 'admin-fraud' && (
+          <AdminSecurityAml
+            transactions={scoredAdminTransactions}
+            fraudFilter={fraudFilter}
+            setFraudFilter={setFraudFilter}
+            onFreezeAccount={(tx) => void handleFreezeAccountFromAml(tx)}
+            onInspectSlip={handleInspectAdminTransaction}
+            isDarkMode
+            loading={adminLoading}
+            searchQuery={searchQuery}
+          />
+        )}
 
-          {navTab === 'admin-treasury' && (
-            <AdminTreasuryDesk isDarkMode={isDarkMode} />
-          )}
+        {navTab === 'admin-treasury' && (
+          <AdminTreasuryDesk
+            users={adminUsers}
+            transactions={adminTransactions}
+            approvals={adminApprovals}
+            isDarkMode
+            loading={adminLoading}
+          />
+        )}
 
-          {navTab === 'admin-api' && (
-            <AdminApiDesk
-              apiEndpoints={apiEndpoints}
-              activeApiEndpoint={activeApiEndpoint}
-              setActiveApiEndpoint={setActiveApiEndpoint}
-              apiSimulating={apiSimulating}
-              onTestEndpoint={handleTestApiEndpoint}
-              copiedApiJson={copiedApiJson}
-              onCopyJson={handleCopyApiJson}
-              isDarkMode={isDarkMode}
-            />
-          )}
-
-          {navTab === 'admin-ads' && (
-            <AdminCampaignsDesk
-              promoAds={promoAds}
-              onToggleAd={handleToggleAd}
-              onOpenCreateModal={() => setNewAdModalOpen(true)}
-              isDarkMode={isDarkMode}
-            />
-          )}
-        </div>
-
-        {/* Shared Modals for Admin */}
-        {circuitBreakerOpen && renderCircuitBreakerModal()}
         {rejectModalOpen && selectedApplicant && renderRejectModal()}
-        {newAdModalOpen && renderNewAdModal()}
         {receiptModalOpen && selectedTx && renderReceiptModal()}
       </AdminNavBar>
     )
@@ -1015,29 +774,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
         </div>
 
-        {/* Role Toggle Pill: Citizen Wallet <-> Dev Admin Console */}
-        <div className="p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center text-xs font-bold">
-          <button
-            onClick={() => { setIsDevAdminMode(false); setNavTab('home'); }}
-            className={`flex-1 py-1.5 rounded-xl transition text-center ${!isDevAdminMode
-                ? 'bg-white dark:bg-slate-700 text-slate-950 dark:text-white shadow-xs font-black'
-                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
-              }`}
-          >
-            {ak ? 'သုံးစွဲသူ' : 'Wallet'}
-          </button>
-          <button
-            onClick={() => { setIsDevAdminMode(true); setNavTab('admin-kyc'); }}
-            className={`flex-1 py-1.5 rounded-xl transition text-center flex items-center justify-center gap-1 ${isDevAdminMode
-                ? 'bg-[#FF6B00] text-white shadow-xs font-black'
-                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
-              }`}
-          >
-            <ShieldAlert size={12} />
-            <span>{ak ? 'အုပ်ချုပ်သူ' : 'Dev Admin'}</span>
-          </button>
-        </div>
-
         {/* Pegged Currency Indicator */}
         <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-300 text-xs font-medium space-y-1">
           <div className="flex items-center justify-between font-mono font-bold">
@@ -1051,92 +787,35 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
         {/* Navigation Menu */}
         <nav className="flex-1 space-y-1 font-medium text-xs overflow-y-auto">
-          {!isDevAdminMode ? (
-            // ── CITIZEN WALLET TABS ──
-            [
-              { id: 'home', label: ak ? 'ပင်မ ခြုံငုံသုံးသပ်ချက်' : 'Wallet Overview', icon: LayoutGrid },
-              { id: 'wallet', label: ak ? 'ပိုက်ဆံအိတ် ငွေစာရင်း' : 'My Accounts & Balances', icon: Wallet },
-              { id: 'cards', label: ak ? 'ကတ်များ စီမံခန့်ခွဲမှု' : 'Cards Center', icon: CreditCard },
-              { id: 'transactions', label: ak ? 'ငွေလွှဲ မှတ်တမ်းများ' : 'Transactions & Invoices', icon: History },
-              { id: 'financial', label: ak ? 'ဘဏ္ဍာရေး စာရင်းများ' : 'Treasury & Analytics', icon: TrendingUp },
-              { id: 'settings', label: ak ? 'လုံခြုံရေး & ဆက်တင်' : 'Security & Settings', icon: Settings },
-            ].map((item) => {
-              const Icon = item.icon
-              const isActive = navTab === item.id
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setNavTab(item.id as NavTabType)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all ${isActive
-                      ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8500] text-white font-bold shadow-md shadow-orange-500/20'
-                      : isDarkMode
-                        ? 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-                    }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon size={17} />
-                    <span>{item.label}</span>
-                  </div>
-                </button>
-              )
-            })
-          ) : (
-            // ── DEV ADMIN ROLE TABS ──
-            <div className="space-y-1">
-              <div className="px-3 py-1 text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
-                Admin Controls
-              </div>
-              {[
-                { id: 'admin-kyc', label: ak ? 'KYC စိစစ်အတည်ပြုရေး' : 'Identity Review', icon: Users, badge: `${kycQueue.filter((k) => k.status === 'Pending').length}` },
-                { id: 'admin-chat', label: ak ? 'ဖောက်သည် Chat စားပွဲ' : 'Customer Chat Desk', icon: MessageSquare, badge: 'Live' },
-                { id: 'admin-ads', label: ak ? 'ကြော်ငြာများ စီမံခန့်ခွဲမှု' : 'Ads & Campaigns', icon: Sparkles },
-                { id: 'admin-api', label: ak ? 'API ထိန်းချုပ်ရေးစနစ်' : 'Developer API Control', icon: Terminal },
-                { id: 'admin-fraud', label: ak ? 'ငွေလွှဲ လိမ်လည်မှုစစ်ဆေး' : 'Fraud Detection & AML', icon: ShieldAlert, badge: 'AI' },
-              ].map((item) => {
-                const Icon = item.icon
-                const isActive = navTab === item.id
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setNavTab(item.id as NavTabType)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all ${isActive
-                        ? 'bg-[#FF6B00] text-white font-bold shadow-md shadow-orange-500/20'
-                        : isDarkMode
-                          ? 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-                      }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon size={17} />
-                      <span>{item.label}</span>
-                    </div>
-                    {item.badge && (
-                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${isActive ? 'bg-white/20 text-white' : 'bg-red-500/10 text-red-500'
-                        }`}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          )}
+          {[
+            { id: 'home', label: ak ? 'ပင်မ ခြုံငုံသုံးသပ်ချက်' : 'Wallet Overview', icon: LayoutGrid },
+            { id: 'wallet', label: ak ? 'ပိုက်ဆံအိတ် ငွေစာရင်း' : 'My Accounts & Balances', icon: Wallet },
+            { id: 'cards', label: ak ? 'ကတ်များ စီမံခန့်ခွဲမှု' : 'Cards Center', icon: CreditCard },
+            { id: 'transactions', label: ak ? 'ငွေလွှဲ မှတ်တမ်းများ' : 'Transactions & Invoices', icon: History },
+            { id: 'financial', label: ak ? 'ဘဏ္ဍာရေး စာရင်းများ' : 'Treasury & Analytics', icon: TrendingUp },
+            { id: 'settings', label: ak ? 'လုံခြုံရေး & ဆက်တင်' : 'Security & Settings', icon: Settings },
+          ].map((item) => {
+            const Icon = item.icon
+            const isActive = navTab === item.id
+            return (
+              <button
+                key={item.id}
+                onClick={() => setNavTab(item.id as NavTabType)}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all ${isActive
+                    ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8500] text-white font-bold shadow-md shadow-orange-500/20'
+                    : isDarkMode
+                      ? 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                  }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={17} />
+                  <span>{item.label}</span>
+                </div>
+              </button>
+            )
+          })}
         </nav>
-
-        {/* Emergency Kill-Switch Shortcut */}
-        {isDevAdminMode && (
-          <button
-            onClick={() => setCircuitBreakerOpen(true)}
-            className={`w-full py-2.5 px-3 rounded-2xl border text-xs font-mono font-bold flex items-center justify-center gap-2 transition cursor-pointer ${circuitBreakerActive
-                ? 'bg-red-600 text-white border-red-500 animate-pulse'
-                : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30 hover:bg-red-500/20'
-              }`}
-          >
-            <AlertTriangle size={14} />
-            <span>{circuitBreakerActive ? 'SETTLEMENT FROZEN' : 'Emergency Kill-Switch'}</span>
-          </button>
-        )}
 
         {/* User Mini Footer */}
         <div className={`pt-3 border-t flex items-center justify-between ${isDarkMode ? 'border-slate-800' : 'border-slate-100'
@@ -1250,29 +929,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </button>
           </div>
         </div>
-
-        {/* Emergency Circuit Breaker Active Alert Banner */}
-        {circuitBreakerActive && (
-          <div className="m-4 lg:m-8 mb-0 p-4 rounded-2xl bg-red-950 border-2 border-red-500 text-white flex items-center justify-between gap-4 animate-pulse">
-            <div className="flex items-center gap-3">
-              <ShieldAlert className="w-6 h-6 text-red-400 shrink-0" />
-              <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-red-300">
-                  CRITICAL: Emergency Circuit Breaker Engaged
-                </div>
-                <div className="text-xs text-red-200">
-                  All ledger transfers across consensus nodes are paused for security review.
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={() => setCircuitBreakerOpen(true)}
-              className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-xs font-bold text-white transition shrink-0"
-            >
-              Disengage
-            </button>
-          </div>
-        )}
 
         {/* ── CONDITIONAL WORKSPACE BODY BASED ON TAB ── */}
         <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto pb-24">
@@ -1608,7 +1264,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       {sendModalOpen && renderSendModal()}
       {receiveModalOpen && renderReceiveModal()}
       {topUpModalOpen && renderTopUpModal()}
-      {circuitBreakerOpen && renderCircuitBreakerModal()}
       {receiptModalOpen && selectedTx && renderReceiptModal()}
     </div>
   )
