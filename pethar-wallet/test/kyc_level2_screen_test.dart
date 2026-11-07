@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:pethar_mobile/app_state.dart';
 import 'package:pethar_mobile/models/data.dart';
-import 'package:pethar_mobile/screens/kyc_level2_screen.dart';
+import 'package:pethar_mobile/kyc/kyc_level2_screen.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

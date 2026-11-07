@@ -6,7 +6,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../theme.dart';
-import 'receive_screen.dart';
+import '../receive/receive_screen.dart';
 
 /// Parsed recipient target from scanned QR code or gallery image
 class ParsedPaymentTarget {

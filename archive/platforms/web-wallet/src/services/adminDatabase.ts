@@ -75,6 +75,7 @@ export interface AdminSnapshot {
   transactions: AdminTransactionRow[]
   approvals: AdminApprovalRow[]
   source: 'admin-api' | 'supabase'
+  error?: string
 }
 
 function normalizeKycStatus(value?: string, tier?: number, hasId?: boolean): string {
@@ -228,6 +229,7 @@ export async function fetchAdminApprovals(): Promise<AdminApprovalRow[]> {
 }
 
 export async function fetchAdminSnapshot(): Promise<AdminSnapshot> {
+  let apiError = ''
   try {
     const response = await fetch('/api/admin/snapshot', { headers: { Accept: 'application/json' } })
     if (response.ok) {
@@ -239,6 +241,8 @@ export async function fetchAdminSnapshot(): Promise<AdminSnapshot> {
         source: 'admin-api',
       }
     }
+    const payload = await response.json().catch(() => ({}))
+    apiError = payload.error || `Admin API returned ${response.status}`
   } catch {
     // Fall through to direct Supabase reads.
   }
@@ -248,7 +252,7 @@ export async function fetchAdminSnapshot(): Promise<AdminSnapshot> {
     fetchAdminTransactions(),
     fetchAdminApprovals(),
   ])
-  return { users, transactions, approvals, source: 'supabase' }
+  return { users, transactions, approvals, source: 'supabase', error: apiError }
 }
 
 export async function reviewAdminApproval(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app_state.dart';
-import '../screens/auth_screen.dart';
-import '../screens/kyc_level2_screen.dart';
+import '../auth/auth_screen.dart';
+import '../kyc/kyc_level2_screen.dart';
 import '../theme.dart';
 import 'arakan_emblem.dart';
 

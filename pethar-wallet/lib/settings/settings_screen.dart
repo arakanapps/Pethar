@@ -8,13 +8,13 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
-import '../services/supabase_service.dart';
+import '../core/services/supabase_service.dart';
 import '../theme.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/support_and_kyc_modals.dart';
 import '../widgets/pin_keypad_screen.dart';
-import '../services/native_security_service.dart';
-import 'notifications_screen.dart';
+import '../core/services/native_security_service.dart';
+import '../notifications/notifications_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -30,7 +30,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _tempNewPin = '';
   int _forgotPinStep = 0;
   String _tempForgotNewPin = '';
-  bool _isSubmittingForgotPin = false; // 'main' | 'personal_info' | 'app_settings' | 'privacy' | 'device_management' | 'pin_management' | 'change_pin' | 'forgot_pin'
+  bool _isSubmittingForgotPin =
+      false; // 'main' | 'personal_info' | 'app_settings' | 'privacy' | 'device_management' | 'pin_management' | 'change_pin' | 'forgot_pin'
   bool _showAllProfileInfo = true;
   bool _faceIdEnabled = true;
   bool _biometricLoginEnabled = true;
@@ -58,6 +59,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? _forgotPinSuccess;
   Timer? _forgotOtpTimer;
   int _forgotOtpSecondsRemaining = 600; // 10 minutes
+  bool _forgotOtpSending = false;
+  bool _forgotOtpSent = false;
+  bool _forgotOtpVerifying = false;
+  final FocusNode _forgotOtpFocusNode = FocusNode();
 
   String _streetAddress = '';
 
@@ -97,6 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void dispose() {
     _forgotOtpTimer?.cancel();
     _forgotOtpCtrl.removeListener(_onForgotOtpChanged);
+    _forgotOtpFocusNode.dispose();
     _oldPinCtrl.dispose();
     _newPinCtrl.dispose();
     _confirmPinCtrl.dispose();
@@ -109,7 +115,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showToast(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+        content: Text(message,
+            style:
+                const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
         backgroundColor: const Color(0xFF1E293B),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -173,7 +181,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (context.mounted) {
           _showToast(
             context,
-            isAk ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'Profile photo updated successfully!',
+            isAk
+                ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ'
+                : 'Profile photo updated successfully!',
           );
         }
         try {
@@ -189,7 +199,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _showEditAvatarModal(BuildContext context, AppState appState, bool isAk) {
+  void _showEditAvatarModal(
+      BuildContext context, AppState appState, bool isAk) {
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -205,12 +216,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    isAk ? 'ပရိုဖိုင်ပုံ ပြောင်းလဲရန်' : 'Change Profile Picture',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                    isAk
+                        ? 'ပရိုဖိုင်ပုံ ပြောင်းလဲရန်'
+                        : 'Change Profile Picture',
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF18181B)),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(ctx),
-                    icon: const Icon(Icons.close, size: 20, color: Color(0xFF71717A)),
+                    icon: const Icon(Icons.close,
+                        size: 20, color: Color(0xFF71717A)),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -223,16 +240,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton.icon(
-                  onPressed: () => _pickAvatarFromSource(context, appState, isAk, ImageSource.gallery, ctx),
+                  onPressed: () => _pickAvatarFromSource(
+                      context, appState, isAk, ImageSource.gallery, ctx),
                   icon: const Icon(Icons.photo_library_rounded, size: 20),
                   label: Text(
-                    isAk ? 'ဖုန်းပြခန်းမှ ဓာတ်ပုံတင်မည်' : 'Upload from Phone Gallery',
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                    isAk
+                        ? 'ဖုန်းပြခန်းမှ ဓာတ်ပုံတင်မည်'
+                        : 'Upload from Phone Gallery',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 13),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2563EB),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
                     elevation: 0,
                   ),
                 ),
@@ -244,16 +266,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 width: double.infinity,
                 height: 44,
                 child: OutlinedButton.icon(
-                  onPressed: () => _pickAvatarFromSource(context, appState, isAk, ImageSource.camera, ctx),
+                  onPressed: () => _pickAvatarFromSource(
+                      context, appState, isAk, ImageSource.camera, ctx),
                   icon: const Icon(Icons.camera_alt_outlined, size: 18),
                   label: Text(
                     isAk ? 'ကင်မရာဖြင့် ဓာတ်ပုံရိုက်မည်' : 'Take a Photo',
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 13),
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF334155),
                     side: const BorderSide(color: Color(0xFFE2E8F0)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
                   ),
                 ),
               ),
@@ -268,11 +293,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF64748B),
                     side: const BorderSide(color: Color(0xFFE2E8F0)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
                   ),
                   child: Text(
                     isAk ? 'ပယ်ဖျက်မည်' : 'Cancel',
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 13),
                   ),
                 ),
               ),
@@ -283,7 +310,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showChangeEmailModal(BuildContext context, AppState appState, bool isAk) {
+  void _showChangeEmailModal(
+      BuildContext context, AppState appState, bool isAk) {
     final emailCtrl = TextEditingController();
     final otpCtrl = TextEditingController();
     int step = 1; // 1: request, 2: verify
@@ -293,7 +321,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -303,29 +332,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   isAk ? 'အီးမေးလ် ပြောင်းလဲရန်' : 'Change User Email',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF18181B)),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   isAk
                       ? 'လက်ရှိ အီးမေးလ်: ${appState.profile.email}'
                       : 'Current Email: ${appState.profile.email}',
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                  style:
+                      const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
                 ),
                 const SizedBox(height: 14),
                 if (step == 1) ...[
-                  const Text('Enter New Email Address:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Enter New Email Address:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
                   TextField(
                     controller: emailCtrl,
                     keyboardType: TextInputType.emailAddress,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       hintText: 'e.g. newuser@email.com',
                       filled: true,
                       fillColor: const Color(0xFFF4F4F5),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none),
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -338,7 +377,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           : () async {
                               final newEmail = emailCtrl.text.trim();
                               if (newEmail.isEmpty || !newEmail.contains('@')) {
-                                _showToast(context, 'Please enter a valid email address');
+                                _showToast(context,
+                                    'Please enter a valid email address');
                                 return;
                               }
                               setModalState(() => isLoading = true);
@@ -351,10 +391,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 step = 2;
                               });
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2563EB), foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2563EB),
+                          foregroundColor: Colors.white),
                       child: isLoading
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : const Text('Send Verification OTP', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2))
+                          : const Text('Send Verification OTP',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ] else ...[
@@ -367,31 +414,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.mark_email_read_outlined, size: 16, color: Color(0xFF1D4ED8)),
+                        const Icon(Icons.mark_email_read_outlined,
+                            size: 16, color: Color(0xFF1D4ED8)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'A 6-digit verification code has been sent to ${emailCtrl.text}',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF)),
+                            style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1E40AF)),
                           ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Enter 6-digit OTP Code:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Enter 6-digit OTP Code:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
                   TextField(
                     controller: otpCtrl,
                     keyboardType: TextInputType.number,
                     maxLength: 6,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 6),
+                    style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 6),
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
                       counterText: '',
                       filled: true,
                       fillColor: const Color(0xFFF4F4F5),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none),
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -404,11 +462,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           : () async {
                               final code = otpCtrl.text.trim();
                               if (code.length != 6) {
-                                _showToast(context, 'Please enter complete 6-digit OTP');
+                                _showToast(context,
+                                    'Please enter complete 6-digit OTP');
                                 return;
                               }
                               setModalState(() => isLoading = true);
-                              final res = await SupabaseService().verifyAndUpdateEmail(
+                              final res =
+                                  await SupabaseService().verifyAndUpdateEmail(
                                 profileId: appState.profile.uid,
                                 newEmail: emailCtrl.text.trim(),
                                 otpCode: code,
@@ -419,18 +479,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 appState.notify();
                                 if (ctx.mounted) Navigator.pop(ctx);
                                 if (context.mounted) {
-                                  _showToast(context, 'Email updated successfully to ${emailCtrl.text.trim()}');
+                                  _showToast(context,
+                                      'Email updated successfully to ${emailCtrl.text.trim()}');
                                 }
                               } else {
                                 if (context.mounted) {
-                                  _showToast(context, res['message']?.toString() ?? 'OTP verification failed');
+                                  _showToast(
+                                      context,
+                                      res['message']?.toString() ??
+                                          'OTP verification failed');
                                 }
                               }
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD91624), foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD91624),
+                          foregroundColor: Colors.white),
                       child: isLoading
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : const Text('Verify & Update Email', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2))
+                          : const Text('Verify & Update Email',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -442,7 +513,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showChangePhoneModal(BuildContext context, AppState appState, bool isAk) {
+  void _showChangePhoneModal(
+      BuildContext context, AppState appState, bool isAk) {
     final phoneCtrl = TextEditingController();
     final otpCtrl = TextEditingController();
     int step = 1;
@@ -452,7 +524,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -462,27 +535,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   isAk ? 'ဖုန်းနံပါတ် ပြောင်းလဲရန်' : 'Change Phone Number',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF18181B)),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'Current Phone: ${appState.profile.phone}\nSecurity code will be sent to registered email: ${appState.profile.email}',
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF71717A), height: 1.4),
+                  style: const TextStyle(
+                      fontSize: 11, color: Color(0xFF71717A), height: 1.4),
                 ),
                 const SizedBox(height: 14),
                 if (step == 1) ...[
-                  const Text('Enter New Phone Number:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Enter New Phone Number:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
                   TextField(
                     controller: phoneCtrl,
                     keyboardType: TextInputType.phone,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       hintText: 'Enter phone number',
                       filled: true,
                       fillColor: const Color(0xFFF4F4F5),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none),
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -495,7 +578,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           : () async {
                               final newPhone = phoneCtrl.text.trim();
                               if (newPhone.length < 8) {
-                                _showToast(context, 'Please enter a valid phone number');
+                                _showToast(context,
+                                    'Please enter a valid phone number');
                                 return;
                               }
                               setModalState(() => isLoading = true);
@@ -508,10 +592,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 step = 2;
                               });
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0284C7),
+                          foregroundColor: Colors.white),
                       child: isLoading
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : const Text('Send Email Verification OTP', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2))
+                          : const Text('Send Email Verification OTP',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ] else ...[
@@ -524,31 +615,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.mark_email_read_outlined, size: 16, color: Color(0xFF1D4ED8)),
+                        const Icon(Icons.mark_email_read_outlined,
+                            size: 16, color: Color(0xFF1D4ED8)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'A 6-digit verification code has been sent to your registered email: ${appState.profile.email}',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF)),
+                            style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1E40AF)),
                           ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Enter 6-digit Email OTP:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Enter 6-digit Email OTP:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
                   TextField(
                     controller: otpCtrl,
                     keyboardType: TextInputType.number,
                     maxLength: 6,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 6),
+                    style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 6),
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
                       counterText: '',
                       filled: true,
                       fillColor: const Color(0xFFF4F4F5),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none),
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -561,11 +663,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           : () async {
                               final code = otpCtrl.text.trim();
                               if (code.length != 6) {
-                                _showToast(context, 'Please enter complete 6-digit OTP');
+                                _showToast(context,
+                                    'Please enter complete 6-digit OTP');
                                 return;
                               }
                               setModalState(() => isLoading = true);
-                              final res = await SupabaseService().verifyAndUpdatePhone(
+                              final res =
+                                  await SupabaseService().verifyAndUpdatePhone(
                                 profileId: appState.profile.uid,
                                 newPhone: phoneCtrl.text.trim(),
                                 otpCode: code,
@@ -576,18 +680,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 appState.notify();
                                 if (ctx.mounted) Navigator.pop(ctx);
                                 if (context.mounted) {
-                                  _showToast(context, 'Phone number updated successfully to ${phoneCtrl.text.trim()}');
+                                  _showToast(context,
+                                      'Phone number updated successfully to ${phoneCtrl.text.trim()}');
                                 }
                               } else {
                                 if (context.mounted) {
-                                  _showToast(context, res['message']?.toString() ?? 'OTP verification failed');
+                                  _showToast(
+                                      context,
+                                      res['message']?.toString() ??
+                                          'OTP verification failed');
                                 }
                               }
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD91624), foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD91624),
+                          foregroundColor: Colors.white),
                       child: isLoading
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : const Text('Verify & Update Phone', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2))
+                          : const Text('Verify & Update Phone',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -611,7 +726,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -621,28 +737,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   forgotMode ? 'Reset Forgotten PIN' : 'Change Security PIN',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF18181B)),
                 ),
                 const SizedBox(height: 14),
                 if (!forgotMode) ...[
-                  const Text('Enter Current PIN:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Enter Current PIN:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
                   TextField(
                     controller: currPinCtrl,
                     obscureText: true,
                     keyboardType: TextInputType.number,
                     maxLength: 6,
-                    decoration: InputDecoration(counterText: '', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+                    decoration: InputDecoration(
+                        counterText: '',
+                        filled: true,
+                        fillColor: const Color(0xFFF4F4F5),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none)),
                   ),
                   const SizedBox(height: 10),
-                  const Text('Enter New 6-Digit PIN:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Enter New 6-Digit PIN:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
                   TextField(
                     controller: newPinCtrl,
                     obscureText: true,
                     keyboardType: TextInputType.number,
                     maxLength: 6,
-                    decoration: InputDecoration(counterText: '', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+                    decoration: InputDecoration(
+                        counterText: '',
+                        filled: true,
+                        fillColor: const Color(0xFFF4F4F5),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none)),
                   ),
                   const SizedBox(height: 14),
                   Row(
@@ -651,13 +786,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       GestureDetector(
                         onTap: () async {
                           setModalState(() => isLoading = true);
-                          await SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
+                          await SupabaseService().requestPinResetOtp(
+                              profileId: appState.profile.uid);
                           setModalState(() {
                             isLoading = false;
                             forgotMode = true;
                           });
                         },
-                        child: const Text('Forgot PIN? Reset with Email OTP', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF2563EB))),
+                        child: const Text('Forgot PIN? Reset with Email OTP',
+                            style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2563EB))),
                       ),
                     ],
                   ),
@@ -672,42 +812,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               final curr = currPinCtrl.text.trim();
                               final np = newPinCtrl.text.trim();
                               if (curr.length < 4 || np.length != 6) {
-                                _showToast(context, 'Please enter current PIN and new 6-digit PIN');
+                                _showToast(context,
+                                    'Please enter current PIN and new 6-digit PIN');
                                 return;
                               }
                               setModalState(() => isLoading = true);
-                              final res = await SupabaseService().setUserPin(currentPin: curr, newPin: np);
+                              final res = await SupabaseService()
+                                  .setUserPin(currentPin: curr, newPin: np);
                               setModalState(() => isLoading = false);
                               if (res['success'] == true) {
                                 appState.profile.pin = np;
                                 if (ctx.mounted) Navigator.pop(ctx);
                                 if (context.mounted) {
-                                  _showToast(context, 'Security PIN updated successfully');
+                                  _showToast(context,
+                                      'Security PIN updated successfully');
                                 }
                               } else {
                                 if (context.mounted) {
-                                  _showToast(context, res['message']?.toString() ?? 'Incorrect current PIN');
+                                  _showToast(
+                                      context,
+                                      res['message']?.toString() ??
+                                          'Incorrect current PIN');
                                 }
                               }
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F172A), foregroundColor: Colors.white),
-                      child: const Text('Update PIN', style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0F172A),
+                          foregroundColor: Colors.white),
+                      child: const Text('Update PIN',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ] else ...[
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFF93C5FD))),
-                    child: Text('A 6-digit reset code has been sent to your registered email: ${appState.profile.email}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF))),
+                    decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF93C5FD))),
+                    child: Text(
+                        'A 6-digit reset code has been sent to your registered email: ${appState.profile.email}',
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E40AF))),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Enter 6-digit Email OTP:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Enter 6-digit Email OTP:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
-                  TextField(controller: otpCtrl, keyboardType: TextInputType.number, maxLength: 6, textAlign: TextAlign.center, decoration: InputDecoration(counterText: '', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  TextField(
+                      controller: otpCtrl,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                          counterText: '',
+                          filled: true,
+                          fillColor: const Color(0xFFF4F4F5),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide.none))),
                   const SizedBox(height: 10),
-                  const Text('Enter New 6-Digit PIN:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Enter New 6-Digit PIN:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
-                  TextField(controller: confirmPinCtrl, obscureText: true, keyboardType: TextInputType.number, maxLength: 6, decoration: InputDecoration(counterText: '', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  TextField(
+                      controller: confirmPinCtrl,
+                      obscureText: true,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      decoration: InputDecoration(
+                          counterText: '',
+                          filled: true,
+                          fillColor: const Color(0xFFF4F4F5),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide.none))),
                   const SizedBox(height: 18),
                   SizedBox(
                     width: double.infinity,
@@ -719,26 +902,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               final otp = otpCtrl.text.trim();
                               final np = confirmPinCtrl.text.trim();
                               if (otp.length != 6 || np.length != 6) {
-                                _showToast(context, 'Enter 6-digit OTP and new 6-digit PIN');
+                                _showToast(context,
+                                    'Enter 6-digit OTP and new 6-digit PIN');
                                 return;
                               }
                               setModalState(() => isLoading = true);
-                              final res = await SupabaseService().verifyAndResetPin(profileId: appState.profile.uid, otpCode: otp, newPin: np);
+                              final res = await SupabaseService()
+                                  .verifyAndResetPin(
+                                      profileId: appState.profile.uid,
+                                      otpCode: otp,
+                                      newPin: np);
                               setModalState(() => isLoading = false);
                               if (res['success'] == true) {
                                 appState.profile.pin = np;
                                 if (ctx.mounted) Navigator.pop(ctx);
                                 if (context.mounted) {
-                                  _showToast(context, 'Security PIN reset successfully');
+                                  _showToast(context,
+                                      'Security PIN reset successfully');
                                 }
                               } else {
                                 if (context.mounted) {
-                                  _showToast(context, res['message']?.toString() ?? 'PIN reset failed');
+                                  _showToast(
+                                      context,
+                                      res['message']?.toString() ??
+                                          'PIN reset failed');
                                 }
                               }
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD91624), foregroundColor: Colors.white),
-                      child: const Text('Verify OTP & Reset PIN', style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD91624),
+                          foregroundColor: Colors.white),
+                      child: const Text('Verify OTP & Reset PIN',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -750,7 +945,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showChangeNameModal(BuildContext context, AppState appState, bool isAk) {
+  void _showChangeNameModal(
+      BuildContext context, AppState appState, bool isAk) {
     final firstCtrl = TextEditingController(text: appState.profile.firstName);
     final lastCtrl = TextEditingController(text: appState.profile.lastName);
     final reasonCtrl = TextEditingController();
@@ -762,7 +958,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -772,23 +969,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   isAk ? 'တရားဝင်အမည် ပြင်ဆင်ရန်' : 'Edit Full Name',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF18181B)),
                 ),
                 const SizedBox(height: 10),
-                const Text('First name and Last name changes require administrative compliance review and verified email OTP.', style: TextStyle(fontSize: 11, color: Color(0xFF71717A), height: 1.4)),
+                const Text(
+                    'First name and Last name changes require administrative compliance review and verified email OTP.',
+                    style: TextStyle(
+                        fontSize: 11, color: Color(0xFF71717A), height: 1.4)),
                 const SizedBox(height: 14),
                 if (step == 1) ...[
-                  const Text('First Name:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('First Name:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
-                  TextField(controller: firstCtrl, decoration: InputDecoration(filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  TextField(
+                      controller: firstCtrl,
+                      decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFFF4F4F5),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide.none))),
                   const SizedBox(height: 10),
-                  const Text('Last Name:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Last Name:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
-                  TextField(controller: lastCtrl, decoration: InputDecoration(filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  TextField(
+                      controller: lastCtrl,
+                      decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFFF4F4F5),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide.none))),
                   const SizedBox(height: 10),
-                  const Text('Reason for Update:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Reason for Update:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
-                  TextField(controller: reasonCtrl, decoration: InputDecoration(hintText: 'e.g. Passport/National ID correction', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  TextField(
+                      controller: reasonCtrl,
+                      decoration: InputDecoration(
+                          hintText: 'e.g. Passport/National ID correction',
+                          filled: true,
+                          fillColor: const Color(0xFFF4F4F5),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide.none))),
                   const SizedBox(height: 18),
                   SizedBox(
                     width: double.infinity,
@@ -800,30 +1031,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               final fn = firstCtrl.text.trim();
                               final ln = lastCtrl.text.trim();
                               if (fn.isEmpty) {
-                                _showToast(context, 'First name cannot be empty');
+                                _showToast(
+                                    context, 'First name cannot be empty');
                                 return;
                               }
                               setModalState(() => isLoading = true);
-                              await SupabaseService().requestNameChangeOtp(profileId: appState.profile.uid, firstName: fn, lastName: ln, reason: reasonCtrl.text.trim());
+                              await SupabaseService().requestNameChangeOtp(
+                                  profileId: appState.profile.uid,
+                                  firstName: fn,
+                                  lastName: ln,
+                                  reason: reasonCtrl.text.trim());
                               setModalState(() {
                                 isLoading = false;
                                 step = 2;
                               });
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7C3AED), foregroundColor: Colors.white),
-                      child: const Text('Send Verification OTP', style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF7C3AED),
+                          foregroundColor: Colors.white),
+                      child: const Text('Send Verification OTP',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ] else ...[
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFF93C5FD))),
-                    child: Text('A 6-digit verification code has been sent to your registered email: ${appState.profile.email}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF))),
+                    decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF93C5FD))),
+                    child: Text(
+                        'A 6-digit verification code has been sent to your registered email: ${appState.profile.email}',
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E40AF))),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Enter 6-digit Email OTP to Confirm & Submit for Review:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text(
+                      'Enter 6-digit Email OTP to Confirm & Submit for Review:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
-                  TextField(controller: otpCtrl, keyboardType: TextInputType.number, maxLength: 6, textAlign: TextAlign.center, decoration: InputDecoration(counterText: '', filled: true, fillColor: const Color(0xFFF4F4F5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none))),
+                  TextField(
+                      controller: otpCtrl,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                          counterText: '',
+                          filled: true,
+                          fillColor: const Color(0xFFF4F4F5),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide.none))),
                   const SizedBox(height: 18),
                   SizedBox(
                     width: double.infinity,
@@ -842,8 +1103,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               final ln = lastCtrl.text.trim();
                               final newFullName = '$fn $ln'.trim();
                               if (appState.profile.nickname.trim().isEmpty ||
-                                  appState.profile.nickname.trim() == appState.profile.name.trim() ||
-                                  appState.profile.nickname.trim() == appState.profile.effectiveFullName) {
+                                  appState.profile.nickname.trim() ==
+                                      appState.profile.name.trim() ||
+                                  appState.profile.nickname.trim() ==
+                                      appState.profile.effectiveFullName) {
                                 appState.profile.nickname = '';
                               }
                               appState.profile.firstName = fn;
@@ -860,11 +1123,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               setModalState(() => isLoading = false);
                               if (ctx.mounted) Navigator.pop(ctx);
                               if (context.mounted) {
-                                _showToast(context, 'Name change submitted for administrative review (Status: PENDING_REVIEW)');
+                                _showToast(context,
+                                    'Name change submitted for administrative review (Status: PENDING_REVIEW)');
                               }
                             },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD91624), foregroundColor: Colors.white),
-                      child: const Text('Submit Request for Review', style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD91624),
+                          foregroundColor: Colors.white),
+                      child: const Text('Submit Request for Review',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -876,8 +1143,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showEditNicknameModal(BuildContext context, AppState appState, bool isAk) {
-    final nickCtrl = TextEditingController(text: appState.profile.effectiveNickname);
+  void _showEditNicknameModal(
+      BuildContext context, AppState appState, bool isAk) {
+    final nickCtrl =
+        TextEditingController(text: appState.profile.effectiveNickname);
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -891,22 +1160,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Text(
                 isAk ? 'အမည်ပြောင် ပြင်ဆင်ရန်' : 'Edit Nickname',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF18181B)),
               ),
               const SizedBox(height: 14),
               Text(
                 isAk ? 'အမည်ပြောင်:' : 'Nickname:',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A)),
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF71717A)),
               ),
               const SizedBox(height: 6),
               TextField(
                 controller: nickCtrl,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 decoration: InputDecoration(
                   hintText: isAk ? 'အမည်ပြောင် ထည့်ပါ' : 'Enter nickname',
                   filled: true,
                   fillColor: const Color(0xFFF4F4F5),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none),
                 ),
               ),
               const SizedBox(height: 18),
@@ -924,14 +1202,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onPressed: () async {
                         final nick = nickCtrl.text.trim();
                         appState.profile.nickname = nick;
-                        await SupabaseService().updateNickname(profileId: appState.profile.uid, nickname: nick);
+                        await SupabaseService().updateNickname(
+                            profileId: appState.profile.uid, nickname: nick);
                         appState.notify();
                         if (ctx.mounted) Navigator.pop(ctx);
                         if (context.mounted) {
-                          _showToast(context, isAk ? 'အမည်ပြောင် ပြင်ဆင်ပြီးပါပြီ' : 'Nickname updated to ${appState.profile.effectiveNickname}');
+                          _showToast(
+                              context,
+                              isAk
+                                  ? 'အမည်ပြောင် ပြင်ဆင်ပြီးပါပြီ'
+                                  : 'Nickname updated to ${appState.profile.effectiveNickname}');
                         }
                       },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0284C7),
+                          foregroundColor: Colors.white),
                       child: Text(isAk ? 'သိမ်းမည်' : 'Save'),
                     ),
                   ),
@@ -944,8 +1229,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showEditAddressModal(BuildContext context, AppState appState, bool isAk) {
-    final addrCtrl = TextEditingController(text: appState.profile.address.isNotEmpty ? appState.profile.address : _streetAddress);
+  void _showEditAddressModal(
+      BuildContext context, AppState appState, bool isAk) {
+    final addrCtrl = TextEditingController(
+        text: appState.profile.address.isNotEmpty
+            ? appState.profile.address
+            : _streetAddress);
 
     showDialog(
       context: context,
@@ -960,23 +1249,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Text(
                 isAk ? 'လက်ရှိ နေရပ်လိပ်စာ ပြင်ဆင်ရန်' : 'Edit My Address',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF18181B)),
               ),
               const SizedBox(height: 16),
               const Text(
                 'Full Residential Address',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF71717A)),
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF71717A)),
               ),
               const SizedBox(height: 6),
               TextField(
                 controller: addrCtrl,
                 maxLines: 3,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF18181B)),
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF18181B)),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color(0xFFF4F4F5),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none),
                 ),
               ),
               const SizedBox(height: 18),
@@ -988,9 +1289,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF3F3F46),
                         side: const BorderSide(color: Color(0xFFD4D4D8)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(999)),
                       ),
-                      child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                      child: const Text('Cancel',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 12)),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -1000,7 +1304,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         final newAddr = addrCtrl.text.trim();
                         setState(() => _streetAddress = newAddr);
                         appState.profile.address = newAddr;
-                        await SupabaseService().updateAddress(profileId: appState.profile.uid, address: newAddr);
+                        await SupabaseService().updateAddress(
+                            profileId: appState.profile.uid, address: newAddr);
                         appState.notify();
                         if (ctx.mounted) Navigator.pop(ctx);
                         if (context.mounted) {
@@ -1011,9 +1316,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         backgroundColor: crimson,
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(999)),
                       ),
-                      child: const Text('Save Address', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                      child: const Text('Save Address',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 12)),
                     ),
                   ),
                 ],
@@ -1025,15 +1333,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showEditGenderModal(BuildContext context, AppState appState, bool isAk) {
+  void _showEditGenderModal(
+      BuildContext context, AppState appState, bool isAk) {
     final genders = ['Male', 'Female', 'Other'];
-    String selected = appState.profile.gender.isNotEmpty ? appState.profile.gender : 'Male';
+    String selected =
+        appState.profile.gender.isNotEmpty ? appState.profile.gender : 'Male';
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(22),
@@ -1043,7 +1354,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   isAk ? 'ကျား/မ ရွေးချယ်ရန်' : 'Select Gender',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF18181B)),
                 ),
                 const SizedBox(height: 16),
                 ...genders.map((g) {
@@ -1053,12 +1367,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
+                        color: isSelected
+                            ? const Color(0xFFEFF6FF)
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+                          color: isSelected
+                              ? const Color(0xFF2563EB)
+                              : const Color(0xFFE2E8F0),
                           width: 1.5,
                         ),
                       ),
@@ -1069,12 +1388,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             g,
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                              color: isSelected ? const Color(0xFF1E40AF) : const Color(0xFF334155),
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? const Color(0xFF1E40AF)
+                                  : const Color(0xFF334155),
                             ),
                           ),
                           if (isSelected)
-                            const Icon(Icons.check_circle_rounded, color: Color(0xFF2563EB), size: 20),
+                            const Icon(Icons.check_circle_rounded,
+                                color: Color(0xFF2563EB), size: 20),
                         ],
                       ),
                     ),
@@ -1087,7 +1411,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx),
                         style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         child: const Text('Cancel'),
@@ -1100,18 +1425,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           appState.profile.gender = selected;
                           appState.notify();
                           Navigator.pop(ctx);
-                          _showToast(context, isAk ? 'ကျား/မ ပြင်ဆင်ပြီးပါပြီ' : 'Gender updated successfully');
+                          _showToast(
+                              context,
+                              isAk
+                                  ? 'ကျား/မ ပြင်ဆင်ပြီးပါပြီ'
+                                  : 'Gender updated successfully');
                           try {
                             await SupabaseService.client
                                 .from('user_profiles')
-                                .update({'gender': selected})
-                                .eq('id', appState.profile.uid);
+                                .update({'gender': selected}).eq(
+                                    'id', appState.profile.uid);
                           } catch (_) {}
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2563EB),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         child: const Text('Save'),
@@ -1127,15 +1457,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showEditIdTypeModal(BuildContext context, AppState appState, bool isAk) {
-    final idTypes = ['National ID', 'Passport', 'Citizenship Card', 'Driver\'s License'];
-    String selected = appState.profile.idType.isNotEmpty ? appState.profile.idType : 'National ID';
+  void _showEditIdTypeModal(
+      BuildContext context, AppState appState, bool isAk) {
+    final idTypes = [
+      'National ID',
+      'Passport',
+      'Citizenship Card',
+      'Driver\'s License'
+    ];
+    String selected = appState.profile.idType.isNotEmpty
+        ? appState.profile.idType
+        : 'National ID';
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(22),
@@ -1145,7 +1484,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   isAk ? 'သက်သေခံကတ် အမျိုးအစား' : 'Select ID Type',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF18181B)),
                 ),
                 const SizedBox(height: 16),
                 ...idTypes.map((t) {
@@ -1155,12 +1497,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
+                        color: isSelected
+                            ? const Color(0xFFEFF6FF)
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+                          color: isSelected
+                              ? const Color(0xFF2563EB)
+                              : const Color(0xFFE2E8F0),
                           width: 1.5,
                         ),
                       ),
@@ -1171,12 +1518,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             t,
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                              color: isSelected ? const Color(0xFF1E40AF) : const Color(0xFF334155),
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? const Color(0xFF1E40AF)
+                                  : const Color(0xFF334155),
                             ),
                           ),
                           if (isSelected)
-                            const Icon(Icons.check_circle_rounded, color: Color(0xFF2563EB), size: 20),
+                            const Icon(Icons.check_circle_rounded,
+                                color: Color(0xFF2563EB), size: 20),
                         ],
                       ),
                     ),
@@ -1189,7 +1541,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx),
                         style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         child: const Text('Cancel'),
@@ -1202,18 +1555,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           appState.profile.idType = selected;
                           appState.notify();
                           Navigator.pop(ctx);
-                          _showToast(context, isAk ? 'အမျိုးအစား ပြင်ဆင်ပြီးပါပြီ' : 'ID Type updated successfully');
+                          _showToast(
+                              context,
+                              isAk
+                                  ? 'အမျိုးအစား ပြင်ဆင်ပြီးပါပြီ'
+                                  : 'ID Type updated successfully');
                           try {
                             await SupabaseService.client
                                 .from('user_profiles')
-                                .update({'id_type': selected})
-                                .eq('id', appState.profile.uid);
+                                .update({'id_type': selected}).eq(
+                                    'id', appState.profile.uid);
                           } catch (_) {}
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2563EB),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         child: const Text('Save'),
@@ -1229,7 +1587,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showEditIdNumberModal(BuildContext context, AppState appState, bool isAk) {
+  void _showEditIdNumberModal(
+      BuildContext context, AppState appState, bool isAk) {
     final ctrl = TextEditingController(text: appState.profile.nationalIdNo);
     showDialog(
       context: context,
@@ -1244,7 +1603,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Text(
                 isAk ? 'သက်သေခံကတ် အမှတ် ပြင်ဆင်ရန်' : 'Edit ID Number',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF18181B)),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -1254,7 +1616,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   hintText: 'Enter National ID or Passport number',
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
                 ),
               ),
               const SizedBox(height: 18),
@@ -1264,7 +1628,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(ctx),
                       style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       child: const Text('Cancel'),
@@ -1279,18 +1644,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         appState.profile.nationalIdNo = val;
                         appState.notify();
                         Navigator.pop(ctx);
-                        _showToast(context, isAk ? 'ကတ်နံပါတ် ပြင်ဆင်ပြီးပါပြီ' : 'ID Number updated successfully');
+                        _showToast(
+                            context,
+                            isAk
+                                ? 'ကတ်နံပါတ် ပြင်ဆင်ပြီးပါပြီ'
+                                : 'ID Number updated successfully');
                         try {
                           await SupabaseService.client
                               .from('user_profiles')
-                              .update({'national_id_no': val})
-                              .eq('id', appState.profile.uid);
+                              .update({'national_id_no': val}).eq(
+                                  'id', appState.profile.uid);
                         } catch (_) {}
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2563EB),
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       child: const Text('Save'),
@@ -1305,7 +1675,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future<void> _showDatePickerModal(BuildContext context, AppState appState, bool isAk) async {
+  Future<void> _showDatePickerModal(
+      BuildContext context, AppState appState, bool isAk) async {
     DateTime initial = DateTime(1998, 5, 14);
     if (appState.profile.dob.isNotEmpty) {
       try {
@@ -1332,17 +1703,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
     );
     if (picked != null) {
-      final formatted = '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      final formatted =
+          '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
       appState.profile.dob = formatted;
       appState.notify();
       if (context.mounted) {
-        _showToast(context, isAk ? 'မွေးသက္ကရာဇ် ပြင်ဆင်ပြီးပါပြီ' : 'Date of Birth updated successfully');
+        _showToast(
+            context,
+            isAk
+                ? 'မွေးသက္ကရာဇ် ပြင်ဆင်ပြီးပါပြီ'
+                : 'Date of Birth updated successfully');
       }
       try {
         await SupabaseService.client
             .from('user_profiles')
-            .update({'dob': formatted})
-            .eq('id', appState.profile.uid);
+            .update({'dob': formatted}).eq('id', appState.profile.uid);
       } catch (_) {}
     }
   }
@@ -1373,7 +1748,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ? 'နောက်တစ်ကြိမ် ဝန်ဆောင်မှုများကို အသုံးပြုလိုသည့်အခါ အကောင့်ပြန်လည်ဝင်ရောက်ရပါမည်။'
                     : "The next time you want to use our services, you'll have to sign in again.",
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 13, color: Colors.black54, height: 1.4),
+                style: const TextStyle(
+                    fontSize: 13, color: Colors.black54, height: 1.4),
               ),
               const SizedBox(height: 20),
               Row(
@@ -1386,7 +1762,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFF64748B),
                           side: const BorderSide(color: Color(0xFFCBD5E1)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(999)),
                         ),
                         child: Text(
                           isAk ? 'မထွက်ပါ' : 'Cancel',
@@ -1407,7 +1784,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFD91624),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(999)),
                           elevation: 0,
                         ),
                         child: Text(
@@ -1426,8 +1804,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-
-  Widget _buildDeviceManagementView(BuildContext context, AppState appState, bool isAk, bool isAndroid) {
+  Widget _buildDeviceManagementView(
+      BuildContext context, AppState appState, bool isAk, bool isAndroid) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -1440,7 +1818,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true,
         title: Text(
           isAk ? 'စက်ပစ္စည်း စီမံခန့်ခွဲမှု' : 'Device Management',
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
+          style: const TextStyle(
+              color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
         ),
       ),
       body: ListView(
@@ -1450,7 +1829,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
               isAk ? 'လက်ရှိ အသုံးပြုနေသော စက်' : 'Current device',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF52525B)),
+              style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF52525B)),
             ),
           ),
           Container(
@@ -1465,7 +1847,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.smartphone_rounded, color: Color(0xFF71717A), size: 22),
+                    const Icon(Icons.smartphone_rounded,
+                        color: Color(0xFF71717A), size: 22),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -1473,40 +1856,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           Text(
                             isAndroid ? 'Android Device' : 'iOS Device',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF18181B)),
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF18181B)),
                           ),
                           const SizedBox(height: 6),
                           Row(
                             children: [
-                              const Icon(Icons.access_time_rounded, size: 13, color: Color(0xFF71717A)),
+                              const Icon(Icons.access_time_rounded,
+                                  size: 13, color: Color(0xFF71717A)),
                               const SizedBox(width: 6),
                               Text(
-                                isAk ? 'လက်ရှိ အသုံးပြုနေသော အကောင့်' : 'Current Active Session',
-                                style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                                isAk
+                                    ? 'လက်ရှိ အသုံးပြုနေသော အကောင့်'
+                                    : 'Current Active Session',
+                                style: const TextStyle(
+                                    fontSize: 12, color: Color(0xFF71717A)),
                               ),
                             ],
                           ),
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Icon(Icons.verified_user_outlined, size: 13, color: Color(0xFF71717A)),
+                              const Icon(Icons.verified_user_outlined,
+                                  size: 13, color: Color(0xFF71717A)),
                               const SizedBox(width: 6),
                               Text(
-                                appState.profile.email.isNotEmpty ? appState.profile.email : '—',
-                                style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                                appState.profile.email.isNotEmpty
+                                    ? appState.profile.email
+                                    : '—',
+                                style: const TextStyle(
+                                    fontSize: 12, color: Color(0xFF71717A)),
                               ),
                             ],
                           ),
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Icon(Icons.fingerprint_rounded, size: 13, color: Color(0xFFD91624)),
+                              const Icon(Icons.fingerprint_rounded,
+                                  size: 13, color: Color(0xFFD91624)),
                               const SizedBox(width: 6),
                               Text(
-                                (isAndroid ? _biometricLoginEnabled : _faceIdEnabled)
-                                    ? (isAk ? 'လက်ဗွေ စက်ပစ္စည်းတွင် အသုံးပြုနေသည်' : 'Biometrics Active & Enrolled')
-                                    : (isAk ? 'လက်ဗွေ ပိတ်ထားပါသည်' : 'Biometrics Not Enrolled'),
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFD91624)),
+                                (isAndroid
+                                        ? _biometricLoginEnabled
+                                        : _faceIdEnabled)
+                                    ? (isAk
+                                        ? 'လက်ဗွေ စက်ပစ္စည်းတွင် အသုံးပြုနေသည်'
+                                        : 'Biometrics Active & Enrolled')
+                                    : (isAk
+                                        ? 'လက်ဗွေ ပိတ်ထားပါသည်'
+                                        : 'Biometrics Not Enrolled'),
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFFD91624)),
                               ),
                             ],
                           ),
@@ -1525,9 +1929,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         Text(
                           isAk ? 'အကောင့်ထွက်မည်' : 'Sign Out',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2563EB)),
+                          style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF2563EB)),
                         ),
-                        const Icon(Icons.chevron_right_rounded, size: 16, color: Color(0xFF2563EB)),
+                        const Icon(Icons.chevron_right_rounded,
+                            size: 16, color: Color(0xFF2563EB)),
                       ],
                     ),
                   ),
@@ -1539,20 +1947,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
-              isAk ? 'အခြားစက်များမှ ဝင်ရောက်ထားမှု' : 'Active sign-in from other devices',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF52525B)),
+              isAk
+                  ? 'အခြားစက်များမှ ဝင်ရောက်ထားမှု'
+                  : 'Active sign-in from other devices',
+              style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF52525B)),
             ),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 44, horizontal: 24),
             child: Column(
               children: [
-                Icon(Icons.smartphone_rounded, size: 28, color: Color(0xFFD4D4D8)),
+                Icon(Icons.smartphone_rounded,
+                    size: 28, color: Color(0xFFD4D4D8)),
                 SizedBox(height: 8),
                 Text(
                   "No other devices are currently signed in. We'll notify you immediately and display the details here if we detect any new sign-in activity.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Color(0xFFA1A1AA), height: 1.45),
+                  style: TextStyle(
+                      fontSize: 12, color: Color(0xFFA1A1AA), height: 1.45),
                 ),
               ],
             ),
@@ -1562,7 +1977,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildPersonalInfoView(BuildContext context, AppState appState, bool isAk) {
+  Widget _buildPersonalInfoView(
+      BuildContext context, AppState appState, bool isAk) {
     final p = appState.profile;
     return Scaffold(
       backgroundColor: const Color(0xFFF4F5F8),
@@ -1576,7 +1992,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true,
         title: Text(
           isAk ? 'ကျွန်ုပ်၏ ပရိုဖိုင်' : 'My Profile',
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
+          style: const TextStyle(
+              color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
         ),
       ),
       body: ListView(
@@ -1597,13 +2014,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: CircleAvatar(
                           radius: 45,
                           backgroundColor: const Color(0xFF0284C7),
-                          backgroundImage: _buildAvatarImageProvider(p.avatarUrl),
+                          backgroundImage:
+                              _buildAvatarImageProvider(p.avatarUrl),
                           child: (p.avatarUrl == null || p.avatarUrl!.isEmpty)
                               ? Text(
                                   p.effectiveNickname.isNotEmpty
                                       ? p.effectiveNickname[0].toUpperCase()
                                       : 'U',
-                                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white),
+                                  style: const TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white),
                                 )
                               : null,
                         ),
@@ -1612,7 +2033,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         bottom: 0,
                         right: 0,
                         child: GestureDetector(
-                          onTap: () => _showEditAvatarModal(context, appState, isAk),
+                          onTap: () =>
+                              _showEditAvatarModal(context, appState, isAk),
                           child: Container(
                             width: 32,
                             height: 32,
@@ -1628,7 +2050,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ],
                             ),
-                            child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
+                            child: const Icon(Icons.camera_alt,
+                                size: 16, color: Colors.white),
                           ),
                         ),
                       ),
@@ -1644,10 +2067,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       Text(
                         p.effectiveNickname,
-                        style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                        style: const TextStyle(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF18181B)),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(Icons.chevron_right, size: 20, color: Color(0xFF64748B)),
+                      const Icon(Icons.chevron_right,
+                          size: 20, color: Color(0xFF64748B)),
                     ],
                   ),
                 ),
@@ -1666,14 +2093,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Row(
                   children: [
                     Icon(
-                      _showAllProfileInfo ? Icons.visibility : Icons.visibility_off,
+                      _showAllProfileInfo
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                       size: 18,
                       color: const Color(0xFF64748B),
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      isAk ? 'အချက်အလက်အားလုံး ဖော်ပြမည်' : 'Show sensitive details',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                      isAk
+                          ? 'အချက်အလက်အားလုံး ဖော်ပြမည်'
+                          : 'Show sensitive details',
+                      style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF334155)),
                     ),
                   ],
                 ),
@@ -1709,7 +2143,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () {
                     final uname = p.username.isNotEmpty ? p.username : 'user';
                     Clipboard.setData(ClipboardData(text: uname));
-                    _showToast(context, isAk ? 'အသုံးပြုသူအမည် ကူးယူပြီးပါပြီ' : 'Username copied to clipboard');
+                    _showToast(
+                        context,
+                        isAk
+                            ? 'အသုံးပြုသူအမည် ကူးယူပြီးပါပြီ'
+                            : 'Username copied to clipboard');
                   },
                   actionIcon: null,
                 ),
@@ -1720,11 +2158,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   label: 'Wallet Address',
                   value: _showAllProfileInfo
                       ? (p.walletAddress.isNotEmpty ? p.walletAddress : p.uid)
-                      : _truncateAddress(p.walletAddress.isNotEmpty ? p.walletAddress : p.uid),
+                      : _truncateAddress(
+                          p.walletAddress.isNotEmpty ? p.walletAddress : p.uid),
                   onTap: () {
-                    final addr = p.walletAddress.isNotEmpty ? p.walletAddress : p.uid;
+                    final addr =
+                        p.walletAddress.isNotEmpty ? p.walletAddress : p.uid;
                     Clipboard.setData(ClipboardData(text: addr));
-                    _showToast(context, isAk ? 'ပိုက်ဆံအိတ်လိပ်စာ ကူးယူပြီးပါပြီ' : 'Wallet address copied to clipboard');
+                    _showToast(
+                        context,
+                        isAk
+                            ? 'ပိုက်ဆံအိတ်လိပ်စာ ကူးယူပြီးပါပြီ'
+                            : 'Wallet address copied to clipboard');
                   },
                   actionIcon: null,
                 ),
@@ -1797,7 +2241,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   label: 'My Address',
                   value: p.address.isNotEmpty
                       ? p.address
-                      : (_streetAddress.isNotEmpty ? _streetAddress : (isAk ? 'လိပ်စာ ထည့်သွင်းထားခြင်း မရှိပါ' : 'Not Set')),
+                      : (_streetAddress.isNotEmpty
+                          ? _streetAddress
+                          : (isAk
+                              ? 'လိပ်စာ ထည့်သွင်းထားခြင်း မရှိပါ'
+                              : 'Not Set')),
                   onTap: () => _showEditAddressModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),
@@ -1884,12 +2332,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _maskPhone(String phone) {
     if (phone.length <= 5) return '••••••';
-    final start = phone.length > 7 ? phone.substring(0, 5) : phone.substring(0, 3);
+    final start =
+        phone.length > 7 ? phone.substring(0, 5) : phone.substring(0, 3);
     final end = phone.substring(phone.length - 3);
     return '$start •••• $end';
   }
 
-  Widget _buildAppSettingsView(BuildContext context, AppState appState, bool isAk) {
+  Widget _buildAppSettingsView(
+      BuildContext context, AppState appState, bool isAk) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
@@ -1902,7 +2352,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true,
         title: Text(
           isAk ? 'အက်ပ် ဆက်တင်များ' : 'Application Settings',
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
+          style: const TextStyle(
+              color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
         ),
       ),
       body: ListView(
@@ -1912,7 +2363,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.only(left: 4, bottom: 10),
             child: Text(
               isAk ? 'အက်ပ် စိတ်ကြိုက်ပြင်ဆင်မှု' : 'Customize app',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black54),
+              style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black54),
             ),
           ),
           Container(
@@ -1926,14 +2380,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   leading: const Icon(Icons.language, color: Colors.black87),
                   title: Text(
                     isAk ? 'ဘာသာစကား' : 'Language',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87),
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         isAk ? 'အာရက္ခ' : 'English',
-                        style: const TextStyle(fontSize: 13, color: Colors.black54),
+                        style: const TextStyle(
+                            fontSize: 13, color: Colors.black54),
                       ),
                       const SizedBox(width: 4),
                       const Icon(Icons.chevron_right, color: Colors.black38),
@@ -1943,12 +2401,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.notifications_none_rounded, color: Colors.black87),
+                  leading: const Icon(Icons.notifications_none_rounded,
+                      color: Colors.black87),
                   title: Text(
                     isAk ? 'အသိပေးချက်များ' : 'Notification',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87),
                   ),
-                  trailing: const Icon(Icons.chevron_right, color: Colors.black38),
+                  trailing:
+                      const Icon(Icons.chevron_right, color: Colors.black38),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -1959,10 +2422,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  secondary: const Icon(Icons.download_rounded, color: Colors.black87),
+                  secondary:
+                      const Icon(Icons.download_rounded, color: Colors.black87),
                   title: Text(
-                    isAk ? 'ပြေစာ အလိုအလျောက် သိမ်းဆည်းမည်' : 'Auto-save receipt',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                    isAk
+                        ? 'ပြေစာ အလိုအလျောက် သိမ်းဆည်းမည်'
+                        : 'Auto-save receipt',
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87),
                   ),
                   subtitle: Text(
                     isAk
@@ -1995,7 +2464,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true,
         title: Text(
           isAk ? 'ကိုယ်ရေးလုံခြုံမှု' : 'Privacy',
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
+          style: const TextStyle(
+              color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
         ),
       ),
       body: ListView(
@@ -2003,14 +2473,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           const Padding(
             padding: EdgeInsets.only(left: 4, bottom: 8),
-            child: Text('Manage display setting', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black54)),
+            child: Text('Manage display setting',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black54)),
           ),
           Container(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(18)),
             child: SwitchListTile(
-              secondary: const Icon(Icons.password_rounded, color: Colors.black87),
-              title: const Text('Hide information', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87)),
-              subtitle: const Text('Mask account numbers on screen', style: TextStyle(fontSize: 12, color: Colors.black45)),
+              secondary:
+                  const Icon(Icons.password_rounded, color: Colors.black87),
+              title: const Text('Hide information',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87)),
+              subtitle: const Text('Mask account numbers on screen',
+                  style: TextStyle(fontSize: 12, color: Colors.black45)),
               value: _hideInfoToggle,
               activeTrackColor: const Color(0xFF3B82F6),
               onChanged: (v) => setState(() => _hideInfoToggle = v),
@@ -2019,29 +2500,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 18),
           const Padding(
             padding: EdgeInsets.only(left: 4, bottom: 8),
-            child: Text('Manage receiving profile info', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black54)),
+            child: Text('Manage receiving profile info',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black54)),
           ),
           Container(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(18)),
             child: Column(
               children: [
                 const ListTile(
-                  leading: Icon(Icons.storefront_outlined, color: Colors.black87),
-                  title: Text('My Receiving Profile', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87)),
-                  subtitle: Text('See More ›', style: TextStyle(fontSize: 12, color: Color(0xFF2563EB))),
+                  leading:
+                      Icon(Icons.storefront_outlined, color: Colors.black87),
+                  title: Text('My Receiving Profile',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87)),
+                  subtitle: Text('See More ›',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF2563EB))),
                   trailing: Icon(Icons.chevron_right, color: Colors.black38),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  secondary: const Icon(Icons.local_offer_outlined, color: Colors.black87),
-                  title: const Text('Show receiving profile info', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87)),
+                  secondary: const Icon(Icons.local_offer_outlined,
+                      color: Colors.black87),
+                  title: const Text('Show receiving profile info',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87)),
                   subtitle: const Text(
                     'Enable to show your account age & number of people who sent money to you on the transfer page.',
                     style: TextStyle(fontSize: 12, color: Colors.black45),
                   ),
                   value: _showReceivingProfileToggle,
                   activeTrackColor: const Color(0xFF3B82F6),
-                  onChanged: (v) => setState(() => _showReceivingProfileToggle = v),
+                  onChanged: (v) =>
+                      setState(() => _showReceivingProfileToggle = v),
                 ),
               ],
             ),
@@ -2049,33 +2547,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 18),
           const Padding(
             padding: EdgeInsets.only(left: 4, bottom: 8),
-            child: Text('Manage consents', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black54)),
+            child: Text('Manage consents',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black54)),
           ),
           Container(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(18)),
             child: Column(
               children: [
                 SwitchListTile(
-                  secondary: const Icon(Icons.description_outlined, color: Colors.black87),
+                  secondary: const Icon(Icons.description_outlined,
+                      color: Colors.black87),
                   title: const Text(
                     'Allow Péthar to collect, process, and use your biometric data.',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87),
                   ),
-                  subtitle: const Text('See More ›', style: TextStyle(fontSize: 12, color: Color(0xFF2563EB))),
+                  subtitle: const Text('See More ›',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF2563EB))),
                   value: _biometricConsentToggle,
                   activeTrackColor: const Color(0xFF3B82F6),
                   onChanged: (v) => setState(() => _biometricConsentToggle = v),
                 ),
                 const Divider(height: 1),
                 const ListTile(
-                  leading: Icon(Icons.description_outlined, color: Colors.black87),
-                  title: Text('Services I consent to use my personal data', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                  leading:
+                      Icon(Icons.description_outlined, color: Colors.black87),
+                  title: Text('Services I consent to use my personal data',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87)),
                   trailing: Icon(Icons.chevron_right, color: Colors.black38),
                 ),
                 const Divider(height: 1),
                 const ListTile(
-                  leading: Icon(Icons.description_outlined, color: Colors.black87),
-                  title: Text('Data use consent for analytics and marketing purposes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                  leading:
+                      Icon(Icons.description_outlined, color: Colors.black87),
+                  title: Text(
+                      'Data use consent for analytics and marketing purposes',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87)),
                   trailing: Icon(Icons.chevron_right, color: Colors.black38),
                 ),
               ],
@@ -2084,35 +2603,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 18),
           const Padding(
             padding: EdgeInsets.only(left: 4, bottom: 8),
-            child: Text('Manage access', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black54)),
+            child: Text('Manage access',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black54)),
           ),
           Container(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(18)),
             child: Column(
               children: [
                 const ListTile(
                   leading: Icon(Icons.near_me_outlined, color: Colors.black87),
-                  title: Text('Location', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                  trailing: Text('Only while usin... ›', style: TextStyle(fontSize: 13, color: Colors.black45)),
+                  title: Text('Location',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87)),
+                  trailing: Text('Only while usin... ›',
+                      style: TextStyle(fontSize: 13, color: Colors.black45)),
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.photo_outlined, color: Colors.black87),
-                  title: const Text('Photos', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                  trailing: Text(_photosAccessAllowed ? 'Allow ›' : 'Ask ›', style: const TextStyle(fontSize: 13, color: Colors.black45)),
-                  onTap: () => setState(() => _photosAccessAllowed = !_photosAccessAllowed),
+                  leading:
+                      const Icon(Icons.photo_outlined, color: Colors.black87),
+                  title: const Text('Photos',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87)),
+                  trailing: Text(_photosAccessAllowed ? 'Allow ›' : 'Ask ›',
+                      style:
+                          const TextStyle(fontSize: 13, color: Colors.black45)),
+                  onTap: () => setState(
+                      () => _photosAccessAllowed = !_photosAccessAllowed),
                 ),
                 const Divider(height: 1),
                 const ListTile(
                   leading: Icon(Icons.contacts_outlined, color: Colors.black87),
-                  title: Text('Contacts', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                  trailing: Text('Do not allow ›', style: TextStyle(fontSize: 13, color: Colors.black45)),
+                  title: Text('Contacts',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87)),
+                  trailing: Text('Do not allow ›',
+                      style: TextStyle(fontSize: 13, color: Colors.black45)),
                 ),
                 const Divider(height: 1),
                 const ListTile(
                   leading: Icon(Icons.mic_none_rounded, color: Colors.black87),
-                  title: Text('Microphone', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                  trailing: Text('Do not allow ›', style: TextStyle(fontSize: 13, color: Colors.black45)),
+                  title: Text('Microphone',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87)),
+                  trailing: Text('Do not allow ›',
+                      style: TextStyle(fontSize: 13, color: Colors.black45)),
                 ),
               ],
             ),
@@ -2135,7 +2682,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true,
         title: Text(
           isAk ? 'PIN စီမံခန့်ခွဲမှု' : 'PIN Management',
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
+          style: const TextStyle(
+              color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
         ),
       ),
       body: ListView(
@@ -2146,18 +2694,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 2)),
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2)),
               ],
             ),
             child: Column(
               children: [
                 ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   title: Text(
                     isAk ? 'PIN ပြောင်းလဲရန်' : 'Change PIN',
-                    style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, color: Colors.black87),
+                    style: const TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87),
                   ),
-                  trailing: const Icon(Icons.chevron_right, color: Colors.black38, size: 20),
+                  trailing: const Icon(Icons.chevron_right,
+                      color: Colors.black38, size: 20),
                   onTap: () {
                     _oldPinCtrl.clear();
                     _newPinCtrl.clear();
@@ -2176,19 +2732,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     });
                   },
                 ),
-                const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFFF1F5F9)),
+                const Divider(
+                    height: 1,
+                    indent: 16,
+                    endIndent: 16,
+                    color: Color(0xFFF1F5F9)),
                 ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   title: Text(
                     isAk ? 'PIN မေ့သွားပါသလား' : 'Forget PIN',
-                    style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, color: Colors.black87),
+                    style: const TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87),
                   ),
-                  trailing: const Icon(Icons.chevron_right, color: Colors.black38, size: 20),
+                  trailing: const Icon(Icons.chevron_right,
+                      color: Colors.black38, size: 20),
                   onTap: () async {
-                    final appState = Provider.of<AppState>(context, listen: false);
+                    final appState =
+                        Provider.of<AppState>(context, listen: false);
                     _forgotOtpCtrl.clear();
                     _forgotNewPinCtrl.clear();
                     _forgotConfirmPinCtrl.clear();
+                    _forgotOtpTimer?.cancel();
                     setState(() {
                       _showForgotNewPin = false;
                       _showForgotConfirmPin = false;
@@ -2196,18 +2763,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _forgotPinSuccess = null;
                       _forgotPinStep = 0;
                       _tempForgotNewPin = '';
+                      _forgotOtpSent = false;
+                      _forgotOtpSending = false;
+                      _forgotOtpVerifying = false;
                       _subView = 'forgot_pin';
                     });
-                    _startForgotOtpTimer();
-                    final res = await SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
-                    if (!mounted) return;
-                    if (res['success'] != true) {
-                      _forgotOtpTimer?.cancel();
-                      setState(() {
-                        _forgotPinError = res['message']?.toString() ??
-                            (isAk ? 'OTP ကုဒ် ပို့ခြင်း မအောင်မြင်ပါ' : 'Could not send the OTP. Please try again.');
-                      });
-                    }
+                    await _sendForgotOtp(appState, isAk);
                   },
                 ),
               ],
@@ -2218,11 +2779,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildChangePinView(BuildContext context, AppState appState, bool isAk) {
+  Widget _buildChangePinView(
+      BuildContext context, AppState appState, bool isAk) {
     if (_changePinStep == 0) {
       return PinKeypadScreen(
         title: isAk ? 'ယခင် PIN ရိုက်ထည့်ပါ' : 'Enter Old PIN',
-        subtitle: isAk ? 'ဆက်လက်ဆောင်ရွက်ရန် ယခင် PIN နံပါတ် ၆ လုံး ရိုက်ထည့်ပါ' : 'Enter your current 6-digit PIN',
+        subtitle: isAk
+            ? 'ဆက်လက်ဆောင်ရွက်ရန် ယခင် PIN နံပါတ် ၆ လုံး ရိုက်ထည့်ပါ'
+            : 'Enter your current 6-digit PIN',
         isAk: isAk,
         errorMessage: _pinChangeError,
         isLoading: _isSubmittingPin,
@@ -2235,7 +2799,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           final currentPin = appState.profile.pin;
           if (currentPin.isNotEmpty && pin != currentPin) {
             setState(() {
-              _pinChangeError = isAk ? 'ယခင် PIN နံပါတ် မှားယွင်းနေပါသည်' : 'Incorrect Old PIN. Please try again.';
+              _pinChangeError = isAk
+                  ? 'ယခင် PIN နံပါတ် မှားယွင်းနေပါသည်'
+                  : 'Incorrect Old PIN. Please try again.';
             });
           } else {
             setState(() {
@@ -2249,7 +2815,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } else if (_changePinStep == 1) {
       return PinKeypadScreen(
         title: isAk ? 'PIN အသစ် သတ်မှတ်ပါ' : 'Create New PIN',
-        subtitle: isAk ? 'ဂဏန်း ၆ လုံးပါသော PIN အသစ် ရိုက်ထည့်ပါ' : 'Enter a new 6-digit PIN',
+        subtitle: isAk
+            ? 'ဂဏန်း ၆ လုံးပါသော PIN အသစ် ရိုက်ထည့်ပါ'
+            : 'Enter a new 6-digit PIN',
         isAk: isAk,
         errorMessage: _pinChangeError,
         isLoading: _isSubmittingPin,
@@ -2269,7 +2837,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } else {
       return PinKeypadScreen(
         title: isAk ? 'PIN အသစ် ထပ်မံအတည်ပြုပါ' : 'Confirm New PIN',
-        subtitle: isAk ? 'အတည်ပြုရန် PIN အသစ်အား ထပ်မံရိုက်ထည့်ပါ' : 'Re-enter your new 6-digit PIN',
+        subtitle: isAk
+            ? 'အတည်ပြုရန် PIN အသစ်အား ထပ်မံရိုက်ထည့်ပါ'
+            : 'Re-enter your new 6-digit PIN',
         isAk: isAk,
         errorMessage: _pinChangeError,
         isLoading: _isSubmittingPin,
@@ -2281,7 +2851,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onPinCompleted: (pin) async {
           if (pin != _tempNewPin) {
             setState(() {
-              _pinChangeError = isAk ? 'PIN အသစ်နှင့် အတည်ပြု PIN မတူညီပါ' : 'New PIN and Confirm PIN do not match.';
+              _pinChangeError = isAk
+                  ? 'PIN အသစ်နှင့် အတည်ပြု PIN မတူညီပါ'
+                  : 'New PIN and Confirm PIN do not match.';
               _changePinStep = 1;
             });
             return;
@@ -2303,12 +2875,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (res['success'] == true) {
             appState.profile.pin = _tempNewPin;
             appState.notify();
-            _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!');
+            if (context.mounted) {
+              _showToast(
+                  context,
+                  isAk
+                      ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ'
+                      : 'PIN changed successfully!');
+            }
             setState(() => _subView = 'pin_management');
           } else {
             setState(() {
               _pinChangeError = res['message']?.toString() ??
-                  (isAk ? 'PIN ပြောင်းလဲခြင်း မအောင်မြင်ပါ' : 'PIN change failed. Please verify current PIN.');
+                  (isAk
+                      ? 'PIN ပြောင်းလဲခြင်း မအောင်မြင်ပါ'
+                      : 'PIN change failed. Please verify current PIN.');
             });
           }
         },
@@ -2316,231 +2896,716 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _submitForgotOtp(bool isAk) {
-    final otp = _forgotOtpCtrl.text.trim();
-    if (otp.length != 6) {
+  // ───────────────────────────────────────────────────────────────────────
+  // FORGOT PIN / EMAIL OTP
+  // ───────────────────────────────────────────────────────────────────────
+
+  Future<void> _sendForgotOtp(AppState appState, bool isAk,
+      {bool isResend = false}) async {
+    final email = appState.profile.email.trim();
+    if (email.isEmpty) {
       setState(() {
-        _forgotPinError = isAk ? '၆ လုံးပါ အတည်ပြုကုဒ် ရိုက်ထည့်ပါ' : 'Please enter the 6-digit OTP';
+        _forgotOtpSending = false;
+        _forgotOtpSent = false;
+        _forgotPinError = isAk
+            ? 'ဤအကောင့်အတွက် အီးမေးလ် မတွေ့ပါ။'
+            : 'No registered email found for this account.';
       });
       return;
     }
+
     setState(() {
+      _forgotOtpSending = true;
+      _forgotPinError = null;
+    });
+
+    final res = await appState.requestPinResetOtp(email);
+    if (!mounted) return;
+
+    final ok = res['success'] == true;
+    setState(() {
+      _forgotOtpSending = false;
+      _forgotOtpSent = ok;
+      if (!ok) {
+        _forgotPinError = res['error']?.toString() ??
+            (isAk
+                ? 'OTP ကုဒ် ပို့ခြင်း မအောင်မြင်ပါ။ ထပ်မံကြိုးစားပါ။'
+                : 'Could not send the reset code. Please try again.');
+      }
+    });
+
+    if (ok) {
+      _startForgotOtpTimer();
+      _showToast(
+        context,
+        isResend
+            ? (isAk ? 'OTP ကုဒ် အသစ် ပို့ပြီးပါပြီ' : 'New OTP code sent!')
+            : (isAk ? 'OTP ကုဒ် ပို့ပြီးပါပြီ' : 'OTP code sent to your email'),
+      );
+    }
+  }
+
+  Future<void> _submitForgotOtp(AppState appState, bool isAk) async {
+    final otp = _forgotOtpCtrl.text.trim();
+    if (otp.length != 6) {
+      setState(() {
+        _forgotPinError = isAk
+            ? '၆ လုံးပါ အတည်ပြုကုဒ် ရိုက်ထည့်ပါ'
+            : 'Please enter the 6-digit OTP';
+      });
+      return;
+    }
+
+    setState(() {
+      _forgotOtpVerifying = true;
+      _forgotPinError = null;
+    });
+
+    final res =
+        await appState.verifyPinResetOtp(appState.profile.email.trim(), otp);
+    if (!mounted) return;
+
+    if (res['success'] != true) {
+      setState(() {
+        _forgotOtpVerifying = false;
+        _forgotPinError = res['error']?.toString() ??
+            (isAk
+                ? 'OTP ကုဒ် မှားယွင်းနေပါသည်။ ထပ်မံကြိုးစားပါ။'
+                : 'That code is incorrect or expired. Please try again.');
+        _forgotOtpCtrl.clear();
+      });
+      return;
+    }
+
+    setState(() {
+      _forgotOtpVerifying = false;
       _forgotPinStep = 1;
       _tempForgotNewPin = '';
       _forgotPinError = null;
     });
   }
 
-  Widget _buildForgotPinView(BuildContext context, AppState appState, bool isAk) {
-    if (_forgotPinStep == 0) {
-      // Step 1: Clean OTP Verification Page matching Attachment 3
-      return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
-            onPressed: () {
-              _forgotOtpTimer?.cancel();
-              setState(() => _subView = 'pin_management');
-            },
+  Widget _buildGlassIconButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withValues(alpha: 0.95),
+              Colors.white.withValues(alpha: 0.62),
+            ],
           ),
-          centerTitle: true,
-          title: Text(
-            isAk ? 'PIN မေ့သွားပါသလား' : 'Forget PIN',
-            style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
-          ),
+          border: Border.all(color: Colors.white, width: 1.3),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0B1B33).withValues(alpha: 0.10),
+              blurRadius: 16,
+              offset: const Offset(0, 7),
+            ),
+          ],
         ),
-        body: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-          children: [
-            // 1. Top Red/Blush Alert Banner (same as login OTP page)
-            Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF1F2),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFECDD3)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.check_circle_outline_rounded,
-                    size: 20,
-                    color: Color(0xFFD91624),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      isAk
-                          ? '${appState.profile.email.isNotEmpty ? appState.profile.email : ""} သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပြီးပါပြီ'
-                          : '6-digit OTP code sent to ${appState.profile.email.isNotEmpty ? appState.profile.email : ""}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1E293B),
-                        height: 1.35,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+        child: Icon(icon, size: 26, color: const Color(0xFF0F172A)),
+      ),
+    );
+  }
 
-            // 2. White Card with Key Icon OTP Input
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0xFFEEF0F4)),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 2)),
-                ],
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              child: Row(
-                children: [
-                  const Icon(Icons.vpn_key_outlined, color: Colors.black38, size: 22),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: _forgotOtpCtrl,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.done,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(6),
+  Widget _buildOtpBoxes(AppState appState, bool isAk) {
+    final value = _forgotOtpCtrl.text;
+    final hasFocus = _forgotOtpFocusNode.hasFocus;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _forgotOtpFocusNode.requestFocus(),
+      child: Stack(
+        children: [
+          Row(
+            children: List.generate(6, (index) {
+              final filled = index < value.length;
+              final active =
+                  index == value.length && (hasFocus || value.isNotEmpty);
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: index == 5 ? 0 : 8),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 160),
+                    curve: Curves.easeOut,
+                    height: 58,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: active
+                            ? [
+                                crimson.withValues(alpha: 0.10),
+                                Colors.white.withValues(alpha: 0.92),
+                              ]
+                            : [
+                                Colors.white.withValues(alpha: 0.88),
+                                Colors.white.withValues(alpha: 0.55),
+                              ],
+                      ),
+                      border: Border.all(
+                        color: active
+                            ? crimson.withValues(alpha: 0.55)
+                            : Colors.white.withValues(alpha: 0.95),
+                        width: active ? 1.8 : 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0B1B33)
+                              .withValues(alpha: active ? 0.12 : 0.05),
+                          blurRadius: 14,
+                          offset: const Offset(0, 6),
+                        ),
                       ],
-                      maxLength: 6,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: 2),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        counterText: '',
-                        hintText: isAk ? '၆ လုံးပါ Email OTP ရိုက်ထည့်ပါ' : 'Enter 6-digit Email OTP',
-                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14, letterSpacing: 0),
+                    ),
+                    child: Text(
+                      filled ? value[index] : '',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0F172A),
                       ),
-                      onChanged: (_) {
-                        if (_forgotPinError != null) setState(() => _forgotPinError = null);
-                      },
-                      onSubmitted: (_) => _submitForgotOtp(isAk),
                     ),
                   ),
+                ),
+              );
+            }),
+          ),
+          // Invisible field that owns the text input / keyboard.
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.01,
+              child: TextField(
+                controller: _forgotOtpCtrl,
+                focusNode: _forgotOtpFocusNode,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.done,
+                maxLength: 6,
+                showCursor: false,
+                style: const TextStyle(fontSize: 1, color: Colors.transparent),
+                cursorColor: Colors.transparent,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(6),
                 ],
+                decoration: const InputDecoration(
+                  counterText: '',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                onSubmitted: (_) => _submitForgotOtp(appState, isAk),
               ),
             ),
-            const SizedBox(height: 16),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Timer & Resend
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildForgotOtpPage(
+      BuildContext context, AppState appState, bool isAk) {
+    final email = appState.profile.email.trim();
+    final canConfirm =
+        _forgotOtpCtrl.text.trim().length == 6 && !_forgotOtpVerifying;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FB),
+      body: Stack(
+        children: [
+          const _SettingsGlassBackground(),
+          SafeArea(
+            child: Column(
               children: [
-                Text(
-                  '${isAk ? "သက်တမ်းကျန်ချိန်" : "Expires in"}: ${_formatForgotOtpTimer(_forgotOtpSecondsRemaining)}',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                // ── Glass header ──
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 2),
+                  child: Row(
+                    children: [
+                      _buildGlassIconButton(
+                        icon: Icons.chevron_left_rounded,
+                        onTap: () {
+                          _forgotOtpTimer?.cancel();
+                          setState(() => _subView = 'pin_management');
+                        },
+                      ),
+                      Expanded(
+                        child: Text(
+                          isAk ? 'PIN မေ့သွားပါသလား' : 'Forget PIN',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0F172A),
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 44),
+                    ],
+                  ),
                 ),
-                TextButton(
-                  onPressed: () async {
-                    final res = await SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
-                    if (!context.mounted) return;
-                    if (res['success'] == true) {
-                      _startForgotOtpTimer();
-                      setState(() => _forgotPinError = null);
-                      _showToast(context, isAk ? 'OTP ကုဒ် အသစ် ပို့ပြီးပါပြီ' : 'New OTP code dispatched!');
-                    } else {
-                      setState(() {
-                        _forgotPinError = res['message']?.toString() ??
-                            (isAk ? 'OTP ကုဒ် ပို့ခြင်း မအောင်မြင်ပါ' : 'Could not send a new OTP. Please try again.');
-                      });
-                    }
-                  },
-                  child: Text(
-                    isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Email OTP',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFD91624)),
+                Expanded(
+                  child: ListView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+                    children: [
+                      // ── Hero mail orb ──
+                      Center(
+                        child: Container(
+                          width: 92,
+                          height: 92,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color(0xFFFF5A65),
+                                crimson,
+                                Color(0xFF8F0F1D),
+                              ],
+                            ),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.65),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: crimson.withValues(alpha: 0.32),
+                                blurRadius: 28,
+                                offset: const Offset(0, 14),
+                              ),
+                            ],
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.mark_email_read_rounded,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        isAk ? 'အီးမေးလ်ကို စစ်ဆေးပါ' : 'Check your email',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0F172A),
+                          letterSpacing: -0.4,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        isAk
+                            ? 'သင့်အကောင့် လုံခြုံရေးကုဒ် ၆ လုံးကို ဤအီးမေးလ်သို့ ပို့ထားပါသည်'
+                            : 'We sent a 6-digit security code to',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          height: 1.45,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.72),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.95),
+                              width: 1.2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF0B1B33)
+                                    .withValues(alpha: 0.06),
+                                blurRadius: 14,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.alternate_email_rounded,
+                                size: 15,
+                                color: Color(0xFF64748B),
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  email.isEmpty ? '—' : email,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF334155),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      // ── Delivery status ──
+                      if (_forgotOtpSending)
+                        _buildGlassStatusBanner(
+                          isAk
+                              ? 'လုံခြုံရေးကုဒ် ပို့နေသည်...'
+                              : 'Sending your security code...',
+                          busy: true,
+                        )
+                      else if (_forgotOtpSent)
+                        _buildGlassStatusBanner(
+                          isAk
+                              ? 'ကုဒ် ပို့ပြီးပါပြီ။ ၁၀ မိနစ်အတွင်း သက်တမ်းကုန်ပါမည်။'
+                              : 'Code sent. It expires in 10 minutes.',
+                          success: true,
+                        ),
+                      if (_forgotPinError != null)
+                        Container(
+                          margin: const EdgeInsets.only(top: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color:
+                                const Color(0xFFFEF2F2).withValues(alpha: 0.92),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                                color: const Color(0xFFFECACA), width: 1.2),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.error_outline_rounded,
+                                  color: Color(0xFFDC2626), size: 19),
+                              const SizedBox(width: 9),
+                              Expanded(
+                                child: Text(
+                                  _forgotPinError!,
+                                  style: const TextStyle(
+                                    color: Color(0xFFB91C1C),
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+
+                      // ── Glass OTP card ──
+                      _GlassCard(
+                        radius: 26,
+                        padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: crimson.withValues(alpha: 0.10),
+                                  ),
+                                  child: const Icon(
+                                    Icons.lock_outline_rounded,
+                                    size: 16,
+                                    color: crimson,
+                                  ),
+                                ),
+                                const SizedBox(width: 9),
+                                Expanded(
+                                  child: Text(
+                                    isAk
+                                        ? '၆ လုံးပါ လုံခြုံရေးကုဒ်'
+                                        : '6-digit security code',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  _formatForgotOtpTimer(
+                                      _forgotOtpSecondsRemaining),
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: _forgotOtpSecondsRemaining <= 60
+                                        ? const Color(0xFFDC2626)
+                                        : const Color(0xFF64748B),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            _buildOtpBoxes(appState, isAk),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Icon(Icons.schedule_rounded,
+                                    size: 14, color: Color(0xFF94A3B8)),
+                                const SizedBox(width: 5),
+                                Expanded(
+                                  child: Text(
+                                    '${isAk ? "သက်တမ်းကျန်ချိန်" : "Expires in"} '
+                                    '${_formatForgotOtpTimer(_forgotOtpSecondsRemaining)}',
+                                    style: const TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: _forgotOtpSending
+                                      ? null
+                                      : () => _sendForgotOtp(appState, isAk,
+                                          isResend: true),
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8),
+                                    minimumSize: const Size(0, 34),
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: Text(
+                                    isAk ? 'ကုဒ် ပြန်ပို့ပါ' : 'Resend code',
+                                    style: const TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: crimson,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            // ── Confirm gradient button ──
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              height: 54,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(18),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: canConfirm
+                                      ? [
+                                          const Color(0xFFFF3B48),
+                                          crimson,
+                                          const Color(0xFFB00E1A),
+                                        ]
+                                      : [
+                                          const Color(0xFFCBD5E1),
+                                          const Color(0xFF94A3B8),
+                                        ],
+                                ),
+                                boxShadow: canConfirm
+                                    ? [
+                                        BoxShadow(
+                                          color:
+                                              crimson.withValues(alpha: 0.32),
+                                          blurRadius: 20,
+                                          offset: const Offset(0, 10),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(18),
+                                  onTap: canConfirm
+                                      ? () => _submitForgotOtp(appState, isAk)
+                                      : null,
+                                  child: Center(
+                                    child: _forgotOtpVerifying
+                                        ? const SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.4,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                      Colors.white),
+                                            ),
+                                          )
+                                        : Text(
+                                            isAk ? 'အတည်ပြုမည်' : 'Confirm',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 15.5,
+                                              letterSpacing: 0.3,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      // ── Security notes ──
+                      _GlassCard(
+                        radius: 22,
+                        padding: const EdgeInsets.all(16),
+                        tint: crimson,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: crimson.withValues(alpha: 0.10),
+                              ),
+                              child: const Icon(Icons.shield_outlined,
+                                  size: 17, color: crimson),
+                            ),
+                            const SizedBox(width: 11),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    isAk
+                                        ? 'လုံခြုံရေးအတွက် မှတ်ချက်'
+                                        : 'Security reminder',
+                                    style: const TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    isAk
+                                        ? 'OTP ကုဒ်ကို မည်သူ့ကိုမျှ မမျှဝေပါနှင့်။ မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် ဖုန်းနံပါတ်ကို PIN အဖြစ် မသုံးပါနှင့်။'
+                                        : 'Never share this code with anyone. Avoid using your date of birth, NRIC/passport number or phone number as your PIN.',
+                                    style: const TextStyle(
+                                      fontSize: 11.5,
+                                      height: 1.5,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+          ),
+        ],
+      ),
+    );
+  }
 
-            if (_forgotPinError != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 14),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF2F2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFECACA)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(_forgotPinError!, style: const TextStyle(color: Color(0xFFDC2626), fontSize: 12, fontWeight: FontWeight.w600)),
-                    ),
-                  ],
-                ),
+  Widget _buildGlassStatusBanner(
+    String text, {
+    bool success = false,
+    bool busy = false,
+  }) {
+    final Color accent =
+        success ? const Color(0xFF059669) : const Color(0xFF475569);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.66),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.95)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0B1B33).withValues(alpha: 0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          if (busy)
+            const SizedBox(
+              width: 17,
+              height: 17,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.2,
+                valueColor: AlwaysStoppedAnimation<Color>(crimson),
               ),
-
-            // Confirm Button (same as login OTP page)
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _forgotOtpCtrl.text.trim().length == 6 ? () => _submitForgotOtp(isAk) : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD91624),
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: const Color(0xFFD1D5DB),
-                  disabledForegroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
-                ),
-                child: Text(
-                  isAk ? 'အတည်ပြုမည်' : 'Confirm',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
+            )
+          else
+            Icon(
+              success ? Icons.verified_rounded : Icons.error_outline_rounded,
+              size: 18,
+              color: accent,
+            ),
+          const SizedBox(width: 9),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1E293B),
+                height: 1.35,
               ),
             ),
-            const SizedBox(height: 20),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Security note (same as login OTP page)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isAk ? 'မှတ်ချက်:' : 'Note:',
-                    style: const TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    isAk ? '- သင်၏ လျှို့ဝှက် OTP ကုဒ်အား မည်သူ့ကိုမျှ မမျှဝေပါနှင့်။' : '- Please do not share your OTP with anyone.',
-                    style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    isAk
-                        ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို မမျှဝေပါနှင့်။'
-                        : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.',
-                    style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
+  Widget _buildForgotPinView(
+      BuildContext context, AppState appState, bool isAk) {
+    if (_forgotPinStep == 0) {
+      return _buildForgotOtpPage(context, appState, isAk);
     } else if (_forgotPinStep == 1) {
       // Step 2a: Create New PIN
       return PinKeypadScreen(
         title: isAk ? 'PIN အသစ် သတ်မှတ်ပါ' : 'Create New PIN',
-        subtitle: isAk ? 'ဂဏန်း ၆ လုံးပါသော PIN အသစ် ရိုက်ထည့်ပါ' : 'Enter a new 6-digit PIN',
+        subtitle: isAk
+            ? 'ဂဏန်း ၆ လုံးပါသော PIN အသစ် ရိုက်ထည့်ပါ'
+            : 'Enter a new 6-digit PIN',
         isAk: isAk,
         errorMessage: _forgotPinError,
         isLoading: _isSubmittingForgotPin,
@@ -2561,7 +3626,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Step 2b: Confirm New PIN
       return PinKeypadScreen(
         title: isAk ? 'PIN အသစ် ထပ်မံအတည်ပြုပါ' : 'Confirm New PIN',
-        subtitle: isAk ? 'အတည်ပြုရန် PIN အသစ်အား ထပ်မံရိုက်ထည့်ပါ' : 'Re-enter your new 6-digit PIN',
+        subtitle: isAk
+            ? 'အတည်ပြုရန် PIN အသစ်အား ထပ်မံရိုက်ထည့်ပါ'
+            : 'Re-enter your new 6-digit PIN',
         isAk: isAk,
         errorMessage: _forgotPinError,
         isLoading: _isSubmittingForgotPin,
@@ -2573,7 +3640,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onPinCompleted: (pin) async {
           if (pin != _tempForgotNewPin) {
             setState(() {
-              _forgotPinError = isAk ? 'PIN အသစ်နှင့် အတည်ပြု PIN မတူညီပါ' : 'New PIN and Confirm PIN do not match.';
+              _forgotPinError = isAk
+                  ? 'PIN အသစ်နှင့် အတည်ပြု PIN မတူညီပါ'
+                  : 'New PIN and Confirm PIN do not match.';
               _forgotPinStep = 1;
             });
             return;
@@ -2584,10 +3653,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _forgotPinError = null;
           });
 
-          final res = await SupabaseService().verifyAndResetPin(
-            profileId: appState.profile.uid,
-            otpCode: _forgotOtpCtrl.text.trim(),
+          final res = await appState.confirmPinReset(
+            email: appState.profile.email.trim(),
             newPin: _tempForgotNewPin,
+            confirmPin: pin,
           );
           if (!mounted) return;
           setState(() => _isSubmittingForgotPin = false);
@@ -2596,12 +3665,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _forgotOtpTimer?.cancel();
             appState.profile.pin = _tempForgotNewPin;
             appState.notify();
-            _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN reset successfully!');
+            if (context.mounted) {
+              _showToast(
+                  context,
+                  isAk
+                      ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ'
+                      : 'PIN reset successfully!');
+            }
             setState(() => _subView = 'pin_management');
           } else {
             setState(() {
               _forgotPinError = res['error']?.toString() ??
-                  (isAk ? 'PIN ပြောင်းလဲခြင်း မအောင်မြင်ပါ' : 'Failed to reset PIN. Please check OTP code.');
+                  (isAk
+                      ? 'PIN ပြောင်းလဲခြင်း မအောင်မြင်ပါ'
+                      : 'Failed to reset PIN. Please verify the OTP code.');
             });
           }
         },
@@ -2658,7 +3735,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         Center(
                           child: GestureDetector(
-                            onTap: () => setState(() => _subView = 'personal_info'),
+                            onTap: () =>
+                                setState(() => _subView = 'personal_info'),
                             child: Container(
                               width: 78,
                               height: 78,
@@ -2667,25 +3745,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 gradient: const LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
-                                  colors: [Color(0xFF0B1220), Color(0xFF3A4152)],
+                                  colors: [
+                                    Color(0xFF0B1220),
+                                    Color(0xFF3A4152)
+                                  ],
                                 ),
-                                border: Border.all(color: Colors.white.withValues(alpha: 0.9), width: 2),
+                                border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                    width: 2),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFF0B1B33).withValues(alpha: 0.18),
+                                    color: const Color(0xFF0B1B33)
+                                        .withValues(alpha: 0.18),
                                     blurRadius: 22,
                                     offset: const Offset(0, 10),
                                   ),
                                 ],
-                                image: _buildAvatarImageProvider(appState.profile.avatarUrl) != null
+                                image: _buildAvatarImageProvider(
+                                            appState.profile.avatarUrl) !=
+                                        null
                                     ? DecorationImage(
-                                        image: _buildAvatarImageProvider(appState.profile.avatarUrl)!,
+                                        image: _buildAvatarImageProvider(
+                                            appState.profile.avatarUrl)!,
                                         fit: BoxFit.cover,
                                       )
                                     : null,
                               ),
-                              child: _buildAvatarImageProvider(appState.profile.avatarUrl) == null
-                                  ? const Icon(Icons.person_rounded, size: 40, color: Colors.white)
+                              child: _buildAvatarImageProvider(
+                                          appState.profile.avatarUrl) ==
+                                      null
+                                  ? const Icon(Icons.person_rounded,
+                                      size: 40, color: Colors.white)
                                   : null,
                             ),
                           ),
@@ -2693,10 +3783,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: 12),
                         Text(
                           appState.profile.effectiveNickname,
-                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                          style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF0F172A)),
                         ),
                         const SizedBox(height: 16),
-                        Divider(height: 1, color: Colors.black.withValues(alpha: 0.06)),
+                        Divider(
+                            height: 1,
+                            color: Colors.black.withValues(alpha: 0.06)),
                         const SizedBox(height: 14),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2706,19 +3801,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 _tileIcon(Icons.verified_user_outlined),
                                 const SizedBox(width: 10),
                                 Text(
-                                  isAk ? 'မှတ်ပုံတင် အတည်ပြုချက်' : 'ID Verification',
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                  isAk
+                                      ? 'မှတ်ပုံတင် အတည်ပြုချက်'
+                                      : 'ID Verification',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF0F172A)),
                                 ),
                               ],
                             ),
                             GestureDetector(
-                              onTap: () => showKycVerificationModal(context, appState),
+                              onTap: () =>
+                                  showKycVerificationModal(context, appState),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: appState.isVerified
                                       ? Colors.white.withValues(alpha: 0.7)
-                                      : const Color(0xFFFFF1F2).withValues(alpha: 0.92),
+                                      : const Color(0xFFFFF1F2)
+                                          .withValues(alpha: 0.92),
                                   borderRadius: BorderRadius.circular(999),
                                   border: Border.all(
                                     color: appState.isVerified
@@ -2729,17 +3832,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 child: Row(
                                   children: [
                                     Icon(
-                                      appState.isVerified ? Icons.check_circle_rounded : Icons.error_outline_rounded,
+                                      appState.isVerified
+                                          ? Icons.check_circle_rounded
+                                          : Icons.error_outline_rounded,
                                       size: 14,
-                                      color: appState.isVerified ? const Color(0xFF0F172A) : crimson,
+                                      color: appState.isVerified
+                                          ? const Color(0xFF0F172A)
+                                          : crimson,
                                     ),
                                     const SizedBox(width: 5),
                                     Text(
-                                      appState.isVerified ? 'Verified' : 'Unverified',
+                                      appState.isVerified
+                                          ? 'Verified'
+                                          : 'Unverified',
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
-                                        color: appState.isVerified ? const Color(0xFF0F172A) : crimson,
+                                        color: appState.isVerified
+                                            ? const Color(0xFF0F172A)
+                                            : crimson,
                                       ),
                                     ),
                                   ],
@@ -2780,7 +3891,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       _tileDivider(),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         child: Row(
                           children: [
                             _tileIcon(Icons.language_rounded),
@@ -2788,7 +3900,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             Expanded(
                               child: Text(
                                 isAk ? 'ဘာသာစကား' : 'Language',
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF0F172A)),
                               ),
                             ),
                             Container(
@@ -2796,7 +3911,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.5),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
+                                border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.9)),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -2805,17 +3921,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     onTap: () {
                                       if (!isAk) {
                                         appState.setLanguage('ak');
-                                        _showToast(context, 'ရွေးချယ်ထားသော ဘာသာစကား - အာရက္ခ');
+                                        _showToast(context,
+                                            'ရွေးချယ်ထားသော ဘာသာစကား - အာရက္ခ');
                                       }
                                     },
                                     borderRadius: BorderRadius.circular(8),
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 6),
                                       decoration: BoxDecoration(
-                                        color: isAk ? Colors.white : Colors.transparent,
+                                        color: isAk
+                                            ? Colors.white
+                                            : Colors.transparent,
                                         borderRadius: BorderRadius.circular(8),
                                         boxShadow: isAk
-                                            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 1))]
+                                            ? [
+                                                BoxShadow(
+                                                    color: Colors.black
+                                                        .withValues(
+                                                            alpha: 0.05),
+                                                    blurRadius: 4,
+                                                    offset: const Offset(0, 1))
+                                              ]
                                             : null,
                                       ),
                                       child: const Row(
@@ -2825,7 +3952,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           SizedBox(width: 5),
                                           Text(
                                             'အာရက္ခ',
-                                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                                            style: TextStyle(
+                                                fontSize: 11.5,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF0F172A)),
                                           ),
                                         ],
                                       ),
@@ -2836,17 +3966,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     onTap: () {
                                       if (isAk) {
                                         appState.setLanguage('en');
-                                        _showToast(context, 'Language set to English');
+                                        _showToast(
+                                            context, 'Language set to English');
                                       }
                                     },
                                     borderRadius: BorderRadius.circular(8),
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 6),
                                       decoration: BoxDecoration(
-                                        color: !isAk ? Colors.white : Colors.transparent,
+                                        color: !isAk
+                                            ? Colors.white
+                                            : Colors.transparent,
                                         borderRadius: BorderRadius.circular(8),
                                         boxShadow: !isAk
-                                            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 1))]
+                                            ? [
+                                                BoxShadow(
+                                                    color: Colors.black
+                                                        .withValues(
+                                                            alpha: 0.05),
+                                                    blurRadius: 4,
+                                                    offset: const Offset(0, 1))
+                                              ]
                                             : null,
                                       ),
                                       child: const Row(
@@ -2856,7 +3997,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           SizedBox(width: 5),
                                           Text(
                                             'English',
-                                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                                            style: TextStyle(
+                                                fontSize: 11.5,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF0F172A)),
                                           ),
                                         ],
                                       ),
@@ -2872,8 +4016,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       SwitchListTile(
                         secondary: _tileIcon(Icons.download_rounded),
                         title: Text(
-                          isAk ? 'ပြေစာ အလိုအလျောက် သိမ်းဆည်းမည်' : 'Auto save receipt',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                          isAk
+                              ? 'ပြေစာ အလိုအလျောက် သိမ်းဆည်းမည်'
+                              : 'Auto save receipt',
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0F172A)),
                         ),
                         value: appState.autoSaveSlip,
                         activeTrackColor: crimson,
@@ -2885,7 +4034,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 22),
 
                 // Security Settings
-                _sectionLabel(isAk ? 'လုံခြုံရေး ဆက်တင်များ' : 'Security Settings'),
+                _sectionLabel(
+                    isAk ? 'လုံခြုံရေး ဆက်တင်များ' : 'Security Settings'),
                 _GlassCard(
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Column(
@@ -2893,15 +4043,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       SwitchListTile(
                         secondary: _tileIcon(Icons.fingerprint_rounded),
                         title: Text(
-                          isAk ? 'မျက်နှာဖွင့် နှင့် လက်ဗွေ' : 'Face Unlock and Fingerprint',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                          isAk
+                              ? 'မျက်နှာဖွင့် နှင့် လက်ဗွေ'
+                              : 'Face Unlock and Fingerprint',
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0F172A)),
                         ),
-                        value: isAndroid ? _biometricLoginEnabled : _faceIdEnabled,
+                        value:
+                            isAndroid ? _biometricLoginEnabled : _faceIdEnabled,
                         activeTrackColor: crimson,
                         onChanged: (val) async {
                           if (val) {
-                            final authSuccess = await NativeSecurityService().authenticateBiometrics(
-                              reason: isAk ? 'လက်ဗွေ / မျက်နှာ အတည်ပြုပါ' : 'Verify device biometrics',
+                            final authSuccess = await NativeSecurityService()
+                                .authenticateBiometrics(
+                              reason: isAk
+                                  ? 'လက်ဗွေ / မျက်နှာ အတည်ပြုပါ'
+                                  : 'Verify device biometrics',
                             );
                             if (authSuccess) {
                               setState(() {
@@ -2912,13 +4071,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 }
                               });
                               if (context.mounted) {
-                                _showToast(context, isAndroid
-                                    ? (isAk ? 'လက်ဗွေ ဖွင့်ထားသည်' : 'Biometric login enabled')
-                                    : (isAk ? 'Face ID ဖွင့်ထားသည်' : 'Face ID enabled'));
+                                _showToast(
+                                    context,
+                                    isAndroid
+                                        ? (isAk
+                                            ? 'လက်ဗွေ ဖွင့်ထားသည်'
+                                            : 'Biometric login enabled')
+                                        : (isAk
+                                            ? 'Face ID ဖွင့်ထားသည်'
+                                            : 'Face ID enabled'));
                               }
                             } else {
                               if (context.mounted) {
-                                _showToast(context, isAk ? 'စက်ပစ္စည်း အတည်ပြုချက် မအောင်မြင်ပါ' : 'Device biometric verification failed');
+                                _showToast(
+                                    context,
+                                    isAk
+                                        ? 'စက်ပစ္စည်း အတည်ပြုချက် မအောင်မြင်ပါ'
+                                        : 'Device biometric verification failed');
                               }
                             }
                           } else {
@@ -2929,9 +4098,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 _faceIdEnabled = false;
                               }
                             });
-                            _showToast(context, isAndroid
-                                ? (isAk ? 'လက်ဗွေ ပိတ်ထားသည်' : 'Biometric login disabled')
-                                : (isAk ? 'Face ID ပိတ်ထားသည်' : 'Face ID disabled'));
+                            _showToast(
+                                context,
+                                isAndroid
+                                    ? (isAk
+                                        ? 'လက်ဗွေ ပိတ်ထားသည်'
+                                        : 'Biometric login disabled')
+                                    : (isAk
+                                        ? 'Face ID ပိတ်ထားသည်'
+                                        : 'Face ID disabled'));
                           }
                         },
                       ),
@@ -2939,18 +4114,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildSettingTile(
                         icon: Icons.lock_outline_rounded,
                         title: isAk ? 'PIN စီမံခန့်ခွဲမှု' : 'PIN Management',
-                        onTap: () => setState(() => _subView = 'pin_management'),
+                        onTap: () =>
+                            setState(() => _subView = 'pin_management'),
                       ),
                       _tileDivider(),
                       _buildSettingTile(
                         icon: Icons.smartphone_rounded,
-                        title: isAk ? 'စက်ပစ္စည်း စီမံခန့်ခွဲမှု' : 'Device Management',
-                        onTap: () => setState(() => _subView = 'device_management'),
+                        title: isAk
+                            ? 'စက်ပစ္စည်း စီမံခန့်ခွဲမှု'
+                            : 'Device Management',
+                        onTap: () =>
+                            setState(() => _subView = 'device_management'),
                       ),
                       _tileDivider(),
                       _buildSettingTile(
                         icon: Icons.headset_mic_outlined,
-                        title: isAk ? 'Péthar အကူအညီနှင့် ချက်တင်' : 'Chat with Support',
+                        title: isAk
+                            ? 'Péthar အကူအညီနှင့် ချက်တင်'
+                            : 'Chat with Support',
                         onTap: () => showPetharSupportChatSheet(context, isAk),
                       ),
                     ],
@@ -2968,15 +4149,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       width: double.infinity,
                       height: 50,
                       child: TextButton.icon(
-                        onPressed: () => _showSignOutDialog(context, appState, isAk),
-                        icon: const Icon(Icons.logout_rounded, size: 18, color: crimson),
+                        onPressed: () =>
+                            _showSignOutDialog(context, appState, isAk),
+                        icon: const Icon(Icons.logout_rounded,
+                            size: 18, color: crimson),
                         label: Text(
                           isAk ? 'အကောင့်မှ ထွက်မည်' : 'Log Out',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: crimson),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: crimson),
                         ),
                         style: TextButton.styleFrom(
                           backgroundColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18)),
                         ),
                       ),
                     ),
@@ -2987,11 +4174,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Text.rich(
                     TextSpan(
                       text: '©Péthar App - Version: ',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF64748B),
+                          fontWeight: FontWeight.w500),
                       children: [
                         TextSpan(
                           text: '1.0.0',
-                          style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: Color(0xFF0F172A),
+                              fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -3010,12 +4202,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.only(left: 6, bottom: 10),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, letterSpacing: 0.3, color: Color(0xFF64748B)),
+        style: const TextStyle(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
+            color: Color(0xFF64748B)),
       ),
     );
   }
 
-  Widget _tileIcon(IconData icon, {Color color = const Color(0xFF0F172A), double size = 36}) {
+  Widget _tileIcon(IconData icon,
+      {Color color = const Color(0xFF0F172A), double size = 36}) {
     return Container(
       width: size,
       height: size,
@@ -3029,9 +4226,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _tileDivider() {
-    return const Divider(height: 1, thickness: 1, indent: 66, endIndent: 16, color: Color(0x0F000000));
+    return const Divider(
+        height: 1,
+        thickness: 1,
+        indent: 66,
+        endIndent: 16,
+        color: Color(0x0F000000));
   }
-
 
   Widget _buildSettingTile({
     required IconData icon,
@@ -3043,12 +4244,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       leading: _tileIcon(icon),
       title: Text(
         title,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+        style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A)),
       ),
       subtitle: subtitle != null
-          ? Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)))
+          ? Text(subtitle,
+              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)))
           : null,
-      trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
+      trailing:
+          const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
       onTap: onTap,
     );
   }
@@ -3079,10 +4285,22 @@ class _SettingsGlassBackground extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(top: -120, left: -90, child: _blob(const Color(0xFFE11D2E), 300, 0.20)),
-          Positioned(top: 140, right: -120, child: _blob(const Color(0xFF2563EB), 320, 0.15)),
-          Positioned(bottom: 60, left: -120, child: _blob(const Color(0xFFD4AF37), 300, 0.14)),
-          Positioned(bottom: -100, right: -70, child: _blob(const Color(0xFF0F172A), 260, 0.10)),
+          Positioned(
+              top: -120,
+              left: -90,
+              child: _blob(const Color(0xFFE11D2E), 300, 0.20)),
+          Positioned(
+              top: 140,
+              right: -120,
+              child: _blob(const Color(0xFF2563EB), 320, 0.15)),
+          Positioned(
+              bottom: 60,
+              left: -120,
+              child: _blob(const Color(0xFFD4AF37), 300, 0.14)),
+          Positioned(
+              bottom: -100,
+              right: -70,
+              child: _blob(const Color(0xFF0F172A), 260, 0.10)),
         ],
       ),
     );
@@ -3154,7 +4372,8 @@ class _GlassCard extends StatelessWidget {
                         Colors.white.withValues(alpha: 0.50),
                       ],
               ),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.92), width: 1.3),
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.92), width: 1.3),
             ),
             child: child,
           ),

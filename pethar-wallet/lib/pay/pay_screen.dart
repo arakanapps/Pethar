@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../theme.dart';
-import '../services/supabase_service.dart';
+import '../core/services/supabase_service.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/pin_prompt.dart';
 
@@ -309,7 +309,7 @@ class _PayScreenState extends State<PayScreen> {
         bottom: true,
         child: Column(
           children: [
-            // Top Bar: < Back | Pay | [History]
+            // Top Bar: < Back | Transfer | [History]
             _buildTopBar(appState, isAk),
 
             // Body depending on _step
@@ -330,7 +330,7 @@ class _PayScreenState extends State<PayScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TOP APP BAR: < Back | Pay | [History]
+  // TOP APP BAR: < Back | Transfer | [History]
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildTopBar(AppState appState, bool isAk) {
     return Container(
@@ -379,9 +379,9 @@ class _PayScreenState extends State<PayScreen> {
             ),
           ),
 
-          // Center: Title "Pay"
+          // Center: Title "Transfer"
           Text(
-            isAk ? 'ငွေပေးချေ' : 'Pay',
+            isAk ? 'ငွေလွှဲ' : 'Transfer',
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -1461,7 +1461,7 @@ class _PayScreenState extends State<PayScreen> {
 
                 const SizedBox(height: 20),
 
-                // [Pay] Button
+                // [Transfer] Button
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -1502,7 +1502,7 @@ class _PayScreenState extends State<PayScreen> {
                                   ? (isAk
                                       ? 'လက်ကျန်ထက် ကျော်လွန်ပါသည် (Over Balance)'
                                       : 'Over Balance')
-                                  : (isAk ? 'ငွေပေးချေမည်' : 'Pay'),
+                                  : (isAk ? 'ငွေလွှဲမည်' : 'Transfer'),
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w900),
                         ),
@@ -1633,7 +1633,7 @@ class _PayScreenState extends State<PayScreen> {
                 Text(
                   isAk
                       ? 'ငွေလွှဲပြောင်းမှု အောင်မြင်ပါသည်'
-                      : 'Payment Successful!',
+                      : 'Transfer Successful!',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,

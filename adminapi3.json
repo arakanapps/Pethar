@@ -1,0 +1,1 @@
+{"error":"Admin API is not configured. Set SUPABASE_SERVICE_ROLE_KEY in .env."}

@@ -7,11 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../models/data.dart';
-import '../services/supabase_service.dart';
+import '../core/services/supabase_service.dart';
 import '../theme.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/support_and_kyc_modals.dart';
-import 'notifications_screen.dart';
+import '../notifications/notifications_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -102,155 +102,6 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       debugPrint('Error picking avatar image: $e');
     }
-  }
-
-  void _showBillPaymentModal(
-      BuildContext context, AppState appState, bool isAk) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) {
-        final billCategories = [
-          {
-            'icon': Icons.bolt_rounded,
-            'title': isAk ? 'လျှပ်စစ်မီတာခ' : 'Electricity Bill',
-            'desc': isAk
-                ? 'အိမ်သုံးနှင့် လုပ်ငန်းသုံး မီတာ'
-                : 'Home & Commercial Meter'
-          },
-          {
-            'icon': Icons.water_drop_rounded,
-            'title': isAk ? 'ရေမီတာခ' : 'Water Utility',
-            'desc': isAk ? 'စည်ပင်သာယာ ရေဖိုး' : 'Municipal Water Supply'
-          },
-          {
-            'icon': Icons.wifi_rounded,
-            'title': isAk ? 'အင်တာနက်နှင့် ဖုန်းဘေလ်' : 'Internet & Telecom',
-            'desc':
-                isAk ? 'ဖိုင်ဘာ အင်တာနက်နှင့် မိုဘိုင်း' : 'Fiber & Mobile Data'
-          },
-          {
-            'icon': Icons.tv_rounded,
-            'title': isAk ? 'ရုပ်သံလိုင်းများ' : 'TV & Media Subscription',
-            'desc':
-                isAk ? 'ကေဘယ်လ်နှင့် ဂြိုဟ်တု ရုပ်သံ' : 'Cable & Satellite TV'
-          },
-          {
-            'icon': Icons.account_balance_rounded,
-            'title': isAk ? 'အခွန်နှင့် အစိုးရဝန်ဆောင်ခ' : 'Government & Taxes',
-            'desc': isAk
-                ? 'စည်ပင်အခွန်နှင့် ဝန်ဆောင်ခများ'
-                : 'Municipal Taxes & Fees'
-          },
-        ];
-
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.65,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE4E4E7),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    isAk ? 'ဘေလ်ပေးဆောင်ရန်' : 'Bill Payment',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF18181B),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded,
-                        color: Color(0xFF71717A)),
-                    onPressed: () => Navigator.pop(ctx),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                isAk
-                    ? 'ပေးဆောင်လိုသော ဝန်ဆောင်မှု အမျိုးအစားကို ရွေးချယ်ပါ'
-                    : 'Select a utility or bill payment service',
-                style:
-                    const TextStyle(fontSize: 12.5, color: Color(0xFF71717A)),
-              ),
-              const SizedBox(height: 14),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: billCategories.length,
-                  separatorBuilder: (_, __) =>
-                      const Divider(height: 1, color: Color(0xFFF4F4F5)),
-                  itemBuilder: (context, idx) {
-                    final item = billCategories[idx];
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 4),
-                      leading: Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF1F2),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFFECDD3)),
-                        ),
-                        child: Icon(item['icon'] as IconData,
-                            color: crimson, size: 22),
-                      ),
-                      title: Text(
-                        item['title'] as String,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            color: Color(0xFF18181B)),
-                      ),
-                      subtitle: Text(
-                        item['desc'] as String,
-                        style: const TextStyle(
-                            fontSize: 12, color: Color(0xFF71717A)),
-                      ),
-                      trailing: const Icon(Icons.chevron_right_rounded,
-                          color: Color(0xFFA1A1AA)),
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              isAk
-                                  ? '${item['title']} - မကြာမီ လာမည်ဖြစ်ပါသည်'
-                                  : '${item['title']} is coming soon!',
-                            ),
-                            backgroundColor: const Color(0xFF18181B),
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   void _showChangeProfilePhotoModal(
@@ -542,7 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               appState,
               isAk ? 'ငွေလွှဲရန် (Transfer)' : 'Transfer',
-              () => appState.navigate(Screen.send),
+              () => appState.navigate(Screen.pay),
             ),
       },
       {
@@ -593,14 +444,14 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               appState,
               isAk ? 'ငွေဖြည့်ရန် (Top Up)' : 'Top Up',
-              () => appState.navigate(Screen.intl),
+              () => appState.navigate(Screen.topup),
             ),
       },
       {
         'label': isAk ? 'ဘေလ်ဆောင်' : 'Bill Payment',
         'iconWidget':
             const Icon(Icons.receipt_long_rounded, color: crimson, size: 19),
-        'onTap': () => _showBillPaymentModal(context, appState, isAk),
+        'onTap': () => appState.navigate(Screen.bills),
       },
       {
         'label': isAk ? 'ငွေစာရင်း' : 'Accounts',
@@ -1315,7 +1166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () => _runVerifiedAction(
                         context,
                         appState,
-                        isAk ? 'ငွေပေးချေရန်' : 'Pay',
+                        isAk ? 'ငွေလွှဲရန်' : 'Transfer',
                         () => appState.startPayForContact(
                           name: fav.name,
                           id: fav.id,

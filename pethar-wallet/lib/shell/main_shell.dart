@@ -6,21 +6,21 @@ import '../theme.dart';
 import '../i18n.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/support_and_kyc_modals.dart';
-import 'home_screen.dart';
-import 'account_screen.dart';
-import 'scan_screen.dart';
-import 'pay_screen.dart';
-import 'services_screen.dart';
-import 'settings_screen.dart';
-import 'send_screen.dart';
-import 'receive_screen.dart';
-import 'intl_screen.dart';
-import 'crypto_screen.dart';
-import 'history_screen.dart';
-import 'favourites_screen.dart';
-import 'auth_screen.dart';
-import 'app_lock_screen.dart';
-import 'wallet_screen.dart';
+import '../home/home_screen.dart';
+import '../wallet/account_screen.dart';
+import '../scan/scan_screen.dart';
+import '../pay/pay_screen.dart';
+import '../services/services_screen.dart';
+import '../settings/settings_screen.dart';
+import '../receive/receive_screen.dart';
+import '../wallet/crypto_screen.dart';
+import '../history/history_screen.dart';
+import '../favourites/favourites_screen.dart';
+import '../auth/auth_screen.dart';
+import '../auth/app_lock_screen.dart';
+import '../wallet/wallet_screen.dart';
+import '../services/topup_screen.dart';
+import '../services/bill_payment_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({Key? key}) : super(key: key);
@@ -135,11 +135,9 @@ class _MainShellState extends State<MainShell> {
 
     // Sub-screens routing with explicit SystemUiOverlayStyle
     Widget? subScreen;
-    if (appState.currentScreen == Screen.send) subScreen = const SendScreen();
     if (appState.currentScreen == Screen.receive) {
       subScreen = const ReceiveScreen();
     }
-    if (appState.currentScreen == Screen.intl) subScreen = const IntlScreen();
     if (appState.currentScreen == Screen.crypto) {
       subScreen = CryptoScreen(
         initialTab: appState.financialSubView == 'withdraw' ? 1 : 0,
@@ -158,6 +156,12 @@ class _MainShellState extends State<MainShell> {
     }
     if (appState.currentScreen == Screen.account) {
       subScreen = const AccountScreen();
+    }
+    if (appState.currentScreen == Screen.topup) {
+      subScreen = const TopupScreen();
+    }
+    if (appState.currentScreen == Screen.bills) {
+      subScreen = const BillPaymentScreen();
     }
 
     if (subScreen != null) {

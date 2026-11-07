@@ -13,6 +13,7 @@ class HistoryItem {
   final String type; // 'bill' or 'transfer'
   final String? category;
   final String? refNo;
+  final DateTime? createdAt;
 
   const HistoryItem({
     required this.id,
@@ -22,6 +23,7 @@ class HistoryItem {
     required this.type,
     this.category,
     this.refNo,
+    this.createdAt,
   });
 
   bool get isInflow => amount > 0;
@@ -36,8 +38,38 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   int _activeTab = 0; // 0: All, 1: Inflow, 2: Outflow
-  String _selectedMonth = 'October – 2026';
+  String? _selectedMonth; // resolved to the current month on first build
   String _selectedCategoryFilter = 'all'; // 'all', 'transfer', 'bill'
+
+  static const List<String> _monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  String _monthLabel(DateTime date) =>
+      '${_monthNames[date.month - 1]} – ${date.year}';
+
+  /// Human readable time for a ledger row, always relative to the current day.
+  String _formatTxTime(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(date.year, date.month, date.day);
+    final clock = DateFormat('HH:mm').format(date);
+    final daysAgo = today.difference(day).inDays;
+    if (daysAgo == 0) return 'Today, $clock';
+    if (daysAgo == 1) return 'Yesterday, $clock';
+    return '${DateFormat('d MMM yyyy').format(date)}, $clock';
+  }
 
 
   String _formatAmount(double amount) {
@@ -129,13 +161,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  void _showMonthPicker() {
-    final months = [
-      'October – 2026',
-      'September – 2026',
-      'August – 2026',
-      'July – 2026',
-    ];
+  void _showMonthPicker(List<String> months) {
 
     showModalBottomSheet(
       context: context,
@@ -209,7 +235,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Exported e-Statement for $_selectedMonth (PDF)',
+                'Exported e-Statement for ${_selectedMonth ?? _monthLabel(DateTime.now())} (PDF)',
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -488,20 +514,57 @@ class _HistoryScreenState extends State<HistoryScreen> {
       return HistoryItem(
         id: tx.id,
         title: tx.title,
-        time: tx.time,
+        time: tx.createdAt != null ? _formatTxTime(tx.createdAt!) : tx.time,
         amount: tx.amount,
         type: isBill ? 'bill' : 'transfer',
         category: tx.category,
         refNo: tx.refId.isNotEmpty ? tx.refId : tx.id,
+        createdAt: tx.createdAt,
       );
     }).toList();
 
-    // Calculate Inflow & Outflow for summary dynamically from items
-    final double totalInflow = items.where((i) => i.isInflow).fold(0.0, (sum, i) => sum + i.amount);
-    final double totalOutflow = items.where((i) => !i.isInflow).fold(0.0, (sum, i) => sum + i.amount.abs());
+    // Months come from the real ledger timestamps; the current month is always
+    // present so the screen opens on today's month instead of a stale one.
+    final now = DateTime.now();
+    final currentMonth = _monthLabel(now);
+    final monthAnchors = <DateTime>[DateTime(now.year, now.month)];
+    for (final item in items) {
+      final date = item.createdAt;
+      if (date != null) monthAnchors.add(DateTime(date.year, date.month));
+    }
+    final seenMonths = <String>{};
+    final uniqueMonthAnchors = <DateTime>[];
+    for (final anchor in monthAnchors) {
+      if (seenMonths.add(_monthLabel(anchor))) uniqueMonthAnchors.add(anchor);
+    }
+    uniqueMonthAnchors.sort((a, b) => b.compareTo(a));
+    final months = uniqueMonthAnchors.map(_monthLabel).toList();
+
+    final selectedMonth =
+        (_selectedMonth != null && months.contains(_selectedMonth))
+            ? _selectedMonth!
+            : currentMonth;
+    if (_selectedMonth != selectedMonth) {
+      _selectedMonth = selectedMonth;
+    }
+
+    // Only rows belonging to the selected month are summarised / listed.
+    final monthItems = items.where((item) {
+      final date = item.createdAt;
+      if (date == null) return selectedMonth == currentMonth;
+      return _monthLabel(date) == selectedMonth;
+    }).toList();
+
+    // Calculate Inflow & Outflow for summary dynamically from the month
+    final double totalInflow = monthItems
+        .where((i) => i.isInflow)
+        .fold(0.0, (sum, i) => sum + i.amount);
+    final double totalOutflow = monthItems
+        .where((i) => !i.isInflow)
+        .fold(0.0, (sum, i) => sum + i.amount.abs());
 
     // Filter list
-    final filtered = items.where((item) {
+    final filtered = monthItems.where((item) {
       if (_activeTab == 1 && !item.isInflow) return false;
       if (_activeTab == 2 && item.isInflow) return false;
       if (_selectedCategoryFilter != 'all' && item.type != _selectedCategoryFilter) return false;
@@ -570,7 +633,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 // Calendar
                 _buildActionButton(
                   icon: Icons.calendar_today_outlined,
-                  onTap: _showMonthPicker,
+                  onTap: () => _showMonthPicker(months),
                 ),
                 const SizedBox(width: 10),
 
@@ -608,7 +671,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _selectedMonth,
+                        selectedMonth,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,

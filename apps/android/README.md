@@ -21,9 +21,17 @@ The native Android Gradle project is located at:
 # 1. Run on connected Android device (USB Debugging enabled):
 ./apps/android/run.sh
 
-# 2. Build standalone Release APK for direct download/install:
-./apps/android/build-apk.sh
+# 2. Build lightweight Release APK(s) for direct download/install:
+./apps/android/build-apk.sh                 # arm64 + armv7, split per ABI
+PETHAR_ABI=arm64 ./apps/android/build-apk.sh # smallest single APK (arm64 phones)
+
+# 3. Remove disposable build caches when the workspace gets large:
+./apps/android/clean-cache.sh
 ```
 
 APK Output Location:
-`pethar-wallet/build/app/outputs/flutter-apk/app-release.apk`
+`pethar-wallet/build/app/outputs/flutter-apk/`
+
+Release builds use R8 minification, resource shrinking, icon tree-shaking, and
+ship only the `en` / `my` locale resources. Emulator-only `x86_64` binaries and
+the unused SQLCipher/connectivity plugins are excluded from release downloads.

@@ -154,7 +154,10 @@ class Agent {
 class Transaction {
   String id, refId, title, titleMm, category, currency, time, status, counterparty, counterpartyMm, hash;
   double amount, fee;
-  Transaction({required this.id, required this.refId, required this.title, required this.titleMm, required this.category, required this.currency, required this.time, required this.status, required this.counterparty, required this.counterpartyMm, required this.hash, required this.amount, required this.fee});
+  /// Server ledger timestamp (`transactions.created_at`). Used to group and
+  /// sort history by the real transaction day instead of a stored label.
+  DateTime? createdAt;
+  Transaction({required this.id, required this.refId, required this.title, required this.titleMm, required this.category, required this.currency, required this.time, required this.status, required this.counterparty, required this.counterpartyMm, required this.hash, required this.amount, required this.fee, this.createdAt});
 }
 
 UserProfile initialUserProfile = UserProfile(

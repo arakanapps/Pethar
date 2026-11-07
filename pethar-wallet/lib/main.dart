@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'services/supabase_service.dart';
+import 'core/services/supabase_service.dart';
 import 'app_state.dart';
 import 'theme.dart';
-import 'screens/main_shell.dart';
+import 'shell/main_shell.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

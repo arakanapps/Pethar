@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pethar_mobile/services/crypto_service.dart';
-import 'package:pethar_mobile/services/local_storage_service.dart';
-import 'package:pethar_mobile/services/sync_service.dart';
+import 'package:pethar_mobile/core/services/crypto_service.dart';
+import 'package:pethar_mobile/core/services/local_storage_service.dart';
+import 'package:pethar_mobile/core/services/sync_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

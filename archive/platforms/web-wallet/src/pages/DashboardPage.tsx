@@ -215,7 +215,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       setAdminUsers(snapshot.users)
       setAdminTransactions(snapshot.transactions)
       setAdminApprovals(snapshot.approvals)
-      if (snapshot.users.length === 0 && snapshot.transactions.length === 0 && snapshot.approvals.length === 0) {
+      if (snapshot.error) {
+        setAdminError(snapshot.error)
+      } else if (snapshot.users.length === 0 && snapshot.transactions.length === 0 && snapshot.approvals.length === 0) {
         setAdminError('No records were returned. Set SUPABASE_SERVICE_ROLE_KEY in .env to allow the admin console to read all database tables.')
       }
     } catch (error: any) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../app_state.dart';
-import '../services/native_security_service.dart';
+import '../core/services/native_security_service.dart';
 import '../widgets/pin_keypad_screen.dart';
 
 /// Full-screen security gate shown on cold start whenever a saved session is

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/data.dart';
+import '../../models/data.dart';
 import 'supabase_service.dart';
 
 /// Stored user identity record for email + 6-digit PIN auth and KYC

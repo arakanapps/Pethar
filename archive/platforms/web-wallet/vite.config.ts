@@ -1,7 +1,7 @@
 import path from "path"
 import fs from "fs"
 import react from "@vitejs/plugin-react"
-import { defineConfig, loadEnv, type Plugin } from "vite"
+import { defineConfig, type Plugin } from "vite"
 import { createClient } from "@supabase/supabase-js"
 import { inspectAttr } from 'kimi-plugin-inspect-react'
 
@@ -37,15 +37,33 @@ function adminApiPlugin(): Plugin {
   return {
     name: 'pethar-admin-api',
     configureServer(server) {
-      const localEnv = loadEnv(server.config.mode, process.cwd(), '')
-      const rootEnv = loadEnv(server.config.mode, path.resolve(process.cwd(), '../..'), '')
-      const env = { ...rootEnv, ...localEnv }
+      const readEnvFile = (filePath: string) => {
+        const result: Record<string, string> = {}
+        try {
+          if (!fs.existsSync(filePath)) return result
+          for (const line of fs.readFileSync(filePath, 'utf8').split(/\r?\n/)) {
+            const match = line.match(/^([A-Za-z0-9_]+)\s*=\s*(.*)$/)
+            if (!match) continue
+            result[match[1]] = match[2].replace(/^['"]|['"]$/g, '').trim()
+          }
+        } catch {
+          // Ignore malformed env files.
+        }
+        return result
+      }
+      const localEnv = readEnvFile(path.resolve(process.cwd(), '.env'))
+      const rootEnv = readEnvFile(path.resolve(process.cwd(), '../../..', '.env'))
+      const env = { ...rootEnv, ...localEnv, ...process.env }
       const url = env.SUPABASE_URL || env.VITE_SUPABASE_URL
-      const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_SERVICE_ROLE_KEY
+      const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY || env.VITE_SUPABASE_SERVICE_ROLE_KEY
       const supabase = url && serviceKey ? createClient(url, serviceKey, { auth: { persistSession: false } }) : null
 
       if (!supabase) {
         console.warn('[admin-api] SUPABASE_SERVICE_ROLE_KEY is not set. Admin database reads will be unavailable.')
+      } else if (serviceKey && !/^(sb_secret_|eyJ)/.test(serviceKey)) {
+        console.warn(
+          '[admin-api] SUPABASE_SERVICE_ROLE_KEY does not look like a Supabase API key. Use the secret key (sb_secret_…) or legacy service_role JWT (eyJ…) from Project Settings → API Keys — not the JWT signing key.',
+        )
       }
 
       const json = (res: any, status: number, body: unknown) => {

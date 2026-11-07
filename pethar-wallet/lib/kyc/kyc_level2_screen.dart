@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../data/address_data.dart';
 import '../models/data.dart';
-import '../services/supabase_service.dart';
+import '../core/services/supabase_service.dart';
 import '../theme.dart';
 import '../widgets/arakan_emblem.dart';
 

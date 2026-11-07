@@ -7,7 +7,6 @@ import {
   UserCheck,
   Users,
   Wallet,
-  CircleAlert,
 } from 'lucide-react'
 import type { AdminApprovalRow, AdminTransactionRow, AdminUserRow } from '../../services/adminDatabase'
 import {
@@ -71,23 +70,13 @@ export const AdminOverviewDesk: React.FC<AdminOverviewDeskProps> = ({
         isDarkMode={isDarkMode}
         actions={
           <>
-            <StatusPill tone="emerald" dot>
-              Live database
+            <StatusPill tone={error ? 'rose' : 'emerald'} dot>
+              {error ? 'Database unavailable' : 'Live database'}
             </StatusPill>
             {loading && <StatusPill tone="slate">Syncing…</StatusPill>}
           </>
         }
       />
-
-      {error && (
-        <div className="flex items-start gap-3 rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-[11px] text-rose-300 backdrop-blur-xl">
-          <CircleAlert size={15} className="mt-0.5 shrink-0" />
-          <div>
-            <div className="font-bold">Database read failed</div>
-            <div className="mt-0.5 text-rose-300/80">{error}</div>
-          </div>
-        </div>
-      )}
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <StatCard

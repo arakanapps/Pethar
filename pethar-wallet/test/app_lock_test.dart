@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pethar_mobile/app_state.dart';
-import 'package:pethar_mobile/screens/app_lock_screen.dart';
-import 'package:pethar_mobile/screens/main_shell.dart';
+import 'package:pethar_mobile/auth/app_lock_screen.dart';
+import 'package:pethar_mobile/shell/main_shell.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

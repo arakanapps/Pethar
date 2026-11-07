@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/crypto_wallet.dart';
-import '../models/data.dart';
+import '../../models/crypto_wallet.dart';
+import '../../models/data.dart';
 
 class SupabaseService {
   /// Singleton instance
@@ -191,6 +191,8 @@ class SupabaseService {
           fee: (map['fee'] is num)
               ? (map['fee'] as num).toDouble()
               : double.tryParse(map['fee']?.toString() ?? '0') ?? 0.0,
+          createdAt: DateTime.tryParse(
+              map['created_at']?.toString() ?? '')?.toLocal(),
         );
       }).toList();
     } catch (e) {

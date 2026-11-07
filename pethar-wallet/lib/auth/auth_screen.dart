@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../theme.dart';
-import '../services/native_security_service.dart';
-import '../services/supabase_service.dart';
+import '../core/services/native_security_service.dart';
+import '../core/services/supabase_service.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/pin_keypad_screen.dart';
 

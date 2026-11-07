@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pethar_mobile/app_state.dart';
-import 'package:pethar_mobile/screens/scan_screen.dart';
-import 'package:pethar_mobile/services/supabase_service.dart';
+import 'package:pethar_mobile/scan/scan_screen.dart';
+import 'package:pethar_mobile/core/services/supabase_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -55,6 +55,10 @@ android {
         // App metadata for direct distribution
         resValue("string", "app_name", "Péthar Wallet")
         resValue("string", "download_url", "https://pethar.co.uk/download")
+
+        // Ship only the two locales the app actually supports. This strips
+        // unused locale resources bundled by Play Services / ML Kit.
+        resourceConfigurations.addAll(listOf("en", "my"))
     }
 
     buildTypes {

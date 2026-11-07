@@ -6,23 +6,24 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'models/crypto_wallet.dart';
 import 'models/data.dart';
-import 'services/auth_service.dart';
-import 'services/supabase_service.dart';
+import 'core/services/auth_service.dart';
+import 'core/services/supabase_service.dart';
+import 'core/services/telecom_billing_service.dart';
 
 enum Screen {
   home,
   account,
   services,
   settings,
-  send,
   receive,
   scan,
-  intl,
   crypto,
   notifications,
   pay,
   history,
-  favourites
+  favourites,
+  topup,
+  bills
 }
 
 class AppState extends ChangeNotifier {
@@ -62,6 +63,8 @@ class AppState extends ChangeNotifier {
   List<Contact> contactsList = [];
   List<Agent> agentsList = [];
   List<Map<String, dynamic>> announcementsList = [];
+  List<Map<String, dynamic>> topupPackagesList = [];
+  List<Map<String, dynamic>> billProvidersList = [];
   Map<String, dynamic>? pendingPayContact;
   bool dontShowQuickScanDialog = false;
   bool isLoadingDb = false;
@@ -581,6 +584,12 @@ class AppState extends ChangeNotifier {
           _applyCryptoWalletState(remoteCrypto);
         }
       }
+
+      // 6. Top-up catalogue & bill providers (public tables, migrated from
+      // the archived telecom-billing module)
+      final billing = TelecomBillingService(SupabaseService.client);
+      topupPackagesList = await billing.fetchTopupPackages();
+      billProvidersList = await billing.fetchBillProviders();
     } catch (e) {
       debugPrint('Supabase data fetch notice: $e');
     } finally {
