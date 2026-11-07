@@ -187,7 +187,7 @@ Widget buildWelcomeSignInCard(BuildContext context, AppState appState, {bool emb
         style: const TextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w800,
-          color: Color(0xFF18181B),
+          color: Color(0xFF0A0A0A),
         ),
       ),
       const SizedBox(height: 6),
@@ -198,7 +198,7 @@ Widget buildWelcomeSignInCard(BuildContext context, AppState appState, {bool emb
         textAlign: TextAlign.center,
         style: const TextStyle(
           fontSize: 13,
-          color: Color(0xFF71717A),
+          color: Color(0xFFD4D4D8),
           height: 1.35,
         ),
       ),
@@ -233,12 +233,12 @@ Widget buildWelcomeSignInCard(BuildContext context, AppState appState, {bool emb
     width: double.infinity,
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 26),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: const Color(0xFF0A0A0A),
       borderRadius: BorderRadius.circular(28),
-      border: Border.all(color: const Color(0xFFF4F4F5)),
+      border: Border.all(color: const Color(0xFF111111)),
       boxShadow: [
         BoxShadow(
-          color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+          color: const Color(0xFF111111).withValues(alpha: 0.06),
           blurRadius: 32,
           offset: const Offset(0, 12),
         ),
@@ -271,7 +271,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
 
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-          backgroundColor: Colors.white,
+          backgroundColor: trueBlack,
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -291,7 +291,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF18181B),
+                            color: Color(0xFF0A0A0A),
                           ),
                         ),
                       ],
@@ -301,10 +301,10 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
-                          color: Color(0xFFF4F4F5),
+                          color: Color(0xFF111111),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.close, size: 16, color: Color(0xFF71717A)),
+                        child: const Icon(Icons.close, size: 16, color: Color(0xFFD4D4D8)),
                       ),
                     ),
                   ],
@@ -315,9 +315,9 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: const Color(0xFF0A0A0A),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: const Color(0xFF262626)),
                   ),
                   child: Row(
                     children: [
@@ -363,7 +363,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF18181B),
+                    color: Color(0xFF0A0A0A),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -371,7 +371,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                   isAk
                       ? 'အဆင့် ၂ သို့ တိုးမြှင့်ရန် နိုင်ငံသားကတ်နှင့် ကိုယ်ရေးအချက်အလက်များ တင်သွင်းပြီး စိစစ်အတည်ပြုချက်ကို စောင့်ဆိုင်းရမည်ဖြစ်ပါသည်။'
                       : 'To upgrade to KYC Level 2, enter your National ID and personal info and wait for administrative review.',
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF71717A), height: 1.4),
+                  style: const TextStyle(fontSize: 12, color: Color(0xFFD4D4D8), height: 1.4),
                 ),
                 const SizedBox(height: 14),
 
@@ -381,7 +381,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0FDF4),
+                      color: const Color(0xFF0A0A0A),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0xFF86EFAC)),
                     ),
@@ -394,19 +394,19 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                             const SizedBox(width: 8),
                             Text(
                               isAk ? 'အဆင့် ၂ အတည်ပြုပြီးပါပြီ' : 'Level 2 Verified',
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF18181B)),
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF0A0A0A)),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           '${isAk ? 'နိုင်ငံသားကတ်နံပါတ်:' : 'National ID:'} ${appState.profile.nationalIdNo.isNotEmpty ? appState.profile.nationalIdNo : "—"}',
-                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, fontFamily: 'monospace', color: Color(0xFF334155)),
+                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, fontFamily: 'monospace', color: Color(0xFF3F3F46)),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${isAk ? 'အမည်:' : 'Legal Name:'} ${appState.profile.name}',
-                          style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                          style: const TextStyle(fontSize: 12, color: Color(0xFFD4D4D8)),
                         ),
                       ],
                     ),
@@ -420,7 +420,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                         openKycLevel2Screen(context, appState);
                       },
                       icon: const Icon(Icons.folder_open_rounded,
-                          size: 16, color: Color(0xFF334155)),
+                          size: 16, color: Color(0xFF3F3F46)),
                       label: Text(
                         isAk
                             ? 'ဓာတ်ပုံများ ကြည့်ရန် / လိပ်စာ ပြင်ရန်'
@@ -428,11 +428,11 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                         style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF334155)),
+                            color: Color(0xFF3F3F46)),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFBBF7D0)),
-                        backgroundColor: Colors.white,
+                        side: const BorderSide(color: Color(0xFF14532D)),
+                        backgroundColor: trueBlack,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
@@ -445,9 +445,9 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBEB),
+                      color: const Color(0xFF1A1400),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFFDE68A)),
+                      border: Border.all(color: const Color(0xFF78350F)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -479,14 +479,14 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                                   await appState.approveKycLevel2();
                                   setModalState(() => isSubmitting = false);
                                 },
-                          icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF334155)),
+                          icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF3F3F46)),
                           label: Text(
                             isAk ? 'အတည်ပြုမှု စမ်းသပ်ရန် (Approve Review)' : 'Approve Review (Dev/Admin)',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF3F3F46)),
                           ),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Color(0xFFA7F3D0)),
-                            backgroundColor: Colors.white,
+                            backgroundColor: trueBlack,
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
@@ -511,8 +511,8 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                                   color: Color(0xFF92400E)),
                             ),
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFFFDE68A)),
-                              backgroundColor: Colors.white,
+                              side: const BorderSide(color: Color(0xFF78350F)),
+                              backgroundColor: trueBlack,
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
@@ -529,9 +529,9 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: const Color(0xFF262626)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -543,7 +543,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                           style: const TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF18181B),
+                            color: Color(0xFF0A0A0A),
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -619,7 +619,7 @@ void showVerificationRequiredDialog(BuildContext context, AppState appState, Str
     context: context,
     builder: (ctx) => Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-      backgroundColor: Colors.white,
+      backgroundColor: trueBlack,
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -629,9 +629,9 @@ void showVerificationRequiredDialog(BuildContext context, AppState appState, Str
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF1F2),
+                color: const Color(0xFF1A0A0C),
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFFECDD3)),
+                border: Border.all(color: const Color(0xFF3F1D24)),
               ),
               child: const Icon(Icons.error_outline_rounded, color: crimson, size: 30),
             ),
@@ -765,7 +765,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.vertical(top: Radius.circular(34)),
-        color: Color(0xFFF8FAFC),
+        color: Color(0xFF000000),
       ),
       child: Column(
         children: [
@@ -781,14 +781,14 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: const Color(0xFF0A0A0A),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: const Color(0xFF262626)),
                         boxShadow: [
                           BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 2)),
                         ],
                       ),
-                      child: const Icon(Icons.chevron_left, color: Color(0xFF0F172A), size: 26),
+                      child: const Icon(Icons.chevron_left, color: Color(0xFF111111), size: 26),
                     ),
                   )
                 else
@@ -800,7 +800,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                       height: 44,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFFE0F2FE),
+                        color: const Color(0xFF0A0A0A),
                         border: Border.all(color: const Color(0xFFBAE6FD), width: 1.5),
                       ),
                       child: const Icon(Icons.support_agent_rounded, color: Color(0xFF0284C7), size: 22),
@@ -813,13 +813,13 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                         height: 44,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white,
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          color: const Color(0xFF0A0A0A),
+                          border: Border.all(color: const Color(0xFF262626)),
                           boxShadow: [
                             BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 2)),
                           ],
                         ),
-                        child: const Icon(Icons.close, color: Color(0xFF0F172A), size: 20),
+                        child: const Icon(Icons.close, color: Color(0xFF111111), size: 20),
                       ),
                     ),
                   ],
@@ -842,7 +842,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF64748B),
+                            color: Color(0xFFD4D4D8),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -851,7 +851,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                           style: const TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF0F172A),
+                            color: Color(0xFF111111),
                           ),
                         ),
                       ],
@@ -860,11 +860,11 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 20),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFF0A0A0A),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: const Color(0xFF262626)),
                       boxShadow: [
-                        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                        BoxShadow(color: const Color(0xFF111111).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
                       ],
                     ),
                     child: Column(
@@ -872,7 +872,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                         ListTile(
                           title: Text(
                             isAk ? 'မက်ဆေ့ချ်များ (Messages)' : 'Messages',
-                            style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 15),
+                            style: const TextStyle(color: Color(0xFF111111), fontWeight: FontWeight.bold, fontSize: 15),
                           ),
                           trailing: const Icon(Icons.chat_bubble_rounded, color: Color(0xFF2563EB), size: 19),
                           onTap: () => setState(() {
@@ -880,11 +880,11 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                             _view = 'chat';
                           }),
                         ),
-                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                        const Divider(height: 1, color: Color(0xFF0A0A0A)),
                         ListTile(
                           title: Text(
                             isAk ? 'အကူအညီ (Help)' : 'Help',
-                            style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 15),
+                            style: const TextStyle(color: Color(0xFF111111), fontWeight: FontWeight.bold, fontSize: 15),
                           ),
                           trailing: const Icon(Icons.help_rounded, color: Color(0xFF2563EB), size: 20),
                           onTap: () => setState(() => _view = 'help'),
@@ -895,11 +895,11 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFF0A0A0A),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: const Color(0xFF262626)),
                       boxShadow: [
-                        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                        BoxShadow(color: const Color(0xFF111111).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
                       ],
                     ),
                     child: Column(
@@ -909,7 +909,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                           child: Text(
                             isAk ? 'အကူအညီ လက်မှတ်ဖွင့်ရန်' : 'Create a ticket',
-                            style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.w800, fontSize: 16),
+                            style: const TextStyle(color: Color(0xFF111111), fontWeight: FontWeight.w800, fontSize: 16),
                           ),
                         ),
                         ...[
@@ -923,9 +923,9 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                           final label = item['label'] as String;
                           return Column(
                             children: [
-                              if (idx > 0) const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                              if (idx > 0) const Divider(height: 1, color: Color(0xFF0A0A0A)),
                               ListTile(
-                                title: Text(label, style: const TextStyle(color: Color(0xFF0F172A), fontSize: 15)),
+                                title: Text(label, style: const TextStyle(color: Color(0xFF111111), fontSize: 15)),
                                 trailing: Icon(item['icon'] as IconData, color: const Color(0xFF2563EB), size: 19),
                                 onTap: () {
                                   setState(() {
@@ -947,17 +947,17 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFF0A0A0A),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: const Color(0xFF262626)),
                       boxShadow: [
-                        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                        BoxShadow(color: const Color(0xFF111111).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
                       ],
                     ),
                     child: ListTile(
                       title: Text(
                         isAk ? 'အကူအညီ ရှာဖွေရန်' : 'Search for help',
-                        style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 15),
+                        style: const TextStyle(color: Color(0xFF111111), fontWeight: FontWeight.bold, fontSize: 15),
                       ),
                       trailing: const Icon(Icons.search_rounded, color: Color(0xFF2563EB), size: 20),
                       onTap: () => setState(() => _view = 'help'),
@@ -966,22 +966,22 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFF0A0A0A),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: const Color(0xFF262626)),
                       boxShadow: [
-                        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                        BoxShadow(color: const Color(0xFF111111).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
                       ],
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     child: ListTile(
                       title: Text(
                         isAk ? 'မက်ဆေ့ချ် ပေးပို့ရန်' : 'Send us a message',
-                        style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 15),
+                        style: const TextStyle(color: Color(0xFF111111), fontWeight: FontWeight.bold, fontSize: 15),
                       ),
                       subtitle: Text(
                         isAk ? 'AI အေးဂျင့်နှင့် အဖွဲ့မှ ကူညီပေးပါမည်' : 'AI Agent and team can help',
-                        style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                        style: const TextStyle(color: Color(0xFFD4D4D8), fontSize: 13),
                       ),
                       trailing: const Row(
                         mainAxisSize: MainAxisSize.min,
@@ -992,7 +992,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                             child: Text('AI', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
                           ),
                           SizedBox(width: 6),
-                          Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8), size: 20),
+                          Icon(Icons.chevron_right_rounded, color: Color(0xFFD4D4D8), size: 20),
                         ],
                       ),
                       onTap: () => setState(() {
@@ -1012,17 +1012,17 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFF0A0A0A),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: const Color(0xFF262626)),
                     ),
                     child: TextField(
-                      style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14),
+                      style: const TextStyle(color: Color(0xFF111111), fontSize: 14),
                       onChanged: (v) => setState(() => _searchQuery = v),
                       decoration: const InputDecoration(
                         icon: Icon(Icons.search, color: Color(0xFF2563EB), size: 18),
                         hintText: 'Search help articles (KYC, QR Pay, USD)...',
-                        hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                        hintStyle: TextStyle(color: Color(0xFFD4D4D8), fontSize: 13),
                         border: InputBorder.none,
                       ),
                     ),
@@ -1030,11 +1030,11 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFF0A0A0A),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: const Color(0xFF262626)),
                       boxShadow: [
-                        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                        BoxShadow(color: const Color(0xFF111111).withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
                       ],
                     ),
                     child: Column(
@@ -1046,12 +1046,12 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                             children: [
                               Text(
                                 item['q']!,
-                                style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 14),
+                                style: const TextStyle(color: Color(0xFF111111), fontWeight: FontWeight.bold, fontSize: 14),
                               ),
                               const SizedBox(height: 6),
                               Text(
                                 item['a']!,
-                                style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, height: 1.4),
+                                style: const TextStyle(color: Color(0xFFD4D4D8), fontSize: 12, height: 1.4),
                               ),
                             ],
                           ),
@@ -1071,7 +1071,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   children: [
                     Text(
                       _topic,
-                      style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.w800, fontSize: 15),
+                      style: const TextStyle(color: Color(0xFF111111), fontWeight: FontWeight.w800, fontSize: 15),
                     ),
                     const Text(
                       'AI Agent & Specialist Team · Online',
@@ -1082,9 +1082,9 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color(0xFF0A0A0A),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          border: Border.all(color: const Color(0xFF262626)),
                         ),
                         child: ListView.builder(
                           itemCount: _messages.length,
@@ -1098,13 +1098,13 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                 constraints: const BoxConstraints(maxWidth: 260),
                                 decoration: BoxDecoration(
-                                  color: isUser ? const Color(0xFF2563EB) : const Color(0xFFF1F5F9),
+                                  color: isUser ? const Color(0xFF2563EB) : const Color(0xFF0A0A0A),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
                                   msg['text']!,
                                   style: TextStyle(
-                                    color: isUser ? Colors.white : const Color(0xFF0F172A),
+                                    color: isUser ? Colors.white : const Color(0xFF111111),
                                     fontSize: 12.5,
                                     height: 1.4,
                                   ),
@@ -1122,17 +1122,17 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: const Color(0xFF0A0A0A),
                               borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                              border: Border.all(color: const Color(0xFF262626)),
                             ),
                             child: TextField(
                               controller: _chatCtrl,
-                              style: const TextStyle(color: Color(0xFF0F172A), fontSize: 13),
+                              style: const TextStyle(color: Color(0xFF111111), fontSize: 13),
                               onSubmitted: (_) => _sendMessage(),
                               decoration: InputDecoration(
                                 hintText: isAk ? 'မက်ဆေ့ချ် ရိုက်ထည့်ပါ...' : 'Type your message...',
-                                hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                                hintStyle: const TextStyle(color: Color(0xFFD4D4D8), fontSize: 13),
                                 border: InputBorder.none,
                               ),
                             ),
@@ -1174,14 +1174,14 @@ class _KycRequirementRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 15, color: const Color(0xFF64748B)),
+        Icon(icon, size: 15, color: const Color(0xFFD4D4D8)),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
             style: const TextStyle(
               fontSize: 11.5,
-              color: Color(0xFF475569),
+              color: Color(0xFFD4D4D8),
               height: 1.35,
             ),
           ),

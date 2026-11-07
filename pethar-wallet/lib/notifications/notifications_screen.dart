@@ -72,7 +72,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                    color: isDark ? Colors.white24 : const Color(0xFFD4D4D8),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -125,14 +125,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             Icon(
                               Icons.access_time_rounded,
                               size: 13,
-                              color: isDark ? Colors.grey[400] : const Color(0xFF64748B),
+                              color: isDark ? Colors.grey[400] : const Color(0xFFD4D4D8),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               item.time,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: isDark ? Colors.grey[400] : const Color(0xFF64748B),
+                                color: isDark ? Colors.grey[400] : const Color(0xFFD4D4D8),
                               ),
                             ),
                           ],
@@ -148,7 +148,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  color: isDark ? Colors.white : const Color(0xFF111111),
                   letterSpacing: -0.2,
                 ),
               ),
@@ -158,7 +158,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.55,
-                  color: isDark ? Colors.grey[300] : const Color(0xFF334155),
+                  color: isDark ? Colors.grey[300] : const Color(0xFF3F3F46),
                 ),
               ),
               const SizedBox(height: 26),
@@ -173,7 +173,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFFE11D48),
-                        side: const BorderSide(color: Color(0xFFFECDD3)),
+                        side: const BorderSide(color: Color(0xFF3F1D24)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
@@ -291,7 +291,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 border: Border.all(
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.08)
-                      : const Color(0xFFE2EDF9),
+                      : const Color(0xFF262626),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -306,7 +306,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 icon: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: 16,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  color: isDark ? Colors.white : const Color(0xFF111111),
                 ),
                 onPressed: () {
                   if (Navigator.of(context).canPop()) {
@@ -324,7 +324,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           style: TextStyle(
             fontWeight: FontWeight.w800,
             fontSize: 20,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
+            color: isDark ? Colors.white : const Color(0xFF111111),
             letterSpacing: -0.4,
           ),
         ),
@@ -336,13 +336,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               margin: const EdgeInsets.only(right: 6),
               decoration: BoxDecoration(
                 color: unreadCount > 0
-                    ? const Color(0xFFFEF2F2)
-                    : const Color(0xFFF0FDF4),
+                    ? const Color(0xFF1A0A0C)
+                    : const Color(0xFF0A0A0A),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: unreadCount > 0
-                      ? const Color(0xFFFECACA)
-                      : const Color(0xFFBBF7D0),
+                      ? const Color(0xFF3F1D24)
+                      : const Color(0xFF14532D),
                   width: 1.2,
                 ),
               ),
@@ -371,7 +371,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     const Icon(
                       Icons.check_circle_rounded,
                       size: 12,
-                      color: Color(0xFF64748B),
+                      color: Color(0xFFD4D4D8),
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -379,7 +379,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       style: const TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF64748B),
+                        color: Color(0xFFD4D4D8),
                       ),
                     ),
                   ],
@@ -392,7 +392,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           PopupMenuButton<String>(
             icon: Icon(
               Icons.more_vert_rounded,
-              color: isDark ? Colors.white70 : const Color(0xFF475569),
+              color: isDark ? Colors.white70 : const Color(0xFFD4D4D8),
             ),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             color: isDark ? surfaceCard : Colors.white,
@@ -419,7 +419,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         color: unreadCount > 0
-                            ? (isDark ? Colors.white : const Color(0xFF0F172A))
+                            ? (isDark ? Colors.white : const Color(0xFF111111))
                             : Colors.grey,
                       ),
                     ),
@@ -438,7 +438,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         color: appState.notifications.isNotEmpty
-                            ? (isDark ? Colors.white : const Color(0xFF0F172A))
+                            ? (isDark ? Colors.white : const Color(0xFF111111))
                             : Colors.grey,
                       ),
                     ),
@@ -458,9 +458,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             colors: isDark
                 ? [surfaceDark, obsidian]
                 : [
-                    const Color(0xFFE5F1FC).withValues(alpha: 0.8),
-                    const Color(0xFFF1F6FB),
-                    const Color(0xFFF8FAFC),
+                    const Color(0xFF0A0A0A).withValues(alpha: 0.8),
+                    const Color(0xFF0A0A0A),
+                    const Color(0xFF000000),
                   ],
             stops: const [0.0, 0.25, 1.0],
           ),
@@ -472,7 +472,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               padding: const EdgeInsets.only(top: 8, bottom: 10),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: filterPills.map((pill) {
@@ -511,7 +511,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       ? Colors.transparent
                                       : (isDark
                                           ? Colors.white.withValues(alpha: 0.08)
-                                          : const Color(0xFFE2EDF9)),
+                                          : const Color(0xFF262626)),
                                   width: 1.2,
                                 ),
                                 boxShadow: active
@@ -538,7 +538,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     size: 15,
                                     color: active
                                         ? Colors.white
-                                        : (isDark ? Colors.grey[400] : const Color(0xFF64748B)),
+                                        : (isDark ? Colors.grey[400] : const Color(0xFFD4D4D8)),
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
@@ -548,7 +548,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       fontWeight: active ? FontWeight.w700 : FontWeight.w600,
                                       color: active
                                           ? Colors.white
-                                          : (isDark ? Colors.white70 : const Color(0xFF334155)),
+                                          : (isDark ? Colors.white70 : const Color(0xFF3F3F46)),
                                     ),
                                   ),
                                   if (count > 0) ...[
@@ -560,7 +560,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                             ? Colors.white.withValues(alpha: 0.25)
                                             : (isDark
                                                 ? Colors.white.withValues(alpha: 0.08)
-                                                : const Color(0xFFF1F5F9)),
+                                                : const Color(0xFF0A0A0A)),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Text(
@@ -570,7 +570,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                           fontWeight: FontWeight.w800,
                                           color: active
                                               ? Colors.white
-                                              : (isDark ? Colors.grey[300] : const Color(0xFF64748B)),
+                                              : (isDark ? Colors.grey[300] : const Color(0xFFD4D4D8)),
                                         ),
                                       ),
                                     ),
@@ -602,7 +602,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.grey[400] : const Color(0xFF64748B),
+                      color: isDark ? Colors.grey[400] : const Color(0xFFD4D4D8),
                     ),
                   ),
                   if (unreadCount > 0)
@@ -659,8 +659,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                           surfaceCard.withValues(alpha: 0.6),
                                         ]
                                       : [
-                                          const Color(0xFFDBEAFE).withValues(alpha: 0.6),
-                                          const Color(0xFFEFF6FF),
+                                          const Color(0xFF172554).withValues(alpha: 0.6),
+                                          const Color(0xFF0A0A0A),
                                         ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -669,7 +669,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 border: Border.all(
                                   color: isDark
                                       ? Colors.white.withValues(alpha: 0.08)
-                                      : const Color(0xFFBFDBFE),
+                                      : const Color(0xFF1E3A8A),
                                   width: 1.5,
                                 ),
                                 boxShadow: [
@@ -738,7 +738,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                color: isDark ? Colors.white : const Color(0xFF111111),
                                 letterSpacing: -0.3,
                               ),
                             ),
@@ -757,7 +757,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 style: TextStyle(
                                   fontSize: 12.5,
                                   height: 1.5,
-                                  color: isDark ? Colors.grey[400] : const Color(0xFF64748B),
+                                  color: isDark ? Colors.grey[400] : const Color(0xFFD4D4D8),
                                 ),
                               ),
                             ),
@@ -785,7 +785,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ),
                     )
                   : ListView.builder(
-                      physics: const BouncingScrollPhysics(),
+                      physics: const ClampingScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                       itemCount: dateGroups.length,
                       itemBuilder: (ctx, groupIdx) {
@@ -810,7 +810,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     decoration: BoxDecoration(
                                       color: isDark
                                           ? Colors.white.withValues(alpha: 0.05)
-                                          : const Color(0xFFE2EDF9).withValues(alpha: 0.7),
+                                          : const Color(0xFF262626).withValues(alpha: 0.7),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Text(
@@ -819,7 +819,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                         fontSize: 10,
                                         fontWeight: FontWeight.w800,
                                         letterSpacing: 0.8,
-                                        color: isDark ? Colors.grey[400] : const Color(0xFF64748B),
+                                        color: isDark ? Colors.grey[400] : const Color(0xFFD4D4D8),
                                       ),
                                     ),
                                   ),
@@ -828,7 +828,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     child: Divider(
                                       color: isDark
                                           ? Colors.white.withValues(alpha: 0.06)
-                                          : const Color(0xFFE2EDF9),
+                                          : const Color(0xFF262626),
                                       thickness: 1,
                                     ),
                                   ),
@@ -844,7 +844,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 const Color(0xFF1D4ED8),
                               ];
                               String typeLabel = 'General';
-                              Color tagBgColor = const Color(0xFFEFF6FF);
+                              Color tagBgColor = const Color(0xFF0A0A0A);
                               Color tagTextColor = const Color(0xFF2563EB);
 
                               if (item.type == 'transaction') {
@@ -854,7 +854,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   crimson,
                                 ];
                                 typeLabel = lang == 'ak' ? 'ငွေလွှဲ' : 'Transfer';
-                                tagBgColor = const Color(0xFFFFF1F2);
+                                tagBgColor = const Color(0xFF1A0A0C);
                                 tagTextColor = crimson;
                               } else if (item.type == 'system') {
                                 iconData = Icons.shield_rounded;
@@ -863,7 +863,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   const Color(0xFFD97706),
                                 ];
                                 typeLabel = lang == 'ak' ? 'စနစ်' : 'System';
-                                tagBgColor = const Color(0xFFFFFBEB);
+                                tagBgColor = const Color(0xFF1A1400);
                                 tagTextColor = const Color(0xFFD97706);
                               } else if (item.type == 'promotion') {
                                 iconData = Icons.card_giftcard_rounded;
@@ -872,7 +872,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   const Color(0xFFE11D48),
                                 ];
                                 typeLabel = lang == 'ak' ? 'ပရိုမိုးရှင်း' : 'Offer';
-                                tagBgColor = const Color(0xFFFDF2F8);
+                                tagBgColor = const Color(0xFF1A0A0C);
                                 tagTextColor = const Color(0xFFDB2777);
                               }
 
@@ -924,7 +924,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       color: item.read
                                           ? (isDark
                                               ? Colors.white.withValues(alpha: 0.05)
-                                              : const Color(0xFFE8EEF5))
+                                              : const Color(0xFF0A0A0A))
                                           : const Color(0xFF3B82F6).withValues(alpha: 0.35),
                                       width: item.read ? 1 : 1.5,
                                     ),
@@ -1000,7 +1000,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                           style: TextStyle(
                                                             fontWeight: item.read ? FontWeight.w600 : FontWeight.w800,
                                                             fontSize: 13.5,
-                                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                                            color: isDark ? Colors.white : const Color(0xFF111111),
                                                             letterSpacing: -0.2,
                                                           ),
                                                         ),
@@ -1010,10 +1010,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                         Container(
                                                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                           decoration: BoxDecoration(
-                                                            color: const Color(0xFFEFF6FF),
+                                                            color: const Color(0xFF0A0A0A),
                                                             borderRadius: BorderRadius.circular(6),
                                                             border: Border.all(
-                                                              color: const Color(0xFFBFDBFE),
+                                                              color: const Color(0xFF1E3A8A),
                                                             ),
                                                           ),
                                                           child: const Text(
@@ -1039,7 +1039,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                       height: 1.4,
-                                                      color: isDark ? Colors.grey[300] : const Color(0xFF475569),
+                                                      color: isDark ? Colors.grey[300] : const Color(0xFFD4D4D8),
                                                     ),
                                                   ),
                                                   const SizedBox(height: 8),
@@ -1068,21 +1068,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                       Icon(
                                                         Icons.access_time_rounded,
                                                         size: 11,
-                                                        color: isDark ? Colors.grey[400] : const Color(0xFF94A3B8),
+                                                        color: isDark ? Colors.grey[400] : const Color(0xFFD4D4D8),
                                                       ),
                                                       const SizedBox(width: 3),
                                                       Text(
                                                         item.time,
                                                         style: TextStyle(
                                                           fontSize: 11,
-                                                          color: isDark ? Colors.grey[400] : const Color(0xFF64748B),
+                                                          color: isDark ? Colors.grey[400] : const Color(0xFFD4D4D8),
                                                         ),
                                                       ),
                                                       const Spacer(),
                                                       Icon(
                                                         Icons.chevron_right_rounded,
                                                         size: 16,
-                                                        color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                                                        color: isDark ? Colors.white24 : const Color(0xFFD4D4D8),
                                                       ),
                                                     ],
                                                   ),

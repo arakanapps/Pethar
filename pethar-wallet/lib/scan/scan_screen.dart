@@ -210,7 +210,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
     return Scaffold(
       backgroundColor:
-          _bottomTab == 0 ? Colors.black : const Color(0xFFF8FAFC),
+          _bottomTab == 0 ? Colors.black : const Color(0xFF000000),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -222,7 +222,7 @@ class _ScanScreenState extends State<ScanScreen> {
                 color: _bottomTab == 0 ? Colors.black : Colors.white,
                 border: _bottomTab == 0
                     ? null
-                    : const Border(bottom: BorderSide(color: Color(0xFFE4E4E7))),
+                    : const Border(bottom: BorderSide(color: Color(0xFF27272A))),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -252,7 +252,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: _flashlightOn ? crimson : Colors.black38,
-                          border: Border.all(color: Colors.white, width: 1.4),
+                          border: Border.all(color: const Color(0xFF0A0A0A), width: 1.4),
                           boxShadow: _flashlightOn
                               ? [
                                   BoxShadow(
@@ -280,7 +280,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color(0xFF0A0A0A),
                           borderRadius: BorderRadius.circular(999),
                           border: Border.all(color: const Color(0xFFD4D4D8)),
                         ),
@@ -296,7 +296,7 @@ class _ScanScreenState extends State<ScanScreen> {
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF18181B),
+                                color: Color(0xFF0A0A0A),
                               ),
                             ),
                           ],
@@ -344,7 +344,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             child: Container(
                               height: 2.5,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: const Color(0xFF0A0A0A),
                                 boxShadow: [
                                   BoxShadow(
                                     color: crimson.withValues(alpha: 0.9),
@@ -391,7 +391,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                   decoration: BoxDecoration(
                                     color: Colors.black.withValues(alpha: 0.65),
                                     borderRadius: BorderRadius.circular(999),
-                                    border: Border.all(color: Colors.white38),
+                                    border: Border.all(color: const Color(0xFFD4D4D8)),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -428,8 +428,8 @@ class _ScanScreenState extends State<ScanScreen> {
             Container(
               height: 82,
               decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: Color(0xFFE4E4E7))),
+                color: const Color(0xFF0A0A0A),
+                border: Border(top: BorderSide(color: Color(0xFF27272A))),
               ),
               child: Row(
                 children: [

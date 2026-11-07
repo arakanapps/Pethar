@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../core/services/native_security_service.dart';
 import '../core/services/supabase_service.dart';
 import '../widgets/arakan_emblem.dart';
+import '../widgets/otp_verification_page.dart';
 import '../widgets/pin_keypad_screen.dart';
 
 /// Explicit conditional routes for Authentication & Signup Flow:
@@ -328,7 +329,7 @@ class _AuthScreenState extends State<AuthScreen> {
         builder: (ctx, setModalState) => Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          backgroundColor: Colors.white,
+          backgroundColor: trueBlack,
           child: Padding(
             padding: const EdgeInsets.all(22),
             child: Column(
@@ -341,7 +342,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       width: 34,
                       height: 34,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
+                        color: const Color(0xFF0A0A0A),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Center(
@@ -364,7 +365,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF111827),
+                          color: Color(0xFF111111),
                         ),
                       ),
                     ),
@@ -377,7 +378,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       : 'Enter your Google email address to receive your 6-digit verification OTP.',
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF4B5563),
+                    color: Color(0xFFD4D4D8),
                     height: 1.4,
                   ),
                 ),
@@ -395,7 +396,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                      borderSide: const BorderSide(color: Color(0xFF262626)),
                     ),
                   ),
                 ),
@@ -504,6 +505,7 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() => _isLoading = false);
 
     if (res['success'] == true) {
+      _countdownTimer?.cancel();
       _activeEmail = email;
       if (isSignUp) {
         _signUpPinCtrl.clear();
@@ -834,8 +836,19 @@ class _AuthScreenState extends State<AuthScreen> {
       return _buildForgotPasswordNewPinScreen(context, appState, isAk);
     }
 
+    // ── STEP 2 (LOGIN / SIGN UP): SHARED GLASS OTP PAGE ──
+    if (_flowState == AuthFlowState.loginOtp ||
+        _flowState == AuthFlowState.signupOtp) {
+      return _buildAuthOtpPage(
+        context,
+        appState,
+        isAk,
+        isSignUp: _flowState == AuthFlowState.signupOtp,
+      );
+    }
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: trueBlack,
       body: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
         child: Column(
@@ -861,13 +874,13 @@ class _AuthScreenState extends State<AuthScreen> {
       case AuthFlowState.emailLogin:
         return _buildEmailLoginForm(context, appState, isAk);
       case AuthFlowState.loginOtp:
-        return _buildOtpForm(context, appState, isAk, isSignUp: false);
+        return const SizedBox.shrink();
       case AuthFlowState.loginPinOrBiometric:
         return _buildPinOrBiometricForm(context, appState, isAk, isSignUp: false);
       case AuthFlowState.emailSignup:
         return _buildEmailSignupForm(context, appState, isAk);
       case AuthFlowState.signupOtp:
-        return _buildOtpForm(context, appState, isAk, isSignUp: true);
+        return const SizedBox.shrink();
       case AuthFlowState.signupPinOrBiometric:
         return _buildPinOrBiometricForm(context, appState, isAk, isSignUp: true);
       case AuthFlowState.forgotPasswordEmail:
@@ -1067,7 +1080,7 @@ class _AuthScreenState extends State<AuthScreen> {
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111827),
+            color: Color(0xFF111111),
           ),
         ),
         const SizedBox(height: 6),
@@ -1079,7 +1092,7 @@ class _AuthScreenState extends State<AuthScreen> {
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF4B5563),
+            color: Color(0xFFD4D4D8),
           ),
         ),
         const SizedBox(height: 24),
@@ -1117,7 +1130,7 @@ class _AuthScreenState extends State<AuthScreen> {
           children: [
             Text(
               isAk ? 'အကောင့်မရှိသေးပါသလား? ' : "Don't have an account? ",
-              style: const TextStyle(fontSize: 13.5, color: Color(0xFF4B5563)),
+              style: const TextStyle(fontSize: 13.5, color: Color(0xFFD4D4D8)),
             ),
             GestureDetector(
               onTap: () {
@@ -1158,7 +1171,7 @@ class _AuthScreenState extends State<AuthScreen> {
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111827),
+            color: Color(0xFF111111),
           ),
         ),
         const SizedBox(height: 6),
@@ -1170,7 +1183,7 @@ class _AuthScreenState extends State<AuthScreen> {
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF4B5563),
+            color: Color(0xFFD4D4D8),
           ),
         ),
         const SizedBox(height: 24),
@@ -1208,7 +1221,7 @@ class _AuthScreenState extends State<AuthScreen> {
           children: [
             Text(
               isAk ? 'အကောင့်ရှိပြီးသားလား? ' : 'Already have an account? ',
-              style: const TextStyle(fontSize: 13.5, color: Color(0xFF4B5563)),
+              style: const TextStyle(fontSize: 13.5, color: Color(0xFFD4D4D8)),
             ),
             GestureDetector(
               onTap: () {
@@ -1234,207 +1247,40 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // STEP 2: VERIFY 6-DIGIT EMAIL OTP PAGE
+  // STEP 2: VERIFY 6-DIGIT EMAIL OTP PAGE (shared glass OTP design)
   // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildOtpForm(
+  Widget _buildAuthOtpPage(
     BuildContext context,
     AppState appState,
     bool isAk, {
     required bool isSignUp,
   }) {
-    final ctrl = isSignUp ? _signUpOtpCtrl : _loginOtpCtrl;
     final email = _activeEmail.isNotEmpty
         ? _activeEmail
         : (isSignUp
             ? _signUpEmailCtrl.text.trim()
             : _loginEmailCtrl.text.trim());
-    final canVerify = ctrl.text.trim().length == 6;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // 1. Top Red/Blush Alert Banner matching Reference Design (replacing yellow box)
-        Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFF1F2),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFFECDD3)),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.check_circle_outline_rounded,
-                size: 20,
-                color: Color(0xFFD91624),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  isAk
-                      ? '$email သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပြီးပါပြီ'
-                      : '6-digit OTP code sent to $email',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E293B),
-                    height: 1.35,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // 2. White Card with Key Icon Input matching Image 2
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: Row(
-            children: [
-              const Icon(Icons.vpn_key_outlined, color: Colors.black38, size: 22),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: ctrl,
-                  keyboardType: TextInputType.number,
-                  maxLength: 6,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2,
-                  ),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    counterText: '',
-                    hintText: isAk ? '၆ လုံးပါ Email OTP ရိုက်ထည့်ပါ' : 'Enter 6-digit Email OTP',
-                    hintStyle: const TextStyle(
-                      color: Color(0xFF94A3B8),
-                      fontSize: 14,
-                      letterSpacing: 0,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '${isAk ? 'သက်တမ်းကျန်ချိန်' : 'Expires in'}: ${_formatTimer(_secondsRemaining)}',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
-              ),
-            ),
-            TextButton(
-              onPressed: _isLoading
-                  ? null
-                  : () => _handleEmailSubmit(appState, isSignUp: isSignUp),
-              child: Text(
-                isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Email OTP',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFFD91624),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-
-        if (_errorMessage != null)
-          Container(
-            margin: const EdgeInsets.only(bottom: 14),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFEF2F2),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFFECACA)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _errorMessage!,
-                    style: const TextStyle(
-                      color: Color(0xFFDC2626),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-        // Confirm Button (Red #D91624)
-        SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: canVerify && !_isLoading
-                ? () => _handleOtpVerify(appState, isSignUp: isSignUp)
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD91624),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              elevation: 0,
-            ),
-            child: _isLoading
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : Text(isAk ? 'အတည်ပြုမည်' : 'Confirm', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // Security Note matching Image 1 & Image 2
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isAk ? 'မှတ်ချက်:' : 'Note:',
-                style: const TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                isAk ? '- သင်၏ လျှို့ဝှက် OTP ကုဒ်အား မည်သူ့ကိုမျှ မမျှဝေပါနှင့်။' : '- Please do not share your OTP with anyone.',
-                style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                isAk
-                    ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို မမျှဝေပါနှင့်။'
-                    : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.',
-                style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return OtpVerificationPage(
+      isAk: isAk,
+      title: isAk ? 'အီးမေးလ် အတည်ပြုပါ' : 'Verify your email',
+      email: email,
+      controller: isSignUp ? _signUpOtpCtrl : _loginOtpCtrl,
+      timerText: _formatTimer(_secondsRemaining),
+      isTimerExpiring: _secondsRemaining <= 60,
+      errorMessage: _errorMessage,
+      isBusy: _isLoading,
+      onBack: () {
+        setState(() {
+          _errorMessage = null;
+          _successMessage = null;
+          _flowState = isSignUp
+              ? AuthFlowState.emailSignup
+              : AuthFlowState.emailLogin;
+        });
+      },
+      onResend: () => _handleEmailSubmit(appState, isSignUp: isSignUp),
+      onConfirm: () => _handleOtpVerify(appState, isSignUp: isSignUp),
     );
   }
 
@@ -1468,7 +1314,7 @@ class _AuthScreenState extends State<AuthScreen> {
           style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111827),
+            color: Color(0xFF111111),
           ),
         ),
         const SizedBox(height: 6),
@@ -1484,7 +1330,7 @@ class _AuthScreenState extends State<AuthScreen> {
           style: const TextStyle(
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF4B5563),
+            color: Color(0xFFD4D4D8),
             height: 1.4,
           ),
         ),
@@ -1674,7 +1520,7 @@ class _AuthScreenState extends State<AuthScreen> {
           style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111827),
+            color: Color(0xFF111111),
           ),
         ),
         const SizedBox(height: 6),
@@ -1686,7 +1532,7 @@ class _AuthScreenState extends State<AuthScreen> {
           style: const TextStyle(
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF4B5563),
+            color: Color(0xFFD4D4D8),
           ),
         ),
         const SizedBox(height: 24),
@@ -1726,9 +1572,9 @@ class _AuthScreenState extends State<AuthScreen> {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFF1F2),
+            color: const Color(0xFF1A0A0C),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFFECDD3)),
+            border: Border.all(color: const Color(0xFF3F1D24)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -1747,7 +1593,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E293B),
+                    color: Color(0xFF27272A),
                     height: 1.35,
                   ),
                 ),
@@ -1759,7 +1605,7 @@ class _AuthScreenState extends State<AuthScreen> {
         // 2. White Card with Key Icon Input
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF0A0A0A),
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
@@ -1789,7 +1635,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     counterText: '',
                     hintText: isAk ? '၆ လုံးပါ Email OTP ရိုက်ထည့်ပါ' : 'Enter 6-digit Email OTP',
                     hintStyle: const TextStyle(
-                      color: Color(0xFF94A3B8),
+                      color: Color(0xFFD4D4D8),
                       fontSize: 14,
                       letterSpacing: 0,
                     ),
@@ -1812,7 +1658,7 @@ class _AuthScreenState extends State<AuthScreen> {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
+                color: Color(0xFFD4D4D8),
               ),
             ),
             TextButton(
@@ -1997,7 +1843,7 @@ class _AuthScreenState extends State<AuthScreen> {
       style: const TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF1F2937),
+        color: Color(0xFF27272A),
       ),
     );
   }
@@ -2023,24 +1869,24 @@ class _AuthScreenState extends State<AuthScreen> {
           const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF111827),
+            color: Color(0xFF111111),
           ),
       decoration: InputDecoration(
         counterText: '',
         hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14.5),
+        hintStyle: const TextStyle(color: Color(0xFFD4D4D8), fontSize: 14.5),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: trueBlackElevated,
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.2),
+          borderSide: const BorderSide(color: Color(0xFF262626), width: 1.2),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.2),
+          borderSide: const BorderSide(color: Color(0xFF262626), width: 1.2),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
@@ -2094,10 +1940,10 @@ class _AuthScreenState extends State<AuthScreen> {
       child: OutlinedButton(
         onPressed: _isLoading ? null : onTap,
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Color(0xFFE5E7EB), width: 1.2),
+          side: const BorderSide(color: Color(0xFF262626), width: 1.2),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-          backgroundColor: Colors.white,
+          backgroundColor: trueBlack,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -2137,7 +1983,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return Row(
       children: [
         const Expanded(
-            child: Divider(color: Color(0xFFE5E7EB), thickness: 1)),
+            child: Divider(color: Color(0xFF262626), thickness: 1)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Text(
@@ -2145,12 +1991,12 @@ class _AuthScreenState extends State<AuthScreen> {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF9CA3AF),
+              color: Color(0xFFD4D4D8),
             ),
           ),
         ),
         const Expanded(
-            child: Divider(color: Color(0xFFE5E7EB), thickness: 1)),
+            child: Divider(color: Color(0xFF262626), thickness: 1)),
       ],
     );
   }
@@ -2161,9 +2007,9 @@ class _AuthScreenState extends State<AuthScreen> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
         decoration: BoxDecoration(
-          color: const Color(0xFFFEF2F2),
+          color: const Color(0xFF1A0A0C),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFFECDD3)),
+          border: Border.all(color: const Color(0xFF3F1D24)),
         ),
         child: Row(
           children: [
@@ -2189,9 +2035,9 @@ class _AuthScreenState extends State<AuthScreen> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFF1F2),
+          color: const Color(0xFF1A0A0C),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFFECDD3)),
+          border: Border.all(color: const Color(0xFF3F1D24)),
         ),
         child: Row(
           children: [
@@ -2204,7 +2050,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 style: const TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
+                  color: Color(0xFF27272A),
                 ),
               ),
             ),

@@ -291,7 +291,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
     }
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: trueBlack,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -527,7 +527,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                 width: 64,
                 height: 64,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFF0FDF4),
+                  color: Color(0xFF0A0A0A),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -549,7 +549,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 12.5,
-                  color: Color(0xFF71717A),
+                  color: Color(0xFFD4D4D8),
                   height: 1.45,
                 ),
               ),
@@ -587,10 +587,10 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: trueBlack,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF18181B)),
+          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0A0A0A)),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Row(
@@ -602,7 +602,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF18181B),
+                color: Color(0xFF0A0A0A),
               ),
             ),
           ],
@@ -761,7 +761,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
+                      color: const Color(0xFF0A0A0A),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Row(
@@ -770,7 +770,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                         const Icon(
                           Icons.map_outlined,
                           size: 16,
-                          color: Color(0xFF64748B),
+                          color: Color(0xFFD4D4D8),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -778,7 +778,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                             _composedAddress,
                             style: const TextStyle(
                               fontSize: 11.5,
-                              color: Color(0xFF475569),
+                              color: Color(0xFFD4D4D8),
                               height: 1.4,
                             ),
                           ),
@@ -857,9 +857,9 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF1F2),
+                      color: const Color(0xFF1A0A0C),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFFECDD3)),
+                      border: Border.all(color: const Color(0xFF3F1D24)),
                     ),
                     child: Text(
                       'Rejection reason: ${profile.kycRejectionReason}',
@@ -930,7 +930,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 10.5,
-                color: Color(0xFF94A3B8),
+                color: Color(0xFFD4D4D8),
                 height: 1.4,
               ),
             ),
@@ -943,7 +943,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
   final TextStyle _inputStyle = const TextStyle(
     fontSize: 13.5,
     fontWeight: FontWeight.w700,
-    color: Color(0xFF18181B),
+    color: Color(0xFF0A0A0A),
   );
 
   final ButtonStyle _primaryButtonStyle = ElevatedButton.styleFrom(
@@ -961,10 +961,10 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
       hintText: hint,
       hintStyle: const TextStyle(
         fontSize: 12.5,
-        color: Color(0xFFA1A1AA),
+        color: Color(0xFF3F3F46),
         fontWeight: FontWeight.w500,
       ),
-      prefixIcon: Icon(icon, size: 19, color: const Color(0xFF71717A)),
+      prefixIcon: Icon(icon, size: 19, color: const Color(0xFFD4D4D8)),
       filled: true,
       fillColor: const Color(0xFFF4F4F5),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
@@ -1027,7 +1027,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
         style: const TextStyle(
           fontSize: 11.5,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF71717A),
+          color: Color(0xFFD4D4D8),
         ),
       ),
     );
@@ -1042,7 +1042,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
     late final String subtitle;
 
     if (_isVerified) {
-      bg = const Color(0xFFF0FDF4);
+      bg = const Color(0xFF0A0A0A);
       border = const Color(0xFF86EFAC);
       fg = const Color(0xFF166534);
       icon = Icons.verified_rounded;
@@ -1051,8 +1051,8 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
           ? 'သင်၏ မှတ်ပုံတင်နှင့် ကိုယ်ရေးအချက်အလက်များ အတည်ပြုပြီးပါပြီ။'
           : 'Your identity documents have been approved.';
     } else if (_isPending) {
-      bg = const Color(0xFFFFFBEB);
-      border = const Color(0xFFFDE68A);
+      bg = const Color(0xFF1A1400);
+      border = const Color(0xFF78350F);
       fg = const Color(0xFF92400E);
       icon = Icons.hourglass_top_rounded;
       title = _isAk ? 'စိစစ်အတည်ပြုချက် စောင့်ဆိုင်းနေသည်' : 'Pending administrative review';
@@ -1060,8 +1060,8 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
           ? 'အချက်အလက်များ တင်သွင်းပြီးပါပြီ။ အတည်ပြုချက်ကို စောင့်ဆိုင်းပါ။'
           : 'Your documents are under review. You can still update your address.';
     } else if (_isRejected) {
-      bg = const Color(0xFFFFF1F2);
-      border = const Color(0xFFFECDD3);
+      bg = const Color(0xFF1A0A0C);
+      border = const Color(0xFF3F1D24);
       fg = const Color(0xFF9F1239);
       icon = Icons.error_outline_rounded;
       title = _isAk ? 'တင်သွင်းမှု ပယ်ချခံရသည်' : 'Submission rejected';
@@ -1069,9 +1069,9 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
           ? 'အချက်အလက်များ ပြန်လည်စစ်ဆေးပြီး ပြန်လည်တင်သွင်းပါ။'
           : 'Review the rejection reason and resubmit your documents.';
     } else {
-      bg = const Color(0xFFF1F5F9);
-      border = const Color(0xFFE2E8F0);
-      fg = const Color(0xFF334155);
+      bg = const Color(0xFF0A0A0A);
+      border = const Color(0xFF262626);
+      fg = const Color(0xFF3F3F46);
       icon = Icons.shield_outlined;
       title = _isAk ? 'KYC အဆင့် ၂ မတည်ပြုရသေးပါ' : 'Level 2 not verified yet';
       subtitle = _isAk
@@ -1129,9 +1129,9 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF0A0A0A),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE4E4E7)),
+        border: Border.all(color: const Color(0xFF27272A)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x08000000),
@@ -1149,7 +1149,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF1F2),
+                  color: const Color(0xFF1A0A0C),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, size: 17, color: crimson),
@@ -1164,7 +1164,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF18181B),
+                        color: Color(0xFF0A0A0A),
                       ),
                     ),
                     const SizedBox(height: 1),
@@ -1172,7 +1172,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                       subtitle,
                       style: const TextStyle(
                         fontSize: 10.5,
-                        color: Color(0xFFA1A1AA),
+                        color: Color(0xFF3F3F46),
                         height: 1.35,
                       ),
                     ),
@@ -1247,10 +1247,10 @@ class _DocumentCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFFAFAFA),
+          color: const Color(0xFF0A0A0A),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: hasImage ? const Color(0xFFBBF7D0) : const Color(0xFFE4E4E7),
+            color: hasImage ? const Color(0xFF14532D) : const Color(0xFF27272A),
             width: hasImage ? 1.4 : 1,
           ),
         ),
@@ -1276,7 +1276,7 @@ class _DocumentCard extends StatelessWidget {
                           child: Icon(
                             Icons.refresh_rounded,
                             size: 17,
-                            color: Color(0xFF18181B),
+                            color: Color(0xFF0A0A0A),
                           ),
                         ),
                       ),
@@ -1305,7 +1305,7 @@ class _DocumentCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
               child: Row(
                 children: [
-                  Icon(icon, size: 16, color: const Color(0xFF71717A)),
+                  Icon(icon, size: 16, color: const Color(0xFFD4D4D8)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -1316,7 +1316,7 @@ class _DocumentCard extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF18181B),
+                            color: Color(0xFF0A0A0A),
                           ),
                         ),
                         const SizedBox(height: 1),
@@ -1324,7 +1324,7 @@ class _DocumentCard extends StatelessWidget {
                           hint,
                           style: const TextStyle(
                             fontSize: 10.5,
-                            color: Color(0xFFA1A1AA),
+                            color: Color(0xFF3F3F46),
                           ),
                         ),
                       ],
@@ -1347,19 +1347,19 @@ class _DocumentCard extends StatelessWidget {
 
   Widget _placeholder() {
     return Container(
-      color: const Color(0xFFF4F4F5),
+      color: const Color(0xFF111111),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 30, color: const Color(0xFFA1A1AA)),
+            Icon(icon, size: 30, color: const Color(0xFF3F3F46)),
             const SizedBox(height: 6),
             const Text(
               'Tap to capture',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF71717A),
+                color: Color(0xFFD4D4D8),
               ),
             ),
           ],

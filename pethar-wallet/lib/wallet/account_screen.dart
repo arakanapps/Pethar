@@ -31,8 +31,10 @@ class _AccountScreenState extends State<AccountScreen> {
     // Total Amount across both accounts
     final double totalBalance = akdBalance + usdBalance;
 
-    final double akdPercent = totalBalance > 0 ? (akdBalance / totalBalance) : 0.5;
-    final double usdPercent = totalBalance > 0 ? (usdBalance / totalBalance) : 0.5;
+    final double akdPercent =
+        totalBalance > 0 ? (akdBalance / totalBalance) : 0.5;
+    final double usdPercent =
+        totalBalance > 0 ? (usdBalance / totalBalance) : 0.5;
 
     final String userUid = appState.profile.uid;
     final String usdWalletAddress = appState.profile.usdAccountWalletAddress;
@@ -80,13 +82,19 @@ class _AccountScreenState extends State<AccountScreen> {
                 borderRadius: BorderRadius.circular(24),
                 gradient: isDark
                     ? const LinearGradient(
-                        colors: [Color(0xFF0B192C), Color(0xFF1E2A38), Color(0xFF101726)],
+                        colors: [
+                          Color(0xFF0B192C),
+                          Color(0xFF1E2A38),
+                          Color(0xFF101726)
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )
                     : null,
                 border: Border.all(
-                  color: isDark ? Colors.blueAccent.withValues(alpha: 0.35) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? Colors.blueAccent.withValues(alpha: 0.35)
+                      : const Color(0xFF262626),
                   width: 1.2,
                 ),
                 boxShadow: [
@@ -108,20 +116,23 @@ class _AccountScreenState extends State<AccountScreen> {
                         decoration: BoxDecoration(
                           color: isDark
                               ? const Color(0xFF9E1B32).withValues(alpha: 0.3)
-                              : const Color(0xFFEFF6FF),
+                              : const Color(0xFF0A0A0A),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.pie_chart,
                           size: 16,
-                          color: isDark ? Colors.amberAccent : const Color(0xFF2563EB),
+                          color: isDark
+                              ? Colors.amberAccent
+                              : const Color(0xFF2563EB),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         lang == 'ak' ? 'အကျဉ်းချုပ် (Overview)' : 'Overview',
                         style: TextStyle(
-                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                          color:
+                              isDark ? Colors.white70 : const Color(0xFFD4D4D8),
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
                         ),
@@ -132,9 +143,11 @@ class _AccountScreenState extends State<AccountScreen> {
 
                   // Total Amount Label
                   Text(
-                    lang == 'ak' ? 'စုစုပေါင်း ပမာဏ (Total Amount)' : 'Total Amount',
+                    lang == 'ak'
+                        ? 'စုစုပေါင်း ပမာဏ (Total Amount)'
+                        : 'Total Amount',
                     style: TextStyle(
-                      color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                      color: isDark ? Colors.white60 : const Color(0xFFD4D4D8),
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -164,7 +177,8 @@ class _AccountScreenState extends State<AccountScreen> {
                             fontFamily: 'monospace',
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF111111),
                           ),
                         ),
                       ],
@@ -176,10 +190,14 @@ class _AccountScreenState extends State<AccountScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF8FAFC),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.04)
+                          : const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFE2E8F0),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.06)
+                            : const Color(0xFF262626),
                       ),
                     ),
                     child: Row(
@@ -221,7 +239,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
-                                        color: isDark ? Colors.white : const Color(0xFF334155),
+                                        color: isDark
+                                            ? Colors.white
+                                            : const Color(0xFF3F3F46),
                                       ),
                                     ),
                                   ),
@@ -245,7 +265,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
-                                        color: isDark ? Colors.white : const Color(0xFF334155),
+                                        color: isDark
+                                            ? Colors.white
+                                            : const Color(0xFF3F3F46),
                                       ),
                                     ),
                                   ),
@@ -271,7 +293,9 @@ class _AccountScreenState extends State<AccountScreen> {
                 color: isDark ? surfaceCard : Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
-                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[200]!,
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.grey[200]!,
                   width: 1,
                 ),
                 boxShadow: [
@@ -297,7 +321,9 @@ class _AccountScreenState extends State<AccountScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                lang == 'ak' ? 'ဖေ့သာ ပိုက်ဆံအိတ် (akd)' : 'Pethar wallet (akd)',
+                                lang == 'ak'
+                                    ? 'ဖေ့သာ ပိုက်ဆံအိတ်'
+                                    : 'Pethar wallet',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
@@ -319,17 +345,21 @@ class _AccountScreenState extends State<AccountScreen> {
                                   const SizedBox(width: 6),
                                   InkWell(
                                     onTap: () {
-                                      Clipboard.setData(ClipboardData(text: userUid));
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      Clipboard.setData(
+                                          ClipboardData(text: userUid));
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         const SnackBar(
-                                          content: Text('UID copied to clipboard!'),
+                                          content:
+                                              Text('UID copied to clipboard!'),
                                           duration: Duration(seconds: 1),
                                         ),
                                       );
                                     },
                                     child: const Padding(
                                       padding: EdgeInsets.all(2.0),
-                                      child: Icon(Icons.copy_rounded, size: 13, color: Colors.grey),
+                                      child: Icon(Icons.copy_rounded,
+                                          size: 13, color: Colors.grey),
                                     ),
                                   ),
                                 ],
@@ -339,15 +369,20 @@ class _AccountScreenState extends State<AccountScreen> {
                         ],
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: emeraldSuccess.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: emeraldSuccess.withValues(alpha: 0.3)),
+                          border: Border.all(
+                              color: emeraldSuccess.withValues(alpha: 0.3)),
                         ),
                         child: const Text(
                           'ACTIVE',
-                          style: TextStyle(color: emeraldSuccess, fontWeight: FontWeight.bold, fontSize: 10),
+                          style: TextStyle(
+                              color: emeraldSuccess,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10),
                         ),
                       ),
                     ],
@@ -363,8 +398,13 @@ class _AccountScreenState extends State<AccountScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              lang == 'ak' ? 'ရရှိနိုင်သော လက်ကျန်ငွေ' : 'Available Balance',
-                              style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+                              lang == 'ak'
+                                  ? 'ရရှိနိုင်သော လက်ကျန်ငွေ'
+                                  : 'Available Balance',
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(height: 4),
                             FittedBox(
@@ -387,7 +427,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                       fontFamily: 'monospace',
                                       fontSize: 24,
                                       fontWeight: FontWeight.w900,
-                                      color: isDark ? Colors.white : Colors.black87,
+                                      color: isDark
+                                          ? Colors.white
+                                          : Colors.black87,
                                     ),
                                   ),
                                 ],
@@ -429,12 +471,17 @@ class _AccountScreenState extends State<AccountScreen> {
 
                   // Legend for Crimson (Available), Slate (Pending), Charcoal (Total)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF8FAFC),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.04)
+                          : const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFE2E8F0),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.06)
+                            : const Color(0xFF262626),
                       ),
                     ),
                     child: Row(
@@ -443,33 +490,62 @@ class _AccountScreenState extends State<AccountScreen> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: crimson, shape: BoxShape.circle)),
+                            Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                    color: crimson, shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
                               'Available: ₳ ${akdBalance.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF334155)),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF3F3F46)),
                             ),
                           ],
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFF59E0B), shape: BoxShape.circle)),
+                            Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                    color: Color(0xFFF59E0B),
+                                    shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
                               'Pending: ₳ ${akdPending.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF334155)),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF3F3F46)),
                             ),
                           ],
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF2563EB), shape: BoxShape.circle)),
+                            Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                    color: Color(0xFF2563EB),
+                                    shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
                               'Total: ₳ ${akdTotal.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF111111)),
                             ),
                           ],
                         ),
@@ -490,7 +566,9 @@ class _AccountScreenState extends State<AccountScreen> {
                 color: isDark ? surfaceCard : Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
-                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[200]!,
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.grey[200]!,
                   width: 1,
                 ),
                 boxShadow: [
@@ -533,7 +611,9 @@ class _AccountScreenState extends State<AccountScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                lang == 'ak' ? 'ယူအက်စ်ဒီ အကောင့်' : 'USD Account',
+                                lang == 'ak'
+                                    ? 'ယူအက်စ်ဒီ အကောင့်'
+                                    : 'USD Account',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
@@ -555,17 +635,21 @@ class _AccountScreenState extends State<AccountScreen> {
                                   const SizedBox(width: 6),
                                   InkWell(
                                     onTap: () {
-                                      Clipboard.setData(ClipboardData(text: usdWalletAddress));
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      Clipboard.setData(ClipboardData(
+                                          text: usdWalletAddress));
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         const SnackBar(
-                                          content: Text('USD wallet address copied to clipboard!'),
+                                          content: Text(
+                                              'USD wallet address copied to clipboard!'),
                                           duration: Duration(seconds: 1),
                                         ),
                                       );
                                     },
                                     child: const Padding(
                                       padding: EdgeInsets.all(2.0),
-                                      child: Icon(Icons.copy_rounded, size: 13, color: Colors.grey),
+                                      child: Icon(Icons.copy_rounded,
+                                          size: 13, color: Colors.grey),
                                     ),
                                   ),
                                 ],
@@ -575,15 +659,20 @@ class _AccountScreenState extends State<AccountScreen> {
                         ],
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: Colors.blue.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                          border: Border.all(
+                              color: Colors.blue.withValues(alpha: 0.3)),
                         ),
                         child: const Text(
                           'ON-CHAIN',
-                          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 10),
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10),
                         ),
                       ),
                     ],
@@ -599,8 +688,13 @@ class _AccountScreenState extends State<AccountScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              lang == 'ak' ? 'ရရှိနိုင်သော လက်ကျန်ငွေ' : 'Available Balance',
-                              style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+                              lang == 'ak'
+                                  ? 'ရရှိနိုင်သော လက်ကျန်ငွေ'
+                                  : 'Available Balance',
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(height: 4),
                             FittedBox(
@@ -623,7 +717,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                       fontFamily: 'monospace',
                                       fontSize: usdBalance >= 1000000 ? 20 : 24,
                                       fontWeight: FontWeight.w900,
-                                      color: isDark ? Colors.white : Colors.black87,
+                                      color: isDark
+                                          ? Colors.white
+                                          : Colors.black87,
                                     ),
                                   ),
                                 ],
@@ -665,12 +761,17 @@ class _AccountScreenState extends State<AccountScreen> {
 
                   // Legend for Crimson (Available), Slate (Pending), Charcoal (Total)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF8FAFC),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.04)
+                          : const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFE2E8F0),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.06)
+                            : const Color(0xFF262626),
                       ),
                     ),
                     child: Row(
@@ -679,33 +780,62 @@ class _AccountScreenState extends State<AccountScreen> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: crimson, shape: BoxShape.circle)),
+                            Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                    color: crimson, shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
                               'Available: \$ ${usdBalance.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF334155)),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF3F3F46)),
                             ),
                           ],
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFF59E0B), shape: BoxShape.circle)),
+                            Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                    color: Color(0xFFF59E0B),
+                                    shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
                               'Pending: \$ ${usdPending.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF334155)),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF3F3F46)),
                             ),
                           ],
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF2563EB), shape: BoxShape.circle)),
+                            Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                    color: Color(0xFF2563EB),
+                                    shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
                               'Total: \$ ${usdTotal.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF111111)),
                             ),
                           ],
                         ),
@@ -784,7 +914,9 @@ class _PieChartPainter extends CustomPainter {
 
     if (total <= 0) {
       final paint = Paint()
-        ..color = colors.isNotEmpty ? colors.first.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.2)
+        ..color = colors.isNotEmpty
+            ? colors.first.withValues(alpha: 0.3)
+            : Colors.grey.withValues(alpha: 0.2)
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth;
       canvas.drawCircle(center, radius, paint);

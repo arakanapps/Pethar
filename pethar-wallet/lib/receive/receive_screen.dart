@@ -150,12 +150,12 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                 width: 300,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xFF0A0A0A),
                   borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: const Color(0xFFE4E4E7), width: 1.5),
+                  border: Border.all(color: const Color(0xFF27272A), width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF0F172A).withValues(alpha: 0.07),
+                      color: const Color(0xFF111111).withValues(alpha: 0.07),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),
@@ -171,7 +171,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF18181B),
+                        color: Color(0xFF0A0A0A),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -180,7 +180,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF18181B),
+                        color: Color(0xFF0A0A0A),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -190,16 +190,16 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                         fontSize: 12.5,
                         fontFamily: 'monospace',
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF71717A),
+                        color: Color(0xFFD4D4D8),
                       ),
                     ),
                     const SizedBox(height: 14),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: const Color(0xFF0A0A0A),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE4E4E7)),
+                        border: Border.all(color: const Color(0xFF27272A)),
                       ),
                       child: QrImageView(
                         data: 'pethar://pay?uid=$uidNumber&user=$usernameHandle&curr=AKD',
@@ -213,7 +213,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFFA1A1AA),
+                        color: Color(0xFF3F3F46),
                         letterSpacing: 0.6,
                       ),
                     ),
@@ -225,7 +225,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                         fontSize: 16.5,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.8,
-                        color: Color(0xFF18181B),
+                        color: Color(0xFF0A0A0A),
                       ),
                     ),
                   ],
@@ -254,11 +254,11 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
-                          color: _copiedUid ? emeraldSuccess : const Color(0xFF18181B),
+                          color: _copiedUid ? emeraldSuccess : const Color(0xFF0A0A0A),
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
+                        backgroundColor: trueBlack,
                         padding: const EdgeInsets.symmetric(vertical: 11),
                         side: BorderSide(
                           color: _copiedUid ? emeraldSuccess : const Color(0xFFD4D4D8),
@@ -285,11 +285,11 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
-                          color: _savedQr ? emeraldSuccess : const Color(0xFF18181B),
+                          color: _savedQr ? emeraldSuccess : const Color(0xFF0A0A0A),
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
+                        backgroundColor: trueBlack,
                         padding: const EdgeInsets.symmetric(vertical: 11),
                         side: BorderSide(
                           color: _savedQr ? emeraldSuccess : const Color(0xFFD4D4D8),
@@ -348,10 +348,10 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: trueBlack,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF18181B), size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0A0A0A), size: 20),
           onPressed: () => appState.goBack(),
         ),
         title: Text(
@@ -359,7 +359,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF18181B),
+            color: Color(0xFF0A0A0A),
           ),
         ),
         centerTitle: true,

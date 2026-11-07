@@ -27,8 +27,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+                color: const Color(0xFF0A0A0A),
+                border: Border(bottom: BorderSide(color: Color(0xFF262626))),
               ),
               child: Center(
                 child: Text(
@@ -36,7 +36,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   style: const TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 17,
-                    color: Color(0xFF111827),
+                    color: Color(0xFF111111),
                     letterSpacing: -0.2,
                   ),
                   textAlign: TextAlign.center,
@@ -72,6 +72,18 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         ? 'မိတ်ဖက်ကုမ္ပဏီများအတွက် အက်ပ်ဖန်တီးနိုင်သော ပလက်ဖောင်း'
                         : 'Partner platform for companies to create apps',
                   ),
+
+                  // 5. Refer & Earn (Coming Soon - Don't open page)
+                  _buildProductCard(
+                    context: context,
+                    isAk: isAk,
+                    icon: Icons.group_add_rounded,
+                    color: const Color(0xFF059669),
+                    title: isAk ? 'မိတ်ဆက်ရယူ' : 'Refer & Earn',
+                    desc: isAk
+                        ? 'သူငယ်ချင်းများကို ဖိတ်ကြားပြီး ဆုလာဘ်များ ရယူပါ'
+                        : 'Invite friends and earn rewards together',
+                  ),
                 ],
               ),
             ),
@@ -92,9 +104,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF0A0A0A),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: const Color(0xFF262626)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.025),
@@ -114,21 +126,24 @@ class _ServicesScreenState extends State<ServicesScreen> {
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(Icons.info_outline_rounded, color: Color(0xFFD91624), size: 18),
+                    const Icon(Icons.info_outline_rounded,
+                        color: Color(0xFFD91624), size: 18),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         isAk
                             ? '$title - မကြာမီ လာမည်ဖြစ်ပါသည်'
                             : '$title is Coming Soon...',
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 13),
                       ),
                     ),
                   ],
                 ),
                 backgroundColor: const Color(0xFF1E293B),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
                 duration: const Duration(seconds: 2),
               ),
             );
@@ -157,21 +172,23 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14.5,
-                                  color: Color(0xFF1E293B),
+                                  color: Color(0xFF27272A),
                                 ),
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
+                                color: const Color(0xFF0A0A0A),
                                 borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: const Color(0xFFE2E8F0)),
+                                border:
+                                    Border.all(color: const Color(0xFF262626)),
                               ),
                               child: Text(
                                 isAk ? 'မကြာမီ' : 'Coming Soon',
                                 style: const TextStyle(
-                                  color: Color(0xFF475569),
+                                  color: Color(0xFFD4D4D8),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -190,21 +207,23 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
-                                      color: Color(0xFF1E293B),
+                                      color: Color(0xFF27272A),
                                     ),
                                   ),
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 7, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF1F5F9),
+                                    color: const Color(0xFF0A0A0A),
                                     borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                                    border: Border.all(
+                                        color: const Color(0xFF262626)),
                                   ),
                                   child: Text(
                                     isAk ? 'မကြာမီ' : 'Coming Soon',
                                     style: const TextStyle(
-                                      color: Color(0xFF475569),
+                                      color: Color(0xFFD4D4D8),
                                       fontSize: 10,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -217,7 +236,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               desc,
                               style: const TextStyle(
                                 fontSize: 11.5,
-                                color: Color(0xFF94A3B8),
+                                color: Color(0xFFD4D4D8),
                                 height: 1.3,
                               ),
                             ),
@@ -227,7 +246,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 const SizedBox(width: 8),
                 const Icon(
                   Icons.chevron_right_rounded,
-                  color: Color(0xFFCBD5E1),
+                  color: Color(0xFFD4D4D8),
                   size: 20,
                 ),
               ],

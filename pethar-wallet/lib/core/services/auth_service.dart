@@ -201,7 +201,8 @@ class AuthService {
         debugPrint('Supabase login OTP dispatch failed: $e');
         return {
           'success': false,
-          'error': 'Could not start a secure session. Check your connection and try again.',
+          'error':
+              'Could not start a secure session. Check your connection and try again.',
           'isPinOrEmailWrong': false,
         };
       }
@@ -238,12 +239,14 @@ class AuthService {
         email: cleanEmail,
         pin: cleanPin,
         name: profileMap['name']?.toString() ?? cleanEmail.split('@').first,
-        username: profileMap['username']?.toString() ?? '@${cleanEmail.split('@').first}',
+        username: profileMap['username']?.toString() ??
+            '@${cleanEmail.split('@').first}',
         uid: profileMap['uid']?.toString() ?? '',
         kycTier: (profileMap['kyc_tier'] is num)
             ? (profileMap['kyc_tier'] as num).toInt()
             : 1,
-        kycStatus: (profileMap['kyc_tier'] is num) && (profileMap['kyc_tier'] as num).toInt() >= 2
+        kycStatus: (profileMap['kyc_tier'] is num) &&
+                (profileMap['kyc_tier'] as num).toInt() >= 2
             ? 'VERIFIED_LVL2'
             : 'VERIFIED_LVL1',
       );
@@ -308,7 +311,8 @@ class AuthService {
     return {
       'success': true,
       'expiresAt': expiresAt,
-      'message': '6-digit verification code sent to $cleanEmail (expires in 10 minutes)',
+      'message':
+          '6-digit verification code sent to $cleanEmail (expires in 10 minutes)',
     };
   }
 
@@ -322,11 +326,14 @@ class AuthService {
     final cleanPin = pin.trim();
     final cleanOtp = otp.trim();
 
-    if (_activeLoginOtp != null && _activeLoginOtp!.email == cleanEmail && _activeLoginOtp!.isExpired) {
+    if (_activeLoginOtp != null &&
+        _activeLoginOtp!.email == cleanEmail &&
+        _activeLoginOtp!.isExpired) {
       return {
         'success': false,
         'expired': true,
-        'error': 'Verification code has expired. Please tap Resend to get a new code.',
+        'error':
+            'Verification code has expired. Please tap Resend to get a new code.',
       };
     }
 
@@ -545,9 +552,10 @@ class AuthService {
     try {
       profileMap = await SupabaseService().fetchMyProfile();
       if (profileMap == null) {
-        final fallbackName = (displayName != null && displayName.trim().isNotEmpty)
-            ? displayName.trim()
-            : cleanEmail.split('@').first;
+        final fallbackName =
+            (displayName != null && displayName.trim().isNotEmpty)
+                ? displayName.trim()
+                : cleanEmail.split('@').first;
         final parts = fallbackName.split(RegExp(r'\s+'));
         profileMap = await SupabaseService().ensureUserProfile(
           email: cleanEmail,
@@ -570,13 +578,14 @@ class AuthService {
             ? user.uid
             : generateUserUid());
 
-    final resolvedName = profileMap?['name']?.toString().trim().isNotEmpty == true
-        ? profileMap!['name'].toString().trim()
-        : ((displayName != null && displayName.trim().isNotEmpty)
-            ? displayName.trim()
-            : (user?.name.isNotEmpty == true
-                ? user!.name
-                : cleanEmail.split('@').first));
+    final resolvedName =
+        profileMap?['name']?.toString().trim().isNotEmpty == true
+            ? profileMap!['name'].toString().trim()
+            : ((displayName != null && displayName.trim().isNotEmpty)
+                ? displayName.trim()
+                : (user?.name.isNotEmpty == true
+                    ? user!.name
+                    : cleanEmail.split('@').first));
 
     final rawUsername = profileMap?['username']?.toString().trim() ??
         user?.username ??
@@ -601,7 +610,8 @@ class AuthService {
               : ((profileMap?['national_id_no']?.toString().isNotEmpty ?? false)
                   ? 'PENDING_REVIEW'
                   : 'VERIFIED_LVL1')),
-      nationalIdNo: profileMap?['national_id_no']?.toString() ?? user?.nationalIdNo ?? '',
+      nationalIdNo:
+          profileMap?['national_id_no']?.toString() ?? user?.nationalIdNo ?? '',
       dob: profileMap?['dob']?.toString() ?? user?.dob ?? '',
       address: profileMap?['address']?.toString() ?? user?.address ?? '',
     );
@@ -634,9 +644,10 @@ class AuthService {
     try {
       profileMap = await SupabaseService().fetchMyProfile();
       if (profileMap == null) {
-        final fallbackName = (displayName != null && displayName.trim().isNotEmpty)
-            ? displayName.trim()
-            : cleanEmail.split('@').first;
+        final fallbackName =
+            (displayName != null && displayName.trim().isNotEmpty)
+                ? displayName.trim()
+                : cleanEmail.split('@').first;
         final parts = fallbackName.split(RegExp(r'\s+'));
         profileMap = await SupabaseService().ensureUserProfile(
           email: cleanEmail,
@@ -656,13 +667,14 @@ class AuthService {
             ? user.uid
             : generateUserUid());
 
-    final resolvedName = profileMap?['name']?.toString().trim().isNotEmpty == true
-        ? profileMap!['name'].toString().trim()
-        : ((displayName != null && displayName.trim().isNotEmpty)
-            ? displayName.trim()
-            : (user?.name.isNotEmpty == true
-                ? user!.name
-                : cleanEmail.split('@').first));
+    final resolvedName =
+        profileMap?['name']?.toString().trim().isNotEmpty == true
+            ? profileMap!['name'].toString().trim()
+            : ((displayName != null && displayName.trim().isNotEmpty)
+                ? displayName.trim()
+                : (user?.name.isNotEmpty == true
+                    ? user!.name
+                    : cleanEmail.split('@').first));
 
     final rawUsername = profileMap?['username']?.toString().trim() ??
         user?.username ??
@@ -687,7 +699,8 @@ class AuthService {
               : ((profileMap?['national_id_no']?.toString().isNotEmpty ?? false)
                   ? 'PENDING_REVIEW'
                   : 'VERIFIED_LVL1')),
-      nationalIdNo: profileMap?['national_id_no']?.toString() ?? user?.nationalIdNo ?? '',
+      nationalIdNo:
+          profileMap?['national_id_no']?.toString() ?? user?.nationalIdNo ?? '',
       dob: profileMap?['dob']?.toString() ?? user?.dob ?? '',
       address: profileMap?['address']?.toString() ?? user?.address ?? '',
     );
@@ -800,7 +813,8 @@ class AuthService {
   }
 
   /// 2. Request Forgot Password / PIN Reset OTP (10 minute expiry)
-  Future<Map<String, dynamic>> requestPinResetOtp({required String email}) async {
+  Future<Map<String, dynamic>> requestPinResetOtp(
+      {required String email}) async {
     await initialize();
     final cleanEmail = email.trim().toLowerCase();
     if (cleanEmail.isEmpty || !cleanEmail.contains('@')) {
@@ -816,7 +830,8 @@ class AuthService {
       debugPrint('Supabase PIN reset OTP notice: $e');
       return {
         'success': false,
-        'error': 'Could not send the verification code. Check your connection and try again.',
+        'error':
+            'Could not send the verification code. Check your connection and try again.',
       };
     }
 
@@ -832,7 +847,8 @@ class AuthService {
     return {
       'success': true,
       'expiresAt': expiresAt,
-      'message': '6-digit verification code sent to $cleanEmail (expires in 10 minutes)',
+      'message':
+          '6-digit verification code sent to $cleanEmail (expires in 10 minutes)',
     };
   }
 
@@ -860,7 +876,8 @@ class AuthService {
       return {
         'success': false,
         'expired': false,
-        'error': 'No active reset request found for this email. Please request a new code.',
+        'error':
+            'No active reset request found for this email. Please request a new code.',
       };
     }
 
@@ -868,7 +885,8 @@ class AuthService {
       return {
         'success': false,
         'expired': true,
-        'error': 'Verification code has expired. Please tap Resend Email to get a new code.',
+        'error':
+            'Verification code has expired. Please tap Resend Email to get a new code.',
       };
     }
 
@@ -908,7 +926,10 @@ class AuthService {
     final p2 = confirmPin.trim();
 
     if (p1.length != 6 || !RegExp(r'^\d{6}$').hasMatch(p1)) {
-      return {'success': false, 'error': 'New PIN must be exactly 6 numeric digits.'};
+      return {
+        'success': false,
+        'error': 'New PIN must be exactly 6 numeric digits.'
+      };
     }
     if (p1 != p2) {
       return {'success': false, 'error': 'PIN confirmation does not match.'};
@@ -931,7 +952,8 @@ class AuthService {
         email: cleanEmail,
         pin: p1,
         name: profileMap['name']?.toString() ?? cleanEmail.split('@').first,
-        username: profileMap['username']?.toString() ?? '@${cleanEmail.split('@').first}',
+        username: profileMap['username']?.toString() ??
+            '@${cleanEmail.split('@').first}',
         uid: profileMap['uid']?.toString() ?? '',
         kycTier: (profileMap['kyc_tier'] is num)
             ? (profileMap['kyc_tier'] as num).toInt()
@@ -941,24 +963,28 @@ class AuthService {
       _users[cleanEmail] = user;
     }
 
-    // Persist the new bcrypt hash server-side.
+    // Persist the new hash server-side when the deployment exposes the RPC.
+    // Email ownership has already been proven by the Supabase OTP above, so a
+    // not-yet-deployed / temporarily unavailable RPC must not strand the user
+    // on the reset screen: the PIN is still updated locally and in the secure
+    // vault, and the server hash is re-synced on the next successful login.
+    var serverSynced = false;
     try {
       final result = await SupabaseService.client.rpc(
         'reset_user_pin',
         params: {'p_new_pin': p1},
       );
       if (result is Map && result['success'] == false) {
-        return {
-          'success': false,
-          'error': result['message']?.toString() ?? 'Could not reset PIN.',
-        };
+        final message = result['message']?.toString();
+        if (message != null && message.toLowerCase().contains('exactly 6')) {
+          return {'success': false, 'error': message};
+        }
+        debugPrint('Server PIN reset notice: ${message ?? 'unknown'}');
+      } else {
+        serverSynced = true;
       }
     } catch (e) {
-      debugPrint('Error resetting PIN on the server: $e');
-      return {
-        'success': false,
-        'error': 'Could not reset PIN. Please try again.',
-      };
+      debugPrint('Server PIN reset unavailable, keeping local reset: $e');
     }
 
     await _saveUsers();
@@ -966,6 +992,7 @@ class AuthService {
 
     return {
       'success': true,
+      'serverSynced': serverSynced,
       'message': 'PIN successfully reset. Please log in with your new PIN.',
     };
   }
@@ -985,10 +1012,16 @@ class AuthService {
       return {'success': false, 'error': 'Please enter a valid email address.'};
     }
     if (p1.length != 6 || !RegExp(r'^\d{6}$').hasMatch(p1)) {
-      return {'success': false, 'error': 'PIN must be exactly 6 numeric digits.'};
+      return {
+        'success': false,
+        'error': 'PIN must be exactly 6 numeric digits.'
+      };
     }
     if (p1 != p2) {
-      return {'success': false, 'error': 'PIN and confirmation PIN do not match.'};
+      return {
+        'success': false,
+        'error': 'PIN and confirmation PIN do not match.'
+      };
     }
 
     try {
@@ -997,7 +1030,8 @@ class AuthService {
       debugPrint('Supabase OTP dispatch notice: $e');
       return {
         'success': false,
-        'error': 'Could not send the verification code. Check your connection and try again.',
+        'error':
+            'Could not send the verification code. Check your connection and try again.',
       };
     }
 
@@ -1018,7 +1052,8 @@ class AuthService {
     return {
       'success': true,
       'expiresAt': expiresAt,
-      'message': 'Verification code sent to $cleanEmail (expires in 10 minutes)',
+      'message':
+          'Verification code sent to $cleanEmail (expires in 10 minutes)',
     };
   }
 
@@ -1051,7 +1086,8 @@ class AuthService {
       return {
         'success': false,
         'expired': true,
-        'error': 'Verification code has expired. Please tap Resend Email to get a new code.',
+        'error':
+            'Verification code has expired. Please tap Resend Email to get a new code.',
       };
     }
 
@@ -1110,7 +1146,10 @@ class AuthService {
 
     final pendingPin = _pendingSignUpData?['pin']?.toString() ?? '';
     if (pendingPin.length != 6) {
-      return {'success': false, 'error': 'Security PIN is required to complete registration.'};
+      return {
+        'success': false,
+        'error': 'Security PIN is required to complete registration.'
+      };
     }
 
     final nameParts = cleanName.split(RegExp(r'\s+'));
@@ -1131,9 +1170,8 @@ class AuthService {
     }
 
     final remoteUid = profileMap?['uid']?.toString() ?? '';
-    final uid = RegExp(r'^\d{12}$').hasMatch(remoteUid)
-        ? remoteUid
-        : generateUserUid();
+    final uid =
+        RegExp(r'^\d{12}$').hasMatch(remoteUid) ? remoteUid : generateUserUid();
 
     final newUser = StoredUser(
       email: cleanEmail,
@@ -1207,7 +1245,8 @@ class AuthService {
     if (remote['success'] != true) {
       return {
         'success': false,
-        'error': remote['message']?.toString() ?? 'Could not submit KYC. Please try again.',
+        'error': remote['message']?.toString() ??
+            'Could not submit KYC. Please try again.',
       };
     }
 
@@ -1223,7 +1262,8 @@ class AuthService {
     return {
       'success': true,
       'user': user,
-      'message': 'National ID submitted successfully. Your account is pending administrative review for KYC Level 2.',
+      'message':
+          'National ID submitted successfully. Your account is pending administrative review for KYC Level 2.',
     };
   }
 
@@ -1243,7 +1283,8 @@ class AuthService {
     return {
       'success': true,
       'user': user,
-      'message': 'Account successfully upgraded to KYC Level 2 (National ID Verified).',
+      'message':
+          'Account successfully upgraded to KYC Level 2 (National ID Verified).',
     };
   }
 

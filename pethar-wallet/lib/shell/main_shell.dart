@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +11,7 @@ import '../widgets/support_and_kyc_modals.dart';
 import '../home/home_screen.dart';
 import '../wallet/account_screen.dart';
 import '../scan/scan_screen.dart';
-import '../pay/pay_screen.dart';
+import '../transfer/transfer_screen.dart';
 import '../services/services_screen.dart';
 import '../settings/settings_screen.dart';
 import '../receive/receive_screen.dart';
@@ -31,6 +33,12 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   bool _showSplash = true;
+
+  /// Set once the logo has been shown long enough. Even if session restore is
+  /// still blocked on a platform channel, the shell stops waiting on it.
+  bool _startupWaitExpired = false;
+  Timer? _splashTimer;
+  Timer? _startupTimer;
   final String _selectedDepositToken = 'USDT';
   final String _selectedSendToken = 'USDT';
 
@@ -39,16 +47,37 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 1400), () {
+    // Resolve the saved session only AFTER the first frame is on screen. This
+    // keeps Keychain / Keystore / Supabase work off the frame that dismisses
+    // the native (Android 12+) splash logo.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Provider.of<AppState>(context, listen: false).bootstrap();
+    });
+    // Short branded splash only — the first frame is rendered immediately.
+    _splashTimer = Timer(const Duration(milliseconds: 250), () {
       if (mounted) {
         setState(() => _showSplash = false);
       }
     });
+    // Hard cap: never hold the logo longer than this, whatever startup does.
+    _startupTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) {
+        setState(() => _startupWaitExpired = true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _splashTimer?.cancel();
+    _startupTimer?.cancel();
+    super.dispose();
   }
 
   Widget _buildSplashScreen() {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: trueBlack,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => setState(() => _showSplash = false),
@@ -64,12 +93,15 @@ class _MainShellState extends State<MainShell> {
               SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
                     'Péthar',
                     style: TextStyle(
                       color: crimson,
                       fontSize: 36,
+                      height: 1.0,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.8,
                     ),
@@ -78,8 +110,9 @@ class _MainShellState extends State<MainShell> {
                   Text(
                     'ဖေ့သာ',
                     style: TextStyle(
-                      color: Color(0xFF18181B),
+                      color: Color(0xFF0A0A0A),
                       fontSize: 36,
+                      height: 1.0,
                       fontWeight: FontWeight.w300,
                       letterSpacing: -0.8,
                     ),
@@ -103,8 +136,13 @@ class _MainShellState extends State<MainShell> {
     final appState = Provider.of<AppState>(context);
 
     // Keep the branded splash up while the saved session is restored, so the
-    // login screen never flashes before the PIN lock is applied.
-    if (_showSplash || appState.isInitializing) {
+    // login screen never flashes before the PIN lock is applied. The wait is
+    // bounded: once [_startupWaitExpired] is set we render the app even if the
+    // restore is still pending. An already-authenticated session never waits.
+    if (_showSplash ||
+        (appState.isInitializing &&
+            !appState.isAuthenticated &&
+            !_startupWaitExpired)) {
       return _buildSplashScreen();
     }
 
@@ -116,11 +154,11 @@ class _MainShellState extends State<MainShell> {
 
     const systemOverlay = SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: Brightness.dark,
-      systemNavigationBarDividerColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+      systemNavigationBarColor: trueBlack,
+      systemNavigationBarIconBrightness: Brightness.light,
+      systemNavigationBarDividerColor: trueBlack,
       systemNavigationBarContrastEnforced: false,
     );
 
@@ -147,7 +185,9 @@ class _MainShellState extends State<MainShell> {
       );
     }
     if (appState.currentScreen == Screen.scan) subScreen = const ScanScreen();
-    if (appState.currentScreen == Screen.pay) subScreen = const PayScreen();
+    if (appState.currentScreen == Screen.transfer) {
+      subScreen = const TransferScreen();
+    }
     if (appState.currentScreen == Screen.history) {
       subScreen = const HistoryScreen();
     }
@@ -216,7 +256,7 @@ class _MainShellState extends State<MainShell> {
         // Docked navigation bar: the page body stops above it so content is
         // never rendered underneath the bar.
         resizeToAvoidBottomInset: true,
-        backgroundColor: const Color(0xFFF4F5F8),
+        backgroundColor: trueBlack,
         body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 180),
           switchInCurve: Curves.easeOutCubic,
@@ -238,14 +278,14 @@ class _MainShellState extends State<MainShell> {
         ),
         bottomNavigationBar: Container(
           key: const ValueKey('main-bottom-nav'),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: const BoxDecoration(
+            color: trueBlackElevated,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF0F172A).withValues(alpha: 0.08),
+                color: Color(0xCC000000),
                 blurRadius: 20,
-                offset: const Offset(0, -6),
+                offset: Offset(0, -6),
               ),
             ],
           ),
@@ -269,7 +309,7 @@ class _MainShellState extends State<MainShell> {
                               : Icons.home_outlined,
                           color: currentIndex == 0
                               ? crimson
-                              : const Color(0xFF64748B),
+                              : const Color(0xFF3F3F46),
                           size: 22,
                         ),
                         label: TranslationStrings.tr('navHome', lang),
@@ -287,7 +327,7 @@ class _MainShellState extends State<MainShell> {
                               : Icons.account_balance_wallet_outlined,
                           color: currentIndex == 1
                               ? crimson
-                              : const Color(0xFF64748B),
+                              : const Color(0xFF3F3F46),
                           size: 21,
                         ),
                         label: TranslationStrings.tr('navWallet', lang),
@@ -353,7 +393,7 @@ class _MainShellState extends State<MainShell> {
                           size: 21,
                           color: currentIndex == 3
                               ? crimson
-                              : const Color(0xFF64748B),
+                              : const Color(0xFF3F3F46),
                           active: currentIndex == 3,
                         ),
                         label: TranslationStrings.tr('navServices', lang),
@@ -371,7 +411,7 @@ class _MainShellState extends State<MainShell> {
                               : Icons.settings_outlined,
                           color: currentIndex == 4
                               ? crimson
-                              : const Color(0xFF64748B),
+                              : const Color(0xFF3F3F46),
                           size: 22,
                         ),
                         label: TranslationStrings.tr('navSettings', lang),
@@ -397,7 +437,7 @@ class _MainShellState extends State<MainShell> {
     required bool isSelected,
     VoidCallback? onCustomTap,
   }) {
-    final color = isSelected ? crimson : const Color(0xFF64748B);
+    final color = isSelected ? crimson : const Color(0xFF3F3F46);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 5),

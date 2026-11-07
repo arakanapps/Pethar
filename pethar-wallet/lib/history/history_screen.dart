@@ -88,7 +88,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       builder: (ctx) {
         return Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF0A0A0A),
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
@@ -101,7 +101,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE2E8F0),
+                    color: const Color(0xFF262626),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -112,7 +112,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF0F172A),
+                  color: Color(0xFF111111),
                 ),
               ),
               const SizedBox(height: 16),
@@ -134,13 +134,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFEE2E2) : const Color(0xFFF1F5F9),
+          color: isSelected ? const Color(0xFF2A0A0E) : const Color(0xFF0A0A0A),
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
           size: 20,
-          color: isSelected ? const Color(0xFF9E1B32) : const Color(0xFF64748B),
+          color: isSelected ? const Color(0xFF9E1B32) : const Color(0xFFD4D4D8),
         ),
       ),
       title: Text(
@@ -148,7 +148,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         style: TextStyle(
           fontSize: 15,
           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-          color: isSelected ? const Color(0xFF9E1B32) : const Color(0xFF1E293B),
+          color: isSelected ? const Color(0xFF9E1B32) : const Color(0xFF27272A),
         ),
       ),
       trailing: isSelected
@@ -169,7 +169,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       builder: (ctx) {
         return Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF0A0A0A),
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
@@ -182,7 +182,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE2E8F0),
+                    color: const Color(0xFF262626),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -193,7 +193,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF0F172A),
+                  color: Color(0xFF111111),
                 ),
               ),
               const SizedBox(height: 16),
@@ -201,13 +201,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 final isSelected = _selectedMonth == m;
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.calendar_today_rounded, size: 20, color: Color(0xFF64748B)),
+                  leading: const Icon(Icons.calendar_today_rounded, size: 20, color: Color(0xFFD4D4D8)),
                   title: Text(
                     m,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? const Color(0xFF9E1B32) : const Color(0xFF1E293B),
+                      color: isSelected ? const Color(0xFF9E1B32) : const Color(0xFF27272A),
                     ),
                   ),
                   trailing: isSelected
@@ -257,7 +257,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       builder: (ctx) {
         return Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF0A0A0A),
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
@@ -269,7 +269,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE2E8F0),
+                    color: const Color(0xFF262626),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -281,7 +281,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 width: 56,
                 height: 56,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFFF1F2),
+                  color: Color(0xFF1A0A0C),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -296,7 +296,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF64748B),
+                  color: Color(0xFFD4D4D8),
                 ),
               ),
               const SizedBox(height: 6),
@@ -305,7 +305,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF0F172A),
+                  color: Color(0xFF111111),
                 ),
               ),
               const SizedBox(height: 24),
@@ -314,20 +314,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: const Color(0xFF000000),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFF1F5F9)),
+                  border: Border.all(color: const Color(0xFF0A0A0A)),
                 ),
                 child: Column(
                   children: [
                     _buildSlipRow('Recipient / Source', item.title),
-                    const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                    const Divider(height: 20, color: Color(0xFF262626)),
                     _buildSlipRow('Category', item.category ?? (item.type == 'bill' ? 'Bill Payment' : 'Transfer')),
-                    const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                    const Divider(height: 20, color: Color(0xFF262626)),
                     _buildSlipRow('Date & Time', item.time),
-                    const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                    const Divider(height: 20, color: Color(0xFF262626)),
                     _buildSlipRow('Reference No.', item.refNo ?? item.id.toString(), canCopy: true),
-                    const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                    const Divider(height: 20, color: Color(0xFF262626)),
                     _buildSlipRow('Fee', '0.00 AKD'),
                   ],
                 ),
@@ -370,7 +370,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           label,
           style: const TextStyle(
             fontSize: 13,
-            color: Color(0xFF64748B),
+            color: Color(0xFFD4D4D8),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -389,7 +389,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
+                    color: Color(0xFF111111),
                   ),
                 ),
               ),
@@ -406,7 +406,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                     );
                   },
-                  child: const Icon(Icons.copy_rounded, size: 14, color: Color(0xFF0F172A)),
+                  child: const Icon(Icons.copy_rounded, size: 14, color: Color(0xFF111111)),
                 ),
               ],
             ],
@@ -422,7 +422,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F9FF),
+        color: const Color(0xFF0A0A0A),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFBAE6FD).withValues(alpha: 0.8), width: 1),
       ),
@@ -468,7 +468,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       height: 40,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(0xFF0F172A),
+        color: Color(0xFF111111),
       ),
       child: Center(
         child: Row(
@@ -481,7 +481,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               height: 12,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 1.1),
+                border: Border.all(color: const Color(0xFF0A0A0A), width: 1.1),
               ),
               alignment: Alignment.center,
               child: const Text(
@@ -574,7 +574,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F5F8),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: trueBlack,
         elevation: 0,
         centerTitle: true,
         systemOverlayStyle: const SystemUiOverlayStyle(
@@ -585,7 +585,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         leading: IconButton(
           icon: const Icon(
             Icons.chevron_left_rounded,
-            color: Color(0xFF0F172A),
+            color: Color(0xFF111111),
             size: 28,
           ),
           onPressed: () => appState.goBack(),
@@ -595,7 +595,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF0F172A),
+            color: Color(0xFF111111),
             letterSpacing: 0.1,
           ),
         ),
@@ -606,9 +606,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
           Container(
             height: 52,
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFF0A0A0A),
               border: Border(
-                bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.8),
+                bottom: BorderSide(color: Color(0xFF262626), width: 0.8),
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -656,9 +656,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFF0A0A0A),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                    border: Border.all(color: const Color(0xFF262626), width: 1),
                     boxShadow: const [
                       BoxShadow(
                         color: Color(0x06000000),
@@ -675,7 +675,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F172A),
+                          color: Color(0xFF111111),
                           letterSpacing: -0.2,
                         ),
                       ),
@@ -691,7 +691,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 'Inflow',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Color(0xFF64748B),
+                                  color: Color(0xFFD4D4D8),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -701,7 +701,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 style: const TextStyle(
                                   fontSize: 15.5,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF0F172A),
+                                  color: Color(0xFF111111),
                                   letterSpacing: -0.2,
                                 ),
                               ),
@@ -716,7 +716,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 'Outflow',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Color(0xFF64748B),
+                                  color: Color(0xFFD4D4D8),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -726,7 +726,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 style: const TextStyle(
                                   fontSize: 15.5,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF0F172A),
+                                  color: Color(0xFF111111),
                                   letterSpacing: -0.2,
                                 ),
                               ),
@@ -742,7 +742,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFF0A0A0A),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -764,13 +764,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 width: 56,
                                 height: 56,
                                 decoration: const BoxDecoration(
-                                  color: Color(0xFFF1F5F9),
+                                  color: Color(0xFF0A0A0A),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
                                   Icons.receipt_long_outlined,
                                   size: 28,
-                                  color: Color(0xFF94A3B8),
+                                  color: Color(0xFFD4D4D8),
                                 ),
                               ),
                               const SizedBox(height: 14),
@@ -779,7 +779,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF0F172A),
+                                  color: Color(0xFF111111),
                                 ),
                               ),
                               const SizedBox(height: 6),
@@ -790,7 +790,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF64748B),
+                                  color: Color(0xFFD4D4D8),
                                 ),
                               ),
                             ],
@@ -803,7 +803,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             const Divider(
                               height: 1,
                               thickness: 1,
-                              color: Color(0xFFF1F5F9),
+                              color: Color(0xFF0A0A0A),
                               indent: 64,
                               endIndent: 16,
                             ),
@@ -835,7 +835,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                  color: isActive ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                  color: isActive ? const Color(0xFF111111) : const Color(0xFFD4D4D8),
                 ),
               ),
             ),
@@ -865,13 +865,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
         width: 34,
         height: 34,
         decoration: const BoxDecoration(
-          color: Color(0xFFF1F5F9),
+          color: Color(0xFF0A0A0A),
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
           size: 18,
-          color: const Color(0xFF64748B),
+          color: const Color(0xFFD4D4D8),
         ),
       ),
     );
@@ -901,7 +901,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     style: const TextStyle(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E293B),
+                      color: Color(0xFF27272A),
                       height: 1.25,
                     ),
                   ),
@@ -910,7 +910,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     item.time,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF94A3B8),
+                      color: Color(0xFFD4D4D8),
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -925,7 +925,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF0F172A),
+                color: Color(0xFF111111),
                 letterSpacing: -0.2,
               ),
             ),

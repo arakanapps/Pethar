@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -21,6 +22,60 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  static const int _bannerAdCount = 4;
+  int _bannerIndex = 0;
+  final PageController _bannerController = PageController();
+  Timer? _bannerTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _bannerTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!mounted || !_bannerController.hasClients) return;
+      final next = (_bannerIndex + 1) % _bannerAdCount;
+      _bannerController.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _bannerTimer?.cancel();
+    _bannerController.dispose();
+    super.dispose();
+  }
+
+  void _showComingSoon(BuildContext context, bool isAk, String title) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.info_outline_rounded,
+                color: Color(0xFFD91624), size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                isAk
+                    ? '$title - မကြာမီ လာမည်ဖြစ်ပါသည်'
+                    : '$title is Coming Soon...',
+                style:
+                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF1E293B),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   void _runVerifiedAction(
     BuildContext context,
     AppState appState,
@@ -113,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (modalCtx) {
         return Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF0A0A0A),
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
@@ -127,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE4E4E7),
+                    color: const Color(0xFF27272A),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -147,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF18181B),
+                          color: Color(0xFFFAFAFA),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -156,14 +211,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? 'ကင်မရာ သို့မဟုတ် ဖုန်းပြခန်းမှ ရွေးချယ်ပါ'
                             : 'Take a photo or choose from gallery',
                         style: const TextStyle(
-                            fontSize: 12, color: Color(0xFF71717A)),
+                            fontSize: 12, color: Color(0xFFA1A1AA)),
                       ),
                     ],
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(modalCtx),
                     icon: const Icon(Icons.close,
-                        size: 20, color: Color(0xFF71717A)),
+                        size: 20, color: Color(0xFFA1A1AA)),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -177,14 +232,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: Color(0xFFF4F4F5)),
+                  side: const BorderSide(color: Color(0xFF111111)),
                 ),
                 tileColor: const Color(0xFFFAFAFA),
                 leading: Container(
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFE4E6),
+                    color: const Color(0xFF2A0A0E),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.camera_alt_rounded,
@@ -195,16 +250,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF18181B),
+                    color: Color(0xFFFAFAFA),
                   ),
                 ),
                 subtitle: Text(
                   isAk ? 'ဖုန်းကင်မရာ ဖွင့်ရန်' : 'Open camera to capture',
                   style:
-                      const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                      const TextStyle(fontSize: 12, color: Color(0xFFA1A1AA)),
                 ),
                 trailing: const Icon(Icons.chevron_right,
-                    size: 20, color: Color(0xFFA1A1AA)),
+                    size: 20, color: Color(0xFFD4D4D8)),
                 onTap: () => _pickAvatarFromSource(
                     context, appState, isAk, ImageSource.camera, modalCtx),
               ),
@@ -216,14 +271,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: Color(0xFFF4F4F5)),
+                  side: const BorderSide(color: Color(0xFF111111)),
                 ),
                 tileColor: const Color(0xFFFAFAFA),
                 leading: Container(
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE0F2FE),
+                    color: const Color(0xFF0A0A0A),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.photo_library_rounded,
@@ -234,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF18181B),
+                    color: Color(0xFFFAFAFA),
                   ),
                 ),
                 subtitle: Text(
@@ -242,10 +297,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? 'ပြခန်းမှ ဓာတ်ပုံ ရွေးချယ်ရန်'
                       : 'Select from photo library',
                   style:
-                      const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                      const TextStyle(fontSize: 12, color: Color(0xFFA1A1AA)),
                 ),
                 trailing: const Icon(Icons.chevron_right,
-                    size: 20, color: Color(0xFFA1A1AA)),
+                    size: 20, color: Color(0xFFD4D4D8)),
                 onTap: () => _pickAvatarFromSource(
                     context, appState, isAk, ImageSource.gallery, modalCtx),
               ),
@@ -265,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     isAk ? 'မလုပ်တော့ပါ' : 'Cancel',
                     style: const TextStyle(
-                      color: Color(0xFF52525B),
+                      color: Color(0xFFA1A1AA),
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
@@ -284,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (ctx) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-        backgroundColor: Colors.white,
+        backgroundColor: trueBlack,
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -294,9 +349,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 54,
                 height: 54,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF1F2),
+                  color: const Color(0xFF1A0A0C),
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFFECDD3)),
+                  border: Border.all(color: const Color(0xFF3F1D24)),
                 ),
                 child: const Icon(Icons.power_settings_new_rounded,
                     color: crimson, size: 26),
@@ -308,7 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF18181B),
+                  color: Color(0xFFFAFAFA),
                 ),
               ),
               const SizedBox(height: 8),
@@ -319,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 12.5,
-                  color: Color(0xFF71717A),
+                  color: Color(0xFFA1A1AA),
                   height: 1.45,
                 ),
               ),
@@ -330,8 +385,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(ctx),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF71717A),
-                        side: const BorderSide(color: Color(0xFFE4E4E7)),
+                        foregroundColor: const Color(0xFFA1A1AA),
+                        side: const BorderSide(color: Color(0xFF27272A)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(999),
@@ -393,7 +448,7 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               appState,
               isAk ? 'ငွေလွှဲရန် (Transfer)' : 'Transfer',
-              () => appState.navigate(Screen.pay),
+              () => appState.navigate(Screen.transfer),
             ),
       },
       {
@@ -414,10 +469,10 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               appState,
               isAk ? 'ငွေသွင်းရန် (Deposit)' : 'Deposit',
-              () {
-                appState.setFinancialSubView('deposit');
-                appState.navigate(Screen.crypto, financialView: 'deposit');
-              },
+              () => appState.navigate(
+                Screen.notifications,
+                financialView: 'issue',
+              ),
             ),
       },
       {
@@ -427,15 +482,16 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               appState,
               isAk ? 'ငွေထုတ်ရန် (Withdraw)' : 'Withdraw',
-              () {
-                appState.setFinancialSubView('withdraw');
-                appState.navigate(Screen.crypto, financialView: 'withdraw');
-              },
+              () => appState.navigate(
+                Screen.notifications,
+                financialView: 'withdraw',
+              ),
             ),
       },
     ];
 
-    // Secondary 4-Service Row: Top Up | Bill Payment | Accounts | History
+    // Quick Services: Top Up | Bill Payment | Gift Card | Mini Apps
+    //                 Refer & Earn | Accounts | History | See All
     final secondaryActions = <Map<String, Object>>[
       {
         'label': isAk ? 'ငွေဖြည့်' : 'Top Up',
@@ -454,6 +510,25 @@ class _HomeScreenState extends State<HomeScreen> {
         'onTap': () => appState.navigate(Screen.bills),
       },
       {
+        'label': isAk ? 'လက်ဆောင်ကတ်' : 'Gift Card',
+        'iconWidget':
+            const Icon(Icons.card_giftcard_rounded, color: crimson, size: 20),
+        'onTap': () => _showComingSoon(
+            context, isAk, isAk ? 'လက်ဆောင်ကတ်များ' : 'Gift Card'),
+      },
+      {
+        'label': isAk ? 'မီနီအက်ပ်' : 'Mini Apps',
+        'iconWidget': const Icon(Icons.apps_rounded, color: crimson, size: 20),
+        'onTap': () => _showComingSoon(
+            context, isAk, isAk ? 'မိတ်ဖက် မီနီအက်ပ်များ' : 'Mini Apps'),
+      },
+      {
+        'label': isAk ? 'မိတ်ဆက်ရယူ' : 'Refer & Earn',
+        'iconWidget':
+            const Icon(Icons.group_add_rounded, color: crimson, size: 20),
+        'onTap': () => _showComingSoon(context, isAk, 'Refer & Earn'),
+      },
+      {
         'label': isAk ? 'ငွေစာရင်း' : 'Accounts',
         'iconWidget':
             const Icon(Icons.credit_card_rounded, color: crimson, size: 19),
@@ -464,6 +539,12 @@ class _HomeScreenState extends State<HomeScreen> {
         'iconWidget':
             const Icon(Icons.history_rounded, color: crimson, size: 20),
         'onTap': () => appState.navigate(Screen.history),
+      },
+      {
+        'label': isAk ? 'အားလုံး' : 'See All',
+        'iconWidget':
+            const Icon(Icons.grid_view_rounded, color: crimson, size: 20),
+        'onTap': () => appState.navigate(Screen.services),
       },
     ];
 
@@ -481,7 +562,7 @@ class _HomeScreenState extends State<HomeScreen> {
           SafeArea(
             bottom: false,
             child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,6 +577,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildSecondaryActions(isAk, secondaryActions),
                   const SizedBox(height: 18),
                   _buildFavourites(context, appState, isAk, favUsers),
+                  const SizedBox(height: 18),
+                  _buildBannerAds(context, appState, isAk),
                   if (appState.announcementsList.isNotEmpty) ...[
                     const SizedBox(height: 18),
                     _buildAnnouncements(appState, isAk),
@@ -514,121 +597,104 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildTopBar(AppState appState, bool isAk) {
     final avatar = _buildAvatarImageProvider(appState.profile.avatarUrl);
     final name = appState.profile.name.trim();
-    final greeting = !appState.isAuthenticated
-        ? (isAk ? 'ဧည့်သည်' : 'Guest')
-        : (name.isEmpty ? (isAk ? 'အသုံးပြုသူ' : 'User') : name);
-    final subtitle = !appState.isAuthenticated
-        ? (isAk ? 'အကောင့်ဝင်ရန် လိုအပ်သည်' : 'Sign in to continue')
-        : (appState.isVerified
-            ? (isAk ? 'အတည်ပြုပြီး အကောင့်' : 'Verified account')
-            : (isAk ? 'အတည်ပြုရန် ကျန်ရှိသည်' : 'Verification pending'));
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'U';
 
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: () => _showChangeProfilePhotoModal(context, appState, isAk),
-          child: Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFFFFE4E7), Color(0xFFF6FAFF)],
+    return SizedBox(
+      height: 46,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Restored user photo (left)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: () =>
+                  _showChangeProfilePhotoModal(context, appState, isAk),
+              child: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFFFFE4E7), Color(0xFFF6FAFF)],
+                  ),
+                  border:
+                      Border.all(color: const Color(0xFF0A0A0A), width: 1.8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0B1B33).withValues(alpha: 0.10),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                  image: avatar != null
+                      ? DecorationImage(image: avatar, fit: BoxFit.cover)
+                      : null,
+                ),
+                alignment: Alignment.center,
+                child: avatar == null
+                    ? Text(
+                        initial,
+                        style: const TextStyle(
+                          color: crimson,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 17,
+                        ),
+                      )
+                    : null,
               ),
-              border: Border.all(color: Colors.white, width: 1.8),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF0B1B33).withValues(alpha: 0.10),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+            ),
+          ),
+          // Centred app logo, no background
+          const ArakanEmblem(size: 40),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _glassIconButton(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const NotificationsScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.notifications_none_rounded,
+                      size: 20, color: Color(0xFFE4E4E7)),
+                  badge: appState.unreadNotificationsCount > 0
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: crimson,
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                                color: const Color(0xFF0A0A0A), width: 1.5),
+                          ),
+                          child: Text(
+                            '${appState.unreadNotificationsCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 8),
+                _glassIconButton(
+                  onTap: () => _showQuitAppModal(context, isAk),
+                  icon: const Icon(Icons.power_settings_new_rounded,
+                      size: 19, color: crimson),
                 ),
               ],
-              image: avatar != null
-                  ? DecorationImage(image: avatar, fit: BoxFit.cover)
-                  : null,
             ),
-            alignment: Alignment.center,
-            child: avatar == null
-                ? Text(
-                    greeting.isNotEmpty ? greeting[0].toUpperCase() : 'U',
-                    style: const TextStyle(
-                      color: crimson,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 17,
-                    ),
-                  )
-                : null,
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                greeting,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF0B1220),
-                  letterSpacing: -0.2,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF7C8AA0),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 8),
-        _glassIconButton(
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const NotificationsScreen()),
-            );
-          },
-          icon: const Icon(Icons.notifications_none_rounded,
-              size: 20, color: Color(0xFF1E293B)),
-          badge: appState.unreadNotificationsCount > 0
-              ? Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                  decoration: BoxDecoration(
-                    color: crimson,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: Colors.white, width: 1.5),
-                  ),
-                  child: Text(
-                    '${appState.unreadNotificationsCount}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                )
-              : null,
-        ),
-        const SizedBox(width: 8),
-        _glassIconButton(
-          onTap: () => _showQuitAppModal(context, isAk),
-          icon: const Icon(Icons.power_settings_new_rounded,
-              size: 19, color: crimson),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -718,11 +784,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             size: 13, color: crimson),
                         const SizedBox(width: 6),
                         Text(
-                          isAk ? 'ပိုက်ဆံအိတ် လက်ကျန်ငွေ' : 'Wallet Balance',
+                          isAk
+                              ? 'ရရှိနိုင်သော လက်ကျန်ငွေ'
+                              : 'Available Balance',
                           style: const TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF475569),
+                            color: Color(0xFFA1A1AA),
                             letterSpacing: 0.1,
                           ),
                         ),
@@ -748,7 +816,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
                         size: 16,
-                        color: const Color(0xFF64748B),
+                        color: const Color(0xFFA1A1AA),
                       ),
                     ),
                   ),
@@ -761,7 +829,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0B1220),
+                    color: Color(0xFFF4F4F5),
                     fontFamily: 'monospace',
                     letterSpacing: 3,
                   ),
@@ -789,7 +857,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontSize: balFontSize,
                           fontWeight: FontWeight.w900,
-                          color: const Color(0xFF0B1220),
+                          color: const Color(0xFFF4F4F5),
                           fontFamily: 'monospace',
                           letterSpacing: -1,
                           height: 1.05,
@@ -815,7 +883,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           children: [
             const Icon(Icons.lock_outline_rounded,
-                size: 14, color: Color(0xFF64748B)),
+                size: 14, color: Color(0xFFA1A1AA)),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
@@ -825,7 +893,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF64748B),
+                  color: Color(0xFFA1A1AA),
                 ),
               ),
             ),
@@ -839,43 +907,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (appState.isVerified) {
-      return Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF0F9FF).withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: const Color(0xFFBAE6FD)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.verified_rounded,
-                    size: 13, color: Color(0xFF0284C7)),
-                const SizedBox(width: 5),
-                Text(
-                  isAk ? 'အတည်ပြုပြီး' : 'Verified',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0284C7),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            isAk ? 'AKD ပိုက်ဆံအိတ်' : 'AKD wallet',
-            style: const TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF94A3B8),
-            ),
-          ),
-        ],
-      );
+      // Verified badge and AKD wallet label are intentionally not shown.
+      return const SizedBox.shrink();
     }
 
     return GestureDetector(
@@ -895,7 +928,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 11.5,
                 height: 1.3,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
+                color: Color(0xFFA1A1AA),
               ),
             ),
           ),
@@ -935,57 +968,61 @@ class _HomeScreenState extends State<HomeScreen> {
       radius: 28,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       child: Row(
-        children: actions.map((act) {
-          final label = act['label'] as String;
-          return Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: act['onTap'] as VoidCallback,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFFFFFFFF),
-                          Color(0xFFFFEFF1),
-                          Color(0xFFFDF3F4)
-                        ],
-                      ),
-                      border: Border.all(color: Colors.white, width: 1.5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: crimson.withValues(alpha: 0.14),
-                          blurRadius: 14,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Center(child: act['iconWidget'] as Widget),
-                  ),
-                  const SizedBox(height: 9),
-                  Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
+        children: actions
+            .map((act) => Expanded(child: _quickActionItem(act)))
+            .toList(),
+      ),
+    );
+  }
+
+  // ─────────────────────── QUICK ACTION ITEM (SHARED) ───────────────────────
+
+  Widget _quickActionItem(Map<String, Object> act) {
+    final label = act['label'] as String;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: act['onTap'] as VoidCallback,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFFFFFFF),
+                  Color(0xFFFFEFF1),
+                  Color(0xFFFDF3F4)
                 ],
               ),
+              border: Border.all(color: const Color(0xFF0A0A0A), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: crimson.withValues(alpha: 0.14),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-          );
-        }).toList(),
+            child: Center(child: act['iconWidget'] as Widget),
+          ),
+          const SizedBox(height: 9),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFFE4E4E7),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -995,87 +1032,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSecondaryActions(bool isAk, List<Map<String, Object>> actions) {
     return _GlassSurface(
       radius: 28,
-      padding: const EdgeInsets.fromLTRB(16, 15, 16, 16),
+      padding: const EdgeInsets.fromLTRB(14, 16, 14, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionLabel(isAk ? 'ဝန်ဆောင်မှုများ' : 'Services'),
-          const SizedBox(height: 12),
+          _sectionLabel(isAk ? 'အမြန်ဝန်ဆောင်မှုများ' : 'Quick Services'),
+          const SizedBox(height: 16),
           Row(
-            children: [
-              Expanded(child: _serviceTile(actions[0])),
-              const SizedBox(width: 10),
-              Expanded(child: _serviceTile(actions[1])),
-            ],
+            children: actions
+                .sublist(0, 4)
+                .map((act) => Expanded(child: _quickActionItem(act)))
+                .toList(),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 18),
           Row(
-            children: [
-              Expanded(child: _serviceTile(actions[2])),
-              const SizedBox(width: 10),
-              Expanded(child: _serviceTile(actions[3])),
-            ],
+            children: actions
+                .sublist(4, 8)
+                .map((act) => Expanded(child: _quickActionItem(act)))
+                .toList(),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _serviceTile(Map<String, Object> act) {
-    final label = act['label'] as String;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: act['onTap'] as VoidCallback,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withValues(alpha: 0.78),
-              Colors.white.withValues(alpha: 0.38),
-            ],
-          ),
-          border: Border.all(
-              color: Colors.white.withValues(alpha: 0.9), width: 1.2),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0B1B33).withValues(alpha: 0.05),
-              blurRadius: 12,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFFFFF1F2).withValues(alpha: 0.95),
-                border: Border.all(color: Colors.white, width: 1.2),
-              ),
-              alignment: Alignment.center,
-              child: act['iconWidget'] as Widget,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -1088,7 +1064,7 @@ class _HomeScreenState extends State<HomeScreen> {
         style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w800,
-          color: Color(0xFF8A98AC),
+          color: Color(0xFFA1A1AA),
           letterSpacing: 0.4,
         ),
       ),
@@ -1154,7 +1130,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 14),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1182,7 +1158,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Color(fav.colorValue),
-                              border: Border.all(color: Colors.white, width: 2),
+                              border: Border.all(
+                                  color: const Color(0xFF0A0A0A), width: 2),
                               boxShadow: [
                                 BoxShadow(
                                   color: Color(fav.colorValue)
@@ -1216,7 +1193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: const TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF475569),
+                                color: Color(0xFFA1A1AA),
                               ),
                             ),
                           ),
@@ -1249,7 +1226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         alignment: Alignment.center,
                         child: const Icon(
                           Icons.add_rounded,
-                          color: Color(0xFF64748B),
+                          color: Color(0xFFA1A1AA),
                           size: 20,
                         ),
                       ),
@@ -1262,7 +1239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: const TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF8A98AC),
+                            color: Color(0xFFA1A1AA),
                           ),
                         ),
                       ),
@@ -1294,7 +1271,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: const TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF8A98AC),
+                            color: Color(0xFFA1A1AA),
                           ),
                         ),
                       ],
@@ -1305,6 +1282,242 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ─────────────────────────── BANNER ADS ───────────────────────────
+
+  Widget _buildBannerAds(BuildContext context, AppState appState, bool isAk) {
+    final banners = <Map<String, Object>>[
+      {
+        'title':
+            isAk ? 'စက္ကန့်ပိုင်းအတွင်း ငွေလွှဲပါ' : 'Send Money in Seconds',
+        'subtitle': isAk
+            ? 'ပထမဆုံး ငွေလွှဲ ၃ ခုအတွက် အခမဲ့'
+            : 'Zero fees on your first 3 transfers this week',
+        'cta': isAk ? 'ငွေလွှဲမည်' : 'Transfer now',
+        'icon': Icons.bolt_rounded,
+        'colors': const <Color>[Color(0xFFD91624), Color(0xFFF97316)],
+        'onTap': () => _runVerifiedAction(
+              context,
+              appState,
+              isAk ? 'ငွေလွှဲရန် (Transfer)' : 'Transfer',
+              () => appState.navigate(Screen.transfer),
+            ),
+      },
+      {
+        'title': isAk ? 'ငွေဖြည့်ပါ ဘောနပ်စ် ရယူပါ' : 'Top Up & Get Bonus Data',
+        'subtitle': isAk
+            ? 'မိုဘိုင်းငွေဖြည့်တိုင်း အထူးဒေတာ ပက်ကေ့ချ်များ'
+            : 'Instant mobile reloads with exclusive data bundles',
+        'cta': isAk ? 'ငွေဖြည့်မည်' : 'Top up',
+        'icon': Icons.smartphone_rounded,
+        'colors': const <Color>[Color(0xFF2563EB), Color(0xFF06B6D4)],
+        'onTap': () => _runVerifiedAction(
+              context,
+              appState,
+              isAk ? 'ငွေဖြည့်ရန် (Top Up)' : 'Top Up',
+              () => appState.navigate(Screen.topup),
+            ),
+      },
+      {
+        'title':
+            isAk ? 'သူငယ်ချင်းဖိတ်ပါ ဆုယူပါ' : 'Invite Friends, Earn Rewards',
+        'subtitle': isAk
+            ? 'ဖိတ်ကြားသည့် သူငယ်ချင်းတိုင်းအတွက် ၅,၀၀၀ AKD ရယူပါ'
+            : 'Earn 5,000 AKD for every friend who joins Péthar',
+        'cta': isAk ? 'မိတ်ဆက်မည်' : 'Refer now',
+        'icon': Icons.group_add_rounded,
+        'colors': const <Color>[Color(0xFF7C3AED), Color(0xFFDB2777)],
+        'onTap': () => _showComingSoon(context, isAk, 'Refer & Earn'),
+      },
+      {
+        'title': isAk ? 'ဘေလ်များ တစ်နေရာတည်းတွင်' : 'Pay Bills in One Place',
+        'subtitle': isAk
+            ? 'မီတာ၊ အင်တာနက်၊ TV နှင့် အခြားဘေလ်များကို လွယ်ကူစွာ ပေးချေပါ'
+            : 'Electricity, internet, TV and more in just a few taps',
+        'cta': isAk ? 'ဘေလ်ဆောင်မည်' : 'Pay bills',
+        'icon': Icons.receipt_long_rounded,
+        'colors': const <Color>[Color(0xFF0F766E), Color(0xFF14B8A6)],
+        'onTap': () => appState.navigate(Screen.bills),
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 132,
+          child: PageView.builder(
+            controller: _bannerController,
+            itemCount: banners.length,
+            onPageChanged: (index) {
+              if (mounted) setState(() => _bannerIndex = index);
+            },
+            itemBuilder: (context, index) => _bannerAdCard(banners[index]),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(banners.length, (index) {
+            final active = index == _bannerIndex;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              width: active ? 18 : 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: active ? crimson : const Color(0xFF3F3F46),
+                borderRadius: BorderRadius.circular(999),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _bannerAdCard(Map<String, Object> banner) {
+    final colors = banner['colors'] as List<Color>;
+    final title = banner['title'] as String;
+    final subtitle = banner['subtitle'] as String;
+    final cta = banner['cta'] as String;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: banner['onTap'] as VoidCallback,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: colors,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colors.first.withValues(alpha: 0.25),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -26,
+                top: -34,
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.10),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 34,
+                bottom: -55,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 12, 16, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            subtitle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11,
+                              height: 1.3,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.85),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.22),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.30)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  cta,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                const Icon(Icons.arrow_forward_rounded,
+                                    size: 12, color: Colors.white),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Center(
+                      child: Container(
+                        width: 54,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.16),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.24)),
+                        ),
+                        child: Icon(
+                          banner['icon'] as IconData,
+                          color: Colors.white,
+                          size: 27,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1345,8 +1558,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 38,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFFFFF1F2).withValues(alpha: 0.95),
-                      border: Border.all(color: Colors.white, width: 1.2),
+                      color: const Color(0xFF1A0A0C).withValues(alpha: 0.95),
+                      border: Border.all(
+                          color: const Color(0xFF0A0A0A), width: 1.2),
                     ),
                     alignment: Alignment.center,
                     child: const Icon(Icons.campaign_rounded,
@@ -1362,7 +1576,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF0B1220),
+                            color: Color(0xFFF4F4F5),
                           ),
                         ),
                         if (body.isNotEmpty) ...[
@@ -1374,7 +1588,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: const TextStyle(
                               fontSize: 11.5,
                               height: 1.4,
-                              color: Color(0xFF7C8AA0),
+                              color: Color(0xFFA1A1AA),
                             ),
                           ),
                         ],

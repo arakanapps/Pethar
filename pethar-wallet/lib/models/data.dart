@@ -241,7 +241,7 @@ class FavoriteContact {
   String get phone => _phone ?? '';
   set phone(String val) => _phone = val;
 
-  String get category => (_category != null && _category!.isNotEmpty) ? _category! : 'Friends';
+  String get category => (_category != null && _category!.isNotEmpty) ? _category! : 'Personal';
   set category(String val) => _category = val;
 
   String get bank => (_bank != null && _bank!.isNotEmpty) ? _bank! : 'Péthar Wallet';
@@ -260,7 +260,7 @@ class FavoriteContact {
     required this.initials,
     required this.colorValue,
     String phone = '',
-    String category = 'Friends',
+    String category = 'Personal',
     String bank = 'Péthar Wallet',
     String note = '',
   })  : _phone = phone,

@@ -21,31 +21,29 @@ class TopupScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: trueBlack,
         elevation: 0,
         title: Text(
           isAk ? 'ငွေဖြည့်' : 'Top Up',
           style: const TextStyle(
-            color: Color(0xFF18181B),
+            color: Color(0xFF0A0A0A),
             fontWeight: FontWeight.w800,
             fontSize: 17,
           ),
         ),
-        iconTheme: const IconThemeData(color: Color(0xFF18181B)),
+        iconTheme: const IconThemeData(color: Color(0xFF0A0A0A)),
         leading: IconButton(
           icon: const Icon(Icons.chevron_left_rounded, size: 28),
           onPressed: () => appState.goBack(),
         ),
         centerTitle: true,
       ),
-      body: RefreshIndicator(
-        onRefresh: appState.loadSupabaseData,
-        child: packages.isEmpty
+      body: packages.isEmpty
             ? ListView(
                 padding: const EdgeInsets.all(24),
                 children: [
                   const SizedBox(height: 80),
-                  const Icon(Icons.inbox_rounded, size: 52, color: Color(0xFFA1A1AA)),
+                  const Icon(Icons.inbox_rounded, size: 52, color: Color(0xFF3F3F46)),
                   const SizedBox(height: 16),
                   Text(
                     isAk
@@ -64,7 +62,7 @@ class TopupScreen extends StatelessWidget {
                         ? 'အော်ပရေတာများမှ ပက်ကေ့ချ်များ ထည့်သွင်းပြီးပါက ဤနေရာတွင် ပေါ်လာပါမည်။'
                         : 'Packages published by operators will appear here automatically.',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 13, color: Color(0xFF71717A), height: 1.4),
+                    style: const TextStyle(fontSize: 13, color: Color(0xFFD4D4D8), height: 1.4),
                   ),
                 ],
               )
@@ -83,9 +81,9 @@ class TopupScreen extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFF0A0A0A),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFE4E4E7)),
+                      border: Border.all(color: const Color(0xFF27272A)),
                     ),
                     child: Row(
                       children: [
@@ -93,7 +91,7 @@ class TopupScreen extends StatelessWidget {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFF1F2),
+                            color: const Color(0xFF1A0A0C),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: const Icon(Icons.sim_card_rounded, color: crimson, size: 22),
@@ -108,7 +106,7 @@ class TopupScreen extends StatelessWidget {
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF18181B),
+                                  color: Color(0xFF0A0A0A),
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -116,7 +114,7 @@ class TopupScreen extends StatelessWidget {
                                 [quota, validity, category]
                                     .where((value) => value.isNotEmpty)
                                     .join(' • '),
-                                style: const TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                                style: const TextStyle(fontSize: 12, color: Color(0xFFD4D4D8)),
                               ),
                             ],
                           ),
@@ -127,7 +125,7 @@ class TopupScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF18181B),
+                            color: Color(0xFF0A0A0A),
                           ),
                         ),
                       ],
@@ -135,7 +133,6 @@ class TopupScreen extends StatelessWidget {
                   );
                 },
               ),
-      ),
     );
   }
 }

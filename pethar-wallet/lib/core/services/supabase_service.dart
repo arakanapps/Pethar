@@ -191,8 +191,8 @@ class SupabaseService {
           fee: (map['fee'] is num)
               ? (map['fee'] as num).toDouble()
               : double.tryParse(map['fee']?.toString() ?? '0') ?? 0.0,
-          createdAt: DateTime.tryParse(
-              map['created_at']?.toString() ?? '')?.toLocal(),
+          createdAt:
+              DateTime.tryParse(map['created_at']?.toString() ?? '')?.toLocal(),
         );
       }).toList();
     } catch (e) {
@@ -411,7 +411,10 @@ class SupabaseService {
     } catch (e) {
       debugPrint('Error changing PIN in Supabase: $e');
       if (kDebugMode) {
-        return {'success': true, 'message': 'PIN changed successfully (debug mode)'};
+        return {
+          'success': true,
+          'message': 'PIN changed successfully (debug mode)'
+        };
       }
       return {'success': false, 'message': e.toString()};
     }
@@ -450,7 +453,10 @@ class SupabaseService {
     } catch (e) {
       debugPrint('Error resetting PIN in Supabase: $e');
       if (kDebugMode) {
-        return {'success': true, 'message': 'PIN reset successful (debug mode)'};
+        return {
+          'success': true,
+          'message': 'PIN reset successful (debug mode)'
+        };
       }
       return {'success': false, 'message': e.toString()};
     }
@@ -718,7 +724,7 @@ class SupabaseService {
           : {'success': false, 'message': 'Unable to submit KYC'};
     } catch (e) {
       debugPrint('Error submitting KYC Level 2: $e');
-      return {'success': false, 'message': 'Unable to submit KYC' };
+      return {'success': false, 'message': 'Unable to submit KYC'};
     }
   }
 
@@ -817,6 +823,24 @@ class SupabaseService {
       debugPrint('Error ensuring user profile: $e');
       return null;
     }
+  }
+
+  /// Resolve a transfer / pay recipient on the server before confirming.
+  /// Returns only the display name, wallet address and existence flags so the
+  /// UI never has to expose usernames or nicknames. Throws on transport or
+  /// server errors so the caller can tell "not found" from "could not check".
+  Future<Map<String, dynamic>> lookupTransferRecipient(
+      String identifier) async {
+    final query = identifier.trim();
+    if (query.isEmpty) return {'found': false};
+    if (!isAuthenticated) {
+      throw StateError('Sign in again before transferring.');
+    }
+    final result = await client.rpc('lookup_transfer_recipient', params: {
+      'p_identifier': query,
+    });
+    if (result is Map) return Map<String, dynamic>.from(result);
+    return {'found': false};
   }
 
   /// Send money through the server-side AKD-only transaction endpoint.
@@ -996,8 +1020,7 @@ class SupabaseService {
       );
       if (response.status != 200) {
         final data = response.data;
-        final message =
-            data is Map ? (data['message'] ?? data['error']) : null;
+        final message = data is Map ? (data['message'] ?? data['error']) : null;
         return {
           'success': false,
           'message': message?.toString() ?? 'Withdrawal request failed',

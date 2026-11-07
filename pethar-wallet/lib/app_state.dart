@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
@@ -19,7 +20,7 @@ enum Screen {
   scan,
   crypto,
   notifications,
-  pay,
+  transfer,
   history,
   favourites,
   topup,
@@ -30,7 +31,7 @@ class AppState extends ChangeNotifier {
   Screen currentScreen = Screen.home;
   List<Screen> navigationStack = [Screen.home];
   String language = 'en'; // Default English matching iOS MobileWalletPage
-  ThemeMode themeMode = ThemeMode.light; // Strictly light theme matching iOS
+  ThemeMode themeMode = ThemeMode.dark; // True-black dark theme (OLED)
   bool isAuthenticated =
       false; // Pre-authenticated for immediate testing on emulator
 
@@ -348,43 +349,106 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  AppState() {
-    _initializeAuthAndData();
+  bool _bootstrapped = false;
+  Timer? _startupDeadline;
+
+  /// Deliberately does NOT start any I/O. Cold-start restore is triggered by
+  /// [bootstrap] once the first Flutter frame has been rendered, so plugin /
+  /// Keychain / Keystore work can never delay the splash from appearing.
+  AppState();
+
+  @override
+  void dispose() {
+    _startupDeadline?.cancel();
+    super.dispose();
   }
 
+  /// Starts the cold-start session restore. Safe to call multiple times.
+  /// Invoked from [MainShell] after the first frame, not from the constructor.
+  void bootstrap() {
+    if (_bootstrapped) return;
+    _bootstrapped = true;
+
+    // Hard safety net: a slow or wedged platform channel (secure storage,
+    // shared preferences, Supabase) must never trap the app on the logo.
+    _startupDeadline = Timer(const Duration(seconds: 6), () {
+      if (!isInitializing) return;
+      debugPrint('[Startup] Session restore timed out; releasing splash');
+      isInitializing = false;
+      notifyListeners();
+    });
+
+    unawaited(_initializeAuthAndData());
+  }
+
+  /// Fast cold-start path: resolve the locally saved identity first and show
+  /// the login or PIN gate immediately. Supabase initialization, token refresh
+  /// and remote wallet data are all moved off the first-frame critical path.
   Future<void> _initializeAuthAndData() async {
     try {
       await AuthService().initialize();
-
-      // 1. Decrypt hardware-level tokens and check session validity
-      final hasValidSession = await loadUserSession();
-      if (hasValidSession && _isSupabaseReady) {
-        final supaUser = SupabaseService().currentUser;
-        if (supaUser?.email != null && supaUser!.email!.isNotEmpty) {
-          final user = AuthService().getUser(supaUser.email!);
-          if (user != null) {
-            _applyAuthenticatedUser(user);
-            lockApp();
-            return;
-          }
-        }
-      }
 
       final activeEmail = await AuthService().getSavedActiveUserEmail();
       if (activeEmail != null && activeEmail.isNotEmpty) {
         final user = AuthService().getUser(activeEmail);
         if (user != null) {
           _applyAuthenticatedUser(user);
-          lockApp();
-          return; // _applyAuthenticatedUser triggers loadSupabaseData()
+          // Only gate behind the PIN screen when a PIN can actually be
+          // verified locally; otherwise the lock screen would be a dead end.
+          if (await _hasStoredPin()) lockApp();
+          isInitializing = false;
+          _startupDeadline?.cancel();
+          notifyListeners();
+          unawaited(_bootstrapSupabaseAndData());
+          return;
         }
       }
-      await loadSupabaseData();
     } catch (e) {
-      debugPrint('[Startup] Session restore failed: ${e.runtimeType}');
-    } finally {
-      isInitializing = false;
-      notifyListeners();
+      debugPrint('[Startup] Local session restore failed: ${e.runtimeType}');
+    }
+
+    // No saved identity: go straight to the login screen.
+    isInitializing = false;
+    _startupDeadline?.cancel();
+    notifyListeners();
+    unawaited(_bootstrapSupabaseAndData());
+  }
+
+  /// True when a PIN hash exists in the hardware vault. On a vault read error
+  /// we fail closed (keep the PIN gate) rather than exposing an unlocked app.
+  Future<bool> _hasStoredPin() async {
+    try {
+      final hash = await _secureStorage.read(key: _keyPinHash);
+      return hash != null && hash.isNotEmpty;
+    } catch (e) {
+      debugPrint('[Security] PIN vault read failure: ${e.runtimeType}');
+      return true;
+    }
+  }
+
+  /// Background startup work: initialize Supabase, restore/refresh the secure
+  /// session and then fetch remote wallet data. Never blocks the PIN/login UI.
+  Future<void> _bootstrapSupabaseAndData() async {
+    try {
+      await SupabaseService.initialize();
+
+      final hasValidSession = await loadUserSession();
+      if (hasValidSession && !isAuthenticated) {
+        final supaEmail = SupabaseService().currentUser?.email;
+        if (supaEmail != null && supaEmail.isNotEmpty) {
+          final user = AuthService().getUser(supaEmail);
+          if (user != null) {
+            _applyAuthenticatedUser(user);
+            if (await _hasStoredPin()) lockApp();
+          }
+        }
+      }
+
+      if (isAuthenticated) {
+        await loadSupabaseData();
+      }
+    } catch (e) {
+      debugPrint('[Startup] Background bootstrap failed: ${e.runtimeType}');
     }
   }
 
@@ -468,8 +532,8 @@ class AppState extends ChangeNotifier {
               profileMap['address'].toString().isNotEmpty) {
             profile.address = profileMap['address'].toString();
           }
-          profile.addressHouseNo =
-              profileMap['address_house_no']?.toString() ?? profile.addressHouseNo;
+          profile.addressHouseNo = profileMap['address_house_no']?.toString() ??
+              profile.addressHouseNo;
           profile.addressStreet =
               profileMap['address_street']?.toString() ?? profile.addressStreet;
           profile.addressWard =
@@ -483,9 +547,8 @@ class AppState extends ChangeNotifier {
           profile.addressProvince =
               profileMap['address_province']?.toString() ??
                   profile.addressProvince;
-          profile.addressCountry =
-              profileMap['address_country']?.toString() ??
-                  profile.addressCountry;
+          profile.addressCountry = profileMap['address_country']?.toString() ??
+              profile.addressCountry;
           profile.addressPostalCode =
               profileMap['address_postal_code']?.toString() ??
                   profile.addressPostalCode;
@@ -497,9 +560,8 @@ class AppState extends ChangeNotifier {
               profileMap['selfie_url']?.toString() ?? profile.selfieUrl;
           profile.kycRejectionReason =
               profileMap['kyc_rejection_reason']?.toString() ?? '';
-          profile.kycSubmittedAt =
-              profileMap['kyc_submitted_at']?.toString() ??
-                  profile.kycSubmittedAt;
+          profile.kycSubmittedAt = profileMap['kyc_submitted_at']?.toString() ??
+              profile.kycSubmittedAt;
           if (profileMap['kyc_status'] != null &&
               profileMap['kyc_status'].toString().isNotEmpty) {
             profile.kycStatus = profileMap['kyc_status'].toString();
@@ -701,7 +763,7 @@ class AppState extends ChangeNotifier {
       'username': username,
       'uid': uid,
     };
-    navigate(Screen.pay);
+    navigate(Screen.transfer);
   }
 
   void clearPendingPayContact() {
@@ -744,12 +806,13 @@ class AppState extends ChangeNotifier {
   }
 
   void toggleTheme() {
-    themeMode = ThemeMode.light;
+    themeMode =
+        themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     notifyListeners();
   }
 
   void setTheme(ThemeMode mode) {
-    themeMode = ThemeMode.light;
+    themeMode = mode;
     notifyListeners();
   }
 

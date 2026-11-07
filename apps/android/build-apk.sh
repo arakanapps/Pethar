@@ -27,10 +27,11 @@ flutter pub get
 
 case "$TARGET" in
   arm64)
-    flutter build apk --release --target-platform android-arm64 "${EXTRA_FLAGS[@]}"
+    flutter build apk --release --split-per-abi \
+      --target-platform android-arm64 "${EXTRA_FLAGS[@]}"
     ;;
   all)
-    flutter build apk --release --target-platform android-arm,android-arm64,android-x64 "${EXTRA_FLAGS[@]}"
+    flutter build apk --release --target-platform android-arm,android-arm64 "${EXTRA_FLAGS[@]}"
     ;;
   *)
     flutter build apk --release --split-per-abi \
