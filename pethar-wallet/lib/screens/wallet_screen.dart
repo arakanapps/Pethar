@@ -462,7 +462,7 @@ class _WalletScreenState extends State<WalletScreen> {
           else
             _buildHistoryListSliver(context, appState, isAk),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 110)),
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
       ),
     );

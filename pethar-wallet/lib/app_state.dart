@@ -30,7 +30,17 @@ class AppState extends ChangeNotifier {
   List<Screen> navigationStack = [Screen.home];
   String language = 'en'; // Default English matching iOS MobileWalletPage
   ThemeMode themeMode = ThemeMode.light; // Strictly light theme matching iOS
-  bool isAuthenticated = false; // Pre-authenticated for immediate testing on emulator
+  bool isAuthenticated =
+      false; // Pre-authenticated for immediate testing on emulator
+
+  /// True while the saved session is being restored on cold start. The shell
+  /// keeps showing the splash until this flips to false, so the login screen
+  /// never flashes before the PIN lock is applied.
+  bool isInitializing = true;
+
+  /// True when a restored session must be unlocked with the PIN gate before
+  /// any wallet UI is shown (cold app start security lock).
+  bool isAppLocked = false;
   String financialSubView =
       'wallet_main'; // 'wallet_main' | 'deposit' | 'withdraw' | 'tx_history' | 'spending' | 'wallet_security_phrase'
   UserProfile profile = initialUserProfile;
@@ -120,8 +130,7 @@ class AppState extends ChangeNotifier {
 
   /// Encrypts and writes tokens immediately to the hardware vault.
   /// Enforces zero logging or plain-text exposure of credentials.
-  Future<void> saveUserSession(
-      String accessToken, String refreshToken) async {
+  Future<void> saveUserSession(String accessToken, String refreshToken) async {
     final cleanAccess = accessToken.trim();
     final cleanRefresh = refreshToken.trim();
 
@@ -204,8 +213,7 @@ class AppState extends ChangeNotifier {
           if (refreshResponse.session != null &&
               !refreshResponse.session!.isExpired) {
             final newAccess = refreshResponse.session!.accessToken;
-            final newRefresh =
-                refreshResponse.session!.refreshToken ?? refresh;
+            final newRefresh = refreshResponse.session!.refreshToken ?? refresh;
             await saveUserSession(newAccess, newRefresh);
             return true;
           }
@@ -247,7 +255,8 @@ class AppState extends ChangeNotifier {
       final hash = sha256.convert(bytes).toString();
       await _secureStorage.write(key: _keyPinHash, value: hash);
     } catch (e) {
-      debugPrint('[Security] Hardware vault PIN write failure: ${e.runtimeType}');
+      debugPrint(
+          '[Security] Hardware vault PIN write failure: ${e.runtimeType}');
     }
   }
 
@@ -262,7 +271,8 @@ class AppState extends ChangeNotifier {
       final candidateHash = sha256.convert(bytes).toString();
       return storedHash == candidateHash;
     } catch (e) {
-      debugPrint('[Security] Hardware vault PIN read failure: ${e.runtimeType}');
+      debugPrint(
+          '[Security] Hardware vault PIN read failure: ${e.runtimeType}');
       return false;
     }
   }
@@ -272,8 +282,52 @@ class AppState extends ChangeNotifier {
     try {
       await _secureStorage.delete(key: _keyPinHash);
     } catch (e) {
-      debugPrint('[Security] Hardware vault PIN purge failure: ${e.runtimeType}');
+      debugPrint(
+          '[Security] Hardware vault PIN purge failure: ${e.runtimeType}');
     }
+  }
+
+  /// Locks the app behind the PIN gate. Used when a saved session is restored
+  /// on cold start so the wallet is never opened without re-authentication.
+  void lockApp() {
+    if (!isAuthenticated || isAppLocked) return;
+    isAppLocked = true;
+    notifyListeners();
+  }
+
+  /// Verifies [pin] against the hardware vault hash and unlocks the app.
+  /// Falls back to the locally stored profile PIN for sessions created before
+  /// the vault hash existed, migrating that PIN into the vault on success.
+  Future<bool> unlockWithPin(String pin) async {
+    final cleanPin = pin.trim();
+    if (!RegExp(r'^\d{6}$').hasMatch(cleanPin)) return false;
+
+    bool isValid = false;
+    try {
+      final storedHash = await _secureStorage.read(key: _keyPinHash);
+      if (storedHash != null && storedHash.isNotEmpty) {
+        isValid = await verifySecurePin(cleanPin);
+      } else if (profile.pin.trim().isNotEmpty) {
+        isValid = cleanPin == profile.pin.trim();
+        if (isValid) await saveSecurePinHash(cleanPin);
+      }
+    } catch (e) {
+      debugPrint('[Security] App unlock failure: ${e.runtimeType}');
+      isValid = false;
+    }
+
+    if (isValid) {
+      isAppLocked = false;
+      notifyListeners();
+    }
+    return isValid;
+  }
+
+  /// Unlocks the app after a successful fingerprint / Face ID prompt.
+  void unlockWithBiometrics() {
+    if (!isAppLocked) return;
+    isAppLocked = false;
+    notifyListeners();
   }
 
   /// Performs an active cryptographic purge of keys upon logout or session invalidation events.
@@ -296,30 +350,39 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> _initializeAuthAndData() async {
-    await AuthService().initialize();
+    try {
+      await AuthService().initialize();
 
-    // 1. Decrypt hardware-level tokens and check session validity
-    final hasValidSession = await loadUserSession();
-    if (hasValidSession && _isSupabaseReady) {
-      final supaUser = SupabaseService().currentUser;
-      if (supaUser?.email != null && supaUser!.email!.isNotEmpty) {
-        final user = AuthService().getUser(supaUser.email!);
-        if (user != null) {
-          _applyAuthenticatedUser(user);
-          return;
+      // 1. Decrypt hardware-level tokens and check session validity
+      final hasValidSession = await loadUserSession();
+      if (hasValidSession && _isSupabaseReady) {
+        final supaUser = SupabaseService().currentUser;
+        if (supaUser?.email != null && supaUser!.email!.isNotEmpty) {
+          final user = AuthService().getUser(supaUser.email!);
+          if (user != null) {
+            _applyAuthenticatedUser(user);
+            lockApp();
+            return;
+          }
         }
       }
-    }
 
-    final activeEmail = await AuthService().getSavedActiveUserEmail();
-    if (activeEmail != null && activeEmail.isNotEmpty) {
-      final user = AuthService().getUser(activeEmail);
-      if (user != null) {
-        _applyAuthenticatedUser(user);
-        return; // _applyAuthenticatedUser triggers loadSupabaseData()
+      final activeEmail = await AuthService().getSavedActiveUserEmail();
+      if (activeEmail != null && activeEmail.isNotEmpty) {
+        final user = AuthService().getUser(activeEmail);
+        if (user != null) {
+          _applyAuthenticatedUser(user);
+          lockApp();
+          return; // _applyAuthenticatedUser triggers loadSupabaseData()
+        }
       }
+      await loadSupabaseData();
+    } catch (e) {
+      debugPrint('[Startup] Session restore failed: ${e.runtimeType}');
+    } finally {
+      isInitializing = false;
+      notifyListeners();
     }
-    await loadSupabaseData();
   }
 
   /// Fetch live data from Supabase tables scoped to current user
@@ -678,6 +741,7 @@ class AppState extends ChangeNotifier {
     } catch (_) {}
     profile = initialUserProfile;
     isAuthenticated = false;
+    isAppLocked = false;
     isVerified = false;
     favoriteContactsList = [];
     favoriteContacts = [];
@@ -695,9 +759,8 @@ class AppState extends ChangeNotifier {
 
   /// Apply authenticated user identity to state
   void _applyAuthenticatedUser(StoredUser user) {
-    final validUid = RegExp(r'^\d{12}$').hasMatch(user.uid)
-        ? user.uid
-        : generateUserUid();
+    final validUid =
+        RegExp(r'^\d{12}$').hasMatch(user.uid) ? user.uid : generateUserUid();
     user.uid = validUid;
     profile.email = user.email;
     profile.name = user.name;
@@ -774,8 +837,8 @@ class AppState extends ChangeNotifier {
       }
     }
 
-    final res =
-        await AuthService().loginWithEmailAndPin(email: cleanEmail, pin: cleanPin);
+    final res = await AuthService()
+        .loginWithEmailAndPin(email: cleanEmail, pin: cleanPin);
     if (res['success'] == true && res['user'] is StoredUser) {
       await saveSecurePinHash(pin);
       final session = SupabaseService().currentSession;
@@ -899,7 +962,8 @@ class AppState extends ChangeNotifier {
     required String pin,
     required String otp,
   }) async {
-    final res = await AuthService().verifyLoginOtp(email: email, pin: pin, otp: otp);
+    final res =
+        await AuthService().verifyLoginOtp(email: email, pin: pin, otp: otp);
     if (res['success'] == true && res['user'] is StoredUser) {
       await saveSecurePinHash(pin);
       final session = SupabaseService().currentSession;
@@ -920,7 +984,8 @@ class AppState extends ChangeNotifier {
     required String pin,
     String? name,
   }) async {
-    final res = await AuthService().loginWithGoogleAndPin(email: email, pin: pin, name: name);
+    final res = await AuthService()
+        .loginWithGoogleAndPin(email: email, pin: pin, name: name);
     if (res['success'] == true && res['user'] is StoredUser) {
       await saveSecurePinHash(pin);
       final session = SupabaseService().currentSession;
@@ -1253,10 +1318,17 @@ class AppState extends ChangeNotifier {
 
   Map<String, dynamic> issueUsd(double amount) {
     if (amount <= 0) {
-      return {'success': false, 'message': 'Please enter an amount greater than 0.'};
+      return {
+        'success': false,
+        'message': 'Please enter an amount greater than 0.'
+      };
     }
     if (wallet.balance < amount) {
-      return {'success': false, 'message': 'Insufficient AKD balance (Available: ${wallet.balance.toStringAsFixed(2)} AKD)'};
+      return {
+        'success': false,
+        'message':
+            'Insufficient AKD balance (Available: ${wallet.balance.toStringAsFixed(2)} AKD)'
+      };
     }
     wallet.balance -= amount;
     wallet.totalBalance = wallet.balance;
@@ -1290,13 +1362,22 @@ class AppState extends ChangeNotifier {
 
   Map<String, dynamic> withdrawUsd(double amount) {
     if (amount <= 0) {
-      return {'success': false, 'message': 'Please enter an amount greater than 0.'};
+      return {
+        'success': false,
+        'message': 'Please enter an amount greater than 0.'
+      };
     }
-    final totalUsd = usdAccountBalance + cryptoWallet.usdtBalance + cryptoWallet.usdcBalance;
+    final totalUsd =
+        usdAccountBalance + cryptoWallet.usdtBalance + cryptoWallet.usdcBalance;
     if (totalUsd < amount) {
-      return {'success': false, 'message': 'Insufficient USD balance (Available: ${totalUsd.toStringAsFixed(2)} USD)'};
+      return {
+        'success': false,
+        'message':
+            'Insufficient USD balance (Available: ${totalUsd.toStringAsFixed(2)} USD)'
+      };
     }
-    usdAccountBalance = (usdAccountBalance - amount).clamp(0.0, double.infinity);
+    usdAccountBalance =
+        (usdAccountBalance - amount).clamp(0.0, double.infinity);
     profile.usdAccountBalance = usdAccountBalance;
     if (cryptoWallet.usdtBalance >= amount) {
       cryptoWallet = cryptoWallet.copyWith(
@@ -1306,7 +1387,8 @@ class AppState extends ChangeNotifier {
       final rem = amount - cryptoWallet.usdtBalance;
       cryptoWallet = cryptoWallet.copyWith(
         usdtBalance: 0.0,
-        usdcBalance: (cryptoWallet.usdcBalance - rem).clamp(0.0, double.infinity),
+        usdcBalance:
+            (cryptoWallet.usdcBalance - rem).clamp(0.0, double.infinity),
       );
     }
     wallet.balance += amount;
@@ -1341,10 +1423,16 @@ class AppState extends ChangeNotifier {
     required String network,
   }) {
     if (amount <= 0) {
-      return {'success': false, 'message': 'Please enter an amount greater than 0.'};
+      return {
+        'success': false,
+        'message': 'Please enter an amount greater than 0.'
+      };
     }
     if (toAddress.trim().isEmpty) {
-      return {'success': false, 'message': 'Please enter recipient wallet address.'};
+      return {
+        'success': false,
+        'message': 'Please enter recipient wallet address.'
+      };
     }
     if (token == 'USDT' && cryptoWallet.usdtBalance < amount) {
       return {'success': false, 'message': 'Insufficient USDT balance.'};
@@ -1357,11 +1445,13 @@ class AppState extends ChangeNotifier {
     }
     if (token == 'USDT') {
       cryptoWallet = cryptoWallet.copyWith(
-        usdtBalance: (cryptoWallet.usdtBalance - amount).clamp(0.0, double.infinity),
+        usdtBalance:
+            (cryptoWallet.usdtBalance - amount).clamp(0.0, double.infinity),
       );
     } else if (token == 'USDC') {
       cryptoWallet = cryptoWallet.copyWith(
-        usdcBalance: (cryptoWallet.usdcBalance - amount).clamp(0.0, double.infinity),
+        usdcBalance:
+            (cryptoWallet.usdcBalance - amount).clamp(0.0, double.infinity),
       );
     } else if (token == 'USD') {
       usdAccountBalance -= amount;
@@ -1400,7 +1490,10 @@ class AppState extends ChangeNotifier {
     required double toAmount,
   }) {
     if (fromAmount <= 0) {
-      return {'success': false, 'message': 'Please enter an amount greater than 0.'};
+      return {
+        'success': false,
+        'message': 'Please enter an amount greater than 0.'
+      };
     }
     if (fromToken == 'USDT' && cryptoWallet.usdtBalance < fromAmount) {
       return {'success': false, 'message': 'Insufficient USDT balance.'};
@@ -1459,7 +1552,8 @@ class AppState extends ChangeNotifier {
       status: 'COMPLETED',
       counterparty: 'Uniswap Liquidity Pool',
       counterpartyMm: 'Uniswap အရည်အသွေးကန်',
-      hash: '0x${(DateTime.now().millisecondsSinceEpoch + 1).toRadixString(16)}',
+      hash:
+          '0x${(DateTime.now().millisecondsSinceEpoch + 1).toRadixString(16)}',
       amount: toAmount,
       fee: 0.0,
     );

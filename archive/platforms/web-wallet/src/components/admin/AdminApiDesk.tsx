@@ -1,6 +1,15 @@
 import React from 'react'
-import { Terminal, Play, Copy, Check } from 'lucide-react'
+import { Terminal, Play, Copy, Check, Zap, ShieldCheck, Globe2 } from 'lucide-react'
 import type { ApiEndpointItem } from '../../pages/DashboardPage'
+import {
+  DeskHeader,
+  Panel,
+  StatCard,
+  StatusPill,
+  adminMuted,
+  adminText,
+} from './AdminUI'
+import { cn } from '../../lib/utils'
 
 interface AdminApiDeskProps {
   apiEndpoints: ApiEndpointItem[]
@@ -24,115 +33,177 @@ export const AdminApiDesk: React.FC<AdminApiDeskProps> = ({
   isDarkMode,
 }) => {
   return (
-    <div className="space-y-4">
-      {/* Top SLA Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-base font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-            <Terminal size={18} className="text-[#FF6B00]" />
-            <span>Developer Gateway & REST APIs</span>
-          </h2>
-          <div className="text-[11px] text-slate-400 font-mono">
-            High-availability settlement gateway with zero-knowledge cryptographic signature verification
-          </div>
-        </div>
+    <div className="space-y-5">
+      <DeskHeader
+        eyebrow="Platform · Developer"
+        title="API Gateway"
+        description="Inspect and execute settlement endpoints. Requests are signed, rate-limited and verified against the ledger consensus layer."
+        isDarkMode={isDarkMode}
+        actions={
+          <>
+            <StatusPill tone="emerald" dot>
+              99.995% uptime
+            </StatusPill>
+            <div
+              className={cn(
+                'flex items-center gap-2 rounded-xl border px-3 py-2 font-mono text-[10px] font-bold',
+                isDarkMode
+                  ? 'border-white/[0.07] bg-white/[0.03] text-slate-400'
+                  : 'border-slate-200 bg-white text-slate-500',
+              )}
+            >
+              <Zap size={13} className="text-orange-500" />
+              1,000 req/s
+            </div>
+          </>
+        }
+      />
 
-        <div className="flex items-center gap-2 text-xs font-mono">
-          <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20">
-            99.995% Uptime SLA
-          </span>
-          <span className="px-2.5 py-1 rounded-xl bg-[#FF6B00]/10 text-[#FF6B00] font-bold border border-[#FF6B00]/20">
-            1,000 req/s
-          </span>
-        </div>
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <StatCard
+          label="Gateway status"
+          value="Operational"
+          hint="All regional edges healthy"
+          icon={<Globe2 size={15} />}
+          tone="emerald"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="Median latency"
+          value="84 ms"
+          hint="p50 across all endpoints"
+          icon={<Zap size={15} />}
+          tone="amber"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="Signature checks"
+          value="100%"
+          hint="Ed25519 zero-knowledge"
+          icon={<ShieldCheck size={15} />}
+          tone="blue"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="Registered routes"
+          value={apiEndpoints.length}
+          hint="Versioned and documented"
+          icon={<Terminal size={15} />}
+          tone="indigo"
+          isDarkMode={isDarkMode}
+        />
       </div>
 
-      {/* Grid: Endpoints Selector & Execution Console */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        {/* Endpoints List (4 cols) */}
-        <div className="lg:col-span-4 space-y-2">
-          <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 px-1">
-            Registered Endpoints
+      <div className="grid items-start gap-4 xl:grid-cols-12">
+        <Panel
+          isDarkMode={isDarkMode}
+          className="xl:col-span-4"
+          bodyClassName="p-0"
+          title="Registered endpoints"
+          description="Select a route to load the console."
+        >
+          <div className={cn('divide-y', isDarkMode ? 'divide-white/[0.06]' : 'divide-slate-100')}>
+            {apiEndpoints.map((endpoint) => {
+              const isActive = activeApiEndpoint.id === endpoint.id
+              return (
+                <button
+                  key={endpoint.id}
+                  type="button"
+                  onClick={() => setActiveApiEndpoint(endpoint)}
+                  className={cn(
+                    'w-full px-4 py-3.5 text-left transition',
+                    isActive
+                      ? isDarkMode
+                        ? 'bg-orange-500/[0.08]'
+                        : 'bg-orange-50/70'
+                      : isDarkMode
+                        ? 'hover:bg-white/[0.025]'
+                        : 'hover:bg-slate-50',
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        'rounded-md px-1.5 py-0.5 font-mono text-[9px] font-bold',
+                        endpoint.method === 'POST'
+                          ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                          : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
+                      )}
+                    >
+                      {endpoint.method}
+                    </span>
+                    <span className={cn('truncate font-mono text-[11px] font-bold', adminText(isDarkMode))}>
+                      {endpoint.path}
+                    </span>
+                    {isActive && (
+                      <span className="ml-auto h-1.5 w-1.5 rounded-full bg-orange-500" />
+                    )}
+                  </div>
+                  <div className={cn('mt-1 line-clamp-1 text-[10px]', adminMuted(isDarkMode))}>
+                    {endpoint.description}
+                  </div>
+                </button>
+              )
+            })}
           </div>
-          {apiEndpoints.map((ep) => {
-            const isActive = activeApiEndpoint.id === ep.id
-            return (
-              <button
-                key={ep.id}
-                onClick={() => setActiveApiEndpoint(ep)}
-                className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer ${
-                  isActive
-                    ? isDarkMode
-                      ? 'bg-zinc-800 border-[#FF6B00] shadow-sm'
-                      : 'bg-orange-50/50 border-[#FF6B00] shadow-sm'
-                    : isDarkMode
-                    ? 'bg-zinc-900/50 border-white/5 hover:bg-zinc-800/60'
-                    : 'bg-white border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
-                      ep.method === 'POST'
-                        ? 'bg-amber-500/15 text-amber-500'
-                        : 'bg-emerald-500/15 text-emerald-500'
-                    }`}
-                  >
-                    {ep.method}
-                  </span>
-                  <span className="font-mono text-xs font-bold truncate text-slate-900 dark:text-white">
-                    {ep.path}
-                  </span>
-                </div>
-                <div className="text-[11px] text-slate-400 line-clamp-1">{ep.description}</div>
-              </button>
-            )
-          })}
-        </div>
+        </Panel>
 
-        {/* Execution Playground (8 cols) */}
-        <div className="lg:col-span-8 rounded-2xl bg-zinc-950 text-zinc-200 border border-white/10 shadow-xl overflow-hidden font-mono text-xs">
-          {/* Header */}
-          <div className="p-3.5 bg-zinc-900/80 border-b border-white/10 flex items-center justify-between">
-            <span className="text-white font-bold truncate pr-2">
-              https://api.pethar.co.uk{activeApiEndpoint.path}
-            </span>
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#070B13] shadow-2xl xl:col-span-8">
+          <div className="flex flex-col gap-3 border-b border-white/[0.07] bg-[#0A101C] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-white/[0.03] text-orange-400">
+                <Terminal size={12} />
+              </span>
+              <span className="truncate font-mono text-[11px] text-slate-300">
+                https://api.pethar.co.uk{activeApiEndpoint.path}
+              </span>
+            </div>
             <button
+              type="button"
               onClick={onTestEndpoint}
               disabled={apiSimulating}
-              className="px-3.5 py-1.5 rounded-xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95 shrink-0"
+              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-orange-500 px-3.5 py-2 font-mono text-[10px] font-bold text-white transition hover:bg-orange-600 active:scale-95 disabled:opacity-60"
             >
               <Play size={12} />
-              <span>{apiSimulating ? 'Executing...' : 'Execute'}</span>
+              {apiSimulating ? 'Executing…' : 'Execute'}
             </button>
           </div>
 
-          {/* Request Body */}
           {activeApiEndpoint.requestBody && (
-            <div className="p-3.5 border-b border-white/10 space-y-1.5">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase">Request JSON</span>
-              <pre className="p-3 rounded-xl bg-zinc-900/50 text-zinc-300 overflow-x-auto text-[11px]">
+            <div className="border-b border-white/[0.06] p-4">
+              <div className="mb-2 font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                Request JSON
+              </div>
+              <pre className="overflow-x-auto rounded-xl border border-white/[0.06] bg-[#05090F] p-3 font-mono text-[11px] leading-relaxed text-slate-300">
                 {activeApiEndpoint.requestBody}
               </pre>
             </div>
           )}
 
-          {/* Response Body */}
-          <div className="p-3.5 space-y-1.5">
-            <div className="flex items-center justify-between text-emerald-400">
-              <span className="text-[10px] font-bold uppercase">
-                Response (200 OK • {activeApiEndpoint.latency})
-              </span>
+          <div className="p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-2 font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-emerald-400">
+                200 OK
+                <span className="text-slate-600">·</span>
+                <span className="text-slate-500">{activeApiEndpoint.latency}</span>
+              </div>
               <button
+                type="button"
                 onClick={onCopyJson}
-                className="text-zinc-400 hover:text-white transition cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-500 transition hover:bg-white/5 hover:text-white"
+                title="Copy response JSON"
               >
                 {copiedApiJson ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
               </button>
             </div>
-            <pre className="p-3 rounded-xl bg-zinc-900/90 text-emerald-400 overflow-x-auto text-[11px]">
+            <pre className="max-h-[340px] overflow-auto rounded-xl border border-white/[0.06] bg-[#05090F] p-3 font-mono text-[11px] leading-relaxed text-emerald-300">
               {activeApiEndpoint.responseBody}
             </pre>
+          </div>
+
+          <div className="flex items-center justify-between border-t border-white/[0.06] px-4 py-2.5 font-mono text-[9px] text-slate-500">
+            <span>Auth · Bearer token + Ed25519 signature</span>
+            <span>Region · ap-southeast-1</span>
           </div>
         </div>
       </div>

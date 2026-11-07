@@ -47,7 +47,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
             // ── Product & Service List (All Features Coming Soon) ──
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                 children: [
                   // 1. Gift Card (Coming Soon - Don't open page)
                   _buildProductCard(

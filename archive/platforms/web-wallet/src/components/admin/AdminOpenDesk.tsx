@@ -1,12 +1,26 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Send,
   Smartphone,
   Wallet,
   Search,
   Radio,
+  MessageSquare,
+  ShieldCheck,
+  Inbox,
 } from 'lucide-react'
 import type { ChatMessage } from '../../pages/DashboardPage'
+import {
+  Avatar,
+  DeskHeader,
+  EmptyState,
+  Panel,
+  StatusPill,
+  adminInput,
+  adminMuted,
+  adminText,
+} from './AdminUI'
+import { cn } from '../../lib/utils'
 
 interface AdminOpenDeskProps {
   messages: ChatMessage[]
@@ -31,7 +45,6 @@ export const AdminOpenDesk: React.FC<AdminOpenDeskProps> = ({
   onSimulateWalletMsg,
   isDarkMode,
 }) => {
-  const [selectedTicketId, setSelectedTicketId] = useState<string>('primary-thread')
   const [search, setSearch] = useState('')
 
   const cannedReplies = [
@@ -41,94 +54,89 @@ export const AdminOpenDesk: React.FC<AdminOpenDeskProps> = ({
     'Your ticket has been marked as resolved.',
   ]
 
-  const filteredMessages = messages.filter(
-    (m) => channelFilter === 'all' || m.channel === channelFilter
-  )
+  const filteredMessages = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    return messages.filter((message) => {
+      const matchesChannel = channelFilter === 'all' || message.channel === channelFilter
+      const matchesSearch = !query || message.text.toLowerCase().includes(query)
+      return matchesChannel && matchesSearch
+    })
+  }, [channelFilter, messages, search])
 
   return (
-    <div className="space-y-4">
-      {/* OpenDesk Header Bar with Quick Simulation Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-[#FF6B00]/15 text-[#FF6B00] flex items-center justify-center font-bold">
-            <Radio size={16} className="animate-pulse" />
-          </div>
-          <div>
-            <h2 className="text-base font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-              <span>OpenDesk Triage</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 font-bold">
-                OPERATIONAL
-              </span>
-            </h2>
-            <div className="text-[11px] text-slate-400 font-mono">
-              Live dual-rail dispatcher • Native Android APK & Web Wallet
-            </div>
-          </div>
-        </div>
+    <div className="space-y-5">
+      <DeskHeader
+        eyebrow="Operations · Support"
+        title="Customer Desk"
+        description="Live dual-rail dispatch across the Android app and web wallet. Triage conversations, reply with verified context and close tickets."
+        isDarkMode={isDarkMode}
+        actions={
+          <>
+            <button
+              type="button"
+              onClick={onSimulateAndroidMsg}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 font-mono text-[10px] font-bold transition active:scale-95',
+                isDarkMode
+                  ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/15'
+                  : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
+              )}
+            >
+              <Smartphone size={13} />
+              Simulate Android
+            </button>
+            <button
+              type="button"
+              onClick={onSimulateWalletMsg}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 font-mono text-[10px] font-bold transition active:scale-95',
+                isDarkMode
+                  ? 'border-sky-400/20 bg-sky-400/10 text-sky-300 hover:bg-sky-400/15'
+                  : 'border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100',
+              )}
+            >
+              <Wallet size={13} />
+              Simulate Web
+            </button>
+          </>
+        }
+      />
 
-        {/* Action Buttons to simulate messages */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onSimulateAndroidMsg}
-            className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold flex items-center gap-1.5 border transition cursor-pointer active:scale-95 ${
-              isDarkMode
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
-                : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-            }`}
-          >
-            <Smartphone size={13} />
-            <span>+ Sim Android Msg</span>
-          </button>
-
-          <button
-            onClick={onSimulateWalletMsg}
-            className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold flex items-center gap-1.5 border transition cursor-pointer active:scale-95 ${
-              isDarkMode
-                ? 'bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-500/20'
-                : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
-            }`}
-          >
-            <Wallet size={13} />
-            <span>+ Sim Web Msg</span>
-          </button>
-        </div>
-      </div>
-
-      {/* OpenDesk Split-Pane Container */}
-      <div
-        className={`rounded-2xl border overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-12 min-h-[560px] max-h-[720px] transition-all ${
-          isDarkMode ? 'bg-zinc-950 border-white/10' : 'bg-white border-slate-200'
-        }`}
-      >
-        {/* Left Column: Triage Queue & Channels (4 cols on lg) */}
-        <div
-          className={`lg:col-span-4 border-r flex flex-col ${
-            isDarkMode ? 'border-white/10 bg-zinc-900/50' : 'border-slate-200 bg-slate-50/60'
-          }`}
+      <div className="grid gap-4 xl:grid-cols-12">
+        <Panel
+          isDarkMode={isDarkMode}
+          className="xl:col-span-4"
+          bodyClassName="p-0"
+          title="Inbox"
+          description="Open conversations by channel"
+          actions={<StatusPill tone="emerald" dot>Live</StatusPill>}
         >
-          {/* Channel Selector Pills */}
           <div
-            className={`p-3 border-b flex items-center gap-1 text-xs font-mono font-bold ${
-              isDarkMode ? 'border-white/10' : 'border-slate-200'
-            }`}
+            className={cn(
+              'flex items-center gap-1 border-b px-3 py-2.5',
+              isDarkMode ? 'border-white/[0.06]' : 'border-slate-100',
+            )}
           >
-            {(['all', 'android', 'mobilewallet'] as const).map((ch) => (
+            {(['all', 'android', 'mobilewallet'] as const).map((channel) => (
               <button
-                key={ch}
-                onClick={() => setChannelFilter(ch)}
-                className={`flex-1 py-1.5 px-2 rounded-lg text-center transition cursor-pointer ${
-                  channelFilter === ch
-                    ? 'bg-[#FF6B00] text-white shadow-xs'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                key={channel}
+                type="button"
+                onClick={() => setChannelFilter(channel)}
+                className={cn(
+                  'flex-1 rounded-lg px-2 py-1.5 font-mono text-[10px] font-bold transition',
+                  channelFilter === channel
+                    ? 'bg-orange-500 text-white shadow-sm'
+                    : isDarkMode
+                      ? 'text-slate-400 hover:bg-white/[0.05] hover:text-white'
+                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900',
+                )}
               >
-                {ch === 'all' ? 'All' : ch === 'android' ? 'Android' : 'Web'}
+                {channel === 'all' ? 'All' : channel === 'android' ? 'Android' : 'Web'}
               </button>
             ))}
           </div>
 
-          {/* Quick Filter */}
-          <div className="p-2.5 border-b border-inherit">
+          <div className={cn('border-b p-3', isDarkMode ? 'border-white/[0.06]' : 'border-slate-100')}>
             <div className="relative">
               <Search
                 size={13}
@@ -137,208 +145,202 @@ export const AdminOpenDesk: React.FC<AdminOpenDeskProps> = ({
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search ticket or user..."
-                className={`w-full pl-7 pr-2.5 py-1.5 rounded-lg text-xs font-medium border transition focus:outline-none focus:border-[#FF6B00] ${
-                  isDarkMode
-                    ? 'bg-zinc-900/80 border-white/10 text-white placeholder-zinc-500'
-                    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
-                }`}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search conversation…"
+                className={cn(
+                  'w-full rounded-xl border py-2 pl-7 pr-2.5 text-[11px] font-medium outline-none transition',
+                  adminInput(isDarkMode),
+                )}
               />
             </div>
           </div>
 
-          {/* Tickets List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-inherit">
+          <div className="max-h-[540px] overflow-y-auto">
             <div
-              onClick={() => setSelectedTicketId('primary-thread')}
-              className={`p-3.5 flex items-start gap-3 cursor-pointer transition ${
-                selectedTicketId === 'primary-thread'
-                  ? isDarkMode
-                    ? 'bg-zinc-800/80 border-l-2 border-[#FF6B00]'
-                    : 'bg-white shadow-xs border-l-2 border-[#FF6B00]'
-                  : isDarkMode
-                  ? 'hover:bg-zinc-800/40'
-                  : 'hover:bg-slate-100/70'
-              }`}
+              className={cn(
+                'flex items-start gap-3 border-l-2 border-orange-500 px-3.5 py-3.5',
+                isDarkMode ? 'bg-white/[0.03]' : 'bg-orange-50/50',
+              )}
             >
               <div className="relative shrink-0">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#FF6B00] to-amber-500 text-white font-black text-xs flex items-center justify-center">
-                  C
-                </div>
-                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-900" />
+                <Avatar label="C" tone="amber" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 dark:border-[#0C1424]" />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-xs text-slate-900 dark:text-white truncate">
-                    Active Support Dispatch
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className={cn('truncate text-xs font-bold', adminText(isDarkMode))}>
+                    Active support thread
                   </span>
-                  <span className="text-[10px] font-mono text-slate-400">Now</span>
+                  <span className="font-mono text-[9px] text-slate-400">Now</span>
                 </div>
-                <div className="text-[11px] text-slate-500 dark:text-zinc-400 line-clamp-1 mt-0.5">
+                <div className={cn('mt-0.5 truncate text-[11px]', adminMuted(isDarkMode))}>
                   {messages[messages.length - 1]?.text || 'No messages yet'}
                 </div>
-                <div className="flex items-center gap-2 mt-1.5 font-mono text-[10px]">
-                  <span className="px-1.5 py-0.2 rounded-md bg-emerald-500/10 text-emerald-500 font-bold">
-                    LIVE
-                  </span>
-                  <span className="text-slate-400">
-                    {filteredMessages.length} msgs
+                <div className="mt-1.5 flex items-center gap-2">
+                  <StatusPill tone="emerald" dot>
+                    Live
+                  </StatusPill>
+                  <span className={cn('font-mono text-[9px]', adminMuted(isDarkMode))}>
+                    {filteredMessages.length} messages
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Offline Node Peer Ticket */}
             <div
-              className={`p-3.5 flex items-start gap-3 opacity-75 hover:opacity-100 cursor-pointer transition ${
-                isDarkMode ? 'hover:bg-zinc-800/40' : 'hover:bg-slate-100/70'
-              }`}
+              className={cn(
+                'flex items-start gap-3 px-3.5 py-3.5 opacity-70 transition hover:opacity-100',
+                isDarkMode ? 'hover:bg-white/[0.025]' : 'hover:bg-slate-50',
+              )}
             >
-              <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 font-black text-xs flex items-center justify-center shrink-0">
-                M
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs truncate">Maung Kyaw Hla</span>
-                  <span className="text-[10px] font-mono text-slate-400">12m</span>
-                </div>
-                <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
-                  Offline QR signed slip synced to Sittwe Gateway node
-                </div>
-                <div className="flex items-center gap-2 mt-1.5 font-mono text-[10px]">
-                  <span className="px-1.5 py-0.2 rounded-md bg-blue-500/10 text-blue-500 font-bold">
-                    SYNCED
+              <Avatar label="M" tone="slate" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className={cn('truncate text-xs font-bold', adminText(isDarkMode))}>
+                    Offline QR sync
                   </span>
+                  <span className="font-mono text-[9px] text-slate-400">12m</span>
+                </div>
+                <div className={cn('mt-0.5 truncate text-[11px]', adminMuted(isDarkMode))}>
+                  Signed slip synced to Sittwe gateway node
+                </div>
+                <div className="mt-1.5">
+                  <StatusPill tone="blue">Synced</StatusPill>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </Panel>
 
-        {/* Right Column: Active Conversation (8 cols on lg) */}
-        <div className="lg:col-span-8 flex flex-col justify-between">
-          {/* Desk Conversation Header */}
-          <div
-            className={`p-3.5 border-b flex items-center justify-between ${
-              isDarkMode ? 'border-white/10 bg-zinc-900/40' : 'border-slate-200 bg-white'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="font-black text-xs text-slate-900 dark:text-white">
-                    Citizen Dispatch Stream
-                  </h4>
-                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-[#FF6B00]/10 text-[#FF6B00]">
-                    ROOT-01
-                  </span>
-                </div>
-                <div className="text-[10px] text-slate-400 font-mono">
-                  Listening to all client events • Sittwe Node 01
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 font-mono text-xs">
-              <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20 text-[10px]">
-                ENCRYPTED
-              </span>
-            </div>
-          </div>
-
-          {/* Chat Messages Stream */}
-          <div
-            className={`flex-1 overflow-y-auto p-4 space-y-3 ${
-              isDarkMode ? 'bg-zinc-950/60' : 'bg-slate-50/50'
-            }`}
-          >
-            {filteredMessages.map((msg) => {
-              const isOperator = msg.sender === 'operator'
-              const isAndroid = msg.channel === 'android'
-              return (
-                <div
-                  key={msg.id}
-                  className={`flex ${isOperator ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-md p-3.5 rounded-2xl text-xs space-y-1 shadow-xs transition-all ${
-                      isOperator
-                        ? 'bg-[#FF6B00] text-white rounded-br-xs font-medium'
-                        : isDarkMode
-                        ? 'bg-zinc-900 border border-white/10 text-white rounded-bl-xs'
-                        : 'bg-white border border-slate-200 text-slate-900 rounded-bl-xs'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-[10px] opacity-80 font-mono gap-3">
-                      <span className="font-bold flex items-center gap-1">
-                        {isOperator ? (
-                          '🛡️ Admin Operator'
-                        ) : isAndroid ? (
-                          <span className="text-emerald-400 font-bold">📱 Android Client</span>
-                        ) : (
-                          <span className="text-blue-400 font-bold">💼 Web Wallet</span>
+        <Panel
+          isDarkMode={isDarkMode}
+          className="xl:col-span-8"
+          bodyClassName="p-0"
+          title={
+            <span className="flex items-center gap-2">
+              <Radio size={14} className="text-orange-500" />
+              Conversation
+            </span>
+          }
+          description="All client events · Sittwe node 01"
+          actions={<StatusPill tone="emerald" dot>Encrypted</StatusPill>}
+        >
+          <div className="flex h-[540px] flex-col">
+            <div
+              className={cn(
+                'flex-1 space-y-3 overflow-y-auto p-4',
+                isDarkMode ? 'bg-[#080E1A]/60' : 'bg-slate-50/50',
+              )}
+            >
+              {filteredMessages.length === 0 ? (
+                <EmptyState
+                  isDarkMode={isDarkMode}
+                  icon={<Inbox size={20} />}
+                  title="No messages in this view"
+                  description="Change the channel filter or clear your search."
+                />
+              ) : (
+                filteredMessages.map((message) => {
+                  const isOperator = message.sender === 'operator'
+                  const isAndroid = message.channel === 'android'
+                  return (
+                    <div
+                      key={message.id}
+                      className={cn('flex', isOperator ? 'justify-end' : 'justify-start')}
+                    >
+                      <div
+                        className={cn(
+                          'max-w-md space-y-1.5 rounded-2xl px-3.5 py-3 text-xs shadow-sm',
+                          isOperator
+                            ? 'rounded-br-md bg-orange-500 text-white'
+                            : isDarkMode
+                              ? 'rounded-bl-md border border-white/[0.07] bg-[#0C1424] text-slate-100'
+                              : 'rounded-bl-md border border-slate-200 bg-white text-slate-900',
                         )}
-                      </span>
-                      <span>{msg.time}</span>
+                      >
+                        <div className="flex items-center justify-between gap-4 font-mono text-[9px] opacity-75">
+                          <span className="flex items-center gap-1 font-bold">
+                            {isOperator ? (
+                              <>
+                                <ShieldCheck size={10} />
+                                Operator
+                              </>
+                            ) : isAndroid ? (
+                              <>
+                                <Smartphone size={10} />
+                                Android client
+                              </>
+                            ) : (
+                              <>
+                                <MessageSquare size={10} />
+                                Web wallet
+                              </>
+                            )}
+                          </span>
+                          <span>{message.time}</span>
+                        </div>
+                        <p className="whitespace-pre-wrap leading-relaxed">{message.text}</p>
+                      </div>
                     </div>
-                    <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                  )
+                })
+              )}
+            </div>
 
-          {/* Canned Quick Responses (OpenDesk style) */}
-          <div
-            className={`px-3 py-2 border-t flex flex-wrap items-center gap-1.5 text-[11px] font-mono ${
-              isDarkMode ? 'border-white/10 bg-zinc-900/40' : 'border-slate-200 bg-white'
-            }`}
-          >
-            <span className="text-[10px] text-slate-400 uppercase font-bold mr-1">Quick:</span>
-            {cannedReplies.map((reply, i) => (
-              <button
-                key={i}
-                onClick={() => onSendMessage(reply)}
-                className={`px-2.5 py-1 rounded-lg border text-xs transition cursor-pointer ${
-                  isDarkMode
-                    ? 'bg-zinc-900 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                    : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                + {reply.slice(0, 24)}...
-              </button>
-            ))}
-          </div>
-
-          {/* Reply Input Bar */}
-          <div
-            className={`p-3 border-t flex items-center gap-2 ${
-              isDarkMode ? 'border-white/10 bg-zinc-900/60' : 'border-slate-200 bg-white'
-            }`}
-          >
-            <input
-              type="text"
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && onSendMessage()}
-              placeholder="Send response to citizen..."
-              className={`flex-1 px-3.5 py-2.5 rounded-xl text-xs font-medium border transition focus:outline-none focus:border-[#FF6B00] ${
-                isDarkMode
-                  ? 'bg-zinc-950 border-white/10 text-white placeholder-zinc-500'
-                  : 'bg-slate-100 border-slate-200 text-slate-900 placeholder-slate-400'
-              }`}
-            />
-            <button
-              onClick={() => onSendMessage()}
-              className="px-4 py-2.5 rounded-xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95"
+            <div
+              className={cn(
+                'flex flex-wrap items-center gap-1.5 border-t px-3 py-2',
+                isDarkMode ? 'border-white/[0.06]' : 'border-slate-100',
+              )}
             >
-              <Send size={13} />
-              <span>Send</span>
-            </button>
+              <span className={cn('mr-1 font-mono text-[9px] font-bold uppercase', adminMuted(isDarkMode))}>
+                Quick replies
+              </span>
+              {cannedReplies.map((reply) => (
+                <button
+                  key={reply}
+                  type="button"
+                  onClick={() => onSendMessage(reply)}
+                  className={cn(
+                    'max-w-[190px] truncate rounded-lg border px-2 py-1 text-[10px] transition',
+                    isDarkMode
+                      ? 'border-white/[0.07] bg-white/[0.03] text-slate-400 hover:text-white'
+                      : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900',
+                  )}
+                >
+                  {reply}
+                </button>
+              ))}
+            </div>
+
+            <div
+              className={cn(
+                'flex items-center gap-2 border-t p-3',
+                isDarkMode ? 'border-white/[0.06]' : 'border-slate-100',
+              )}
+            >
+              <input
+                type="text"
+                value={replyText}
+                onChange={(event) => setReplyText(event.target.value)}
+                onKeyDown={(event) => event.key === 'Enter' && onSendMessage()}
+                placeholder="Write a reply to the customer…"
+                className={cn(
+                  'flex-1 rounded-xl border px-3.5 py-2.5 text-xs font-medium outline-none transition',
+                  adminInput(isDarkMode),
+                )}
+              />
+              <button
+                type="button"
+                onClick={() => onSendMessage()}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-orange-600 active:scale-95"
+              >
+                <Send size={13} />
+                Send
+              </button>
+            </div>
           </div>
-        </div>
+        </Panel>
       </div>
     </div>
   )

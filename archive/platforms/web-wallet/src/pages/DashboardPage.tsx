@@ -17,7 +17,6 @@ import {
   fetchUserProfileFromDb,
   updateUserBalanceInDb,
   subscribeToTransactions,
-  fetchAllUsersForAdmin,
   updateUserStatusInDb,
   updateCitizenKycInDb,
 } from '../services/walletDatabase'
@@ -26,7 +25,6 @@ import { auth } from '../lib/firebase'
 import { AdminNavBar } from '../components/admin/AdminNavBar'
 import { AdminKycDesk } from '../components/admin/AdminKycDesk'
 import { AdminOpenDesk } from '../components/admin/AdminOpenDesk'
-import { AdminCitizenDirectory } from '../components/admin/AdminCitizenDirectory'
 import { AdminTreasuryDesk } from '../components/admin/AdminTreasuryDesk'
 import { AdminSecurityAml } from '../components/admin/AdminSecurityAml'
 import { AdminApiDesk } from '../components/admin/AdminApiDesk'
@@ -45,7 +43,6 @@ export type NavTabType =
   | 'admin-ads'
   | 'admin-api'
   | 'admin-fraud'
-  | 'admin-users'
   | 'admin-treasury'
 
 export interface DashboardPageProps {
@@ -79,25 +76,6 @@ export interface KycApplicant {
   docQuality: string
   rejectionReason?: string
   complianceNotes?: string
-}
-
-export interface AdminUserRecord {
-  uid: string
-  name: string
-  username: string
-  phone: string
-  email: string
-  walletAddress: string
-  akdBalance: number
-  usdBalance: number
-  kycTier: 1 | 2
-  status: 'ACTIVE' | 'SUSPENDED' | 'FROZEN'
-  dailyLimit: number
-  dailyUsed: number
-  registeredDate: string
-  lastActive: string
-  township: string
-  complianceNotes: string
 }
 
 export interface SystemAuditLog {
@@ -161,7 +139,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search)
       const tabParam = searchParams.get('tab')
-      if (tabParam === 'chat' || tabParam === 'support' || tabParam === 'admin-chat') return true
+      if (tabParam?.startsWith('admin')) return true
+      if (tabParam === 'chat' || tabParam === 'support' || tabParam === 'kyc' || tabParam === 'fraud' || tabParam === 'api' || tabParam === 'ads' || tabParam === 'treasury-admin') return true
       if (window.location.pathname.includes('/support') || window.location.pathname.includes('/chat')) return true
       const stored = localStorage.getItem('pethar_dev_admin_mode')
       if (stored === 'true') return true
@@ -175,13 +154,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       const searchParams = new URLSearchParams(window.location.search)
       const tabParam = searchParams.get('tab')
       if (tabParam === 'chat' || tabParam === 'support' || tabParam === 'admin-chat' || window.location.pathname.includes('/support') || window.location.pathname.includes('/chat')) return 'admin-chat'
+      if (tabParam === 'admin-kyc' || tabParam === 'kyc') return 'admin-kyc'
+      if (tabParam === 'admin-fraud' || tabParam === 'fraud') return 'admin-fraud'
+      if (tabParam === 'admin-api' || tabParam === 'api') return 'admin-api'
+      if (tabParam === 'admin-ads' || tabParam === 'ads') return 'admin-ads'
+      if (tabParam === 'admin-treasury' || tabParam === 'treasury-admin') return 'admin-treasury'
     }
     if (initialTab === 'admin-kyc' || initialTab === 'kyc') return 'admin-kyc'
     if (initialTab === 'admin-chat' || initialTab === 'chat' || initialTab === 'support') return 'admin-chat'
     if (initialTab === 'admin-ads' || initialTab === 'ads') return 'admin-ads'
     if (initialTab === 'admin-api' || initialTab === 'api') return 'admin-api'
     if (initialTab === 'admin-fraud' || initialTab === 'fraud') return 'admin-fraud'
-    if (initialTab === 'admin-users' || initialTab === 'users') return 'admin-users'
     if (initialTab === 'admin-treasury' || initialTab === 'treasury-admin') return 'admin-treasury'
     if (initialTab === 'treasury' || initialTab === 'financial') return 'financial'
     if (initialTab === 'history' || initialTab === 'transactions') return 'transactions'
@@ -293,9 +276,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [rejectModalOpen, setRejectModalOpen] = useState(false)
   const [selectedRejectReason, setSelectedRejectReason] = useState('Blurry photo / Unreadable NRIC ID document')
   const [customRejectNote, setCustomRejectNote] = useState('')
-
-  // Users Directory State
-  const [usersList, setUsersList] = useState<AdminUserRecord[]>([])
 
   // Audit Logs
   const [auditLogs, setAuditLogs] = useState<SystemAuditLog[]>([
@@ -492,31 +472,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           phone: up.phone || prev.phone,
           uid: up.uid || prev.uid,
         }))
-      }
-    })
-
-    fetchAllUsersForAdmin().then((dbUsers) => {
-      if (isMounted && dbUsers.length > 0) {
-        setUsersList(
-          dbUsers.map((u) => ({
-            uid: u.uid,
-            name: u.name || 'Citizen User',
-            username: u.username || `@${(u.name || 'user').toLowerCase().replace(/\s+/g, '')}`,
-            phone: u.phone || '',
-            email: u.email || '',
-            walletAddress: u.walletAddress || u.uid,
-            akdBalance: u.akdWalletBalance || u.balance || 0,
-            usdBalance: u.usdAccountBalance || 0,
-            kycTier: u.kyc_tier || 1,
-            status: 'ACTIVE',
-            dailyLimit: 50000,
-            dailyUsed: 0,
-            registeredDate: '2026-10-19',
-            lastActive: 'Active',
-            township: u.address || 'Arakan',
-            complianceNotes: 'Database citizen record',
-          }))
-        )
       }
     })
 
@@ -815,9 +770,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   const handleFreezeAccountFromAml = async (counterparty: string) => {
     await updateUserStatusInDb(counterparty, 'FROZEN', 'Automated fraud risk flag hold')
-    setUsersList((prev) =>
-      prev.map((u) => (u.uid === counterparty || u.username === counterparty ? { ...u, status: 'FROZEN' } : u))
-    )
     const newLog: SystemAuditLog = {
       id: `AUD-${Date.now()}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -831,22 +783,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     setAuditLogs((prev) => [newLog, ...prev])
   }
 
-  const handleToggleUserStatus = async (uid: string, currentStatus: string) => {
-    const next = currentStatus === 'FROZEN' ? 'ACTIVE' : 'FROZEN'
-    await updateUserStatusInDb(uid, next, 'Operator toggle')
-    setUsersList((prev) => prev.map((u) => (u.uid === uid ? { ...u, status: next } : u)))
-    const newLog: SystemAuditLog = {
-      id: `AUD-${Date.now()}`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      operator: 'ROOT-01',
-      category: 'USER_CONTROL',
-      action: next === 'FROZEN' ? 'ACCOUNT_FROZEN' : 'ACCOUNT_UNFROZEN',
-      details: `Citizen ${uid} status changed to ${next}`,
-      targetId: uid,
-      status: 'SUCCESS',
-    }
-    setAuditLogs((prev) => [newLog, ...prev])
-  }
+
 
   const handleTestApiEndpoint = () => {
     setApiSimulating(true)
@@ -1033,7 +970,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           amount={Math.abs(selectedTx!.amount)}
           recipientName={selectedTx!.counterparty}
           recipientId={selectedTx!.counterpartyMm}
-          senderName={profile.name || 'Citizen'}
+          senderName={profile.name || 'Wallet'}
           senderId={profile.petharId}
           fee={selectedTx!.fee || 0}
           timestamp={selectedTx!.time}
@@ -1148,13 +1085,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   // ══════════════════════════════════════════════════════════════════════════
   if (isDevAdminMode) {
     return (
-      <div className={`min-h-screen ${isDarkMode ? 'bg-[#090D16] text-white' : 'bg-[#F4F6F9] text-slate-900'} font-sans flex flex-col transition-colors duration-200`}>
-        {/* Liquid Glass Navigation Bar (Glisse & 23rd inspired) */}
-        <AdminNavBar
+      <AdminNavBar
           currentTab={navTab}
           onSelectTab={(tabId) => setNavTab(tabId as NavTabType)}
-          isDevAdminMode={isDevAdminMode}
-          onToggleAdminMode={handleToggleAdminMode}
           isDarkMode={isDarkMode}
           onToggleDarkMode={() => setIsDarkMode((v) => !v)}
           lang={lang}
@@ -1165,7 +1098,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           kycPendingCount={kycQueue.filter((k) => k.status === 'Pending').length}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-        />
+        >
 
         {/* Emergency Circuit Breaker Active Alert Banner */}
         {circuitBreakerActive && (
@@ -1190,8 +1123,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
         )}
 
-        {/* Main Admin Workspace (High Density & Less Text) */}
-        <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 space-y-4">
+        {/* Main Admin Workspace */}
+        <div className="space-y-5">
           {navTab === 'admin-kyc' && (
             <AdminKycDesk
               kycQueue={kycQueue}
@@ -1215,14 +1148,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               setChannelFilter={setOperatorChannelFilter}
               onSimulateAndroidMsg={handleSimulateAndroidMsg}
               onSimulateWalletMsg={handleSimulateWalletMsg}
-              isDarkMode={isDarkMode}
-            />
-          )}
-
-          {navTab === 'admin-users' && (
-            <AdminCitizenDirectory
-              usersList={usersList}
-              onToggleUserStatus={handleToggleUserStatus}
               isDarkMode={isDarkMode}
             />
           )}
@@ -1269,14 +1194,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               isDarkMode={isDarkMode}
             />
           )}
-        </main>
+        </div>
 
         {/* Shared Modals for Admin */}
         {circuitBreakerOpen && renderCircuitBreakerModal()}
         {rejectModalOpen && selectedApplicant && renderRejectModal()}
         {newAdModalOpen && renderNewAdModal()}
         {receiptModalOpen && selectedTx && renderReceiptModal()}
-      </div>
+      </AdminNavBar>
     )
   }
 
@@ -1314,7 +1239,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
               }`}
           >
-            {ak ? 'သုံးစွဲသူ' : 'Citizen'}
+            {ak ? 'သုံးစွဲသူ' : 'Wallet'}
           </button>
           <button
             onClick={() => { setIsDevAdminMode(true); setNavTab('admin-kyc'); }}
@@ -1378,12 +1303,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 Admin Controls
               </div>
               {[
-                { id: 'admin-kyc', label: ak ? 'KYC စိစစ်အတည်ပြုရေး' : 'Citizen KYC Control', icon: Users, badge: `${kycQueue.filter((k) => k.status === 'Pending').length}` },
+                { id: 'admin-kyc', label: ak ? 'KYC စိစစ်အတည်ပြုရေး' : 'Identity Review', icon: Users, badge: `${kycQueue.filter((k) => k.status === 'Pending').length}` },
                 { id: 'admin-chat', label: ak ? 'ဖောက်သည် Chat စားပွဲ' : 'Customer Chat Desk', icon: MessageSquare, badge: 'Live' },
                 { id: 'admin-ads', label: ak ? 'ကြော်ငြာများ စီမံခန့်ခွဲမှု' : 'Ads & Campaigns', icon: Sparkles },
                 { id: 'admin-api', label: ak ? 'API ထိန်းချုပ်ရေးစနစ်' : 'Developer API Control', icon: Terminal },
                 { id: 'admin-fraud', label: ak ? 'ငွေလွှဲ လိမ်လည်မှုစစ်ဆေး' : 'Fraud Detection & AML', icon: ShieldAlert, badge: 'AI' },
-                { id: 'admin-users', label: ak ? 'နိုင်ငံသားများ စာရင်း' : 'Citizen Directory & CSV', icon: Users },
               ].map((item) => {
                 const Icon = item.icon
                 const isActive = navTab === item.id
@@ -1537,7 +1461,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               onClick={handleToggleAdminMode}
               className="px-2.5 py-1 rounded-full bg-white/20 text-xs font-bold"
             >
-              {isDevAdminMode ? 'Admin Mode' : 'Citizen'}
+              {isDevAdminMode ? 'Admin Mode' : 'Wallet'}
             </button>
           </div>
         </div>

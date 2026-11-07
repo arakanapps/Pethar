@@ -6,8 +6,23 @@ import {
   Activity,
   Lock,
   History,
+  Gauge,
+  Radar,
+  ArrowUpRight,
 } from 'lucide-react'
 import type { SystemAuditLog } from '../../pages/DashboardPage'
+import {
+  Avatar,
+  DeskHeader,
+  EmptyState,
+  Panel,
+  Segmented,
+  StatCard,
+  StatusPill,
+  adminMuted,
+  adminText,
+} from './AdminUI'
+import { cn } from '../../lib/utils'
 
 interface AdminSecurityAmlProps {
   filteredFraudTxs: any[]
@@ -21,6 +36,12 @@ interface AdminSecurityAmlProps {
   isDarkMode: boolean
 }
 
+const riskTone = (risk: string) => {
+  if (risk === 'High') return 'rose' as const
+  if (risk === 'Medium') return 'amber' as const
+  return 'emerald' as const
+}
+
 export const AdminSecurityAml: React.FC<AdminSecurityAmlProps> = ({
   filteredFraudTxs,
   fraudFilter,
@@ -32,220 +53,225 @@ export const AdminSecurityAml: React.FC<AdminSecurityAmlProps> = ({
   onOpenKillSwitch,
   isDarkMode,
 }) => {
+  const highRiskCount = filteredFraudTxs.filter((tx) => tx.risk === 'High').length
+  const flaggedCount = filteredFraudTxs.filter((tx) => tx.risk !== 'Low').length
+
   return (
-    <div className="space-y-4">
-      {/* Top Metric Strip (BoardUI Style) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div
-          className={`p-3.5 rounded-2xl border transition-all ${
-            isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-white border-slate-200/80 shadow-xs'
-          }`}
-        >
-          <div className="text-xs text-emerald-500 font-mono font-bold uppercase">
-            Clean Transactions
-          </div>
-          <div className="text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white mt-1">
-            99.2%
-          </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-0.5">Automated Heuristic</div>
-        </div>
-
-        <div
-          className={`p-3.5 rounded-2xl border transition-all ${
-            isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-white border-slate-200/80 shadow-xs'
-          }`}
-        >
-          <div className="text-xs text-amber-500 font-mono font-bold uppercase">Velocity Alerts</div>
-          <div className="text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white mt-1">
-            2
-          </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-0.5">High Frequency Shifts</div>
-        </div>
-
-        <div
-          className={`p-3.5 rounded-2xl border transition-all ${
-            isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-white border-slate-200/80 shadow-xs'
-          }`}
-        >
-          <div className="text-xs text-rose-500 font-mono font-bold uppercase">High Risk Flags</div>
-          <div className="text-2xl font-black font-mono tracking-tight text-rose-500 mt-1">1</div>
-          <div className="text-[10px] text-rose-400 font-medium mt-0.5">Security Hold Applied</div>
-        </div>
-
-        <div
-          className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
-            circuitBreakerActive
-              ? 'bg-rose-950/80 border-rose-500'
-              : isDarkMode
-              ? 'bg-zinc-900/60 border-white/5'
-              : 'bg-white border-slate-200/80 shadow-xs'
-          }`}
-          onClick={onOpenKillSwitch}
-        >
-          <div className="text-xs text-slate-400 font-mono font-bold uppercase">Circuit Breaker</div>
-          <div
-            className={`text-sm font-black font-mono mt-1 ${
-              circuitBreakerActive ? 'text-rose-400 animate-pulse' : 'text-emerald-500'
-            }`}
-          >
-            {circuitBreakerActive ? 'SETTLEMENT FROZEN' : 'ARMED / ONLINE'}
-          </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-0.5">Click to toggle</div>
-        </div>
-      </div>
-
-      {/* Filter Bar */}
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
-          <Activity size={16} className="text-[#FF6B00]" />
-          <span>Real-Time Heuristic Transactions</span>
-        </h3>
-
-        <div
-          className={`flex items-center p-1 rounded-xl border text-xs font-mono font-semibold ${
-            isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-slate-100 border-slate-200/80'
-          }`}
-        >
-          {(['all', 'flagged', 'clean'] as const).map((f) => (
+    <div className="space-y-5">
+      <DeskHeader
+        eyebrow="Operations · Risk"
+        title="Risk & Ledger"
+        description="Monitor live settlement heuristics, freeze high-risk accounts and review the immutable operator audit trail."
+        isDarkMode={isDarkMode}
+        actions={
+          <>
+            <StatusPill tone="emerald" dot>
+              Heuristics active
+            </StatusPill>
             <button
-              key={f}
-              onClick={() => setFraudFilter(f)}
-              className={`px-3 py-1 rounded-lg capitalize transition cursor-pointer ${
-                fraudFilter === f
-                  ? 'bg-rose-600 text-white font-bold'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              {f === 'all' ? 'All' : f}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Fraud Transactions List */}
-      <div
-        className={`rounded-2xl border overflow-hidden shadow-xs divide-y transition-all ${
-          isDarkMode
-            ? 'bg-zinc-900/40 border-white/10 divide-white/5'
-            : 'bg-white border-slate-200 divide-slate-100'
-        }`}
-      >
-        {filteredFraudTxs.map((tx) => (
-          <div
-            key={tx.id}
-            className={`p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-              isDarkMode ? 'hover:bg-zinc-800/40' : 'hover:bg-slate-50/80'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
-                  tx.risk === 'High'
-                    ? 'bg-rose-500/15 text-rose-500'
-                    : tx.risk === 'Medium'
-                    ? 'bg-amber-500/15 text-amber-500'
-                    : 'bg-emerald-500/15 text-emerald-500'
-                }`}
-              >
-                {tx.risk === 'High' ? <AlertTriangle size={16} /> : <ShieldCheck size={16} />}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-xs text-slate-900 dark:text-white">
-                    {tx.title}
-                  </span>
-                  <span
-                    className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
-                      tx.risk === 'High'
-                        ? 'bg-rose-500/20 text-rose-500 font-mono animate-pulse'
-                        : tx.risk === 'Medium'
-                        ? 'bg-amber-500/20 text-amber-500 font-mono'
-                        : 'bg-emerald-500/15 text-emerald-500 font-mono'
-                    }`}
-                  >
-                    Risk: {tx.risk}
-                  </span>
-                </div>
-                <div className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono flex items-center gap-2 mt-0.5">
-                  <span>Ref: {tx.refId}</span>
-                  <span>•</span>
-                  <span>Target: {tx.counterparty}</span>
-                  <span>•</span>
-                  <span className="font-bold text-slate-900 dark:text-white">{tx.amount} ₳</span>
-                </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                  Trigger: {tx.flagReason}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-              {tx.risk === 'High' && (
-                <button
-                  onClick={() => onFreezeAccount(tx.counterparty)}
-                  className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center gap-1 shadow-xs cursor-pointer active:scale-95"
-                >
-                  <Lock size={12} />
-                  <span>Freeze Account</span>
-                </button>
+              type="button"
+              onClick={onOpenKillSwitch}
+              className={cn(
+                'inline-flex items-center gap-2 rounded-xl border px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-wider transition active:scale-95',
+                circuitBreakerActive
+                  ? 'animate-pulse border-rose-500 bg-rose-600 text-white'
+                  : isDarkMode
+                    ? 'border-rose-400/20 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20'
+                    : 'border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100',
               )}
-              <button
-                onClick={() => onInspectSlip(tx)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 border transition cursor-pointer ${
-                  isDarkMode
-                    ? 'bg-zinc-800 text-zinc-200 border-white/10 hover:bg-zinc-700'
-                    : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
-                }`}
-              >
-                <FileText size={12} />
-                <span>Inspect Slip</span>
-              </button>
-            </div>
-          </div>
-        ))}
+            >
+              <AlertTriangle size={13} />
+              {circuitBreakerActive ? 'Settlement frozen' : 'Kill-switch'}
+            </button>
+          </>
+        }
+      />
+
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <StatCard
+          label="Clean transactions"
+          value="99.2%"
+          hint="Automated heuristic pass rate"
+          icon={<ShieldCheck size={15} />}
+          tone="emerald"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="Velocity alerts"
+          value="2"
+          hint="High-frequency shifts detected"
+          icon={<Gauge size={15} />}
+          tone="amber"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="High-risk flags"
+          value={highRiskCount}
+          hint={`${flaggedCount} transactions under review`}
+          icon={<AlertTriangle size={15} />}
+          tone="rose"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="Circuit breaker"
+          value={circuitBreakerActive ? 'Frozen' : 'Armed'}
+          hint="Click to manage settlement state"
+          icon={<Radar size={15} />}
+          tone={circuitBreakerActive ? 'rose' : 'emerald'}
+          isDarkMode={isDarkMode}
+          onClick={onOpenKillSwitch}
+        />
       </div>
 
-      {/* Operator Audit Log Stream */}
-      <div
-        className={`p-4 rounded-2xl border space-y-3 ${
-          isDarkMode ? 'bg-zinc-900/40 border-white/10' : 'bg-white border-slate-200'
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <h4 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2">
-            <History size={14} className="text-slate-400" />
-            <span>Real-Time Administrative Audit Trail</span>
-          </h4>
-          <span className="text-[10px] font-mono text-slate-400">
-            {auditLogs.length} events logged
+      <Panel
+        isDarkMode={isDarkMode}
+        bodyClassName="p-0"
+        title={
+          <span className="flex items-center gap-2">
+            <Activity size={14} className="text-orange-500" />
+            Live transaction monitor
           </span>
-        </div>
+        }
+        description="Heuristic risk evaluation applied to every ledger movement."
+        actions={
+          <Segmented
+            isDarkMode={isDarkMode}
+            value={fraudFilter}
+            onChange={setFraudFilter}
+            tone="rose"
+            options={[
+              { value: 'all', label: 'All' },
+              { value: 'flagged', label: 'Flagged' },
+              { value: 'clean', label: 'Clean' },
+            ]}
+          />
+        }
+      >
+        {filteredFraudTxs.length === 0 ? (
+          <EmptyState
+            isDarkMode={isDarkMode}
+            icon={<ShieldCheck size={20} />}
+            title="No transactions in this view"
+            description="Change the risk filter to inspect the wider ledger stream."
+          />
+        ) : (
+          <div className={cn('divide-y', isDarkMode ? 'divide-white/[0.06]' : 'divide-slate-100')}>
+            {filteredFraudTxs.map((tx) => (
+              <div
+                key={tx.id}
+                className={cn(
+                  'flex flex-col gap-3 px-4 py-4 transition-colors sm:flex-row sm:items-center sm:justify-between sm:px-5',
+                  isDarkMode ? 'hover:bg-white/[0.025]' : 'hover:bg-slate-50/80',
+                )}
+              >
+                <div className="flex min-w-0 items-start gap-3">
+                  <Avatar
+                    label={tx.risk === 'High' ? '!' : tx.risk === 'Medium' ? '?' : '✓'}
+                    tone={riskTone(tx.risk)}
+                  />
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={cn('text-xs font-bold', adminText(isDarkMode))}>{tx.title}</span>
+                      <StatusPill tone={riskTone(tx.risk)} dot>
+                        Risk {tx.risk}
+                      </StatusPill>
+                    </div>
+                    <div className={cn('mt-1 flex flex-wrap items-center gap-2 font-mono text-[10px]', adminMuted(isDarkMode))}>
+                      <span>Ref {tx.refId}</span>
+                      <span className="text-slate-300 dark:text-slate-700">/</span>
+                      <span>Target {tx.counterparty}</span>
+                      <span className="text-slate-300 dark:text-slate-700">/</span>
+                      <span className={cn('font-bold', adminText(isDarkMode))}>{tx.amount} ₳</span>
+                    </div>
+                    <div className={cn('mt-0.5 font-mono text-[10px]', adminMuted(isDarkMode))}>
+                      Trigger · {tx.flagReason}
+                    </div>
+                  </div>
+                </div>
 
-        <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                <div className="flex shrink-0 items-center gap-2 self-end sm:self-center">
+                  {tx.risk === 'High' && (
+                    <button
+                      type="button"
+                      onClick={() => void onFreezeAccount(tx.counterparty)}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-3 py-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-rose-500 active:scale-95"
+                    >
+                      <Lock size={12} />
+                      Freeze
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => onInspectSlip(tx)}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-semibold transition',
+                      isDarkMode
+                        ? 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.07] hover:text-white'
+                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                    )}
+                  >
+                    <FileText size={12} />
+                    Inspect
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Panel>
+
+      <Panel
+        isDarkMode={isDarkMode}
+        bodyClassName="p-0"
+        title={
+          <span className="flex items-center gap-2">
+            <History size={14} className="text-slate-400" />
+            Administrative audit trail
+          </span>
+        }
+        description="Append-only record of sensitive operator actions."
+        actions={
+          <span className={cn('font-mono text-[10px]', adminMuted(isDarkMode))}>
+            {auditLogs.length} events
+          </span>
+        }
+      >
+        <div className={cn('max-h-64 divide-y overflow-y-auto', isDarkMode ? 'divide-white/[0.06]' : 'divide-slate-100')}>
           {auditLogs.map((log) => (
             <div
               key={log.id}
-              className={`p-2.5 rounded-xl flex items-center justify-between text-[11px] font-mono ${
-                isDarkMode ? 'bg-zinc-900/80' : 'bg-slate-50'
-              }`}
+              className={cn(
+                'flex items-start justify-between gap-3 px-4 py-2.5 font-mono text-[10px] sm:px-5',
+                isDarkMode ? 'hover:bg-white/[0.025]' : 'hover:bg-slate-50/80',
+              )}
             >
-              <div className="truncate pr-2">
-                <span className="text-slate-400">[{log.timestamp}]</span>{' '}
-                <span className="font-bold text-slate-700 dark:text-zinc-300">{log.action}:</span>{' '}
-                <span className="text-slate-500">{log.details}</span>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={cn('text-[9px]', adminMuted(isDarkMode))}>[{log.timestamp}]</span>
+                  <span className={cn('font-bold', adminText(isDarkMode))}>{log.action}</span>
+                  <span className="text-slate-400">· {log.operator}</span>
+                </div>
+                <div className={cn('mt-0.5 truncate', adminMuted(isDarkMode))}>{log.details}</div>
               </div>
-              <span
-                className={`px-1.5 py-0.5 rounded text-[9px] font-bold shrink-0 ${
-                  log.status === 'SUCCESS'
-                    ? 'bg-emerald-500/10 text-emerald-500'
-                    : 'bg-amber-500/10 text-amber-500'
-                }`}
-              >
+              <StatusPill tone={log.status === 'SUCCESS' ? 'emerald' : log.status === 'CRITICAL' ? 'rose' : 'amber'}>
                 {log.status}
-              </span>
+              </StatusPill>
             </div>
           ))}
         </div>
+      </Panel>
+
+      <div className="flex items-center justify-between px-1">
+        <span className={cn('font-mono text-[10px]', adminMuted(isDarkMode))}>
+          Policy engine v4.2 · Zero-knowledge attestations
+        </span>
+        <button
+          type="button"
+          className={cn('inline-flex items-center gap-1 font-mono text-[10px] transition', adminMuted(isDarkMode), 'hover:text-orange-500')}
+        >
+          Open compliance report
+          <ArrowUpRight size={11} />
+        </button>
       </div>
     </div>
   )

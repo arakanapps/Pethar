@@ -1,6 +1,15 @@
 import React from 'react'
-import { Sparkles, Plus } from 'lucide-react'
+import { Sparkles, Plus, MousePointerClick, Eye, Power, TrendingUp } from 'lucide-react'
 import type { PromoAdItem } from '../../pages/DashboardPage'
+import {
+  DeskHeader,
+  Panel,
+  StatCard,
+  StatusPill,
+  adminMuted,
+  adminText,
+} from './AdminUI'
+import { cn } from '../../lib/utils'
 
 interface AdminCampaignsDeskProps {
   promoAds: PromoAdItem[]
@@ -15,130 +24,147 @@ export const AdminCampaignsDesk: React.FC<AdminCampaignsDeskProps> = ({
   onOpenCreateModal,
   isDarkMode,
 }) => {
-  const activeCount = promoAds.filter((a) => a.active).length
-  const totalImpressions = promoAds.reduce((acc, a) => acc + (a.impressions || 0), 0)
-  const totalClicks = promoAds.reduce((acc, a) => acc + (a.clicks || 0), 0)
-  const avgCtr =
-    totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(1) : '0.0'
+  const activeCount = promoAds.filter((ad) => ad.active).length
+  const totalImpressions = promoAds.reduce((acc, ad) => acc + (ad.impressions || 0), 0)
+  const totalClicks = promoAds.reduce((acc, ad) => acc + (ad.clicks || 0), 0)
+  const avgCtr = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(1) : '0.0'
 
   return (
-    <div className="space-y-4">
-      {/* Top Banner & Metric Strip */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-base font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-            <Sparkles size={18} className="text-amber-500" />
-            <span>Spotlight & Merchant Campaigns</span>
-          </h2>
-          <div className="text-[11px] text-slate-400 font-mono">
-            Promotional banners broadcast to Android and Web Wallet citizens
-          </div>
-        </div>
-
-        <button
-          onClick={onOpenCreateModal}
-          className="px-3.5 py-2 rounded-xl bg-[#FF6B00] hover:bg-[#E05E00] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95 self-start sm:self-auto"
-        >
-          <Plus size={14} />
-          <span>New Campaign</span>
-        </button>
-      </div>
-
-      {/* Metric Cards (BoardUI Style) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div
-          className={`p-3.5 rounded-2xl border ${
-            isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-white border-slate-200/80'
-          }`}
-        >
-          <div className="text-xs text-slate-400 font-mono font-bold uppercase">
-            Active Campaigns
-          </div>
-          <div className="text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white mt-1">
-            {activeCount} / {promoAds.length}
-          </div>
-          <div className="text-[10px] text-emerald-500 font-medium mt-0.5">Live in Wallet Feed</div>
-        </div>
-
-        <div
-          className={`p-3.5 rounded-2xl border ${
-            isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-white border-slate-200/80'
-          }`}
-        >
-          <div className="text-xs text-slate-400 font-mono font-bold uppercase">
-            Total Impressions
-          </div>
-          <div className="text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white mt-1">
-            {totalImpressions.toLocaleString()}
-          </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-0.5">Verified Views</div>
-        </div>
-
-        <div
-          className={`p-3.5 rounded-2xl border ${
-            isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-white border-slate-200/80'
-          }`}
-        >
-          <div className="text-xs text-slate-400 font-mono font-bold uppercase">Average CTR</div>
-          <div className="text-2xl font-black font-mono tracking-tight text-emerald-500 mt-1">
-            {avgCtr}%
-          </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-0.5">
-            {totalClicks.toLocaleString()} Interactions
-          </div>
-        </div>
-      </div>
-
-      {/* Campaigns List */}
-      <div
-        className={`rounded-2xl border overflow-hidden shadow-xs divide-y transition-all ${
-          isDarkMode
-            ? 'bg-zinc-900/40 border-white/10 divide-white/5'
-            : 'bg-white border-slate-200 divide-slate-100'
-        }`}
-      >
-        {promoAds.map((ad) => (
-          <div
-            key={ad.id}
-            className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-              isDarkMode ? 'hover:bg-zinc-800/40' : 'hover:bg-slate-50/80'
-            }`}
+    <div className="space-y-5">
+      <DeskHeader
+        eyebrow="Platform · Growth"
+        title="Campaigns & Spotlight"
+        description="Promotional inventory broadcast to the Android app and web wallet. Control placement, monitor performance and pause live offers."
+        isDarkMode={isDarkMode}
+        actions={
+          <button
+            type="button"
+            onClick={onOpenCreateModal}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-3.5 py-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-orange-600 active:scale-95"
           >
-            <div className="space-y-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xs text-slate-900 dark:text-white truncate">
-                  {ad.titleEn}
-                </span>
-                <span className="text-[11px] text-slate-400 font-mono">({ad.titleAk})</span>
-                <span
-                  className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
-                    ad.active
-                      ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
-                      : 'bg-slate-500/15 text-slate-500'
-                  }`}
-                >
-                  {ad.active ? 'ACTIVE' : 'PAUSED'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 line-clamp-1">{ad.descEn}</p>
-              <div className="text-[11px] text-slate-400 font-mono">
-                {ad.impressions.toLocaleString()} views • {ad.clicks.toLocaleString()} clicks
-              </div>
-            </div>
+            <Plus size={14} />
+            New campaign
+          </button>
+        }
+      />
 
-            <button
-              onClick={() => onToggleAd(ad.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer self-end sm:self-center ${
-                ad.active
-                  ? 'bg-amber-500/15 text-amber-500 hover:bg-amber-500/25 border border-amber-500/30'
-                  : 'bg-emerald-500/15 text-emerald-500 hover:bg-emerald-500/25 border border-emerald-500/30'
-              }`}
-            >
-              {ad.active ? 'Pause Campaign' : 'Activate Campaign'}
-            </button>
-          </div>
-        ))}
+      <div className="grid gap-3 sm:grid-cols-3">
+        <StatCard
+          label="Active campaigns"
+          value={`${activeCount} / ${promoAds.length}`}
+          hint="Currently live in wallet feed"
+          icon={<Power size={15} />}
+          tone="emerald"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="Total impressions"
+          value={totalImpressions.toLocaleString()}
+          hint="Verified client views"
+          icon={<Eye size={15} />}
+          tone="blue"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="Average CTR"
+          value={`${avgCtr}%`}
+          hint={`${totalClicks.toLocaleString()} interactions`}
+          icon={<MousePointerClick size={15} />}
+          tone="amber"
+          isDarkMode={isDarkMode}
+        />
       </div>
+
+      <Panel
+        isDarkMode={isDarkMode}
+        bodyClassName="p-0"
+        title={
+          <span className="flex items-center gap-2">
+            <Sparkles size={14} className="text-orange-500" />
+            Campaign inventory
+          </span>
+        }
+        description="All promotional placements across client surfaces."
+        actions={<StatusPill tone="slate">{promoAds.length} total</StatusPill>}
+      >
+        <div className={cn('divide-y', isDarkMode ? 'divide-white/[0.06]' : 'divide-slate-100')}>
+          {promoAds.map((ad) => {
+            const ctr = ad.impressions > 0 ? ((ad.clicks / ad.impressions) * 100).toFixed(1) : '0.0'
+            return (
+              <div
+                key={ad.id}
+                className={cn(
+                  'flex flex-col gap-3 px-4 py-4 transition-colors sm:flex-row sm:items-center sm:justify-between sm:px-5',
+                  isDarkMode ? 'hover:bg-white/[0.025]' : 'hover:bg-slate-50/80',
+                )}
+              >
+                <div className="flex min-w-0 items-start gap-3">
+                  <div
+                    className={cn(
+                      'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border',
+                      ad.active
+                        ? 'border-orange-500/25 bg-orange-500/10 text-orange-500'
+                        : isDarkMode
+                          ? 'border-white/[0.07] bg-white/[0.03] text-slate-500'
+                          : 'border-slate-200 bg-slate-50 text-slate-400',
+                    )}
+                  >
+                    <Sparkles size={16} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={cn('truncate text-xs font-bold', adminText(isDarkMode))}>
+                        {ad.titleEn}
+                      </span>
+                      <span className={cn('truncate font-mono text-[10px]', adminMuted(isDarkMode))}>
+                        {ad.titleAk}
+                      </span>
+                      <StatusPill tone={ad.active ? 'emerald' : 'slate'} dot>
+                        {ad.active ? 'Active' : 'Paused'}
+                      </StatusPill>
+                    </div>
+                    <p className={cn('mt-0.5 line-clamp-1 text-[10px]', adminMuted(isDarkMode))}>
+                      {ad.descEn}
+                    </p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-3 font-mono text-[9px]">
+                      <span className={cn('flex items-center gap-1', adminMuted(isDarkMode))}>
+                        <Eye size={10} />
+                        {ad.impressions.toLocaleString()}
+                      </span>
+                      <span className={cn('flex items-center gap-1', adminMuted(isDarkMode))}>
+                        <MousePointerClick size={10} />
+                        {ad.clicks.toLocaleString()}
+                      </span>
+                      <span className="flex items-center gap-1 font-bold text-emerald-500">
+                        <TrendingUp size={10} />
+                        {ctr}% CTR
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onToggleAd(ad.id)}
+                  className={cn(
+                    'inline-flex shrink-0 items-center justify-center gap-1.5 self-end rounded-xl border px-3 py-2 text-[11px] font-bold transition active:scale-95 sm:self-center',
+                    ad.active
+                      ? isDarkMode
+                        ? 'border-amber-400/20 bg-amber-400/10 text-amber-300 hover:bg-amber-400/15'
+                        : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                      : isDarkMode
+                        ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/15'
+                        : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
+                  )}
+                >
+                  <Power size={12} />
+                  {ad.active ? 'Pause' : 'Activate'}
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      </Panel>
     </div>
   )
 }

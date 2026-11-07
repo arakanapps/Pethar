@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +19,7 @@ import 'crypto_screen.dart';
 import 'history_screen.dart';
 import 'favourites_screen.dart';
 import 'auth_screen.dart';
+import 'app_lock_screen.dart';
 import 'wallet_screen.dart';
 
 class MainShell extends StatefulWidget {
@@ -100,11 +100,13 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    if (_showSplash) {
+    final appState = Provider.of<AppState>(context);
+
+    // Keep the branded splash up while the saved session is restored, so the
+    // login screen never flashes before the PIN lock is applied.
+    if (_showSplash || appState.isInitializing) {
       return _buildSplashScreen();
     }
-
-    final appState = Provider.of<AppState>(context);
 
     if (!appState.isAuthenticated) {
       return const AuthScreen();
@@ -121,6 +123,15 @@ class _MainShellState extends State<MainShell> {
       systemNavigationBarDividerColor: Colors.transparent,
       systemNavigationBarContrastEnforced: false,
     );
+
+    // Security gate: a restored session must be unlocked with the PIN before
+    // any wallet screen (or the navigation shell) is rendered.
+    if (appState.isAppLocked) {
+      return const AnnotatedRegion<SystemUiOverlayStyle>(
+        value: systemOverlay,
+        child: AppLockScreen(),
+      );
+    }
 
     // Sub-screens routing with explicit SystemUiOverlayStyle
     Widget? subScreen;
@@ -198,165 +209,173 @@ class _MainShellState extends State<MainShell> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: systemOverlay,
       child: Scaffold(
-        extendBody: true,
+        // Docked navigation bar: the page body stops above it so content is
+        // never rendered underneath the bar.
+        resizeToAvoidBottomInset: true,
         backgroundColor: const Color(0xFFF4F5F8),
-        body: body,
-        bottomNavigationBar: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                child: Container(
-                  height: 68,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.95),
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 1.2,
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.015),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          ),
+          child: KeyedSubtree(
+            key: ValueKey<int>(currentIndex),
+            child: body,
+          ),
+        ),
+        bottomNavigationBar: Container(
+          key: const ValueKey('main-bottom-nav'),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0F172A).withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, -6),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            top: false,
+            minimum: const EdgeInsets.only(bottom: 6),
+            child: SizedBox(
+              height: 64,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // 1. Home
+                    Expanded(
+                      child: _buildLiquidGlassNavItem(
+                        context: context,
+                        iconWidget: Icon(
+                          currentIndex == 0
+                              ? Icons.home_rounded
+                              : Icons.home_outlined,
+                          color: currentIndex == 0
+                              ? crimson
+                              : const Color(0xFF64748B),
+                          size: 22,
+                        ),
+                        label: TranslationStrings.tr('navHome', lang),
+                        target: Screen.home,
+                        isSelected: currentIndex == 0,
+                      ),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0F172A).withValues(alpha: 0.06),
-                        blurRadius: 18,
-                        offset: const Offset(0, 4),
-                      ),
-                      BoxShadow(
-                        color: crimson.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // 1. Home
-                      Expanded(
-                        child: _buildLiquidGlassNavItem(
-                          context: context,
-                          iconWidget: Icon(
-                            currentIndex == 0
-                                ? Icons.home_rounded
-                                : Icons.home_outlined,
-                            color: currentIndex == 0
-                                ? crimson
-                                : const Color(0xFF64748B),
-                            size: 22,
-                          ),
-                          label: TranslationStrings.tr('navHome', lang),
-                          target: Screen.home,
-                          isSelected: currentIndex == 0,
+                    // 2. Wallet (USD Web3 Wallet)
+                    Expanded(
+                      child: _buildLiquidGlassNavItem(
+                        context: context,
+                        iconWidget: Icon(
+                          currentIndex == 1
+                              ? Icons.account_balance_wallet_rounded
+                              : Icons.account_balance_wallet_outlined,
+                          color: currentIndex == 1
+                              ? crimson
+                              : const Color(0xFF64748B),
+                          size: 21,
                         ),
+                        label: TranslationStrings.tr('navWallet', lang),
+                        target: Screen.notifications,
+                        isSelected: currentIndex == 1,
+                        onCustomTap: () => appState.navigate(
+                            Screen.notifications,
+                            financialView: 'wallet_main'),
                       ),
-                      // 2. Wallet (USD Web3 Wallet)
-                      Expanded(
-                        child: _buildLiquidGlassNavItem(
-                          context: context,
-                          iconWidget: Icon(
-                            currentIndex == 1
-                                ? Icons.account_balance_wallet_rounded
-                                : Icons.account_balance_wallet_outlined,
-                            color: currentIndex == 1
-                                ? crimson
-                                : const Color(0xFF64748B),
-                            size: 21,
-                          ),
-                          label: TranslationStrings.tr('navWallet', lang),
-                          target: Screen.notifications,
-                          isSelected: currentIndex == 1,
-                          onCustomTap: () => appState.navigate(
-                              Screen.notifications,
-                              financialView: 'wallet_main'),
-                        ),
-                      ),
-                      // 3. Center Red Liquid Glass Scan Button matching iOS
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                        child: GestureDetector(
-                          onTap: () {
-                            if (!appState.isVerified) {
-                              showVerificationRequiredDialog(
-                                  context, appState, 'QR Scanner');
-                              return;
-                            }
-                            appState.navigate(Screen.scan);
-                          },
-                          child: Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFFFF2A38),
-                                  crimson,
-                                  Color(0xFFB00E1A),
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.4),
-                                width: 1.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: crimson.withValues(alpha: 0.55),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 6),
-                                ),
+                    ),
+                    // 3. Center Red Liquid Glass Scan Button matching iOS
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (!appState.isVerified) {
+                            showVerificationRequiredDialog(
+                                context, appState, 'QR Scanner');
+                            return;
+                          }
+                          appState.navigate(Screen.scan);
+                        },
+                        child: Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFFFF2A38),
+                                crimson,
+                                Color(0xFFB00E1A),
                               ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
                             ),
-                            child: const Center(
-                              child: ScanBracketIcon(
-                                  size: 26,
-                                  color: Colors.white,
-                                  strokeWidth: 2.5),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.4),
+                              width: 1.5,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: crimson.withValues(alpha: 0.55),
+                                blurRadius: 20,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: const Center(
+                            child: ScanBracketIcon(
+                                size: 26,
+                                color: Colors.white,
+                                strokeWidth: 2.5),
                           ),
                         ),
                       ),
-                      // 4. Services
-                      Expanded(
-                        child: _buildLiquidGlassNavItem(
-                          context: context,
-                          iconWidget: ServicesGridIcon(
-                            size: 21,
-                            color: currentIndex == 3
-                                ? crimson
-                                : const Color(0xFF64748B),
-                            active: currentIndex == 3,
-                          ),
-                          label: TranslationStrings.tr('navServices', lang),
-                          target: Screen.services,
-                          isSelected: currentIndex == 3,
+                    ),
+                    // 4. Services
+                    Expanded(
+                      child: _buildLiquidGlassNavItem(
+                        context: context,
+                        iconWidget: ServicesGridIcon(
+                          size: 21,
+                          color: currentIndex == 3
+                              ? crimson
+                              : const Color(0xFF64748B),
+                          active: currentIndex == 3,
                         ),
+                        label: TranslationStrings.tr('navServices', lang),
+                        target: Screen.services,
+                        isSelected: currentIndex == 3,
                       ),
-                      // 5. Account
-                      Expanded(
-                        child: _buildLiquidGlassNavItem(
-                          context: context,
-                          iconWidget: Icon(
-                            currentIndex == 4
-                                ? Icons.settings_rounded
-                                : Icons.settings_outlined,
-                            color: currentIndex == 4
-                                ? crimson
-                                : const Color(0xFF64748B),
-                            size: 22,
-                          ),
-                          label: TranslationStrings.tr('navSettings', lang),
-                          target: Screen.settings,
-                          isSelected: currentIndex == 4,
+                    ),
+                    // 5. Account
+                    Expanded(
+                      child: _buildLiquidGlassNavItem(
+                        context: context,
+                        iconWidget: Icon(
+                          currentIndex == 4
+                              ? Icons.settings_rounded
+                              : Icons.settings_outlined,
+                          color: currentIndex == 4
+                              ? crimson
+                              : const Color(0xFF64748B),
+                          size: 22,
                         ),
+                        label: TranslationStrings.tr('navSettings', lang),
+                        target: Screen.settings,
+                        isSelected: currentIndex == 4,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -376,58 +395,78 @@ class _MainShellState extends State<MainShell> {
   }) {
     final color = isSelected ? crimson : const Color(0xFF64748B);
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onCustomTap ??
-          () {
-            Provider.of<AppState>(context, listen: false).navigate(target);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 5),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(999),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            if (onCustomTap != null) {
+              onCustomTap();
+            } else {
+              Provider.of<AppState>(context, listen: false).navigate(target);
+            }
           },
-      child: Container(
-        height: 54,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(999),
-          gradient: isSelected
-              ? LinearGradient(
-                  colors: [
-                    crimson.withValues(alpha: 0.14),
-                    crimson.withValues(alpha: 0.06),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                )
-              : null,
-          border: Border.all(
-            color: isSelected
-                ? crimson.withValues(alpha: 0.20)
-                : Colors.transparent,
-            width: 1,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: Center(child: iconWidget),
-            ),
-            const SizedBox(height: 2),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 10.5,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  ),
-                ),
+          splashColor: crimson.withValues(alpha: 0.10),
+          highlightColor: crimson.withValues(alpha: 0.05),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              gradient: isSelected
+                  ? LinearGradient(
+                      colors: [
+                        crimson.withValues(alpha: 0.14),
+                        crimson.withValues(alpha: 0.06),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )
+                  : null,
+              border: Border.all(
+                color: isSelected
+                    ? crimson.withValues(alpha: 0.20)
+                    : Colors.transparent,
+                width: 1,
               ),
             ),
-          ],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedScale(
+                  scale: isSelected ? 1.06 : 1.0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOut,
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Center(child: iconWidget),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 200),
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 10.5,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w600,
+                      ),
+                      child: Text(label, maxLines: 1),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

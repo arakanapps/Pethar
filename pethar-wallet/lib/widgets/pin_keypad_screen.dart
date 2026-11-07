@@ -5,11 +5,11 @@ import 'package:local_auth/local_auth.dart';
 import '../theme.dart';
 
 enum BiometricKind {
-  faceId,        // iOS Face ID
-  touchId,       // iOS Touch ID
-  androidFace,   // Android Face Unlock
+  faceId, // iOS Face ID
+  touchId, // iOS Touch ID
+  androidFace, // Android Face Unlock
   androidFingerprint, // Android Fingerprint
-  androidBoth,   // Android Face & Fingerprint
+  androidBoth, // Android Face & Fingerprint
   generic,
   none,
 }
@@ -130,7 +130,8 @@ class _PinWatermarkPainter extends CustomPainter {
       ..color = crimson.withValues(alpha: 0.03)
       ..style = PaintingStyle.fill;
 
-    canvas.drawCircle(Offset(size.width * 0.75, size.height * 0.68), 55, glowPaint);
+    canvas.drawCircle(
+        Offset(size.width * 0.75, size.height * 0.68), 55, glowPaint);
   }
 
   @override
@@ -176,6 +177,10 @@ class PinKeypadScreen extends StatefulWidget {
 
 class _PinKeypadScreenState extends State<PinKeypadScreen> {
   String _enteredPin = '';
+
+  /// Keypad key diameter, recomputed from the available height on each build
+  /// so the 4-row grid always fits the screen.
+  double _keySize = 70.0;
   final LocalAuthentication _localAuth = LocalAuthentication();
   BiometricKind _biometricKind = BiometricKind.none;
 
@@ -195,7 +200,8 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
         return;
       }
 
-      final List<BiometricType> available = await _localAuth.getAvailableBiometrics();
+      final List<BiometricType> available =
+          await _localAuth.getAvailableBiometrics();
       if (Platform.isIOS) {
         if (available.contains(BiometricType.face)) {
           setState(() => _biometricKind = BiometricKind.faceId);
@@ -206,7 +212,8 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
         }
       } else if (Platform.isAndroid) {
         final bool hasFace = available.contains(BiometricType.face);
-        final bool hasFingerprint = available.contains(BiometricType.fingerprint);
+        final bool hasFingerprint =
+            available.contains(BiometricType.fingerprint);
         if (hasFace && hasFingerprint) {
           setState(() => _biometricKind = BiometricKind.androidBoth);
         } else if (hasFace) {
@@ -251,7 +258,9 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
   @override
   void didUpdateWidget(PinKeypadScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.title != oldWidget.title || (widget.errorMessage != null && widget.errorMessage != oldWidget.errorMessage)) {
+    if (widget.title != oldWidget.title ||
+        (widget.errorMessage != null &&
+            widget.errorMessage != oldWidget.errorMessage)) {
       setState(() {
         _enteredPin = '';
       });
@@ -346,7 +355,8 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
       child: Material(
         color: Colors.transparent,
         shape: isCircleBorder
-            ? const CircleBorder(side: BorderSide(color: Color(0xFFE2E8F0), width: 1.2))
+            ? const CircleBorder(
+                side: BorderSide(color: Color(0xFFE2E8F0), width: 1.2))
             : null,
         child: InkWell(
           customBorder: const CircleBorder(),
@@ -354,8 +364,8 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
           splashColor: crimson.withValues(alpha: 0.12),
           highlightColor: const Color(0xFFF1F5F9),
           child: Container(
-            width: 70,
-            height: 70,
+            width: _keySize,
+            height: _keySize,
             alignment: Alignment.center,
             child: child,
           ),
@@ -366,7 +376,11 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
 
   Widget _buildBiometricKey() {
     if (!widget.showBiometrics || _biometricKind == BiometricKind.none) {
-      return Container(margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8), width: 70, height: 70);
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        width: _keySize,
+        height: _keySize,
+      );
     }
 
     Widget iconWidget;
@@ -380,7 +394,8 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
       case BiometricKind.androidFingerprint:
       case BiometricKind.generic:
       default:
-        iconWidget = const Icon(Icons.fingerprint_rounded, size: 32, color: Color(0xFF475569));
+        iconWidget = const Icon(Icons.fingerprint_rounded,
+            size: 32, color: Color(0xFF475569));
         break;
     }
 
@@ -406,205 +421,279 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
             ),
           ),
           SafeArea(
-            child: Column(
-              children: [
-                // ── Top Navigation Row ──
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    children: [
-                      if (widget.onBack != null)
-                        IconButton(
-                          icon: const Icon(Icons.chevron_left, color: Color(0xFF18181B), size: 28),
-                          onPressed: widget.onBack,
-                        )
-                      else
-                        const SizedBox(width: 48),
-                      const Spacer(),
-                      const SizedBox(width: 48),
-                    ],
-                  ),
-                ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Reserve room for nav + padlock/title/dots + footer, then let
+                // the keypad take whatever height is left over.
+                _keySize =
+                    ((constraints.maxHeight - 320) / 4 - 16).clamp(44.0, 70.0);
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // ── Top Navigation Row ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: Row(
+                            children: [
+                              if (widget.onBack != null)
+                                IconButton(
+                                  icon: const Icon(Icons.chevron_left,
+                                      color: Color(0xFF18181B), size: 28),
+                                  onPressed: widget.onBack,
+                                )
+                              else
+                                const SizedBox(width: 48),
+                              const Spacer(),
+                              const SizedBox(width: 48),
+                            ],
+                          ),
+                        ),
 
-            const Spacer(flex: 1),
+                        // ── Padlock + Title + Dot Indicators ──
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // ── Green Padlock Icon ──
+                            _buildPadlock(),
+                            const SizedBox(height: 18),
 
-            // ── Green Padlock Icon ──
-            _buildPadlock(),
-            const SizedBox(height: 18),
+                            // ── Screen Title ──
+                            Text(
+                              widget.title,
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF0F172A),
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
 
-            // ── Screen Title ──
-            Text(
-              widget.title,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
-                letterSpacing: -0.3,
-              ),
-            ),
-            const SizedBox(height: 6),
+                            // Subtitle or Error Message
+                            if (widget.errorMessage != null &&
+                                widget.errorMessage!.isNotEmpty)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 24),
+                                child: Text(
+                                  widget.errorMessage!,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFFDC2626),
+                                  ),
+                                ),
+                              )
+                            else if (widget.subtitle != null &&
+                                widget.subtitle!.isNotEmpty)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 24),
+                                child: Text(
+                                  widget.subtitle!,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                              )
+                            else
+                              const SizedBox(height: 18),
 
-            // Subtitle or Error Message
-            if (widget.errorMessage != null && widget.errorMessage!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  widget.errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFFDC2626),
-                  ),
-                ),
-              )
-            else if (widget.subtitle != null && widget.subtitle!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  widget.subtitle!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-              )
-            else
-              const SizedBox(height: 18),
+                            const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
+                            // ── 6 Round Dot Indicators ──
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(6, (index) {
+                                final bool isFilled =
+                                    index < _enteredPin.length;
+                                return AnimatedContainer(
+                                  duration: const Duration(milliseconds: 150),
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 7),
+                                  width: 14,
+                                  height: 14,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: isFilled
+                                        ? const Color(0xFF1E293B)
+                                        : const Color(0xFFE2E8F0),
+                                    border: Border.all(
+                                      color: isFilled
+                                          ? const Color(0xFF1E293B)
+                                          : const Color(0xFFCBD5E1),
+                                      width: 1,
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ],
+                        ),
 
-            // ── 6 Round Dot Indicators ──
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(6, (index) {
-                final bool isFilled = index < _enteredPin.length;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  margin: const EdgeInsets.symmetric(horizontal: 7),
-                  width: 14,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isFilled ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                    border: Border.all(
-                      color: isFilled ? const Color(0xFF1E293B) : const Color(0xFFCBD5E1),
-                      width: 1,
+                        // ── Keypad Grid ──
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildKeyButton(
+                                  child: const Text('1',
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A))),
+                                  onTap: () => _onDigit('1'),
+                                ),
+                                _buildKeyButton(
+                                  child: const Text('2',
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A))),
+                                  onTap: () => _onDigit('2'),
+                                ),
+                                _buildKeyButton(
+                                  child: const Text('3',
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A))),
+                                  onTap: () => _onDigit('3'),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildKeyButton(
+                                  child: const Text('4',
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A))),
+                                  onTap: () => _onDigit('4'),
+                                ),
+                                _buildKeyButton(
+                                  child: const Text('5',
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A))),
+                                  onTap: () => _onDigit('5'),
+                                ),
+                                _buildKeyButton(
+                                  child: const Text('6',
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A))),
+                                  onTap: () => _onDigit('6'),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildKeyButton(
+                                  child: const Text('7',
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A))),
+                                  onTap: () => _onDigit('7'),
+                                ),
+                                _buildKeyButton(
+                                  child: const Text('8',
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A))),
+                                  onTap: () => _onDigit('8'),
+                                ),
+                                _buildKeyButton(
+                                  child: const Text('9',
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A))),
+                                  onTap: () => _onDigit('9'),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildBiometricKey(),
+                                _buildKeyButton(
+                                  child: const Text('0',
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A))),
+                                  onTap: () => _onDigit('0'),
+                                ),
+                                _buildKeyButton(
+                                  isCircleBorder: false,
+                                  child: const Icon(Icons.backspace_rounded,
+                                      size: 26, color: Color(0xFF475569)),
+                                  onTap: _onDelete,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        if (widget.onForgotPassword != null) ...[
+                          const SizedBox(height: 12),
+                          GestureDetector(
+                            onTap: widget.onForgotPassword,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              child: Text(
+                                widget.isAk
+                                    ? 'PIN မေ့နေပါသလား?'
+                                    : 'Forgot PIN?',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFFDC2626),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+
+                        // ── Version Footer ──
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12, bottom: 10),
+                          child: Text(
+                            widget.versionText,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF94A3B8),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
-              }),
+              },
             ),
-
-            const Spacer(flex: 2),
-
-            // ── Keypad Grid ──
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildKeyButton(
-                      child: const Text('1', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
-                      onTap: () => _onDigit('1'),
-                    ),
-                    _buildKeyButton(
-                      child: const Text('2', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
-                      onTap: () => _onDigit('2'),
-                    ),
-                    _buildKeyButton(
-                      child: const Text('3', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
-                      onTap: () => _onDigit('3'),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildKeyButton(
-                      child: const Text('4', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
-                      onTap: () => _onDigit('4'),
-                    ),
-                    _buildKeyButton(
-                      child: const Text('5', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
-                      onTap: () => _onDigit('5'),
-                    ),
-                    _buildKeyButton(
-                      child: const Text('6', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
-                      onTap: () => _onDigit('6'),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildKeyButton(
-                      child: const Text('7', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
-                      onTap: () => _onDigit('7'),
-                    ),
-                    _buildKeyButton(
-                      child: const Text('8', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
-                      onTap: () => _onDigit('8'),
-                    ),
-                    _buildKeyButton(
-                      child: const Text('9', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
-                      onTap: () => _onDigit('9'),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildBiometricKey(),
-                    _buildKeyButton(
-                      child: const Text('0', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
-                      onTap: () => _onDigit('0'),
-                    ),
-                    _buildKeyButton(
-                      isCircleBorder: false,
-                      child: const Icon(Icons.backspace_rounded, size: 26, color: Color(0xFF475569)),
-                      onTap: _onDelete,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            if (widget.onForgotPassword != null) ...[
-              const SizedBox(height: 12),
-              GestureDetector(
-                onTap: widget.onForgotPassword,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text(
-                    widget.isAk ? 'PIN မေ့နေပါသလား?' : 'Forgot PIN?',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFFDC2626),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-
-            const Spacer(flex: 1),
-
-            // ── Version Footer ──
-            Text(
-              widget.versionText,
-              style: const TextStyle(
-                fontSize: 11,
-                color: Color(0xFF94A3B8),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
+          ),
         ],
       ),
     );

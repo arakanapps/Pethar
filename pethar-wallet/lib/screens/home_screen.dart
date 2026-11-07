@@ -561,7 +561,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SafeArea(
           bottom: false,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 110),
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -974,29 +974,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 8),
                       if (appState.balanceHidden)
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '••••••••',
-                              style: TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w900,
-                                color: Color(0xFF18181B),
-                                fontFamily: 'monospace',
-                                letterSpacing: 3,
-                              ),
-                            ),
-                            SizedBox(height: 3),
-                            Text(
-                              '= \$•••• USD',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                          ],
+                        const Text(
+                          '••••••••',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF18181B),
+                            fontFamily: 'monospace',
+                            letterSpacing: 3,
+                          ),
                         )
                       else
                         Builder(
@@ -1007,49 +993,35 @@ class _HomeScreenState extends State<HomeScreen> {
                                 : (bal >= 1000000
                                     ? 24.0
                                     : (bal >= 100000 ? 26.0 : 28.0));
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.centerLeft,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                                    textBaseline: TextBaseline.alphabetic,
-                                    children: [
-                                      Text(
-                                        '₳ ',
-                                        style: TextStyle(
-                                          fontSize: fontSize * 0.85,
-                                          fontWeight: FontWeight.w900,
-                                          color: crimson,
-                                          fontFamily: 'monospace',
-                                        ),
-                                      ),
-                                      Text(
-                                        currencyFmt.format(bal),
-                                        style: TextStyle(
-                                          fontSize: fontSize,
-                                          fontWeight: FontWeight.w900,
-                                          color: const Color(0xFF09090B),
-                                          fontFamily: 'monospace',
-                                          letterSpacing: -0.5,
-                                        ),
-                                      ),
-                                    ],
+                            return FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text(
+                                    '₳ ',
+                                    style: TextStyle(
+                                      fontSize: fontSize * 0.85,
+                                      fontWeight: FontWeight.w900,
+                                      color: crimson,
+                                      fontFamily: 'monospace',
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  '= \$${currencyFmt.format(bal)} USD',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF64748B),
+                                  Text(
+                                    currencyFmt.format(bal),
+                                    style: TextStyle(
+                                      fontSize: fontSize,
+                                      fontWeight: FontWeight.w900,
+                                      color: const Color(0xFF09090B),
+                                      fontFamily: 'monospace',
+                                      letterSpacing: -0.5,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             );
                           },
                         ),

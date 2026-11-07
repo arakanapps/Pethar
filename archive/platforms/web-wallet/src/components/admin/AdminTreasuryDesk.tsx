@@ -1,7 +1,22 @@
 import React from 'react'
 import {
-  Layers,
+  Landmark,
+  Layers3,
+  ArrowUpRight,
+  ShieldCheck,
+  Vault,
+  TrendingUp,
+  CircleDollarSign,
 } from 'lucide-react'
+import {
+  DeskHeader,
+  Panel,
+  StatCard,
+  StatusPill,
+  adminMuted,
+  adminText,
+} from './AdminUI'
+import { cn } from '../../lib/utils'
 
 interface AdminTreasuryDeskProps {
   isDarkMode: boolean
@@ -10,174 +25,209 @@ interface AdminTreasuryDeskProps {
 export const AdminTreasuryDesk: React.FC<AdminTreasuryDeskProps> = ({ isDarkMode }) => {
   const reserves = [
     {
-      asset: 'USDT (Tron TRC20 / ERC20)',
+      asset: 'USDT',
+      network: 'Tron TRC20 / ERC20',
       amountUsd: 7200000,
       share: 55.7,
       color: 'bg-emerald-500',
       contract: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
     },
     {
-      asset: 'USDC (Polygon PoS / Native)',
+      asset: 'USDC',
+      network: 'Polygon PoS / Native',
       amountUsd: 3800000,
       share: 29.4,
-      color: 'bg-blue-500',
+      color: 'bg-sky-500',
       contract: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
     },
     {
-      asset: 'Physical Vault Cash (USD Tier 1)',
+      asset: 'Vault cash',
+      network: 'USD Tier 1 · Sittwe hub',
       amountUsd: 1935550,
       share: 14.9,
       color: 'bg-amber-500',
-      contract: 'Arakan Reserve Vault • Sittwe Hub',
+      contract: 'Arakan Reserve Vault',
     },
   ]
 
   const totalCollateral = 12935550
   const akdInCirculation = 12450000
   const reserveRatio = ((totalCollateral / akdInCirculation) * 100).toFixed(1)
+  const surplus = totalCollateral - akdInCirculation
 
   return (
-    <div className="space-y-4">
-      {/* 1:1 Peg Equivalence Hero Banner */}
+    <div className="space-y-5">
+      <DeskHeader
+        eyebrow="Platform · Treasury"
+        title="Treasury & Reserves"
+        description="Audited collateral composition backing every circulating Arakan Dollar. All figures reconcile to the 1:1 USD hard peg."
+        isDarkMode={isDarkMode}
+        actions={
+          <>
+            <StatusPill tone="emerald" dot>
+              Audit verified
+            </StatusPill>
+            <div
+              className={cn(
+                'flex items-center gap-2 rounded-xl border px-3 py-2 font-mono text-[10px] font-bold',
+                isDarkMode
+                  ? 'border-white/[0.07] bg-white/[0.03] text-slate-400'
+                  : 'border-slate-200 bg-white text-slate-500',
+              )}
+            >
+              <ShieldCheck size={13} />
+              Merkle 0x8a1c…f92d
+            </div>
+          </>
+        }
+      />
+
       <div
-        className={`p-5 rounded-2xl border transition-all ${
+        className={cn(
+          'relative overflow-hidden rounded-2xl border p-5 sm:p-6',
           isDarkMode
-            ? 'bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 border-white/10'
-            : 'bg-gradient-to-r from-orange-50/50 via-white to-amber-50/40 border-slate-200'
-        }`}
+            ? 'border-white/[0.08] bg-gradient-to-br from-[#101A30] via-[#0B1424] to-[#080E1A]'
+            : 'border-orange-200/70 bg-gradient-to-br from-orange-50 via-white to-amber-50',
+        )}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-orange-500/10 blur-3xl" />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-                1.00 ₳ = 1.00 USD
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-mono font-bold">
-                1:1 VERIFIED
+              <Landmark size={16} className="text-orange-500" />
+              <span className={cn('font-mono text-[10px] font-bold uppercase tracking-[0.2em]', adminMuted(isDarkMode))}>
+                Hard peg
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-mono">
-              Collateralized with liquid USD stablecoins & audited vault reserves.
+            <div className="mt-2 flex flex-wrap items-baseline gap-2">
+              <span className={cn('font-mono text-3xl font-black tracking-tight sm:text-4xl', adminText(isDarkMode))}>
+                1.00 ₳
+              </span>
+              <span className={cn('font-mono text-lg font-bold', adminMuted(isDarkMode))}>= $1.00 USD</span>
+            </div>
+            <p className={cn('mt-1 max-w-xl text-[11px]', adminMuted(isDarkMode))}>
+              Collateralized with liquid USD stablecoins and audited physical vault reserves.
             </p>
           </div>
-
-          <div className="flex items-center gap-3">
+          <div className="flex gap-2">
             <div
-              className={`px-4 py-2 rounded-xl border text-right font-mono ${
-                isDarkMode ? 'bg-zinc-900/80 border-white/10' : 'bg-white border-slate-200'
-              }`}
+              className={cn(
+                'rounded-xl border px-4 py-2.5 text-right',
+                isDarkMode ? 'border-white/[0.08] bg-white/[0.03]' : 'border-slate-200 bg-white',
+              )}
             >
-              <div className="text-[10px] text-slate-400 font-bold uppercase">Reserve Ratio</div>
-              <div className="text-lg font-black text-emerald-500">{reserveRatio}%</div>
+              <div className={cn('font-mono text-[9px] font-bold uppercase tracking-wider', adminMuted(isDarkMode))}>
+                Reserve ratio
+              </div>
+              <div className="mt-1 font-mono text-xl font-black text-emerald-500">{reserveRatio}%</div>
+            </div>
+            <div
+              className={cn(
+                'hidden rounded-xl border px-4 py-2.5 text-right sm:block',
+                isDarkMode ? 'border-white/[0.08] bg-white/[0.03]' : 'border-slate-200 bg-white',
+              )}
+            >
+              <div className={cn('font-mono text-[9px] font-bold uppercase tracking-wider', adminMuted(isDarkMode))}>
+                Surplus buffer
+              </div>
+              <div className="mt-1 font-mono text-xl font-black text-orange-500">
+                ${surplus.toLocaleString()}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Metric Strip (BoardUI Style) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div
-          className={`p-4 rounded-2xl border ${
-            isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-white border-slate-200/80'
-          }`}
-        >
-          <div className="text-xs text-slate-400 font-mono font-bold uppercase">
-            Total Collateral Reserves
-          </div>
-          <div className="text-2xl font-black font-mono text-emerald-500 mt-1">
-            ${totalCollateral.toLocaleString()}
-          </div>
-          <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-            +${(totalCollateral - akdInCirculation).toLocaleString()} Surplus Buffer
-          </div>
-        </div>
-
-        <div
-          className={`p-4 rounded-2xl border ${
-            isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-white border-slate-200/80'
-          }`}
-        >
-          <div className="text-xs text-slate-400 font-mono font-bold uppercase">
-            AKD in Total Circulation
-          </div>
-          <div className="text-2xl font-black font-mono text-slate-900 dark:text-white mt-1">
-            ₳ {akdInCirculation.toLocaleString()}
-          </div>
-          <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-            100% Guaranteed 1:1 Redemption
-          </div>
-        </div>
-
-        <div
-          className={`p-4 rounded-2xl border ${
-            isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-white border-slate-200/80'
-          }`}
-        >
-          <div className="text-xs text-slate-400 font-mono font-bold uppercase">
-            Daily Treasury Volume
-          </div>
-          <div className="text-2xl font-black font-mono text-[#FF6B00] mt-1">
-            ₳ 842,190.00
-          </div>
-          <div className="text-[10px] text-emerald-500 font-mono mt-0.5">
-            2,140 Settlements Processed
-          </div>
-        </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <StatCard
+          label="Total collateral"
+          value={`$${totalCollateral.toLocaleString()}`}
+          hint="Across stablecoins and vault cash"
+          icon={<Vault size={15} />}
+          tone="emerald"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="AKD in circulation"
+          value={`₳ ${akdInCirculation.toLocaleString()}`}
+          hint="100% guaranteed 1:1 redemption"
+          icon={<CircleDollarSign size={15} />}
+          tone="blue"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="Daily volume"
+          value="₳ 842,190.00"
+          hint="2,140 settlements processed today"
+          icon={<TrendingUp size={15} />}
+          tone="amber"
+          isDarkMode={isDarkMode}
+        />
       </div>
 
-      {/* Reserve Asset Allocations */}
-      <div
-        className={`p-5 rounded-2xl border space-y-4 ${
-          isDarkMode ? 'bg-zinc-900/40 border-white/10' : 'bg-white border-slate-200'
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <h3 className="font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
-            <Layers size={16} className="text-[#FF6B00]" />
-            <span>Audited Collateral Composition</span>
-          </h3>
-          <span className="text-[10px] font-mono text-slate-400">
-            Cryptographic Merkle Proof: 0x8a1c...f92d
+      <Panel
+        isDarkMode={isDarkMode}
+        title={
+          <span className="flex items-center gap-2">
+            <Layers3 size={14} className="text-orange-500" />
+            Collateral composition
           </span>
-        </div>
+        }
+        description="Audited reserve allocation by asset class."
+        actions={
+          <button
+            type="button"
+            className={cn(
+              'inline-flex items-center gap-1 font-mono text-[10px] transition',
+              adminMuted(isDarkMode),
+              'hover:text-orange-500',
+            )}
+          >
+            View audit
+            <ArrowUpRight size={11} />
+          </button>
+        }
+      >
+        <div className="space-y-5">
+          <div className="flex h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-white/[0.06]">
+            {reserves.map((reserve) => (
+              <div
+                key={reserve.asset}
+                className={cn(reserve.color, 'h-full transition-all')}
+                style={{ width: `${reserve.share}%` }}
+                title={`${reserve.asset}: ${reserve.share}%`}
+              />
+            ))}
+          </div>
 
-        {/* Visual Multi-Asset Bar */}
-        <div className="w-full h-3 rounded-full overflow-hidden flex bg-slate-200 dark:bg-zinc-800">
-          {reserves.map((res, i) => (
-            <div
-              key={i}
-              style={{ width: `${res.share}%` }}
-              className={`${res.color} h-full transition-all`}
-              title={`${res.asset}: ${res.share}%`}
-            />
-          ))}
+          <div className={cn('divide-y', isDarkMode ? 'divide-white/[0.06]' : 'divide-slate-100')}>
+            {reserves.map((reserve) => (
+              <div key={reserve.asset} className="flex flex-col gap-2 py-3.5 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <span className={cn('h-8 w-1.5 rounded-full', reserve.color)} />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className={cn('text-xs font-bold', adminText(isDarkMode))}>{reserve.asset}</span>
+                      <StatusPill tone="slate">{reserve.share}%</StatusPill>
+                    </div>
+                    <div className={cn('mt-0.5 font-mono text-[10px]', adminMuted(isDarkMode))}>
+                      {reserve.network}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-6 sm:justify-end">
+                  <div className={cn('max-w-[210px] truncate font-mono text-[10px]', adminMuted(isDarkMode))}>
+                    {reserve.contract}
+                  </div>
+                  <div className={cn('font-mono text-sm font-black', adminText(isDarkMode))}>
+                    ${reserve.amountUsd.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-
-        {/* Asset Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-          {reserves.map((res, i) => (
-            <div
-              key={i}
-              className={`p-3.5 rounded-xl border space-y-1.5 ${
-                isDarkMode ? 'bg-zinc-900/80 border-white/5' : 'bg-slate-50 border-slate-200'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-xs truncate">{res.asset.split(' ')[0]}</span>
-                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-200 dark:bg-zinc-800">
-                  {res.share}%
-                </span>
-              </div>
-              <div className="text-base font-black font-mono text-slate-900 dark:text-white">
-                ${res.amountUsd.toLocaleString()}
-              </div>
-              <div className="text-[10px] text-slate-400 font-mono truncate">
-                {res.contract}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      </Panel>
     </div>
   )
 }

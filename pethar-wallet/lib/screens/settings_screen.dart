@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -54,11 +55,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _showForgotConfirmPin = false;
   String? _forgotPinError;
   String? _forgotPinSuccess;
+  Timer? _forgotOtpTimer;
+  int _forgotOtpSecondsRemaining = 600; // 10 minutes
 
   String _streetAddress = '';
 
   @override
+  void initState() {
+    super.initState();
+    _forgotOtpCtrl.addListener(_onForgotOtpChanged);
+  }
+
+  void _onForgotOtpChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _startForgotOtpTimer() {
+    _forgotOtpTimer?.cancel();
+    _forgotOtpSecondsRemaining = 600;
+    _forgotOtpTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_forgotOtpSecondsRemaining > 0) {
+        setState(() => _forgotOtpSecondsRemaining--);
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  String _formatForgotOtpTimer(int totalSecs) {
+    final m = (totalSecs ~/ 60).toString().padLeft(2, '0');
+    final s = (totalSecs % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
+  @override
   void dispose() {
+    _forgotOtpTimer?.cancel();
+    _forgotOtpCtrl.removeListener(_onForgotOtpChanged);
     _oldPinCtrl.dispose();
     _newPinCtrl.dispose();
     _confirmPinCtrl.dispose();
@@ -1406,7 +1443,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
@@ -1542,7 +1579,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 80),
+        padding: const EdgeInsets.only(bottom: 28),
         children: [
           // ── TOP AVATAR & HEADER SECTION ─────────────────────────────
           Container(
@@ -1961,7 +1998,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
         children: [
           const Padding(
             padding: EdgeInsets.only(left: 4, bottom: 8),
@@ -2146,7 +2183,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, color: Colors.black87),
                   ),
                   trailing: const Icon(Icons.chevron_right, color: Colors.black38, size: 20),
-                  onTap: () {
+                  onTap: () async {
                     final appState = Provider.of<AppState>(context, listen: false);
                     _forgotOtpCtrl.clear();
                     _forgotNewPinCtrl.clear();
@@ -2158,10 +2195,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _forgotPinSuccess = null;
                       _forgotPinStep = 0;
                       _tempForgotNewPin = '';
-                      _forgotPinError = null;
                       _subView = 'forgot_pin';
                     });
-                    SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
+                    _startForgotOtpTimer();
+                    final res = await SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
+                    if (!mounted) return;
+                    if (res['success'] != true) {
+                      _forgotOtpTimer?.cancel();
+                      setState(() {
+                        _forgotPinError = res['message']?.toString() ??
+                            (isAk ? 'OTP ကုဒ် ပို့ခြင်း မအောင်မြင်ပါ' : 'Could not send the OTP. Please try again.');
+                      });
+                    }
                   },
                 ),
               ],
@@ -2270,17 +2315,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  void _submitForgotOtp(bool isAk) {
+    final otp = _forgotOtpCtrl.text.trim();
+    if (otp.length != 6) {
+      setState(() {
+        _forgotPinError = isAk ? '၆ လုံးပါ အတည်ပြုကုဒ် ရိုက်ထည့်ပါ' : 'Please enter the 6-digit OTP';
+      });
+      return;
+    }
+    setState(() {
+      _forgotPinStep = 1;
+      _tempForgotNewPin = '';
+      _forgotPinError = null;
+    });
+  }
+
   Widget _buildForgotPinView(BuildContext context, AppState appState, bool isAk) {
     if (_forgotPinStep == 0) {
       // Step 1: Clean OTP Verification Page matching Attachment 3
       return Scaffold(
-        backgroundColor: const Color(0xFFF4F5F8),
+        backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
-            onPressed: () => setState(() => _subView = 'pin_management'),
+            onPressed: () {
+              _forgotOtpTimer?.cancel();
+              setState(() => _subView = 'pin_management');
+            },
           ),
           centerTitle: true,
           title: Text(
@@ -2289,9 +2353,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         body: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
           children: [
-            // Top Red/Blush Alert Container
+            // 1. Top Red/Blush Alert Banner (same as login OTP page)
             Container(
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -2326,13 +2390,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
 
-            // OTP Input Card
+            // 2. White Card with Key Icon OTP Input
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFEEF0F4)),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 2)),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 2)),
                 ],
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -2344,6 +2409,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: TextField(
                       controller: _forgotOtpCtrl,
                       keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(6),
+                      ],
                       maxLength: 6,
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: 2),
                       decoration: InputDecoration(
@@ -2355,6 +2425,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onChanged: (_) {
                         if (_forgotPinError != null) setState(() => _forgotPinError = null);
                       },
+                      onSubmitted: (_) => _submitForgotOtp(isAk),
                     ),
                   ),
                 ],
@@ -2367,16 +2438,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${isAk ? "သက်တမ်းကျန်ချိန်" : "Expires in"}: 09:59',
+                  '${isAk ? "သက်တမ်းကျန်ချိန်" : "Expires in"}: ${_formatForgotOtpTimer(_forgotOtpSecondsRemaining)}',
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
                 TextButton(
-                  onPressed: () {
-                    SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
-                    _showToast(context, isAk ? 'OTP ကုဒ် အသစ် ပို့ပြီးပါပြီ' : 'New OTP code dispatched!');
+                  onPressed: () async {
+                    final res = await SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
+                    if (!context.mounted) return;
+                    if (res['success'] == true) {
+                      _startForgotOtpTimer();
+                      setState(() => _forgotPinError = null);
+                      _showToast(context, isAk ? 'OTP ကုဒ် အသစ် ပို့ပြီးပါပြီ' : 'New OTP code dispatched!');
+                    } else {
+                      setState(() {
+                        _forgotPinError = res['message']?.toString() ??
+                            (isAk ? 'OTP ကုဒ် ပို့ခြင်း မအောင်မြင်ပါ' : 'Could not send a new OTP. Please try again.');
+                      });
+                    }
                   },
                   child: Text(
-                    isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Code',
+                    isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Email OTP',
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFD91624)),
                   ),
                 ),
@@ -2404,26 +2485,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
-            // Verify Code Button
+            // Confirm Button (same as login OTP page)
             SizedBox(
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
-                onPressed: _forgotOtpCtrl.text.trim().length != 6
-                    ? null
-                    : () {
-                        setState(() {
-                          _forgotPinStep = 1;
-                          _forgotPinError = null;
-                        });
-                      },
+                onPressed: _forgotOtpCtrl.text.trim().length == 6 ? () => _submitForgotOtp(isAk) : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFD91624),
                   foregroundColor: Colors.white,
+                  disabledBackgroundColor: const Color(0xFFD1D5DB),
+                  disabledForegroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                child: Text(isAk ? 'အတည်ပြုမည်' : 'Verify Code', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                child: Text(
+                  isAk ? 'အတည်ပြုမည်' : 'Confirm',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Security note (same as login OTP page)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isAk ? 'မှတ်ချက်:' : 'Note:',
+                    style: const TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isAk ? '- သင်၏ လျှို့ဝှက် OTP ကုဒ်အား မည်သူ့ကိုမျှ မမျှဝေပါနှင့်။' : '- Please do not share your OTP with anyone.',
+                    style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isAk
+                        ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို မမျှဝေပါနှင့်။'
+                        : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.',
+                    style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
+                  ),
+                ],
               ),
             ),
           ],
@@ -2486,6 +2592,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           setState(() => _isSubmittingForgotPin = false);
 
           if (res['success'] == true) {
+            _forgotOtpTimer?.cancel();
             appState.profile.pin = _tempForgotNewPin;
             appState.notify();
             _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN reset successfully!');
@@ -2536,7 +2643,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: const Color(0xFFF4F5F8),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           children: [
             // ── Top Profile Card (no header text per wireframe) ──
             if (appState.isAuthenticated)
@@ -2814,12 +2921,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Icon(Icons.fingerprint_rounded, color: Color(0xFF0D9488), size: 19),
                     ),
                     title: Text(
-                      isAk ? 'လက်ဗွေနှင့် မျက်နှာမှတ်သား' : 'Fingerprint & Face ID',
+                      isAk ? 'မျက်နှာဖွင့် နှင့် လက်ဗွေ' : 'Face Unlock and Fingerprint',
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
-                    ),
-                    subtitle: Text(
-                      isAndroid ? 'Android Biometrics / Fingerprint' : 'Apple Face ID / Touch ID',
-                      style: const TextStyle(fontSize: 11, color: Colors.black45),
                     ),
                     value: isAndroid ? _biometricLoginEnabled : _faceIdEnabled,
                     activeTrackColor: const Color(0xFF2563EB),
