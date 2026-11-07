@@ -168,7 +168,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   ? 'ရွေးချယ်ထားသော ပုံတွင် တရားဝင် QR ကုဒ် မတွေ့ပါ'
                   : 'No valid QR code detected in the selected image',
             ),
-            backgroundColor: const Color(0xFF1A0A0C),
+            backgroundColor: const Color(0x14FFFFFF),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -210,7 +210,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
     return Scaffold(
       backgroundColor:
-          _bottomTab == 0 ? Colors.black : const Color(0xFF000000),
+          _bottomTab == 0 ? Colors.white : const Color(0x14FFFFFF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -219,10 +219,10 @@ class _ScanScreenState extends State<ScanScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: _bottomTab == 0 ? Colors.black : Colors.white,
+                color: _bottomTab == 0 ? Colors.white : Colors.white,
                 border: _bottomTab == 0
                     ? null
-                    : const Border(bottom: BorderSide(color: Color(0xFF27272A))),
+                    : const Border(bottom: BorderSide(color: const Color(0x26FFFFFF))),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -231,14 +231,14 @@ class _ScanScreenState extends State<ScanScreen> {
                     onPressed: () => appState.navigate(Screen.home),
                     icon: Icon(
                       Icons.chevron_left,
-                      color: _bottomTab == 0 ? Colors.white : Colors.black87,
+                      color: _bottomTab == 0 ? Colors.white : Colors.white,
                       size: 30,
                     ),
                   ),
                   Text(
                     'Scan/MyQR',
                     style: TextStyle(
-                      color: _bottomTab == 0 ? Colors.white : Colors.black87,
+                      color: _bottomTab == 0 ? Colors.white : Colors.white,
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                     ),
@@ -251,12 +251,12 @@ class _ScanScreenState extends State<ScanScreen> {
                         height: 40,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: _flashlightOn ? crimson : Colors.black38,
-                          border: Border.all(color: const Color(0xFF0A0A0A), width: 1.4),
+                          color: _flashlightOn ? Colors.white : Colors.white,
+                          border: Border.all(color: const Color(0x26FFFFFF), width: 1.4),
                           boxShadow: _flashlightOn
                               ? [
                                   BoxShadow(
-                                    color: crimson.withValues(alpha: 0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     blurRadius: 16,
                                   ),
                                 ]
@@ -280,14 +280,14 @@ class _ScanScreenState extends State<ScanScreen> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0A0A0A),
+                          color: const Color(0x14FFFFFF),
                           borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: const Color(0xFF3F1D24)),
+                          border: Border.all(color: const Color(0x26FFFFFF)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.share_outlined, size: 14, color: crimson),
+                            const Icon(Icons.share_outlined, size: 14, color: Colors.white),
                             const SizedBox(width: 5),
                             Text(
                               _sharedQr
@@ -332,7 +332,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           width: 250,
                           height: 250,
                           decoration: BoxDecoration(
-                            border: Border.all(color: crimson.withValues(alpha: 0.8), width: 2.5),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.8), width: 2.5),
                             borderRadius: BorderRadius.circular(24),
                           ),
                         ),
@@ -344,10 +344,10 @@ class _ScanScreenState extends State<ScanScreen> {
                             child: Container(
                               height: 2.5,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF0A0A0A),
+                                color: const Color(0x14FFFFFF),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: crimson.withValues(alpha: 0.9),
+                                    color: Colors.white.withValues(alpha: 0.9),
                                     blurRadius: 12,
                                     spreadRadius: 2,
                                     offset: const Offset(0, 3),
@@ -376,7 +376,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w600,
                                   shadows: [
-                                    Shadow(color: Colors.black, blurRadius: 4),
+                                    Shadow(color: Colors.white, blurRadius: 4),
                                   ],
                                 ),
                               ),
@@ -389,9 +389,9 @@ class _ScanScreenState extends State<ScanScreen> {
                                     vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.65),
+                                    color: Colors.white.withValues(alpha: 0.65),
                                     borderRadius: BorderRadius.circular(999),
-                                    border: Border.all(color: const Color(0xFF3F1D24)),
+                                    border: Border.all(color: const Color(0x26FFFFFF)),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -428,8 +428,8 @@ class _ScanScreenState extends State<ScanScreen> {
             Container(
               height: 82,
               decoration: const BoxDecoration(
-                color: const Color(0xFF0A0A0A),
-                border: Border(top: BorderSide(color: Color(0xFF27272A))),
+                color: const Color(0x14FFFFFF),
+                border: Border(top: BorderSide(color: const Color(0x26FFFFFF))),
               ),
               child: Row(
                 children: [
@@ -442,14 +442,14 @@ class _ScanScreenState extends State<ScanScreen> {
                         children: [
                           Icon(
                             Icons.qr_code_scanner_rounded,
-                            color: _bottomTab == 0 ? crimson : Colors.black87,
+                            color: _bottomTab == 0 ? Colors.white : Colors.white,
                             size: 24,
                           ),
                           const SizedBox(height: 4),
                           Text(
                             isAk ? 'စကင်ဖတ်' : 'Scan',
                             style: TextStyle(
-                              color: _bottomTab == 0 ? crimson : Colors.black87,
+                              color: _bottomTab == 0 ? Colors.white : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -459,7 +459,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             width: 36,
                             height: 3,
                             decoration: BoxDecoration(
-                              color: _bottomTab == 0 ? crimson : Colors.transparent,
+                              color: _bottomTab == 0 ? Colors.white : Colors.transparent,
                               borderRadius: BorderRadius.circular(99),
                             ),
                           ),
@@ -476,14 +476,14 @@ class _ScanScreenState extends State<ScanScreen> {
                         children: [
                           Icon(
                             Icons.qr_code_2_rounded,
-                            color: _bottomTab == 1 ? crimson : Colors.black87,
+                            color: _bottomTab == 1 ? Colors.white : Colors.white,
                             size: 24,
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'MyQR',
                             style: TextStyle(
-                              color: _bottomTab == 1 ? crimson : Colors.black87,
+                              color: _bottomTab == 1 ? Colors.white : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -493,7 +493,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             width: 36,
                             height: 3,
                             decoration: BoxDecoration(
-                              color: _bottomTab == 1 ? crimson : Colors.transparent,
+                              color: _bottomTab == 1 ? Colors.white : Colors.transparent,
                               borderRadius: BorderRadius.circular(99),
                             ),
                           ),

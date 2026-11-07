@@ -421,7 +421,7 @@ class _TransferScreenState extends State<TransferScreen> {
     _applyPendingPayContactSynchronous(appState);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF000000),
+      backgroundColor: const Color(0x14FFFFFF),
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -542,11 +542,7 @@ class _TransferScreenState extends State<TransferScreen> {
                   height: 46,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: const Color(0x14FFFFFF),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.65),
                       width: 1.6,
@@ -676,7 +672,7 @@ class _TransferScreenState extends State<TransferScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF1E3A5F).withValues(alpha: 0.05),
+                        color: const Color(0x66000000).withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -722,11 +718,7 @@ class _TransferScreenState extends State<TransferScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF1F2D45), Color(0xFF0B1220)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                              color: const Color(0x14FFFFFF),
                               borderRadius: BorderRadius.circular(13),
                               border: Border.all(
                                 color: Colors.white.withValues(alpha: 0.18),
@@ -768,21 +760,21 @@ class _TransferScreenState extends State<TransferScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF000000),
+                      color: const Color(0x14FFFFFF),
                       borderRadius: BorderRadius.circular(14),
                       border:
-                          Border.all(color: const Color(0xFF3F1D24), width: 1),
+                          Border.all(color: const Color(0x26FFFFFF), width: 1),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.error_outline_rounded,
-                            size: 15, color: Color(0xFFDC2626)),
+                            size: 15, color: Color(0xFFF4F4F5)),
                         const SizedBox(width: 7),
                         Expanded(
                           child: Text(
                             _errorMessage!,
                             style: const TextStyle(
-                                color: Color(0xFFDC2626),
+                                color: Color(0xFFF4F4F5),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700),
                           ),
@@ -855,12 +847,12 @@ class _TransferScreenState extends State<TransferScreen> {
                       const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
                   decoration: BoxDecoration(
                     color: _deleteMode
-                        ? const Color(0xFF000000)
+                        ? const Color(0x14FFFFFF)
                         : Colors.white.withValues(alpha: 0.58),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
                       color: _deleteMode
-                          ? const Color(0xFF3F1D24)
+                          ? const Color(0x26FFFFFF)
                           : Colors.white.withValues(alpha: 0.95),
                       width: 1.1,
                     ),
@@ -873,7 +865,7 @@ class _TransferScreenState extends State<TransferScreen> {
                             ? Icons.check_rounded
                             : Icons.delete_outline_rounded,
                         size: 14,
-                        color: _deleteMode ? const Color(0xFFDC2626) : _inkSoft,
+                        color: _deleteMode ? const Color(0xFFF4F4F5) : _inkSoft,
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -884,7 +876,7 @@ class _TransferScreenState extends State<TransferScreen> {
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
                           color:
-                              _deleteMode ? const Color(0xFFDC2626) : _inkSoft,
+                              _deleteMode ? const Color(0xFFF4F4F5) : _inkSoft,
                         ),
                       ),
                     ],
@@ -929,7 +921,7 @@ class _TransferScreenState extends State<TransferScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1E3A5F).withValues(alpha: 0.05),
+                  color: const Color(0x66000000).withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -983,14 +975,7 @@ class _TransferScreenState extends State<TransferScreen> {
                     height: 60,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.95),
-                          _accentBlue.withValues(alpha: 0.12),
-                        ],
-                      ),
+                      color: const Color(0x14FFFFFF),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.95),
                         width: 1.2,
@@ -1068,15 +1053,7 @@ class _TransferScreenState extends State<TransferScreen> {
                           height: 44,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                contact.avatarColor,
-                                Color.lerp(
-                                    contact.avatarColor, Colors.black, 0.22)!,
-                              ],
-                            ),
+                            color: const Color(0x14FFFFFF),
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.55),
                               width: 1.4,
@@ -1157,13 +1134,13 @@ class _TransferScreenState extends State<TransferScreen> {
                             width: 34,
                             height: 34,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF000000),
+                              color: const Color(0x14FFFFFF),
                               shape: BoxShape.circle,
                               border:
-                                  Border.all(color: const Color(0xFF3F1D24)),
+                                  Border.all(color: const Color(0x26FFFFFF)),
                             ),
                             child: const Icon(Icons.delete_rounded,
-                                size: 16, color: Color(0xFFDC2626)),
+                                size: 16, color: Color(0xFFF4F4F5)),
                           )
                         else
                           Container(
@@ -1221,15 +1198,7 @@ class _TransferScreenState extends State<TransferScreen> {
                   height: 76,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        _selectedRecipient.avatarColor,
-                        Color.lerp(_selectedRecipient.avatarColor, Colors.black,
-                            0.25)!,
-                      ],
-                    ),
+                    color: const Color(0x14FFFFFF),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.65),
                       width: 2,
@@ -1400,14 +1369,14 @@ class _TransferScreenState extends State<TransferScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.error_outline_rounded,
-                              size: 13, color: Color(0xFFDC2626)),
+                              size: 13, color: Color(0xFFF4F4F5)),
                           SizedBox(width: 3),
                           Text(
                             'Over balance',
                             style: TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFFDC2626),
+                              color: Color(0xFFF4F4F5),
                             ),
                           ),
                         ],
@@ -1417,14 +1386,14 @@ class _TransferScreenState extends State<TransferScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.info_outline_rounded,
-                              size: 13, color: crimson),
+                              size: 13, color: Colors.white),
                           SizedBox(width: 3),
                           Text(
                             'At least 0.01',
                             style: TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w800,
-                              color: crimson,
+                              color: Colors.white,
                             ),
                           ),
                         ],
@@ -1450,7 +1419,7 @@ class _TransferScreenState extends State<TransferScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 1),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF000000),
+                        color: const Color(0x14FFFFFF),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: const Text(
@@ -1458,7 +1427,7 @@ class _TransferScreenState extends State<TransferScreen> {
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFFDC2626),
+                          color: Color(0xFFF4F4F5),
                         ),
                       ),
                     ),
@@ -1523,20 +1492,20 @@ class _TransferScreenState extends State<TransferScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(11),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF000000),
+                      color: const Color(0x14FFFFFF),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF3F1D24)),
+                      border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.error_outline_rounded,
-                            color: Color(0xFFDC2626), size: 16),
+                            color: Color(0xFFF4F4F5), size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _errorMessage!,
                             style: const TextStyle(
-                              color: Color(0xFFDC2626),
+                              color: Color(0xFFF4F4F5),
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -1554,14 +1523,14 @@ class _TransferScreenState extends State<TransferScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF000000),
+                      color: const Color(0x14FFFFFF),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF3F1D24)),
+                      border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.error_outline_rounded,
-                            color: Color(0xFFDC2626), size: 16),
+                            color: Color(0xFFF4F4F5), size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -1569,7 +1538,7 @@ class _TransferScreenState extends State<TransferScreen> {
                                 ? 'လက်ကျန်ငွေထက် ကျော်လွန်နေပါသည် (Over balance)'
                                 : 'Over balance: Amount exceeds available balance',
                             style: const TextStyle(
-                              color: Color(0xFFDC2626),
+                              color: Color(0xFFF4F4F5),
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -1586,14 +1555,14 @@ class _TransferScreenState extends State<TransferScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF000000),
+                      color: const Color(0x14FFFFFF),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF3F1D24)),
+                      border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.info_outline_rounded,
-                            color: crimson, size: 16),
+                            color: Colors.white, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -1601,7 +1570,7 @@ class _TransferScreenState extends State<TransferScreen> {
                                 ? 'အနည်းဆုံး 0.01 AKD လွှဲရပါမည် (At least 0.01)'
                                 : 'At least 0.01: Minimum transfer amount is 0.01 AKD',
                             style: const TextStyle(
-                              color: crimson,
+                              color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -1672,12 +1641,12 @@ class _TransferScreenState extends State<TransferScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF000000).withValues(alpha: 0.82),
+        color: const Color(0x14FFFFFF).withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFF78350F), width: 1.1),
+        border: Border.all(color: const Color(0x26FFFFFF), width: 1.1),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1A0A0C).withValues(alpha: 0.10),
+            color: const Color(0x66000000).withValues(alpha: 0.10),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -1692,12 +1661,12 @@ class _TransferScreenState extends State<TransferScreen> {
                 width: 26,
                 height: 26,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A1400),
+                  color: const Color(0x14FFFFFF),
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF78350F)),
+                  border: Border.all(color: const Color(0x26FFFFFF)),
                 ),
                 child: const Icon(Icons.shield_outlined,
-                    size: 14, color: Color(0xFFB45309)),
+                    size: 14, color: Color(0xFFD4D4D8)),
               ),
               const SizedBox(width: 8),
               Text(
@@ -1705,7 +1674,7 @@ class _TransferScreenState extends State<TransferScreen> {
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF92400E),
+                  color: Color(0xFFD4D4D8),
                 ),
               ),
             ],
@@ -1733,7 +1702,7 @@ class _TransferScreenState extends State<TransferScreen> {
       children: [
         const Padding(
           padding: EdgeInsets.only(top: 5, right: 8),
-          child: Icon(Icons.circle, size: 5, color: Color(0xFFB45309)),
+          child: Icon(Icons.circle, size: 5, color: Color(0xFFD4D4D8)),
         ),
         Expanded(
           child: Text(
@@ -1741,7 +1710,7 @@ class _TransferScreenState extends State<TransferScreen> {
             style: const TextStyle(
               fontSize: 11.5,
               height: 1.45,
-              color: Color(0xFF92400E),
+              color: Color(0xFFD4D4D8),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1770,18 +1739,14 @@ class _TransferScreenState extends State<TransferScreen> {
                   height: 68,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF34D399), Color(0xFF059669)],
-                    ),
+                    color: const Color(0x14FFFFFF),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.6),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF0A140A).withValues(alpha: 0.30),
+                        color: const Color(0x66000000).withValues(alpha: 0.30),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -1908,16 +1873,7 @@ class _GlassBackdrop extends StatelessWidget {
       children: [
         DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF000000),
-                Color(0xFF050505),
-                Color(0xFF000000),
-              ],
-              stops: [0.0, 0.5, 1.0],
-            ),
+            color: const Color(0x14FFFFFF),
           ),
         ),
         Positioned(
@@ -1964,14 +1920,7 @@ class _GlowBlob extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              color.withValues(alpha: opacity),
-              color.withValues(alpha: opacity * 0.35),
-              color.withValues(alpha: 0),
-            ],
-            stops: const [0.0, 0.5, 1.0],
-          ),
+          color: const Color(0x14FFFFFF),
         ),
       ),
     );
@@ -2005,7 +1954,7 @@ class _GlassSurface extends StatelessWidget {
         boxShadow: shadow
             ? [
                 BoxShadow(
-                  color: const Color(0xFF1E3A5F).withValues(alpha: 0.08),
+                  color: const Color(0x66000000).withValues(alpha: 0.08),
                   blurRadius: 26,
                   offset: const Offset(0, 12),
                 ),
@@ -2028,22 +1977,7 @@ class _GlassSurface extends StatelessWidget {
                 padding: padding,
                 decoration: BoxDecoration(
                   borderRadius: borderRadius,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: tint == null
-                        ? [
-                            Colors.white.withValues(alpha: 0.82),
-                            Colors.white.withValues(alpha: 0.56),
-                            Colors.white.withValues(alpha: 0.42),
-                          ]
-                        : [
-                            Colors.white.withValues(alpha: 0.88),
-                            tint!.withValues(alpha: 0.10),
-                            Colors.white.withValues(alpha: 0.44),
-                          ],
-                    stops: const [0.0, 0.55, 1.0],
-                  ),
+                  color: const Color(0x14FFFFFF),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.92),
                     width: 1.2,
@@ -2061,14 +1995,7 @@ class _GlassSurface extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(999),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.42),
-                          Colors.white.withValues(alpha: 0.0),
-                        ],
-                      ),
+                      color: const Color(0x14FFFFFF),
                     ),
                   ),
                 ),
@@ -2110,20 +2037,14 @@ class _GlassPrimaryButton extends StatelessWidget {
           height: height,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: danger
-                  ? const [Color(0xFFEF4444), Color(0xFFB91C1C)]
-                  : const [Color(0xFF22314D), Color(0xFF0B1220)],
-            ),
+            color: const Color(0x14FFFFFF),
             border: Border.all(
               color: Colors.white.withValues(alpha: 0.18),
               width: 1.1,
             ),
             boxShadow: [
               BoxShadow(
-                color: (danger ? const Color(0xFFDC2626) : _inkStrong)
+                color: (danger ? const Color(0x66000000) : _inkStrong)
                     .withValues(alpha: 0.28),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
@@ -2142,14 +2063,7 @@ class _GlassPrimaryButton extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(999),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.24),
-                          Colors.white.withValues(alpha: 0.0),
-                        ],
-                      ),
+                      color: const Color(0x14FFFFFF),
                     ),
                   ),
                 ),
@@ -2190,14 +2104,7 @@ class _GlassPill extends StatelessWidget {
       child: Ink(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(999),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withValues(alpha: 0.85),
-              Colors.white.withValues(alpha: 0.45),
-            ],
-          ),
+          color: const Color(0x14FFFFFF),
           border: Border.all(
             color: Colors.white.withValues(alpha: 0.95),
             width: 1.1,
@@ -2248,14 +2155,7 @@ class _GlassIconCircle extends StatelessWidget {
         height: 38,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withValues(alpha: 0.88),
-              Colors.white.withValues(alpha: 0.42),
-            ],
-          ),
+          color: const Color(0x14FFFFFF),
           border: Border.all(
             color: Colors.white.withValues(alpha: 0.95),
             width: 1.1,
@@ -2299,16 +2199,7 @@ class _GlassChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: selected
-                  ? const [Color(0xFF22314D), Color(0xFF0B1220)]
-                  : [
-                      Colors.white.withValues(alpha: 0.72),
-                      Colors.white.withValues(alpha: 0.40),
-                    ],
-            ),
+            color: const Color(0x14FFFFFF),
             border: Border.all(
               color: selected
                   ? Colors.white.withValues(alpha: 0.20)
@@ -2319,7 +2210,7 @@ class _GlassChip extends StatelessWidget {
               BoxShadow(
                 color: selected
                     ? _inkStrong.withValues(alpha: 0.22)
-                    : const Color(0xFF1E3A5F).withValues(alpha: 0.05),
+                    : const Color(0x66000000).withValues(alpha: 0.05),
                 blurRadius: selected ? 14 : 8,
                 offset: Offset(0, selected ? 6 : 3),
               ),

@@ -43,7 +43,7 @@ class _AccountScreenState extends State<AccountScreen> {
         : usdWalletAddress;
 
     return Scaffold(
-      backgroundColor: isDark ? obsidian : const Color(0xFFF4F5F8),
+      backgroundColor: isDark ? obsidian : const Color(0x14FFFFFF),
       appBar: AppBar(
         title: Text(
           lang == 'ak' ? 'Accounts & Balances' : 'Accounts & Balances',
@@ -58,7 +58,7 @@ class _AccountScreenState extends State<AccountScreen> {
           IconButton(
             icon: Icon(
               Icons.history_rounded,
-              color: isDark ? Colors.white70 : Colors.black87,
+              color: isDark ? Colors.white70 : Colors.white,
             ),
             tooltip: lang == 'ak' ? 'မှတ်တမ်း' : 'History',
             onPressed: () => appState.navigate(Screen.history),
@@ -78,28 +78,17 @@ class _AccountScreenState extends State<AccountScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isDark ? null : Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                gradient: isDark
-                    ? const LinearGradient(
-                        colors: [
-                          Color(0xFF0B192C),
-                          Color(0xFF1E2A38),
-                          Color(0xFF101726)
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
+                color: const Color(0x14FFFFFF),
                 border: Border.all(
                   color: isDark
-                      ? Colors.blueAccent.withValues(alpha: 0.35)
-                      : const Color(0xFF262626),
+                      ? Colors.white.withValues(alpha: 0.35)
+                      : const Color(0x26FFFFFF),
                   width: 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
+                    color: Colors.white.withValues(alpha: isDark ? 0.3 : 0.04),
                     blurRadius: 14,
                     offset: const Offset(0, 4),
                   ),
@@ -115,16 +104,16 @@ class _AccountScreenState extends State<AccountScreen> {
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
                           color: isDark
-                              ? const Color(0xFF1A0A0C).withValues(alpha: 0.3)
-                              : const Color(0xFF0A0A0A),
+                              ? const Color(0x14FFFFFF).withValues(alpha: 0.3)
+                              : const Color(0x14FFFFFF),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.pie_chart,
                           size: 16,
                           color: isDark
-                              ? Colors.amberAccent
-                              : const Color(0xFF2563EB),
+                              ? Colors.white
+                              : const Color(0xFFF4F4F5),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -132,7 +121,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         lang == 'ak' ? 'အကျဉ်းချုပ် (Overview)' : 'Overview',
                         style: TextStyle(
                           color:
-                              isDark ? Colors.white70 : const Color(0xFFD4D4D8),
+                              isDark ? Colors.white70 : const Color(0xFFF4F4F5),
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
                         ),
@@ -147,7 +136,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         ? 'စုစုပေါင်း ပမာဏ (Total Amount)'
                         : 'Total Amount',
                     style: TextStyle(
-                      color: isDark ? Colors.white60 : const Color(0xFFD4D4D8),
+                      color: isDark ? Colors.white60 : const Color(0xFFF4F4F5),
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -166,7 +155,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         const Text(
                           '₳ ',
                           style: TextStyle(
-                            color: Color(0xFFD91624),
+                            color: Color(0xFFF4F4F5),
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
                           ),
@@ -192,12 +181,12 @@ class _AccountScreenState extends State<AccountScreen> {
                     decoration: BoxDecoration(
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.04)
-                          : const Color(0xFF000000),
+                          : const Color(0x14FFFFFF),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isDark
                             ? Colors.white.withValues(alpha: 0.06)
-                            : const Color(0xFF262626),
+                            : const Color(0x26FFFFFF),
                       ),
                     ),
                     child: Row(
@@ -210,8 +199,8 @@ class _AccountScreenState extends State<AccountScreen> {
                                   usdBalance > 0 ? usdBalance : 0.0001,
                                 ],
                           colors: const [
-                            Color(0xFFE11D48), // Red for Wallet
-                            Color(0xFFF59E0B), // Yellow for USD
+                            const Color(0x14FFFFFF), // Red for Wallet
+                            const Color(0x14FFFFFF), // Yellow for USD
                           ],
                           size: 78,
                           strokeWidth: 12,
@@ -228,7 +217,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                     width: 10,
                                     height: 10,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFF1A0A0C),
+                                      color: const Color(0x14FFFFFF),
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -241,7 +230,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                         fontWeight: FontWeight.w600,
                                         color: isDark
                                             ? Colors.white
-                                            : const Color(0xFFD4D4D8),
+                                            : const Color(0xFFF4F4F5),
                                       ),
                                     ),
                                   ),
@@ -254,7 +243,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                     width: 10,
                                     height: 10,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFF1A1400),
+                                      color: const Color(0x14FFFFFF),
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -267,7 +256,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                         fontWeight: FontWeight.w600,
                                         color: isDark
                                             ? Colors.white
-                                            : const Color(0xFFD4D4D8),
+                                            : const Color(0xFFF4F4F5),
                                       ),
                                     ),
                                   ),
@@ -290,7 +279,7 @@ class _AccountScreenState extends State<AccountScreen> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: isDark ? surfaceCard : Colors.white,
+                color: isDark ? Colors.white : Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
                   color: isDark
@@ -300,7 +289,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
+                    color: Colors.white.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -327,7 +316,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
-                                  color: isDark ? Colors.white : Colors.black87,
+                                  color: isDark ? Colors.white : Colors.white,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -372,15 +361,15 @@ class _AccountScreenState extends State<AccountScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: emeraldSuccess.withValues(alpha: 0.12),
+                          color: Colors.white.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                              color: emeraldSuccess.withValues(alpha: 0.3)),
+                              color: Colors.white.withValues(alpha: 0.3)),
                         ),
                         child: const Text(
                           'ACTIVE',
                           style: TextStyle(
-                              color: emeraldSuccess,
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 10),
                         ),
@@ -416,7 +405,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   const Text(
                                     '₳ ',
                                     style: TextStyle(
-                                      color: Color(0xFFD91624),
+                                      color: Color(0xFFF4F4F5),
                                       fontSize: 22,
                                       fontWeight: FontWeight.w900,
                                     ),
@@ -429,7 +418,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                       fontWeight: FontWeight.w900,
                                       color: isDark
                                           ? Colors.white
-                                          : Colors.black87,
+                                          : Colors.white,
                                     ),
                                   ),
                                 ],
@@ -450,9 +439,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                 (akdTotal > 0 ? akdTotal : 1.0) * 0.15,
                               ],
                         colors: const [
-                          crimson, // Crimson: Available
-                          Color(0xFF94A3B8), // Slate: Pending
-                          Color(0xFF1E293B), // Charcoal: Total
+                          Colors.white, // Crimson: Available
+                          const Color(0x14FFFFFF), // Slate: Pending
+                          const Color(0x14FFFFFF), // Charcoal: Total
                         ],
                         size: 64,
                         strokeWidth: 9,
@@ -461,7 +450,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
-                            color: crimson,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -476,12 +465,12 @@ class _AccountScreenState extends State<AccountScreen> {
                     decoration: BoxDecoration(
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.04)
-                          : const Color(0xFF000000),
+                          : const Color(0x14FFFFFF),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isDark
                             ? Colors.white.withValues(alpha: 0.06)
-                            : const Color(0xFF262626),
+                            : const Color(0x26FFFFFF),
                       ),
                     ),
                     child: Row(
@@ -494,7 +483,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 width: 8,
                                 height: 8,
                                 decoration: const BoxDecoration(
-                                    color: crimson, shape: BoxShape.circle)),
+                                    color: Colors.white, shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
                               'Available: ₳ ${akdBalance.toStringAsFixed(2)}',
@@ -503,7 +492,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   fontWeight: FontWeight.w600,
                                   color: isDark
                                       ? Colors.white70
-                                      : const Color(0xFFD4D4D8)),
+                                      : const Color(0xFFF4F4F5)),
                             ),
                           ],
                         ),
@@ -514,7 +503,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 width: 8,
                                 height: 8,
                                 decoration: const BoxDecoration(
-                                    color: Color(0xFF1A1400),
+                                    color: const Color(0x14FFFFFF),
                                     shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
@@ -524,7 +513,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   fontWeight: FontWeight.w600,
                                   color: isDark
                                       ? Colors.white70
-                                      : const Color(0xFFD4D4D8)),
+                                      : const Color(0xFFF4F4F5)),
                             ),
                           ],
                         ),
@@ -535,7 +524,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 width: 8,
                                 height: 8,
                                 decoration: const BoxDecoration(
-                                    color: Color(0xFF2563EB),
+                                    color: const Color(0x14FFFFFF),
                                     shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
@@ -563,7 +552,7 @@ class _AccountScreenState extends State<AccountScreen> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: isDark ? surfaceCard : Colors.white,
+                color: isDark ? Colors.white : Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
                   color: isDark
@@ -573,7 +562,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
+                    color: Colors.white.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -592,14 +581,14 @@ class _AccountScreenState extends State<AccountScreen> {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: crimson.withValues(alpha: 0.12),
+                              color: Colors.white.withValues(alpha: 0.12),
                               shape: BoxShape.circle,
                             ),
                             child: const Center(
                               child: Text(
                                 '\$',
                                 style: TextStyle(
-                                  color: crimson,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 16,
                                 ),
@@ -617,7 +606,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
-                                  color: isDark ? Colors.white : Colors.black87,
+                                  color: isDark ? Colors.white : Colors.white,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -662,15 +651,15 @@ class _AccountScreenState extends State<AccountScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.12),
+                          color: Colors.white.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                              color: Colors.blue.withValues(alpha: 0.3)),
+                              color: Colors.white.withValues(alpha: 0.3)),
                         ),
                         child: const Text(
                           'ON-CHAIN',
                           style: TextStyle(
-                              color: Colors.blue,
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 10),
                         ),
@@ -706,7 +695,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   const Text(
                                     '\$ ',
                                     style: TextStyle(
-                                      color: crimson,
+                                      color: Colors.white,
                                       fontSize: 22,
                                       fontWeight: FontWeight.w900,
                                     ),
@@ -719,7 +708,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                       fontWeight: FontWeight.w900,
                                       color: isDark
                                           ? Colors.white
-                                          : Colors.black87,
+                                          : Colors.white,
                                     ),
                                   ),
                                 ],
@@ -740,9 +729,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                 (usdTotal > 0 ? usdTotal : 1.0) * 0.15,
                               ],
                         colors: const [
-                          crimson, // Crimson: Available
-                          Color(0xFF94A3B8), // Slate: Pending
-                          Color(0xFF1E293B), // Charcoal: Total
+                          Colors.white, // Crimson: Available
+                          const Color(0x14FFFFFF), // Slate: Pending
+                          const Color(0x14FFFFFF), // Charcoal: Total
                         ],
                         size: 64,
                         strokeWidth: 9,
@@ -751,7 +740,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
-                            color: crimson,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -766,12 +755,12 @@ class _AccountScreenState extends State<AccountScreen> {
                     decoration: BoxDecoration(
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.04)
-                          : const Color(0xFF000000),
+                          : const Color(0x14FFFFFF),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isDark
                             ? Colors.white.withValues(alpha: 0.06)
-                            : const Color(0xFF262626),
+                            : const Color(0x26FFFFFF),
                       ),
                     ),
                     child: Row(
@@ -784,7 +773,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 width: 8,
                                 height: 8,
                                 decoration: const BoxDecoration(
-                                    color: crimson, shape: BoxShape.circle)),
+                                    color: Colors.white, shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
                               'Available: \$ ${usdBalance.toStringAsFixed(2)}',
@@ -793,7 +782,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   fontWeight: FontWeight.w600,
                                   color: isDark
                                       ? Colors.white70
-                                      : const Color(0xFFD4D4D8)),
+                                      : const Color(0xFFF4F4F5)),
                             ),
                           ],
                         ),
@@ -804,7 +793,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 width: 8,
                                 height: 8,
                                 decoration: const BoxDecoration(
-                                    color: Color(0xFF1A1400),
+                                    color: const Color(0x14FFFFFF),
                                     shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
@@ -814,7 +803,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   fontWeight: FontWeight.w600,
                                   color: isDark
                                       ? Colors.white70
-                                      : const Color(0xFFD4D4D8)),
+                                      : const Color(0xFFF4F4F5)),
                             ),
                           ],
                         ),
@@ -825,7 +814,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 width: 8,
                                 height: 8,
                                 decoration: const BoxDecoration(
-                                    color: Color(0xFF2563EB),
+                                    color: const Color(0x14FFFFFF),
                                     shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(

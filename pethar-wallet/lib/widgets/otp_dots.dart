@@ -20,8 +20,8 @@ class OtpDots extends StatelessWidget {
           height: 16,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isFilled ? gold : Colors.transparent,
-            border: Border.all(color: isActive ? gold : (isFilled ? gold : Colors.grey), width: 2),
+            color: isFilled ? Colors.white : Colors.transparent,
+            border: Border.all(color: isActive ? Colors.white : (isFilled ? Colors.white : Colors.grey), width: 2),
           ),
         );
       }),

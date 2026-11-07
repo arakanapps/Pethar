@@ -28,8 +28,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
-                color: const Color(0xFF0A0A0A),
-                border: Border(bottom: BorderSide(color: Color(0xFF262626))),
+                color: const Color(0x14FFFFFF),
+                border: Border(bottom: BorderSide(color: const Color(0x26FFFFFF))),
               ),
               child: Center(
                 child: Text(
@@ -105,12 +105,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF0A0A0A),
+        color: const Color(0x14FFFFFF),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF262626)),
+        border: Border.all(color: const Color(0x26FFFFFF)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.025),
+            color: Colors.white.withValues(alpha: 0.025),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -128,7 +128,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 content: Row(
                   children: [
                     const Icon(Icons.info_outline_rounded,
-                        color: Color(0xFFD91624), size: 18),
+                        color: Color(0xFFF4F4F5), size: 18),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -141,7 +141,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     ),
                   ],
                 ),
-                backgroundColor: const Color(0xFF1E293B),
+                backgroundColor: const Color(0x14FFFFFF),
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
@@ -173,7 +173,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14.5,
-                                  color: Color(0xFFD4D4D8),
+                                  color: Color(0xFFF4F4F5),
                                 ),
                               ),
                             ),
@@ -181,15 +181,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 7, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF0A0A0A),
+                                color: const Color(0x14FFFFFF),
                                 borderRadius: BorderRadius.circular(6),
                                 border:
-                                    Border.all(color: const Color(0xFF262626)),
+                                    Border.all(color: const Color(0x26FFFFFF)),
                               ),
                               child: Text(
                                 isAk ? 'မကြာမီ' : 'Coming Soon',
                                 style: const TextStyle(
-                                  color: Color(0xFFD4D4D8),
+                                  color: Color(0xFFF4F4F5),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -208,7 +208,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
-                                      color: Color(0xFFD4D4D8),
+                                      color: Color(0xFFF4F4F5),
                                     ),
                                   ),
                                 ),
@@ -216,15 +216,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 7, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF0A0A0A),
+                                    color: const Color(0x14FFFFFF),
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
-                                        color: const Color(0xFF262626)),
+                                        color: const Color(0x26FFFFFF)),
                                   ),
                                   child: Text(
                                     isAk ? 'မကြာမီ' : 'Coming Soon',
                                     style: const TextStyle(
-                                      color: Color(0xFFD4D4D8),
+                                      color: Color(0xFFF4F4F5),
                                       fontSize: 10,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -237,7 +237,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               desc,
                               style: const TextStyle(
                                 fontSize: 11.5,
-                                color: Color(0xFFD4D4D8),
+                                color: Color(0xFFF4F4F5),
                                 height: 1.3,
                               ),
                             ),
@@ -247,7 +247,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 const SizedBox(width: 8),
                 const Icon(
                   Icons.chevron_right_rounded,
-                  color: Color(0xFFD4D4D8),
+                  color: Color(0xFFF4F4F5),
                   size: 20,
                 ),
               ],

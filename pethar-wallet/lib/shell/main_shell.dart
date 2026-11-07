@@ -99,7 +99,7 @@ class _MainShellState extends State<MainShell> {
                   Text(
                     'Péthar',
                     style: TextStyle(
-                      color: crimson,
+                      color: Colors.white,
                       fontSize: 36,
                       height: 1.0,
                       fontWeight: FontWeight.w900,
@@ -164,7 +164,7 @@ class _MainShellState extends State<MainShell> {
 
     // Security gate: a restored session must be unlocked with the PIN before
     // any wallet screen (or the navigation shell) is rendered.
-    if (false && appState.isAppLocked) {
+    if (appState.isAppLocked) {
       return const AnnotatedRegion<SystemUiOverlayStyle>(
         value: systemOverlay,
         child: AppLockScreen(),
@@ -283,7 +283,7 @@ class _MainShellState extends State<MainShell> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             boxShadow: [
               BoxShadow(
-                color: Color(0xCC000000),
+                color: const Color(0x66000000),
                 blurRadius: 20,
                 offset: Offset(0, -6),
               ),
@@ -308,8 +308,8 @@ class _MainShellState extends State<MainShell> {
                               ? Icons.home_rounded
                               : Icons.home_outlined,
                           color: currentIndex == 0
-                              ? crimson
-                              : const Color(0xFFA1A1AA),
+                              ? Colors.white
+                              : const Color(0xFFD4D4D8),
                           size: 22,
                         ),
                         label: TranslationStrings.tr('navHome', lang),
@@ -326,8 +326,8 @@ class _MainShellState extends State<MainShell> {
                               ? Icons.account_balance_wallet_rounded
                               : Icons.account_balance_wallet_outlined,
                           color: currentIndex == 1
-                              ? crimson
-                              : const Color(0xFFA1A1AA),
+                              ? Colors.white
+                              : const Color(0xFFD4D4D8),
                           size: 21,
                         ),
                         label: TranslationStrings.tr('navWallet', lang),
@@ -355,22 +355,14 @@ class _MainShellState extends State<MainShell> {
                           height: 56,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFFFF2A38),
-                                crimson,
-                                Color(0xFFB00E1A),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
+                            color: const Color(0x14FFFFFF),
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.4),
                               width: 1.5,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: crimson.withValues(alpha: 0.55),
+                                color: Colors.white.withValues(alpha: 0.55),
                                 blurRadius: 20,
                                 offset: const Offset(0, 6),
                               ),
@@ -392,8 +384,8 @@ class _MainShellState extends State<MainShell> {
                         iconWidget: ServicesGridIcon(
                           size: 21,
                           color: currentIndex == 3
-                              ? crimson
-                              : const Color(0xFFA1A1AA),
+                              ? Colors.white
+                              : const Color(0x14FFFFFF),
                           active: currentIndex == 3,
                         ),
                         label: TranslationStrings.tr('navServices', lang),
@@ -410,8 +402,8 @@ class _MainShellState extends State<MainShell> {
                               ? Icons.settings_rounded
                               : Icons.settings_outlined,
                           color: currentIndex == 4
-                              ? crimson
-                              : const Color(0xFFA1A1AA),
+                              ? Colors.white
+                              : const Color(0xFFD4D4D8),
                           size: 22,
                         ),
                         label: TranslationStrings.tr('navSettings', lang),
@@ -437,7 +429,7 @@ class _MainShellState extends State<MainShell> {
     required bool isSelected,
     VoidCallback? onCustomTap,
   }) {
-    final color = isSelected ? crimson : const Color(0xFFA1A1AA);
+    final color = isSelected ? Colors.white : const Color(0xFFA1A1AA);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 5),
@@ -454,26 +446,17 @@ class _MainShellState extends State<MainShell> {
               Provider.of<AppState>(context, listen: false).navigate(target);
             }
           },
-          splashColor: crimson.withValues(alpha: 0.10),
-          highlightColor: crimson.withValues(alpha: 0.05),
+          splashColor: Colors.white.withValues(alpha: 0.10),
+          highlightColor: Colors.white.withValues(alpha: 0.05),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(999),
-              gradient: isSelected
-                  ? LinearGradient(
-                      colors: [
-                        crimson.withValues(alpha: 0.14),
-                        crimson.withValues(alpha: 0.06),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    )
-                  : null,
+              color: isSelected ? const Color(0x14FFFFFF) : Colors.transparent,
               border: Border.all(
                 color: isSelected
-                    ? crimson.withValues(alpha: 0.20)
+                    ? Colors.white.withValues(alpha: 0.20)
                     : Colors.transparent,
                 width: 1,
               ),

@@ -13,6 +13,7 @@ import '../theme.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/support_and_kyc_modals.dart';
 import '../notifications/notifications_screen.dart';
+import '../wallet/wallet_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -55,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
         content: Row(
           children: [
             const Icon(Icons.info_outline_rounded,
-                color: Color(0xFFD91624), size: 18),
+                color: Color(0xFFF4F4F5), size: 18),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -68,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: const Color(0x14FFFFFF),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 2),
@@ -93,322 +94,31 @@ class _HomeScreenState extends State<HomeScreen> {
     onAllowed();
   }
 
-  Future<void> _showCashFlowSheet(
+  void _openUsdCashFlow(
     BuildContext context,
-    AppState appState,
-    bool isAk, {
+    AppState appState, {
     required bool cashIn,
-  }) async {
-    final controller = TextEditingController();
-    String? error;
-
-    final title = cashIn
-        ? (isAk ? 'ငွေသွင်း (Cash In)' : 'Cash In')
-        : (isAk ? 'ငွေထုတ် (Cash Out)' : 'Cash Out');
-    final subtitle = cashIn
-        ? (isAk
-            ? 'USD မှ AKD သို့ ၁:၁ ဖြင့် လွှဲပြောင်းပါ'
-            : 'Move USD into your AKD wallet at 1:1')
-        : (isAk
-            ? 'AKD မှ USD သို့ ၁:၁ ဖြင့် လွှဲပြောင်းပါ'
-            : 'Move AKD into your USD wallet at 1:1');
-    final availableSymbol = cashIn ? 'USD' : 'AKD';
-    final actionLabel = cashIn
-        ? (isAk ? 'ငွေသွင်းမည်' : 'Cash In')
-        : (isAk ? 'ငွေထုတ်မည်' : 'Cash Out');
-
-    double available() =>
-        cashIn ? appState.usdAccountBalance : appState.wallet.balance;
-
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (modalCtx) {
-        return StatefulBuilder(
-          builder: (sheetCtx, setSheetState) {
-            final amount = double.tryParse(controller.text.trim()) ?? 0.0;
-            final balance = available();
-
-            void setAmount(double value) {
-              controller.text = value.toStringAsFixed(2);
-              setSheetState(() => error = null);
+  }) {
+    // Cash In uses the USD wallet Withdraw screen (USD -> AKD).
+    // Cash Out uses the USD wallet Deposit/Issue screen (AKD -> USD).
+    appState.setFinancialSubView(cashIn ? 'withdraw' : 'issue');
+    Navigator.of(context)
+        .push(
+      MaterialPageRoute(
+        builder: (routeContext) => WalletScreen(
+          onBack: () {
+            if (Navigator.of(routeContext).canPop()) {
+              Navigator.of(routeContext).pop();
             }
-
-            void submit() {
-              if (amount <= 0) {
-                setSheetState(() => error =
-                    isAk ? 'ပမာဏ ထည့်သွင်းပါ' : 'Please enter an amount.');
-                return;
-              }
-              if (amount > balance) {
-                setSheetState(() => error = isAk
-                    ? '$availableSymbol လက်ကျန်ငွေ မလုံလောက်ပါ'
-                    : 'Insufficient $availableSymbol balance.');
-                return;
-              }
-
-              // Cash In reuses the USD wallet withdrawal path (USD -> AKD).
-              // Cash Out reuses the USD wallet issue/deposit path (AKD -> USD).
-              final result = cashIn
-                  ? appState.withdrawUsd(amount)
-                  : appState.issueUsd(amount);
-              if (result['success'] != true) {
-                setSheetState(() => error = result['message']?.toString() ??
-                    (isAk
-                        ? 'လုပ်ဆောင်မှု မအောင်မြင်ပါ'
-                        : 'Transaction failed.'));
-                return;
-              }
-
-              Navigator.of(modalCtx).pop();
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.check_circle_rounded,
-                          color: emeraldSuccess, size: 18),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          isAk ? '$title အောင်မြင်ပါသည်' : '$title successful',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 13),
-                        ),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: const Color(0xFF1E293B),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-            }
-
-            Widget preset(String label, double value) {
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => setAmount(value),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF000000),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF262626)),
-                    ),
-                    child: Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFFF4F4F5),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
-
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
-              ),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0A0A0A),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-                ),
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        margin: const EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF262626),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFFFAFAFA),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              subtitle,
-                              style: const TextStyle(
-                                  fontSize: 12, color: Color(0xFFA1A1AA)),
-                            ),
-                          ],
-                        ),
-                        IconButton(
-                          onPressed: () => Navigator.of(modalCtx).pop(),
-                          icon: const Icon(Icons.close,
-                              size: 20, color: Color(0xFFA1A1AA)),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF000000),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: const Color(0xFF262626)),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: controller,
-                                  autofocus: true,
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true),
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w800,
-                                    fontFamily: 'monospace',
-                                    color: Color(0xFFFAFAFA),
-                                  ),
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '0.00',
-                                  ),
-                                  onChanged: (_) =>
-                                      setSheetState(() => error = null),
-                                ),
-                              ),
-                              Text(
-                                availableSymbol,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFFF4F4F5),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Divider(height: 18, color: Color(0xFF18181B)),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                isAk
-                                    ? 'ရရှိနိုင်သော $availableSymbol'
-                                    : 'Available $availableSymbol',
-                                style: const TextStyle(
-                                    fontSize: 12, color: Color(0xFFA1A1AA)),
-                              ),
-                              Text(
-                                NumberFormat('#,##0.00', 'en_US')
-                                    .format(balance),
-                                style: const TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w800,
-                                  fontFamily: 'monospace',
-                                  color: Color(0xFFF4F4F5),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        preset('10', 10),
-                        preset('50', 50),
-                        preset('100', 100),
-                        preset(isAk ? 'အားလုံး' : 'Max', balance),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        const Icon(Icons.swap_horiz_rounded,
-                            size: 16, color: Color(0xFFA1A1AA)),
-                        const SizedBox(width: 6),
-                        Text(
-                          isAk
-                              ? 'လဲလှယ်နှုန်း ၁ AKD = ၁ USD'
-                              : 'Rate: 1 AKD = 1 USD',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFA1A1AA),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (error != null) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        error!,
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFFF87171),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 18),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: submit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: crimson,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16)),
-                        ),
-                        child: Text(
-                          actionLabel,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
           },
-        );
-      },
-    );
-    controller.dispose();
+        ),
+      ),
+    )
+        .then((_) {
+      // Reset any financial sub-view so the Wallet tab always opens its
+      // dashboard after a standalone cash-in/cash-out flow.
+      appState.setFinancialSubView('wallet_main');
+    });
   }
 
   ImageProvider? _buildAvatarImageProvider(String? avatarUrl) {
@@ -460,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ'
                     : 'Profile photo updated successfully!',
               ),
-              backgroundColor: const Color(0xFF18181B),
+              backgroundColor: const Color(0x14FFFFFF),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -486,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (modalCtx) {
         return Container(
           decoration: const BoxDecoration(
-            color: const Color(0xFF0A0A0A),
+            color: const Color(0x14FFFFFF),
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
@@ -500,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF000000),
+                    color: const Color(0x14FFFFFF),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -520,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFFFAFAFA),
+                          color: Color(0xFFF4F4F5),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -529,14 +239,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? 'ကင်မရာ သို့မဟုတ် ဖုန်းပြခန်းမှ ရွေးချယ်ပါ'
                             : 'Take a photo or choose from gallery',
                         style: const TextStyle(
-                            fontSize: 12, color: Color(0xFFA1A1AA)),
+                            fontSize: 12, color: Color(0xFFD4D4D8)),
                       ),
                     ],
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(modalCtx),
                     icon: const Icon(Icons.close,
-                        size: 20, color: Color(0xFFA1A1AA)),
+                        size: 20, color: Color(0xFFD4D4D8)),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -550,34 +260,34 @@ class _HomeScreenState extends State<HomeScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: Color(0xFF111111)),
+                  side: const BorderSide(color: const Color(0x26FFFFFF)),
                 ),
-                tileColor: const Color(0xFF000000),
+                tileColor: const Color(0x14FFFFFF),
                 leading: Container(
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2A0A0E),
+                    color: const Color(0x14FFFFFF),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.camera_alt_rounded,
-                      color: crimson, size: 20),
+                      color: Colors.white, size: 20),
                 ),
                 title: Text(
                   isAk ? 'ကင်မရာဖြင့် ဓာတ်ပုံရိုက်မည်' : 'Take Photo',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFFAFAFA),
+                    color: Color(0xFFF4F4F5),
                   ),
                 ),
                 subtitle: Text(
                   isAk ? 'ဖုန်းကင်မရာ ဖွင့်ရန်' : 'Open camera to capture',
                   style:
-                      const TextStyle(fontSize: 12, color: Color(0xFFA1A1AA)),
+                      const TextStyle(fontSize: 12, color: Color(0xFFD4D4D8)),
                 ),
                 trailing: const Icon(Icons.chevron_right,
-                    size: 20, color: Color(0xFFD4D4D8)),
+                    size: 20, color: Color(0xFFF4F4F5)),
                 onTap: () => _pickAvatarFromSource(
                     context, appState, isAk, ImageSource.camera, modalCtx),
               ),
@@ -589,25 +299,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: Color(0xFF111111)),
+                  side: const BorderSide(color: const Color(0x26FFFFFF)),
                 ),
-                tileColor: const Color(0xFF000000),
+                tileColor: const Color(0x14FFFFFF),
                 leading: Container(
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0A0A0A),
+                    color: const Color(0x14FFFFFF),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.photo_library_rounded,
-                      color: Color(0xFF0284C7), size: 20),
+                      color: Color(0xFFF4F4F5), size: 20),
                 ),
                 title: Text(
                   isAk ? 'ဖုန်းပြခန်းမှ ဓာတ်ပုံရွေးမည်' : 'Choose Photo',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFFAFAFA),
+                    color: Color(0xFFF4F4F5),
                   ),
                 ),
                 subtitle: Text(
@@ -615,10 +325,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? 'ပြခန်းမှ ဓာတ်ပုံ ရွေးချယ်ရန်'
                       : 'Select from photo library',
                   style:
-                      const TextStyle(fontSize: 12, color: Color(0xFFA1A1AA)),
+                      const TextStyle(fontSize: 12, color: Color(0xFFD4D4D8)),
                 ),
                 trailing: const Icon(Icons.chevron_right,
-                    size: 20, color: Color(0xFFD4D4D8)),
+                    size: 20, color: Color(0xFFF4F4F5)),
                 onTap: () => _pickAvatarFromSource(
                     context, appState, isAk, ImageSource.gallery, modalCtx),
               ),
@@ -631,14 +341,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: TextButton(
                   onPressed: () => Navigator.pop(modalCtx),
                   style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFF000000),
+                    backgroundColor: const Color(0x14FFFFFF),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),
                   ),
                   child: Text(
                     isAk ? 'မလုပ်တော့ပါ' : 'Cancel',
                     style: const TextStyle(
-                      color: Color(0xFFA1A1AA),
+                      color: Color(0xFFD4D4D8),
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
@@ -667,12 +377,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 54,
                 height: 54,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A0A0C),
+                  color: const Color(0x14FFFFFF),
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF3F1D24)),
+                  border: Border.all(color: const Color(0x26FFFFFF)),
                 ),
                 child: const Icon(Icons.power_settings_new_rounded,
-                    color: crimson, size: 26),
+                    color: Colors.white, size: 26),
               ),
               const SizedBox(height: 16),
               Text(
@@ -681,7 +391,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFFFAFAFA),
+                  color: Color(0xFFF4F4F5),
                 ),
               ),
               const SizedBox(height: 8),
@@ -692,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 12.5,
-                  color: Color(0xFFA1A1AA),
+                  color: Color(0xFFD4D4D8),
                   height: 1.45,
                 ),
               ),
@@ -703,8 +413,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(ctx),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFA1A1AA),
-                        side: const BorderSide(color: Color(0xFF27272A)),
+                        foregroundColor: const Color(0xFFD4D4D8),
+                        side: const BorderSide(color: const Color(0x26FFFFFF)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(999),
@@ -761,7 +471,7 @@ class _HomeScreenState extends State<HomeScreen> {
       {
         'label': isAk ? 'ငွေလွှဲ' : 'Transfer',
         'iconWidget':
-            const Icon(Icons.swap_horiz_rounded, color: crimson, size: 23),
+            const Icon(Icons.swap_horiz_rounded, color: Colors.white, size: 23),
         'onTap': () => _runVerifiedAction(
               context,
               appState,
@@ -772,7 +482,7 @@ class _HomeScreenState extends State<HomeScreen> {
       {
         'label': isAk ? 'ငွေလက်ခံ' : 'Receive',
         'iconWidget':
-            const Icon(Icons.qr_code_2_rounded, color: crimson, size: 22),
+            const Icon(Icons.qr_code_2_rounded, color: Colors.white, size: 22),
         'onTap': () => _runVerifiedAction(
               context,
               appState,
@@ -782,22 +492,22 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       {
         'label': isAk ? 'ငွေသွင်း' : 'Cash In',
-        'iconWidget': const Icon(Icons.south_rounded, color: crimson, size: 21),
+        'iconWidget': const Icon(Icons.south_rounded, color: Colors.white, size: 21),
         'onTap': () => _runVerifiedAction(
               context,
               appState,
               isAk ? 'ငွေသွင်းရန် (Cash In)' : 'Cash In',
-              () => _showCashFlowSheet(context, appState, isAk, cashIn: true),
+              () => _openUsdCashFlow(context, appState, cashIn: true),
             ),
       },
       {
         'label': isAk ? 'ငွေထုတ်' : 'Cash Out',
-        'iconWidget': const Icon(Icons.north_rounded, color: crimson, size: 21),
+        'iconWidget': const Icon(Icons.north_rounded, color: Colors.white, size: 21),
         'onTap': () => _runVerifiedAction(
               context,
               appState,
               isAk ? 'ငွေထုတ်ရန် (Cash Out)' : 'Cash Out',
-              () => _showCashFlowSheet(context, appState, isAk, cashIn: false),
+              () => _openUsdCashFlow(context, appState, cashIn: false),
             ),
       },
     ];
@@ -807,7 +517,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final secondaryActions = <Map<String, Object>>[
       {
         'label': isAk ? 'ငွေဖြည့်' : 'Top Up',
-        'iconWidget': const Icon(Icons.add_rounded, color: crimson, size: 21),
+        'iconWidget': const Icon(Icons.add_rounded, color: Colors.white, size: 21),
         'onTap': () => _runVerifiedAction(
               context,
               appState,
@@ -818,44 +528,44 @@ class _HomeScreenState extends State<HomeScreen> {
       {
         'label': isAk ? 'ဘေလ်ဆောင်' : 'Bill Payment',
         'iconWidget':
-            const Icon(Icons.receipt_long_rounded, color: crimson, size: 19),
+            const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 19),
         'onTap': () => appState.navigate(Screen.bills),
       },
       {
         'label': isAk ? 'လက်ဆောင်ကတ်' : 'Gift Card',
         'iconWidget':
-            const Icon(Icons.card_giftcard_rounded, color: crimson, size: 20),
+            const Icon(Icons.card_giftcard_rounded, color: Colors.white, size: 20),
         'onTap': () => _showComingSoon(
             context, isAk, isAk ? 'လက်ဆောင်ကတ်များ' : 'Gift Card'),
       },
       {
         'label': isAk ? 'မီနီအက်ပ်' : 'Mini Apps',
-        'iconWidget': const Icon(Icons.apps_rounded, color: crimson, size: 20),
+        'iconWidget': const Icon(Icons.apps_rounded, color: Colors.white, size: 20),
         'onTap': () => _showComingSoon(
             context, isAk, isAk ? 'မိတ်ဖက် မီနီအက်ပ်များ' : 'Mini Apps'),
       },
       {
         'label': isAk ? 'မိတ်ဆက်ရယူ' : 'Refer & Earn',
         'iconWidget':
-            const Icon(Icons.group_add_rounded, color: crimson, size: 20),
+            const Icon(Icons.group_add_rounded, color: Colors.white, size: 20),
         'onTap': () => _showComingSoon(context, isAk, 'Refer & Earn'),
       },
       {
         'label': isAk ? 'ငွေစာရင်း' : 'Accounts',
         'iconWidget':
-            const Icon(Icons.credit_card_rounded, color: crimson, size: 19),
+            const Icon(Icons.credit_card_rounded, color: Colors.white, size: 19),
         'onTap': () => appState.navigate(Screen.account),
       },
       {
         'label': isAk ? 'မှတ်တမ်း' : 'History',
         'iconWidget':
-            const Icon(Icons.history_rounded, color: crimson, size: 20),
+            const Icon(Icons.history_rounded, color: Colors.white, size: 20),
         'onTap': () => appState.navigate(Screen.history),
       },
       {
         'label': isAk ? 'အားလုံး' : 'See All',
         'iconWidget':
-            const Icon(Icons.grid_view_rounded, color: crimson, size: 20),
+            const Icon(Icons.grid_view_rounded, color: Colors.white, size: 20),
         'onTap': () => appState.navigate(Screen.services),
       },
     ];
@@ -867,7 +577,7 @@ class _HomeScreenState extends State<HomeScreen> {
         : (bal >= 1000000 ? 34.0 : (bal >= 100000 ? 38.0 : 42.0));
 
     return Scaffold(
-      backgroundColor: const Color(0xFF000000),
+      backgroundColor: const Color(0x14FFFFFF),
       body: Stack(
         children: [
           const _LiquidGlassBackground(),
@@ -927,16 +637,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 46,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF2A0A0E), Color(0xFF1A1A1A)],
-                  ),
+                  color: const Color(0x14FFFFFF),
                   border:
-                      Border.all(color: const Color(0xFF333333), width: 1.5),
+                      Border.all(color: const Color(0x26FFFFFF), width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF0B1B33).withValues(alpha: 0.10),
+                      color: const Color(0x66000000).withValues(alpha: 0.10),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -950,7 +656,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? Text(
                         initial,
                         style: const TextStyle(
-                          color: crimson,
+                          color: Colors.white,
                           fontWeight: FontWeight.w900,
                           fontSize: 17,
                         ),
@@ -974,16 +680,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   icon: const Icon(Icons.notifications_none_rounded,
-                      size: 20, color: Color(0xFFE4E4E7)),
+                      size: 20, color: Color(0xFFF4F4F5)),
                   badge: appState.unreadNotificationsCount > 0
                       ? Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 5, vertical: 1.5),
                           decoration: BoxDecoration(
-                            color: crimson,
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                                color: const Color(0xFF0A0A0A), width: 1.5),
+                                color: const Color(0x26FFFFFF), width: 1.5),
                           ),
                           child: Text(
                             '${appState.unreadNotificationsCount}',
@@ -1000,7 +706,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _glassIconButton(
                   onTap: () => _showQuitAppModal(context, isAk),
                   icon: const Icon(Icons.power_settings_new_rounded,
-                      size: 19, color: crimson),
+                      size: 19, color: Colors.white),
                 ),
               ],
             ),
@@ -1023,18 +729,11 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 42,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFF1A1A1A),
-              const Color(0xFF0A0A0A),
-            ],
-          ),
-          border: Border.all(color: const Color(0xFF262626), width: 1.1),
+          color: const Color(0x14FFFFFF),
+          border: Border.all(color: const Color(0x26FFFFFF), width: 1.1),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0B1B33).withValues(alpha: 0.07),
+              color: const Color(0x66000000).withValues(alpha: 0.07),
               blurRadius: 14,
               offset: const Offset(0, 5),
             ),
@@ -1064,7 +763,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return _GlassSurface(
       radius: 32,
       padding: const EdgeInsets.fromLTRB(20, 18, 16, 18),
-      tint: crimson,
+      tint: Colors.white,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -1083,15 +782,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1A1A1A),
+                      color: const Color(0x14FFFFFF),
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: const Color(0xFF333333)),
+                      border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.account_balance_wallet_rounded,
-                            size: 13, color: crimson),
+                            size: 13, color: Colors.white),
                         const SizedBox(width: 6),
                         Text(
                           isAk
@@ -1100,7 +799,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: const TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFFA1A1AA),
+                            color: Color(0xFFD4D4D8),
                             letterSpacing: 0.1,
                           ),
                         ),
@@ -1116,8 +815,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 34,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFF1A1A1A),
-                        border: Border.all(color: const Color(0xFF333333)),
+                        color: const Color(0x14FFFFFF),
+                        border: Border.all(color: const Color(0x26FFFFFF)),
                       ),
                       alignment: Alignment.center,
                       child: Icon(
@@ -1125,7 +824,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
                         size: 16,
-                        color: const Color(0xFFA1A1AA),
+                        color: const Color(0xFFD4D4D8),
                       ),
                     ),
                   ),
@@ -1157,7 +856,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontSize: balFontSize * 0.72,
                           fontWeight: FontWeight.w900,
-                          color: crimson,
+                          color: Colors.white,
                           fontFamily: 'monospace',
                         ),
                       ),
@@ -1192,7 +891,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           children: [
             const Icon(Icons.lock_outline_rounded,
-                size: 14, color: Color(0xFFA1A1AA)),
+                size: 14, color: Color(0xFFD4D4D8)),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
@@ -1202,13 +901,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFA1A1AA),
+                  color: Color(0xFFD4D4D8),
                 ),
               ),
             ),
             _glassPill(
               label: isAk ? 'ဝင်ရန်' : 'Sign in',
-              color: crimson,
+              color: Colors.white,
             ),
           ],
         ),
@@ -1225,7 +924,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () => showKycVerificationModal(context, appState),
       child: Row(
         children: [
-          const Icon(Icons.error_outline_rounded, size: 14, color: crimson),
+          const Icon(Icons.error_outline_rounded, size: 14, color: Colors.white),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
@@ -1237,14 +936,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 11.5,
                 height: 1.3,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFFA1A1AA),
+                color: Color(0xFFD4D4D8),
               ),
             ),
           ),
           const SizedBox(width: 8),
           _glassPill(
             label: isAk ? 'အတည်ပြုမည်' : 'Verify',
-            color: crimson,
+            color: Colors.white,
           ),
         ],
       ),
@@ -1299,19 +998,11 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF1C1214),
-                  Color(0xFF160B0D),
-                  Color(0xFF0A0A0A),
-                ],
-              ),
-              border: Border.all(color: const Color(0xFF2A1A1E), width: 1.2),
+              color: const Color(0x14FFFFFF),
+              border: Border.all(color: const Color(0x26FFFFFF), width: 1.2),
               boxShadow: [
                 BoxShadow(
-                  color: crimson.withValues(alpha: 0.14),
+                  color: Colors.white.withValues(alpha: 0.14),
                   blurRadius: 14,
                   offset: const Offset(0, 6),
                 ),
@@ -1328,7 +1019,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: const TextStyle(
               fontSize: 10.5,
               fontWeight: FontWeight.w700,
-              color: Color(0xFFE4E4E7),
+              color: Color(0xFFF4F4F5),
             ),
           ),
         ],
@@ -1373,7 +1064,7 @@ class _HomeScreenState extends State<HomeScreen> {
         style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w800,
-          color: Color(0xFFA1A1AA),
+          color: Color(0xFFD4D4D8),
           letterSpacing: 0.4,
         ),
       ),
@@ -1411,9 +1102,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A1A),
+                    color: const Color(0x14FFFFFF),
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: const Color(0xFF333333)),
+                    border: Border.all(color: const Color(0x26FFFFFF)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1423,12 +1114,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: crimson,
+                          color: Colors.white,
                         ),
                       ),
                       const SizedBox(width: 2),
                       const Icon(Icons.chevron_right_rounded,
-                          size: 14, color: crimson),
+                          size: 14, color: Colors.white),
                     ],
                   ),
                 ),
@@ -1467,7 +1158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               shape: BoxShape.circle,
                               color: Color(fav.colorValue),
                               border: Border.all(
-                                  color: const Color(0xFF0A0A0A), width: 2),
+                                  color: const Color(0x26FFFFFF), width: 2),
                               boxShadow: [
                                 BoxShadow(
                                   color: Color(fav.colorValue)
@@ -1501,7 +1192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: const TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFFA1A1AA),
+                                color: Color(0xFFD4D4D8),
                               ),
                             ),
                           ),
@@ -1525,16 +1216,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 46,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0xFF1A1A1A),
+                          color: const Color(0x14FFFFFF),
                           border: Border.all(
-                            color: const Color(0xFF333333),
+                            color: const Color(0x26FFFFFF),
                             width: 1.2,
                           ),
                         ),
                         alignment: Alignment.center,
                         child: const Icon(
                           Icons.add_rounded,
-                          color: Color(0xFFA1A1AA),
+                          color: Color(0xFFD4D4D8),
                           size: 20,
                         ),
                       ),
@@ -1547,7 +1238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: const TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFFA1A1AA),
+                            color: Color(0xFFD4D4D8),
                           ),
                         ),
                       ),
@@ -1560,16 +1251,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 46,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1A1A1A),
+                      color: const Color(0x14FFFFFF),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFF333333)),
+                      border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
                     alignment: Alignment.center,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.person_add_alt_1_rounded,
-                            size: 15, color: crimson),
+                            size: 15, color: Colors.white),
                         const SizedBox(width: 7),
                         Text(
                           isAk
@@ -1578,7 +1269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: const TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFFA1A1AA),
+                            color: Color(0xFFD4D4D8),
                           ),
                         ),
                       ],
@@ -1676,7 +1367,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: active ? 18 : 6,
               height: 6,
               decoration: BoxDecoration(
-                color: active ? crimson : const Color(0xFF000000),
+                color: active ? Colors.white : const Color(0x14FFFFFF),
                 borderRadius: BorderRadius.circular(999),
               ),
             );
@@ -1698,11 +1389,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: colors,
-          ),
+          color: const Color(0x14FFFFFF),
           boxShadow: [
             BoxShadow(
               color: colors.first.withValues(alpha: 0.25),
@@ -1865,13 +1552,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 38,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFF1A0A0C).withValues(alpha: 0.95),
+                      color: const Color(0x14FFFFFF).withValues(alpha: 0.95),
                       border: Border.all(
-                          color: const Color(0xFF0A0A0A), width: 1.2),
+                          color: const Color(0x26FFFFFF), width: 1.2),
                     ),
                     alignment: Alignment.center,
                     child: const Icon(Icons.campaign_rounded,
-                        color: crimson, size: 19),
+                        color: Colors.white, size: 19),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -1895,7 +1582,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: const TextStyle(
                               fontSize: 11.5,
                               height: 1.4,
-                              color: Color(0xFFA1A1AA),
+                              color: Color(0xFFD4D4D8),
                             ),
                           ),
                         ],
@@ -1936,12 +1623,7 @@ class _LiquidGlassBackground extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [
-            color.withValues(alpha: opacity),
-            color.withValues(alpha: 0),
-          ],
-        ),
+        color: const Color(0x14FFFFFF),
       ),
     );
   }
@@ -1968,7 +1650,7 @@ class _GlassSurface extends StatelessWidget {
         borderRadius: base,
         boxShadow: [
           BoxShadow(
-            color: const Color(0xCC000000),
+            color: const Color(0x66000000),
             blurRadius: 26,
             offset: const Offset(0, 12),
           ),
@@ -1982,21 +1664,8 @@ class _GlassSurface extends StatelessWidget {
             padding: padding,
             decoration: BoxDecoration(
               borderRadius: base,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: tint == null
-                    ? [
-                        const Color(0xFF121212),
-                        const Color(0xFF0A0A0A),
-                      ]
-                    : [
-                        const Color(0xFF171313),
-                        tint!.withValues(alpha: 0.16),
-                        const Color(0xFF0A0A0A),
-                      ],
-              ),
-              border: Border.all(color: const Color(0xFF262626), width: 1.1),
+              color: const Color(0x14FFFFFF),
+              border: Border.all(color: const Color(0x26FFFFFF), width: 1.1),
             ),
             child: child,
           ),

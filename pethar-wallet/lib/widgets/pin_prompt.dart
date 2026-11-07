@@ -39,7 +39,7 @@ Future<String?> showPinPrompt(
                         (isAk
                             ? 'ငွေလွှဲခြင်းကို အတည်ပြုရန် သင့် ၆ လုံး PIN ကို ထည့်ပါ။'
                             : 'Confirm this transaction with your 6-digit PIN.'),
-                    style: const TextStyle(fontSize: 12.5, color: Color(0xFFD4D4D8), height: 1.4),
+                    style: const TextStyle(fontSize: 12.5, color: Color(0xFFF4F4F5), height: 1.4),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(

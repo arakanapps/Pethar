@@ -31,7 +31,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       final parsed = int.tryParse('FF$hex', radix: 16);
       if (parsed != null) return Color(parsed);
     }
-    return crimson;
+    return Colors.white;
   }
 
   @override
@@ -59,7 +59,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
             fontSize: 17,
           ),
         ),
-        iconTheme: const IconThemeData(color: Color(0xFF0A0A0A)),
+        iconTheme: const IconThemeData(color: Color(0xFFF4F4F5)),
         leading: IconButton(
           icon: const Icon(Icons.chevron_left_rounded, size: 28),
           onPressed: () => appState.goBack(),
@@ -81,11 +81,11 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                 contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 14),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF27272A)),
+                  borderSide: const BorderSide(color: const Color(0x26FFFFFF)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: Color(0xFF27272A)),
+                  borderSide: const BorderSide(color: const Color(0x26FFFFFF)),
                 ),
               ),
             ),
@@ -96,7 +96,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                     padding: const EdgeInsets.all(24),
                     children: [
                       const SizedBox(height: 80),
-                      const Icon(Icons.receipt_long_rounded, size: 52, color: Color(0xFFD4D4D8)),
+                      const Icon(Icons.receipt_long_rounded, size: 52, color: Color(0xFFF4F4F5)),
                       const SizedBox(height: 16),
                       Text(
                         _query.isEmpty
@@ -106,7 +106,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFFD4D4D8),
+                          color: Color(0xFFF4F4F5),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -115,7 +115,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                             ? 'ဘေလ်ဝန်ဆောင်မှုများ ထည့်သွင်းပြီးပါက ဤနေရာတွင် ပေါ်လာပါမည်။'
                             : 'Billers published by Péthar will appear here automatically.',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 13, color: Color(0xFFD4D4D8), height: 1.4),
+                        style: const TextStyle(fontSize: 13, color: Color(0xFFF4F4F5), height: 1.4),
                       ),
                     ],
                   )
@@ -140,7 +140,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: const Color(0xFF27272A)),
+                              border: Border.all(color: const Color(0x26FFFFFF)),
                             ),
                             child: Row(
                               children: [
@@ -180,14 +180,14 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                                           category,
                                           style: const TextStyle(
                                             fontSize: 12,
-                                            color: Color(0xFFD4D4D8),
+                                            color: Color(0xFFF4F4F5),
                                           ),
                                         ),
                                       ],
                                     ],
                                   ),
                                 ),
-                                const Icon(Icons.chevron_right_rounded, color: Color(0xFFD4D4D8)),
+                                const Icon(Icons.chevron_right_rounded, color: Color(0xFFF4F4F5)),
                               ],
                             ),
                           ),
@@ -212,7 +212,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       builder: (_) => Container(
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
         decoration: const BoxDecoration(
-          color: const Color(0xFF0A0A0A),
+          color: const Color(0x14FFFFFF),
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: Column(
@@ -225,7 +225,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0A0A0A),
+                  color: const Color(0x14FFFFFF),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -237,14 +237,14 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
             const SizedBox(height: 6),
             Text(
               (provider['category'] ?? '').toString(),
-              style: const TextStyle(fontSize: 13, color: Color(0xFFD4D4D8)),
+              style: const TextStyle(fontSize: 13, color: Color(0xFFF4F4F5)),
             ),
             const SizedBox(height: 20),
             Text(
               isAk
                   ? 'ဘေလ်ဆောင်ခြင်းကို မကြာမီ ဖွင့်လှစ်ပါမည်။'
                   : 'Bill payment is not enabled yet.',
-              style: const TextStyle(fontSize: 14, color: Color(0xFFD4D4D8), height: 1.5),
+              style: const TextStyle(fontSize: 14, color: Color(0xFFF4F4F5), height: 1.5),
             ),
             const SizedBox(height: 20),
             SizedBox(

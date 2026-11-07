@@ -31,7 +31,7 @@ class TopupScreen extends StatelessWidget {
             fontSize: 17,
           ),
         ),
-        iconTheme: const IconThemeData(color: Color(0xFF0A0A0A)),
+        iconTheme: const IconThemeData(color: Color(0xFFF4F4F5)),
         leading: IconButton(
           icon: const Icon(Icons.chevron_left_rounded, size: 28),
           onPressed: () => appState.goBack(),
@@ -43,7 +43,7 @@ class TopupScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 children: [
                   const SizedBox(height: 80),
-                  const Icon(Icons.inbox_rounded, size: 52, color: Color(0xFFD4D4D8)),
+                  const Icon(Icons.inbox_rounded, size: 52, color: Color(0xFFF4F4F5)),
                   const SizedBox(height: 16),
                   Text(
                     isAk
@@ -53,7 +53,7 @@ class TopupScreen extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFFD4D4D8),
+                      color: Color(0xFFF4F4F5),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -62,7 +62,7 @@ class TopupScreen extends StatelessWidget {
                         ? 'အော်ပရေတာများမှ ပက်ကေ့ချ်များ ထည့်သွင်းပြီးပါက ဤနေရာတွင် ပေါ်လာပါမည်။'
                         : 'Packages published by operators will appear here automatically.',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 13, color: Color(0xFFD4D4D8), height: 1.4),
+                    style: const TextStyle(fontSize: 13, color: Color(0xFFF4F4F5), height: 1.4),
                   ),
                 ],
               )
@@ -81,9 +81,9 @@ class TopupScreen extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0A0A0A),
+                      color: const Color(0x14FFFFFF),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFF27272A)),
+                      border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
                     child: Row(
                       children: [
@@ -91,10 +91,10 @@ class TopupScreen extends StatelessWidget {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1A0A0C),
+                            color: const Color(0x14FFFFFF),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Icon(Icons.sim_card_rounded, color: crimson, size: 22),
+                          child: const Icon(Icons.sim_card_rounded, color: Colors.white, size: 22),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -114,7 +114,7 @@ class TopupScreen extends StatelessWidget {
                                 [quota, validity, category]
                                     .where((value) => value.isNotEmpty)
                                     .join(' • '),
-                                style: const TextStyle(fontSize: 12, color: Color(0xFFD4D4D8)),
+                                style: const TextStyle(fontSize: 12, color: Color(0xFFF4F4F5)),
                               ),
                             ],
                           ),
