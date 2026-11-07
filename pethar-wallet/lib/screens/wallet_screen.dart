@@ -36,8 +36,8 @@ class _WalletScreenState extends State<WalletScreen> {
 
   String _selectedNetwork = 'Base';
   String _sendToken = 'USDT';
-  String _swapFromToken = 'USD';
-  String _swapToToken = 'USDT';
+  String _swapFromToken = 'USDT';
+  String _swapToToken = 'USDC';
   double _slippage = 0.5;
   bool _agreedToSwapTerms = true;
 
@@ -46,8 +46,8 @@ class _WalletScreenState extends State<WalletScreen> {
     super.initState();
     _issueAmountCtrl.text = '10.00';
     _withdrawAmountCtrl.text = '10.00';
-    _sendAmountCtrl.text = '0.30';
-    _swapSendAmountCtrl.text = '10.00';
+    _sendAmountCtrl.text = '0.00';
+    _swapSendAmountCtrl.text = '0.00';
   }
 
   @override
@@ -98,8 +98,6 @@ class _WalletScreenState extends State<WalletScreen> {
         return _buildSwapScreen(context, appState, isAk);
       case 'receive':
         return _buildReceiveScreen(context, appState, isAk);
-      case 'customize_name':
-        return _buildCustomizeNameScreen(context, appState, isAk);
       case 'mission':
         return _buildMissionScreen(context, appState, isAk);
       case 'wallet_security_phrase':
@@ -120,7 +118,9 @@ class _WalletScreenState extends State<WalletScreen> {
     final shortAddr = rawAddress.length > 12
         ? '${rawAddress.substring(0, 6)}...${rawAddress.substring(rawAddress.length - 4)}'
         : rawAddress;
-    final usdBal = appState.usdAccountBalance;
+    final usdBal = appState.usdAccountBalance +
+        appState.cryptoWallet.usdtBalance +
+        appState.cryptoWallet.usdcBalance;
     final akdEquivalent = usdBal * 1.0; // 1 USD = 1 AKD parity
 
     return Scaffold(
@@ -138,7 +138,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     16,
                     MediaQuery.of(context).padding.top + 8,
                     16,
-                    70,
+                    64,
                   ),
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -157,22 +157,11 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                   child: Column(
                     children: [
-                      // Header Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                                color: Colors.white, size: 20),
-                            onPressed: () {
-                              if (widget.onBack != null) {
-                                widget.onBack!();
-                              } else {
-                                appState.navigate(Screen.home);
-                              }
-                            },
-                          ),
-                          Text(
+                      // Header: Centered title without < and cross button
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Center(
+                          child: Text(
                             isAk ? 'USD ပိုက်ဆံအိတ်' : 'USD Web3 Wallet',
                             style: const TextStyle(
                               color: Colors.white,
@@ -181,12 +170,7 @@ class _WalletScreenState extends State<WalletScreen> {
                               letterSpacing: -0.3,
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.close_rounded,
-                                color: Colors.white, size: 24),
-                            onPressed: () => appState.navigate(Screen.home),
-                          ),
-                        ],
+                        ),
                       ),
                       const SizedBox(height: 12),
 
@@ -268,39 +252,6 @@ class _WalletScreenState extends State<WalletScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
-
-                      // Customize wallet name link
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: GestureDetector(
-                          onTap: () =>
-                              appState.setFinancialSubView('customize_name'),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  appState.customWalletName.isNotEmpty
-                                      ? appState.customWalletName
-                                      : (isAk
-                                          ? 'မိမိအမည် သတ်မှတ်ရန် >'
-                                          : 'Customize your wallet name >'),
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.95),
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor:
-                                        Colors.white.withValues(alpha: 0.5),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
                       const SizedBox(height: 8),
                     ],
                   ),
@@ -372,9 +323,24 @@ class _WalletScreenState extends State<WalletScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(width: 6),
-                            const Icon(Icons.info_outline_rounded,
-                                size: 14, color: Color(0xFF94A3B8)),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF1F2),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(color: const Color(0xFFFECDD3), width: 1),
+                              ),
+                              child: const Text(
+                                '1.00 ₳ = \$1.00',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: crimson,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -708,41 +674,20 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  // Tokens Tab
+  // Tokens Tab (USDT & USDC starting from 0, showing = with USD)
   Widget _buildTokensListSliver(
       BuildContext context, AppState appState, bool isAk) {
     final fmt = NumberFormat('#,##0.00', 'en_US');
-    final usdBal = appState.usdAccountBalance;
-    final usdtBal = appState.cryptoWallet.usdtBalance > 0
-        ? appState.cryptoWallet.usdtBalance
-        : 0.302514;
+    final usdtBal = appState.cryptoWallet.usdtBalance;
     final usdcBal = appState.cryptoWallet.usdcBalance;
 
     final tokens = [
       {
-        'symbol': 'USD',
-        'name': 'Péthar USD',
-        'balance': fmt.format(usdBal),
-        'unit': 'USD',
-        'valueAkd': '${fmt.format(usdBal)} AKD',
-        'color': const Color(0xFF2563EB),
-        'glyph': '\$',
-      },
-      {
-        'symbol': 'ETH',
-        'name': 'Ethereum',
-        'balance': '0.000075',
-        'unit': 'ETH',
-        'valueAkd': '≈5.64 AKD',
-        'color': const Color(0xFF627EEA),
-        'glyph': 'Ξ',
-      },
-      {
         'symbol': 'USDT',
         'name': 'Tether USD',
-        'balance': usdtBal.toStringAsFixed(6),
+        'balance': fmt.format(usdtBal),
         'unit': 'USDT',
-        'valueAkd': '≈${fmt.format(usdtBal * 1.0)} AKD',
+        'valueUsd': '= ${fmt.format(usdtBal)} USD',
         'color': const Color(0xFF26A17B),
         'glyph': '₮',
       },
@@ -751,18 +696,9 @@ class _WalletScreenState extends State<WalletScreen> {
         'name': 'USD Coin',
         'balance': fmt.format(usdcBal),
         'unit': 'USDC',
-        'valueAkd': '≈${fmt.format(usdcBal * 1.0)} AKD',
+        'valueUsd': '= ${fmt.format(usdcBal)} USD',
         'color': const Color(0xFF2775CA),
         'glyph': '\$',
-      },
-      {
-        'symbol': 'EURC',
-        'name': 'Euro Coin',
-        'balance': '0.00',
-        'unit': 'EURC',
-        'valueAkd': '≈0.00 AKD',
-        'color': const Color(0xFF1D4ED8),
-        'glyph': '€',
       },
     ];
 
@@ -830,7 +766,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       ],
                     ),
                   ),
-                  // Balance & AKD Value
+                  // Balance & USD Value
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -849,7 +785,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       Text(
                         appState.walletBalanceHidden
                             ? '••••'
-                            : (t['valueAkd'] as String),
+                            : (t['valueUsd'] as String),
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF94A3B8),
@@ -1753,13 +1689,13 @@ class _WalletScreenState extends State<WalletScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    _buildPercentChip('25%', () => _setSendPercent(0.25)),
+                    _buildPercentChip('25%', () => _setSendPercent(appState, 0.25)),
                     const SizedBox(width: 6),
-                    _buildPercentChip('50%', () => _setSendPercent(0.50)),
+                    _buildPercentChip('50%', () => _setSendPercent(appState, 0.50)),
                     const SizedBox(width: 6),
-                    _buildPercentChip('75%', () => _setSendPercent(0.75)),
+                    _buildPercentChip('75%', () => _setSendPercent(appState, 0.75)),
                     const SizedBox(width: 6),
-                    _buildPercentChip('Max%', () => _setSendPercent(1.00)),
+                    _buildPercentChip('Max%', () => _setSendPercent(appState, 1.00)),
                   ],
                 ),
                 const Divider(height: 20, color: Color(0xFFF1F5F9)),
@@ -1827,7 +1763,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     ),
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'Wallet address or name.usd.eth',
+                      hintText: 'Enter recipient wallet address (0x...)',
                       hintStyle:
                           TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
                     ),
@@ -1872,9 +1808,12 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  void _setSendPercent(double pct) {
+  void _setSendPercent(AppState appState, double pct) {
+    final bal = _sendToken == 'USDT'
+        ? appState.cryptoWallet.usdtBalance
+        : appState.cryptoWallet.usdcBalance;
     setState(() {
-      _sendAmountCtrl.text = (100.0 * pct).toStringAsFixed(2);
+      _sendAmountCtrl.text = (bal * pct).toStringAsFixed(2);
     });
   }
 
@@ -2110,33 +2049,24 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   void _showSelectTokenSheet(BuildContext context) {
+    final appState = Provider.of<AppState>(context, listen: false);
+    final fmt = NumberFormat('#,##0.00', 'en_US');
+    final usdtBal = appState.cryptoWallet.usdtBalance;
+    final usdcBal = appState.cryptoWallet.usdcBalance;
+
     final tokens = [
       {
         'symbol': 'USDT',
         'name': 'Tether USD',
-        'balance': '0.302514 USDT',
-        'fiat': '≈10.13 AKD',
+        'balance': '${fmt.format(usdtBal)} USDT',
+        'fiat': '= ${fmt.format(usdtBal)} USD',
         'color': const Color(0xFF26A17B),
-      },
-      {
-        'symbol': 'ETH',
-        'name': 'Ether',
-        'balance': '0.00007399 ETH',
-        'fiat': '≈5.50 AKD',
-        'color': const Color(0xFF627EEA),
-      },
-      {
-        'symbol': 'USD',
-        'name': 'Péthar USD',
-        'balance': '10.00 USD',
-        'fiat': '≈10.00 AKD',
-        'color': paynoBlue,
       },
       {
         'symbol': 'USDC',
         'name': 'USD Coin',
-        'balance': '0.00 USDC',
-        'fiat': '≈0.00 AKD',
+        'balance': '${fmt.format(usdcBal)} USDC',
+        'fiat': '= ${fmt.format(usdcBal)} USD',
         'color': const Color(0xFF2775CA),
       },
     ];
@@ -2190,9 +2120,9 @@ class _WalletScreenState extends State<WalletScreen> {
                   radius: 18,
                   backgroundColor: t['color'] as Color,
                   child: Text(
-                    (t['symbol'] as String)[0],
+                    t['symbol'] == 'USDT' ? '₮' : '\$',
                     style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+                        color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
                 title: Text(t['symbol'] as String,
@@ -2231,12 +2161,8 @@ class _WalletScreenState extends State<WalletScreen> {
   Widget _buildSwapScreen(BuildContext context, AppState appState, bool isAk) {
     final fmt = NumberFormat('#,##0.00', 'en_US');
     final sendVal = double.tryParse(_swapSendAmountCtrl.text.trim()) ?? 0.0;
-    // Calculate receive estimate: 10 USD -> 0.302514 USDT (or 1:1 for stables)
-    final receiveVal = _swapFromToken == 'USD' && _swapToToken == 'USDT'
-        ? sendVal * 0.998 // small pool spread
-        : (_swapFromToken == 'USDT' && _swapToToken == 'USD'
-            ? sendVal * 0.998
-            : sendVal * 1.0);
+    // Calculate receive estimate: 1:1 for stablecoins (USDT <-> USDC)
+    final receiveVal = sendVal * 1.0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -2328,13 +2254,13 @@ class _WalletScreenState extends State<WalletScreen> {
                             color: Color(0xFF64748B))),
                     Row(
                       children: [
-                        _buildPercentChip('25%', () => _setSwapPercent(0.25)),
+                        _buildPercentChip('25%', () => _setSwapPercent(appState, 0.25)),
                         const SizedBox(width: 4),
-                        _buildPercentChip('50%', () => _setSwapPercent(0.50)),
+                        _buildPercentChip('50%', () => _setSwapPercent(appState, 0.50)),
                         const SizedBox(width: 4),
-                        _buildPercentChip('75%', () => _setSwapPercent(0.75)),
+                        _buildPercentChip('75%', () => _setSwapPercent(appState, 0.75)),
                         const SizedBox(width: 4),
-                        _buildPercentChip('Max%', () => _setSwapPercent(1.00)),
+                        _buildPercentChip('Max%', () => _setSwapPercent(appState, 1.00)),
                       ],
                     ),
                   ],
@@ -2375,7 +2301,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    'Balance ${fmt.format(appState.usdAccountBalance)} $_swapFromToken',
+                    'Balance ${fmt.format(_swapFromToken == 'USDT' ? appState.cryptoWallet.usdtBalance : appState.cryptoWallet.usdcBalance)} $_swapFromToken',
                     style: const TextStyle(
                       fontSize: 11.5,
                       color: Color(0xFF94A3B8),
@@ -2471,7 +2397,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    'Balance 0.00 $_swapToToken',
+                    'Balance ${fmt.format(_swapToToken == 'USDT' ? appState.cryptoWallet.usdtBalance : appState.cryptoWallet.usdcBalance)} $_swapToToken',
                     style: const TextStyle(
                       fontSize: 11.5,
                       color: Color(0xFF94A3B8),
@@ -2598,9 +2524,12 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  void _setSwapPercent(double pct) {
+  void _setSwapPercent(AppState appState, double pct) {
+    final bal = _swapFromToken == 'USDT'
+        ? appState.cryptoWallet.usdtBalance
+        : appState.cryptoWallet.usdcBalance;
     setState(() {
-      _swapSendAmountCtrl.text = (100.0 * pct).toStringAsFixed(2);
+      _swapSendAmountCtrl.text = (bal * pct).toStringAsFixed(2);
     });
   }
 
@@ -2810,58 +2739,7 @@ class _WalletScreenState extends State<WalletScreen> {
               textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(height: 16),
-
-          // Your wallet, with a name banner
-          GestureDetector(
-            onTap: () => appState.setFinancialSubView('customize_name'),
-            child: Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFBFDBFE)),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.badge_outlined,
-                      color: paynoBlue, size: 28),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Your wallet, with a name',
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF1E3A8A),
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          'Get Your Name Now',
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                            color: paynoBlue,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_ios_rounded,
-                      size: 14, color: paynoBlue),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 32),
 
           // Share QR Button (Payno Blue, NOT orange)
           _buildPrimaryButton(
@@ -2874,198 +2752,7 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 7. CUSTOMIZE WALLET NAME SCREEN (Matching photo_2026-11-06_19-53-05.jpg)
-  // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildCustomizeNameScreen(
-      BuildContext context, AppState appState, bool isAk) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF0F172A), size: 20),
-          onPressed: () => appState.setFinancialSubView('wallet_main'),
-        ),
-        title: Text(
-          isAk ? 'ပိုက်ဆံအိတ် အမည်သတ်မှတ်ရန်' : 'Customize Your Wallet Name',
-          style: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF0F172A),
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close_rounded,
-                color: Color(0xFF0F172A), size: 24),
-            onPressed: () => appState.setFinancialSubView('wallet_main'),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          // Hero
-          const Text(
-            'Your wallet,\nwith a name',
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
-              height: 1.15,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Turn your long wallet address into a simple name that\'s easy to remember and share.',
-            style: TextStyle(
-              fontSize: 13.5,
-              color: Color(0xFF64748B),
-              height: 1.35,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // 3 Feature bullets
-          _buildNameFeatureBullet(
-            icon: Icons.send_rounded,
-            title: 'Easy to share',
-            desc: 'Share your name, not a long wallet address.',
-          ),
-          const SizedBox(height: 16),
-          _buildNameFeatureBullet(
-            icon: Icons.favorite_border_rounded,
-            title: 'Easy to remember',
-            desc: 'Pick a name that\'s easy to remember and use anytime.',
-          ),
-          const SizedBox(height: 16),
-          _buildNameFeatureBullet(
-            icon: Icons.public_rounded,
-            title: 'Easy to send',
-            desc: 'Send to others using your name on Péthar Web3 Wallet only.',
-          ),
-          const SizedBox(height: 28),
-
-          // Name Input field
-          const Text(
-            'Create Username',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF0F172A),
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            '3-20 Characters (a-z), Lowercase letter, Number and Hyphens only.',
-            style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
-          ),
-          const SizedBox(height: 10),
-
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFCBD5E1)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _customNameCtrl,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Username',
-                    ),
-                  ),
-                ),
-                const Text(
-                  '.usd.eth',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: paynoBlue,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // Save Button (Payno Blue, NOT orange)
-          _buildPrimaryButton(
-            label: isAk ? 'အမည် သိမ်းဆည်းမည်' : 'Save Name',
-            onTap: () {
-              final n = _customNameCtrl.text.trim().toLowerCase();
-              if (n.isNotEmpty) {
-                appState.setCustomWalletName('$n.usd.eth');
-                _showToast('Custom wallet name saved: $n.usd.eth');
-                appState.setFinancialSubView('wallet_main');
-              } else {
-                _showToast('Please enter a username.');
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNameFeatureBullet({
-    required IconData icon,
-    required String title,
-    required String desc,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: const BoxDecoration(
-            color: Color(0xFFEFF6FF),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: paynoBlue, size: 18),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                desc,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF64748B),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 8. USD MISSION SCREEN (Matching photo_2026-11-06_19-52-57.jpg)
+  // 7. USD MISSION SCREEN (Matching photo_2026-11-06_19-52-57.jpg)
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildMissionScreen(
       BuildContext context, AppState appState, bool isAk) {
@@ -3274,7 +2961,7 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 9. PROCESSING SCREEN (Matching photo_2026-11-06_19-52-53.jpg)
+  // 8. PROCESSING SCREEN (Matching photo_2026-11-06_19-52-53.jpg)
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildProcessingScreen(
       BuildContext context, AppState appState, bool isAk) {
@@ -3369,7 +3056,7 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 10. SECURITY PHRASE SCREEN
+  // 9. SECURITY PHRASE SCREEN
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildSecurityPhraseScreen(
       BuildContext context, AppState appState, bool isAk) {

@@ -343,14 +343,14 @@ class _MainShellState extends State<MainShell> {
                           context: context,
                           iconWidget: Icon(
                             currentIndex == 4
-                                ? Icons.person_rounded
-                                : Icons.person_outline_rounded,
+                                ? Icons.settings_rounded
+                                : Icons.settings_outlined,
                             color: currentIndex == 4
                                 ? crimson
                                 : const Color(0xFF64748B),
                             size: 22,
                           ),
-                          label: lang == 'ak' ? 'အကောင့်' : 'Account',
+                          label: TranslationStrings.tr('navSettings', lang),
                           target: Screen.settings,
                           isSelected: currentIndex == 4,
                         ),

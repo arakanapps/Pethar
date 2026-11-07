@@ -30,13 +30,12 @@ class AppState extends ChangeNotifier {
   List<Screen> navigationStack = [Screen.home];
   String language = 'en'; // Default English matching iOS MobileWalletPage
   ThemeMode themeMode = ThemeMode.light; // Strictly light theme matching iOS
-  bool isAuthenticated = false; // Fresh download/launch shows Login or Sign Up
+  bool isAuthenticated = true; // Pre-authenticated for immediate testing on emulator
   String financialSubView =
       'wallet_main'; // 'wallet_main' | 'deposit' | 'withdraw' | 'tx_history' | 'spending' | 'wallet_security_phrase'
   UserProfile profile = initialUserProfile;
   WalletBalance wallet = akdWallet;
   double usdAccountBalance = 0.00;
-  String customWalletName = '';
   CryptoWalletState cryptoWallet = CryptoWalletState.fallback();
   bool isLoadingCryptoWallet = false;
   bool isVerified = false; // Verified when Level 2 National ID approved
@@ -1252,11 +1251,6 @@ class AppState extends ChangeNotifier {
     return '0x7d785a6e4eaba2627e1f9a5b2c6953496b2c2837';
   }
 
-  void setCustomWalletName(String name) {
-    customWalletName = name.trim();
-    notifyListeners();
-  }
-
   Map<String, dynamic> issueUsd(double amount) {
     if (amount <= 0) {
       return {'success': false, 'message': 'Please enter an amount greater than 0.'};
@@ -1269,6 +1263,9 @@ class AppState extends ChangeNotifier {
     profile.akdWalletBalance = wallet.balance;
     usdAccountBalance += amount;
     profile.usdAccountBalance = usdAccountBalance;
+    cryptoWallet = cryptoWallet.copyWith(
+      usdtBalance: cryptoWallet.usdtBalance + amount,
+    );
 
     final nowStr = DateFormat('d MMM yy - HH:mm').format(DateTime.now());
     final tx = Transaction(
@@ -1295,11 +1292,23 @@ class AppState extends ChangeNotifier {
     if (amount <= 0) {
       return {'success': false, 'message': 'Please enter an amount greater than 0.'};
     }
-    if (usdAccountBalance < amount) {
-      return {'success': false, 'message': 'Insufficient USD balance (Available: ${usdAccountBalance.toStringAsFixed(2)} USD)'};
+    final totalUsd = usdAccountBalance + cryptoWallet.usdtBalance + cryptoWallet.usdcBalance;
+    if (totalUsd < amount) {
+      return {'success': false, 'message': 'Insufficient USD balance (Available: ${totalUsd.toStringAsFixed(2)} USD)'};
     }
-    usdAccountBalance -= amount;
+    usdAccountBalance = (usdAccountBalance - amount).clamp(0.0, double.infinity);
     profile.usdAccountBalance = usdAccountBalance;
+    if (cryptoWallet.usdtBalance >= amount) {
+      cryptoWallet = cryptoWallet.copyWith(
+        usdtBalance: cryptoWallet.usdtBalance - amount,
+      );
+    } else {
+      final rem = amount - cryptoWallet.usdtBalance;
+      cryptoWallet = cryptoWallet.copyWith(
+        usdtBalance: 0.0,
+        usdcBalance: (cryptoWallet.usdcBalance - rem).clamp(0.0, double.infinity),
+      );
+    }
     wallet.balance += amount;
     wallet.totalBalance = wallet.balance;
     profile.akdWalletBalance = wallet.balance;
@@ -1335,12 +1344,26 @@ class AppState extends ChangeNotifier {
       return {'success': false, 'message': 'Please enter an amount greater than 0.'};
     }
     if (toAddress.trim().isEmpty) {
-      return {'success': false, 'message': 'Please enter recipient address or username.'};
+      return {'success': false, 'message': 'Please enter recipient wallet address.'};
+    }
+    if (token == 'USDT' && cryptoWallet.usdtBalance < amount) {
+      return {'success': false, 'message': 'Insufficient USDT balance.'};
+    }
+    if (token == 'USDC' && cryptoWallet.usdcBalance < amount) {
+      return {'success': false, 'message': 'Insufficient USDC balance.'};
     }
     if (token == 'USD' && usdAccountBalance < amount) {
       return {'success': false, 'message': 'Insufficient USD balance.'};
     }
-    if (token == 'USD') {
+    if (token == 'USDT') {
+      cryptoWallet = cryptoWallet.copyWith(
+        usdtBalance: (cryptoWallet.usdtBalance - amount).clamp(0.0, double.infinity),
+      );
+    } else if (token == 'USDC') {
+      cryptoWallet = cryptoWallet.copyWith(
+        usdcBalance: (cryptoWallet.usdcBalance - amount).clamp(0.0, double.infinity),
+      );
+    } else if (token == 'USD') {
       usdAccountBalance -= amount;
       profile.usdAccountBalance = usdAccountBalance;
     }
@@ -1379,17 +1402,35 @@ class AppState extends ChangeNotifier {
     if (fromAmount <= 0) {
       return {'success': false, 'message': 'Please enter an amount greater than 0.'};
     }
+    if (fromToken == 'USDT' && cryptoWallet.usdtBalance < fromAmount) {
+      return {'success': false, 'message': 'Insufficient USDT balance.'};
+    }
+    if (fromToken == 'USDC' && cryptoWallet.usdcBalance < fromAmount) {
+      return {'success': false, 'message': 'Insufficient USDC balance.'};
+    }
     if (fromToken == 'USD' && usdAccountBalance < fromAmount) {
       return {'success': false, 'message': 'Insufficient $fromToken balance.'};
     }
+
+    double nextUsdt = cryptoWallet.usdtBalance;
+    double nextUsdc = cryptoWallet.usdcBalance;
+    if (fromToken == 'USDT') nextUsdt -= fromAmount;
+    if (fromToken == 'USDC') nextUsdc -= fromAmount;
     if (fromToken == 'USD') {
       usdAccountBalance -= fromAmount;
       profile.usdAccountBalance = usdAccountBalance;
     }
+
+    if (toToken == 'USDT') nextUsdt += toAmount;
+    if (toToken == 'USDC') nextUsdc += toAmount;
     if (toToken == 'USD') {
       usdAccountBalance += toAmount;
       profile.usdAccountBalance = usdAccountBalance;
     }
+    cryptoWallet = cryptoWallet.copyWith(
+      usdtBalance: nextUsdt.clamp(0.0, double.infinity),
+      usdcBalance: nextUsdc.clamp(0.0, double.infinity),
+    );
 
     final nowStr = DateFormat('d MMM yy - HH:mm').format(DateTime.now());
     final txPaid = Transaction(

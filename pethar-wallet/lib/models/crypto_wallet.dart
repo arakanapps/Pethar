@@ -201,6 +201,24 @@ class CryptoWalletState {
     this.withdrawals = const [],
   });
 
+  CryptoWalletState copyWith({
+    int? kycTier,
+    double? usdtBalance,
+    double? usdcBalance,
+    List<CryptoNetworkInfo>? networks,
+    List<CryptoDepositRecord>? deposits,
+    List<CryptoWithdrawalRecord>? withdrawals,
+  }) {
+    return CryptoWalletState(
+      kycTier: kycTier ?? this.kycTier,
+      usdtBalance: usdtBalance ?? this.usdtBalance,
+      usdcBalance: usdcBalance ?? this.usdcBalance,
+      networks: networks ?? this.networks,
+      deposits: deposits ?? this.deposits,
+      withdrawals: withdrawals ?? this.withdrawals,
+    );
+  }
+
   double get totalUsdBalance => usdtBalance + usdcBalance;
 
   double balanceFor(String symbol) =>

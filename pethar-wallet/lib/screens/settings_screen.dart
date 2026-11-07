@@ -2448,31 +2448,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Top Red/Blush Alert Container (replacing yellow one)
           Container(
-            padding: const EdgeInsets.all(14),
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFEF3C7),
+              color: const Color(0xFFFFF1F2),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFFDE68A)),
+              border: Border.all(color: const Color(0xFFFECDD3)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isAk ? 'အီးမေးလ်သို့ OTP ပို့ပြီးပါပြီ' : 'OTP Code Dispatched',
-                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
-                    ),
-                  ],
+                const Icon(
+                  Icons.check_circle_outline_rounded,
+                  size: 20,
+                  color: Color(0xFFD91624),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  isAk
-                      ? 'သင့်အီးမေးလ် (${appState.profile.email.isNotEmpty ? appState.profile.email : ""}) သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပေးထားပါသည်။'
-                      : 'A 6-digit verification OTP code has been sent to your verified email: ${appState.profile.email.isNotEmpty ? appState.profile.email : ""}',
-                  style: const TextStyle(fontSize: 11.5, color: Color(0xFFB45309), height: 1.4),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    isAk
+                        ? '${appState.profile.email.isNotEmpty ? appState.profile.email : ""} သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပြီးပါပြီ'
+                        : '6-digit OTP code sent to ${appState.profile.email.isNotEmpty ? appState.profile.email : ""}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                      height: 1.35,
+                    ),
+                  ),
                 ),
               ],
             ),

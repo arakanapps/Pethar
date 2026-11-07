@@ -113,7 +113,7 @@ class TranslationStrings {
       'navWallet': 'Wallet',
       'navFinancial': 'Wallet',
       'navAccount': 'Account',
-      'navServices': 'Service',
+      'navServices': 'Services',
       'navSend': 'Send',
       'navReceive': 'Receive',
       'navScan': 'Scan/MyQR',
