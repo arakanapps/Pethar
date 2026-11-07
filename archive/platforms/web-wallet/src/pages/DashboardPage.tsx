@@ -23,12 +23,12 @@ import {
 import type { Language } from '../i18n'
 import { auth } from '../lib/firebase'
 import { AdminNavBar } from '../components/admin/AdminNavBar'
+import { AdminOverviewDesk } from '../components/admin/AdminOverviewDesk'
 import { AdminKycDesk } from '../components/admin/AdminKycDesk'
-import { AdminOpenDesk } from '../components/admin/AdminOpenDesk'
+import { AdminApprovalsDesk } from '../components/admin/AdminApprovalsDesk'
 import { AdminTreasuryDesk } from '../components/admin/AdminTreasuryDesk'
 import { AdminSecurityAml } from '../components/admin/AdminSecurityAml'
-import { AdminApiDesk } from '../components/admin/AdminApiDesk'
-import { AdminCampaignsDesk } from '../components/admin/AdminCampaignsDesk'
+import { fetchAdminUsers, fetchAdminTransactions, fetchAdminApprovals, reviewAdminApproval, type AdminUserRow, type AdminTransactionRow, type AdminApprovalRow } from '../services/adminDatabase'
 
 export type NavTabType =
   | 'home'
@@ -37,11 +37,10 @@ export type NavTabType =
   | 'transactions'
   | 'financial'
   | 'settings'
-  // Dev Admin Role Tabs
+  // Admin tabs
+  | 'admin-overview'
   | 'admin-kyc'
-  | 'admin-chat'
-  | 'admin-ads'
-  | 'admin-api'
+  | 'admin-approvals'
   | 'admin-fraud'
   | 'admin-treasury'
 
@@ -56,26 +55,20 @@ export interface DashboardPageProps {
 
 export interface KycApplicant {
   id: string
+  userId: string
   name: string
-  nameMm: string
-  fatherName: string
-  township: string
-  townshipMm: string
-  idCard: string
-  dob: string
-  gender: 'Male' | 'Female'
-  occupation: string
-  phone: string
   email: string
+  phone: string
   uid: string
-  walletAddress: string
-  submitted: string
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Flagged'
-  riskScore: 'Low' | 'Medium' | 'High'
-  faceMatchScore: number
-  docQuality: string
+  nationalIdNo: string
+  address: string
+  dob: string
+  createdAt: string
+  status: 'Pending' | 'Verified' | 'Rejected' | 'Unverified'
+  kycTier: 1 | 2
+  balance: number
+  usdBalance: number
   rejectionReason?: string
-  complianceNotes?: string
 }
 
 export interface SystemAuditLog {
@@ -88,41 +81,6 @@ export interface SystemAuditLog {
   targetId: string
   status: 'SUCCESS' | 'WARNING' | 'CRITICAL'
 }
-
-export interface PromoAdItem {
-  id: string
-  titleEn: string
-  titleAk: string
-  descEn: string
-  descAk: string
-  gradient: string
-  accentBg: string
-  active: boolean
-  impressions: number
-  clicks: number
-  category: 'remittance' | 'cashback' | 'swap' | 'reserves'
-}
-
-export interface ApiEndpointItem {
-  id: string
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE'
-  path: string
-  category: string
-  description: string
-  requestBody?: string
-  responseBody: string
-  latency: string
-}
-
-export interface ChatMessage {
-  id: string
-  sender: 'user' | 'operator'
-  text: string
-  time: string
-  channel: 'mobilewallet' | 'android' | 'web'
-}
-
-const CHAT_STORAGE_KEY = 'pethar_customer_chat_messages'
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({
   lang = 'ak',
@@ -141,7 +99,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       const tabParam = searchParams.get('tab')
       if (tabParam?.startsWith('admin')) return true
       if (tabParam === 'chat' || tabParam === 'support' || tabParam === 'kyc' || tabParam === 'fraud' || tabParam === 'api' || tabParam === 'ads' || tabParam === 'treasury-admin') return true
-      if (window.location.pathname.includes('/support') || window.location.pathname.includes('/chat')) return true
+      if (window.location.pathname.includes('/admin') || window.location.pathname.includes('/support') || window.location.pathname.includes('/chat')) return true
       const stored = localStorage.getItem('pethar_dev_admin_mode')
       if (stored === 'true') return true
     }
@@ -153,18 +111,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search)
       const tabParam = searchParams.get('tab')
-      if (tabParam === 'chat' || tabParam === 'support' || tabParam === 'admin-chat' || window.location.pathname.includes('/support') || window.location.pathname.includes('/chat')) return 'admin-chat'
       if (tabParam === 'admin-kyc' || tabParam === 'kyc') return 'admin-kyc'
-      if (tabParam === 'admin-fraud' || tabParam === 'fraud') return 'admin-fraud'
-      if (tabParam === 'admin-api' || tabParam === 'api') return 'admin-api'
-      if (tabParam === 'admin-ads' || tabParam === 'ads') return 'admin-ads'
+      if (tabParam === 'admin-approvals' || tabParam === 'approvals') return 'admin-approvals'
+      if (tabParam === 'admin-fraud' || tabParam === 'transactions') return 'admin-fraud'
       if (tabParam === 'admin-treasury' || tabParam === 'treasury-admin') return 'admin-treasury'
+      if (tabParam === 'admin-overview' || tabParam === 'overview') return 'admin-overview'
+      if (window.location.pathname.includes('/admin')) return 'admin-overview'
     }
+    if (initialTab === 'admin-overview') return 'admin-overview'
     if (initialTab === 'admin-kyc' || initialTab === 'kyc') return 'admin-kyc'
-    if (initialTab === 'admin-chat' || initialTab === 'chat' || initialTab === 'support') return 'admin-chat'
-    if (initialTab === 'admin-ads' || initialTab === 'ads') return 'admin-ads'
-    if (initialTab === 'admin-api' || initialTab === 'api') return 'admin-api'
-    if (initialTab === 'admin-fraud' || initialTab === 'fraud') return 'admin-fraud'
+    if (initialTab === 'admin-approvals' || initialTab === 'approvals') return 'admin-approvals'
+    if (initialTab === 'admin-fraud' || initialTab === 'transactions') return 'admin-fraud'
     if (initialTab === 'admin-treasury' || initialTab === 'treasury-admin') return 'admin-treasury'
     if (initialTab === 'treasury' || initialTab === 'financial') return 'financial'
     if (initialTab === 'history' || initialTab === 'transactions') return 'transactions'
@@ -225,235 +182,109 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [topUpAsset, setTopUpAsset] = useState<'USDT' | 'USDC' | 'USD1'>('USDT')
 
   // ════════════════════════════════════════════════════════════════════════
-  // DEV ADMIN ROLE DATA STATES
+  // ADMIN LIVE DATA (Supabase)
   // ════════════════════════════════════════════════════════════════════════
-  const [kycQueue, setKycQueue] = useState<KycApplicant[]>([
-    {
-      id: 'KYC-0091',
-      name: 'Kyaw Myo Thu',
-      nameMm: 'ကျော်မျိုးသူ',
-      fatherName: 'U Ba Thein',
-      township: 'Sittwe Central',
-      townshipMm: 'စစ်တွေမြို့နယ်',
-      idCard: 'ARAK-ID-992140',
-      dob: '1994-06-12',
-      gender: 'Male',
-      occupation: 'Software Engineer',
-      phone: '+959798221001',
-      email: 'kyawmyothu@gmail.com',
-      uid: '202610190001',
-      walletAddress: 'akd_node_99a820fc',
-      submitted: '10 mins ago',
-      status: 'Pending',
-      riskScore: 'Low',
-      faceMatchScore: 98.4,
-      docQuality: 'High Res OCR Validated',
-    },
-    {
-      id: 'KYC-0092',
-      name: 'Nilar Win',
-      nameMm: 'နီလာဝင်း',
-      fatherName: 'U Aung Kyaw',
-      township: 'Mrauk-U',
-      townshipMm: 'မြောက်ဦးမြို့နယ်',
-      idCard: 'ARAK-ID-883102',
-      dob: '1998-11-24',
-      gender: 'Female',
-      occupation: 'Retail Pharmacy',
-      phone: '+959798221002',
-      email: 'nilarwin@gmail.com',
-      uid: '202610190002',
-      walletAddress: 'akd_node_33d719ab',
-      submitted: '35 mins ago',
-      status: 'Pending',
-      riskScore: 'Low',
-      faceMatchScore: 96.1,
-      docQuality: 'Clean Smart Scan',
-    },
-  ])
+  const [adminUsers, setAdminUsers] = useState<AdminUserRow[]>([])
+  const [adminTransactions, setAdminTransactions] = useState<AdminTransactionRow[]>([])
+  const [adminApprovals, setAdminApprovals] = useState<AdminApprovalRow[]>([])
+  const [adminLoading, setAdminLoading] = useState(false)
+  const [adminError, setAdminError] = useState('')
+  const [adminRefreshKey, setAdminRefreshKey] = useState(0)
 
   const [selectedApplicant, setSelectedApplicant] = useState<KycApplicant | null>(null)
   const [rejectModalOpen, setRejectModalOpen] = useState(false)
-  const [selectedRejectReason, setSelectedRejectReason] = useState('Blurry photo / Unreadable NRIC ID document')
+  const [selectedRejectReason, setSelectedRejectReason] = useState('Identity document could not be verified')
   const [customRejectNote, setCustomRejectNote] = useState('')
 
-  // Audit Logs
-  const [auditLogs, setAuditLogs] = useState<SystemAuditLog[]>([
-    {
-      id: 'AUD-901',
-      timestamp: '14:20',
-      operator: 'ROOT-OPERATOR-01',
-      category: 'SECURITY',
-      action: 'SYSTEM_BOOT',
-      details: 'All consensus nodes synced. 1:1 USD reserve ratio verified at 100.0%.',
-      targetId: 'CONSENSUS_GLOBAL',
-      status: 'SUCCESS',
-    },
-  ])
-
-  // Customer Chat Operator Console State
-  const [operatorChannelFilter, setOperatorChannelFilter] = useState<'all' | 'mobilewallet' | 'android'>('all')
-  const [operatorReplyText, setOperatorReplyText] = useState('')
-  const [customerMessages, setCustomerMessages] = useState<ChatMessage[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem(CHAT_STORAGE_KEY)
-        if (stored) return JSON.parse(stored)
-      } catch { }
-    }
-    return [
-      {
-        id: 'msg-seed-1',
-        sender: 'user',
-        channel: 'mobilewallet',
-        text: 'Hello operator, my transfer to Ko Min Aung settled instantly. Is the 1:1 USD backing verifiable?',
-        time: '14:10',
-      },
-      {
-        id: 'msg-seed-2',
-        sender: 'operator',
-        channel: 'mobilewallet',
-        text: 'Yes! All Arakan Dollars are 100% USDT/USDC backed at fixed 1:1 parity.',
-        time: '14:12',
-      },
-      {
-        id: 'msg-seed-3',
-        sender: 'user',
-        channel: 'android',
-        text: 'Greetings, I downloaded the new Android signed APK and P2P transfers are working great in Sittwe.',
-        time: '14:22',
-      },
-    ]
-  })
-
-  // Sync Customer chat messages with localStorage
-  useEffect(() => {
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === CHAT_STORAGE_KEY && e.newValue) {
-        try {
-          setCustomerMessages(JSON.parse(e.newValue))
-        } catch { }
-      }
-    }
-    window.addEventListener('storage', handleStorage)
-    return () => window.removeEventListener('storage', handleStorage)
-  }, [])
-
-  // Ads Control State
-  const [promoAds, setPromoAds] = useState<PromoAdItem[]>([
-    {
-      id: 'ad-1',
-      titleEn: 'Péthar Zero-Fee Global Remittance',
-      titleAk: 'ဖေ့သာ ၀% ဝန်ဆောင်ခ အထူးအစီအစဉ်',
-      descEn: 'Instant transfers & zero network gas fees worldwide',
-      descAk: 'နယ်စပ်ဖြတ်ကျော် ငွေလွှဲခမဲ့နှင့် လက်ငင်းလွှဲပို့ခြင်း',
-      gradient: 'from-zinc-900 via-zinc-800 to-[#7A1020]',
-      accentBg: 'bg-red-500/20 text-red-400',
-      active: true,
-      impressions: 48920,
-      clicks: 3410,
-      category: 'remittance',
-    },
-    {
-      id: 'ad-2',
-      titleEn: 'Arakan P2P Transfer Rewards',
-      titleAk: 'အာရက္ခ P2P ငွေလွှဲ အထူးအစီအစဉ်',
-      descEn: 'Enjoy zero fees and instant cashback on P2P consumer transfers',
-      descAk: 'လူပုဂ္ဂိုလ်အချင်းချင်း ငွေလွှဲမှုတိုင်းအတွက် လက်ငင်းဆုလာဘ် ရယူပါ',
-      gradient: 'from-slate-900 via-slate-800 to-emerald-900',
-      accentBg: 'bg-emerald-500/20 text-emerald-400',
-      active: true,
-      impressions: 32100,
-      clicks: 2150,
-      category: 'cashback',
-    },
-    {
-      id: 'ad-3',
-      titleEn: '1:1 Web3 Stablecoin Swap',
-      titleAk: '၁:၁ ခရစ်ပတို လဲလှယ်မှု စနစ်',
-      descEn: 'Instant atomic swaps between USDT, USDC, and AKD',
-      descAk: 'USDT, USDC နှင့် AKD အကြား ချက်ချင်းလဲလှယ်ပါ',
-      gradient: 'from-indigo-950 via-slate-900 to-slate-800',
-      accentBg: 'bg-indigo-500/20 text-indigo-400',
-      active: true,
-      impressions: 21050,
-      clicks: 1420,
-      category: 'swap',
-    },
-    {
-      id: 'ad-4',
-      titleEn: 'Ledger-Backed Arakan Dollar',
-      titleAk: 'စာရင်းမှ အာမခံထားသော အာရက္ခဒေါ်လာ',
-      descEn: 'Fixed 1:1 peg to the US dollar',
-      descAk: 'အမေရိကန်ဒေါ်လာနှင့် ၁:၁ ပုံသေနှုန်း ချိတ်ဆက်ထားသည်',
-      gradient: 'from-amber-950 via-stone-900 to-stone-800',
-      accentBg: 'bg-amber-500/20 text-amber-400',
-      active: true,
-      impressions: 19400,
-      clicks: 980,
-      category: 'reserves',
-    },
-  ])
-
-  // New Ad Campaign Modal
-  const [newAdModalOpen, setNewAdModalOpen] = useState(false)
-  const [newAdTitleEn, setNewAdTitleEn] = useState('')
-  const [newAdTitleAk, setNewAdTitleAk] = useState('')
-  const [newAdDescEn, setNewAdDescEn] = useState('')
-  const [newAdDescAk, setNewAdDescAk] = useState('')
-
-  // API Control State
-  const apiEndpoints: ApiEndpointItem[] = [
-    {
-      id: 'transfers',
-      method: 'POST',
-      path: '/v1/transfers',
-      category: 'Payments',
-      description: 'Execute instant atomic transfer between two citizen accounts with Ed25519 authorization.',
-      requestBody: JSON.stringify({ recipient: 'akd_node_99a820fc', amount: 320.0, currency: 'AKD', memo: 'Batch #109' }, null, 2),
-      responseBody: JSON.stringify({ id: 'tx_01ja892e01', status: 'settled', amount: 320.0, currency: 'AKD', fee: 0.0, block_height: 2491032 }, null, 2),
-      latency: '24ms',
-    },
-    {
-      id: 'rates',
-      method: 'GET',
-      path: '/v1/rates/live',
-      category: 'Market',
-      description: 'Stream institutional FX quotes for AKD, USD, USDT, and USDC.',
-      responseBody: JSON.stringify({ base: 'AKD', pairs: { USDT: { rate: 1.0, spread: 0 }, USD: { rate: 1.0, spread: 0 } } }, null, 2),
-      latency: '12ms',
-    },
-    {
-      id: 'swap',
-      method: 'POST',
-      path: '/v1/swap/crypto-to-akd',
-      category: 'Crypto Gateway',
-      description: 'Execute instant 1:1 in-app atomic swap between USDT/USDC and AKD ledger.',
-      requestBody: JSON.stringify({ user_id: 'usr_202610190001', amount: 500.0, token: 'USDT' }, null, 2),
-      responseBody: JSON.stringify({ tx_id: 'swap_99182a', status: 'completed', swapped_amount: '500.00', from: 'USDT', to: 'AKD', fee: '0.00' }, null, 2),
-      latency: '18ms',
-    },
-    {
-      id: 'deposit-gateway',
-      method: 'POST',
-      path: '/v1/crypto/deposit-webhook',
-      category: 'Crypto Gateway',
-      description: 'Listen for verified EVM smart contract USDT/USDC deposits and credit user crypto wallet.',
-      requestBody: JSON.stringify({ tx_hash: '0x99201a4f...', deposit_address: '0x202610190001...', amount: 1000.0, token: 'USDC' }, null, 2),
-      responseBody: JSON.stringify({ status: 'confirmed', confirmations: 12, credited: true }, null, 2),
-      latency: '32ms',
-    },
-  ]
-
-  const [activeApiEndpoint, setActiveApiEndpoint] = useState<ApiEndpointItem>(apiEndpoints[0])
-  const [apiSimulating, setApiSimulating] = useState(false)
-  const [copiedApiJson, setCopiedApiJson] = useState(false)
-
-  // Fraud Detection State
   const [fraudFilter, setFraudFilter] = useState<'all' | 'flagged' | 'clean'>('all')
   const [circuitBreakerOpen, setCircuitBreakerOpen] = useState(false)
   const [circuitBreakerPin, setCircuitBreakerPin] = useState('')
   const [circuitBreakerActive, setCircuitBreakerActive] = useState(false)
+
+  const loadAdminData = async () => {
+    setAdminLoading(true)
+    setAdminError('')
+    try {
+      const [users, transactions, approvals] = await Promise.all([
+        fetchAdminUsers(),
+        fetchAdminTransactions(),
+        fetchAdminApprovals(),
+      ])
+      setAdminUsers(users)
+      setAdminTransactions(transactions)
+      setAdminApprovals(approvals)
+      if (users.length === 0 && transactions.length === 0 && approvals.length === 0) {
+        setAdminError('No records were returned. Confirm the database session has permission to read these tables.')
+      }
+    } catch (error: any) {
+      setAdminError(error?.message || 'Unable to load admin data.')
+    } finally {
+      setAdminLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (isDevAdminMode) void loadAdminData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDevAdminMode, adminRefreshKey])
+
+  const kycApplicants = useMemo<KycApplicant[]>(() => {
+    return adminUsers
+      .filter((user) => {
+        const status = user.kycStatus
+        return (
+          status === 'pending_review' ||
+          status === 'rejected' ||
+          status === 'verified' ||
+          (!!user.nationalIdNo && user.kycTier < 2)
+        )
+      })
+      .map((user) => {
+        const status: KycApplicant['status'] =
+          user.kycStatus === 'verified' || user.kycTier === 2
+            ? 'Verified'
+            : user.kycStatus === 'rejected'
+              ? 'Rejected'
+              : user.kycStatus === 'pending_review' || user.nationalIdNo
+                ? 'Pending'
+                : 'Unverified'
+        return {
+          id: `KYC-${user.uid}`,
+          userId: user.userId || user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          uid: user.uid,
+          nationalIdNo: user.nationalIdNo,
+          address: user.address,
+          dob: user.dob,
+          createdAt: user.createdAt,
+          status,
+          kycTier: user.kycTier,
+          balance: user.balance,
+          usdBalance: user.usdBalance,
+          rejectionReason: user.rejectionReason,
+        }
+      })
+  }, [adminUsers])
+
+  const scoredAdminTransactions = useMemo(() => adminTransactions, [adminTransactions])
+
+  const filteredFraudTxs = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    return scoredAdminTransactions.filter((tx) => {
+      const matchesFilter =
+        fraudFilter === 'all' ||
+        (fraudFilter === 'flagged' && tx.risk !== 'Low') ||
+        (fraudFilter === 'clean' && tx.risk === 'Low')
+      const matchesSearch =
+        !query ||
+        tx.title.toLowerCase().includes(query) ||
+        tx.refId.toLowerCase().includes(query) ||
+        tx.counterparty.toLowerCase().includes(query)
+      return matchesFilter && matchesSearch
+    })
+  }, [fraudFilter, scoredAdminTransactions, searchQuery])
 
   // Sync live transactions and users on Mount
   useEffect(() => {
@@ -602,122 +433,76 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     }
   }
 
-  // Admin: Approve KYC
+  // Admin: approve KYC in the database
   const handleApproveKyc = async (applicant: KycApplicant) => {
-    setKycQueue((prev) => prev.map((k) => (k.id === applicant.id ? { ...k, status: 'Approved' } : k)))
     await updateCitizenKycInDb(applicant.uid, 'verified', 2)
-
-    const newLog: SystemAuditLog = {
-      id: `AUD-${Math.floor(1000 + Math.random() * 9000)}`,
-      timestamp: new Date().toLocaleTimeString(),
-      operator: 'ROOT-OPERATOR-01',
-      category: 'KYC',
-      action: 'APPROVE_TIER_2',
-      details: `Approved Tier-2 KYC verification for ${applicant.name} (${applicant.idCard}).`,
-      targetId: applicant.uid,
-      status: 'SUCCESS',
-    }
-    setAuditLogs((prev) => [newLog, ...prev])
     setSelectedApplicant(null)
+    setAdminRefreshKey((key) => key + 1)
   }
 
-  // Admin: Reject KYC
+  // Admin: reject KYC in the database
   const handleConfirmRejectKyc = async () => {
     if (!selectedApplicant) return
-    const reason = customRejectNote ? `${selectedRejectReason} (${customRejectNote})` : selectedRejectReason
-
-    setKycQueue((prev) => prev.map((k) => (k.id === selectedApplicant.id ? { ...k, status: 'Rejected', rejectionReason: reason } : k)))
+    const reason = customRejectNote
+      ? `${selectedRejectReason} (${customRejectNote})`
+      : selectedRejectReason
     await updateCitizenKycInDb(selectedApplicant.uid, 'rejected', 1, reason)
-
-    const newLog: SystemAuditLog = {
-      id: `AUD-${Math.floor(1000 + Math.random() * 9000)}`,
-      timestamp: new Date().toLocaleTimeString(),
-      operator: 'ROOT-OPERATOR-01',
-      category: 'KYC',
-      action: 'REJECT_TIER_2',
-      details: `Rejected KYC for ${selectedApplicant.name}. Reason: ${reason}`,
-      targetId: selectedApplicant.uid,
-      status: 'WARNING',
-    }
-    setAuditLogs((prev) => [newLog, ...prev])
     setRejectModalOpen(false)
     setSelectedApplicant(null)
     setCustomRejectNote('')
+    setAdminRefreshKey((key) => key + 1)
   }
 
-  // Admin: Send Operator Reply in Customer Chat Desk
-  const handleSendOperatorReply = (custom?: string) => {
-    const text = (custom || operatorReplyText).trim()
-    if (!text) return
-
-    const newOpMsg: ChatMessage = {
-      id: `msg-op-${Date.now()}`,
-      sender: 'operator',
-      channel: operatorChannelFilter === 'all' ? 'mobilewallet' : operatorChannelFilter,
-      text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  // Admin: resolve a pending approval and optionally mirror KYC changes
+  const handleReviewApproval = async (
+    approval: AdminApprovalRow,
+    status: 'APPROVED' | 'REJECTED',
+  ) => {
+    await reviewAdminApproval(approval.id, status, `Reviewed by administrator`)
+    if (approval.type === 'KYC_UPGRADE') {
+      const user = adminUsers.find((item) => item.id === approval.userId || item.userId === approval.userId)
+      if (user) {
+        await updateCitizenKycInDb(
+          user.uid,
+          status === 'APPROVED' ? 'verified' : 'rejected',
+          status === 'APPROVED' ? 2 : 1,
+          status === 'REJECTED' ? 'Approval rejected by administrator' : undefined,
+        )
+      }
     }
-
-    const updated = [...customerMessages, newOpMsg]
-    setCustomerMessages(updated)
-    try {
-      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated))
-    } catch { }
-    if (!custom) setOperatorReplyText('')
+    setAdminRefreshKey((key) => key + 1)
   }
 
-  // Admin: Toggle Ad Active / Paused
-  const handleToggleAd = (id: string) => {
-    setPromoAds((prev) => prev.map((ad) => (ad.id === id ? { ...ad, active: !ad.active } : ad)))
-  }
-
-  // Admin: Create Campaign
-  const handleCreateAd = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newAdTitleEn) return
-    const newAd: PromoAdItem = {
-      id: `ad-${Date.now()}`,
-      titleEn: newAdTitleEn,
-      titleAk: newAdTitleAk || newAdTitleEn,
-      descEn: newAdDescEn || 'Official promotional spotlight',
-      descAk: newAdDescAk || 'တရားဝင် အရောင်းမြှင့်တင်ရေး',
-      gradient: 'from-slate-900 via-zinc-800 to-amber-900',
-      accentBg: 'bg-amber-500/20 text-amber-400',
-      active: true,
-      impressions: 0,
-      clicks: 0,
-      category: 'remittance',
-    }
-    setPromoAds((prev) => [newAd, ...prev])
-    setNewAdTitleEn('')
-    setNewAdTitleAk('')
-    setNewAdDescEn('')
-    setNewAdDescAk('')
-    setNewAdModalOpen(false)
-  }
-
-  // Admin: Emergency Kill Switch
-  const handleToggleCircuitBreaker = () => {
-    if (circuitBreakerPin !== '990011' && circuitBreakerPin.length !== 6) {
-      alert(ak ? 'ကျေးဇူးပြု၍ ၆ လုံး PIN နံပါတ် အမှန်ထည့်ပါ (ဥပမာ 990011)' : 'Enter valid 6-digit administrative override PIN (e.g. 990011)')
+  // Admin: freeze the account linked to a transaction
+  const handleFreezeAccountFromAml = async (tx: AdminTransactionRow) => {
+    const user = adminUsers.find(
+      (item) => item.userId === tx.userId || item.id === tx.userId || item.uid === tx.counterparty,
+    )
+    if (!user) {
+      setAdminError('Unable to resolve the account linked to this transaction.')
       return
     }
-    const nextState = !circuitBreakerActive
-    setCircuitBreakerActive(nextState)
-    setCircuitBreakerOpen(false)
-    setCircuitBreakerPin('')
+    await updateUserStatusInDb(user.uid, 'FROZEN', 'Flagged from transaction monitoring')
+    setAdminRefreshKey((key) => key + 1)
+  }
 
-    const newLog: SystemAuditLog = {
-      id: `AUD-${Math.floor(1000 + Math.random() * 9000)}`,
-      timestamp: new Date().toLocaleTimeString(),
-      operator: 'ROOT-OPERATOR-01',
-      category: 'SECURITY',
-      action: nextState ? 'CIRCUIT_BREAKER_ENGAGED' : 'CIRCUIT_BREAKER_DISENGAGED',
-      details: nextState ? 'EMERGENCY FREEZE ENGAGED: All outbound ledger transactions suspended.' : 'NORMAL SETTLEMENTS RESTORED.',
-      targetId: 'CONSENSUS_GLOBAL',
-      status: nextState ? 'CRITICAL' : 'SUCCESS',
-    }
-    setAuditLogs((prev) => [newLog, ...prev])
+  const handleInspectAdminTransaction = (tx: AdminTransactionRow) => {
+    setSelectedTx({
+      id: tx.id,
+      refId: tx.refId,
+      title: tx.title,
+      titleMm: '',
+      category: tx.category,
+      amount: tx.amount,
+      currency: tx.currency,
+      time: tx.createdAt ? new Date(tx.createdAt).toLocaleString() : '—',
+      status: tx.status,
+      counterparty: tx.counterparty,
+      counterpartyMm: '',
+      fee: tx.fee,
+      hash: tx.refId,
+    })
+    setReceiptModalOpen(true)
   }
 
   // Toggle Dev Admin Mode

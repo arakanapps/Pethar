@@ -3,12 +3,14 @@ import {
   Check,
   X,
   Search,
-  Scan,
   Eye,
-  BadgeCheck,
   Clock3,
   ShieldCheck,
   FileWarning,
+  Mail,
+  Phone,
+  MapPin,
+  CalendarDays,
   Fingerprint,
 } from 'lucide-react'
 import type { KycApplicant } from '../../pages/DashboardPage'
@@ -30,80 +32,79 @@ import {
 import { cn } from '../../lib/utils'
 
 interface AdminKycDeskProps {
-  kycQueue: KycApplicant[]
+  applicants: KycApplicant[]
   onApprove: (applicant: KycApplicant) => void
   onOpenRejectModal: (applicant: KycApplicant) => void
   isDarkMode: boolean
-  lang: 'ak' | 'en'
+  loading?: boolean
 }
 
-type KycFilter = 'Pending' | 'Approved' | 'Rejected' | 'all'
+type KycFilter = 'Pending' | 'Verified' | 'Rejected' | 'all'
 
 const statusTone = (status: KycApplicant['status']): AdminTone => {
-  if (status === 'Approved') return 'emerald'
+  if (status === 'Verified') return 'emerald'
   if (status === 'Rejected') return 'rose'
-  if (status === 'Flagged') return 'blue'
+  if (status === 'Unverified') return 'slate'
   return 'amber'
 }
 
-const riskTone = (risk: KycApplicant['riskScore']): AdminTone => {
-  if (risk === 'Low') return 'emerald'
-  if (risk === 'Medium') return 'amber'
-  return 'rose'
+function formatDate(value: string) {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
-  kycQueue,
+  applicants,
   onApprove,
   onOpenRejectModal,
   isDarkMode,
+  loading,
 }) => {
   const [filter, setFilter] = useState<KycFilter>('Pending')
   const [search, setSearch] = useState('')
   const [inspectingApplicant, setInspectingApplicant] = useState<KycApplicant | null>(null)
 
-  const pendingCount = kycQueue.filter((item) => item.status === 'Pending').length
-  const approvedCount = kycQueue.filter((item) => item.status === 'Approved').length
-  const rejectedCount = kycQueue.filter((item) => item.status === 'Rejected').length
-  const flaggedCount = kycQueue.filter((item) => item.status === 'Flagged').length
+  const counts = useMemo(
+    () => ({
+      pending: applicants.filter((item) => item.status === 'Pending').length,
+      verified: applicants.filter((item) => item.status === 'Verified').length,
+      rejected: applicants.filter((item) => item.status === 'Rejected').length,
+      unverified: applicants.filter((item) => item.status === 'Unverified').length,
+    }),
+    [applicants],
+  )
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
-    return kycQueue.filter((item) => {
+    return applicants.filter((item) => {
       const matchesFilter = filter === 'all' || item.status === filter
       const matchesSearch =
         !query ||
         item.name.toLowerCase().includes(query) ||
-        item.nameMm.toLowerCase().includes(query) ||
-        item.idCard.toLowerCase().includes(query) ||
-        item.township.toLowerCase().includes(query) ||
-        item.uid.toLowerCase().includes(query)
+        item.email.toLowerCase().includes(query) ||
+        item.uid.toLowerCase().includes(query) ||
+        item.nationalIdNo.toLowerCase().includes(query)
       return matchesFilter && matchesSearch
     })
-  }, [filter, kycQueue, search])
+  }, [applicants, filter, search])
 
   return (
     <div className="space-y-5">
       <DeskHeader
         eyebrow="Operations · Identity"
-        title="Identity Review Desk"
-        description="Verify submitted identity documents, biometric confidence and sanctions checks before granting elevated account tiers."
+        title="KYC Review"
+        description="Review real identity records from the database. Approving a request upgrades the account to Tier 2; rejecting keeps it at Tier 1."
         isDarkMode={isDarkMode}
         actions={
           <>
             <StatusPill tone="emerald" dot>
-              Queue online
+              Live data
             </StatusPill>
-            <div
-              className={cn(
-                'flex items-center gap-2 rounded-xl border px-3 py-2 font-mono text-[10px] font-bold',
-                isDarkMode
-                  ? 'border-white/[0.07] bg-white/[0.03] text-slate-400'
-                  : 'border-slate-200 bg-white text-slate-500',
-              )}
-            >
-              <Clock3 size={13} />
-              SLA under 2 min
+            <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2 font-mono text-[10px] font-bold text-slate-400 backdrop-blur-xl">
+              <Fingerprint size={13} />
+              {loading ? 'Reading database…' : `${applicants.length} records`}
             </div>
           </>
         }
@@ -112,33 +113,33 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <StatCard
           label="Pending review"
-          value={pendingCount}
+          value={counts.pending}
           hint="Awaiting operator decision"
           icon={<Clock3 size={15} />}
           tone="amber"
           isDarkMode={isDarkMode}
         />
         <StatCard
-          label="Approved"
-          value={approvedCount}
-          hint="Elevated to Tier 2 access"
+          label="Verified"
+          value={counts.verified}
+          hint="Tier 2 accounts"
           icon={<ShieldCheck size={15} />}
           tone="emerald"
           isDarkMode={isDarkMode}
         />
         <StatCard
-          label="Face match avg"
-          value="97.8%"
-          hint="High-confidence biometrics"
-          icon={<Scan size={15} />}
-          tone="blue"
+          label="Unverified"
+          value={counts.unverified}
+          hint="No identity document submitted"
+          icon={<FileWarning size={15} />}
+          tone="slate"
           isDarkMode={isDarkMode}
         />
         <StatCard
-          label="Rejected / flagged"
-          value={rejectedCount + flaggedCount}
-          hint="Blurry, expired or mismatched"
-          icon={<FileWarning size={15} />}
+          label="Rejected"
+          value={counts.rejected}
+          hint="Applications declined"
+          icon={<X size={15} />}
           tone="rose"
           isDarkMode={isDarkMode}
         />
@@ -149,20 +150,13 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
         bodyClassName="p-0"
         title={
           <span className="flex items-center gap-2">
-            Review queue
-            <span
-              className={cn(
-                'rounded-md border px-1.5 py-0.5 font-mono text-[9px] font-bold',
-                isDarkMode
-                  ? 'border-white/10 bg-white/5 text-slate-400'
-                  : 'border-slate-200 bg-slate-100 text-slate-500',
-              )}
-            >
+            Identity queue
+            <span className="rounded-md border border-white/[0.08] bg-white/[0.03] px-1.5 py-0.5 font-mono text-[9px] font-bold text-slate-400">
               {filtered.length} records
             </span>
           </span>
         }
-        description="Search, inspect and action identity verification requests."
+        description="Search and action identity verification records."
         actions={
           <Segmented
             isDarkMode={isDarkMode}
@@ -171,29 +165,21 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
             tone="amber"
             options={[
               { value: 'Pending', label: 'Pending' },
-              { value: 'Approved', label: 'Approved' },
+              { value: 'Verified', label: 'Verified' },
               { value: 'Rejected', label: 'Rejected' },
               { value: 'all', label: 'All' },
             ]}
           />
         }
       >
-        <div
-          className={cn(
-            'flex flex-col gap-2 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5',
-            isDarkMode ? 'border-white/[0.06]' : 'border-slate-100',
-          )}
-        >
+        <div className="flex flex-col gap-2 border-b border-white/[0.06] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="relative w-full sm:max-w-sm">
-            <Search
-              size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by name, NRIC, township or UID…"
+              placeholder="Search name, email, UID or national ID…"
               className={cn(
                 'w-full rounded-xl border py-2 pl-8 pr-3 text-[11px] font-medium outline-none transition',
                 adminInput(isDarkMode),
@@ -201,103 +187,77 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
             />
           </div>
           <div className={cn('flex items-center gap-2 font-mono text-[10px]', adminMuted(isDarkMode))}>
-            <Fingerprint size={13} />
-            Biometric and registry checks run automatically
+            <ShieldCheck size={13} />
+            Source · user_profiles
           </div>
         </div>
 
-        {/* Table header */}
-        <div
-          className={cn(
-            'hidden grid-cols-[minmax(0,2.1fr)_minmax(0,1.1fr)_minmax(0,0.9fr)_auto] gap-4 border-b px-5 py-2.5 font-mono text-[9px] font-bold uppercase tracking-[0.16em] lg:grid',
-            isDarkMode
-              ? 'border-white/[0.06] bg-white/[0.02] text-slate-500'
-              : 'border-slate-100 bg-slate-50/70 text-slate-400',
-          )}
-        >
-          <span>Applicant</span>
-          <span>Identification</span>
-          <span>Biometrics</span>
+        <div className="hidden grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_auto] gap-4 border-b border-white/[0.06] bg-white/[0.02] px-5 py-2.5 font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-slate-500 lg:grid">
+          <span>Account</span>
+          <span>Identity</span>
+          <span>KYC state</span>
           <span className="text-right">Action</span>
         </div>
 
-        {filtered.length === 0 ? (
+        {loading && applicants.length === 0 ? (
+          <EmptyState isDarkMode={isDarkMode} title="Loading identity records…" description="Reading from the database." />
+        ) : filtered.length === 0 ? (
           <EmptyState
             isDarkMode={isDarkMode}
-            icon={<BadgeCheck size={20} />}
-            title="No applicants in this view"
-            description="Try a different status filter or clear the search query."
+            icon={<ShieldCheck size={20} />}
+            title="No identity records in this view"
+            description="Try another status filter or clear the search query."
           />
         ) : (
-          <div className={cn('divide-y', isDarkMode ? 'divide-white/[0.06]' : 'divide-slate-100')}>
+          <div className="divide-y divide-white/[0.06]">
             {filtered.map((item) => {
               const isSelected = inspectingApplicant?.id === item.id
               return (
                 <div
                   key={item.id}
                   className={cn(
-                    'grid gap-3 px-4 py-3.5 transition-colors sm:px-5 lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1.1fr)_minmax(0,0.9fr)_auto] lg:items-center lg:gap-4',
-                    isSelected
-                      ? isDarkMode
-                        ? 'bg-orange-500/[0.07]'
-                        : 'bg-orange-50/70'
-                      : isDarkMode
-                        ? 'hover:bg-white/[0.025]'
-                        : 'hover:bg-slate-50/80',
+                    'grid gap-3 px-4 py-3.5 transition-colors sm:px-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_auto] lg:items-center lg:gap-4',
+                    isSelected ? 'bg-indigo-500/[0.06]' : 'hover:bg-white/[0.025]',
                   )}
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <Avatar label={item.name.charAt(0)} tone={statusTone(item.status)} />
+                    <Avatar label={item.name.charAt(0).toUpperCase()} tone={statusTone(item.status)} />
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className={cn('truncate text-xs font-bold', adminText(isDarkMode))}>
-                          {item.name}
-                        </span>
+                        <span className={cn('truncate text-xs font-bold', adminText(isDarkMode))}>{item.name}</span>
                         <StatusPill tone={statusTone(item.status)} dot>
                           {item.status}
                         </StatusPill>
                       </div>
                       <div className={cn('mt-0.5 truncate font-mono text-[10px]', adminMuted(isDarkMode))}>
-                        {item.nameMm} · UID {item.uid}
+                        {item.email || 'No email'} · UID {item.uid}
                       </div>
                     </div>
                   </div>
 
                   <div className="min-w-0">
                     <div className={cn('font-mono text-[11px] font-semibold', adminText(isDarkMode))}>
-                      {item.idCard}
+                      {item.nationalIdNo || 'Not submitted'}
                     </div>
                     <div className={cn('mt-0.5 truncate text-[10px]', adminMuted(isDarkMode))}>
-                      {item.township} · {item.dob}
+                      {item.address || 'No address'}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 lg:flex-col lg:items-start lg:gap-1">
-                    <span
-                      className={cn(
-                        'font-mono text-[11px] font-bold',
-                        item.faceMatchScore >= 95
-                          ? 'text-emerald-500'
-                          : item.faceMatchScore >= 80
-                            ? 'text-amber-500'
-                            : 'text-rose-500',
-                      )}
-                    >
-                      {item.faceMatchScore}% match
+                    <span className={cn('font-mono text-[11px] font-bold', adminText(isDarkMode))}>
+                      Tier {item.kycTier}
                     </span>
-                    <StatusPill tone={riskTone(item.riskScore)}>Risk {item.riskScore}</StatusPill>
+                    <span className={cn('font-mono text-[9px]', adminMuted(isDarkMode))}>
+                      {formatDate(item.createdAt)}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2 lg:justify-end">
                     <button
                       type="button"
                       onClick={() => setInspectingApplicant(item)}
-                      className={cn(
-                        'inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[11px] font-semibold transition',
-                        isDarkMode
-                          ? 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.07] hover:text-white'
-                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900',
-                      )}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition hover:bg-white/[0.07] hover:text-white"
                     >
                       <Eye size={13} />
                       Inspect
@@ -315,12 +275,7 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
                         <button
                           type="button"
                           onClick={() => onOpenRejectModal(item)}
-                          className={cn(
-                            'inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[11px] font-bold transition active:scale-95',
-                            isDarkMode
-                              ? 'border-rose-400/20 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20'
-                              : 'border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100',
-                          )}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-rose-400/20 bg-rose-500/10 px-3 py-1.5 text-[11px] font-bold text-rose-300 transition hover:bg-rose-500/20 active:scale-95"
                         >
                           <X size={13} />
                           Reject
@@ -336,161 +291,90 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
       </Panel>
 
       {inspectingApplicant && (
-        <div className="fixed inset-0 z-[60] flex justify-end overflow-hidden bg-slate-950/65 backdrop-blur-sm">
-          <div
-            className={cn(
-              'flex h-full w-full max-w-md flex-col border-l shadow-2xl',
-              isDarkMode
-                ? 'border-white/10 bg-[#080E1A] text-white'
-                : 'border-slate-200 bg-white text-slate-900',
-            )}
-          >
-            <div
-              className={cn(
-                'flex items-center justify-between border-b px-5 py-4',
-                isDarkMode
-                  ? 'border-white/[0.06] bg-gradient-to-r from-orange-500/10 to-transparent'
-                  : 'border-slate-100 bg-gradient-to-r from-orange-50 to-white',
-              )}
-            >
+        <div className="fixed inset-0 z-[60] flex justify-end overflow-hidden bg-[#03050A]/75 backdrop-blur-sm">
+          <div className="flex h-full w-full max-w-md flex-col border-l border-white/[0.07] bg-[#070A12]/95 shadow-2xl backdrop-blur-2xl">
+            <div className="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.02] px-5 py-4">
               <div className="flex items-center gap-2.5">
-                <div
-                  className={cn(
-                    'flex h-9 w-9 items-center justify-center rounded-xl border',
-                    isDarkMode
-                      ? 'border-orange-400/25 bg-orange-500/15 text-orange-300'
-                      : 'border-orange-200 bg-orange-100 text-orange-600',
-                  )}
-                >
-                  <BadgeCheck size={17} />
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-indigo-400/20 bg-indigo-400/10 text-indigo-300">
+                  <ShieldCheck size={17} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black">KYC inspector</h3>
-                  <div className={cn('font-mono text-[10px]', adminMuted(isDarkMode))}>
-                    {inspectingApplicant.id}
-                  </div>
+                  <h3 className="text-sm font-black text-white">Identity record</h3>
+                  <div className="font-mono text-[10px] text-slate-500">{inspectingApplicant.id}</div>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setInspectingApplicant(null)}
-                className={cn(
-                  'rounded-lg p-1.5 transition',
-                  isDarkMode
-                    ? 'text-slate-400 hover:bg-white/5 hover:text-white'
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900',
-                )}
+                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/5 hover:text-white"
               >
                 <X size={17} />
               </button>
             </div>
 
             <div className="flex-1 space-y-4 overflow-y-auto p-5">
-              <div
-                className={cn(
-                  'rounded-2xl border p-4',
-                  isDarkMode ? 'border-white/[0.07] bg-white/[0.03]' : 'border-slate-200 bg-slate-50',
-                )}
-              >
+              <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4 backdrop-blur-xl">
                 <div className="flex items-center gap-3">
                   <Avatar
-                    label={inspectingApplicant.name.charAt(0)}
+                    label={inspectingApplicant.name.charAt(0).toUpperCase()}
                     tone={statusTone(inspectingApplicant.status)}
                     size="lg"
                   />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className={cn('truncate text-sm font-black', adminText(isDarkMode))}>
-                        {inspectingApplicant.name}
-                      </span>
+                      <span className="truncate text-sm font-black text-white">{inspectingApplicant.name}</span>
                       <StatusPill tone={statusTone(inspectingApplicant.status)} dot>
                         {inspectingApplicant.status}
                       </StatusPill>
                     </div>
-                    <div className={cn('font-mono text-[11px]', adminMuted(isDarkMode))}>
-                      {inspectingApplicant.nameMm}
-                    </div>
-                    <div className={cn('font-mono text-[10px]', adminMuted(isDarkMode))}>
-                      UID {inspectingApplicant.uid}
+                    <div className="font-mono text-[10px] text-slate-400">
+                      Tier {inspectingApplicant.kycTier} · {inspectingApplicant.uid}
                     </div>
                   </div>
-                </div>
-              </div>
-
-              <div
-                className={cn(
-                  'flex items-center justify-between rounded-2xl border p-4',
-                  isDarkMode
-                    ? 'border-emerald-400/20 bg-emerald-400/10'
-                    : 'border-emerald-200 bg-emerald-50',
-                )}
-              >
-                <div>
-                  <div className={cn('font-mono text-[9px] font-bold uppercase tracking-wider', adminMuted(isDarkMode))}>
-                    Biometric confidence
-                  </div>
-                  <div className="mt-1 font-mono text-2xl font-black text-emerald-500">
-                    {inspectingApplicant.faceMatchScore}%
-                  </div>
-                </div>
-                <Scan size={26} className="text-emerald-500" />
-              </div>
-
-              <div className="space-y-2">
-                <div className={cn('font-mono text-[9px] font-bold uppercase tracking-[0.18em]', adminMuted(isDarkMode))}>
-                  Identity record
-                </div>
-                <div className={cn('divide-y rounded-2xl border px-4 py-2', adminInset(isDarkMode), isDarkMode ? 'divide-white/[0.06]' : 'divide-slate-200/80')}>
-                  <KeyValue isDarkMode={isDarkMode} label="NRIC number" value={inspectingApplicant.idCard} />
-                  <KeyValue isDarkMode={isDarkMode} label="Township" value={inspectingApplicant.township} />
-                  <KeyValue isDarkMode={isDarkMode} label="Date of birth" value={inspectingApplicant.dob} />
-                  <KeyValue isDarkMode={isDarkMode} label="Father name" value={inspectingApplicant.fatherName} />
-                  <KeyValue isDarkMode={isDarkMode} label="Occupation" value={inspectingApplicant.occupation} />
-                  <KeyValue isDarkMode={isDarkMode} label="Document quality" value={inspectingApplicant.docQuality} />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <div className={cn('font-mono text-[9px] font-bold uppercase tracking-[0.18em]', adminMuted(isDarkMode))}>
-                  Automated checks
+                <div className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                  Identity details
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {['Liveness passed', 'NRIC verified', 'PEP clean', 'No duplicate UID'].map((check) => (
-                    <div
-                      key={check}
-                      className={cn(
-                        'flex items-center gap-1.5 rounded-xl border px-2.5 py-2 font-mono text-[10px] font-bold',
-                        isDarkMode
-                          ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
-                          : 'border-emerald-200 bg-emerald-50 text-emerald-600',
-                      )}
-                    >
-                      <Check size={12} />
-                      {check}
-                    </div>
-                  ))}
+                <div className={cn('divide-y divide-white/[0.06] rounded-2xl border px-4 py-2', adminInset(isDarkMode))}>
+                  <KeyValue isDarkMode label="National ID" value={inspectingApplicant.nationalIdNo || 'Not submitted'} />
+                  <KeyValue isDarkMode label="Date of birth" value={inspectingApplicant.dob || '—'} />
+                  <KeyValue isDarkMode label="Address" value={inspectingApplicant.address || '—'} />
+                  <KeyValue isDarkMode label="Created" value={formatDate(inspectingApplicant.createdAt)} />
+                  <KeyValue isDarkMode label="Balance" value={`₳ ${inspectingApplicant.balance.toLocaleString()}`} />
+                  <KeyValue isDarkMode label="USD balance" value={`$${inspectingApplicant.usdBalance.toLocaleString()}`} />
                 </div>
               </div>
 
-              <div
-                className={cn(
-                  'flex w-full items-center justify-between rounded-xl border px-3.5 py-2.5 font-mono text-[11px]',
-                  isDarkMode
-                    ? 'border-white/10 bg-white/[0.03] text-slate-300'
-                    : 'border-slate-200 bg-white text-slate-600',
-                )}
-              >
-                <span className="truncate">{inspectingApplicant.email}</span>
-                <span className="text-slate-400">{inspectingApplicant.phone}</span>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5 font-mono text-[10px] text-slate-300">
+                  <Mail size={13} className="text-slate-500" />
+                  <span className="truncate">{inspectingApplicant.email || 'No email'}</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5 font-mono text-[10px] text-slate-300">
+                  <Phone size={13} className="text-slate-500" />
+                  <span className="truncate">{inspectingApplicant.phone || 'No phone'}</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5 font-mono text-[10px] text-slate-300 sm:col-span-2">
+                  <MapPin size={13} className="text-slate-500" />
+                  <span className="truncate">{inspectingApplicant.address || 'No address'}</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5 font-mono text-[10px] text-slate-300 sm:col-span-2">
+                  <CalendarDays size={13} className="text-slate-500" />
+                  <span>Registered {formatDate(inspectingApplicant.createdAt)}</span>
+                </div>
               </div>
+
+              {inspectingApplicant.rejectionReason && (
+                <div className="rounded-xl border border-rose-400/20 bg-rose-500/10 p-3 text-[11px] text-rose-300">
+                  Rejection reason · {inspectingApplicant.rejectionReason}
+                </div>
+              )}
             </div>
 
-            <div
-              className={cn(
-                'flex items-center gap-2 border-t p-4',
-                isDarkMode ? 'border-white/[0.06]' : 'border-slate-100',
-              )}
-            >
+            <div className="flex items-center gap-2 border-t border-white/[0.06] p-4">
               {inspectingApplicant.status === 'Pending' ? (
                 <>
                   <button
@@ -511,15 +395,15 @@ export const AdminKycDesk: React.FC<AdminKycDeskProps> = ({
                       setInspectingApplicant(null)
                       onOpenRejectModal(applicant)
                     }}
-                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-rose-600 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-rose-500 active:scale-95"
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-rose-400/20 bg-rose-500/10 py-2.5 text-xs font-bold text-rose-300 transition hover:bg-rose-500/20 active:scale-95"
                   >
                     <X size={14} />
-                    Reject request
+                    Reject
                   </button>
                 </>
               ) : (
                 <div className={cn('w-full py-1 text-center font-mono text-[11px]', adminMuted(isDarkMode))}>
-                  Application already {inspectingApplicant.status.toLowerCase()}
+                  No action required · {inspectingApplicant.status}
                 </div>
               )}
             </div>

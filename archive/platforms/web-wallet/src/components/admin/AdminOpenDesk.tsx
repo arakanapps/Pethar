@@ -125,7 +125,7 @@ export const AdminOpenDesk: React.FC<AdminOpenDeskProps> = ({
                 className={cn(
                   'flex-1 rounded-lg px-2 py-1.5 font-mono text-[10px] font-bold transition',
                   channelFilter === channel
-                    ? 'bg-orange-500 text-white shadow-sm'
+                    ? 'bg-indigo-500 text-white shadow-sm'
                     : isDarkMode
                       ? 'text-slate-400 hover:bg-white/[0.05] hover:text-white'
                       : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900',
@@ -158,8 +158,8 @@ export const AdminOpenDesk: React.FC<AdminOpenDeskProps> = ({
           <div className="max-h-[540px] overflow-y-auto">
             <div
               className={cn(
-                'flex items-start gap-3 border-l-2 border-orange-500 px-3.5 py-3.5',
-                isDarkMode ? 'bg-white/[0.03]' : 'bg-orange-50/50',
+                'flex items-start gap-3 border-l-2 border-indigo-500 px-3.5 py-3.5',
+                isDarkMode ? 'bg-white/[0.03]' : 'bg-indigo-50/50',
               )}
             >
               <div className="relative shrink-0">
@@ -218,7 +218,7 @@ export const AdminOpenDesk: React.FC<AdminOpenDeskProps> = ({
           bodyClassName="p-0"
           title={
             <span className="flex items-center gap-2">
-              <Radio size={14} className="text-orange-500" />
+              <Radio size={14} className="text-indigo-500" />
               Conversation
             </span>
           }
@@ -252,7 +252,7 @@ export const AdminOpenDesk: React.FC<AdminOpenDeskProps> = ({
                         className={cn(
                           'max-w-md space-y-1.5 rounded-2xl px-3.5 py-3 text-xs shadow-sm',
                           isOperator
-                            ? 'rounded-br-md bg-orange-500 text-white'
+                            ? 'rounded-br-md bg-indigo-500 text-white'
                             : isDarkMode
                               ? 'rounded-bl-md border border-white/[0.07] bg-[#0C1424] text-slate-100'
                               : 'rounded-bl-md border border-slate-200 bg-white text-slate-900',
@@ -333,7 +333,7 @@ export const AdminOpenDesk: React.FC<AdminOpenDeskProps> = ({
               <button
                 type="button"
                 onClick={() => onSendMessage()}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-orange-600 active:scale-95"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-500 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-600 active:scale-95"
               >
                 <Send size={13} />
                 Send

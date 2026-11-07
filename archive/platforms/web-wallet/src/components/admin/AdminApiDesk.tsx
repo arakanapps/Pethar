@@ -52,7 +52,7 @@ export const AdminApiDesk: React.FC<AdminApiDeskProps> = ({
                   : 'border-slate-200 bg-white text-slate-500',
               )}
             >
-              <Zap size={13} className="text-orange-500" />
+              <Zap size={13} className="text-indigo-500" />
               1,000 req/s
             </div>
           </>
@@ -114,8 +114,8 @@ export const AdminApiDesk: React.FC<AdminApiDeskProps> = ({
                     'w-full px-4 py-3.5 text-left transition',
                     isActive
                       ? isDarkMode
-                        ? 'bg-orange-500/[0.08]'
-                        : 'bg-orange-50/70'
+                        ? 'bg-indigo-500/[0.08]'
+                        : 'bg-indigo-50/70'
                       : isDarkMode
                         ? 'hover:bg-white/[0.025]'
                         : 'hover:bg-slate-50',
@@ -126,7 +126,7 @@ export const AdminApiDesk: React.FC<AdminApiDeskProps> = ({
                       className={cn(
                         'rounded-md px-1.5 py-0.5 font-mono text-[9px] font-bold',
                         endpoint.method === 'POST'
-                          ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                          ? 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'
                           : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
                       )}
                     >
@@ -136,7 +136,7 @@ export const AdminApiDesk: React.FC<AdminApiDeskProps> = ({
                       {endpoint.path}
                     </span>
                     {isActive && (
-                      <span className="ml-auto h-1.5 w-1.5 rounded-full bg-orange-500" />
+                      <span className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-500" />
                     )}
                   </div>
                   <div className={cn('mt-1 line-clamp-1 text-[10px]', adminMuted(isDarkMode))}>
@@ -151,7 +151,7 @@ export const AdminApiDesk: React.FC<AdminApiDeskProps> = ({
         <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#070B13] shadow-2xl xl:col-span-8">
           <div className="flex flex-col gap-3 border-b border-white/[0.07] bg-[#0A101C] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-white/[0.03] text-orange-400">
+              <span className="flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-white/[0.03] text-indigo-400">
                 <Terminal size={12} />
               </span>
               <span className="truncate font-mono text-[11px] text-slate-300">
@@ -162,7 +162,7 @@ export const AdminApiDesk: React.FC<AdminApiDeskProps> = ({
               type="button"
               onClick={onTestEndpoint}
               disabled={apiSimulating}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-orange-500 px-3.5 py-2 font-mono text-[10px] font-bold text-white transition hover:bg-orange-600 active:scale-95 disabled:opacity-60"
+              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-indigo-500 px-3.5 py-2 font-mono text-[10px] font-bold text-white transition hover:bg-indigo-600 active:scale-95 disabled:opacity-60"
             >
               <Play size={12} />
               {apiSimulating ? 'Executing…' : 'Execute'}

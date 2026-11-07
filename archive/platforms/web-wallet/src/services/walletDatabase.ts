@@ -28,7 +28,11 @@ export interface DbUserProfile {
   currency: string
   avatar_url?: string
   kyc_tier: 1 | 2
-  kyc_status?: 'unverified' | 'email_verified' | 'pending_review' | 'verified'
+  kyc_status?: 'unverified' | 'email_verified' | 'pending_review' | 'verified' | 'rejected'
+  status?: string
+  createdAt?: string
+  kycRejectionReason?: string
+  userId?: string
 }
 
 export interface DbFavoriteContact {
@@ -243,6 +247,10 @@ function mapDbProfile(data: any): DbUserProfile {
     avatar_url: data.avatar_url || '',
     kyc_tier: (data.kyc_tier === 2 ? 2 : 1) as 1 | 2,
     kyc_status: (data.kyc_status || (data.kyc_tier === 2 ? 'verified' : 'email_verified')) as any,
+    status: data.status || 'ACTIVE',
+    createdAt: data.created_at || data.createdAt || '',
+    kycRejectionReason: data.kyc_rejection_reason || '',
+    userId: data.user_id || data.userId || '',
   }
 }
 

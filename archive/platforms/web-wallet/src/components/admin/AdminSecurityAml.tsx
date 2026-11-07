@@ -1,16 +1,14 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import {
   ShieldCheck,
   AlertTriangle,
   FileText,
   Activity,
   Lock,
-  History,
   Gauge,
-  Radar,
-  ArrowUpRight,
+  Search,
 } from 'lucide-react'
-import type { SystemAuditLog } from '../../pages/DashboardPage'
+import type { AdminTransactionRow } from '../../services/adminDatabase'
 import {
   Avatar,
   DeskHeader,
@@ -19,21 +17,21 @@ import {
   Segmented,
   StatCard,
   StatusPill,
+  adminInput,
   adminMuted,
   adminText,
 } from './AdminUI'
 import { cn } from '../../lib/utils'
 
 interface AdminSecurityAmlProps {
-  filteredFraudTxs: any[]
+  transactions: AdminTransactionRow[]
   fraudFilter: 'all' | 'flagged' | 'clean'
   setFraudFilter: (f: 'all' | 'flagged' | 'clean') => void
-  onFreezeAccount: (counterparty: string) => Promise<void>
-  onInspectSlip: (tx: any) => void
-  auditLogs: SystemAuditLog[]
-  circuitBreakerActive: boolean
-  onOpenKillSwitch: () => void
+  onFreezeAccount: (tx: AdminTransactionRow) => void
+  onInspectSlip: (tx: AdminTransactionRow) => void
   isDarkMode: boolean
+  loading: boolean
+  searchQuery: string
 }
 
 const riskTone = (risk: string) => {
@@ -42,97 +40,105 @@ const riskTone = (risk: string) => {
   return 'emerald' as const
 }
 
+const dateLabel = (value: string) => {
+  if (!value) return '—'
+  const date = new Date(value)
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
 export const AdminSecurityAml: React.FC<AdminSecurityAmlProps> = ({
-  filteredFraudTxs,
+  transactions,
   fraudFilter,
   setFraudFilter,
   onFreezeAccount,
   onInspectSlip,
-  auditLogs,
-  circuitBreakerActive,
-  onOpenKillSwitch,
   isDarkMode,
+  loading,
+  searchQuery,
 }) => {
-  const highRiskCount = filteredFraudTxs.filter((tx) => tx.risk === 'High').length
-  const flaggedCount = filteredFraudTxs.filter((tx) => tx.risk !== 'Low').length
+  const [localSearch, setLocalSearch] = React.useState('')
+  const query = (searchQuery || localSearch).trim().toLowerCase()
+
+  const stats = useMemo(() => {
+    const highRisk = transactions.filter((tx) => tx.risk === 'High').length
+    const mediumRisk = transactions.filter((tx) => tx.risk === 'Medium').length
+    const volume = transactions.reduce((sum, tx) => sum + Math.abs(tx.amount), 0)
+    const fees = transactions.reduce((sum, tx) => sum + tx.fee, 0)
+    return { highRisk, mediumRisk, volume, fees }
+  }, [transactions])
+
+  const filtered = useMemo(() => {
+    return transactions.filter((tx) => {
+      const matchesFilter =
+        fraudFilter === 'all' ||
+        (fraudFilter === 'flagged' && tx.risk !== 'Low') ||
+        (fraudFilter === 'clean' && tx.risk === 'Low')
+      const matchesSearch =
+        !query ||
+        tx.title.toLowerCase().includes(query) ||
+        tx.refId.toLowerCase().includes(query) ||
+        tx.counterparty.toLowerCase().includes(query) ||
+        tx.status.toLowerCase().includes(query)
+      return matchesFilter && matchesSearch
+    })
+  }, [fraudFilter, query, transactions])
 
   return (
     <div className="space-y-5">
       <DeskHeader
-        eyebrow="Operations · Risk"
-        title="Risk & Ledger"
-        description="Monitor live settlement heuristics, freeze high-risk accounts and review the immutable operator audit trail."
+        eyebrow="Operations · Ledger"
+        title="Transactions"
+        description="Monitor real ledger activity, inspect suspicious movements and freeze the linked account when required."
         isDarkMode={isDarkMode}
         actions={
-          <>
-            <StatusPill tone="emerald" dot>
-              Heuristics active
-            </StatusPill>
-            <button
-              type="button"
-              onClick={onOpenKillSwitch}
-              className={cn(
-                'inline-flex items-center gap-2 rounded-xl border px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-wider transition active:scale-95',
-                circuitBreakerActive
-                  ? 'animate-pulse border-rose-500 bg-rose-600 text-white'
-                  : isDarkMode
-                    ? 'border-rose-400/20 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20'
-                    : 'border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100',
-              )}
-            >
-              <AlertTriangle size={13} />
-              {circuitBreakerActive ? 'Settlement frozen' : 'Kill-switch'}
-            </button>
-          </>
+          <StatusPill tone="emerald" dot>
+            {loading ? 'Syncing…' : `${transactions.length} transactions`}
+          </StatusPill>
         }
       />
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <StatCard
-          label="Clean transactions"
-          value="99.2%"
-          hint="Automated heuristic pass rate"
-          icon={<ShieldCheck size={15} />}
+          label="Total volume"
+          value={`$${stats.volume.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
+          hint="Across selected records"
+          icon={<Activity size={15} />}
+          tone="indigo"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard
+          label="Fees collected"
+          value={`$${stats.fees.toLocaleString('en-US', { maximumFractionDigits: 2 })}`}
+          hint="Ledger fees"
+          icon={<Gauge size={15} />}
           tone="emerald"
           isDarkMode={isDarkMode}
         />
         <StatCard
-          label="Velocity alerts"
-          value="2"
-          hint="High-frequency shifts detected"
-          icon={<Gauge size={15} />}
+          label="Medium risk"
+          value={stats.mediumRisk}
+          hint="Above review threshold"
+          icon={<AlertTriangle size={15} />}
           tone="amber"
           isDarkMode={isDarkMode}
         />
         <StatCard
-          label="High-risk flags"
-          value={highRiskCount}
-          hint={`${flaggedCount} transactions under review`}
-          icon={<AlertTriangle size={15} />}
+          label="High risk"
+          value={stats.highRisk}
+          hint="Failed or flagged movements"
+          icon={<ShieldCheck size={15} />}
           tone="rose"
           isDarkMode={isDarkMode}
-        />
-        <StatCard
-          label="Circuit breaker"
-          value={circuitBreakerActive ? 'Frozen' : 'Armed'}
-          hint="Click to manage settlement state"
-          icon={<Radar size={15} />}
-          tone={circuitBreakerActive ? 'rose' : 'emerald'}
-          isDarkMode={isDarkMode}
-          onClick={onOpenKillSwitch}
         />
       </div>
 
       <Panel
         isDarkMode={isDarkMode}
         bodyClassName="p-0"
-        title={
-          <span className="flex items-center gap-2">
-            <Activity size={14} className="text-orange-500" />
-            Live transaction monitor
-          </span>
-        }
-        description="Heuristic risk evaluation applied to every ledger movement."
+        title="Transaction monitor"
+        description="Risk is derived from real status, amount and metadata fields."
         actions={
           <Segmented
             isDarkMode={isDarkMode}
@@ -147,22 +153,37 @@ export const AdminSecurityAml: React.FC<AdminSecurityAmlProps> = ({
           />
         }
       >
-        {filteredFraudTxs.length === 0 ? (
+        <div className="border-b border-white/[0.06] px-4 py-3 sm:px-5">
+          <div className="relative w-full sm:max-w-sm">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input
+              type="text"
+              value={localSearch}
+              onChange={(event) => setLocalSearch(event.target.value)}
+              placeholder="Search title, reference or counterparty…"
+              className={cn(
+                'w-full rounded-xl border py-2 pl-8 pr-3 text-[11px] font-medium outline-none transition',
+                adminInput(isDarkMode),
+              )}
+            />
+          </div>
+        </div>
+
+        {loading && transactions.length === 0 ? (
+          <EmptyState isDarkMode={isDarkMode} title="Loading transactions…" description="Reading from the database." />
+        ) : filtered.length === 0 ? (
           <EmptyState
             isDarkMode={isDarkMode}
             icon={<ShieldCheck size={20} />}
             title="No transactions in this view"
-            description="Change the risk filter to inspect the wider ledger stream."
+            description="Try a different risk filter or clear the search."
           />
         ) : (
-          <div className={cn('divide-y', isDarkMode ? 'divide-white/[0.06]' : 'divide-slate-100')}>
-            {filteredFraudTxs.map((tx) => (
+          <div className="divide-y divide-white/[0.06]">
+            {filtered.slice(0, 100).map((tx) => (
               <div
                 key={tx.id}
-                className={cn(
-                  'flex flex-col gap-3 px-4 py-4 transition-colors sm:flex-row sm:items-center sm:justify-between sm:px-5',
-                  isDarkMode ? 'hover:bg-white/[0.025]' : 'hover:bg-slate-50/80',
-                )}
+                className="flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-white/[0.025] sm:flex-row sm:items-center sm:justify-between sm:px-5"
               >
                 <div className="flex min-w-0 items-start gap-3">
                   <Avatar
@@ -175,25 +196,38 @@ export const AdminSecurityAml: React.FC<AdminSecurityAmlProps> = ({
                       <StatusPill tone={riskTone(tx.risk)} dot>
                         Risk {tx.risk}
                       </StatusPill>
+                      <StatusPill tone="slate">{tx.status}</StatusPill>
                     </div>
                     <div className={cn('mt-1 flex flex-wrap items-center gap-2 font-mono text-[10px]', adminMuted(isDarkMode))}>
                       <span>Ref {tx.refId}</span>
-                      <span className="text-slate-300 dark:text-slate-700">/</span>
-                      <span>Target {tx.counterparty}</span>
-                      <span className="text-slate-300 dark:text-slate-700">/</span>
-                      <span className={cn('font-bold', adminText(isDarkMode))}>{tx.amount} ₳</span>
+                      <span className="text-slate-700">/</span>
+                      <span>{tx.counterparty || 'No counterparty'}</span>
+                      <span className="text-slate-700">/</span>
+                      <span>{dateLabel(tx.createdAt)}</span>
                     </div>
                     <div className={cn('mt-0.5 font-mono text-[10px]', adminMuted(isDarkMode))}>
-                      Trigger · {tx.flagReason}
+                      {tx.flagReason}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2 self-end sm:self-center">
+                  <div className="mr-2 text-right">
+                    <div
+                      className={cn(
+                        'font-mono text-xs font-bold',
+                        tx.amount < 0 ? 'text-rose-300' : 'text-emerald-300',
+                      )}
+                    >
+                      {tx.amount < 0 ? '-' : '+'}
+                      {Math.abs(tx.amount).toLocaleString()} {tx.currency}
+                    </div>
+                    <div className="font-mono text-[9px] text-slate-500">Fee {tx.fee}</div>
+                  </div>
                   {tx.risk === 'High' && (
                     <button
                       type="button"
-                      onClick={() => void onFreezeAccount(tx.counterparty)}
+                      onClick={() => onFreezeAccount(tx)}
                       className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-3 py-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-rose-500 active:scale-95"
                     >
                       <Lock size={12} />
@@ -203,12 +237,7 @@ export const AdminSecurityAml: React.FC<AdminSecurityAmlProps> = ({
                   <button
                     type="button"
                     onClick={() => onInspectSlip(tx)}
-                    className={cn(
-                      'inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-semibold transition',
-                      isDarkMode
-                        ? 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.07] hover:text-white'
-                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900',
-                    )}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-[11px] font-semibold text-slate-300 transition hover:bg-white/[0.07] hover:text-white"
                   >
                     <FileText size={12} />
                     Inspect
@@ -219,60 +248,6 @@ export const AdminSecurityAml: React.FC<AdminSecurityAmlProps> = ({
           </div>
         )}
       </Panel>
-
-      <Panel
-        isDarkMode={isDarkMode}
-        bodyClassName="p-0"
-        title={
-          <span className="flex items-center gap-2">
-            <History size={14} className="text-slate-400" />
-            Administrative audit trail
-          </span>
-        }
-        description="Append-only record of sensitive operator actions."
-        actions={
-          <span className={cn('font-mono text-[10px]', adminMuted(isDarkMode))}>
-            {auditLogs.length} events
-          </span>
-        }
-      >
-        <div className={cn('max-h-64 divide-y overflow-y-auto', isDarkMode ? 'divide-white/[0.06]' : 'divide-slate-100')}>
-          {auditLogs.map((log) => (
-            <div
-              key={log.id}
-              className={cn(
-                'flex items-start justify-between gap-3 px-4 py-2.5 font-mono text-[10px] sm:px-5',
-                isDarkMode ? 'hover:bg-white/[0.025]' : 'hover:bg-slate-50/80',
-              )}
-            >
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={cn('text-[9px]', adminMuted(isDarkMode))}>[{log.timestamp}]</span>
-                  <span className={cn('font-bold', adminText(isDarkMode))}>{log.action}</span>
-                  <span className="text-slate-400">· {log.operator}</span>
-                </div>
-                <div className={cn('mt-0.5 truncate', adminMuted(isDarkMode))}>{log.details}</div>
-              </div>
-              <StatusPill tone={log.status === 'SUCCESS' ? 'emerald' : log.status === 'CRITICAL' ? 'rose' : 'amber'}>
-                {log.status}
-              </StatusPill>
-            </div>
-          ))}
-        </div>
-      </Panel>
-
-      <div className="flex items-center justify-between px-1">
-        <span className={cn('font-mono text-[10px]', adminMuted(isDarkMode))}>
-          Policy engine v4.2 · Zero-knowledge attestations
-        </span>
-        <button
-          type="button"
-          className={cn('inline-flex items-center gap-1 font-mono text-[10px] transition', adminMuted(isDarkMode), 'hover:text-orange-500')}
-        >
-          Open compliance report
-          <ArrowUpRight size={11} />
-        </button>
-      </div>
     </div>
   )
 }

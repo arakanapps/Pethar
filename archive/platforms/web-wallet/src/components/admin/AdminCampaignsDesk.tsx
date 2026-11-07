@@ -40,7 +40,7 @@ export const AdminCampaignsDesk: React.FC<AdminCampaignsDeskProps> = ({
           <button
             type="button"
             onClick={onOpenCreateModal}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-3.5 py-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-orange-600 active:scale-95"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-500 px-3.5 py-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-indigo-600 active:scale-95"
           >
             <Plus size={14} />
             New campaign
@@ -80,7 +80,7 @@ export const AdminCampaignsDesk: React.FC<AdminCampaignsDeskProps> = ({
         bodyClassName="p-0"
         title={
           <span className="flex items-center gap-2">
-            <Sparkles size={14} className="text-orange-500" />
+            <Sparkles size={14} className="text-indigo-500" />
             Campaign inventory
           </span>
         }
@@ -103,7 +103,7 @@ export const AdminCampaignsDesk: React.FC<AdminCampaignsDeskProps> = ({
                     className={cn(
                       'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border',
                       ad.active
-                        ? 'border-orange-500/25 bg-orange-500/10 text-orange-500'
+                        ? 'border-indigo-500/25 bg-indigo-500/10 text-indigo-500'
                         : isDarkMode
                           ? 'border-white/[0.07] bg-white/[0.03] text-slate-500'
                           : 'border-slate-200 bg-slate-50 text-slate-400',
@@ -150,8 +150,8 @@ export const AdminCampaignsDesk: React.FC<AdminCampaignsDeskProps> = ({
                     'inline-flex shrink-0 items-center justify-center gap-1.5 self-end rounded-xl border px-3 py-2 text-[11px] font-bold transition active:scale-95 sm:self-center',
                     ad.active
                       ? isDarkMode
-                        ? 'border-amber-400/20 bg-amber-400/10 text-amber-300 hover:bg-amber-400/15'
-                        : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                        ? 'border-yellow-400/20 bg-yellow-400/10 text-yellow-300 hover:bg-yellow-400/15'
+                        : 'border-yellow-200 bg-yellow-50 text-yellow-700 hover:bg-yellow-100'
                       : isDarkMode
                         ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/15'
                         : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100',

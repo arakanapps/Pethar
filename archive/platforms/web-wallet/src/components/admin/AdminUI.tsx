@@ -16,13 +16,13 @@ const toneStyles: Record<
   }
 > = {
   amber: {
-    text: 'text-amber-600 dark:text-amber-400',
-    softText: 'text-amber-700 dark:text-amber-300',
-    bg: 'bg-amber-500/10 dark:bg-amber-400/10',
-    border: 'border-amber-500/25 dark:border-amber-400/20',
-    dot: 'bg-amber-500',
-    bar: 'bg-amber-500',
-    ring: 'ring-amber-500/20',
+    text: 'text-yellow-600 dark:text-yellow-400',
+    softText: 'text-yellow-700 dark:text-yellow-300',
+    bg: 'bg-yellow-500/10 dark:bg-yellow-400/10',
+    border: 'border-yellow-500/25 dark:border-yellow-400/20',
+    dot: 'bg-yellow-500',
+    bar: 'bg-yellow-500',
+    ring: 'ring-yellow-500/20',
   },
   emerald: {
     text: 'text-emerald-600 dark:text-emerald-400',
@@ -71,24 +71,18 @@ const toneStyles: Record<
   },
 }
 
-export const adminPanel = (isDarkMode: boolean) =>
-  isDarkMode
-    ? 'bg-[#0C1424]/90 border-white/[0.07] shadow-[0_18px_50px_-30px_rgba(0,0,0,0.9)]'
-    : 'bg-white border-slate-200/80 shadow-[0_18px_50px_-32px_rgba(15,23,42,0.28)]'
+export const adminPanel = (_isDarkMode: boolean) =>
+  'border-white/[0.07] bg-white/[0.035] shadow-[0_18px_60px_-34px_rgba(0,0,0,0.95)] backdrop-blur-2xl'
 
-export const adminInset = (isDarkMode: boolean) =>
-  isDarkMode ? 'bg-white/[0.035] border-white/[0.06]' : 'bg-slate-50/80 border-slate-200/80'
+export const adminInset = (_isDarkMode: boolean) =>
+  'border-white/[0.06] bg-white/[0.025]'
 
-export const adminText = (isDarkMode: boolean) =>
-  isDarkMode ? 'text-slate-100' : 'text-slate-900'
+export const adminText = (_isDarkMode: boolean) => 'text-slate-100'
 
-export const adminMuted = (isDarkMode: boolean) =>
-  isDarkMode ? 'text-slate-400' : 'text-slate-500'
+export const adminMuted = (_isDarkMode: boolean) => 'text-slate-400'
 
-export const adminInput = (isDarkMode: boolean) =>
-  isDarkMode
-    ? 'bg-[#0A1120] border-white/10 text-slate-100 placeholder-slate-500 focus:border-orange-500/70'
-    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-orange-500/70'
+export const adminInput = (_isDarkMode: boolean) =>
+  'border-white/[0.08] bg-white/[0.03] text-slate-100 placeholder-slate-600 focus:border-indigo-400/50'
 
 export function DeskHeader({
   eyebrow,
@@ -107,8 +101,8 @@ export function DeskHeader({
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <span className="h-px w-6 bg-orange-500" />
-          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.24em] text-orange-500">
+          <span className="h-px w-6 bg-indigo-500" />
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.24em] text-indigo-500">
             {eyebrow}
           </span>
         </div>
