@@ -30,7 +30,7 @@ class AppState extends ChangeNotifier {
   List<Screen> navigationStack = [Screen.home];
   String language = 'en'; // Default English matching iOS MobileWalletPage
   ThemeMode themeMode = ThemeMode.light; // Strictly light theme matching iOS
-  bool isAuthenticated = true; // Pre-authenticated for immediate testing on emulator
+  bool isAuthenticated = false; // Pre-authenticated for immediate testing on emulator
   String financialSubView =
       'wallet_main'; // 'wallet_main' | 'deposit' | 'withdraw' | 'tx_history' | 'spending' | 'wallet_security_phrase'
   UserProfile profile = initialUserProfile;

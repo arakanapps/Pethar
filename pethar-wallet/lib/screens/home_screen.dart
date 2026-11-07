@@ -970,24 +970,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                           ),
-                          // 1.00 ₳ = $1.00 Pill Chip
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFF1F2),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: const Color(0xFFFECDD3)),
-                            ),
-                            child: const Text(
-                              '1.00 ₳ = \$1.00',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: crimson,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 8),

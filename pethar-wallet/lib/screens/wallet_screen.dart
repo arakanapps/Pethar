@@ -310,39 +310,6 @@ class _WalletScreenState extends State<WalletScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text(
-                              appState.walletBalanceHidden
-                                  ? 'portfolio value ≈ ••••'
-                                  : 'portfolio value ≈ ${currencyFmt.format(akdEquivalent)} AKD',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF64748B),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF1F2),
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(color: const Color(0xFFFECDD3), width: 1),
-                              ),
-                              child: const Text(
-                                '1.00 ₳ = \$1.00',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: crimson,
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
@@ -779,16 +746,6 @@ class _WalletScreenState extends State<WalletScreen> {
                           fontWeight: FontWeight.w800,
                           fontFamily: 'monospace',
                           color: Color(0xFF0F172A),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        appState.walletBalanceHidden
-                            ? '••••'
-                            : (t['valueUsd'] as String),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF94A3B8),
                         ),
                       ),
                     ],
@@ -2138,9 +2095,6 @@ class _WalletScreenState extends State<WalletScreen> {
                             fontWeight: FontWeight.w700,
                             fontFamily: 'monospace',
                             fontSize: 12.5)),
-                    Text(t['fiat'] as String,
-                        style: const TextStyle(
-                            fontSize: 11, color: Color(0xFF94A3B8))),
                   ],
                 ),
                 onTap: () {

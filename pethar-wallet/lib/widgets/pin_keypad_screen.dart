@@ -251,7 +251,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
   @override
   void didUpdateWidget(PinKeypadScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.errorMessage != null && widget.errorMessage != oldWidget.errorMessage) {
+    if (widget.title != oldWidget.title || (widget.errorMessage != null && widget.errorMessage != oldWidget.errorMessage)) {
       setState(() {
         _enteredPin = '';
       });
@@ -366,7 +366,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
 
   Widget _buildBiometricKey() {
     if (!widget.showBiometrics || _biometricKind == BiometricKind.none) {
-      return const SizedBox(width: 70, height: 70);
+      return Container(margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8), width: 70, height: 70);
     }
 
     Widget iconWidget;
@@ -421,52 +421,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                       else
                         const SizedBox(width: 48),
                       const Spacer(),
-                      // Top Right Language & Exit Row matching Image 3
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (widget.onLanguageToggle != null)
-                            GestureDetector(
-                              onTap: widget.onLanguageToggle,
-                              behavior: HitTestBehavior.opaque,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.language_rounded, size: 16, color: Color(0xFF475569)),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      widget.isAk ? 'အာရက္ခဘာသာ' : 'English',
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF334155),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          if (widget.onExit != null) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              width: 1,
-                              height: 14,
-                              color: const Color(0xFFCBD5E1),
-                            ),
-                            const SizedBox(width: 4),
-                            GestureDetector(
-                              onTap: widget.onExit,
-                              behavior: HitTestBehavior.opaque,
-                              child: const Padding(
-                                padding: EdgeInsets.all(6),
-                                child: Icon(Icons.logout_rounded, color: Color(0xFF475569), size: 19),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
+                      const SizedBox(width: 48),
                     ],
                   ),
                 ),

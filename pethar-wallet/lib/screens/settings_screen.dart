@@ -10,6 +10,7 @@ import '../services/supabase_service.dart';
 import '../theme.dart';
 import '../widgets/arakan_emblem.dart';
 import '../widgets/support_and_kyc_modals.dart';
+import '../widgets/pin_keypad_screen.dart';
 import '../services/native_security_service.dart';
 import 'notifications_screen.dart';
 
@@ -21,7 +22,13 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _subView = 'main'; // 'main' | 'personal_info' | 'app_settings' | 'privacy' | 'device_management' | 'pin_management' | 'change_pin' | 'forgot_pin'
+  String _subView = 'main';
+  int _changePinStep = 0;
+  String _tempOldPin = '';
+  String _tempNewPin = '';
+  int _forgotPinStep = 0;
+  String _tempForgotNewPin = '';
+  bool _isSubmittingForgotPin = false; // 'main' | 'personal_info' | 'app_settings' | 'privacy' | 'device_management' | 'pin_management' | 'change_pin' | 'forgot_pin'
   bool _showAllProfileInfo = true;
   bool _faceIdEnabled = true;
   bool _biometricLoginEnabled = true;
@@ -2123,6 +2130,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _showConfirmPin = false;
                       _pinChangeError = null;
                       _pinChangeSuccess = null;
+                      _changePinStep = 0;
+                      _tempOldPin = '';
+                      _tempNewPin = '';
+                      _pinChangeError = null;
                       _subView = 'change_pin';
                     });
                   },
@@ -2145,6 +2156,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _showForgotConfirmPin = false;
                       _forgotPinError = null;
                       _forgotPinSuccess = null;
+                      _forgotPinStep = 0;
+                      _tempForgotNewPin = '';
+                      _forgotPinError = null;
                       _subView = 'forgot_pin';
                     });
                     SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
@@ -2159,570 +2173,332 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildChangePinView(BuildContext context, AppState appState, bool isAk) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F5F8),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
-          onPressed: () => setState(() => _subView = 'pin_management'),
-        ),
-        centerTitle: true,
-        title: Text(
-          isAk ? 'PIN ပြောင်းလဲရန်' : 'Change PIN',
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 2)),
-              ],
-            ),
-            child: Column(
-              children: [
-                // Old PIN
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.shield_outlined, color: Colors.black38, size: 22),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _oldPinCtrl,
-                          obscureText: !_showOldPin,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            counterText: '',
-                            hintText: isAk ? 'ယခင် PIN / ယာယီ PIN ရိုက်ထည့်ပါ' : 'Enter Old PIN / Temporary PIN',
-                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          ),
-                          onChanged: (_) {
-                            if (_pinChangeError != null) setState(() => _pinChangeError = null);
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(_showOldPin ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.black38, size: 20),
-                        onPressed: () => setState(() => _showOldPin = !_showOldPin),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFFF1F5F9)),
+    if (_changePinStep == 0) {
+      return PinKeypadScreen(
+        title: isAk ? 'ယခင် PIN ရိုက်ထည့်ပါ' : 'Enter Old PIN',
+        subtitle: isAk ? 'ဆက်လက်ဆောင်ရွက်ရန် ယခင် PIN နံပါတ် ၆ လုံး ရိုက်ထည့်ပါ' : 'Enter your current 6-digit PIN',
+        isAk: isAk,
+        errorMessage: _pinChangeError,
+        isLoading: _isSubmittingPin,
+        showBiometrics: false,
+        onBack: () => setState(() {
+          _pinChangeError = null;
+          _subView = 'pin_management';
+        }),
+        onPinCompleted: (pin) {
+          final currentPin = appState.profile.pin;
+          if (currentPin.isNotEmpty && pin != currentPin) {
+            setState(() {
+              _pinChangeError = isAk ? 'ယခင် PIN နံပါတ် မှားယွင်းနေပါသည်' : 'Incorrect Old PIN. Please try again.';
+            });
+          } else {
+            setState(() {
+              _tempOldPin = pin;
+              _changePinStep = 1;
+              _pinChangeError = null;
+            });
+          }
+        },
+      );
+    } else if (_changePinStep == 1) {
+      return PinKeypadScreen(
+        title: isAk ? 'PIN အသစ် သတ်မှတ်ပါ' : 'Create New PIN',
+        subtitle: isAk ? 'ဂဏန်း ၆ လုံးပါသော PIN အသစ် ရိုက်ထည့်ပါ' : 'Enter a new 6-digit PIN',
+        isAk: isAk,
+        errorMessage: _pinChangeError,
+        isLoading: _isSubmittingPin,
+        showBiometrics: false,
+        onBack: () => setState(() {
+          _changePinStep = 0;
+          _pinChangeError = null;
+        }),
+        onPinCompleted: (pin) {
+          setState(() {
+            _tempNewPin = pin;
+            _changePinStep = 2;
+            _pinChangeError = null;
+          });
+        },
+      );
+    } else {
+      return PinKeypadScreen(
+        title: isAk ? 'PIN အသစ် ထပ်မံအတည်ပြုပါ' : 'Confirm New PIN',
+        subtitle: isAk ? 'အတည်ပြုရန် PIN အသစ်အား ထပ်မံရိုက်ထည့်ပါ' : 'Re-enter your new 6-digit PIN',
+        isAk: isAk,
+        errorMessage: _pinChangeError,
+        isLoading: _isSubmittingPin,
+        showBiometrics: false,
+        onBack: () => setState(() {
+          _changePinStep = 1;
+          _pinChangeError = null;
+        }),
+        onPinCompleted: (pin) async {
+          if (pin != _tempNewPin) {
+            setState(() {
+              _pinChangeError = isAk ? 'PIN အသစ်နှင့် အတည်ပြု PIN မတူညီပါ' : 'New PIN and Confirm PIN do not match.';
+              _changePinStep = 1;
+            });
+            return;
+          }
 
-                // New PIN
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.shield_outlined, color: Colors.black38, size: 22),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _newPinCtrl,
-                          obscureText: !_showNewPin,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            counterText: '',
-                            hintText: isAk ? 'PIN အသစ်' : 'New PIN',
-                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          ),
-                          onChanged: (_) {
-                            if (_pinChangeError != null) setState(() => _pinChangeError = null);
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(_showNewPin ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.black38, size: 20),
-                        onPressed: () => setState(() => _showNewPin = !_showNewPin),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFFF1F5F9)),
+          setState(() {
+            _isSubmittingPin = true;
+            _pinChangeError = null;
+          });
 
-                // Confirm New PIN
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.shield_outlined, color: Colors.black38, size: 22),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _confirmPinCtrl,
-                          obscureText: !_showConfirmPin,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            counterText: '',
-                            hintText: isAk ? 'PIN အသစ် ထပ်မံရိုက်ထည့်ပါ' : 'Confirm New PIN',
-                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          ),
-                          onChanged: (_) {
-                            if (_pinChangeError != null) setState(() => _pinChangeError = null);
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(_showConfirmPin ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.black38, size: 20),
-                        onPressed: () => setState(() => _showConfirmPin = !_showConfirmPin),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+          final res = await SupabaseService().changeUserPin(
+            profileId: appState.profile.uid,
+            currentPin: _tempOldPin,
+            newPin: _tempNewPin,
+          );
+          if (!mounted) return;
+          setState(() => _isSubmittingPin = false);
 
-          if (_pinChangeError != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFECACA)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(_pinChangeError!, style: const TextStyle(color: Color(0xFFDC2626), fontSize: 12, fontWeight: FontWeight.w600)),
-                  ),
-                ],
-              ),
-            ),
-
-          if (_pinChangeSuccess != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF1F2),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFECDD3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.check_circle_outline, color: Color(0xFFD91624), size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(_pinChangeSuccess!, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 12, fontWeight: FontWeight.w600)),
-                  ),
-                ],
-              ),
-            ),
-
-          // Confirm Button (Brand Crimson, NO BLUE!)
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: _isSubmittingPin
-                  ? null
-                  : () async {
-                      final oldP = _oldPinCtrl.text.trim();
-                      final newP = _newPinCtrl.text.trim();
-                      final confP = _confirmPinCtrl.text.trim();
-
-                      if (oldP.length < 4) {
-                        setState(() => _pinChangeError = isAk ? 'ယခင် PIN နံပါတ် ရိုက်ထည့်ပါ' : 'Please enter your old PIN');
-                        return;
-                      }
-                      if (newP.length != 6) {
-                        setState(() => _pinChangeError = isAk ? 'PIN အသစ်သည် ဂဏန်း ၆ လုံး ဖြစ်ရပါမည်' : 'New PIN must be exactly 6 digits');
-                        return;
-                      }
-                      if (newP != confP) {
-                        setState(() => _pinChangeError = isAk ? 'PIN အသစ်နှင့် အတည်ပြု PIN မတူညီပါ' : 'New PIN and Confirm PIN do not match');
-                        return;
-                      }
-
-                      final currentPin = appState.profile.pin;
-                      if (currentPin.isNotEmpty && oldP != currentPin) {
-                        setState(() => _pinChangeError = isAk ? 'ယခင် PIN နံပါတ် မှားယွင်းနေပါသည်' : 'Incorrect Old PIN. Please try again.');
-                        return;
-                      }
-
-                      setState(() => _isSubmittingPin = true);
-                      final res = await SupabaseService().changeUserPin(profileId: appState.profile.uid, currentPin: oldP, newPin: newP);
-                      setState(() => _isSubmittingPin = false);
-
-                      if (res['success'] == true) {
-                        appState.profile.pin = newP;
-                        setState(() {
-                          _pinChangeSuccess = isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!';
-                        });
-                        if (context.mounted) {
-                          _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!');
-                        }
-                        Future.delayed(const Duration(milliseconds: 1200), () {
-                          if (mounted) setState(() => _subView = 'pin_management');
-                        });
-                      } else {
-                        final errMsg = res['message']?.toString() ??
-                            (isAk ? 'PIN ပြောင်းလဲခြင်း မအောင်မြင်ပါ' : 'PIN change failed. Please verify current PIN.');
-                        setState(() {
-                          _pinChangeError = errMsg;
-                        });
-                        if (context.mounted) {
-                          _showToast(context, errMsg);
-                        }
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD91624),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 0,
-              ),
-              child: _isSubmittingPin
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Text(isAk ? 'အတည်ပြုမည်' : 'Confirm', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Security Note (Matching soft red color)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isAk ? 'မှတ်ချက်:' : 'Note:',
-                  style: const TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold, fontSize: 12),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  isAk ? '- သင်၏ လျှို့ဝှက် PIN နံပါတ်အား မည်သူ့ကိုမျှ မမျှဝေပါနှင့်။' : '- Please do not share your PIN with anyone.',
-                  style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  isAk
-                      ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် နိုင်ငံကူးလက်မှတ်နံပါတ်နှင့် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို PIN အဖြစ် အသုံးမပြုပါနှင့်။'
-                      : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.',
-                  style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+          if (res['success'] == true) {
+            appState.profile.pin = _tempNewPin;
+            appState.notify();
+            _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN changed successfully!');
+            setState(() => _subView = 'pin_management');
+          } else {
+            setState(() {
+              _pinChangeError = res['message']?.toString() ??
+                  (isAk ? 'PIN ပြောင်းလဲခြင်း မအောင်မြင်ပါ' : 'PIN change failed. Please verify current PIN.');
+            });
+          }
+        },
+      );
+    }
   }
 
   Widget _buildForgotPinView(BuildContext context, AppState appState, bool isAk) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F5F8),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
-          onPressed: () => setState(() => _subView = 'pin_management'),
-        ),
-        centerTitle: true,
-        title: Text(
-          isAk ? 'PIN မေ့သွားပါသလား' : 'Forget PIN',
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Top Red/Blush Alert Container (replacing yellow one)
-          Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF1F2),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFFECDD3)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.check_circle_outline_rounded,
-                  size: 20,
-                  color: Color(0xFFD91624),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    isAk
-                        ? '${appState.profile.email.isNotEmpty ? appState.profile.email : ""} သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပြီးပါပြီ'
-                        : '6-digit OTP code sent to ${appState.profile.email.isNotEmpty ? appState.profile.email : ""}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1E293B),
-                      height: 1.35,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+    if (_forgotPinStep == 0) {
+      // Step 1: Clean OTP Verification Page matching Attachment 3
+      return Scaffold(
+        backgroundColor: const Color(0xFFF4F5F8),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
+            onPressed: () => setState(() => _subView = 'pin_management'),
           ),
-          const SizedBox(height: 16),
-
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 2)),
-              ],
-            ),
-            child: Column(
-              children: [
-                // OTP Input
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.vpn_key_outlined, color: Colors.black38, size: 22),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _forgotOtpCtrl,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            counterText: '',
-                            hintText: isAk ? '၆ လုံးပါ OTP ကုဒ်' : 'Enter 6-digit Email OTP',
-                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          ),
-                          onChanged: (_) {
-                            if (_forgotPinError != null) setState(() => _forgotPinError = null);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFFF1F5F9)),
-
-                // New PIN
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.shield_outlined, color: Colors.black38, size: 22),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _forgotNewPinCtrl,
-                          obscureText: !_showForgotNewPin,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            counterText: '',
-                            hintText: isAk ? 'PIN အသစ်' : 'New PIN',
-                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          ),
-                          onChanged: (_) {
-                            if (_forgotPinError != null) setState(() => _forgotPinError = null);
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(_showForgotNewPin ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.black38, size: 20),
-                        onPressed: () => setState(() => _showForgotNewPin = !_showForgotNewPin),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFFF1F5F9)),
-
-                // Confirm New PIN
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.shield_outlined, color: Colors.black38, size: 22),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _forgotConfirmPinCtrl,
-                          obscureText: !_showForgotConfirmPin,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            counterText: '',
-                            hintText: isAk ? 'PIN အသစ် ထပ်မံရိုက်ထည့်ပါ' : 'Confirm New PIN',
-                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          ),
-                          onChanged: (_) {
-                            if (_forgotPinError != null) setState(() => _forgotPinError = null);
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(_showForgotConfirmPin ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.black38, size: 20),
-                        onPressed: () => setState(() => _showForgotConfirmPin = !_showForgotConfirmPin),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          centerTitle: true,
+          title: Text(
+            isAk ? 'PIN မေ့သွားပါသလား' : 'Forget PIN',
+            style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 16),
           ),
-          const SizedBox(height: 16),
-
-          if (_forgotPinError != null)
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Top Red/Blush Alert Container
             Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFECACA)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(_forgotPinError!, style: const TextStyle(color: Color(0xFFDC2626), fontSize: 12, fontWeight: FontWeight.w600)),
-                  ),
-                ],
-              ),
-            ),
-
-          if (_forgotPinSuccess != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF1F2),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: const Color(0xFFFECDD3)),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check_circle_outline, color: Color(0xFFD91624), size: 18),
-                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 20,
+                    color: Color(0xFFD91624),
+                  ),
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: Text(_forgotPinSuccess!, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 12, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      isAk
+                          ? '${appState.profile.email.isNotEmpty ? appState.profile.email : ""} သို့ ၆ လုံးပါ OTP ကုဒ် ပို့ပြီးပါပြီ'
+                          : '6-digit OTP code sent to ${appState.profile.email.isNotEmpty ? appState.profile.email : ""}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1E293B),
+                        height: 1.35,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
 
-          // Reset PIN Button (Brand Crimson, NO BLUE!)
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: _isSubmittingPin
-                  ? null
-                  : () async {
-                      final otp = _forgotOtpCtrl.text.trim();
-                      final newP = _forgotNewPinCtrl.text.trim();
-                      final confP = _forgotConfirmPinCtrl.text.trim();
-
-                      if (otp.length != 6) {
-                        setState(() => _forgotPinError = isAk ? '၆ လုံးပါ OTP ကုဒ် ရိုက်ထည့်ပါ' : 'Please enter the 6-digit OTP code');
-                        return;
-                      }
-                      if (newP.length != 6) {
-                        setState(() => _forgotPinError = isAk ? 'PIN အသစ်သည် ဂဏန်း ၆ လုံး ဖြစ်ရပါမည်' : 'New PIN must be exactly 6 digits');
-                        return;
-                      }
-                      if (newP != confP) {
-                        setState(() => _forgotPinError = isAk ? 'PIN အသစ်နှင့် အတည်ပြု PIN မတူညီပါ' : 'New PIN and Confirm PIN do not match');
-                        return;
-                      }
-
-                      setState(() => _isSubmittingPin = true);
-                      final res = await SupabaseService().verifyAndResetPin(profileId: appState.profile.uid, otpCode: otp, newPin: newP);
-                      setState(() => _isSubmittingPin = false);
-
-                      if (res['success'] == true) {
-                        appState.profile.pin = newP;
-                        setState(() {
-                          _forgotPinSuccess = isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြန်လည်သတ်မှတ်ပြီးပါပြီ' : 'PIN reset successfully!';
-                        });
-                        if (context.mounted) {
-                          _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြန်လည်သတ်မှတ်ပြီးပါပြီ' : 'PIN reset successfully!');
-                        }
-                        Future.delayed(const Duration(milliseconds: 1200), () {
-                          if (mounted) setState(() => _subView = 'pin_management');
-                        });
-                      } else {
-                        final errMsg = res['message']?.toString() ??
-                            (isAk ? 'PIN ပြန်လည်သတ်မှတ်ခြင်း မအောင်မြင်ပါ' : 'PIN reset failed. Please check OTP code.');
-                        setState(() {
-                          _forgotPinError = errMsg;
-                        });
-                        if (context.mounted) {
-                          _showToast(context, errMsg);
-                        }
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD91624),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 0,
+            // OTP Input Card
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 2)),
+                ],
               ),
-              child: _isSubmittingPin
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Text(isAk ? 'PIN အသစ် အတည်ပြုမည်' : 'Confirm', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              child: Row(
+                children: [
+                  const Icon(Icons.vpn_key_outlined, color: Colors.black38, size: 22),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _forgotOtpCtrl,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: 2),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        counterText: '',
+                        hintText: isAk ? '၆ လုံးပါ Email OTP ရိုက်ထည့်ပါ' : 'Enter 6-digit Email OTP',
+                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14, letterSpacing: 0),
+                      ),
+                      onChanged: (_) {
+                        if (_forgotPinError != null) setState(() => _forgotPinError = null);
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
-          // Security Note
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // Timer & Resend
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  isAk ? 'မှတ်ချက်:' : 'Note:',
-                  style: const TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold, fontSize: 12),
+                  '${isAk ? "သက်တမ်းကျန်ချိန်" : "Expires in"}: 09:59',
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  isAk ? '- သင်၏ လျှို့ဝှက် PIN နံပါတ်အား မည်သူ့ကိုမျှ မမျှဝေပါနှင့်။' : '- Please do not share your PIN with anyone.',
-                  style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  isAk
-                      ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် နိုင်ငံကူးလက်မှတ်နံပါတ်နှင့် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို PIN အဖြစ် အသုံးမပြုပါနှင့်။'
-                      : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.',
-                  style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
+                TextButton(
+                  onPressed: () {
+                    SupabaseService().requestPinResetOtp(profileId: appState.profile.uid);
+                    _showToast(context, isAk ? 'OTP ကုဒ် အသစ် ပို့ပြီးပါပြီ' : 'New OTP code dispatched!');
+                  },
+                  child: Text(
+                    isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Code',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFD91624)),
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+            const SizedBox(height: 14),
+
+            if (_forgotPinError != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFECACA)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(_forgotPinError!, style: const TextStyle(color: Color(0xFFDC2626), fontSize: 12, fontWeight: FontWeight.w600)),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Verify Code Button
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: _forgotOtpCtrl.text.trim().length != 6
+                    ? null
+                    : () {
+                        setState(() {
+                          _forgotPinStep = 1;
+                          _forgotPinError = null;
+                        });
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD91624),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
+                ),
+                child: Text(isAk ? 'အတည်ပြုမည်' : 'Verify Code', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (_forgotPinStep == 1) {
+      // Step 2a: Create New PIN
+      return PinKeypadScreen(
+        title: isAk ? 'PIN အသစ် သတ်မှတ်ပါ' : 'Create New PIN',
+        subtitle: isAk ? 'ဂဏန်း ၆ လုံးပါသော PIN အသစ် ရိုက်ထည့်ပါ' : 'Enter a new 6-digit PIN',
+        isAk: isAk,
+        errorMessage: _forgotPinError,
+        isLoading: _isSubmittingForgotPin,
+        showBiometrics: false,
+        onBack: () => setState(() {
+          _forgotPinStep = 0;
+          _forgotPinError = null;
+        }),
+        onPinCompleted: (pin) {
+          setState(() {
+            _tempForgotNewPin = pin;
+            _forgotPinStep = 2;
+            _forgotPinError = null;
+          });
+        },
+      );
+    } else {
+      // Step 2b: Confirm New PIN
+      return PinKeypadScreen(
+        title: isAk ? 'PIN အသစ် ထပ်မံအတည်ပြုပါ' : 'Confirm New PIN',
+        subtitle: isAk ? 'အတည်ပြုရန် PIN အသစ်အား ထပ်မံရိုက်ထည့်ပါ' : 'Re-enter your new 6-digit PIN',
+        isAk: isAk,
+        errorMessage: _forgotPinError,
+        isLoading: _isSubmittingForgotPin,
+        showBiometrics: false,
+        onBack: () => setState(() {
+          _forgotPinStep = 1;
+          _forgotPinError = null;
+        }),
+        onPinCompleted: (pin) async {
+          if (pin != _tempForgotNewPin) {
+            setState(() {
+              _forgotPinError = isAk ? 'PIN အသစ်နှင့် အတည်ပြု PIN မတူညီပါ' : 'New PIN and Confirm PIN do not match.';
+              _forgotPinStep = 1;
+            });
+            return;
+          }
+
+          setState(() {
+            _isSubmittingForgotPin = true;
+            _forgotPinError = null;
+          });
+
+          final res = await SupabaseService().verifyAndResetPin(
+            profileId: appState.profile.uid,
+            otpCode: _forgotOtpCtrl.text.trim(),
+            newPin: _tempForgotNewPin,
+          );
+          if (!mounted) return;
+          setState(() => _isSubmittingForgotPin = false);
+
+          if (res['success'] == true) {
+            appState.profile.pin = _tempForgotNewPin;
+            appState.notify();
+            _showToast(context, isAk ? 'PIN နံပါတ် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ' : 'PIN reset successfully!');
+            setState(() => _subView = 'pin_management');
+          } else {
+            setState(() {
+              _forgotPinError = res['error']?.toString() ??
+                  (isAk ? 'PIN ပြောင်းလဲခြင်း မအောင်မြင်ပါ' : 'Failed to reset PIN. Please check OTP code.');
+            });
+          }
+        },
+      );
+    }
   }
 
   @override

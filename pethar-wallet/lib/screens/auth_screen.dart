@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../services/native_security_service.dart';
 import '../services/supabase_service.dart';
 import '../widgets/arakan_emblem.dart';
+import '../widgets/pin_keypad_screen.dart';
 
 /// Explicit conditional routes for Authentication & Signup Flow:
 /// Step 1: Enter Email OR Login/Sign up with Google (dispatches 6-digit OTP email)
@@ -79,6 +80,14 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _forgotConfirmPinCtrl = TextEditingController();
   bool _showForgotNewPin = false;
   bool _showForgotConfirmPin = false;
+
+  // Multi-step keypad states for Sign Up (Create PIN -> Confirm PIN)
+  String _signUpCreatedPin = '';
+  bool _isConfirmingSignUpPin = false;
+
+  // Multi-step keypad states for Forgot PIN (Create New PIN -> Confirm New PIN)
+  String _forgotCreatedPin = '';
+  bool _isConfirmingForgotPin = false;
 
   // Feedback & Loading
   bool _isLoading = false;
@@ -527,17 +536,24 @@ class _AuthScreenState extends State<AuthScreen> {
   // ─────────────────────────────────────────────────────────────────────────
   // STEP 3A: SUBMIT 6-DIGIT PIN -> SUCCESS TO HOMEPAGE
   // ─────────────────────────────────────────────────────────────────────────
-  Future<void> _handlePinSubmit(AppState appState, {required bool isSignUp}) async {
+  Future<void> _handlePinSubmit(
+    AppState appState, {
+    required bool isSignUp,
+    String? explicitPin,
+    String? explicitConfirmPin,
+  }) async {
     final isAk = appState.language == 'ak';
     final email = _activeEmail.isNotEmpty
         ? _activeEmail
         : (isSignUp
             ? _signUpEmailCtrl.text.trim().toLowerCase()
             : _loginEmailCtrl.text.trim().toLowerCase());
-    final pin = isSignUp
-        ? _signUpPinCtrl.text.trim()
-        : _loginPinCtrl.text.trim();
-    final confirmPin = isSignUp ? _signUpConfirmPinCtrl.text.trim() : null;
+    final pin = explicitPin ??
+        (isSignUp
+            ? _signUpPinCtrl.text.trim()
+            : _loginPinCtrl.text.trim());
+    final confirmPin =
+        explicitConfirmPin ?? (isSignUp ? _signUpConfirmPinCtrl.text.trim() : null);
 
     if (pin.length != 6 || !RegExp(r'^\d{6}$').hasMatch(pin)) {
       setState(() {
@@ -719,13 +735,17 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  Future<void> _handleForgotConfirmPinSubmit(AppState appState) async {
+  Future<void> _handleForgotConfirmPinSubmit(
+    AppState appState, {
+    String? explicitNewPin,
+    String? explicitConfirmPin,
+  }) async {
     final email = _forgotEmailCtrl.text.trim().isNotEmpty
         ? _forgotEmailCtrl.text.trim()
         : _activeEmail;
     final otp = _forgotOtpCtrl.text.trim();
-    final newPin = _forgotNewPinCtrl.text.trim();
-    final confirm = _forgotConfirmPinCtrl.text.trim();
+    final newPin = explicitNewPin ?? _forgotNewPinCtrl.text.trim();
+    final confirm = explicitConfirmPin ?? _forgotConfirmPinCtrl.text.trim();
     final isAk = appState.language == 'ak';
 
     if (otp.length != 6) {
@@ -855,7 +875,7 @@ class _AuthScreenState extends State<AuthScreen> {
       case AuthFlowState.forgotPasswordOtp:
         return _buildForgotPasswordOtpForm(context, appState, isAk);
       case AuthFlowState.forgotPasswordNewPin:
-        return _buildForgotPasswordNewPinForm(context, appState, isAk);
+        return _buildForgotPasswordNewPinScreen(context, appState, isAk);
     }
   }
 
@@ -1694,127 +1714,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Widget _buildForgotPasswordOtpForm(
       BuildContext context, AppState appState, bool isAk) {
-    final email = _forgotEmailCtrl.text.trim();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          isAk ? 'အတည်ပြုကုဒ် ရိုက်ထည့်ပါ' : 'Enter Reset Code',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF111827),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          isAk
-              ? '$email သို့ ပို့ထားသော ၆ လုံး ကုဒ်ကို ထည့်ပါ'
-              : 'Enter the 6-digit code sent to\n$email',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 13.5,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF4B5563),
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        _buildInputField(
-          controller: _forgotOtpCtrl,
-          hintText: '••••••',
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          textAlign: TextAlign.center,
-          letterSpacing: 10,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 10,
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '${isAk ? 'သက်တမ်းကျန်ချိန်' : 'Expires in'}: ${_formatTimer(_secondsRemaining)}',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
-              ),
-            ),
-            TextButton(
-              onPressed: _isLoading
-                  ? null
-                  : () => _handleForgotEmailSubmit(appState),
-              child: Text(
-                isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Code',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFFC72138),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-
-        _buildStatusBanner(),
-
-        _buildPrimaryButton(
-          title: isAk ? 'ကုဒ် အတည်ပြုမည်' : 'Verify Code',
-          isLoading: _isLoading,
-          enabled: _forgotOtpCtrl.text.trim().length == 6,
-          onPressed: () => _handleForgotOtpSubmit(appState),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildForgotPasswordNewPinScreen(
-      BuildContext context, AppState appState, bool isAk) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F5F8),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
-          onPressed: () {
-            setState(() {
-              _errorMessage = null;
-              _flowState = AuthFlowState.emailLogin;
-            });
-          },
-        ),
-        centerTitle: true,
-        title: Text(
-          isAk ? 'PIN မေ့သွားပါသလား' : 'Forget PIN',
-          style: const TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w800,
-            fontSize: 16,
-          ),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildForgotPasswordNewPinForm(context, appState, isAk),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildForgotPasswordNewPinForm(
-      BuildContext context, AppState appState, bool isAk) {
     final email = _forgotEmailCtrl.text.trim().isNotEmpty
         ? _forgotEmailCtrl.text.trim()
         : _activeEmail;
@@ -1822,8 +1721,9 @@ class _AuthScreenState extends State<AuthScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 1. Top Red/Blush Alert Container (replacing yellow one)
+        // 1. Top Red/Blush Alert Container matching Reference Design
         Container(
+          margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: const Color(0xFFFFF1F2),
@@ -1855,121 +1755,48 @@ class _AuthScreenState extends State<AuthScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
 
-        // 2. White Card with 3 Fields matching Image 2
+        // 2. White Card with Key Icon Input
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
-          child: Column(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: Row(
             children: [
-              // Field 1: Enter 6-digit Email OTP
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                child: Row(
-                  children: [
-                    const Icon(Icons.vpn_key_outlined, color: Colors.black38, size: 22),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _forgotOtpCtrl,
-                        keyboardType: TextInputType.number,
-                        maxLength: 6,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          counterText: '',
-                          hintText: isAk ? '၆ လုံးပါ Email OTP' : 'Enter 6-digit Email OTP',
-                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                        ),
-                        onChanged: (_) {
-                          if (_errorMessage != null) setState(() => _errorMessage = null);
-                        },
-                      ),
+              const Icon(Icons.vpn_key_outlined, color: Colors.black38, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _forgotOtpCtrl,
+                  keyboardType: TextInputType.number,
+                  maxLength: 6,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 2,
+                  ),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    counterText: '',
+                    hintText: isAk ? '၆ လုံးပါ Email OTP ရိုက်ထည့်ပါ' : 'Enter 6-digit Email OTP',
+                    hintStyle: const TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontSize: 14,
+                      letterSpacing: 0,
                     ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFFF1F5F9)),
-
-              // Field 2: New PIN
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                child: Row(
-                  children: [
-                    const Icon(Icons.shield_outlined, color: Colors.black38, size: 22),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _forgotNewPinCtrl,
-                        obscureText: !_showForgotNewPin,
-                        keyboardType: TextInputType.number,
-                        maxLength: 6,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          counterText: '',
-                          hintText: isAk ? 'PIN အသစ်' : 'New PIN',
-                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                        ),
-                        onChanged: (_) {
-                          if (_errorMessage != null) setState(() => _errorMessage = null);
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        _showForgotNewPin ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                        color: Colors.black38,
-                        size: 20,
-                      ),
-                      onPressed: () => setState(() => _showForgotNewPin = !_showForgotNewPin),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFFF1F5F9)),
-
-              // Field 3: Confirm New PIN
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                child: Row(
-                  children: [
-                    const Icon(Icons.shield_outlined, color: Colors.black38, size: 22),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _forgotConfirmPinCtrl,
-                        obscureText: !_showForgotConfirmPin,
-                        keyboardType: TextInputType.number,
-                        maxLength: 6,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          counterText: '',
-                          hintText: isAk ? 'PIN အသစ် ထပ်မံရိုက်ထည့်ပါ' : 'Confirm New PIN',
-                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                        ),
-                        onChanged: (_) {
-                          if (_errorMessage != null) setState(() => _errorMessage = null);
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        _showForgotConfirmPin ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                        color: Colors.black38,
-                        size: 20,
-                      ),
-                      onPressed: () => setState(() => _showForgotConfirmPin = !_showForgotConfirmPin),
-                    ),
-                  ],
+                  ),
+                  onChanged: (_) {
+                    if (_errorMessage != null) setState(() => _errorMessage = null);
+                  },
                 ),
               ),
             ],
@@ -1977,543 +1804,193 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
         const SizedBox(height: 16),
 
-        if (_errorMessage != null)
-          Container(
-            margin: const EdgeInsets.only(bottom: 14),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFEF2F2),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFFECACA)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${isAk ? "သက်တမ်းကျန်ချိန်" : "Expires in"}: ${_formatTimer(_secondsRemaining)}',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF64748B),
+              ),
             ),
-            child: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: Color(0xFFDC2626), fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
+            TextButton(
+              onPressed: _isLoading
+                  ? null
+                  : () => _handleForgotEmailSubmit(appState),
+              child: Text(
+                isAk ? 'ကုဒ် အသစ်ပြန်ပို့ပါ' : 'Resend Code',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFFD91624),
                 ),
-              ],
+              ),
             ),
-          ),
-
-        // 3. Confirm Button (Brand Crimson Red #D91624)
-        SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: _isLoading ? null : () => _handleForgotConfirmPinSubmit(appState),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD91624),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              elevation: 0,
-            ),
-            child: _isLoading
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : Text(isAk ? 'အတည်ပြုမည်' : 'Confirm', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          ),
+          ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 14),
 
-        // 4. Security Note matching Image 2
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isAk ? 'မှတ်ချက်:' : 'Note:',
-                style: const TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                isAk ? '- သင်၏ လျှို့ဝှက် PIN နံပါတ်အား မည်သူ့ကိုမျှ မမျှဝေပါနှင့်။' : '- Please do not share your PIN with anyone.',
-                style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                isAk
-                    ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် နိုင်ငံကူးလက်မှတ်နံပါတ်နှင့် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို PIN အဖြစ် အသုံးမပြုပါနှင့်။'
-                    : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.',
-                style: const TextStyle(color: Color(0xFFDC2626), fontSize: 11.5, height: 1.4),
-              ),
-            ],
-          ),
+        _buildStatusBanner(),
+
+        _buildPrimaryButton(
+          title: isAk ? 'အတည်ပြုမည်' : 'Verify Code',
+          isLoading: _isLoading,
+          enabled: _forgotOtpCtrl.text.trim().length == 6,
+          onPressed: () => _handleForgotOtpSubmit(appState),
         ),
       ],
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // STEP 3 (LOGIN): ENTER PIN SCREEN (Matching Reference Image 1)
-  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildForgotPasswordNewPinScreen(
+      BuildContext context, AppState appState, bool isAk) {
+    if (!_isConfirmingForgotPin) {
+      return PinKeypadScreen(
+        title: isAk ? 'PIN အသစ် သတ်မှတ်ပါ' : 'Create New PIN',
+        subtitle: isAk ? 'ဂဏန်း ၆ လုံးပါသော PIN အသစ် ရိုက်ထည့်ပါ' : 'Enter a new 6-digit PIN',
+        isAk: isAk,
+        errorMessage: _errorMessage,
+        isLoading: _isLoading,
+        showBiometrics: false,
+        onBack: () {
+          setState(() {
+            _errorMessage = null;
+            _flowState = AuthFlowState.forgotPasswordOtp;
+          });
+        },
+        onPinCompleted: (pin) {
+          setState(() {
+            _forgotCreatedPin = pin;
+            _isConfirmingForgotPin = true;
+            _errorMessage = null;
+          });
+        },
+      );
+    } else {
+      return PinKeypadScreen(
+        title: isAk ? 'PIN အသစ် ထပ်မံအတည်ပြုပါ' : 'Confirm New PIN',
+        subtitle: isAk ? 'အတည်ပြုရန် PIN အသစ်အား ထပ်မံရိုက်ထည့်ပါ' : 'Re-enter your new 6-digit PIN',
+        isAk: isAk,
+        errorMessage: _errorMessage,
+        isLoading: _isLoading,
+        showBiometrics: false,
+        onBack: () {
+          setState(() {
+            _isConfirmingForgotPin = false;
+            _errorMessage = null;
+          });
+        },
+        onPinCompleted: (pin) {
+          if (pin != _forgotCreatedPin) {
+            setState(() {
+              _errorMessage = isAk
+                  ? 'PIN နံပါတ် မတူညီပါ။ ပြန်လည်ရိုက်ထည့်ပါ'
+                  : 'PIN does not match. Please try again.';
+              _isConfirmingForgotPin = false;
+            });
+          } else {
+            _handleForgotConfirmPinSubmit(
+              appState,
+              explicitNewPin: _forgotCreatedPin,
+              explicitConfirmPin: pin,
+            );
+          }
+        },
+      );
+    }
+  }
+
   Widget _buildEnterPinScreen(
       BuildContext context, AppState appState, bool isAk) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F5F8),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
-          onPressed: () {
-            setState(() {
-              _errorMessage = null;
-              _flowState = AuthFlowState.loginOtp;
-            });
-          },
-        ),
-        centerTitle: true,
-        title: Text(
-          isAk ? 'PIN ရိုက်ထည့်ပါ' : 'Enter PIN',
-          style: const TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w800,
-            fontSize: 16,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language_rounded, color: Colors.black87, size: 22),
-            onPressed: () => appState.setLanguage(appState.language == 'ak' ? 'en' : 'ak'),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // White Card with PIN field matching Image 1
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              child: Row(
-                children: [
-                  const Icon(Icons.shield_outlined, color: Colors.black38, size: 22),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: _loginPinCtrl,
-                      obscureText: !_showLoginPin,
-                      keyboardType: TextInputType.number,
-                      maxLength: 6,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        counterText: '',
-                        hintText: isAk ? '၆ လုံးပါ PIN ရိုက်ထည့်ပါ' : 'Enter 6-digit PIN',
-                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                      ),
-                      onChanged: (_) {
-                        if (_errorMessage != null) setState(() => _errorMessage = null);
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      _showLoginPin ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      color: Colors.black38,
-                      size: 20,
-                    ),
-                    onPressed: () => setState(() => _showLoginPin = !_showLoginPin),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          if (_errorMessage != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFECACA)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _errorMessage!,
-                      style: const TextStyle(
-                        color: Color(0xFFDC2626),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          // Confirm Button (Red #D91624)
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : () => _handlePinSubmit(appState, isSignUp: false),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD91624),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 0,
-              ),
-              child: _isLoading
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Text(isAk ? 'အတည်ပြုမည်' : 'Confirm', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          // Dynamic Biometric Button
-          _buildDynamicBiometricButton(appState, isAk, isSignUp: false),
-          const SizedBox(height: 12),
-
-          // Forgot PIN text link
-          Center(
-            child: TextButton(
-              onPressed: () {
-                setState(() {
-                  _errorMessage = null;
-                  _forgotEmailCtrl.text = _activeEmail;
-                  _flowState = AuthFlowState.forgotPasswordEmail;
-                });
-              },
-              child: Text(
-                isAk ? 'PIN မေ့သွားပါသလား? အီးမေးလ်ဖြင့် ပြန်လည်ရယူပါ' : 'Forgot PIN? Reset via Email OTP',
-                style: const TextStyle(
-                  color: Color(0xFFD91624),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Red Security Note matching Image 1
-          _buildPinSecurityNote(isAk),
-        ],
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // STEP 3 (SIGN UP): SET UP PIN SCREEN (Matching Reference Image 1)
-  // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildSetupPinScreen(
-      BuildContext context, AppState appState, bool isAk) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F5F8),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black87, size: 28),
-          onPressed: () {
-            setState(() {
-              _errorMessage = null;
-              _flowState = AuthFlowState.signupOtp;
-            });
-          },
-        ),
-        centerTitle: true,
-        title: Text(
-          isAk ? 'PIN သတ်မှတ်ပါ' : 'Set up PIN',
-          style: const TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w800,
-            fontSize: 16,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language_rounded, color: Colors.black87, size: 22),
-            onPressed: () => appState.setLanguage(appState.language == 'ak' ? 'en' : 'ak'),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // White Card with New PIN & Confirm New PIN matching Image 1
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                // Field 1: New PIN
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.shield_outlined, color: Colors.black38, size: 22),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _signUpPinCtrl,
-                          obscureText: !_showSignUpPin,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            counterText: '',
-                            hintText: isAk ? 'PIN အသစ်' : 'New PIN',
-                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          ),
-                          onChanged: (_) {
-                            if (_errorMessage != null) setState(() => _errorMessage = null);
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          _showSignUpPin ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                          color: Colors.black38,
-                          size: 20,
-                        ),
-                        onPressed: () => setState(() => _showSignUpPin = !_showSignUpPin),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFFF1F5F9)),
-
-                // Field 2: Confirm New PIN
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.shield_outlined, color: Colors.black38, size: 22),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _signUpConfirmPinCtrl,
-                          obscureText: !_showSignUpConfirmPin,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            counterText: '',
-                            hintText: isAk ? 'PIN အသစ် ထပ်မံရိုက်ထည့်ပါ' : 'Confirm New PIN',
-                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          ),
-                          onChanged: (_) {
-                            if (_errorMessage != null) setState(() => _errorMessage = null);
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          _showSignUpConfirmPin ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                          color: Colors.black38,
-                          size: 20,
-                        ),
-                        onPressed: () => setState(() => _showSignUpConfirmPin = !_showSignUpConfirmPin),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          if (_errorMessage != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFECACA)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _errorMessage!,
-                      style: const TextStyle(
-                        color: Color(0xFFDC2626),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          // Confirm Button (Red #D91624)
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : () => _handlePinSubmit(appState, isSignUp: true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD91624),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 0,
-              ),
-              child: _isLoading
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Text(isAk ? 'အတည်ပြုမည်' : 'Confirm', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          // Dynamic Biometric Button
-          _buildDynamicBiometricButton(appState, isAk, isSignUp: true),
-          const SizedBox(height: 16),
-
-          // Red Security Note matching Image 1
-          _buildPinSecurityNote(isAk),
-        ],
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // DYNAMIC BIOMETRIC BUTTON (Android Fingerprint/Face Unlock, iOS Touch ID/Face ID)
-  // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildDynamicBiometricButton(
-      AppState appState, bool isAk, {required bool isSignUp}) {
-    return FutureBuilder<String>(
-      future: NativeSecurityService().getBiometryType(),
-      builder: (context, snapshot) {
-        final type = snapshot.data ?? 'none';
-        final isAndroid = Theme.of(context).platform == TargetPlatform.android;
-        final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
-
-        IconData icon;
-        String label;
-
-        if (isIOS) {
-          if (type == 'touchID') {
-            icon = Icons.fingerprint_rounded;
-            label = isAk ? 'Apple Touch ID ဖြင့် ဆက်သွားမည်' : 'Continue with Touch ID';
-          } else {
-            icon = Icons.face_retouching_natural_rounded;
-            label = isAk ? 'Apple Face ID ဖြင့် ဆက်သွားမည်' : 'Continue with Face ID';
-          }
-        } else if (isAndroid) {
-          if (type == 'faceUnlock') {
-            icon = Icons.face_unlock_outlined;
-            label = isAk ? 'Face Unlock ဖြင့် ဆက်သွားမည်' : 'Continue with Face Unlock';
-          } else if (type == 'both') {
-            icon = Icons.fingerprint_rounded;
-            label = isAk ? 'Fingerprint & Face Unlock ဖြင့် ဆက်သွားမည်' : 'Use Fingerprint & Face Unlock';
-          } else {
-            icon = Icons.fingerprint_rounded;
-            label = isAk ? 'Fingerprint ဖြင့် ဆက်သွားမည်' : 'Use Fingerprint or Face Unlock';
-          }
-        } else {
-          icon = Icons.fingerprint_rounded;
-          label = isAk ? 'လက်ဗွေ သို့မဟုတ် Face ID ဖြင့် ဆက်သွားမည်' : 'Use Fingerprint / Face ID';
-        }
-
-        return SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: OutlinedButton.icon(
-            onPressed: _isLoading ? null : () => _handleBiometricAuth(appState, isSignUp: isSignUp),
-            icon: Icon(icon, color: const Color(0xFFD91624), size: 20),
-            label: Text(
-              label,
-              style: const TextStyle(
-                color: Color(0xFFD91624),
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Color(0xFFFECDD3), width: 1.2),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              backgroundColor: const Color(0xFFFFF1F2),
-              elevation: 0,
-            ),
-          ),
-        );
+    return PinKeypadScreen(
+      title: isAk ? 'PIN နံပါတ် ရိုက်ထည့်ပါ' : 'Enter PIN',
+      subtitle: isAk ? 'ဆက်လက်ဆောင်ရွက်ရန် သင်၏ PIN နံပါတ် ၆ လုံး ရိုက်ထည့်ပါ' : 'Enter your 6-digit PIN',
+      isAk: isAk,
+      errorMessage: _errorMessage,
+      isLoading: _isLoading,
+      showBiometrics: true,
+      onBack: () {
+        setState(() {
+          _errorMessage = null;
+          _flowState = AuthFlowState.loginOtp;
+        });
+      },
+      onBiometricPressed: () => _handleBiometricAuth(appState, isSignUp: false),
+      onPinCompleted: (pin) {
+        _handlePinSubmit(appState, isSignUp: false, explicitPin: pin);
+      },
+      onForgotPassword: () {
+        setState(() {
+          _errorMessage = null;
+          _successMessage = null;
+          _forgotEmailCtrl.text = _activeEmail;
+          _flowState = AuthFlowState.forgotPasswordEmail;
+        });
       },
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // SECURITY NOTE (Matching Image 1 & Image 2)
-  // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildPinSecurityNote(bool isAk) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            isAk ? 'မှတ်ချက်:' : 'Note:',
-            style: const TextStyle(
-              color: Color(0xFFDC2626),
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            isAk
-                ? '- သင်၏ လျှို့ဝှက် PIN နံပါတ်အား မည်သူ့ကိုမျှ မမျှဝေပါနှင့်။'
-                : '- Please do not share your PIN with anyone.',
-            style: const TextStyle(
-              color: Color(0xFFDC2626),
-              fontSize: 11.5,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            isAk
-                ? '- မွေးသက္ကရာဇ်၊ မှတ်ပုံတင် သို့မဟုတ် နိုင်ငံကူးလက်မှတ်နံပါတ်နှင့် ဖုန်းနံပါတ်ကဲ့သို့သော ကိုယ်ရေးအချက်အလက်များကို PIN အဖြစ် အသုံးမပြုပါနှင့်။'
-                : '- Please do not use your personal information such as Date of Birth, NRIC or Passport Number and Phone Number as PIN.',
-            style: const TextStyle(
-              color: Color(0xFFDC2626),
-              fontSize: 11.5,
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget _buildSetupPinScreen(
+      BuildContext context, AppState appState, bool isAk) {
+    if (!_isConfirmingSignUpPin) {
+      return PinKeypadScreen(
+        title: isAk ? 'PIN အသစ် သတ်မှတ်ပါ' : 'Create PIN',
+        subtitle: isAk ? 'ဂဏန်း ၆ လုံးပါသော PIN အသစ် ရိုက်ထည့်ပါ' : 'Enter a 6-digit PIN',
+        isAk: isAk,
+        errorMessage: _errorMessage,
+        isLoading: _isLoading,
+        showBiometrics: false,
+        onBack: () {
+          setState(() {
+            _errorMessage = null;
+            _flowState = AuthFlowState.signupOtp;
+          });
+        },
+        onPinCompleted: (pin) {
+          setState(() {
+            _signUpCreatedPin = pin;
+            _isConfirmingSignUpPin = true;
+            _errorMessage = null;
+          });
+        },
+      );
+    } else {
+      return PinKeypadScreen(
+        title: isAk ? 'PIN နံပါတ် အတည်ပြုပါ' : 'Confirm PIN',
+        subtitle: isAk ? 'အတည်ပြုရန် PIN အား ထပ်မံရိုက်ထည့်ပါ' : 'Re-enter your 6-digit PIN',
+        isAk: isAk,
+        errorMessage: _errorMessage,
+        isLoading: _isLoading,
+        showBiometrics: false,
+        onBack: () {
+          setState(() {
+            _isConfirmingSignUpPin = false;
+            _errorMessage = null;
+          });
+        },
+        onPinCompleted: (pin) {
+          if (pin != _signUpCreatedPin) {
+            setState(() {
+              _errorMessage = isAk
+                  ? 'PIN နံပါတ် မတူညီပါ။ ပြန်လည်ရိုက်ထည့်ပါ'
+                  : 'PIN does not match. Please try again.';
+              _isConfirmingSignUpPin = false;
+            });
+          } else {
+            _handlePinSubmit(
+              appState,
+              isSignUp: true,
+              explicitPin: _signUpCreatedPin,
+              explicitConfirmPin: pin,
+            );
+          }
+        },
+      );
+    }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // REUSABLE UI HELPERS
-  // ─────────────────────────────────────────────────────────────────────────
   Widget _buildTextFieldLabel(String label) {
     return Text(
       label,
