@@ -27,12 +27,16 @@ const Color emeraldSuccess = Color(0xFF27272A);
 
 // ── True-black dark palette (OLED-first) ──
 const Color trueBlack = Color(0xFF000000);
-const Color trueBlackSurface = Color(0xFF0A0A0A);
-const Color trueBlackElevated = Color(0xFF111111);
+const Color trueBlackSurface = Color(0xFF000000);
+const Color trueBlackElevated = Color(0xFF0A0A0A);
 const Color trueBlackBorder = Color(0xFF262626);
 const Color darkPrimaryText = Color(0xFFFFFFFF);
 const Color darkSecondaryText = Color(0xFFA1A1AA);
 const Color darkTertiaryText = Color(0xFF71717A);
+
+// ── Verification Semantic Accents ──
+const Color verifiedBlue = Color(0xFF3B82F6);
+const Color unverifiedRed = Color(0xFFEF4444);
 
 ThemeData darkTheme() {
   final baseTextTheme = ThemeData.dark().textTheme.apply(
@@ -43,18 +47,26 @@ ThemeData darkTheme() {
     brightness: Brightness.dark,
     scaffoldBackgroundColor: trueBlack,
     canvasColor: trueBlack,
-    primaryColor: paynoBlue,
+    primaryColor: Colors.white,
     colorScheme: const ColorScheme.dark(
-      primary: paynoBlueLight,
-      onPrimary: Colors.white,
-      secondary: gold,
+      primary: Colors.white,
+      onPrimary: Colors.black,
+      secondary: Colors.white,
       onSecondary: Colors.black,
       surface: trueBlack,
       onSurface: darkPrimaryText,
       surfaceContainerHighest: trueBlackElevated,
       outline: trueBlackBorder,
       outlineVariant: Color(0xFF1F1F1F),
-      error: Color(0xFFFF5A65),
+      error: unverifiedRed,
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: trueBlack,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        side: const BorderSide(color: Color(0x26FFFFFF)),
+      ),
     ),
     cardTheme: CardThemeData(
       color: trueBlackSurface,
@@ -65,12 +77,12 @@ ThemeData darkTheme() {
       ),
     ),
     dialogTheme: const DialogThemeData(
-      backgroundColor: trueBlackElevated,
+      backgroundColor: trueBlack,
       surfaceTintColor: Colors.transparent,
     ),
     bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: trueBlackElevated,
-      modalBackgroundColor: trueBlackElevated,
+      backgroundColor: trueBlack,
+      modalBackgroundColor: trueBlack,
       surfaceTintColor: Colors.transparent,
     ),
     dividerColor: trueBlackBorder,
@@ -96,7 +108,7 @@ ThemeData darkTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: trueBlackElevated,
+      fillColor: trueBlack,
       hintStyle: const TextStyle(color: darkTertiaryText),
       labelStyle: const TextStyle(color: darkSecondaryText),
       enabledBorder: OutlineInputBorder(
@@ -105,7 +117,7 @@ ThemeData darkTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: paynoBlueLight, width: 1.4),
+        borderSide: const BorderSide(color: Colors.white, width: 1.4),
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -113,7 +125,7 @@ ThemeData darkTheme() {
       ),
     ),
     snackBarTheme: const SnackBarThemeData(
-      backgroundColor: trueBlackElevated,
+      backgroundColor: trueBlack,
       contentTextStyle: TextStyle(color: darkPrimaryText),
       behavior: SnackBarBehavior.floating,
     ),
@@ -123,47 +135,4 @@ ThemeData darkTheme() {
   );
 }
 
-ThemeData lightTheme() {
-  final baseTextTheme = ThemeData.light().textTheme;
-  return ThemeData(
-    brightness: Brightness.light,
-    scaffoldBackgroundColor: const Color(0xFF0A0A0A),
-    primaryColor: paynoBlue,
-    colorScheme: const ColorScheme.light(
-      primary: paynoBlue,
-      secondary: gold,
-      surface: paperCard,
-      surfaceContainerHighest: Color(0xFF0A0A0A),
-    ),
-    cardTheme: CardThemeData(
-      color: Colors.white.withValues(alpha: 0.9),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: Color(0xFF262626), width: 1),
-      ),
-    ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      iconTheme: IconThemeData(color: Color(0xFF111111)),
-      titleTextStyle: TextStyle(
-        color: Color(0xFFF4F4F5),
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-      systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-        systemNavigationBarDividerColor: Colors.transparent,
-        systemNavigationBarContrastEnforced: false,
-      ),
-    ),
-    textTheme: GoogleFonts.notoSansMyanmarTextTheme(baseTextTheme),
-    fontFamilyFallback: const ['Noto Sans Myanmar', 'Padauk', 'Pyidaungsu'],
-    useMaterial3: true,
-  );
-}
+ThemeData lightTheme() => darkTheme();

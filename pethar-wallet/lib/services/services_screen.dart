@@ -28,7 +28,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
-                color: const Color(0x14FFFFFF),
+                color: trueBlack,
                 border: Border(bottom: BorderSide(color: const Color(0x26FFFFFF))),
               ),
               child: Center(
@@ -55,7 +55,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     context: context,
                     isAk: isAk,
                     icon: Icons.card_giftcard_rounded,
-                    color: const Color(0xFF7C3AED),
                     title: isAk ? 'လက်ဆောင်ကတ်များ' : 'Gift Card',
                     desc: isAk
                         ? 'ဂိမ်း၊ iTunes၊ Viber Plus နှင့် ဒစ်ဂျစ်တယ်ကတ်များ ဖြည့်ရန်'
@@ -67,7 +66,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     context: context,
                     isAk: isAk,
                     icon: Icons.apps_rounded,
-                    color: const Color(0xFF2563EB),
                     title: isAk ? 'မိတ်ဖက် မီနီအက်ပ်များ' : 'Mini Apps',
                     desc: isAk
                         ? 'မိတ်ဖက်ကုမ္ပဏီများအတွက် အက်ပ်ဖန်တီးနိုင်သော ပလက်ဖောင်း'
@@ -79,7 +77,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     context: context,
                     isAk: isAk,
                     icon: Icons.group_add_rounded,
-                    color: const Color(0xFF059669),
                     title: isAk ? 'မိတ်ဆက်ရယူ' : 'Refer & Earn',
                     desc: isAk
                         ? 'သူငယ်ချင်းများကို ဖိတ်ကြားပြီး ဆုလာဘ်များ ရယူပါ'
@@ -98,14 +95,13 @@ class _ServicesScreenState extends State<ServicesScreen> {
     required BuildContext context,
     required bool isAk,
     required IconData icon,
-    required Color color,
     required String title,
     String? desc,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0x26FFFFFF)),
         boxShadow: [
@@ -141,7 +137,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     ),
                   ],
                 ),
-                backgroundColor: const Color(0x14FFFFFF),
+                backgroundColor: const Color(0xFF000000),
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
@@ -157,10 +153,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
+                    color: const Color(0xFF000000),
                     borderRadius: BorderRadius.circular(13),
+                    border: Border.all(color: const Color(0x26FFFFFF)),
                   ),
-                  child: Icon(icon, color: color, size: 22),
+                  child: Icon(icon, color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -181,7 +178,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 7, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0x14FFFFFF),
+                                color: const Color(0xFF000000),
                                 borderRadius: BorderRadius.circular(6),
                                 border:
                                     Border.all(color: const Color(0x26FFFFFF)),
@@ -216,7 +213,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 7, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: const Color(0x14FFFFFF),
+                                    color: const Color(0xFF000000),
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
                                         color: const Color(0x26FFFFFF)),

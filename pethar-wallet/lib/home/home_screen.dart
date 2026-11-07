@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -69,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        backgroundColor: const Color(0x14FFFFFF),
+        backgroundColor: const Color(0xFF000000),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 2),
@@ -170,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? 'ပရိုဖိုင်ဓာတ်ပုံ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ'
                     : 'Profile photo updated successfully!',
               ),
-              backgroundColor: const Color(0x14FFFFFF),
+              backgroundColor: const Color(0xFF000000),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -196,8 +195,9 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (modalCtx) {
         return Container(
           decoration: const BoxDecoration(
-            color: const Color(0x14FFFFFF),
+            color: Color(0xFF000000),
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border(top: BorderSide(color: Color(0x26FFFFFF))),
           ),
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
           child: Column(
@@ -210,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0x14FFFFFF),
+                    color: const Color(0x33FFFFFF),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -262,12 +262,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: const Color(0x26FFFFFF)),
                 ),
-                tileColor: const Color(0x14FFFFFF),
+                tileColor: const Color(0xFF000000),
                 leading: Container(
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0x14FFFFFF),
+                    color: const Color(0xFF000000),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.camera_alt_rounded,
@@ -301,12 +301,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: const Color(0x26FFFFFF)),
                 ),
-                tileColor: const Color(0x14FFFFFF),
+                tileColor: const Color(0xFF000000),
                 leading: Container(
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0x14FFFFFF),
+                    color: const Color(0xFF000000),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.photo_library_rounded,
@@ -341,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: TextButton(
                   onPressed: () => Navigator.pop(modalCtx),
                   style: TextButton.styleFrom(
-                    backgroundColor: const Color(0x14FFFFFF),
+                    backgroundColor: const Color(0xFF000000),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),
                   ),
@@ -377,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 54,
                 height: 54,
                 decoration: BoxDecoration(
-                  color: const Color(0x14FFFFFF),
+                  color: const Color(0xFF000000),
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0x26FFFFFF)),
                 ),
@@ -435,7 +435,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         SystemNavigator.pop();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: crimson,
+                        backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -577,7 +577,7 @@ class _HomeScreenState extends State<HomeScreen> {
         : (bal >= 1000000 ? 34.0 : (bal >= 100000 ? 38.0 : 42.0));
 
     return Scaffold(
-      backgroundColor: const Color(0x14FFFFFF),
+      backgroundColor: trueBlack,
       body: Stack(
         children: [
           const _LiquidGlassBackground(),
@@ -637,16 +637,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 46,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0x14FFFFFF),
+                  color: const Color(0xFF000000),
                   border:
                       Border.all(color: const Color(0x26FFFFFF), width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0x66000000).withValues(alpha: 0.10),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
                   image: avatar != null
                       ? DecorationImage(image: avatar, fit: BoxFit.cover)
                       : null,
@@ -689,12 +682,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                                color: const Color(0x26FFFFFF), width: 1.5),
+                                color: Colors.white, width: 1.5),
                           ),
                           child: Text(
                             '${appState.unreadNotificationsCount}',
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 9,
                               fontWeight: FontWeight.w900,
                             ),
@@ -729,15 +722,8 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 42,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: const Color(0x14FFFFFF),
+          color: const Color(0xFF000000),
           border: Border.all(color: const Color(0x26FFFFFF), width: 1.1),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0x66000000).withValues(alpha: 0.07),
-              blurRadius: 14,
-              offset: const Offset(0, 5),
-            ),
-          ],
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -782,7 +768,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(999),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
@@ -815,7 +801,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 34,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0x14FFFFFF),
+                        color: const Color(0xFF000000),
                         border: Border.all(color: const Color(0x26FFFFFF)),
                       ),
                       alignment: Alignment.center,
@@ -915,8 +901,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (appState.isVerified) {
-      // Verified badge and AKD wallet label are intentionally not shown.
-      return const SizedBox.shrink();
+      return Row(
+        children: [
+          const Icon(Icons.verified_rounded, size: 15, color: verifiedBlue),
+          const SizedBox(width: 6),
+          Text(
+            isAk ? 'အတည်ပြုပြီး အကောင့်' : 'Verified',
+            style: const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              color: verifiedBlue,
+            ),
+          ),
+        ],
+      );
     }
 
     return GestureDetector(
@@ -924,7 +922,8 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () => showKycVerificationModal(context, appState),
       child: Row(
         children: [
-          const Icon(Icons.error_outline_rounded, size: 14, color: Colors.white),
+          const Icon(Icons.error_outline_rounded,
+              size: 15, color: unverifiedRed),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
@@ -936,14 +935,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 11.5,
                 height: 1.3,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFFD4D4D8),
+                color: unverifiedRed,
               ),
             ),
           ),
           const SizedBox(width: 8),
           _glassPill(
             label: isAk ? 'အတည်ပြုမည်' : 'Verify',
-            color: Colors.white,
+            color: unverifiedRed,
           ),
         ],
       ),
@@ -954,9 +953,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
+        border: Border.all(color: color.withValues(alpha: 0.45)),
       ),
       child: Text(
         label,
@@ -998,15 +997,8 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               border: Border.all(color: const Color(0x26FFFFFF), width: 1.2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.white.withValues(alpha: 0.14),
-                  blurRadius: 14,
-                  offset: const Offset(0, 6),
-                ),
-              ],
             ),
             child: Center(child: act['iconWidget'] as Widget),
           ),
@@ -1102,7 +1094,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: const Color(0x14FFFFFF),
+                    color: const Color(0xFF000000),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(color: const Color(0x26FFFFFF)),
                   ),
@@ -1156,17 +1148,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 46,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Color(fav.colorValue),
+                              color: const Color(0xFF000000),
                               border: Border.all(
-                                  color: const Color(0x26FFFFFF), width: 2),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(fav.colorValue)
-                                      .withValues(alpha: 0.28),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
+                                  color: const Color(0x26FFFFFF), width: 1.5),
                             ),
                             alignment: Alignment.center,
                             child: fav.initials == 'U'
@@ -1216,7 +1200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 46,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0x14FFFFFF),
+                          color: const Color(0xFF000000),
                           border: Border.all(
                             color: const Color(0x26FFFFFF),
                             width: 1.2,
@@ -1251,7 +1235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 46,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
@@ -1367,7 +1351,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: active ? 18 : 6,
               height: 6,
               decoration: BoxDecoration(
-                color: active ? Colors.white : const Color(0x14FFFFFF),
+                color: active ? Colors.white : const Color(0x33FFFFFF),
                 borderRadius: BorderRadius.circular(999),
               ),
             );
@@ -1389,14 +1373,11 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          color: const Color(0x14FFFFFF),
-          boxShadow: [
-            BoxShadow(
-              color: colors.first.withValues(alpha: 0.25),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: colors,
+          ),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
@@ -1552,7 +1533,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 38,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0x14FFFFFF).withValues(alpha: 0.95),
+                      color: const Color(0xFF000000).withValues(alpha: 0.95),
                       border: Border.all(
                           color: const Color(0x26FFFFFF), width: 1.2),
                     ),
@@ -1623,7 +1604,7 @@ class _LiquidGlassBackground extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
       ),
     );
   }
@@ -1645,31 +1626,16 @@ class _GlassSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = BorderRadius.circular(radius);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: base,
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x66000000),
-            blurRadius: 26,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: base,
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            padding: padding,
-            decoration: BoxDecoration(
-              borderRadius: base,
-              color: const Color(0x14FFFFFF),
-              border: Border.all(color: const Color(0x26FFFFFF), width: 1.1),
-            ),
-            child: child,
-          ),
+    return ClipRRect(
+      borderRadius: base,
+      child: Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          borderRadius: base,
+          color: const Color(0xFF000000),
+          border: Border.all(color: const Color(0x26FFFFFF), width: 1.1),
         ),
+        child: child,
       ),
     );
   }

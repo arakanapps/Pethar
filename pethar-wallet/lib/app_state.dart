@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
@@ -426,9 +427,20 @@ class AppState extends ChangeNotifier {
     unawaited(_initializeSupabase());
   }
 
+  /// True when running under `flutter test`. Plugin / network startup work is
+  /// skipped there so unit tests never hit the real backend or leave timers.
+  bool get _isTestEnvironment {
+    try {
+      return Platform.environment.containsKey('FLUTTER_TEST');
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Initialises Supabase only (no secure-storage reads) so the login / OTP
   /// flow is ready without blocking the first screen.
   Future<void> _initializeSupabase() async {
+    if (_isTestEnvironment) return;
     try {
       await SupabaseService.initialize();
       _adoptSupabaseSession();
@@ -462,6 +474,7 @@ class AppState extends ChangeNotifier {
   /// Background work after unlock: initialize Supabase, adopt the restored
   /// session and fetch remote wallet data.
   Future<void> _bootstrapSupabaseAndData() async {
+    if (_isTestEnvironment) return;
     try {
       await SupabaseService.initialize();
       _adoptSupabaseSession();

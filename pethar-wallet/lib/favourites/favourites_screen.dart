@@ -93,7 +93,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         behavior: SnackBarBehavior.floating,
-                        backgroundColor: const Color(0x14FFFFFF),
+                        backgroundColor: const Color(0xFF000000),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -103,7 +103,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: const BoxDecoration(
-                                color: Colors.white,
+                                color: Color(0xFF000000),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -151,7 +151,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
 
             return Container(
               decoration: const BoxDecoration(
-                color: const Color(0x14FFFFFF),
+                color: const Color(0xFF000000),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
               ),
               padding: EdgeInsets.fromLTRB(
@@ -168,7 +168,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                     width: 42,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
@@ -179,7 +179,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: const Color(0x26FFFFFF),
@@ -367,7 +367,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
 
             return Container(
               decoration: const BoxDecoration(
-                color: const Color(0x14FFFFFF),
+                color: const Color(0xFF000000),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
               ),
               padding: EdgeInsets.fromLTRB(
@@ -388,7 +388,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                         width: 42,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: const Color(0x14FFFFFF),
+                          color: const Color(0xFF000000),
                           borderRadius: BorderRadius.circular(999),
                         ),
                       ),
@@ -436,7 +436,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                               width: 34,
                               height: 34,
                               decoration: BoxDecoration(
-                                color: const Color(0x14FFFFFF),
+                                color: const Color(0xFF000000),
                                 shape: BoxShape.circle,
                                 border: Border.all(color: const Color(0x26FFFFFF)),
                               ),
@@ -456,7 +456,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         decoration: BoxDecoration(
-                          color: const Color(0x14FFFFFF),
+                          color: const Color(0xFF000000),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: const Color(0x26FFFFFF)),
                         ),
@@ -611,7 +611,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                                   });
                                 },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: crimson,
+                            backgroundColor: Colors.black,
                             foregroundColor: Colors.white,
                             disabledBackgroundColor: const Color(0xFF0A0A0A),
                             disabledForegroundColor: const Color(0xFF9AA9BC),
@@ -656,7 +656,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                                   width: 34,
                                   height: 34,
                                   decoration: BoxDecoration(
-                                    color: const Color(0x14FFFFFF),
+                                    color: const Color(0xFF000000),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: const Icon(
@@ -697,7 +697,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                               width: 32,
                               height: 32,
                               decoration: const BoxDecoration(
-                                color: const Color(0x14FFFFFF),
+                                color: const Color(0xFF000000),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -744,7 +744,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                       // Confirm Details Card (1. Nickname, 2. User Name, 3. Username, 4. UID)
                       Container(
                         decoration: BoxDecoration(
-                          color: const Color(0x14FFFFFF),
+                          color: const Color(0xFF000000),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: const Color(0x26FFFFFF)),
                         ),
@@ -852,7 +852,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: crimson,
+                            backgroundColor: Colors.black,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -913,7 +913,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
             decoration: BoxDecoration(
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -947,7 +947,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
       prefixIcon: Icon(icon, size: 18, color: const Color(0xFFF4F4F5)),
       prefixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       filled: true,
-      fillColor: const Color(0x14FFFFFF),
+      fillColor: const Color(0xFF000000),
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       border: border(const Color(0xFF262626), 1),
@@ -1022,7 +1022,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
         height: 46,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0x14FFFFFF) : const Color(0x14FFFFFF),
+          color: isSelected ? const Color(0xFF000000) : const Color(0xFF000000),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? const Color(0x26FFFFFF) : const Color(0x26FFFFFF),
@@ -1126,7 +1126,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: const BoxDecoration(
-                color: const Color(0x14FFFFFF),
+                color: const Color(0xFF000000),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 22),
@@ -1169,7 +1169,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: crimson,
+              backgroundColor: Colors.black,
               foregroundColor: Colors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1297,7 +1297,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
           height: 60,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            color: const Color(0x14FFFFFF),
+            color: const Color(0xFF000000),
           ),
           child: InkWell(
             customBorder: const CircleBorder(),
@@ -1331,7 +1331,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                     height: 16,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(999),
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                     ),
                   ),
                 ),
@@ -1388,7 +1388,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(999),
-                  color: const Color(0x14FFFFFF),
+                  color: const Color(0xFF000000),
                   border: Border.all(
                     color: _isEditMode
                         ? Colors.white.withValues(alpha: 0.35)
@@ -1448,9 +1448,9 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
               height: 46,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                color: const Color(0x14FFFFFF),
+                color: const Color(0xFF000000),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.92),
+                  color: const Color(0x26FFFFFF),
                   width: 1.1,
                 ),
                 boxShadow: [
@@ -1616,7 +1616,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                     height: 48,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.70),
                         width: 2,
@@ -1665,7 +1665,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
-                            color: const Color(0x14FFFFFF),
+                            color: const Color(0xFF000000),
                             border: Border.all(
                               color: catColor.withValues(alpha: 0.22),
                               width: 1,
@@ -1738,7 +1738,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                 height: 78,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0x14FFFFFF),
+                  color: const Color(0xFF000000),
                   border: Border.all(
                     color: const Color(0x26FFFFFF),
                     width: 1.2,
@@ -1795,7 +1795,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                   icon: const Icon(Icons.refresh_rounded, size: 16),
                   label: Text(isAk ? 'မူလအတိုင်း ပြန်ကြည့်မည်' : 'Clear Filter'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0x14FFFFFF),
+                    backgroundColor: const Color(0xFF000000),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -1813,7 +1813,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                   icon: const Icon(Icons.add_rounded, size: 18),
                   label: Text(isAk ? 'စိတ်ကြိုက်အသစ် ထည့်မည်' : 'Add New Favourite'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: crimson,
+                    backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -1838,36 +1838,7 @@ class _LiquidBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Stack(
-      fit: StackFit.expand,
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: const Color(0x14FFFFFF),
-          ),
-        ),
-        Positioned(
-          top: -140,
-          right: -90,
-          child: _GlowBlob(size: 340, color: Color(0xFF60A5FA), opacity: 0.34),
-        ),
-        Positioned(
-          top: 150,
-          left: -150,
-          child: _GlowBlob(size: 380, color: Color(0xFFF87171), opacity: 0.13),
-        ),
-        Positioned(
-          bottom: -160,
-          right: -80,
-          child: _GlowBlob(size: 420, color: Color(0xFF7DD3FC), opacity: 0.36),
-        ),
-        Positioned(
-          bottom: 70,
-          left: -80,
-          child: _GlowBlob(size: 260, color: Color(0xFF1A1400), opacity: 0.16),
-        ),
-      ],
-    );
+    return const ColoredBox(color: Colors.black);
   }
 }
 
@@ -1890,7 +1861,7 @@ class _GlowBlob extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: const Color(0x14FFFFFF),
+          color: const Color(0xFF000000),
         ),
       ),
     );
@@ -1939,9 +1910,9 @@ class _LiquidGlass extends StatelessWidget {
             padding: padding,
             decoration: BoxDecoration(
               borderRadius: borderRadius,
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.88),
+                color: const Color(0x26FFFFFF),
                 width: 1.2,
               ),
             ),
@@ -1970,9 +1941,9 @@ class _GlassIconButton extends StatelessWidget {
         height: 38,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: const Color(0x14FFFFFF),
+          color: const Color(0xFF000000),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.95),
+            color: const Color(0x26FFFFFF),
             width: 1.1,
           ),
         ),
@@ -2013,7 +1984,7 @@ class _GlassFilterChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
-            color: const Color(0x14FFFFFF),
+            color: const Color(0xFF000000),
             border: Border.all(
               color: selected
                   ? Colors.white.withValues(alpha: 0.22)
@@ -2049,7 +2020,7 @@ class _GlassMiniButton extends StatelessWidget {
   const _GlassMiniButton({
     required this.icon,
     required this.onTap,
-    this.color = const Color(0xFF3F3F46),
+    this.color = Colors.white,
     this.tint,
   });
 
@@ -2070,9 +2041,9 @@ class _GlassMiniButton extends StatelessWidget {
         height: 36,
         decoration: BoxDecoration(
           borderRadius: borderRadius,
-          color: const Color(0x14FFFFFF),
+          color: const Color(0xFF000000),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.92),
+            color: const Color(0x26FFFFFF),
             width: 1.1,
           ),
         ),

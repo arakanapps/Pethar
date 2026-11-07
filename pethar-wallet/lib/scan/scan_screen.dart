@@ -168,7 +168,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   ? 'ရွေးချယ်ထားသော ပုံတွင် တရားဝင် QR ကုဒ် မတွေ့ပါ'
                   : 'No valid QR code detected in the selected image',
             ),
-            backgroundColor: const Color(0x14FFFFFF),
+            backgroundColor: const Color(0xFF000000),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -193,7 +193,7 @@ class _ScanScreenState extends State<ScanScreen> {
         content: Text(
           isAk ? 'မျှဝေရန် လင့်ခ် ကူးယူပြီးပါပြီ' : 'Receive details copied to share',
         ),
-        backgroundColor: emeraldSuccess,
+        backgroundColor: Colors.black,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
@@ -209,8 +209,7 @@ class _ScanScreenState extends State<ScanScreen> {
     final isAk = appState.language == 'ak';
 
     return Scaffold(
-      backgroundColor:
-          _bottomTab == 0 ? Colors.white : const Color(0x14FFFFFF),
+      backgroundColor: trueBlack,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -280,7 +279,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0x14FFFFFF),
+                          color: const Color(0xFF000000),
                           borderRadius: BorderRadius.circular(999),
                           border: Border.all(color: const Color(0x26FFFFFF)),
                         ),
@@ -344,7 +343,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             child: Container(
                               height: 2.5,
                               decoration: BoxDecoration(
-                                color: const Color(0x14FFFFFF),
+                                color: const Color(0xFF000000),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.white.withValues(alpha: 0.9),
@@ -428,7 +427,7 @@ class _ScanScreenState extends State<ScanScreen> {
             Container(
               height: 82,
               decoration: const BoxDecoration(
-                color: const Color(0x14FFFFFF),
+                color: const Color(0xFF000000),
                 border: Border(top: BorderSide(color: const Color(0x26FFFFFF))),
               ),
               child: Row(

@@ -355,14 +355,14 @@ class _MainShellState extends State<MainShell> {
                           height: 56,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0x14FFFFFF),
+                            color: const Color(0xFF000000),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.4),
-                              width: 1.5,
+                              color: const Color(0x26FFFFFF),
+                              width: 1.2,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.white.withValues(alpha: 0.55),
+                                color: const Color(0x66000000),
                                 blurRadius: 20,
                                 offset: const Offset(0, 6),
                               ),
@@ -385,7 +385,7 @@ class _MainShellState extends State<MainShell> {
                           size: 21,
                           color: currentIndex == 3
                               ? Colors.white
-                              : const Color(0x14FFFFFF),
+                              : const Color(0xFFD4D4D8),
                           active: currentIndex == 3,
                         ),
                         label: TranslationStrings.tr('navServices', lang),
@@ -453,7 +453,7 @@ class _MainShellState extends State<MainShell> {
             curve: Curves.easeOut,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(999),
-              color: isSelected ? const Color(0x14FFFFFF) : Colors.transparent,
+              color: isSelected ? const Color(0xFF000000) : Colors.transparent,
               border: Border.all(
                 color: isSelected
                     ? Colors.white.withValues(alpha: 0.20)

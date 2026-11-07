@@ -81,7 +81,7 @@ class TopupScreen extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
@@ -91,7 +91,7 @@ class TopupScreen extends StatelessWidget {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: const Color(0x14FFFFFF),
+                            color: const Color(0xFF000000),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: const Icon(Icons.sim_card_rounded, color: Colors.white, size: 22),

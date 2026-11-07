@@ -206,7 +206,7 @@ Widget buildWelcomeSignInCard(BuildContext context, AppState appState, {bool emb
       ElevatedButton(
         onPressed: () => showSignInSignUpModal(context, appState),
         style: ElevatedButton.styleFrom(
-          backgroundColor: crimson,
+          backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
@@ -233,7 +233,7 @@ Widget buildWelcomeSignInCard(BuildContext context, AppState appState, {bool emb
     width: double.infinity,
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 26),
     decoration: BoxDecoration(
-      color: const Color(0x14FFFFFF),
+      color: const Color(0xFF000000),
       borderRadius: BorderRadius.circular(28),
       border: Border.all(color: const Color(0x26FFFFFF)),
       boxShadow: [
@@ -301,7 +301,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
-                          color: const Color(0x14FFFFFF),
+                          color: const Color(0xFF000000),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.close, size: 16, color: Color(0xFFF4F4F5)),
@@ -315,7 +315,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0x14FFFFFF),
+                    color: const Color(0xFF000000),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: const Color(0x26FFFFFF)),
                   ),
@@ -381,7 +381,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
@@ -445,7 +445,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
@@ -529,7 +529,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
@@ -579,7 +579,7 @@ void showKycVerificationModal(BuildContext context, AppState appState) {
                         openKycLevel2Screen(context, appState);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0x14FFFFFF),
+                        backgroundColor: const Color(0xFF000000),
                         foregroundColor: Colors.white,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 13),
@@ -629,7 +629,7 @@ void showVerificationRequiredDialog(BuildContext context, AppState appState, Str
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: const Color(0x14FFFFFF),
+                color: const Color(0xFF000000),
                 shape: BoxShape.circle,
                 border: Border.all(color: const Color(0x26FFFFFF)),
               ),
@@ -671,7 +671,7 @@ void showVerificationRequiredDialog(BuildContext context, AppState appState, Str
                       showKycVerificationModal(context, appState);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: crimson,
+                      backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                     ),
@@ -765,7 +765,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.vertical(top: Radius.circular(34)),
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
       ),
       child: Column(
         children: [
@@ -781,7 +781,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: const Color(0x14FFFFFF),
+                        color: const Color(0xFF000000),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0x26FFFFFF)),
                         boxShadow: [
@@ -800,7 +800,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                       height: 44,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0x14FFFFFF),
+                        color: const Color(0xFF000000),
                         border: Border.all(color: const Color(0x26FFFFFF), width: 1.5),
                       ),
                       child: const Icon(Icons.support_agent_rounded, color: Color(0xFFF4F4F5), size: 22),
@@ -813,7 +813,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                         height: 44,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0x14FFFFFF),
+                          color: const Color(0xFF000000),
                           border: Border.all(color: const Color(0x26FFFFFF)),
                           boxShadow: [
                             BoxShadow(color: Colors.white.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 2)),
@@ -860,7 +860,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 20),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                       boxShadow: [
@@ -895,7 +895,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                       boxShadow: [
@@ -947,7 +947,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                       boxShadow: [
@@ -966,7 +966,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                       boxShadow: [
@@ -988,7 +988,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                         children: [
                           CircleAvatar(
                             radius: 15,
-                            backgroundColor: const Color(0x14FFFFFF),
+                            backgroundColor: const Color(0xFF000000),
                             child: Text('AI', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
                           ),
                           SizedBox(width: 6),
@@ -1012,7 +1012,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
@@ -1030,7 +1030,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                       boxShadow: [
@@ -1082,7 +1082,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: const Color(0x14FFFFFF),
+                          color: const Color(0xFF000000),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: const Color(0x26FFFFFF)),
                         ),
@@ -1098,7 +1098,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                 constraints: const BoxConstraints(maxWidth: 260),
                                 decoration: BoxDecoration(
-                                  color: isUser ? const Color(0x14FFFFFF) : const Color(0x14FFFFFF),
+                                  color: isUser ? const Color(0xFF000000) : const Color(0xFF000000),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
@@ -1122,7 +1122,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
-                              color: const Color(0x14FFFFFF),
+                              color: const Color(0xFF000000),
                               borderRadius: BorderRadius.circular(999),
                               border: Border.all(color: const Color(0x26FFFFFF)),
                             ),
@@ -1145,7 +1145,7 @@ class _SupportChatSheetState extends State<_SupportChatSheet> {
                             width: 44,
                             height: 44,
                             decoration: const BoxDecoration(
-                              color: const Color(0x14FFFFFF),
+                              color: const Color(0xFF000000),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.send_rounded, color: Colors.white, size: 18),

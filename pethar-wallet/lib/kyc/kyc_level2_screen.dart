@@ -506,7 +506,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
           message,
           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
         ),
-        backgroundColor: isError ? crimson : const Color(0xFF065F46),
+        backgroundColor: isError ? Colors.black : const Color(0xFF065F46),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
@@ -527,7 +527,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                 width: 64,
                 height: 64,
                 decoration: const BoxDecoration(
-                  color: const Color(0x14FFFFFF),
+                  color: const Color(0xFF000000),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -559,7 +559,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(ctx),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0x14FFFFFF),
+                    backgroundColor: const Color(0xFF000000),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -761,7 +761,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Row(
@@ -857,7 +857,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
@@ -947,7 +947,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
   );
 
   final ButtonStyle _primaryButtonStyle = ElevatedButton.styleFrom(
-    backgroundColor: const Color(0x14FFFFFF),
+    backgroundColor: const Color(0xFF000000),
     foregroundColor: Colors.white,
     elevation: 0,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -966,7 +966,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
       ),
       prefixIcon: Icon(icon, size: 19, color: const Color(0xFFF4F4F5)),
       filled: true,
-      fillColor: const Color(0x14FFFFFF),
+      fillColor: const Color(0xFF000000),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -999,7 +999,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
       icon: const Icon(Icons.keyboard_arrow_down_rounded),
       decoration: InputDecoration(
         filled: true,
-        fillColor: const Color(0x14FFFFFF),
+        fillColor: const Color(0xFF000000),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -1129,7 +1129,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0x26FFFFFF)),
         boxShadow: const [
@@ -1149,7 +1149,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: const Color(0x14FFFFFF),
+                  color: const Color(0xFF000000),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, size: 17, color: Colors.white),
@@ -1247,7 +1247,7 @@ class _DocumentCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0x14FFFFFF),
+          color: const Color(0xFF000000),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: hasImage ? const Color(0x26FFFFFF) : const Color(0x26FFFFFF),
@@ -1266,7 +1266,7 @@ class _DocumentCard extends StatelessWidget {
                     top: 8,
                     right: 8,
                     child: Material(
-                      color: Colors.white,
+                      color: const Color(0xFF000000),
                       shape: const CircleBorder(),
                       child: InkWell(
                         customBorder: const CircleBorder(),
@@ -1289,7 +1289,7 @@ class _DocumentCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: const BoxDecoration(
-                        color: const Color(0x14FFFFFF),
+                        color: const Color(0xFF000000),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(

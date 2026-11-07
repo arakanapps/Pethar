@@ -78,11 +78,14 @@ class ArakanEmblem extends StatelessWidget {
     return SizedBox(
       width: size,
       height: size,
-      child: SvgPicture.string(
-        _petharLogoRedWhiteSvg,
-        width: size,
-        height: size,
-        fit: BoxFit.contain,
+      child: ColorFiltered(
+        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+        child: SvgPicture.string(
+          _petharLogoRedWhiteSvg,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }

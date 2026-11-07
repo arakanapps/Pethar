@@ -34,7 +34,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         content: Text(
           isAk ? 'ပိုက်ဆံအိတ်လိပ်စာ ကူးယူပြီးပါပြီ' : 'Wallet address copied to clipboard',
         ),
-        backgroundColor: emeraldSuccess,
+        backgroundColor: Colors.black,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
@@ -85,7 +85,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                     ? 'QR ကုဒ်ကို ဖုန်းပြခန်းထဲတွင် သိမ်းဆည်းပြီးပါပြီ ✓'
                     : 'QR code saved to Phone Gallery ✓',
               ),
-              backgroundColor: emeraldSuccess,
+              backgroundColor: Colors.black,
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 2),
             ),
@@ -116,7 +116,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         content: Text(
           isAk ? 'မျှဝေရန် လင့်ခ် ကူးယူပြီးပါပြီ' : 'Receive details copied to share',
         ),
-        backgroundColor: emeraldSuccess,
+        backgroundColor: Colors.black,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
@@ -150,7 +150,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                 width: 300,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                 decoration: BoxDecoration(
-                  color: const Color(0x14FFFFFF),
+                  color: const Color(0xFF000000),
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(color: const Color(0x26FFFFFF), width: 1.5),
                   boxShadow: [
@@ -197,7 +197,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0x14FFFFFF),
+                        color: const Color(0xFF000000),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: const Color(0x26FFFFFF)),
                       ),
@@ -326,7 +326,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: crimson,
+                  backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 12),

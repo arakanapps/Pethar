@@ -131,7 +131,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                       final color = _parseColor(provider['primary_color']?.toString());
 
                       return Material(
-                        color: Colors.white,
+                        color: const Color(0xFF000000),
                         borderRadius: BorderRadius.circular(18),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(18),
@@ -212,7 +212,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       builder: (_) => Container(
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
         decoration: const BoxDecoration(
-          color: const Color(0x14FFFFFF),
+          color: const Color(0xFF000000),
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: Column(
@@ -225,7 +225,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  color: const Color(0x14FFFFFF),
+                  color: const Color(0xFF000000),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

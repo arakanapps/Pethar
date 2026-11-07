@@ -59,12 +59,6 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <!-- Skia first-frame is far faster than Impeller on many devices;
-             Impeller's pipeline warm-up was holding the launch logo for
-             several seconds. Remove to re-enable Impeller. -->
-        <meta-data
-            android:name="io.flutter.embedding.android.EnableImpeller"
-            android:value="false" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

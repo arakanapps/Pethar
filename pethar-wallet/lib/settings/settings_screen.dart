@@ -118,7 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Text(message,
             style:
                 const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
-        backgroundColor: const Color(0x14FFFFFF),
+        backgroundColor: const Color(0xFF000000),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         duration: const Duration(seconds: 2),
@@ -251,7 +251,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         fontWeight: FontWeight.w700, fontSize: 13),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0x14FFFFFF),
+                    backgroundColor: const Color(0xFF000000),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14)),
@@ -359,7 +359,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     decoration: InputDecoration(
                       hintText: 'e.g. newuser@email.com',
                       filled: true,
-                      fillColor: const Color(0x14FFFFFF),
+                      fillColor: const Color(0xFF000000),
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 12),
                       border: OutlineInputBorder(
@@ -392,7 +392,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               });
                             },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white),
                       child: isLoading
                           ? const SizedBox(
@@ -408,7 +408,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
@@ -446,7 +446,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     decoration: InputDecoration(
                       counterText: '',
                       filled: true,
-                      fillColor: const Color(0x14FFFFFF),
+                      fillColor: const Color(0xFF000000),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide.none),
@@ -492,7 +492,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               }
                             },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white),
                       child: isLoading
                           ? const SizedBox(
@@ -560,7 +560,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     decoration: InputDecoration(
                       hintText: 'Enter phone number',
                       filled: true,
-                      fillColor: const Color(0x14FFFFFF),
+                      fillColor: const Color(0xFF000000),
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 12),
                       border: OutlineInputBorder(
@@ -593,7 +593,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               });
                             },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white),
                       child: isLoading
                           ? const SizedBox(
@@ -609,7 +609,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0x14FFFFFF),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: const Color(0x26FFFFFF)),
                     ),
@@ -647,7 +647,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     decoration: InputDecoration(
                       counterText: '',
                       filled: true,
-                      fillColor: const Color(0x14FFFFFF),
+                      fillColor: const Color(0xFF000000),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide.none),
@@ -693,7 +693,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               }
                             },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white),
                       child: isLoading
                           ? const SizedBox(
@@ -756,7 +756,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     decoration: InputDecoration(
                         counterText: '',
                         filled: true,
-                        fillColor: const Color(0x14FFFFFF),
+                        fillColor: const Color(0xFF000000),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none)),
@@ -774,7 +774,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     decoration: InputDecoration(
                         counterText: '',
                         filled: true,
-                        fillColor: const Color(0x14FFFFFF),
+                        fillColor: const Color(0xFF000000),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none)),
@@ -845,7 +845,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               }
                             },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white),
                       child: const Text('Update PIN',
                           style: TextStyle(fontWeight: FontWeight.bold)),
@@ -855,7 +855,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                        color: const Color(0x14FFFFFF),
+                        color: const Color(0xFF000000),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: const Color(0x26FFFFFF))),
                     child: Text(
@@ -878,7 +878,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       decoration: InputDecoration(
                           counterText: '',
                           filled: true,
-                          fillColor: const Color(0x14FFFFFF),
+                          fillColor: const Color(0xFF000000),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: BorderSide.none))),
@@ -895,7 +895,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       decoration: InputDecoration(
                           counterText: '',
                           filled: true,
-                          fillColor: const Color(0x14FFFFFF),
+                          fillColor: const Color(0xFF000000),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: BorderSide.none))),
@@ -952,7 +952,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               }
                             },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white),
                       child: const Text('Verify OTP & Reset PIN',
                           style: TextStyle(fontWeight: FontWeight.bold)),
@@ -1011,7 +1011,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       controller: firstCtrl,
                       decoration: InputDecoration(
                           filled: true,
-                          fillColor: const Color(0x14FFFFFF),
+                          fillColor: const Color(0xFF000000),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: BorderSide.none))),
@@ -1024,7 +1024,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       controller: lastCtrl,
                       decoration: InputDecoration(
                           filled: true,
-                          fillColor: const Color(0x14FFFFFF),
+                          fillColor: const Color(0xFF000000),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: BorderSide.none))),
@@ -1038,7 +1038,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       decoration: InputDecoration(
                           hintText: 'e.g. Passport/National ID correction',
                           filled: true,
-                          fillColor: const Color(0x14FFFFFF),
+                          fillColor: const Color(0xFF000000),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: BorderSide.none))),
@@ -1069,7 +1069,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               });
                             },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white),
                       child: const Text('Send Verification OTP',
                           style: TextStyle(fontWeight: FontWeight.bold)),
@@ -1079,7 +1079,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                        color: const Color(0x14FFFFFF),
+                        color: const Color(0xFF000000),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: const Color(0x26FFFFFF))),
                     child: Text(
@@ -1103,7 +1103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       decoration: InputDecoration(
                           counterText: '',
                           filled: true,
-                          fillColor: const Color(0x14FFFFFF),
+                          fillColor: const Color(0xFF000000),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: BorderSide.none))),
@@ -1150,7 +1150,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               }
                             },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white),
                       child: const Text('Submit Request for Review',
                           style: TextStyle(fontWeight: FontWeight.bold)),
@@ -1203,7 +1203,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 decoration: InputDecoration(
                   hintText: isAk ? 'အမည်ပြောင် ထည့်ပါ' : 'Enter nickname',
                   filled: true,
-                  fillColor: const Color(0x14FFFFFF),
+                  fillColor: const Color(0xFF000000),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none),
@@ -1237,7 +1237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white),
                       child: Text(isAk ? 'သိမ်းမည်' : 'Save'),
                     ),
@@ -1294,7 +1294,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: Color(0xFFF4F4F5)),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: const Color(0x14FFFFFF),
+                  fillColor: const Color(0xFF000000),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   border: OutlineInputBorder(
@@ -1335,7 +1335,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: crimson,
+                        backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -1393,8 +1393,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0x14FFFFFF)
-                            : const Color(0x14FFFFFF),
+                            ? const Color(0xFF000000)
+                            : const Color(0xFF000000),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
@@ -1460,7 +1460,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           } catch (_) {}
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14)),
@@ -1523,8 +1523,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0x14FFFFFF)
-                            : const Color(0x14FFFFFF),
+                            ? const Color(0xFF000000)
+                            : const Color(0xFF000000),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
@@ -1590,7 +1590,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           } catch (_) {}
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14)),
@@ -1637,7 +1637,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   labelText: isAk ? 'ကတ်နံပါတ်' : 'ID Number',
                   hintText: 'Enter National ID or Passport number',
                   filled: true,
-                  fillColor: const Color(0x14FFFFFF),
+                  fillColor: const Color(0xFF000000),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: const BorderSide(color: const Color(0x26FFFFFF))),
@@ -1679,7 +1679,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         } catch (_) {}
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0x14FFFFFF),
+                        backgroundColor: const Color(0xFF000000),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14)),
@@ -1804,7 +1804,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           await appState.signOut();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(999)),
@@ -1860,7 +1860,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: const Color(0x26FFFFFF)),
             ),
@@ -2023,7 +2023,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           // ── TOP AVATAR & HEADER SECTION ─────────────────────────────
           Container(
-            color: Colors.white,
+            color: trueBlack,
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
             child: Column(
               children: [
@@ -2032,10 +2032,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       CircleAvatar(
                         radius: 48,
-                        backgroundColor: const Color(0x14FFFFFF),
+                        backgroundColor: const Color(0xFF000000),
                         child: CircleAvatar(
                           radius: 45,
-                          backgroundColor: const Color(0x14FFFFFF),
+                          backgroundColor: const Color(0xFF000000),
                           backgroundImage:
                               _buildAvatarImageProvider(p.avatarUrl),
                           child: (p.avatarUrl == null || p.avatarUrl!.isEmpty)
@@ -2061,7 +2061,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              color: const Color(0x14FFFFFF),
+                              color: const Color(0xFF000000),
                               shape: BoxShape.circle,
                               border: Border.all(color: const Color(0x26FFFFFF), width: 2),
                               boxShadow: [
@@ -2106,7 +2106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // ── MASKING / VISIBILITY TOGGLE ─────────────────────────────
           Container(
-            color: Colors.white,
+            color: trueBlack,
             margin: const EdgeInsets.only(top: 1),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: Row(
@@ -2135,7 +2135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Switch(
                   value: _showAllProfileInfo,
-                  activeTrackColor: const Color(0x14FFFFFF),
+                  activeTrackColor: const Color(0xFF000000),
                   onChanged: (v) => setState(() => _showAllProfileInfo = v),
                 ),
               ],
@@ -2145,7 +2145,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // ── PROFILE DETAILS CARD (10 REQUESTED FIELDS, NO BALANCES, NO BADGES) ──
           Container(
-            color: Colors.white,
+            color: trueBlack,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: Column(
               children: [
@@ -2156,7 +2156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => _showChangeNameModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),
-                const Divider(height: 1, color: const Color(0x14FFFFFF)),
+                const Divider(height: 1, color: const Color(0xFF000000)),
 
                 // 2. username (click to copy, NO copy button, NO >)
                 _buildProfileDetailRow(
@@ -2173,7 +2173,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                   actionIcon: null,
                 ),
-                const Divider(height: 1, color: const Color(0x14FFFFFF)),
+                const Divider(height: 1, color: const Color(0xFF000000)),
 
                 // 3. Wallet Address (click to copy, NO copy button, NO >)
                 _buildProfileDetailRow(
@@ -2194,7 +2194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                   actionIcon: null,
                 ),
-                const Divider(height: 1, color: const Color(0x14FFFFFF)),
+                const Divider(height: 1, color: const Color(0xFF000000)),
 
                 // 4. Email (tappable to edit, has >)
                 _buildProfileDetailRow(
@@ -2205,7 +2205,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => _showChangeEmailModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),
-                const Divider(height: 1, color: const Color(0x14FFFFFF)),
+                const Divider(height: 1, color: const Color(0xFF000000)),
 
                 // 5. Mobile No (tappable to edit, has >)
                 _buildProfileDetailRow(
@@ -2216,7 +2216,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => _showChangePhoneModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),
-                const Divider(height: 1, color: const Color(0x14FFFFFF)),
+                const Divider(height: 1, color: const Color(0xFF000000)),
 
                 // 6. Gender (tappable to edit, has >)
                 _buildProfileDetailRow(
@@ -2225,7 +2225,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => _showEditGenderModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),
-                const Divider(height: 1, color: const Color(0x14FFFFFF)),
+                const Divider(height: 1, color: const Color(0xFF000000)),
 
                 // 7. ID Type (tappable to edit, has >)
                 _buildProfileDetailRow(
@@ -2234,7 +2234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => _showEditIdTypeModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),
-                const Divider(height: 1, color: const Color(0x14FFFFFF)),
+                const Divider(height: 1, color: const Color(0xFF000000)),
 
                 // 8. ID Number (tappable to edit, has >)
                 _buildProfileDetailRow(
@@ -2245,7 +2245,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => _showEditIdNumberModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),
-                const Divider(height: 1, color: const Color(0x14FFFFFF)),
+                const Divider(height: 1, color: const Color(0xFF000000)),
 
                 // 9. Date of Birth (tappable to edit, has >)
                 _buildProfileDetailRow(
@@ -2256,7 +2256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => _showDatePickerModal(context, appState, isAk),
                   actionIcon: Icons.chevron_right,
                 ),
-                const Divider(height: 1, color: const Color(0x14FFFFFF)),
+                const Divider(height: 1, color: const Color(0xFF000000)),
 
                 // 10. My Address (tappable to edit, has >)
                 _buildProfileDetailRow(
@@ -2393,7 +2393,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -2462,7 +2462,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(fontSize: 12, color: Colors.white),
                   ),
                   value: appState.autoSaveSlip,
-                  activeTrackColor: const Color(0x14FFFFFF),
+                  activeTrackColor: const Color(0xFF000000),
                   onChanged: (_) => appState.toggleAutoSaveSlip(),
                 ),
               ],
@@ -2503,7 +2503,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Container(
             decoration: BoxDecoration(
-                color: const Color(0x14FFFFFF), borderRadius: BorderRadius.circular(18)),
+                color: const Color(0xFF000000), borderRadius: BorderRadius.circular(18)),
             child: SwitchListTile(
               secondary:
                   const Icon(Icons.password_rounded, color: Colors.white),
@@ -2515,7 +2515,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: const Text('Mask account numbers on screen',
                   style: TextStyle(fontSize: 12, color: Colors.white)),
               value: _hideInfoToggle,
-              activeTrackColor: const Color(0x14FFFFFF),
+              activeTrackColor: const Color(0xFF000000),
               onChanged: (v) => setState(() => _hideInfoToggle = v),
             ),
           ),
@@ -2530,7 +2530,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Container(
             decoration: BoxDecoration(
-                color: const Color(0x14FFFFFF), borderRadius: BorderRadius.circular(18)),
+                color: const Color(0xFF000000), borderRadius: BorderRadius.circular(18)),
             child: Column(
               children: [
                 const ListTile(
@@ -2559,7 +2559,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: TextStyle(fontSize: 12, color: Colors.white),
                   ),
                   value: _showReceivingProfileToggle,
-                  activeTrackColor: const Color(0x14FFFFFF),
+                  activeTrackColor: const Color(0xFF000000),
                   onChanged: (v) =>
                       setState(() => _showReceivingProfileToggle = v),
                 ),
@@ -2577,7 +2577,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Container(
             decoration: BoxDecoration(
-                color: const Color(0x14FFFFFF), borderRadius: BorderRadius.circular(18)),
+                color: const Color(0xFF000000), borderRadius: BorderRadius.circular(18)),
             child: Column(
               children: [
                 SwitchListTile(
@@ -2593,7 +2593,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subtitle: const Text('See More ›',
                       style: TextStyle(fontSize: 12, color: Color(0xFFF4F4F5))),
                   value: _biometricConsentToggle,
-                  activeTrackColor: const Color(0x14FFFFFF),
+                  activeTrackColor: const Color(0xFF000000),
                   onChanged: (v) => setState(() => _biometricConsentToggle = v),
                 ),
                 const Divider(height: 1),
@@ -2633,7 +2633,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Container(
             decoration: BoxDecoration(
-                color: const Color(0x14FFFFFF), borderRadius: BorderRadius.circular(18)),
+                color: const Color(0xFF000000), borderRadius: BorderRadius.circular(18)),
             child: Column(
               children: [
                 const ListTile(
@@ -2713,7 +2713,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
@@ -2758,7 +2758,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     height: 1,
                     indent: 16,
                     endIndent: 16,
-                    color: const Color(0x14FFFFFF)),
+                    color: const Color(0xFF000000)),
                 ListTile(
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -3019,7 +3019,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         height: 44,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: const Color(0x14FFFFFF),
+          color: const Color(0xFF000000),
           border: Border.all(color: const Color(0x26FFFFFF), width: 1.3),
           boxShadow: [
             BoxShadow(
@@ -3061,8 +3061,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: const Color(0x0DFFFFFF),
                       border: Border.all(
                         color: active
-                            ? Colors.white.withValues(alpha: 0.55)
-                            : Colors.white.withValues(alpha: 0.95),
+                            ? const Color(0x33FFFFFF)
+                            : const Color(0x26FFFFFF),
                         width: active ? 1.8 : 1.2,
                       ),
                       boxShadow: [
@@ -3174,14 +3174,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           height: 92,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0x14FFFFFF),
+                            color: const Color(0xFF000000),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.65),
-                              width: 2,
+                              color: const Color(0x26FFFFFF),
+                              width: 1.4,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.white.withValues(alpha: 0.32),
+                                color: const Color(0x33000000),
                                 blurRadius: 28,
                                 offset: const Offset(0, 14),
                               ),
@@ -3226,10 +3226,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.72),
+                            color: const Color(0xFF000000),
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.95),
+                              color: const Color(0x26FFFFFF),
                               width: 1.2,
                             ),
                             boxShadow: [
@@ -3289,7 +3289,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               horizontal: 14, vertical: 12),
                           decoration: BoxDecoration(
                             color:
-                                const Color(0x14FFFFFF).withValues(alpha: 0.92),
+                                const Color(0xFF000000).withValues(alpha: 0.92),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                                 color: const Color(0x26FFFFFF), width: 1.2),
@@ -3414,7 +3414,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               height: 54,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(18),
-                                color: const Color(0x14FFFFFF),
+                                color: const Color(0xFF000000),
                                 boxShadow: canConfirm
                                     ? [
                                         BoxShadow(
@@ -3535,9 +3535,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.66),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.95)),
+        border: Border.all(color: const Color(0x26FFFFFF)),
         boxShadow: [
           BoxShadow(
             color: const Color(0x66000000).withValues(alpha: 0.05),
@@ -3727,9 +3727,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               height: 78,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: const Color(0x14FFFFFF),
+                                color: const Color(0xFF000000),
                                 border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.9),
+                                    color: const Color(0x26FFFFFF),
                                     width: 2),
                                 boxShadow: [
                                   BoxShadow(
@@ -3797,14 +3797,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: appState.isVerified
-                                      ? Colors.white.withValues(alpha: 0.7)
-                                      : const Color(0x14FFFFFF)
-                                          .withValues(alpha: 0.92),
+                                      ? const Color(0xFF000000)
+                                      : const Color(0xFF000000),
                                   borderRadius: BorderRadius.circular(999),
                                   border: Border.all(
-                                    color: appState.isVerified
-                                        ? Colors.white.withValues(alpha: 0.08)
-                                        : const Color(0x26FFFFFF),
+                                    color: const Color(0x26FFFFFF),
                                   ),
                                 ),
                                 child: Row(
@@ -3887,10 +3884,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             Container(
                               padding: const EdgeInsets.all(3),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.5),
+                                color: const Color(0xFF000000),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.9)),
+                                    color: const Color(0x26FFFFFF)),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -3909,19 +3906,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           horizontal: 8, vertical: 6),
                                       decoration: BoxDecoration(
                                         color: isAk
-                                            ? Colors.white
+                                            ? const Color(0xFF000000)
                                             : Colors.transparent,
                                         borderRadius: BorderRadius.circular(8),
-                                        boxShadow: isAk
-                                            ? [
-                                                BoxShadow(
-                                                    color: Colors.white
-                                                        .withValues(
-                                                            alpha: 0.05),
-                                                    blurRadius: 4,
-                                                    offset: const Offset(0, 1))
-                                              ]
-                                            : null,
+                                        boxShadow: null,
                                       ),
                                       child: const Row(
                                         mainAxisSize: MainAxisSize.min,
@@ -3954,19 +3942,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           horizontal: 8, vertical: 6),
                                       decoration: BoxDecoration(
                                         color: !isAk
-                                            ? Colors.white
+                                            ? const Color(0xFF000000)
                                             : Colors.transparent,
                                         borderRadius: BorderRadius.circular(8),
-                                        boxShadow: !isAk
-                                            ? [
-                                                BoxShadow(
-                                                    color: Colors.white
-                                                        .withValues(
-                                                            alpha: 0.05),
-                                                    blurRadius: 4,
-                                                    offset: const Offset(0, 1))
-                                              ]
-                                            : null,
+                                        boxShadow: null,
                                       ),
                                       child: const Row(
                                         mainAxisSize: MainAxisSize.min,
@@ -4190,14 +4169,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _tileIcon(IconData icon,
-      {Color color = const Color(0xFF111111), double size = 36}) {
+      {Color color = Colors.white, double size = 36}) {
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.55),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
+        border: Border.all(color: const Color(0x26FFFFFF)),
       ),
       child: Icon(icon, color: color, size: size * 0.52),
     );
@@ -4245,46 +4224,7 @@ class _SettingsGlassBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Stack(
-        children: [
-          const Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: const Color(0x14FFFFFF),
-              ),
-            ),
-          ),
-          Positioned(
-              top: -120,
-              left: -90,
-              child: _blob(const Color(0xFFE11D2E), 300, 0.20)),
-          Positioned(
-              top: 140,
-              right: -120,
-              child: _blob(const Color(0xFF2563EB), 320, 0.15)),
-          Positioned(
-              bottom: 60,
-              left: -120,
-              child: _blob(const Color(0xFFD4AF37), 300, 0.14)),
-          Positioned(
-              bottom: -100,
-              right: -70,
-              child: _blob(const Color(0xFF111111), 260, 0.10)),
-        ],
-      ),
-    );
-  }
-
-  Widget _blob(Color color, double size, double opacity) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: const Color(0x14FFFFFF),
-      ),
-    );
+    return const ColoredBox(color: Colors.black);
   }
 }
 
@@ -4323,9 +4263,9 @@ class _GlassCard extends StatelessWidget {
             padding: padding,
             decoration: BoxDecoration(
               borderRadius: base,
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.92), width: 1.3),
+                  color: const Color(0x26FFFFFF), width: 1.3),
             ),
             child: child,
           ),

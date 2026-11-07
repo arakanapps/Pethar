@@ -342,7 +342,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       width: 34,
                       height: 34,
                       decoration: BoxDecoration(
-                        color: const Color(0x14FFFFFF),
+                        color: const Color(0xFF000000),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Center(
@@ -391,7 +391,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     hintText:
                         isAk ? 'သင့် Google အီးမေးလ်' : 'yourname@gmail.com',
                     filled: true,
-                    fillColor: const Color(0x14FFFFFF),
+                    fillColor: const Color(0xFF000000),
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
@@ -443,7 +443,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           Navigator.pop(ctx, val);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: crimson,
+                          backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -907,7 +907,7 @@ class _AuthScreenState extends State<AuthScreen> {
         height: bannerHeight,
         width: double.infinity,
         decoration: const BoxDecoration(
-          color: const Color(0x14FFFFFF),
+          color: trueBlack,
         ),
         child: SafeArea(
           bottom: false,
@@ -1561,7 +1561,7 @@ class _AuthScreenState extends State<AuthScreen> {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: const Color(0x14FFFFFF),
+            color: const Color(0xFF000000),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: const Color(0x26FFFFFF)),
           ),
@@ -1594,7 +1594,7 @@ class _AuthScreenState extends State<AuthScreen> {
         // 2. White Card with Key Icon Input
         Container(
           decoration: BoxDecoration(
-            color: const Color(0x14FFFFFF),
+            color: const Color(0xFF000000),
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
@@ -1896,7 +1896,7 @@ class _AuthScreenState extends State<AuthScreen> {
       child: ElevatedButton(
         onPressed: (isLoading || !enabled) ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: crimson,
+          backgroundColor: Colors.black,
           disabledBackgroundColor: Colors.white.withValues(alpha: 0.35),
           foregroundColor: Colors.white,
           disabledForegroundColor: Colors.white.withValues(alpha: 0.9),
@@ -1996,7 +1996,7 @@ class _AuthScreenState extends State<AuthScreen> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
         decoration: BoxDecoration(
-          color: const Color(0x14FFFFFF),
+          color: const Color(0xFF000000),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0x26FFFFFF)),
         ),
@@ -2024,7 +2024,7 @@ class _AuthScreenState extends State<AuthScreen> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
         decoration: BoxDecoration(
-          color: const Color(0x14FFFFFF),
+          color: const Color(0xFF000000),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0x26FFFFFF)),
         ),

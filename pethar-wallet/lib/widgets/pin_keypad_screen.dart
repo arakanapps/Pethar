@@ -289,7 +289,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                   topRight: Radius.circular(16),
                 ),
                 border: Border.all(
-                  color: const Color(0x26FFFFFF),
+                  color: Colors.white.withValues(alpha: 0.55),
                   width: 4.0,
                 ),
               ),
@@ -302,12 +302,12 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
               width: size * 0.90,
               height: size * 0.72,
               decoration: BoxDecoration(
-                color: const Color(0x14FFFFFF),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.white.withValues(alpha: 0.28),
-                    blurRadius: 10,
+                    color: Colors.white.withValues(alpha: 0.35),
+                    blurRadius: 14,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -320,7 +320,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                       width: 5.5,
                       height: 5.5,
                       decoration: const BoxDecoration(
-                        color: const Color(0x14FFFFFF),
+                        color: Colors.white,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -328,7 +328,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                       width: 3.2,
                       height: 5.5,
                       decoration: BoxDecoration(
-                        color: const Color(0x14FFFFFF),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(1),
                       ),
                     ),
@@ -532,8 +532,8 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: isFilled
-                                        ? const Color(0x14FFFFFF)
-                                        : const Color(0x14FFFFFF),
+                                        ? const Color(0xFF000000)
+                                        : const Color(0xFF000000),
                                     border: Border.all(
                                       color: isFilled
                                           ? const Color(0x26FFFFFF)

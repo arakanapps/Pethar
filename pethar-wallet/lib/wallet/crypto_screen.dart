@@ -125,7 +125,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: emeraldSuccess,
+        backgroundColor: Colors.black,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
@@ -147,7 +147,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                 ? 'ကွန်ရက် ၅ ခုလုံးအတွက် ငွေသွင်းလိပ်စာများ ထုတ်ပေးပြီးပါပြီ'
                 : 'Deposit addresses assigned for all 5 networks',
           ),
-          backgroundColor: emeraldSuccess,
+          backgroundColor: Colors.black,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -160,7 +160,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                     ? 'လိပ်စာ ထုတ်ပေးရာတွင် အမှားရှိနေပါသည်'
                     : 'Unable to assign deposit addresses'),
           ),
-          backgroundColor: crimson,
+          backgroundColor: Colors.black,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -188,7 +188,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                 ? '${network.name} လိပ်စာ ပုံစံ မမှန်ကန်ပါ'
                 : 'Enter a valid ${network.name} (${network.standard}) address',
           ),
-          backgroundColor: crimson,
+          backgroundColor: Colors.black,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -203,7 +203,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                 ? 'အနည်းဆုံး ငွေထုတ်ပမာဏမှာ ${tokenCfg.minWithdrawal.toStringAsFixed(2)} $_selectedToken ဖြစ်ပါသည်'
                 : 'Minimum withdrawal on ${network.name} is ${tokenCfg.minWithdrawal.toStringAsFixed(2)} $_selectedToken',
           ),
-          backgroundColor: crimson,
+          backgroundColor: Colors.black,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -219,7 +219,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                 ? '$_selectedToken လက်ကျန်ငွေ မလုံလောက်ပါ (ပမာဏ + ကွန်ရက်ကြေး ${tokenCfg.withdrawalFee} $_selectedToken)'
                 : 'Insufficient $_selectedToken balance (requires ${totalDebit.toStringAsFixed(2)} $_selectedToken including ${tokenCfg.withdrawalFee} fee)',
           ),
-          backgroundColor: crimson,
+          backgroundColor: Colors.black,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -257,7 +257,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                   ? 'ငွေထုတ်ယူမှု တင်သွင်းပြီးပါပြီ (PENDING_REVIEW)'
                   : 'Withdrawal submitted for review (PENDING_REVIEW)',
             ),
-            backgroundColor: emeraldSuccess,
+            backgroundColor: Colors.black,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -268,7 +268,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
               result['message']?.toString() ??
                   (isAk ? 'ငွေထုတ်ယူမှု မအောင်မြင်ပါ' : 'Withdrawal failed'),
             ),
-            backgroundColor: crimson,
+            backgroundColor: Colors.black,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -403,7 +403,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0x26FFFFFF)),
         boxShadow: [
@@ -495,7 +495,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
             decoration: BoxDecoration(
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -541,7 +541,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
         decoration: BoxDecoration(
           color: selected
               ? color.withValues(alpha: 0.08)
-              : const Color(0x14FFFFFF),
+              : const Color(0xFF000000),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected ? color : const Color(0x26FFFFFF),
@@ -615,7 +615,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0x26FFFFFF)),
       ),
@@ -671,7 +671,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0x26FFFFFF)),
       ),
@@ -695,7 +695,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0x14FFFFFF),
+                  color: const Color(0xFF000000),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -733,8 +733,8 @@ class _CryptoScreenState extends State<CryptoScreen> {
                     color: isSelected
                         ? accent.withValues(alpha: 0.12)
                         : (enabled
-                            ? const Color(0x14FFFFFF)
-                            : const Color(0x14FFFFFF)),
+                            ? const Color(0xFF000000)
+                            : const Color(0xFF000000)),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: isSelected ? accent : const Color(0x26FFFFFF),
@@ -748,7 +748,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                         width: 22,
                         height: 22,
                         decoration: BoxDecoration(
-                          color: enabled ? accent : const Color(0x14FFFFFF),
+                          color: enabled ? accent : const Color(0xFF000000),
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
@@ -833,7 +833,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(color: const Color(0x26FFFFFF)),
             ),
@@ -875,7 +875,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0x14FFFFFF),
+                        color: const Color(0xFF000000),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
@@ -893,7 +893,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0x14FFFFFF),
+                    color: const Color(0xFF000000),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: const Color(0x26FFFFFF)),
                   ),
@@ -908,7 +908,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0x14FFFFFF),
+                    color: const Color(0xFF000000),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: const Color(0x26FFFFFF)),
                   ),
@@ -949,7 +949,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: crimson,
+                      backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -963,7 +963,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0x14FFFFFF),
+                    color: const Color(0xFF000000),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: const Color(0x26FFFFFF)),
                   ),
@@ -1045,7 +1045,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(color: const Color(0x26FFFFFF)),
             ),
@@ -1078,7 +1078,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                       color: Color(0xFFF4F4F5),
                     ),
                     filled: true,
-                    fillColor: const Color(0x14FFFFFF),
+                    fillColor: const Color(0xFF000000),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 13,
@@ -1153,7 +1153,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                         'Min ${tokenCfg!.minWithdrawal.toStringAsFixed(2)} $_selectedToken',
                     suffixText: _selectedToken,
                     filled: true,
-                    fillColor: const Color(0x14FFFFFF),
+                    fillColor: const Color(0xFF000000),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 13,
@@ -1172,7 +1172,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0x14FFFFFF),
+                    color: const Color(0xFF000000),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: const Color(0x26FFFFFF)),
                   ),
@@ -1216,7 +1216,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                               isAk,
                             ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: crimson,
+                      backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -1262,7 +1262,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
       return Container(
         padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
-          color: const Color(0x14FFFFFF),
+          color: const Color(0xFF000000),
           borderRadius: BorderRadius.circular(22),
           border: Border.all(color: const Color(0x26FFFFFF)),
         ),
@@ -1335,7 +1335,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0x26FFFFFF)),
       ),
@@ -1429,7 +1429,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0x26FFFFFF)),
       ),
@@ -1495,7 +1495,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0x26FFFFFF)),
       ),
@@ -1532,7 +1532,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
               'USDT / USDC Wallet',
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: crimson,
+              backgroundColor: Colors.black,
               foregroundColor: Colors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -1554,7 +1554,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0x26FFFFFF)),
       ),
@@ -1598,7 +1598,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                   ? null
                   : () => _handleProvisionAddresses(context, appState, isAk),
               style: ElevatedButton.styleFrom(
-                backgroundColor: crimson,
+                backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -1625,7 +1625,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0x14FFFFFF),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0x26FFFFFF)),
       ),

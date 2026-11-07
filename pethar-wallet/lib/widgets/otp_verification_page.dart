@@ -127,7 +127,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           height: 92,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0x14FFFFFF),
+                            color: const Color(0xFF000000),
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.65),
                               width: 2,
@@ -179,10 +179,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.72),
+                            color: const Color(0xFF000000),
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.95),
+                              color: const Color(0x26FFFFFF),
                               width: 1.2,
                             ),
                             boxShadow: [
@@ -242,7 +242,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                               horizontal: 14, vertical: 12),
                           decoration: BoxDecoration(
                             color:
-                                const Color(0x14FFFFFF).withValues(alpha: 0.92),
+                                const Color(0xFF000000).withValues(alpha: 0.92),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                                 color: const Color(0x26FFFFFF), width: 1.2),
@@ -364,7 +364,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                               height: 54,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(18),
-                                color: const Color(0x14FFFFFF),
+                                color: const Color(0xFF000000),
                                 boxShadow: _canConfirm
                                     ? [
                                         BoxShadow(
@@ -503,8 +503,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       color: const Color(0x0DFFFFFF),
                       border: Border.all(
                         color: active
-                            ? Colors.white.withValues(alpha: 0.55)
-                            : Colors.white.withValues(alpha: 0.95),
+                            ? const Color(0x33FFFFFF)
+                            : const Color(0x26FFFFFF),
                         width: active ? 1.8 : 1.2,
                       ),
                       boxShadow: [
@@ -575,10 +575,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.72),
+          color: const Color(0xFF000000),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.95),
+            color: const Color(0x26FFFFFF),
             width: 1.2,
           ),
           boxShadow: [
@@ -604,9 +604,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.66),
+        color: const Color(0xFF000000),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.95)),
+        border: Border.all(color: const Color(0x26FFFFFF)),
         boxShadow: [
           BoxShadow(
             color: const Color(0x66000000).withValues(alpha: 0.05),
@@ -655,46 +655,7 @@ class _OtpGlassBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Stack(
-        children: [
-          const Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: const Color(0x14FFFFFF),
-              ),
-            ),
-          ),
-          Positioned(
-              top: -120,
-              left: -90,
-              child: _blob(const Color(0xFFE11D2E), 300, 0.20)),
-          Positioned(
-              top: 140,
-              right: -120,
-              child: _blob(const Color(0xFF2563EB), 320, 0.15)),
-          Positioned(
-              bottom: 60,
-              left: -120,
-              child: _blob(const Color(0xFFD4AF37), 300, 0.14)),
-          Positioned(
-              bottom: -100,
-              right: -70,
-              child: _blob(const Color(0xFF111111), 260, 0.10)),
-        ],
-      ),
-    );
-  }
-
-  Widget _blob(Color color, double size, double opacity) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: const Color(0x14FFFFFF),
-      ),
-    );
+    return const ColoredBox(color: Colors.black);
   }
 }
 
@@ -733,9 +694,9 @@ class _GlassCard extends StatelessWidget {
             padding: padding,
             decoration: BoxDecoration(
               borderRadius: base,
-              color: const Color(0x14FFFFFF),
+              color: const Color(0xFF000000),
               border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.92), width: 1.3),
+                  color: const Color(0x26FFFFFF), width: 1.3),
             ),
             child: child,
           ),
