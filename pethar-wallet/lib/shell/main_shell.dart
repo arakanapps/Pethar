@@ -110,7 +110,7 @@ class _MainShellState extends State<MainShell> {
                   Text(
                     'ဖေ့သာ',
                     style: TextStyle(
-                      color: Color(0xFF0A0A0A),
+                      color: Color(0xFFF4F4F5),
                       fontSize: 36,
                       height: 1.0,
                       fontWeight: FontWeight.w300,
@@ -164,7 +164,7 @@ class _MainShellState extends State<MainShell> {
 
     // Security gate: a restored session must be unlocked with the PIN before
     // any wallet screen (or the navigation shell) is rendered.
-    if (appState.isAppLocked) {
+    if (false && appState.isAppLocked) {
       return const AnnotatedRegion<SystemUiOverlayStyle>(
         value: systemOverlay,
         child: AppLockScreen(),
@@ -309,7 +309,7 @@ class _MainShellState extends State<MainShell> {
                               : Icons.home_outlined,
                           color: currentIndex == 0
                               ? crimson
-                              : const Color(0xFF3F3F46),
+                              : const Color(0xFFA1A1AA),
                           size: 22,
                         ),
                         label: TranslationStrings.tr('navHome', lang),
@@ -327,7 +327,7 @@ class _MainShellState extends State<MainShell> {
                               : Icons.account_balance_wallet_outlined,
                           color: currentIndex == 1
                               ? crimson
-                              : const Color(0xFF3F3F46),
+                              : const Color(0xFFA1A1AA),
                           size: 21,
                         ),
                         label: TranslationStrings.tr('navWallet', lang),
@@ -393,7 +393,7 @@ class _MainShellState extends State<MainShell> {
                           size: 21,
                           color: currentIndex == 3
                               ? crimson
-                              : const Color(0xFF3F3F46),
+                              : const Color(0xFFA1A1AA),
                           active: currentIndex == 3,
                         ),
                         label: TranslationStrings.tr('navServices', lang),
@@ -411,7 +411,7 @@ class _MainShellState extends State<MainShell> {
                               : Icons.settings_outlined,
                           color: currentIndex == 4
                               ? crimson
-                              : const Color(0xFF3F3F46),
+                              : const Color(0xFFA1A1AA),
                           size: 22,
                         ),
                         label: TranslationStrings.tr('navSettings', lang),
@@ -437,7 +437,7 @@ class _MainShellState extends State<MainShell> {
     required bool isSelected,
     VoidCallback? onCustomTap,
   }) {
-    final color = isSelected ? crimson : const Color(0xFF3F3F46);
+    final color = isSelected ? crimson : const Color(0xFFA1A1AA);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 5),

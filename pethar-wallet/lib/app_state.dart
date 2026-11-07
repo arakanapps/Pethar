@@ -323,6 +323,7 @@ class AppState extends ChangeNotifier {
     if (isValid) {
       isAppLocked = false;
       notifyListeners();
+      _restoreSecureSession();
     }
     return isValid;
   }
@@ -332,6 +333,7 @@ class AppState extends ChangeNotifier {
     if (!isAppLocked) return;
     isAppLocked = false;
     notifyListeners();
+    _restoreSecureSession();
   }
 
   /// Performs an active cryptographic purge of keys upon logout or session invalidation events.
@@ -350,6 +352,8 @@ class AppState extends ChangeNotifier {
   }
 
   bool _bootstrapped = false;
+  bool _disposed = false;
+  bool _sessionRestoreStarted = false;
   Timer? _startupDeadline;
 
   /// Deliberately does NOT start any I/O. Cold-start restore is triggered by
@@ -359,6 +363,7 @@ class AppState extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _startupDeadline?.cancel();
     super.dispose();
   }
@@ -371,7 +376,7 @@ class AppState extends ChangeNotifier {
 
     // Hard safety net: a slow or wedged platform channel (secure storage,
     // shared preferences, Supabase) must never trap the app on the logo.
-    _startupDeadline = Timer(const Duration(seconds: 6), () {
+    _startupDeadline = Timer(const Duration(seconds: 4), () {
       if (!isInitializing) return;
       debugPrint('[Startup] Session restore timed out; releasing splash');
       isInitializing = false;
@@ -381,9 +386,13 @@ class AppState extends ChangeNotifier {
     unawaited(_initializeAuthAndData());
   }
 
-  /// Fast cold-start path: resolve the locally saved identity first and show
-  /// the login or PIN gate immediately. Supabase initialization, token refresh
-  /// and remote wallet data are all moved off the first-frame critical path.
+  /// Fast cold-start path: resolve the locally saved identity from
+  /// SharedPreferences and show the PIN gate immediately.
+  ///
+  /// The hardware vault (Keystore / Keychain / Tink) is deliberately NOT read
+  /// here: initialising it can take many seconds on some Android devices and
+  /// would hold the logo on screen. It is only touched when the user actually
+  /// submits a PIN, and Supabase restores its own session in the background.
   Future<void> _initializeAuthAndData() async {
     try {
       await AuthService().initialize();
@@ -393,13 +402,15 @@ class AppState extends ChangeNotifier {
         final user = AuthService().getUser(activeEmail);
         if (user != null) {
           _applyAuthenticatedUser(user);
-          // Only gate behind the PIN screen when a PIN can actually be
-          // verified locally; otherwise the lock screen would be a dead end.
-          if (await _hasStoredPin()) lockApp();
+          // A restored session always re-locks. The vault is checked when the
+          // user submits a PIN (with a fallback to the stored profile PIN).
+          lockApp();
           isInitializing = false;
           _startupDeadline?.cancel();
           notifyListeners();
-          unawaited(_bootstrapSupabaseAndData());
+          // Background refresh only — no secure-storage reads, so it cannot
+          // freeze the PIN gate or the wallet once it is visible.
+          _restoreSecureSession();
           return;
         }
       }
@@ -407,39 +418,61 @@ class AppState extends ChangeNotifier {
       debugPrint('[Startup] Local session restore failed: ${e.runtimeType}');
     }
 
-    // No saved identity: go straight to the login screen.
+    // No saved identity: go straight to the login screen. Supabase is needed
+    // for the login flow; this does no secure-storage reads.
     isInitializing = false;
     _startupDeadline?.cancel();
     notifyListeners();
-    unawaited(_bootstrapSupabaseAndData());
+    unawaited(_initializeSupabase());
   }
 
-  /// True when a PIN hash exists in the hardware vault. On a vault read error
-  /// we fail closed (keep the PIN gate) rather than exposing an unlocked app.
-  Future<bool> _hasStoredPin() async {
+  /// Initialises Supabase only (no secure-storage reads) so the login / OTP
+  /// flow is ready without blocking the first screen.
+  Future<void> _initializeSupabase() async {
     try {
-      final hash = await _secureStorage.read(key: _keyPinHash);
-      return hash != null && hash.isNotEmpty;
+      await SupabaseService.initialize();
+      _adoptSupabaseSession();
     } catch (e) {
-      debugPrint('[Security] PIN vault read failure: ${e.runtimeType}');
-      return true;
+      debugPrint('[Startup] Supabase init failed: ${e.runtimeType}');
     }
   }
 
-  /// Background startup work: initialize Supabase, restore/refresh the secure
-  /// session and then fetch remote wallet data. Never blocks the PIN/login UI.
+  /// Copies the session Supabase restored itself into memory. This avoids a
+  /// slow encrypted-vault read while still exposing a valid access token.
+  void _adoptSupabaseSession() {
+    try {
+      final session = SupabaseService().currentSession;
+      if (session != null && session.accessToken.isNotEmpty) {
+        _accessToken = session.accessToken;
+        _refreshToken = session.refreshToken;
+      }
+    } catch (e) {
+      debugPrint('[Startup] Session adopt failed: ${e.runtimeType}');
+    }
+  }
+
+  /// Restores remote wallet data once the user has unlocked the wallet. Runs
+  /// off the splash path, after the PIN gate is already interactive.
+  void _restoreSecureSession() {
+    if (_sessionRestoreStarted || _disposed) return;
+    _sessionRestoreStarted = true;
+    unawaited(_bootstrapSupabaseAndData());
+  }
+
+  /// Background work after unlock: initialize Supabase, adopt the restored
+  /// session and fetch remote wallet data.
   Future<void> _bootstrapSupabaseAndData() async {
     try {
       await SupabaseService.initialize();
+      _adoptSupabaseSession();
 
-      final hasValidSession = await loadUserSession();
-      if (hasValidSession && !isAuthenticated) {
+      if (!isAuthenticated) {
         final supaEmail = SupabaseService().currentUser?.email;
         if (supaEmail != null && supaEmail.isNotEmpty) {
           final user = AuthService().getUser(supaEmail);
           if (user != null) {
             _applyAuthenticatedUser(user);
-            if (await _hasStoredPin()) lockApp();
+            lockApp();
           }
         }
       }
@@ -806,8 +839,7 @@ class AppState extends ChangeNotifier {
   }
 
   void toggleTheme() {
-    themeMode =
-        themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    themeMode = themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     notifyListeners();
   }
 
@@ -1502,8 +1534,8 @@ class AppState extends ChangeNotifier {
     final tx = Transaction(
       id: 'tx_issue_${DateTime.now().millisecondsSinceEpoch}',
       refId: 'ISSUE-${DateTime.now().millisecondsSinceEpoch}',
-      title: 'Issued USD',
-      titleMm: 'USD ထုတ်ယူခြင်း',
+      title: 'Deposited USD',
+      titleMm: 'USD ငွေသွင်းခြင်း',
       category: 'usd_account',
       currency: 'USD',
       time: nowStr,

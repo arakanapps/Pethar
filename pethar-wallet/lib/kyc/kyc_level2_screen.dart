@@ -585,12 +585,12 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
     final profile = appState.profile;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0A0A0A)),
+          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFFF4F4F5)),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Row(
@@ -602,7 +602,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF0A0A0A),
+                color: Color(0xFFF4F4F5),
               ),
             ),
           ],
@@ -943,7 +943,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
   final TextStyle _inputStyle = const TextStyle(
     fontSize: 13.5,
     fontWeight: FontWeight.w700,
-    color: Color(0xFF0A0A0A),
+    color: Color(0xFFF4F4F5),
   );
 
   final ButtonStyle _primaryButtonStyle = ElevatedButton.styleFrom(
@@ -961,12 +961,12 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
       hintText: hint,
       hintStyle: const TextStyle(
         fontSize: 12.5,
-        color: Color(0xFF3F3F46),
+        color: Color(0xFFD4D4D8),
         fontWeight: FontWeight.w500,
       ),
       prefixIcon: Icon(icon, size: 19, color: const Color(0xFFD4D4D8)),
       filled: true,
-      fillColor: const Color(0xFFF4F4F5),
+      fillColor: const Color(0xFF0A0A0A),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -999,7 +999,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
       icon: const Icon(Icons.keyboard_arrow_down_rounded),
       decoration: InputDecoration(
         filled: true,
-        fillColor: const Color(0xFFF4F4F5),
+        fillColor: const Color(0xFF0A0A0A),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -1164,7 +1164,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF0A0A0A),
+                        color: Color(0xFFF4F4F5),
                       ),
                     ),
                     const SizedBox(height: 1),
@@ -1172,7 +1172,7 @@ class _KycLevel2ScreenState extends State<KycLevel2Screen> {
                       subtitle,
                       style: const TextStyle(
                         fontSize: 10.5,
-                        color: Color(0xFF3F3F46),
+                        color: Color(0xFFD4D4D8),
                         height: 1.35,
                       ),
                     ),
@@ -1276,7 +1276,7 @@ class _DocumentCard extends StatelessWidget {
                           child: Icon(
                             Icons.refresh_rounded,
                             size: 17,
-                            color: Color(0xFF0A0A0A),
+                            color: Color(0xFFF4F4F5),
                           ),
                         ),
                       ),
@@ -1316,7 +1316,7 @@ class _DocumentCard extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF0A0A0A),
+                            color: Color(0xFFF4F4F5),
                           ),
                         ),
                         const SizedBox(height: 1),
@@ -1324,7 +1324,7 @@ class _DocumentCard extends StatelessWidget {
                           hint,
                           style: const TextStyle(
                             fontSize: 10.5,
-                            color: Color(0xFF3F3F46),
+                            color: Color(0xFFD4D4D8),
                           ),
                         ),
                       ],
@@ -1352,7 +1352,7 @@ class _DocumentCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 30, color: const Color(0xFF3F3F46)),
+            Icon(icon, size: 30, color: const Color(0xFFD4D4D8)),
             const SizedBox(height: 6),
             const Text(
               'Tap to capture',

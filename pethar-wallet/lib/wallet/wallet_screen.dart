@@ -124,7 +124,7 @@ class _WalletScreenState extends State<WalletScreen> {
     final akdEquivalent = usdBal * 1.0; // 1 USD = 1 AKD parity
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       body: CustomScrollView(
         slivers: [
           // Custom App Bar & Hero Card
@@ -143,9 +143,9 @@ class _WalletScreenState extends State<WalletScreen> {
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Color(0xFF1E3A8A), // Deep sapphire blue
-                        Color(0xFF2563EB), // Payno blue
-                        Color(0xFF3B82F6), // Vibrant blue
+                        Color(0xFF000000),
+                        Color(0xFF0A0A0A),
+                        Color(0xFF000000),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -297,7 +297,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                   fontSize: 27,
                                   fontWeight: FontWeight.w900,
                                   fontFamily: 'monospace',
-                                  color: Color(0xFF111111),
+                                  color: Color(0xFFF4F4F5),
                                   letterSpacing: -0.6,
                                 ),
                               ),
@@ -325,7 +325,7 @@ class _WalletScreenState extends State<WalletScreen> {
           // Space for floating card
           const SliverToBoxAdapter(child: SizedBox(height: 64)),
 
-          // 4 Action Buttons: Issue | Withdraw | Send | Swap
+          // 4 Action Buttons: Deposit | Withdraw | Send | Swap
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -337,15 +337,15 @@ class _WalletScreenState extends State<WalletScreen> {
                       const Color(0xFF2563EB),
                       const Color(0xFF0A0A0A),
                     ),
-                    label: isAk ? 'ထုတ်ယူရန်' : 'Issue',
+                    label: isAk ? 'ငွေသွင်းရန်' : 'Deposit',
                     onTap: () => appState.setFinancialSubView('issue'),
                   ),
                   const SizedBox(width: 10),
                   _buildActionButton(
                     iconWidget: _buildCircledIcon(
                       Icons.north_east_rounded,
-                      const Color(0xFF111111),
-                      const Color(0xFF0A0A0A),
+                      const Color(0xFFD4D4D8),
+                      const Color(0xFF161616),
                     ),
                     label: isAk ? 'ငွေထုတ်ရန်' : 'Withdraw',
                     onTap: () => appState.setFinancialSubView('withdraw'),
@@ -429,7 +429,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       width: isSel ? 18 : 6,
                       height: 6,
                       decoration: BoxDecoration(
-                        color: isSel ? paynoBlue : const Color(0xFFD4D4D8),
+                        color: isSel ? paynoBlue : const Color(0xFF3F3F46),
                         borderRadius: BorderRadius.circular(999),
                       ),
                     );
@@ -493,7 +493,7 @@ class _WalletScreenState extends State<WalletScreen> {
           style: TextStyle(
             fontSize: 15,
             fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
-            color: isSel ? const Color(0xFF111111) : const Color(0xFFD4D4D8),
+            color: isSel ? const Color(0xFFF4F4F5) : const Color(0xFFD4D4D8),
           ),
         ),
       ),
@@ -532,7 +532,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 style: const TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF27272A),
+                  color: Color(0xFFD4D4D8),
                 ),
               ),
             ],
@@ -549,6 +549,7 @@ class _WalletScreenState extends State<WalletScreen> {
       decoration: BoxDecoration(
         color: bg,
         shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFF262626), width: 1),
       ),
       alignment: Alignment.center,
       child: Icon(icon, color: color, size: 22),
@@ -725,7 +726,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF111111),
+                            color: Color(0xFFF4F4F5),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -751,7 +752,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                           fontFamily: 'monospace',
-                          color: Color(0xFF111111),
+                          color: Color(0xFFF4F4F5),
                         ),
                       ),
                       const SizedBox(height: 3),
@@ -797,7 +798,7 @@ class _WalletScreenState extends State<WalletScreen> {
         'isPositive': false,
       },
       {
-        'title': 'Issued USD',
+        'title': 'Deposited USD',
         'time': '6 Nov 26 - 13:06',
         'amount': '+10.00 USD',
         'isPositive': true,
@@ -822,7 +823,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF111111),
+                  color: Color(0xFFF4F4F5),
                 ),
               ),
               GestureDetector(
@@ -886,7 +887,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 style: const TextStyle(
                   fontSize: 14.5,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF111111),
+                  color: Color(0xFFF4F4F5),
                 ),
               ),
               const SizedBox(height: 3),
@@ -908,7 +909,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 fontFamily: 'monospace',
                 color: isPositive == true
                     ? emeraldSuccess
-                    : const Color(0xFF111111),
+                    : const Color(0xFFF4F4F5),
               ),
             ),
         ],
@@ -930,28 +931,28 @@ class _WalletScreenState extends State<WalletScreen> {
         : rawAddress;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF111111), size: 20),
+              color: Color(0xFFF4F4F5), size: 20),
           onPressed: () => appState.setFinancialSubView('wallet_main'),
         ),
         title: Text(
-          isAk ? 'USD ထုတ်ယူခြင်း' : 'Issue USD',
+          isAk ? 'USD ငွေသွင်းခြင်း' : 'Deposit USD',
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: Color(0xFFF4F4F5),
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.close_rounded,
-                color: Color(0xFF111111), size: 24),
+                color: Color(0xFFF4F4F5), size: 24),
             onPressed: () => appState.setFinancialSubView('wallet_main'),
           ),
         ],
@@ -964,7 +965,7 @@ class _WalletScreenState extends State<WalletScreen> {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 8),
@@ -1003,7 +1004,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111111),
+                    color: Color(0xFFF4F4F5),
                   ),
                 ),
               ],
@@ -1014,7 +1015,7 @@ class _WalletScreenState extends State<WalletScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Monthly USD issue limit 0/10,000',
+                'Monthly USD deposit limit 0/10,000',
                 style: TextStyle(fontSize: 11.5, color: Color(0xFFD4D4D8)),
               ),
               Text(
@@ -1074,7 +1075,7 @@ class _WalletScreenState extends State<WalletScreen> {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 8),
@@ -1098,7 +1099,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
                       fontFamily: 'monospace',
-                      color: Color(0xFF111111),
+                      color: Color(0xFFF4F4F5),
                     ),
                   ),
                 ),
@@ -1107,7 +1108,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111111),
+                    color: Color(0xFFF4F4F5),
                   ),
                 ),
               ],
@@ -1139,7 +1140,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     fontSize: 12,
                     fontFamily: 'monospace',
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF111111),
+                    color: Color(0xFFF4F4F5),
                   ),
                 ),
               ],
@@ -1147,9 +1148,9 @@ class _WalletScreenState extends State<WalletScreen> {
           ),
           const SizedBox(height: 36),
 
-          // Issue USD Button (Blue gradient, NOT orange)
+          // Deposit USD Button (Blue gradient, NOT orange)
           _buildPrimaryButton(
-            label: isAk ? 'USD ထုတ်ယူမည်' : 'Issue USD',
+            label: isAk ? 'USD ငွေသွင်းမည်' : 'Deposit USD',
             onTap: () => _handleIssueUsd(context, appState, enteredVal, isAk),
           ),
         ],
@@ -1171,7 +1172,7 @@ class _WalletScreenState extends State<WalletScreen> {
     }
     // If not authenticated or has 0 AKD, provide demo credit or perform directly
     if (appState.wallet.balance < amount) {
-      // Allow user in demo mode to top up or issue
+      // Allow user in demo mode to top up or deposit
       _showInsufficientAkdDialog(context, appState, amount, isAk);
       return;
     }
@@ -1180,7 +1181,7 @@ class _WalletScreenState extends State<WalletScreen> {
     if (res['success'] == true) {
       appState.setFinancialSubView('processing');
     } else {
-      _showToast(res['message']?.toString() ?? 'Error issuing USD');
+      _showToast(res['message']?.toString() ?? 'Error depositing USD');
     }
   }
 
@@ -1234,13 +1235,13 @@ class _WalletScreenState extends State<WalletScreen> {
         : rawAddress;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF111111), size: 20),
+              color: Color(0xFFF4F4F5), size: 20),
           onPressed: () => appState.setFinancialSubView('wallet_main'),
         ),
         title: Text(
@@ -1248,14 +1249,14 @@ class _WalletScreenState extends State<WalletScreen> {
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: Color(0xFFF4F4F5),
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.close_rounded,
-                color: Color(0xFF111111), size: 24),
+                color: Color(0xFFF4F4F5), size: 24),
             onPressed: () => appState.setFinancialSubView('wallet_main'),
           ),
         ],
@@ -1268,7 +1269,7 @@ class _WalletScreenState extends State<WalletScreen> {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 8),
@@ -1309,7 +1310,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF111111),
+                        color: Color(0xFFF4F4F5),
                       ),
                     ),
                   ],
@@ -1337,7 +1338,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             fontFamily: 'monospace',
-                            color: Color(0xFF111111),
+                            color: Color(0xFFF4F4F5),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -1419,7 +1420,7 @@ class _WalletScreenState extends State<WalletScreen> {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 8),
@@ -1443,7 +1444,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
                       fontFamily: 'monospace',
-                      color: Color(0xFF111111),
+                      color: Color(0xFFF4F4F5),
                     ),
                   ),
                 ),
@@ -1452,7 +1453,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111111),
+                    color: Color(0xFFF4F4F5),
                   ),
                 ),
               ],
@@ -1512,13 +1513,13 @@ class _WalletScreenState extends State<WalletScreen> {
         : rawAddress;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF111111), size: 20),
+              color: Color(0xFFF4F4F5), size: 20),
           onPressed: () => appState.setFinancialSubView('wallet_main'),
         ),
         title: Text(
@@ -1526,14 +1527,14 @@ class _WalletScreenState extends State<WalletScreen> {
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: Color(0xFFF4F4F5),
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.close_rounded,
-                color: Color(0xFF111111), size: 24),
+                color: Color(0xFFF4F4F5), size: 24),
             onPressed: () => appState.setFinancialSubView('wallet_main'),
           ),
         ],
@@ -1546,7 +1547,7 @@ class _WalletScreenState extends State<WalletScreen> {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 12),
@@ -1588,7 +1589,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             style: const TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF111111),
+                              color: Color(0xFFF4F4F5),
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -1649,7 +1650,7 @@ class _WalletScreenState extends State<WalletScreen> {
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF111111),
+                                color: Color(0xFFF4F4F5),
                               ),
                             ),
                             const SizedBox(width: 4),
@@ -1720,7 +1721,7 @@ class _WalletScreenState extends State<WalletScreen> {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 8),
@@ -1835,7 +1836,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111111),
+                    color: Color(0xFFF4F4F5),
                   ),
                 ),
                 IconButton(
@@ -1898,7 +1899,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      side: const BorderSide(color: Color(0xFFD4D4D8)),
+                      side: const BorderSide(color: Color(0xFF3F1D24)),
                     ),
                     child: const Text('Cancel',
                         style: TextStyle(
@@ -1958,7 +1959,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 fontSize: 13,
                 fontWeight: isBold ? FontWeight.w900 : FontWeight.w700,
                 fontFamily: isMono ? 'monospace' : null,
-                color: const Color(0xFF111111),
+                color: const Color(0xFFF4F4F5),
               ),
             ),
       ],
@@ -2156,13 +2157,13 @@ class _WalletScreenState extends State<WalletScreen> {
     final receiveVal = sendVal * 1.0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF111111), size: 20),
+              color: Color(0xFFF4F4F5), size: 20),
           onPressed: () => appState.setFinancialSubView('wallet_main'),
         ),
         title: Text(
@@ -2170,14 +2171,14 @@ class _WalletScreenState extends State<WalletScreen> {
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: Color(0xFFF4F4F5),
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.close_rounded,
-                color: Color(0xFF111111), size: 24),
+                color: Color(0xFFF4F4F5), size: 24),
             onPressed: () => appState.setFinancialSubView('wallet_main'),
           ),
         ],
@@ -2213,7 +2214,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF111111),
+                  color: Color(0xFFF4F4F5),
                 ),
               ),
               IconButton(
@@ -2288,7 +2289,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF111111),
+                        color: Color(0xFFF4F4F5),
                       ),
                     ),
                   ],
@@ -2325,7 +2326,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF0A0A0A),
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFD4D4D8)),
+                  border: Border.all(color: const Color(0xFF3F1D24)),
                 ),
                 child: const Icon(Icons.swap_vert_rounded,
                     color: Color(0xFFD4D4D8), size: 20),
@@ -2361,7 +2362,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
                           fontFamily: 'monospace',
-                          color: Color(0xFF111111),
+                          color: Color(0xFFF4F4F5),
                         ),
                       ),
                     ),
@@ -2379,7 +2380,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF111111),
+                              color: Color(0xFFF4F4F5),
                             ),
                           ),
                           const Icon(Icons.keyboard_arrow_down_rounded,
@@ -2563,7 +2564,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     child: Text(
                       '$s%',
                       style: TextStyle(
-                        color: isSel ? Colors.white : const Color(0xFF111111),
+                        color: isSel ? Colors.white : const Color(0xFFF4F4F5),
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -2585,13 +2586,13 @@ class _WalletScreenState extends State<WalletScreen> {
     final rawAddress = appState.effectiveUsdWalletAddress;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF111111), size: 20),
+              color: Color(0xFFF4F4F5), size: 20),
           onPressed: () => appState.setFinancialSubView('wallet_main'),
         ),
         title: Text(
@@ -2599,14 +2600,14 @@ class _WalletScreenState extends State<WalletScreen> {
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: Color(0xFFF4F4F5),
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.close_rounded,
-                color: Color(0xFF111111), size: 24),
+                color: Color(0xFFF4F4F5), size: 24),
             onPressed: () => appState.setFinancialSubView('wallet_main'),
           ),
         ],
@@ -2692,7 +2693,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       fontSize: 12.5,
                       fontFamily: 'monospace',
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF111111),
+                      color: Color(0xFFF4F4F5),
                     ),
                   ),
                 ],
@@ -2713,7 +2714,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111111))),
+                      color: Color(0xFFF4F4F5))),
             ],
           ),
           const SizedBox(height: 18),
@@ -2753,13 +2754,13 @@ class _WalletScreenState extends State<WalletScreen> {
   Widget _buildMissionScreen(
       BuildContext context, AppState appState, bool isAk) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF111111), size: 20),
+              color: Color(0xFFF4F4F5), size: 20),
           onPressed: () => appState.setFinancialSubView('wallet_main'),
         ),
         title: Text(
@@ -2767,14 +2768,14 @@ class _WalletScreenState extends State<WalletScreen> {
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: Color(0xFFF4F4F5),
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.close_rounded,
-                color: Color(0xFF111111), size: 24),
+                color: Color(0xFFF4F4F5), size: 24),
             onPressed: () => appState.setFinancialSubView('wallet_main'),
           ),
         ],
@@ -2875,7 +2876,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF111111))),
+                            color: Color(0xFFF4F4F5))),
                   ],
                 ),
                 Divider(height: 20, color: Color(0xFF0A0A0A)),
@@ -2929,7 +2930,7 @@ class _WalletScreenState extends State<WalletScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFF27272A),
+            color: const Color(0xFF0A0A0A),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: const Color(0xFF3F3F46)),
           ),
@@ -2968,7 +2969,7 @@ class _WalletScreenState extends State<WalletScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.close_rounded, color: Color(0xFF111111)),
+            icon: const Icon(Icons.close_rounded, color: Color(0xFFF4F4F5)),
             onPressed: () => appState.setFinancialSubView('wallet_main'),
           ),
         ],
@@ -3004,7 +3005,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF111111),
+                  color: Color(0xFFF4F4F5),
                 ),
               ),
               const SizedBox(height: 12),
@@ -3057,13 +3058,13 @@ class _WalletScreenState extends State<WalletScreen> {
   Widget _buildSecurityPhraseScreen(
       BuildContext context, AppState appState, bool isAk) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF111111), size: 20),
+              color: Color(0xFFF4F4F5), size: 20),
           onPressed: () => appState.setFinancialSubView('wallet_main'),
         ),
         title: Text(
@@ -3073,7 +3074,7 @@ class _WalletScreenState extends State<WalletScreen> {
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: Color(0xFFF4F4F5),
           ),
         ),
         centerTitle: true,
@@ -3209,7 +3210,7 @@ class _WalletScreenState extends State<WalletScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFF0A0A0A),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFD4D4D8)),
+          border: Border.all(color: const Color(0xFF3F1D24)),
         ),
         child: Text(
           label,

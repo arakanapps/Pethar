@@ -93,6 +93,324 @@ class _HomeScreenState extends State<HomeScreen> {
     onAllowed();
   }
 
+  Future<void> _showCashFlowSheet(
+    BuildContext context,
+    AppState appState,
+    bool isAk, {
+    required bool cashIn,
+  }) async {
+    final controller = TextEditingController();
+    String? error;
+
+    final title = cashIn
+        ? (isAk ? 'ငွေသွင်း (Cash In)' : 'Cash In')
+        : (isAk ? 'ငွေထုတ် (Cash Out)' : 'Cash Out');
+    final subtitle = cashIn
+        ? (isAk
+            ? 'USD မှ AKD သို့ ၁:၁ ဖြင့် လွှဲပြောင်းပါ'
+            : 'Move USD into your AKD wallet at 1:1')
+        : (isAk
+            ? 'AKD မှ USD သို့ ၁:၁ ဖြင့် လွှဲပြောင်းပါ'
+            : 'Move AKD into your USD wallet at 1:1');
+    final availableSymbol = cashIn ? 'USD' : 'AKD';
+    final actionLabel = cashIn
+        ? (isAk ? 'ငွေသွင်းမည်' : 'Cash In')
+        : (isAk ? 'ငွေထုတ်မည်' : 'Cash Out');
+
+    double available() =>
+        cashIn ? appState.usdAccountBalance : appState.wallet.balance;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (modalCtx) {
+        return StatefulBuilder(
+          builder: (sheetCtx, setSheetState) {
+            final amount = double.tryParse(controller.text.trim()) ?? 0.0;
+            final balance = available();
+
+            void setAmount(double value) {
+              controller.text = value.toStringAsFixed(2);
+              setSheetState(() => error = null);
+            }
+
+            void submit() {
+              if (amount <= 0) {
+                setSheetState(() => error =
+                    isAk ? 'ပမာဏ ထည့်သွင်းပါ' : 'Please enter an amount.');
+                return;
+              }
+              if (amount > balance) {
+                setSheetState(() => error = isAk
+                    ? '$availableSymbol လက်ကျန်ငွေ မလုံလောက်ပါ'
+                    : 'Insufficient $availableSymbol balance.');
+                return;
+              }
+
+              // Cash In reuses the USD wallet withdrawal path (USD -> AKD).
+              // Cash Out reuses the USD wallet issue/deposit path (AKD -> USD).
+              final result = cashIn
+                  ? appState.withdrawUsd(amount)
+                  : appState.issueUsd(amount);
+              if (result['success'] != true) {
+                setSheetState(() => error = result['message']?.toString() ??
+                    (isAk
+                        ? 'လုပ်ဆောင်မှု မအောင်မြင်ပါ'
+                        : 'Transaction failed.'));
+                return;
+              }
+
+              Navigator.of(modalCtx).pop();
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(Icons.check_circle_rounded,
+                          color: emeraldSuccess, size: 18),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          isAk ? '$title အောင်မြင်ပါသည်' : '$title successful',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: const Color(0xFF1E293B),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
+
+            Widget preset(String label, double value) {
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => setAmount(value),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF000000),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF262626)),
+                    ),
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFFF4F4F5),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF0A0A0A),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                ),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF262626),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFFFAFAFA),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              subtitle,
+                              style: const TextStyle(
+                                  fontSize: 12, color: Color(0xFFA1A1AA)),
+                            ),
+                          ],
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.of(modalCtx).pop(),
+                          icon: const Icon(Icons.close,
+                              size: 20, color: Color(0xFFA1A1AA)),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF000000),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: const Color(0xFF262626)),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: controller,
+                                  autofocus: true,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800,
+                                    fontFamily: 'monospace',
+                                    color: Color(0xFFFAFAFA),
+                                  ),
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '0.00',
+                                  ),
+                                  onChanged: (_) =>
+                                      setSheetState(() => error = null),
+                                ),
+                              ),
+                              Text(
+                                availableSymbol,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFFF4F4F5),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Divider(height: 18, color: Color(0xFF18181B)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                isAk
+                                    ? 'ရရှိနိုင်သော $availableSymbol'
+                                    : 'Available $availableSymbol',
+                                style: const TextStyle(
+                                    fontSize: 12, color: Color(0xFFA1A1AA)),
+                              ),
+                              Text(
+                                NumberFormat('#,##0.00', 'en_US')
+                                    .format(balance),
+                                style: const TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w800,
+                                  fontFamily: 'monospace',
+                                  color: Color(0xFFF4F4F5),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        preset('10', 10),
+                        preset('50', 50),
+                        preset('100', 100),
+                        preset(isAk ? 'အားလုံး' : 'Max', balance),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        const Icon(Icons.swap_horiz_rounded,
+                            size: 16, color: Color(0xFFA1A1AA)),
+                        const SizedBox(width: 6),
+                        Text(
+                          isAk
+                              ? 'လဲလှယ်နှုန်း ၁ AKD = ၁ USD'
+                              : 'Rate: 1 AKD = 1 USD',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFA1A1AA),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (error != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        error!,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFF87171),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: submit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: crimson,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16)),
+                        ),
+                        child: Text(
+                          actionLabel,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+    controller.dispose();
+  }
+
   ImageProvider? _buildAvatarImageProvider(String? avatarUrl) {
     if (avatarUrl == null || avatarUrl.trim().isEmpty) return null;
     final url = avatarUrl.trim();
@@ -182,7 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF27272A),
+                    color: const Color(0xFF000000),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -234,7 +552,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: Color(0xFF111111)),
                 ),
-                tileColor: const Color(0xFFFAFAFA),
+                tileColor: const Color(0xFF000000),
                 leading: Container(
                   width: 42,
                   height: 42,
@@ -273,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: Color(0xFF111111)),
                 ),
-                tileColor: const Color(0xFFFAFAFA),
+                tileColor: const Color(0xFF000000),
                 leading: Container(
                   width: 42,
                   height: 42,
@@ -313,7 +631,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: TextButton(
                   onPressed: () => Navigator.pop(modalCtx),
                   style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFFF4F4F5),
+                    backgroundColor: const Color(0xFF000000),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),
                   ),
@@ -463,29 +781,23 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
       },
       {
-        'label': isAk ? 'ငွေသွင်း' : 'Deposit',
+        'label': isAk ? 'ငွေသွင်း' : 'Cash In',
         'iconWidget': const Icon(Icons.south_rounded, color: crimson, size: 21),
         'onTap': () => _runVerifiedAction(
               context,
               appState,
-              isAk ? 'ငွေသွင်းရန် (Deposit)' : 'Deposit',
-              () => appState.navigate(
-                Screen.notifications,
-                financialView: 'issue',
-              ),
+              isAk ? 'ငွေသွင်းရန် (Cash In)' : 'Cash In',
+              () => _showCashFlowSheet(context, appState, isAk, cashIn: true),
             ),
       },
       {
-        'label': isAk ? 'ငွေထုတ်' : 'Withdraw',
+        'label': isAk ? 'ငွေထုတ်' : 'Cash Out',
         'iconWidget': const Icon(Icons.north_rounded, color: crimson, size: 21),
         'onTap': () => _runVerifiedAction(
               context,
               appState,
-              isAk ? 'ငွေထုတ်ရန် (Withdraw)' : 'Withdraw',
-              () => appState.navigate(
-                Screen.notifications,
-                financialView: 'withdraw',
-              ),
+              isAk ? 'ငွေထုတ်ရန် (Cash Out)' : 'Cash Out',
+              () => _showCashFlowSheet(context, appState, isAk, cashIn: false),
             ),
       },
     ];
@@ -555,7 +867,7 @@ class _HomeScreenState extends State<HomeScreen> {
         : (bal >= 1000000 ? 34.0 : (bal >= 100000 ? 38.0 : 42.0));
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F6FB),
+      backgroundColor: const Color(0xFF000000),
       body: Stack(
         children: [
           const _LiquidGlassBackground(),
@@ -618,10 +930,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFFFFE4E7), Color(0xFFF6FAFF)],
+                    colors: [Color(0xFF2A0A0E), Color(0xFF1A1A1A)],
                   ),
                   border:
-                      Border.all(color: const Color(0xFF0A0A0A), width: 1.8),
+                      Border.all(color: const Color(0xFF333333), width: 1.5),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF0B1B33).withValues(alpha: 0.10),
@@ -715,12 +1027,11 @@ class _HomeScreenState extends State<HomeScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.white.withValues(alpha: 0.92),
-              Colors.white.withValues(alpha: 0.55),
+              const Color(0xFF1A1A1A),
+              const Color(0xFF0A0A0A),
             ],
           ),
-          border: Border.all(
-              color: Colors.white.withValues(alpha: 0.95), width: 1.3),
+          border: Border.all(color: const Color(0xFF262626), width: 1.1),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF0B1B33).withValues(alpha: 0.07),
@@ -772,10 +1083,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.55),
+                      color: const Color(0xFF1A1A1A),
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.9)),
+                      border: Border.all(color: const Color(0xFF333333)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -806,9 +1116,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 34,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.6),
-                        border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.95)),
+                        color: const Color(0xFF1A1A1A),
+                        border: Border.all(color: const Color(0xFF333333)),
                       ),
                       alignment: Alignment.center,
                       child: Icon(
@@ -994,12 +1303,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFFFFFFFF),
-                  Color(0xFFFFEFF1),
-                  Color(0xFFFDF3F4)
+                  Color(0xFF1C1214),
+                  Color(0xFF160B0D),
+                  Color(0xFF0A0A0A),
                 ],
               ),
-              border: Border.all(color: const Color(0xFF0A0A0A), width: 1.5),
+              border: Border.all(color: const Color(0xFF2A1A1E), width: 1.2),
               boxShadow: [
                 BoxShadow(
                   color: crimson.withValues(alpha: 0.14),
@@ -1102,10 +1411,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.65),
+                    color: const Color(0xFF1A1A1A),
                     borderRadius: BorderRadius.circular(999),
-                    border:
-                        Border.all(color: Colors.white.withValues(alpha: 0.95)),
+                    border: Border.all(color: const Color(0xFF333333)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1217,10 +1525,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 46,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.55),
+                          color: const Color(0xFF1A1A1A),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.95),
-                            width: 1.5,
+                            color: const Color(0xFF333333),
+                            width: 1.2,
                           ),
                         ),
                         alignment: Alignment.center,
@@ -1252,10 +1560,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 46,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.55),
+                      color: const Color(0xFF1A1A1A),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.95)),
+                      border: Border.all(color: const Color(0xFF333333)),
                     ),
                     alignment: Alignment.center,
                     child: Row(
@@ -1369,7 +1676,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: active ? 18 : 6,
               height: 6,
               decoration: BoxDecoration(
-                color: active ? crimson : const Color(0xFF3F3F46),
+                color: active ? crimson : const Color(0xFF000000),
                 borderRadius: BorderRadius.circular(999),
               ),
             );
@@ -1616,36 +1923,8 @@ class _LiquidGlassBackground extends StatelessWidget {
       child: Stack(
         children: [
           const Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFFFCF3F5),
-                    Color(0xFFF4F7FC),
-                    Color(0xFFEFF4FB)
-                  ],
-                ),
-              ),
-            ),
+            child: ColoredBox(color: trueBlack),
           ),
-          Positioned(
-              top: -110,
-              left: -80,
-              child: _blob(const Color(0xFFE11D2E), 280, 0.22)),
-          Positioned(
-              top: 180,
-              right: -120,
-              child: _blob(const Color(0xFF2563EB), 320, 0.16)),
-          Positioned(
-              bottom: 80,
-              left: -110,
-              child: _blob(const Color(0xFF14B8A6), 300, 0.14)),
-          Positioned(
-              bottom: -80,
-              right: -60,
-              child: _blob(const Color(0xFFD4AF37), 260, 0.16)),
         ],
       ),
     );
@@ -1689,7 +1968,7 @@ class _GlassSurface extends StatelessWidget {
         borderRadius: base,
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0B1B33).withValues(alpha: 0.07),
+            color: const Color(0xCC000000),
             blurRadius: 26,
             offset: const Offset(0, 12),
           ),
@@ -1708,17 +1987,16 @@ class _GlassSurface extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: tint == null
                     ? [
-                        Colors.white.withValues(alpha: 0.78),
-                        Colors.white.withValues(alpha: 0.42),
+                        const Color(0xFF121212),
+                        const Color(0xFF0A0A0A),
                       ]
                     : [
-                        Colors.white.withValues(alpha: 0.82),
-                        tint!.withValues(alpha: 0.13),
-                        Colors.white.withValues(alpha: 0.48),
+                        const Color(0xFF171313),
+                        tint!.withValues(alpha: 0.16),
+                        const Color(0xFF0A0A0A),
                       ],
               ),
-              border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.9), width: 1.3),
+              border: Border.all(color: const Color(0xFF262626), width: 1.1),
             ),
             child: child,
           ),

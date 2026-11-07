@@ -72,7 +72,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white24 : const Color(0xFFD4D4D8),
+                    color: isDark ? Colors.white24 : const Color(0xFF1A0A0C),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -148,7 +148,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : const Color(0xFF111111),
+                  color: isDark ? Colors.white : const Color(0xFFF4F4F5),
                   letterSpacing: -0.2,
                 ),
               ),
@@ -158,7 +158,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.55,
-                  color: isDark ? Colors.grey[300] : const Color(0xFF3F3F46),
+                  color: isDark ? Colors.grey[300] : const Color(0xFFD4D4D8),
                 ),
               ),
               const SizedBox(height: 26),
@@ -306,7 +306,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 icon: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: 16,
-                  color: isDark ? Colors.white : const Color(0xFF111111),
+                  color: isDark ? Colors.white : const Color(0xFFF4F4F5),
                 ),
                 onPressed: () {
                   if (Navigator.of(context).canPop()) {
@@ -324,7 +324,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           style: TextStyle(
             fontWeight: FontWeight.w800,
             fontSize: 20,
-            color: isDark ? Colors.white : const Color(0xFF111111),
+            color: isDark ? Colors.white : const Color(0xFFF4F4F5),
             letterSpacing: -0.4,
           ),
         ),
@@ -354,7 +354,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       width: 7,
                       height: 7,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFDC2626),
+                        color: Color(0xFF1A0A0C),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -419,7 +419,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         color: unreadCount > 0
-                            ? (isDark ? Colors.white : const Color(0xFF111111))
+                            ? (isDark ? Colors.white : const Color(0xFFF4F4F5))
                             : Colors.grey,
                       ),
                     ),
@@ -438,7 +438,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         color: appState.notifications.isNotEmpty
-                            ? (isDark ? Colors.white : const Color(0xFF111111))
+                            ? (isDark ? Colors.white : const Color(0xFFF4F4F5))
                             : Colors.grey,
                       ),
                     ),
@@ -548,7 +548,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       fontWeight: active ? FontWeight.w700 : FontWeight.w600,
                                       color: active
                                           ? Colors.white
-                                          : (isDark ? Colors.white70 : const Color(0xFF3F3F46)),
+                                          : (isDark ? Colors.white70 : const Color(0xFFD4D4D8)),
                                     ),
                                   ),
                                   if (count > 0) ...[
@@ -738,7 +738,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white : const Color(0xFF111111),
+                                color: isDark ? Colors.white : const Color(0xFFF4F4F5),
                                 letterSpacing: -0.3,
                               ),
                             ),
@@ -884,7 +884,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   alignment: Alignment.centerRight,
                                   padding: const EdgeInsets.only(right: 20),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFEF4444),
+                                    color: const Color(0xFF1A1400),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Row(
@@ -1000,7 +1000,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                           style: TextStyle(
                                                             fontWeight: item.read ? FontWeight.w600 : FontWeight.w800,
                                                             fontSize: 13.5,
-                                                            color: isDark ? Colors.white : const Color(0xFF111111),
+                                                            color: isDark ? Colors.white : const Color(0xFFF4F4F5),
                                                             letterSpacing: -0.2,
                                                           ),
                                                         ),

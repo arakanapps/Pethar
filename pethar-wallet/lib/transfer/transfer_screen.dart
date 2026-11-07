@@ -262,11 +262,22 @@ class _TransferScreenState extends State<TransferScreen> {
       if (!mounted) return;
 
       if (resolved['found'] != true) {
+        final reason = (resolved['reason'] ?? '').toString();
         setState(() {
           _isResolvingRecipient = false;
-          _errorMessage = isAk
-              ? 'ဤ ID သို့မဟုတ် username ဖြင့် Péthar အကောင့် မတွေ့ပါ'
-              : 'No Péthar account found for this ID or username';
+          if (reason == 'unauthenticated') {
+            _errorMessage = isAk
+                ? 'ဆက်လုပ်ဆောင်ရန် အကောင့်ပြန်လည်ဝင်ရောက်ပါ'
+                : 'Please sign in again to continue';
+          } else if (reason == 'unavailable') {
+            _errorMessage = isAk
+                ? 'လက်ခံသူရှာဖွေမှု ယာယီမရနိုင်ပါ။ ခဏနေရင် ပြန်စမ်းပါ'
+                : 'Recipient lookup is unavailable right now. Please try again.';
+          } else {
+            _errorMessage = isAk
+                ? 'No User Found — ဤ ID သို့မဟုတ် username ဖြင့် အကောင့် မတွေ့ပါ'
+                : 'No User Found';
+          }
         });
         return;
       }
@@ -410,7 +421,7 @@ class _TransferScreenState extends State<TransferScreen> {
     _applyPendingPayContactSynchronous(appState);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F7FD),
+      backgroundColor: const Color(0xFF000000),
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -757,10 +768,10 @@ class _TransferScreenState extends State<TransferScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFDECEE),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(14),
                       border:
-                          Border.all(color: const Color(0xFFFBC5C9), width: 1),
+                          Border.all(color: const Color(0xFF3F1D24), width: 1),
                     ),
                     child: Row(
                       children: [
@@ -844,12 +855,12 @@ class _TransferScreenState extends State<TransferScreen> {
                       const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
                   decoration: BoxDecoration(
                     color: _deleteMode
-                        ? const Color(0xFFFDECEE)
+                        ? const Color(0xFF000000)
                         : Colors.white.withValues(alpha: 0.58),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
                       color: _deleteMode
-                          ? const Color(0xFFFBC5C9)
+                          ? const Color(0xFF3F1D24)
                           : Colors.white.withValues(alpha: 0.95),
                       width: 1.1,
                     ),
@@ -1146,10 +1157,10 @@ class _TransferScreenState extends State<TransferScreen> {
                             width: 34,
                             height: 34,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFDECEE),
+                              color: const Color(0xFF000000),
                               shape: BoxShape.circle,
                               border:
-                                  Border.all(color: const Color(0xFFFBC5C9)),
+                                  Border.all(color: const Color(0xFF3F1D24)),
                             ),
                             child: const Icon(Icons.delete_rounded,
                                 size: 16, color: Color(0xFFDC2626)),
@@ -1439,7 +1450,7 @@ class _TransferScreenState extends State<TransferScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 1),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFDECEE),
+                        color: const Color(0xFF000000),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: const Text(
@@ -1512,9 +1523,9 @@ class _TransferScreenState extends State<TransferScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(11),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFDECEE),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFFBC5C9)),
+                      border: Border.all(color: const Color(0xFF3F1D24)),
                     ),
                     child: Row(
                       children: [
@@ -1543,9 +1554,9 @@ class _TransferScreenState extends State<TransferScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFDECEE),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFFBC5C9)),
+                      border: Border.all(color: const Color(0xFF3F1D24)),
                     ),
                     child: Row(
                       children: [
@@ -1575,9 +1586,9 @@ class _TransferScreenState extends State<TransferScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7E8),
+                      color: const Color(0xFF000000),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFF6DFAE)),
+                      border: Border.all(color: const Color(0xFF3F1D24)),
                     ),
                     child: Row(
                       children: [
@@ -1661,12 +1672,12 @@ class _TransferScreenState extends State<TransferScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF9EC).withValues(alpha: 0.82),
+        color: const Color(0xFF000000).withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFF3DFB4), width: 1.1),
+        border: Border.all(color: const Color(0xFF78350F), width: 1.1),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFD4AF37).withValues(alpha: 0.10),
+            color: const Color(0xFF1A0A0C).withValues(alpha: 0.10),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -1681,9 +1692,9 @@ class _TransferScreenState extends State<TransferScreen> {
                 width: 26,
                 height: 26,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFCEBC4),
+                  color: const Color(0xFF1A1400),
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF3DFB4)),
+                  border: Border.all(color: const Color(0xFF78350F)),
                 ),
                 child: const Icon(Icons.shield_outlined,
                     size: 14, color: Color(0xFFB45309)),
@@ -1770,7 +1781,7 @@ class _TransferScreenState extends State<TransferScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.30),
+                        color: const Color(0xFF0A140A).withValues(alpha: 0.30),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -1901,9 +1912,9 @@ class _GlassBackdrop extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFFDDEBFC),
-                Color(0xFFF0F7FE),
-                Color(0xFFFAFDFF),
+                Color(0xFF000000),
+                Color(0xFF050505),
+                Color(0xFF000000),
               ],
               stops: [0.0, 0.5, 1.0],
             ),

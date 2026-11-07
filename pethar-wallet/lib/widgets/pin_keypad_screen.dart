@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import '../theme.dart';
 
@@ -288,7 +289,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                   topRight: Radius.circular(16),
                 ),
                 border: Border.all(
-                  color: const Color(0xFFD4D4D8),
+                  color: const Color(0xFF3F1D24),
                   width: 4.0,
                 ),
               ),
@@ -323,7 +324,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                       width: 5.5,
                       height: 5.5,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF86163C),
+                        color: Color(0xFF1A0A0C),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -331,7 +332,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                       width: 3.2,
                       height: 5.5,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF86163C),
+                        color: const Color(0xFF1A0A0C),
                         borderRadius: BorderRadius.circular(1),
                       ),
                     ),
@@ -408,9 +409,19 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFCFCFD),
-      body: Stack(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: trueBlack,
+        systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarDividerColor: trueBlack,
+        systemNavigationBarContrastEnforced: false,
+      ),
+      child: Scaffold(
+        backgroundColor: trueBlack,
+        body: Stack(
         children: [
           // Background Watermark Chevron & Geometry matching Image 3
           Positioned.fill(
@@ -443,7 +454,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                               if (widget.onBack != null)
                                 IconButton(
                                   icon: const Icon(Icons.chevron_left,
-                                      color: Color(0xFF0A0A0A), size: 28),
+                                      color: Color(0xFFF4F4F5), size: 28),
                                   onPressed: widget.onBack,
                                 )
                               else
@@ -468,7 +479,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF111111),
+                                color: Color(0xFFF4F4F5),
                                 letterSpacing: -0.3,
                               ),
                             ),
@@ -525,12 +536,12 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: isFilled
-                                        ? const Color(0xFF27272A)
+                                        ? const Color(0xFF0A0A0A)
                                         : const Color(0xFF262626),
                                     border: Border.all(
                                       color: isFilled
                                           ? const Color(0xFF27272A)
-                                          : const Color(0xFFD4D4D8),
+                                          : const Color(0xFF3F1D24),
                                       width: 1,
                                     ),
                                   ),
@@ -552,7 +563,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                       style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111111))),
+                                          color: Color(0xFFF4F4F5))),
                                   onTap: () => _onDigit('1'),
                                 ),
                                 _buildKeyButton(
@@ -560,7 +571,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                       style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111111))),
+                                          color: Color(0xFFF4F4F5))),
                                   onTap: () => _onDigit('2'),
                                 ),
                                 _buildKeyButton(
@@ -568,7 +579,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                       style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111111))),
+                                          color: Color(0xFFF4F4F5))),
                                   onTap: () => _onDigit('3'),
                                 ),
                               ],
@@ -581,7 +592,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                       style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111111))),
+                                          color: Color(0xFFF4F4F5))),
                                   onTap: () => _onDigit('4'),
                                 ),
                                 _buildKeyButton(
@@ -589,7 +600,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                       style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111111))),
+                                          color: Color(0xFFF4F4F5))),
                                   onTap: () => _onDigit('5'),
                                 ),
                                 _buildKeyButton(
@@ -597,7 +608,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                       style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111111))),
+                                          color: Color(0xFFF4F4F5))),
                                   onTap: () => _onDigit('6'),
                                 ),
                               ],
@@ -610,7 +621,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                       style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111111))),
+                                          color: Color(0xFFF4F4F5))),
                                   onTap: () => _onDigit('7'),
                                 ),
                                 _buildKeyButton(
@@ -618,7 +629,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                       style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111111))),
+                                          color: Color(0xFFF4F4F5))),
                                   onTap: () => _onDigit('8'),
                                 ),
                                 _buildKeyButton(
@@ -626,7 +637,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                       style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111111))),
+                                          color: Color(0xFFF4F4F5))),
                                   onTap: () => _onDigit('9'),
                                 ),
                               ],
@@ -640,7 +651,7 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
                                       style: TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111111))),
+                                          color: Color(0xFFF4F4F5))),
                                   onTap: () => _onDigit('0'),
                                 ),
                                 _buildKeyButton(
@@ -694,7 +705,8 @@ class _PinKeypadScreenState extends State<PinKeypadScreen> {
               },
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

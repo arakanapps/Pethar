@@ -19,14 +19,14 @@ class TopupScreen extends StatelessWidget {
     final packages = appState.topupPackagesList;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0,
         title: Text(
           isAk ? 'ငွေဖြည့်' : 'Top Up',
           style: const TextStyle(
-            color: Color(0xFF0A0A0A),
+            color: Color(0xFFF4F4F5),
             fontWeight: FontWeight.w800,
             fontSize: 17,
           ),
@@ -43,7 +43,7 @@ class TopupScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 children: [
                   const SizedBox(height: 80),
-                  const Icon(Icons.inbox_rounded, size: 52, color: Color(0xFF3F3F46)),
+                  const Icon(Icons.inbox_rounded, size: 52, color: Color(0xFFD4D4D8)),
                   const SizedBox(height: 16),
                   Text(
                     isAk
@@ -53,7 +53,7 @@ class TopupScreen extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF3F3F46),
+                      color: Color(0xFFD4D4D8),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -106,7 +106,7 @@ class TopupScreen extends StatelessWidget {
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF0A0A0A),
+                                  color: Color(0xFFF4F4F5),
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -125,7 +125,7 @@ class TopupScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF0A0A0A),
+                            color: Color(0xFFF4F4F5),
                           ),
                         ),
                       ],

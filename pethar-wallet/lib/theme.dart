@@ -30,9 +30,9 @@ const Color trueBlack = Color(0xFF000000);
 const Color trueBlackSurface = Color(0xFF0A0A0A);
 const Color trueBlackElevated = Color(0xFF111111);
 const Color trueBlackBorder = Color(0xFF262626);
-const Color darkPrimaryText = Color(0xFF000000);
-const Color darkSecondaryText = Color(0xFF3F3F46);
-const Color darkTertiaryText = Color(0xFFD4D4D8);
+const Color darkPrimaryText = Color(0xFFFFFFFF);
+const Color darkSecondaryText = Color(0xFFA1A1AA);
+const Color darkTertiaryText = Color(0xFF71717A);
 
 ThemeData darkTheme() {
   final baseTextTheme = ThemeData.dark().textTheme.apply(
@@ -127,7 +127,7 @@ ThemeData lightTheme() {
   final baseTextTheme = ThemeData.light().textTheme;
   return ThemeData(
     brightness: Brightness.light,
-    scaffoldBackgroundColor: const Color(0xFFEAF4FD),
+    scaffoldBackgroundColor: const Color(0xFF0A0A0A),
     primaryColor: paynoBlue,
     colorScheme: const ColorScheme.light(
       primary: paynoBlue,
@@ -148,7 +148,7 @@ ThemeData lightTheme() {
       elevation: 0,
       iconTheme: IconThemeData(color: Color(0xFF111111)),
       titleTextStyle: TextStyle(
-        color: Color(0xFF111111),
+        color: Color(0xFFF4F4F5),
         fontSize: 18,
         fontWeight: FontWeight.bold,
       ),

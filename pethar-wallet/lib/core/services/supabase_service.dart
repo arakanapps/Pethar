@@ -819,28 +819,179 @@ class SupabaseService {
       });
       if (result is Map) return Map<String, dynamic>.from(result);
       return null;
+    } on PostgrestException catch (e) {
+      // The provisioning RPC is not deployed on every project (migrations
+      // 0008/0016 may not have been applied). Fall back to writing the caller's
+      // own rows, which RLS always permits, so the account still exists in the
+      // database and can be found by the recipient lookup.
+      if (_missingRpcCodes.contains(e.code ?? '')) {
+        return _ensureUserProfileDirect(
+          email: email,
+          firstName: firstName,
+          lastName: lastName,
+          username: username,
+        );
+      }
+      debugPrint('Error ensuring user profile: $e');
+      return null;
     } catch (e) {
       debugPrint('Error ensuring user profile: $e');
       return null;
     }
   }
 
+  /// PostgREST error codes meaning "this RPC is not installed / not callable".
+  static const Set<String> _missingRpcCodes = {
+    'PGRST202', // function not found in the schema cache
+    'PGRST204', // function not found
+    '42883', // undefined_function
+    '42501', // permission denied for function
+  };
+
+  /// Client-side provisioning used when `ensure_user_profile` is unavailable.
+  /// Only ever touches the signed-in user's own `users` / `user_profiles` rows.
+  Future<Map<String, dynamic>?> _ensureUserProfileDirect({
+    required String email,
+    required String firstName,
+    required String lastName,
+    String? username,
+  }) async {
+    final userId = authUserId;
+    if (userId == null) return null;
+
+    final existing = await fetchMyProfile();
+    if (existing != null) return existing;
+
+    final cleanUsername =
+        (username ?? email.split('@').first).replaceAll('@', '').trim();
+    final resolvedName = '$firstName $lastName'.trim();
+    final displayName =
+        resolvedName.isNotEmpty ? resolvedName : cleanUsername;
+    final uid = _generateUidCode();
+
+    try {
+      await client.from('users').upsert({
+        'id': userId,
+        'email': email,
+        'first_name': firstName,
+        'last_name': lastName,
+        'full_name': displayName,
+        'username': cleanUsername,
+        'uid': uid,
+        'status': 'ACTIVE',
+        'kyc_tier': 1,
+      }, onConflict: 'id');
+    } catch (e) {
+      debugPrint('Direct user row provisioning notice: $e');
+    }
+
+    try {
+      await client.from('user_profiles').insert({
+        'user_id': userId,
+        'email': email,
+        'uid': uid,
+        'username': cleanUsername,
+        'first_name': firstName,
+        'last_name': lastName,
+        'name': displayName,
+        'currency': 'AKD',
+      });
+    } catch (e) {
+      debugPrint('Direct profile provisioning notice: $e');
+    }
+
+    return fetchMyProfile();
+  }
+
+  /// Random 12-digit Péthar ID (matches the server generator in migration 0016).
+  String _generateUidCode() {
+    final random = Random.secure();
+    final buffer = StringBuffer('');
+    for (var i = 0; i < 12; i++) {
+      buffer.write(random.nextInt(10));
+    }
+    final candidate = buffer.toString();
+    // Never hand out a leading-zero / all-zero identifier.
+    return candidate.startsWith('0') ? '1${candidate.substring(1)}' : candidate;
+  }
+
   /// Resolve a transfer / pay recipient on the server before confirming.
+  ///
   /// Returns only the display name, wallet address and existence flags so the
-  /// UI never has to expose usernames or nicknames. Throws on transport or
-  /// server errors so the caller can tell "not found" from "could not check".
+  /// UI never has to expose usernames or nicknames. The result always carries
+  /// a `reason` (`found`, `not_found`, `empty`, `unauthenticated` or
+  /// `unavailable`) so the caller can show "No User Found" instead of a
+  /// misleading connection error. Only real transport failures throw.
   Future<Map<String, dynamic>> lookupTransferRecipient(
       String identifier) async {
     final query = identifier.trim();
-    if (query.isEmpty) return {'found': false};
+    if (query.isEmpty) return {'found': false, 'reason': 'empty'};
     if (!isAuthenticated) {
-      throw StateError('Sign in again before transferring.');
+      return {'found': false, 'reason': 'unauthenticated'};
     }
-    final result = await client.rpc('lookup_transfer_recipient', params: {
-      'p_identifier': query,
-    });
-    if (result is Map) return Map<String, dynamic>.from(result);
-    return {'found': false};
+
+    try {
+      final result = await client.rpc('lookup_transfer_recipient', params: {
+        'p_identifier': query,
+      });
+      if (result is Map) {
+        final resolved = Map<String, dynamic>.from(result);
+        resolved['reason'] = resolved['found'] == true ? 'found' : 'not_found';
+        return resolved;
+      }
+      return {'found': false, 'reason': 'not_found'};
+    } on PostgrestException catch (e) {
+      // The lookup RPC has not been deployed to this project yet (migration
+      // 0019). Fall back to a direct profile query so the screen still answers
+      // with "No User Found" instead of "Unable to verify recipient".
+      if (_missingRpcCodes.contains(e.code ?? '')) {
+        final fallback = await _lookupRecipientFromProfiles(query);
+        return fallback ?? {'found': false, 'reason': 'unavailable'};
+      }
+      rethrow;
+    }
+  }
+
+  /// RLS-scoped profile lookup used when [lookup_transfer_recipient] is not
+  /// installed. Returns `null` when the query itself cannot run.
+  Future<Map<String, dynamic>?> _lookupRecipientFromProfiles(
+      String query) async {
+    final compact = query.replaceAll(RegExp(r'\s+'), '');
+    final username = compact.startsWith('@') ? compact.substring(1) : compact;
+    if (username.isEmpty || !RegExp(r'^[A-Za-z0-9._-]+$').hasMatch(username)) {
+      return null;
+    }
+    try {
+      final rows = await client
+          .from('user_profiles')
+          .select('user_id, uid, wallet_address, name, first_name, '
+              'last_name, kyc_tier')
+          .or('uid.eq.$compact,wallet_address.eq.$compact,'
+              'username.ilike.$username')
+          .limit(1);
+      final list = rows as List<dynamic>;
+      if (list.isEmpty) return {'found': false, 'reason': 'not_found'};
+
+      final row = Map<String, dynamic>.from(list.first as Map);
+      final name = (row['name'] ?? '').toString().trim();
+      final first = (row['first_name'] ?? '').toString().trim();
+      final last = (row['last_name'] ?? '').toString().trim();
+      final display = name.isNotEmpty ? name : '$first $last'.trim();
+      final uid = (row['uid'] ?? '').toString().trim();
+      final wallet = (row['wallet_address'] ?? '').toString().trim();
+      final tier = row['kyc_tier'];
+      return {
+        'found': true,
+        'reason': 'found',
+        'name': display.isNotEmpty ? display : 'Péthar User',
+        'wallet_address': wallet.isNotEmpty ? wallet : uid,
+        'is_self': (row['user_id'] ?? '').toString() == authUserId,
+        'verified': tier is num && tier >= 2,
+      };
+    } catch (e) {
+      debugPrint('Direct recipient lookup notice: $e');
+      return null;
+    }
   }
 
   /// Send money through the server-side AKD-only transaction endpoint.

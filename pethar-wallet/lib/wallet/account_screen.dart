@@ -115,7 +115,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
                           color: isDark
-                              ? const Color(0xFF9E1B32).withValues(alpha: 0.3)
+                              ? const Color(0xFF1A0A0C).withValues(alpha: 0.3)
                               : const Color(0xFF0A0A0A),
                           shape: BoxShape.circle,
                         ),
@@ -178,7 +178,7 @@ class _AccountScreenState extends State<AccountScreen> {
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
                             color:
-                                isDark ? Colors.white : const Color(0xFF111111),
+                                isDark ? Colors.white : const Color(0xFFF4F4F5),
                           ),
                         ),
                       ],
@@ -228,7 +228,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                     width: 10,
                                     height: 10,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFFE11D48),
+                                      color: Color(0xFF1A0A0C),
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -241,7 +241,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                         fontWeight: FontWeight.w600,
                                         color: isDark
                                             ? Colors.white
-                                            : const Color(0xFF3F3F46),
+                                            : const Color(0xFFD4D4D8),
                                       ),
                                     ),
                                   ),
@@ -254,7 +254,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                     width: 10,
                                     height: 10,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFFF59E0B),
+                                      color: Color(0xFF1A1400),
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -267,7 +267,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                         fontWeight: FontWeight.w600,
                                         color: isDark
                                             ? Colors.white
-                                            : const Color(0xFF3F3F46),
+                                            : const Color(0xFFD4D4D8),
                                       ),
                                     ),
                                   ),
@@ -503,7 +503,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   fontWeight: FontWeight.w600,
                                   color: isDark
                                       ? Colors.white70
-                                      : const Color(0xFF3F3F46)),
+                                      : const Color(0xFFD4D4D8)),
                             ),
                           ],
                         ),
@@ -514,7 +514,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 width: 8,
                                 height: 8,
                                 decoration: const BoxDecoration(
-                                    color: Color(0xFFF59E0B),
+                                    color: Color(0xFF1A1400),
                                     shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
@@ -524,7 +524,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   fontWeight: FontWeight.w600,
                                   color: isDark
                                       ? Colors.white70
-                                      : const Color(0xFF3F3F46)),
+                                      : const Color(0xFFD4D4D8)),
                             ),
                           ],
                         ),
@@ -545,7 +545,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   fontWeight: FontWeight.w700,
                                   color: isDark
                                       ? Colors.white
-                                      : const Color(0xFF111111)),
+                                      : const Color(0xFFF4F4F5)),
                             ),
                           ],
                         ),
@@ -793,7 +793,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   fontWeight: FontWeight.w600,
                                   color: isDark
                                       ? Colors.white70
-                                      : const Color(0xFF3F3F46)),
+                                      : const Color(0xFFD4D4D8)),
                             ),
                           ],
                         ),
@@ -804,7 +804,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 width: 8,
                                 height: 8,
                                 decoration: const BoxDecoration(
-                                    color: Color(0xFFF59E0B),
+                                    color: Color(0xFF1A1400),
                                     shape: BoxShape.circle)),
                             const SizedBox(width: 5),
                             Text(
@@ -814,7 +814,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   fontWeight: FontWeight.w600,
                                   color: isDark
                                       ? Colors.white70
-                                      : const Color(0xFF3F3F46)),
+                                      : const Color(0xFFD4D4D8)),
                             ),
                           ],
                         ),
@@ -835,7 +835,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   fontWeight: FontWeight.w700,
                                   color: isDark
                                       ? Colors.white
-                                      : const Color(0xFF111111)),
+                                      : const Color(0xFFF4F4F5)),
                             ),
                           ],
                         ),

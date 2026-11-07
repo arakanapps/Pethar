@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../theme.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
     final isAk = lang == 'ak';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F5F8),
+      backgroundColor: trueBlack,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -36,7 +37,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   style: const TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 17,
-                    color: Color(0xFF111111),
+                    color: Color(0xFFF4F4F5),
                     letterSpacing: -0.2,
                   ),
                   textAlign: TextAlign.center,
@@ -172,7 +173,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14.5,
-                                  color: Color(0xFF27272A),
+                                  color: Color(0xFFD4D4D8),
                                 ),
                               ),
                             ),
@@ -207,7 +208,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
-                                      color: Color(0xFF27272A),
+                                      color: Color(0xFFD4D4D8),
                                     ),
                                   ),
                                 ),

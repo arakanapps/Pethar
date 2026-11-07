@@ -168,7 +168,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   ? 'ရွေးချယ်ထားသော ပုံတွင် တရားဝင် QR ကုဒ် မတွေ့ပါ'
                   : 'No valid QR code detected in the selected image',
             ),
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: const Color(0xFF1A0A0C),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -282,7 +282,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFF0A0A0A),
                           borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: const Color(0xFFD4D4D8)),
+                          border: Border.all(color: const Color(0xFF3F1D24)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -296,7 +296,7 @@ class _ScanScreenState extends State<ScanScreen> {
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF0A0A0A),
+                                color: Color(0xFFF4F4F5),
                               ),
                             ),
                           ],
@@ -391,7 +391,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                   decoration: BoxDecoration(
                                     color: Colors.black.withValues(alpha: 0.65),
                                     borderRadius: BorderRadius.circular(999),
-                                    border: Border.all(color: const Color(0xFFD4D4D8)),
+                                    border: Border.all(color: const Color(0xFF3F1D24)),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,

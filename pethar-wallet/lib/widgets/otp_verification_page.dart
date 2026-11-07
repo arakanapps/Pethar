@@ -82,7 +82,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     final email = widget.email;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
+      backgroundColor: trueBlack,
       body: Stack(
         children: [
           const _OtpGlassBackground(),
@@ -105,7 +105,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF111111),
+                            color: Color(0xFFF4F4F5),
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -164,7 +164,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                         style: const TextStyle(
                           fontSize: 23,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF111111),
+                          color: Color(0xFFF4F4F5),
                           letterSpacing: -0.4,
                         ),
                       ),
@@ -218,7 +218,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                   style: const TextStyle(
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF3F3F46),
+                                    color: Color(0xFFD4D4D8),
                                   ),
                                 ),
                               ),
@@ -308,7 +308,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                     style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF111111),
+                                      color: Color(0xFFF4F4F5),
                                     ),
                                   ),
                                 ),
@@ -465,7 +465,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                     style: const TextStyle(
                                       fontSize: 12.5,
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF111111),
+                                      color: Color(0xFFF4F4F5),
                                     ),
                                   ),
                                   const SizedBox(height: 5),
@@ -554,7 +554,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF111111),
+                        color: Color(0xFFF4F4F5),
                       ),
                     ),
                   ),
@@ -622,7 +622,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             ),
           ],
         ),
-        child: Icon(icon, size: 26, color: const Color(0xFF111111)),
+        child: Icon(icon, size: 26, color: const Color(0xFFF4F4F5)),
       ),
     );
   }
@@ -672,7 +672,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               style: const TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF27272A),
+                color: Color(0xFFD4D4D8),
                 height: 1.35,
               ),
             ),
@@ -698,9 +698,9 @@ class _OtpGlassBackground extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xFFFDF5F6),
-                    Color(0xFFF4F7FC),
-                    Color(0xFFEFF3FA),
+                    Color(0xFF000000),
+                    Color(0xFF050505),
+                    Color(0xFF000000),
                   ],
                 ),
               ),

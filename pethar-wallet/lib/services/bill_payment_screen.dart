@@ -47,14 +47,14 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0,
         title: Text(
           isAk ? 'ဘေလ်ဆောင်ခြင်း' : 'Bill Payment',
           style: const TextStyle(
-            color: Color(0xFF0A0A0A),
+            color: Color(0xFFF4F4F5),
             fontWeight: FontWeight.w800,
             fontSize: 17,
           ),
@@ -96,7 +96,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                     padding: const EdgeInsets.all(24),
                     children: [
                       const SizedBox(height: 80),
-                      const Icon(Icons.receipt_long_rounded, size: 52, color: Color(0xFF3F3F46)),
+                      const Icon(Icons.receipt_long_rounded, size: 52, color: Color(0xFFD4D4D8)),
                       const SizedBox(height: 16),
                       Text(
                         _query.isEmpty
@@ -106,7 +106,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF3F3F46),
+                          color: Color(0xFFD4D4D8),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -171,7 +171,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
-                                          color: Color(0xFF0A0A0A),
+                                          color: Color(0xFFF4F4F5),
                                         ),
                                       ),
                                       if (category.isNotEmpty) ...[
@@ -187,7 +187,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                                     ],
                                   ),
                                 ),
-                                const Icon(Icons.chevron_right_rounded, color: Color(0xFF3F3F46)),
+                                const Icon(Icons.chevron_right_rounded, color: Color(0xFFD4D4D8)),
                               ],
                             ),
                           ),
@@ -225,7 +225,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF27272A),
+                  color: const Color(0xFF0A0A0A),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -244,7 +244,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
               isAk
                   ? 'ဘေလ်ဆောင်ခြင်းကို မကြာမီ ဖွင့်လှစ်ပါမည်။'
                   : 'Bill payment is not enabled yet.',
-              style: const TextStyle(fontSize: 14, color: Color(0xFF3F3F46), height: 1.5),
+              style: const TextStyle(fontSize: 14, color: Color(0xFFD4D4D8), height: 1.5),
             ),
             const SizedBox(height: 20),
             SizedBox(

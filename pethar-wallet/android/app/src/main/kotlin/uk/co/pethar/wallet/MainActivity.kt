@@ -100,30 +100,32 @@ class MainActivity : FlutterFragmentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        applyLightSystemBars()
+        applyDarkSystemBars()
     }
 
     override fun onResume() {
         super.onResume()
-        applyLightSystemBars()
+        applyDarkSystemBars()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
-            applyLightSystemBars()
+            applyDarkSystemBars()
         }
     }
 
-    private fun applyLightSystemBars() {
+    private fun applyDarkSystemBars() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
             window.statusBarColor = Color.TRANSPARENT
             window.navigationBarColor = Color.TRANSPARENT
             window.isNavigationBarContrastEnforced = false
             window.isStatusBarContrastEnforced = false
+            // Clear the light-bar appearance flags so status/navigation icons
+            // render in white on the true-black app background.
             window.insetsController?.setSystemBarsAppearance(
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                0,
                 WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
             )
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -132,8 +134,6 @@ class MainActivity : FlutterFragmentActivity() {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             )
             window.statusBarColor = Color.TRANSPARENT
             window.navigationBarColor = Color.TRANSPARENT

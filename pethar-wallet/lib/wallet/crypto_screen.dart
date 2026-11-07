@@ -294,7 +294,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
     final fmt = NumberFormat('#,##0.00', 'en_US');
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F5F8),
+      backgroundColor: trueBlack,
       appBar: AppBar(
         backgroundColor: trueBlack,
         elevation: 0,
@@ -303,7 +303,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
         leading: (widget.embedded && widget.onBack == null)
             ? null
             : IconButton(
-                icon: const Icon(Icons.arrow_back, color: Color(0xFF111111)),
+                icon: const Icon(Icons.arrow_back, color: Color(0xFFF4F4F5)),
                 onPressed: widget.onBack ?? () => appState.goBack(),
               ),
         title: Row(
@@ -331,7 +331,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF111111),
+                color: Color(0xFFF4F4F5),
               ),
             ),
           ],
@@ -348,7 +348,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.refresh_rounded, color: Color(0xFF3F3F46)),
+                : const Icon(Icons.refresh_rounded, color: Color(0xFFD4D4D8)),
           ),
         ],
       ),
@@ -449,7 +449,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
               fontSize: 28,
               fontWeight: FontWeight.w900,
               fontFamily: 'monospace',
-              color: Color(0xFF09090B),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 14),
@@ -572,7 +572,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                     style: const TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF0A0A0A),
+                      color: Color(0xFFF4F4F5),
                     ),
                   ),
                   Text(
@@ -582,7 +582,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                       fontFamily: 'monospace',
-                      color: Color(0xFF09090B),
+                      color: Color(0xFFF4F4F5),
                     ),
                   ),
                   Text(
@@ -688,7 +688,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF0A0A0A),
+                  color: Color(0xFFF4F4F5),
                 ),
               ),
               Container(
@@ -704,7 +704,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                     fontSize: 10.5,
                     fontWeight: FontWeight.w800,
                     fontFamily: 'monospace',
-                    color: Color(0xFF3F3F46),
+                    color: Color(0xFFD4D4D8),
                   ),
                 ),
               ),
@@ -748,7 +748,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                         width: 22,
                         height: 22,
                         decoration: BoxDecoration(
-                          color: enabled ? accent : const Color(0xFF3F3F46),
+                          color: enabled ? accent : const Color(0xFF0A0A0A),
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
@@ -771,8 +771,8 @@ class _CryptoScreenState extends State<CryptoScreen> {
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               color: enabled
-                                  ? const Color(0xFF0A0A0A)
-                                  : const Color(0xFF3F3F46),
+                                  ? const Color(0xFFF4F4F5)
+                                  : const Color(0xFFD4D4D8),
                             ),
                           ),
                           Text(
@@ -864,7 +864,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF0A0A0A),
+                            color: Color(0xFFF4F4F5),
                           ),
                         ),
                       ],
@@ -883,7 +883,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF27272A),
+                          color: Color(0xFFD4D4D8),
                         ),
                       ),
                     ),
@@ -919,7 +919,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                       fontSize: 12.5,
                       fontFamily: 'monospace',
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF111111),
+                      color: Color(0xFFF4F4F5),
                     ),
                   ),
                 ),
@@ -965,7 +965,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF1A1400),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF78350F)),
+                    border: Border.all(color: const Color(0xFF3F1D24)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1059,7 +1059,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                   style: const TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF0A0A0A),
+                    color: Color(0xFFF4F4F5),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -1075,10 +1075,10 @@ class _CryptoScreenState extends State<CryptoScreen> {
                     hintText: _addressHintForFamily(selectedNetwork.family),
                     hintStyle: const TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF3F3F46),
+                      color: Color(0xFFD4D4D8),
                     ),
                     filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
+                    fillColor: const Color(0xFF0A0A0A),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 13,
@@ -1114,7 +1114,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                       style: const TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF0A0A0A),
+                        color: Color(0xFFF4F4F5),
                       ),
                     ),
                     GestureDetector(
@@ -1153,7 +1153,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                         'Min ${tokenCfg!.minWithdrawal.toStringAsFixed(2)} $_selectedToken',
                     suffixText: _selectedToken,
                     filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
+                    fillColor: const Color(0xFF0A0A0A),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 13,
@@ -1271,7 +1271,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
             const Icon(
               Icons.receipt_long_outlined,
               size: 40,
-              color: Color(0xFF3F3F46),
+              color: Color(0xFFD4D4D8),
             ),
             const SizedBox(height: 10),
             Text(
@@ -1298,7 +1298,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF0A0A0A),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 8),
@@ -1311,7 +1311,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF0A0A0A),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 8),
@@ -1353,7 +1353,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF0A0A0A),
+                        color: Color(0xFFF4F4F5),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -1401,7 +1401,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                   fontFamily: 'monospace',
-                  color: Color(0xFF0A0A0A),
+                  color: Color(0xFFF4F4F5),
                 ),
               ),
               Text(
@@ -1409,7 +1409,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                 style: const TextStyle(
                   fontSize: 10.5,
                   fontFamily: 'monospace',
-                  color: Color(0xFF3F3F46),
+                  color: Color(0xFFD4D4D8),
                 ),
               ),
             ],
@@ -1445,7 +1445,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF0A0A0A),
+                    color: Color(0xFFF4F4F5),
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -1502,14 +1502,14 @@ class _CryptoScreenState extends State<CryptoScreen> {
       child: Column(
         children: [
           const Icon(Icons.lock_outline_rounded,
-              size: 40, color: Color(0xFF3F3F46)),
+              size: 40, color: Color(0xFFD4D4D8)),
           const SizedBox(height: 12),
           Text(
             isAk ? 'KYC Level 2 လိုအပ်ပါသည်' : 'KYC Level 2 Required',
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF0A0A0A),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 8),
@@ -1574,7 +1574,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
             style: const TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF0A0A0A),
+              color: Color(0xFFF4F4F5),
             ),
           ),
           const SizedBox(height: 6),
@@ -1627,7 +1627,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1400),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF78350F)),
+        border: Border.all(color: const Color(0xFF3F1D24)),
       ),
       child: Column(
         children: [
@@ -1683,7 +1683,7 @@ class _CryptoScreenState extends State<CryptoScreen> {
             fontSize: 11.5,
             fontFamily: 'monospace',
             fontWeight: bold ? FontWeight.w900 : FontWeight.w700,
-            color: const Color(0xFF0A0A0A),
+            color: const Color(0xFFF4F4F5),
           ),
         ),
       ],

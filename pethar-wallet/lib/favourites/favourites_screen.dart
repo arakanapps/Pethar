@@ -200,7 +200,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF111111),
+                      color: Color(0xFFF4F4F5),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -413,7 +413,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w900,
-                                  color: Color(0xFF111111),
+                                  color: Color(0xFFF4F4F5),
                                   letterSpacing: -0.2,
                                 ),
                               ),
@@ -459,10 +459,10 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                           gradient: const LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Color(0xFFF8FBFF), Color(0xFFEEF5FD)],
+                            colors: [Color(0xFF161616), Color(0xFF0A0A0A)],
                           ),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFF0A0A0A)),
+                          border: Border.all(color: const Color(0xFF262626)),
                         ),
                         child: Column(
                           children: [
@@ -666,7 +666,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                                   child: const Icon(
                                     Icons.arrow_back_ios_new_rounded,
                                     size: 15,
-                                    color: Color(0xFF27272A),
+                                    color: Color(0xFFD4D4D8),
                                   ),
                                 ),
                               ),
@@ -679,7 +679,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w900,
-                                      color: Color(0xFF111111),
+                                      color: Color(0xFFF4F4F5),
                                     ),
                                   ),
                                   Text(
@@ -893,7 +893,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
   static const TextStyle _fieldTextStyle = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w600,
-    color: Color(0xFF111111),
+    color: Color(0xFFF4F4F5),
   );
 
   Widget _buildFieldLabel(String text, {String? trailing}) {
@@ -907,7 +907,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
             style: const TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF3F3F46),
+              color: Color(0xFFD4D4D8),
               letterSpacing: 0.1,
             ),
           ),
@@ -951,7 +951,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
       prefixIcon: Icon(icon, size: 18, color: const Color(0xFFD4D4D8)),
       prefixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       filled: true,
-      fillColor: const Color(0xFFF8FAFC),
+      fillColor: const Color(0xFF0A0A0A),
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       border: border(const Color(0xFF262626), 1),
@@ -1103,7 +1103,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                 fontSize: 13,
                 fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
                 fontFamily: isMono ? 'monospace' : null,
-                color: valueColor ?? const Color(0xFF111111),
+                color: valueColor ?? const Color(0xFFF4F4F5),
               ),
             ),
           ),
@@ -1212,7 +1212,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
         filteredContacts.isEmpty && query.isEmpty && _selectedCategory == 'All';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEAF4FD),
+      backgroundColor: trueBlack,
       extendBody: true,
       floatingActionButton:
           showEmptyAddButton ? null : _buildAddButton(appState, isAk),
@@ -1382,7 +1382,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF111111),
+                    color: Color(0xFFF4F4F5),
                     letterSpacing: -0.2,
                   ),
                 ),
@@ -1434,7 +1434,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                     Icon(
                       _isEditMode ? Icons.check_rounded : Icons.edit_outlined,
                       size: 15,
-                      color: _isEditMode ? Colors.white : const Color(0xFF27272A),
+                      color: _isEditMode ? Colors.white : const Color(0xFFD4D4D8),
                     ),
                     const SizedBox(width: 5),
                     Text(
@@ -1444,7 +1444,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: _isEditMode ? Colors.white : const Color(0xFF27272A),
+                        color: _isEditMode ? Colors.white : const Color(0xFFD4D4D8),
                       ),
                     ),
                   ],
@@ -1494,7 +1494,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
               ),
               child: TextField(
                 controller: _searchCtrl,
-                style: const TextStyle(fontSize: 13.5, color: Color(0xFF111111)),
+                style: const TextStyle(fontSize: 13.5, color: Color(0xFFF4F4F5)),
                 decoration: InputDecoration(
                   hintText: isAk
                       ? 'အမည်ဖြင့် ရှာဖွေပါ...'
@@ -1692,7 +1692,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF111111),
+                              color: Color(0xFFF4F4F5),
                               letterSpacing: -0.1,
                             ),
                             maxLines: 1,
@@ -1788,13 +1788,13 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withValues(alpha: 0.92),
-                      const Color(0xFFE2EFFC).withValues(alpha: 0.85),
+                      const Color(0xFF1A1A1A),
+                      const Color(0xFF0A0A0A),
                     ],
                   ),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.95),
-                    width: 1.4,
+                    color: const Color(0xFF333333),
+                    width: 1.2,
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -1818,7 +1818,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF111111),
+                  color: Color(0xFFF4F4F5),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -1900,9 +1900,9 @@ class _LiquidBackdrop extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFFDCEBFC),
-                Color(0xFFEEF7FE),
-                Color(0xFFF9FCFF),
+                Color(0xFF000000),
+                Color(0xFF050505),
+                Color(0xFF000000),
               ],
               stops: [0.0, 0.52, 1.0],
             ),
@@ -2071,7 +2071,7 @@ class _GlassIconButton extends StatelessWidget {
           customBorder: const CircleBorder(),
           onTap: onTap,
           child: Center(
-            child: Icon(icon, color: const Color(0xFF27272A), size: 16),
+            child: Icon(icon, color: const Color(0xFFD4D4D8), size: 16),
           ),
         ),
       ),
